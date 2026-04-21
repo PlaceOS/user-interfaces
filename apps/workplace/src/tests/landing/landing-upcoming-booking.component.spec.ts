@@ -118,6 +118,7 @@ describe('LandingUpcomingBookingComponent', () => {
         spectator.detectChanges();
 
         expect(spectator.component.isCheckedIn()).toBe(false);
+        expect(spectator.query('button[btn]')).toBeDisabled();
 
         await new Promise((resolve) => setTimeout(resolve, 350));
         spectator.detectChanges();

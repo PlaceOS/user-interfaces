@@ -117,7 +117,7 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                             <button
                                 btn
                                 matRipple
-                                [disabled]="!canCheckin() || isCheckedIn()"
+                                [disabled]="checkinDisabled()"
                                 class="flex-1 space-x-2"
                                 [class.white]="!isCheckedIn()"
                                 [class.bg-success]="isCheckedIn()"
@@ -299,6 +299,10 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
             event.status !== 'declined'
         );
     });
+
+    public readonly checkinDisabled = computed(
+        () => !this.canCheckin() || this.isCheckedIn() || this._checked_in(),
+    );
 
     public readonly eventTitle = computed(() => {
         const event = this.nextEvent();
