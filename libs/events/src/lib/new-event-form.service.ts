@@ -391,16 +391,18 @@ export class EventFormService extends AsyncHandler {
         );
         const previous = {};
         this.form.valueChanges.subscribe(({ date, duration }) => {
+            const { date: raw_date, duration: raw_duration } =
+                this.form.getRawValue();
             if (
-                (date && date !== previous['date']) ||
-                (duration && duration !== previous['duration'])
+                (raw_date && raw_date !== previous['date']) ||
+                (raw_duration && raw_duration !== previous['duration'])
             ) {
                 this._assets.setOptions({
-                    date: this.form.value.date,
-                    duration: this.form.value.duration,
+                    date: raw_date,
+                    duration: raw_duration,
                 });
-                previous['date'] = date;
-                previous['duration'] = duration;
+                previous['date'] = raw_date;
+                previous['duration'] = raw_duration;
             }
             this.storeForm();
         });
@@ -554,6 +556,7 @@ export class EventFormService extends AsyncHandler {
                 (_) => !ignore_space_check.includes(_.id),
             );
             const recurr = this.form.value.recurrence;
+            const raw_value = this.form.getRawValue();
             this.form.patchValue({
                 recurring: recurr?._pattern && recurr?._pattern !== 'none',
             });
@@ -563,19 +566,18 @@ export class EventFormService extends AsyncHandler {
             const changed_spaces = spaces.filter(
                 (_) => !event.resources.find((s) => s.id === _.id),
             );
-            const all_day_period = this.form.value.all_day
-                ? this._allDayTimeRange(this.form.value.date)
+            const all_day_period = raw_value.all_day
+                ? this._allDayTimeRange(raw_value.date)
                 : {
-                      date: this.form.value.date,
-                      duration: this.form.value.duration,
-                      date_end: this.form.value.date_end,
+                      date: raw_value.date,
+                      duration: raw_value.duration,
+                      date_end: raw_value.date_end,
                   };
             const has_time_changed =
-                !event.id ||
-                event.date !== this.form.value.date ||
-                event.duration !== this.form.value.duration;
+                !event.id || event.date !== raw_value.date ||
+                event.duration !== raw_value.duration;
             this.form.patchValue(
-                { timezone: this.timezone || this.form.value.timezone },
+                { timezone: this.timezone || raw_value.timezone },
                 { emitEvent: false },
             );
             const bookable_hours = this._settings.get(
@@ -583,9 +585,9 @@ export class EventFormService extends AsyncHandler {
             );
             if (
                 !isWithinBookableHours(
-                    this.form.value.date,
+                    raw_value.date,
                     bookable_hours,
-                    this.form.value.timezone,
+                    raw_value.timezone,
                 )
             ) {
                 throw i18n('FORM.BOOKABLE_HOURS_ERROR');
@@ -595,13 +597,13 @@ export class EventFormService extends AsyncHandler {
             // closing hour, which is valid even though start times use
             // an exclusive end bound.
             if (
-                this.form.value.date_end &&
-                this.form.value.duration > 24 * 60 &&
+                raw_value.date_end &&
+                raw_value.duration > 24 * 60 &&
                 bookable_hours
             ) {
                 const { hours, minutes } = getTimeInTimezone(
-                    this.form.value.date_end,
-                    this.form.value.timezone,
+                    raw_value.date_end,
+                    raw_value.timezone,
                 );
                 const end_minutes = hours * 60 + minutes;
                 const within_end_window =
@@ -619,12 +621,12 @@ export class EventFormService extends AsyncHandler {
                         this._space_pipe.transform(_.email),
                     ),
                 );
-                const date = this.form.value.all_day
+                const date = raw_value.all_day
                     ? all_day_period.date
-                    : this.form.value.date;
-                const duration = this.form.value.all_day
+                    : raw_value.date;
+                const duration = raw_value.all_day
                     ? all_day_period.duration
-                    : this.form.value.duration;
+                    : raw_value.duration;
                 await this._checkResourcesAvailable(
                     space_list,
                     date,
