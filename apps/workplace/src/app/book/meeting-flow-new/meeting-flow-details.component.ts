@@ -22,6 +22,8 @@ import {
     RecurrenceFieldComponent,
     TimeFieldComponent,
 } from '@placeos/form-fields';
+import { merge } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'meeting-flow-details',
@@ -265,9 +267,15 @@ export class MeetingFlowDetailsComponent {
 
     public readonly form = signal(this._event_form.form);
     public readonly options = this._event_form.filters$;
-    public readonly form_value = toSignal(this._event_form.form.valueChanges, {
-        initialValue: this._event_form.form.getRawValue(),
-    });
+    public readonly form_value = toSignal(
+        merge(
+            this._event_form.form.valueChanges,
+            this._event_form.form.statusChanges,
+        ).pipe(map(() => this._event_form.form.getRawValue())),
+        {
+            initialValue: this._event_form.form.getRawValue(),
+        },
+    );
     public readonly date_status = toSignal(
         this._event_form.form.controls.date.statusChanges,
         {

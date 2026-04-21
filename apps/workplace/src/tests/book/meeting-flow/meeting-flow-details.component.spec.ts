@@ -52,10 +52,16 @@ describe('MeetingFlowDetailsComponent', () => {
     });
 
     it('should disable the start time when editing an in-progress meeting', () => {
+        const original_date = form.getRawValue().date;
+        const original_duration = form.getRawValue().duration;
         form.get('date')?.disable({ emitEvent: true });
         spectator.detectChanges();
 
         expect(spectator.component.start_time_disabled()).toBe(true);
+        expect(spectator.component.form_value().date).toBe(original_date);
+        expect(spectator.component.form_value().duration).toBe(
+            original_duration,
+        );
         expect(form.get('duration')?.disabled).toBe(false);
     });
 
