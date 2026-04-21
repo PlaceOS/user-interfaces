@@ -1,12 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ParkingSpacePipe } from '@placeos/assets';
-import { AsyncHandler, Booking, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    Booking,
+    settingSignal,
+    SettingsService,
+} from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
@@ -409,10 +414,7 @@ export class ParkingBookingsListComponent
         return this.hide_bay_number || this.isRequestFilter(request_filter);
     });
 
-    public readonly can_edit = this._settings.signal(
-        'app.parking.allow_editing',
-        true,
-    );
+    public readonly can_edit = settingSignal('parking.allow_editing', true);
 
     public get show_request_types() {
         return !!this._settings.get('app.parking.show_requests');
