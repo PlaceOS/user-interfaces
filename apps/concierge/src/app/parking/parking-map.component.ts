@@ -1,6 +1,6 @@
-import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { AsyncHandler, OrganisationService } from '@placeos/common';
+import { AsyncHandler, OrganisationService, SettingsService } from '@placeos/common';
 import { InteractiveMapComponent } from '@placeos/components';
 import { ExploreParkingService, ExploreStateService } from '@placeos/explore';
 import { first } from 'rxjs/operators';
@@ -32,6 +32,7 @@ export class ParkingMapComponent extends AsyncHandler implements OnInit {
     private _ex_parking = inject(ExploreParkingService);
     private _parking = inject(ParkingStateService);
     private _org = inject(OrganisationService);
+    private _settings = inject(SettingsService);
 
     private readonly _default_options: ParkingOptions = {
         date: Date.now(),
@@ -46,7 +47,7 @@ export class ParkingMapComponent extends AsyncHandler implements OnInit {
         initialValue: this._default_options,
     });
     public readonly url = toSignal(this._explore.map_url, { initialValue: '' });
-    public readonly styles = toSignal(this._explore.map_styles, {
+    public readonly raw_styles = toSignal(this._explore.map_styles, {
         initialValue: { text: { display: '' } } as any,
     });
     public readonly features = toSignal(this._explore.map_features, {
@@ -57,6 +58,18 @@ export class ParkingMapComponent extends AsyncHandler implements OnInit {
     });
     public readonly labels = toSignal(this._explore.map_labels, {
         initialValue: [],
+    });
+    public readonly disable_styles = this._settings.signal(
+        'parking.disable_styles',
+        false,
+    );
+    public readonly styles = computed(() => {
+        const style_map = { ...this.raw_styles() };
+        if (!this.disable_styles()) return style_map;
+        for (const feature of this.features()) {
+            if (feature.location) delete style_map[`#${feature.location}`];
+        }
+        return style_map;
     });
 
     public locate = '';

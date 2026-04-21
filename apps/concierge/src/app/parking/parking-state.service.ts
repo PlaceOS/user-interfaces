@@ -352,7 +352,7 @@ export class ParkingStateService extends AsyncHandler {
                 (booking) =>
                     this.isRequest(booking) &&
                     booking.status === 'tentative' &&
-                    !this.isWaitlisted(booking),
+                    (!this.show_waitlist || !this.isWaitlisted(booking)),
             );
         }
         return visible_list;

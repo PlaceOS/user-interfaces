@@ -211,16 +211,20 @@ import {
                         [class.bg-neutral]="row?.status === 'ended'"
                         [class.opacity-30]="row?.status === 'ended'"
                         [class.text-info-content]="
-                            row?.status === 'tentative' && isWaitlisted(row)
+                            row?.status === 'tentative' &&
+                            isVisibleWaitlisted(row)
                         "
                         [class.bg-info]="
-                            row?.status === 'tentative' && isWaitlisted(row)
+                            row?.status === 'tentative' &&
+                            isVisibleWaitlisted(row)
                         "
                         [class.text-warning-content]="
-                            row?.status === 'tentative' && !isWaitlisted(row)
+                            row?.status === 'tentative' &&
+                            !isVisibleWaitlisted(row)
                         "
                         [class.bg-warning]="
-                            row?.status === 'tentative' && !isWaitlisted(row)
+                            row?.status === 'tentative' &&
+                            !isVisibleWaitlisted(row)
                         "
                         [matMenuTriggerFor]="menu"
                         [disabled]="
@@ -236,10 +240,10 @@ import {
                                           ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
                                           : row?.status === 'declined'
                                             ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                                            : isWaitlisted(row)
+                                            : isVisibleWaitlisted(row)
                                               ? 'APP.CONCIERGE.PARKING_WAITLISTED'
                                               : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
-                                    ) | translate
+                                     ) | translate
                                 }}
                             </div>
                             <icon class="text-2xl">arrow_drop_down</icon>
@@ -447,6 +451,7 @@ export class ParkingRequestsListComponent
             weekStartsOn: week_start,
         }).valueOf();
         if (filter_type === 'waitlist') {
+            if (!this.show_waitlist) return list;
             return list.filter(
                 (b) =>
                     b.status === 'tentative' &&
@@ -458,7 +463,9 @@ export class ParkingRequestsListComponent
             return list.filter(
                 (b) =>
                     b.status === 'tentative' &&
-                    (b.date < current_week_start || b.date > current_week_end),
+                    (!this.show_waitlist ||
+                        b.date < current_week_start ||
+                        b.date > current_week_end),
             );
         }
         return list;
@@ -470,6 +477,10 @@ export class ParkingRequestsListComponent
 
     public get hide_assign_space() {
         return !!this._settings.get('app.parking.hide_assign_space');
+    }
+
+    public get show_waitlist() {
+        return this._settings.get('app.parking.show_waitlist') !== false;
     }
 
     public isWaitlisted(booking: Booking): boolean {
@@ -486,6 +497,10 @@ export class ParkingRequestsListComponent
             booking.date >= current_week_start &&
             booking.date <= current_week_end
         );
+    }
+
+    public isVisibleWaitlisted(booking: Booking): boolean {
+        return this.show_waitlist && this.isWaitlisted(booking);
     }
 
     public ngOnInit() {

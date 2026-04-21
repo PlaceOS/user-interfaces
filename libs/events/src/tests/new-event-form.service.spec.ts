@@ -166,7 +166,60 @@ describe('EventFormService', () => {
             resources: [],
         });
 
-        await expect(service.postForm()).resolves.toBeTruthy();
+        await expect(service.postForm(true)).resolves.toBeTruthy();
         expect(perform_booking_spy).toHaveBeenCalled();
+    });
+
+    it('should preserve the original start time for in-progress bookings', async () => {
+        const start = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
+        const end = new Date(2028, 5, 15, 11, 0, 0, 0).valueOf();
+        const event = new CalendarEvent({
+            id: 'event-1',
+            host: 'host@test.com',
+            calendar: 'host@test.com',
+            organiser: { email: 'host@test.com' } as any,
+            creator: 'host@test.com',
+            title: 'Standup',
+            date: start,
+            date_end: end,
+            attendees: [],
+            resources: [],
+        });
+        Object.defineProperty(event, 'state', { value: 'started' });
+        const perform_booking_spy = jest
+            .spyOn(service as any, '_performBooking')
+            .mockResolvedValue(
+                new CalendarEvent({
+                    id: 'event-1',
+                    host: 'host@test.com',
+                    calendar: 'host@test.com',
+                    organiser: { email: 'host@test.com' } as any,
+                    creator: 'host@test.com',
+                    title: 'Updated standup',
+                    date: start,
+                    date_end: end,
+                    attendees: [],
+                    resources: [],
+                }),
+            );
+
+        service.newForm(event);
+        service.form.patchValue({
+            host: 'host@test.com',
+            calendar: 'host@test.com',
+            creator: 'host@test.com',
+            title: 'Updated standup',
+        });
+
+        expect(service.form.get('date')?.disabled).toBe(true);
+
+        await expect(service.postForm(true)).resolves.toBeTruthy();
+        expect(perform_booking_spy).toHaveBeenCalledWith(
+            expect.objectContaining({
+                id: 'event-1',
+                date: start,
+            }),
+            expect.anything(),
+        );
     });
 });

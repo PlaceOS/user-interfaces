@@ -385,47 +385,12 @@ export class DesksStateService extends AsyncHandler {
             (desk.assigned_to !== new_desk.assigned_to || recreate) &&
             new_desk.assigned_to
         ) {
-            const date = set(Date.now(), { hours: 1, minutes: 0, seconds: 0 });
-            await saveBooking(
-                new Booking({
-                    user_id: new_desk.assigned_to,
-                    user_email: new_desk.assigned_to,
-                    user_name: new_desk.assigned_name,
-                    booking_start: getUnixTime(date),
-                    booking_end: getUnixTime(addHours(date, 22)),
-                    type: 'desk',
-                    booking_type: 'desk',
-                    asset_id: new_desk.id,
-                    asset_name: new_desk.name,
-                    recurrence_type: 'daily',
-                    recurrence_days:
-                        RecurrenceDays.MONDAY |
-                        RecurrenceDays.TUESDAY |
-                        RecurrenceDays.WEDNESDAY |
-                        RecurrenceDays.THURSDAY |
-                        RecurrenceDays.FRIDAY |
-                        RecurrenceDays.SATURDAY |
-                        RecurrenceDays.SUNDAY,
-                    zones: unique([
-                        this._org.organisation.id,
-                        this._org.region?.id,
-                        this._org.building?.id,
-                        new_desk.zone?.id,
-                        new_desk.zone,
-                        ...(new_desk?.zones || []),
-                        zone,
-                    ]).filter((_) => !!_),
-                    extension_data: {
-                        asset_name: new_desk.name,
-                        is_assigned: true,
-                    },
-                }),
-            )
+            await saveBooking(this._createAssignedBooking(new_desk, zone))
                 .toPromise()
                 .catch(async (e) => {
                     await this._rollbackMetadata(zone, original_desk_list);
                     if (recreate) {
-                        await this._restoreAssignedBooking(desk).catch(
+                        await this._restoreAssignedBooking(desk, zone).catch(
                             (restore_err) =>
                                 console.error(
                                     'Failed to restore assigned booking during rollback',
@@ -663,37 +628,46 @@ export class DesksStateService extends AsyncHandler {
         }
     }
 
-    private async _restoreAssignedBooking(desk: Desk) {
-        if (!desk.assigned_to) return;
+    private _createAssignedBooking(desk: Desk, zone?: string) {
         const date = set(Date.now(), { hours: 1, minutes: 0, seconds: 0 });
-        await lastValueFrom(
-            saveBooking(
-                new Booking({
-                    user_id: desk.assigned_to,
-                    user_email: desk.assigned_to,
-                    user_name: desk['assigned_name'],
-                    booking_start: getUnixTime(date),
-                    booking_end: getUnixTime(addHours(date, 22)),
-                    type: 'desk',
-                    booking_type: 'desk',
-                    asset_id: desk.id,
-                    asset_name: desk.name,
-                    recurrence_type: 'daily',
-                    recurrence_days:
-                        RecurrenceDays.MONDAY |
-                        RecurrenceDays.TUESDAY |
-                        RecurrenceDays.WEDNESDAY |
-                        RecurrenceDays.THURSDAY |
-                        RecurrenceDays.FRIDAY |
-                        RecurrenceDays.SATURDAY |
-                        RecurrenceDays.SUNDAY,
-                    extension_data: {
-                        asset_name: desk.name,
-                        is_assigned: true,
-                    },
-                }),
-            ),
-        );
+        return new Booking({
+            user_id: desk.assigned_to,
+            user_email: desk.assigned_to,
+            user_name: desk['assigned_name'],
+            booking_start: getUnixTime(date),
+            booking_end: getUnixTime(addHours(date, 22)),
+            type: 'desk',
+            booking_type: 'desk',
+            asset_id: desk.id,
+            asset_name: desk.name,
+            recurrence_type: 'daily',
+            recurrence_days:
+                RecurrenceDays.MONDAY |
+                RecurrenceDays.TUESDAY |
+                RecurrenceDays.WEDNESDAY |
+                RecurrenceDays.THURSDAY |
+                RecurrenceDays.FRIDAY |
+                RecurrenceDays.SATURDAY |
+                RecurrenceDays.SUNDAY,
+            zones: unique([
+                this._org.organisation.id,
+                this._org.region?.id,
+                this._org.building?.id,
+                desk.zone?.id,
+                desk.zone,
+                ...(desk['zones'] || []),
+                zone,
+            ]).filter((_) => !!_),
+            extension_data: {
+                asset_name: desk.name,
+                is_assigned: true,
+            },
+        });
+    }
+
+    private async _restoreAssignedBooking(desk: Desk, zone?: string) {
+        if (!desk.assigned_to) return;
+        await lastValueFrom(saveBooking(this._createAssignedBooking(desk, zone)));
     }
 
     private async _clearAssignedBooking(desk: Desk) {

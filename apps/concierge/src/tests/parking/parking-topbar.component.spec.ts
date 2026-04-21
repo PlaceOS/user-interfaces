@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { Router } from '@angular/router';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
@@ -103,5 +104,30 @@ describe('ParkingTopbarComponent', () => {
         expect(spectator.component.hide_level_selector_on_booking_list).toBe(
             false,
         );
+    });
+
+    it('should clear selected levels when the booking list selector is hidden', () => {
+        hide_level_selector_on_booking_list = true;
+        spectator = createComponent();
+        spectator.component.section.set('events');
+        spectator.component.view.set('list');
+        const router = spectator.inject(Router);
+        Object.defineProperty(router, 'url', {
+            value: '/parking/events/list',
+            configurable: true,
+        });
+        jest.spyOn(router, 'navigate').mockResolvedValue(true);
+
+        spectator.component.updateZones(['lvl-1']);
+
+        expect(spectator.component.zones()).toEqual([]);
+        expect(spectator.inject(ParkingStateService).setOptions).toHaveBeenCalledWith(
+            { zones: [] },
+        );
+        expect(router.navigate).toHaveBeenCalledWith([], {
+            relativeTo: expect.anything(),
+            queryParams: { zone_ids: null },
+            queryParamsHandling: 'merge',
+        });
     });
 });

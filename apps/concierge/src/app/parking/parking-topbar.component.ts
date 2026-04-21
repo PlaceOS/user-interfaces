@@ -422,6 +422,9 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     public readonly updateZones = (z) => {
         let zones = (z || []).filter((_) => !!_);
         if (!this._router.url.includes('parking')) return;
+        if (this.hide_level_selector_on_booking_list) {
+            zones = [];
+        }
         // Manage section must always have a specific zone; snap empty
         // selections back to the first available level.
         if (this.section() === 'manage' && !zones.length) {
@@ -499,6 +502,12 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
                     params.get('period') === 'week' ? 'week' : 'day',
                 );
             }
+            if (this.hide_level_selector_on_booking_list) {
+                if (params.has('zone_ids') || this.zones().length) {
+                    this.updateZones([]);
+                }
+                return;
+            }
             if (!params.has('zone_ids')) return;
             const zones = (params.get('zone_ids') || '')
                 .split(',')
@@ -514,6 +523,10 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         });
         effect(() => {
             if (!this._ready() || this.use_region) return;
+            if (this.hide_level_selector_on_booking_list) {
+                if (this.zones().length) this.updateZones([]);
+                return;
+            }
             const levels = this.levels();
             if (!levels.length) return;
             let zones = this.zones().filter((zone) =>
@@ -609,6 +622,9 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
             this.setRequestFilter(
                 this.can_view_requests ? 'requests' : 'bookings',
             );
+        }
+        if (this.hide_level_selector_on_booking_list && this.zones().length) {
+            this.updateZones([]);
         }
         this.selectDefaultZoneForManage();
     }
