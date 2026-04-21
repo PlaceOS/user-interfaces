@@ -18,7 +18,7 @@ import {
 @Component({
     selector: 'app-root',
     template: `
-        <main class="flex min-h-full justify-center p-4 sm:p-6">
+        <main class="bg-base-200 flex min-h-full justify-center p-4 sm:p-6">
             <section
                 class="border-base-300 bg-base-100 w-full max-w-210 rounded-xl border p-5 shadow-lg sm:p-6"
             >
@@ -52,7 +52,7 @@ import {
                         @for (app of applications(); track app.id) {
                             <a
                                 class="border-base-300 bg-base-200 text-base-content hover:border-primary focus-visible:border-primary flex flex-col items-center gap-3 rounded-xl border p-4 text-center no-underline transition hover:-translate-y-0.5 hover:shadow-md focus-visible:shadow-md focus-visible:outline-none"
-                                [href]="app.redirect_uri"
+                                [href]="uri(app.redirect_uri)"
                             >
                                 <div
                                     class="bg-base-300 text-base-content flex h-15 w-15 items-center justify-center overflow-hidden rounded-2xl text-xl font-bold uppercase"
@@ -137,8 +137,9 @@ export class AppComponent implements OnInit {
                     authority_id: active_authority.id,
                 } as Record<string, unknown>),
             );
-            const restrictions = (this._settings.get('app.application_restrictions') || []) as
-                ApplicationRestriction[];
+            const restrictions = (this._settings.get(
+                'app.application_restrictions',
+            ) || []) as ApplicationRestriction[];
             const user_groups = currentUser()?.groups || [];
             this.applications.set(
                 buildLauncherApplications(response?.data || [], {
@@ -157,6 +158,10 @@ export class AppComponent implements OnInit {
 
     public currentIcon(item: LauncherApplication) {
         return item.icon_urls[item.icon_index] || '';
+    }
+
+    public uri(uri: string) {
+        return uri.replace('oauth-resp.html', '');
     }
 
     public loadNextIcon(item: LauncherApplication) {
