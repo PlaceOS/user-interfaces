@@ -30,10 +30,11 @@ describe('DurationFieldComponent', () => {
     });
 
     it('should allow changing the min duration', () => {
+        spectator.component.writeValue(150);
         spectator.setInput({ min: 60 });
         spectator.detectChanges();
         expect(spectator.component.duration_options()[0].id).toBe(60);
-        spectator.setInput({ min: Math.floor(Math.random() * 10 + 2) * 15 });
+        spectator.setInput({ min: 105 });
         spectator.detectChanges();
         expect(spectator.component.duration_options()[0].id).toBe(
             spectator.component.min(),
@@ -52,13 +53,14 @@ describe('DurationFieldComponent', () => {
     });
 
     it('should allow changing the duration step', () => {
+        spectator.component.writeValue(30);
         spectator.setInput({ step: 10 });
         spectator.detectChanges();
         let diff =
             +spectator.component.duration_options()[1].id -
             +spectator.component.duration_options()[0].id;
         expect(diff).toBe(10);
-        spectator.setInput({ step: Math.floor(Math.random() * 10 + 1) * 5 });
+        spectator.setInput({ step: 35 });
         spectator.detectChanges();
         diff =
             +spectator.component.duration_options()[1].id -
@@ -141,5 +143,21 @@ describe('DurationFieldComponent', () => {
         expect(spectator.component.duration_options().map((_) => _.id)).toEqual(
             [30, 45, 60],
         );
+    });
+
+    it('should preserve the current duration when it is outside the generated step options', () => {
+        spectator.setInput({
+            min: 30,
+            max: 120,
+            step: 30,
+        });
+        spectator.component.writeValue(45);
+        spectator.detectChanges();
+
+        expect(spectator.component.duration()).toBe(45);
+        expect(spectator.component.duration_options().map((_) => _.id)).toEqual(
+            [30, 45, 60, 90, 120],
+        );
+        expect(spectator.component.selected()?.id).toBe(45);
     });
 });

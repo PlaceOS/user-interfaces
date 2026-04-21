@@ -187,9 +187,7 @@ export class DurationFieldComponent
     });
 
     public ngOnInit(): void {
-        this.duration_options.set(
-            this.generateDurationOptions(this.max(), this.min(), this.step()),
-        );
+        this._setDurationOptions();
         this._updateNoOptions();
         this._updateOption();
     }
@@ -204,13 +202,7 @@ export class DurationFieldComponent
             changes.custom_options ||
             changes.end_time
         ) {
-            this.duration_options.set(
-                this.generateDurationOptions(
-                    this.max(),
-                    this.min(),
-                    this.step(),
-                ),
-            );
+            this._setDurationOptions();
             this._updateNoOptions();
             this._updateOption();
         }
@@ -235,7 +227,14 @@ export class DurationFieldComponent
      */
     public writeValue(value: number) {
         this.duration.set(value);
+        this._setDurationOptions();
         this._updateOption();
+    }
+
+    private _setDurationOptions() {
+        this.duration_options.set(
+            this.generateDurationOptions(this.max(), this.min(), this.step()),
+        );
     }
 
     public setDisabledState(disabled: boolean) {
@@ -271,7 +270,7 @@ export class DurationFieldComponent
             timeValue,
         );
         const custom_option_ids = new Set(
-            this.custom_options()
+            [...this.custom_options(), this.duration()]
                 .map((_) => Math.round(+_ || 0))
                 .filter((_) => _ > 0),
         );
