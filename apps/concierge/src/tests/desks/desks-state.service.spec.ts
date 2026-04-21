@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/common';
 import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, lastValueFrom, of } from 'rxjs';
+import { BehaviorSubject, lastValueFrom, of, throwError } from 'rxjs';
 
 import * as booking_mod from '@placeos/bookings';
 import * as common_mod from '@placeos/common';
@@ -64,8 +64,10 @@ describe('DesksStateService', () => {
         (booking_mod as any).queryPagedBookings = jest.fn(() =>
             of({ data: [], total: 0, next: null }),
         );
+        (booking_mod as any).queryBookings = jest.fn(() => of([]));
         (booking_mod as any).saveBooking = jest.fn(() => of({}));
         (booking_mod as any).removeBooking = jest.fn(() => of(undefined));
+        (booking_mod as any).updateBooking = jest.fn(() => of({}));
         jest.spyOn(ts_client_mod, 'updateMetadata').mockReturnValue(
             of({}) as any,
         );
@@ -83,6 +85,9 @@ describe('DesksStateService', () => {
         (common_mod as any).notifySuccess = jest.fn();
         (common_mod as any).notifyError = jest.fn();
         (common_mod as any).unique = jest.fn((list) => list);
+        (common_mod as any).Booking.mockImplementation(function (data) {
+            Object.assign(this, data);
+        });
         jest.clearAllMocks();
         spectator = createService();
     });
@@ -227,6 +232,81 @@ describe('DesksStateService', () => {
         expect(booking_mod.saveBooking).not.toHaveBeenCalled();
         expect(dialog_ref.componentInstance.loading.set).toHaveBeenCalledWith(
             false,
+        );
+    });
+
+    it('should restore the previous assigned desk booking when reassignment fails', async () => {
+        const original_desk = {
+            id: 'desk-1',
+            name: 'Desk 1',
+            assigned_to: 'old.staff@example.com',
+            assigned_name: 'Old Staff',
+            zone: { id: 'level-1' },
+            zones: ['level-1'],
+        } as any;
+        const dialog_ref = {
+            afterClosed: () =>
+                of({
+                    reason: 'done',
+                    metadata: {
+                        ...original_desk,
+                        assigned_to: 'new.staff@example.com',
+                        assigned_name: 'New Staff',
+                    },
+                }),
+            componentInstance: {
+                event: new EventEmitter<any>(),
+                loading: { set: jest.fn() },
+            },
+            close: jest.fn(),
+        };
+        (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
+        spectator.service.setFilters({ zones: ['level-1'] });
+        (booking_mod.queryBookings as jest.Mock).mockReturnValue(
+            of([
+                {
+                    id: 'booking-1',
+                    asset_id: 'desk-1',
+                },
+            ]),
+        );
+        (booking_mod.saveBooking as jest.Mock)
+            .mockReturnValueOnce(throwError(() => ({ status: 409 })))
+            .mockReturnValueOnce(of({}));
+
+        await spectator.service.editDesk(original_desk).catch(() => undefined);
+
+        expect(ts_client_mod.updateMetadata).toHaveBeenCalledTimes(2);
+        expect(booking_mod.removeBooking).toHaveBeenCalledWith('booking-1');
+        expect(booking_mod.saveBooking).toHaveBeenCalledTimes(2);
+        expect(common_mod.Booking).toHaveBeenCalledTimes(2);
+        expect(common_mod.Booking).toHaveBeenNthCalledWith(
+            1,
+            expect.objectContaining({
+                user_email: 'new.staff@example.com',
+                user_name: 'New Staff',
+                asset_id: 'desk-1',
+            }),
+        );
+        expect(common_mod.Booking).toHaveBeenNthCalledWith(
+            2,
+            expect.objectContaining({
+                user_email: 'old.staff@example.com',
+                user_name: 'Old Staff',
+                asset_id: 'desk-1',
+                asset_name: 'Desk 1',
+                zones: expect.arrayContaining([
+                    'org-1',
+                    'region-1',
+                    'bld-1',
+                    'level-1',
+                    { id: 'level-1' },
+                ]),
+                extension_data: expect.objectContaining({
+                    asset_name: 'Desk 1',
+                    is_assigned: true,
+                }),
+            }),
         );
     });
 
