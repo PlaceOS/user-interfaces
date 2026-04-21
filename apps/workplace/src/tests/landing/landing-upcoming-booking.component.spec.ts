@@ -102,8 +102,7 @@ describe('LandingUpcomingBookingComponent', () => {
         jest.useRealTimers();
     });
 
-    it('should debounce checked in state for room events', () => {
-        jest.useFakeTimers();
+    it('should debounce checked in state for room events', async () => {
         upcoming_events.next([
             new CalendarEvent({
                 id: 'event-1',
@@ -120,13 +119,11 @@ describe('LandingUpcomingBookingComponent', () => {
 
         expect(spectator.component.isCheckedIn()).toBe(false);
 
-        jest.advanceTimersByTime(300);
+        await new Promise((resolve) => setTimeout(resolve, 350));
         spectator.detectChanges();
 
         expect(spectator.component.isCheckedIn()).toBe(true);
         expect(spectator.query('button[btn]')).toBeDisabled();
-
-        jest.useRealTimers();
     });
 
     it('should resolve the room system id like the details modal', async () => {
