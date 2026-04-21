@@ -140,11 +140,11 @@ const CARD_DETAILS = {
                     </div>
 
                     <div
-                        class="grid grid-cols-1 gap-4 px-4 pb-8 md:grid-cols-2 xl:grid-cols-3"
+                        class="attendance-cards grid grid-cols-1 gap-4 px-4 pb-8 md:grid-cols-2 xl:grid-cols-3"
                     >
                         @for (card of report().cards; track card.id) {
                             <div
-                                class="border-base-200 bg-base-100 rounded-sm border p-5 shadow-sm"
+                                class="attendance-card border-base-200 bg-base-100 rounded-sm border p-5 shadow-sm"
                             >
                                 <div class="flex items-start gap-4">
                                     <div
@@ -284,6 +284,25 @@ const CARD_DETAILS = {
                 display: flex;
                 flex-direction: column;
                 height: 100%;
+            }
+
+            @media print {
+                :host {
+                    height: auto !important;
+                }
+
+                .attendance-cards {
+                    display: block;
+                }
+
+                .attendance-card {
+                    page-break-inside: avoid;
+                    break-inside: avoid-page;
+                }
+
+                .attendance-card + .attendance-card {
+                    margin-top: 1rem;
+                }
             }
         `,
     ],
