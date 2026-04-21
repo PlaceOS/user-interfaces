@@ -96,21 +96,9 @@ export class LandingNewComponent
         const url = this.virtual_concierge_url();
         const is_sidebar = this.virtual_concierge_display() === 'sidebar';
         const side = this.virtual_concierge_side();
-        const position =
-            side === 'right'
-                ? { right: '0', top: '0' }
-                : { left: '0', top: '0' };
         if (is_sidebar) {
             this._dialog.open(SidebarEmbedComponent, {
                 data: { url, side },
-                height: '100vh',
-                width: '28rem',
-                maxWidth: '100vw',
-                position,
-                panelClass: [
-                    'sidebar-embed-dialog',
-                    `sidebar-embed-dialog-${side}`,
-                ],
             });
             return;
         }

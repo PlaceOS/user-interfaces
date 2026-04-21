@@ -11,22 +11,26 @@ interface SidebarEmbedData {
 @Component({
     selector: 'sidebar-embed',
     template: `
-        <div class="bg-base-200 relative h-full w-full overflow-hidden">
-            <button
-                icon
-                matRipple
-                mat-dialog-close
-                class="border-base-300 bg-base-100 absolute top-2 z-10 rounded border"
-                [class.left-2]="close_button_side() === 'left'"
-                [class.right-2]="close_button_side() === 'right'"
-            >
-                <icon>close</icon>
-            </button>
+        <div
+            class="bg-base-200 fixed inset-y-0 z-0 w-100"
+            [class.right-0]="close_button_side() === 'left'"
+            [class.left-0]="close_button_side() === 'right'"
+        >
             <iframe
                 class="h-full w-full"
                 [src]="embed_url() | safe: 'resource'"
             ></iframe>
         </div>
+        <button
+            icon
+            matRipple
+            mat-dialog-close
+            class="border-base-300 bg-base-100 fixed top-2 z-10 rounded border"
+            [class.right-102]="close_button_side() === 'left'"
+            [class.left-102]="close_button_side() === 'right'"
+        >
+            <icon>close</icon>
+        </button>
     `,
     styles: [``],
     imports: [IconComponent, MatRippleModule, SafePipe, MatDialogModule],
