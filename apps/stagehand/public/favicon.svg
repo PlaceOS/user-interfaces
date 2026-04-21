@@ -7,9 +7,6 @@
     </defs>
     <rect width="64" height="64" rx="20" fill="#0A1020" />
     <rect x="1.5" y="1.5" width="61" height="61" rx="18.5" fill="url(#bg)" />
-    <path d="M11 11H42" stroke="#FFF" stroke-opacity=".28" stroke-width="3" stroke-linecap="round" />
-    <circle cx="49" cy="12.5" r="6.5" fill="#FFF" fill-opacity=".18" />
-    <circle cx="49" cy="12.5" r="2.5" fill="#FFF" />
     <rect x="11" y="11" width="42" height="42" rx="14" fill="#FFF" fill-opacity=".12" />
     <path d="M23 22H33L27 30V42H21V28L23 22Z" fill="#FFF" />
     <path d="M30 30L44 40H28L30 30Z" fill="#FFF" fill-opacity=".9" />
