@@ -45,7 +45,7 @@ export const MOCK_CATEGORIES = [
     },
     {
         id: '_parking_category_',
-        name: '_PARKING_SPACES_',
+        name: '_PARKING_',
         description: 'Parking spaces',
         hidden: true,
     },
