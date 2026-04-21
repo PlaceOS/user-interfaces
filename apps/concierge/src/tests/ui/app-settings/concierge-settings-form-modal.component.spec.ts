@@ -146,6 +146,7 @@ describe('ConciergeSettingsFormModalComponent', () => {
         expect(parking.get('bookable_hours')).toBeTruthy();
         expect(parking.get('show_users')).toBeTruthy();
         expect(parking.get('show_status_details')).toBeTruthy();
+        expect(parking.get('disable_styles')).toBeTruthy();
         expect(parking.get('disable_bookings')).toBeTruthy();
         expect(parking.get('hide_level_selector_on_booking_list')).toBeTruthy();
         expect(parking.get('max_assigned_count')).toBeTruthy();

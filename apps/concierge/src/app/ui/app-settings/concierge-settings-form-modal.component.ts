@@ -1454,6 +1454,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                         formControlName="show_status_details"
                                     ></settings-toggle>
                                     <settings-toggle
+                                        name="Disable parking map styles"
+                                        formControlName="disable_styles"
+                                    ></settings-toggle>
+                                    <settings-toggle
                                         name="Disable reservations"
                                         formControlName="disable_bookings"
                                     ></settings-toggle>
@@ -1807,6 +1811,7 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
             }),
             show_users: new FormControl(false),
             show_status_details: new FormControl(true),
+            disable_styles: new FormControl(false),
             disable_bookings: new FormControl(false),
             show_requests: new FormControl(false),
             show_waitlist: new FormControl(true),

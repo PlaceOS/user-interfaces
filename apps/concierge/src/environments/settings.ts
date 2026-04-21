@@ -39,6 +39,7 @@ const app = {
     bookings: { can_book_for_others: true, use_building_timezone: false },
     parking: {
         show_waitlist: false,
+        disable_styles: false,
         hide_bay_number: false,
         hide_level_selector_on_booking_list: false,
         hide_assign_space: false,
