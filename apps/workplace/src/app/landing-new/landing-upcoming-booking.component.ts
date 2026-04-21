@@ -32,8 +32,8 @@ import {
 } from '@placeos/events';
 import { getModule } from '@placeos/ts-client';
 import { differenceInMinutes, format, isSameDay } from 'date-fns';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { LandingStateService } from '../landing/landing-state.service';
 import { ScheduleStateService } from '../schedule/schedule-state.service';
 
@@ -301,7 +301,7 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
     });
 
     public readonly checkinDisabled = computed(
-        () => !this.canCheckin() || this.isCheckedIn() || this._checked_in(),
+        () => !this.canCheckin() || this.isCheckedIn(),
     );
 
     public readonly eventTitle = computed(() => {
