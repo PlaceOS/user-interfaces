@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -30,9 +30,10 @@ import {
     EventDetailsModalComponent,
     GroupEventDetailsModalComponent,
 } from '@placeos/events';
-import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { getModule } from '@placeos/ts-client';
 import { differenceInMinutes, format, isSameDay } from 'date-fns';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { LandingStateService } from '../landing/landing-state.service';
 import { ScheduleStateService } from '../schedule/schedule-state.service';
 
@@ -348,9 +349,9 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
         return differenceInMinutes(end_time, Date.now());
     });
 
-    public readonly isCheckedIn = computed(() => {
+    private readonly _checked_in = computed(() => {
         const event = this.nextEvent();
-        if (!event) return false;
+        if (!event) return true;
         if (event instanceof Booking) return event.checked_in;
         if (!event.extension_data?.shared_event) {
             return !!this.room_status() && this.room_status() !== 'pending';
@@ -362,6 +363,16 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
             (email: string) => `${email}`.toLowerCase() === user_email,
         );
     });
+
+    public readonly isCheckedIn = toSignal(
+        toObservable(this._checked_in).pipe(
+            debounceTime(300),
+            distinctUntilChanged(),
+        ),
+        {
+            initialValue: this._checked_in(),
+        },
+    );
 
     constructor() {
         super();
@@ -406,11 +417,10 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
                 }).toPromise();
             } else {
                 const room_id =
-                    this.room_system_id() || event.space?.id || event.system?.id;
-                const mod = getModule(
-                    room_id,
-                    'Bookings',
-                );
+                    this.room_system_id() ||
+                    event.space?.id ||
+                    event.system?.id;
+                const mod = getModule(room_id, 'Bookings');
                 if (!mod) throw new Error('Missing bookings module');
                 await mod.execute('checkin', [Math.floor(event.date / 1000)]);
             }
