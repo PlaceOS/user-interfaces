@@ -501,6 +501,10 @@ import { UploadButtonComponent } from './upload-button.component';
                             formControlName="allow_dark_mode"
                         ></settings-toggle>
                         <settings-toggle
+                            name="Show changelog link"
+                            formControlName="show_changelog"
+                        ></settings-toggle>
+                        <settings-toggle
                             name="Show global search"
                             formControlName="global_search"
                         ></settings-toggle>
@@ -2041,6 +2045,7 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
         show_quick_links: new FormControl(false),
         show_quick_book: new FormControl(false),
         allow_dark_mode: new FormControl(true),
+        show_changelog: new FormControl(true),
         global_search: new FormControl(true),
         use_imperial_units: new FormControl(false),
         external_support_url: new FormControl('', [validateURL]),

@@ -10,6 +10,10 @@
             "type": "string",
             "description": "Connector string for setting up Sentry"
         },
+        "show_changelog": {
+            "type": "boolean",
+            "description": "Whether the version in user controls links to the changelog modal"
+        },
         "general": {
             "type": "object",
             "description": "General settings associated with the app",

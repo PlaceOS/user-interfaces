@@ -51,6 +51,7 @@ const app: any = {
     logo_dark: 'assets/logo-dark.svg',
     general: {},
     allow_dark_mode: true,
+    show_changelog: true,
 };
 
 /**

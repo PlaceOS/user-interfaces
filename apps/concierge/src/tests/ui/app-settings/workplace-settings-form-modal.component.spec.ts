@@ -99,6 +99,7 @@ describe('WorkplaceSettingsFormModalComponent', () => {
         expect(form.get('week_start')).toBeTruthy();
         expect(form.get('currency')).toBeTruthy();
         expect(form.get('external_support_url')).toBeTruthy();
+        expect(form.get('show_changelog')).toBeTruthy();
         expect(form.get('support_email')).toBeTruthy();
         expect(form.get('catering_provider')).toBeTruthy();
     });
