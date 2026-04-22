@@ -77,6 +77,7 @@ const BOOKING_URLS = [
     'confirm/success',
     'upcoming',
 ];
+const PERSISTED_EVENT_CONTEXT_URLS = ['landing'];
 
 enum Tags {
     Availability = 'AVAILABILITY',
@@ -402,9 +403,14 @@ export class EventFormService extends AsyncHandler {
         this.subscription(
             'router.events',
             this._router.events.subscribe((event: Event) => {
+                const url =
+                    event instanceof NavigationEnd
+                        ? event.urlAfterRedirects || event.url
+                        : '';
                 if (
                     event instanceof NavigationEnd &&
-                    !BOOKING_URLS.some((_) => event.url.includes(_))
+                    !BOOKING_URLS.some((_) => url.includes(_)) &&
+                    !PERSISTED_EVENT_CONTEXT_URLS.some((_) => url.includes(_))
                 ) {
                     this.clearForm();
                 }

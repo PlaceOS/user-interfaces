@@ -82,6 +82,7 @@ import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 export type BookingFlowView = 'form' | 'map' | 'confirm' | 'success';
 
 const BOOKING_TYPES = ['desk', 'parking', 'locker', 'catering'];
+const PERSISTED_BOOKING_CONTEXT_URLS = ['landing'];
 
 export interface BookingFlowOptions {
     /** Type of booking being made */
@@ -494,10 +495,17 @@ export class BookingFormService extends AsyncHandler {
         this.subscription(
             'router.bookings',
             this._router.events.subscribe((booking: Event) => {
+                const url =
+                    booking instanceof NavigationEnd
+                        ? booking.urlAfterRedirects || booking.url
+                        : '';
                 if (
                     booking instanceof NavigationEnd &&
-                    !booking.url.includes('book') &&
-                    !BOOKING_TYPES.find((_) => booking.url.includes(_))
+                    !url.includes('book') &&
+                    !BOOKING_TYPES.find((_) => url.includes(_)) &&
+                    !PERSISTED_BOOKING_CONTEXT_URLS.find((_) =>
+                        url.includes(_),
+                    )
                 ) {
                     this.clearForm();
                 }

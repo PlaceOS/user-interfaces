@@ -168,6 +168,19 @@ describe('BookingFormService', () => {
         spy.mockRestore();
     });
 
+    it('should keep booking context when navigating to landing', () => {
+        const spy = jest.spyOn(spectator.service, 'clearForm');
+        const router = spectator.inject(Router);
+        spectator.service.newForm('desk');
+
+        (router.events as any).next(
+            new NavigationEnd(1, '/landing', '/landing'),
+        );
+
+        expect(spy).not.toHaveBeenCalled();
+        spy.mockRestore();
+    });
+
     it('should show user friendly names for invalid form fields', async () => {
         spectator.service.newForm('desk');
         spectator.service.form.patchValue({ asset_id: '' });
