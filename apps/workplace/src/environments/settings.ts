@@ -198,6 +198,7 @@ const app = {
     default_route: '/landing',
     use_geolocation: false,
     use_24_hour_time: false,
+    show_changelog: true,
     new_features: true,
     can_deliver: true,
     no_user_calendar: false,

@@ -22,12 +22,18 @@ import {
 import { DateCalendarComponent } from '@placeos/form-fields';
 import {
     addDays,
+    endOfWeek,
     format,
     isSameDay,
+    isSameMonth,
+    isSameYear,
     parse,
+    startOfWeek,
     startOfMinute,
     subDays,
 } from 'date-fns';
+
+type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 @Component({
     selector: 'date-options',
@@ -67,7 +73,9 @@ import {
         <button
             matRipple
             (dblclick)="setDate()"
-            class="display hover:bg-base-200 relative mx-4 flex h-12 w-28 items-center justify-center rounded-sm leading-none"
+            class="display hover:bg-base-200 relative mx-4 flex h-12 items-center justify-center rounded-sm leading-none"
+            [class.w-28]="display_mode() === 'day'"
+            [class.w-48]="display_mode() === 'week'"
         >
             @if (is_today()) {
                 <div
@@ -77,7 +85,7 @@ import {
                 </div>
             }
             <div class="relative" [class.top-2]="is_today()">
-                {{ date() | date: 'mediumDate' }}
+                {{ display_date() }}
             </div>
         </button>
         @if (is_new()) {
@@ -150,6 +158,8 @@ export class DateOptionsComponent
     public readonly week_start = input<number>(0);
     /** Currently selected date */
     public readonly date = model<number>(Date.now());
+    /** How the selected date should be represented in the label */
+    public readonly display_mode = input<'day' | 'week'>('day');
     public readonly step = input(1);
     public readonly hide_today = input(false);
     /** Emitter for changes to the date */
@@ -162,8 +172,29 @@ export class DateOptionsComponent
         this.setDate(addDays(this.date(), this.step()).valueOf());
 
     public readonly is_today = computed(
-        () => isSameDay(this.date(), Date.now()) && !this.hide_today(),
+        () =>
+            this.display_mode() === 'day' &&
+            isSameDay(this.date(), Date.now()) &&
+            !this.hide_today(),
     );
+    public readonly display_date = computed(() => {
+        if (this.display_mode() === 'day') {
+            return format(this.date(), 'MMM d, yyyy');
+        }
+        const start = startOfWeek(this.date(), {
+            weekStartsOn: this._week_start,
+        });
+        const end = endOfWeek(this.date(), {
+            weekStartsOn: this._week_start,
+        });
+        if (isSameYear(start, end)) {
+            if (isSameMonth(start, end)) {
+                return `${format(start, 'MMM d')} - ${format(end, 'd, yyyy')}`;
+            }
+            return `${format(start, 'MMM d')} - ${format(end, 'MMM d, yyyy')}`;
+        }
+        return `${format(start, 'MMM d, yyyy')} - ${format(end, 'MMM d, yyyy')}`;
+    });
 
     public ngOnInit() {
         this.subscription(
@@ -205,5 +236,9 @@ export class DateOptionsComponent
             () => this.clearTimeout('set-date'),
             100,
         );
+    }
+
+    private get _week_start() {
+        return (this.week_start() || 0) as DayOfWeek;
     }
 }

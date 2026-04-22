@@ -47,6 +47,8 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
             <date-options
                 [date]="date()"
                 [step]="7"
+                display_mode="week"
+                [week_start]="week_start"
                 (dateChange)="setDate($event)"
                 [is_new]="true"
                 [hide_today]="true"
@@ -243,7 +245,9 @@ export class RoomWeekBookingsTimelineComponent
             );
     });
     public readonly this_week = computed(() =>
-        isSameWeek(this.date(), Date.now()),
+        isSameWeek(this.date(), Date.now(), {
+            weekStartsOn: this._week_start,
+        }),
     );
 
     private _data_pipe = new DatePipe('en');
@@ -293,6 +297,10 @@ export class RoomWeekBookingsTimelineComponent
 
     private get _week_start() {
         return this._settings.get('app.week_start');
+    }
+
+    public get week_start() {
+        return this._week_start;
     }
 
     private _local_tz = getTimezoneOffsetString(

@@ -28,6 +28,7 @@ import {
 
 describe('EventsStateService', () => {
     let spectator: SpectatorService<EventsStateService>;
+    let week_start = 0;
     const createService = createServiceFactory({
         service: EventsStateService,
         providers: [
@@ -44,7 +45,8 @@ describe('EventsStateService', () => {
                 ]),
             } as any),
             MockProvider(SettingsService, {
-                get: (() => false) as any,
+                get: ((name: string) =>
+                    name === 'app.week_start' ? week_start : false) as any,
             } as any),
             MockProvider(SpacesService, { find: jest.fn() }),
             MockProvider(MatDialog, { open: jest.fn() }),
@@ -52,6 +54,7 @@ describe('EventsStateService', () => {
     });
 
     beforeEach(() => {
+        week_start = 0;
         // Mock requestSpacesForZone to return spaces without room_booking_url
         (events_mod as any).requestSpacesForZone = jest.fn(() =>
             of([
@@ -163,6 +166,26 @@ describe('EventsStateService', () => {
             strict: 'limit',
             period_start: getUnixTime(startOfWeek(Date.now())),
             period_end: getUnixTime(endOfWeek(Date.now())),
+        });
+    });
+
+    it('should respect the configured week start when polling for week', async () => {
+        week_start = 1;
+        (events_mod as any).queryEvents = jest.fn(() => of([]));
+        spectator.service.setZones(['bld-123']);
+        spectator.service.event_list.subscribe();
+        spectator.service.filtered.subscribe();
+        spectator.service.startPolling('week', 2);
+        await timer(5).toPromise();
+        spectator.service.stopPolling();
+        await timer(650).toPromise();
+        expect(events_mod.queryEvents).toHaveBeenCalledWith({
+            zone_ids: 'bld-123',
+            strict: 'limit',
+            period_start: getUnixTime(
+                startOfWeek(Date.now(), { weekStartsOn: 1 }),
+            ),
+            period_end: getUnixTime(endOfWeek(Date.now(), { weekStartsOn: 1 })),
         });
     });
 

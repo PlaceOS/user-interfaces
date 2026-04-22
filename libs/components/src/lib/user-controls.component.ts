@@ -372,12 +372,16 @@ export interface AppLocale {
                     <ng-container>
                         {{ 'COMMON.CONTROLS_VERSION' | translate }}:
                     </ng-container>
-                    <button
-                        class="m-0 border-none bg-none p-0 text-xs underline"
-                        (click)="viewChangelog()"
-                    >
-                        {{ version.hash }}
-                    </button>
+                    @if (show_changelog()) {
+                        <button
+                            class="m-0 border-none bg-none p-0 text-xs underline"
+                            (click)="viewChangelog()"
+                        >
+                            {{ version.hash }}
+                        </button>
+                    } @else {
+                        <span>{{ version.hash }}</span>
+                    }
                 </div>
                 <div class="w-full text-xs opacity-60">
                     {{ version.time | date: 'longDate' }}
@@ -414,6 +418,7 @@ export class UserControlsComponent implements OnInit {
         'allow_accessibility_changes',
         true,
     );
+    public readonly show_changelog = settingSignal('show_changelog', true);
 
     public readonly region_select = RegionSelectComponent;
     public readonly building_select = BuildingSelectComponent;

@@ -23,6 +23,8 @@ import { EventsStateService } from './events-state.service';
                 <date-options
                     [date]="date()"
                     [step]="period() === 'week' ? 7 : 1"
+                    [display_mode]="period() === 'week' ? 'week' : 'day'"
+                    [week_start]="week_start"
                     (dateChange)="setDate($event)"
                     [is_new]="true"
                     [hide_today]="true"
@@ -249,6 +251,10 @@ export class RoomBookingsListComponent {
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public get week_start() {
+        return this._settings.get('app.week_start');
     }
 
     private room_name(event: any) {
