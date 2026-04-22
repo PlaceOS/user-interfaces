@@ -77,7 +77,7 @@ function periodFor(period, date, tz_offset = 0, week_start: DayOfWeek = 0) {
         period === 'month'
             ? startOfMonth(date)
             : period === 'week'
-              ? startOfWeek(date)
+              ? startOfWeek(date, { weekStartsOn: week_start })
               : startOfDay(date);
     const end_result =
         period === 'month'
