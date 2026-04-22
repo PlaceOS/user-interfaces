@@ -222,4 +222,58 @@ describe('EventFormService', () => {
             expect.anything(),
         );
     });
+
+    it('should clamp current-day all-day meetings before posting', async () => {
+        jest.useFakeTimers();
+        jest.setSystemTime(new Date(2028, 5, 15, 10, 2, 0, 0));
+        try {
+            const settings = TestBed.inject(SettingsService) as any;
+            settings.get.mockImplementation((key: string) =>
+                key === 'app.events.all_day_period'
+                    ? { start: 9, end: 17 }
+                    : undefined,
+            );
+            const perform_booking_spy = jest
+                .spyOn(service as any, '_performBooking')
+                .mockResolvedValue(
+                    new CalendarEvent({
+                        id: 'event-1',
+                        host: 'host@test.com',
+                        organiser: { email: 'host@test.com' } as any,
+                        creator: 'host@test.com',
+                        title: 'All day meeting',
+                        date: new Date(2028, 5, 15, 10, 5, 0, 0).valueOf(),
+                        duration: 415,
+                        date_end: new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+                        attendees: [],
+                        resources: [],
+                    }),
+                );
+
+            service.newForm();
+            service.form.patchValue({
+                host: 'host@test.com',
+                organiser: { email: 'host@test.com' },
+                creator: 'host@test.com',
+                title: 'All day meeting',
+                date: new Date(2028, 5, 15, 8, 0, 0, 0).valueOf(),
+                attendees: [],
+                resources: [],
+            });
+            service.form.controls.all_day.setValue(true);
+
+            await expect(service.postForm(true)).resolves.toBeTruthy();
+            expect(perform_booking_spy).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    all_day: true,
+                    date: new Date(2028, 5, 15, 10, 5, 0, 0).valueOf(),
+                    duration: 415,
+                    date_end: new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+                }),
+                expect.anything(),
+            );
+        } finally {
+            jest.useRealTimers();
+        }
+    });
 });

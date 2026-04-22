@@ -563,6 +563,64 @@ describe('General Methods', () => {
             );
         });
 
+        it('should clamp current-day all-day bookings to the current time for new items', () => {
+            jest.useFakeTimers();
+            jest.setSystemTime(new Date(2028, 5, 15, 10, 2, 0, 0));
+            try {
+                const form = createForm({
+                    date: new Date(2028, 5, 15, 8, 0, 0, 0).valueOf(),
+                    duration: 60,
+                });
+                setupFormTimeSync(form, {
+                    all_day_start: 9,
+                    all_day_end: 17,
+                });
+
+                form.controls.all_day.setValue(true);
+
+                expect(form.getRawValue().date).toBe(
+                    new Date(2028, 5, 15, 10, 5, 0, 0).valueOf(),
+                );
+                expect(form.getRawValue().duration).toBe(415);
+                expect(form.getRawValue().date_end).toBe(
+                    new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+                );
+            } finally {
+                jest.useRealTimers();
+            }
+        });
+
+        it('should reapply the all-day period when the date changes while all_day is enabled', () => {
+            jest.useFakeTimers();
+            jest.setSystemTime(new Date(2028, 5, 15, 10, 2, 0, 0));
+            try {
+                const form = createForm({
+                    date: new Date(2028, 5, 16, 9, 0, 0, 0).valueOf(),
+                    duration: 8 * 60,
+                    all_day: true,
+                    date_end: new Date(2028, 5, 16, 17, 0, 0, 0).valueOf(),
+                });
+                setupFormTimeSync(form, {
+                    all_day_start: 9,
+                    all_day_end: 17,
+                });
+
+                form.controls.date.setValue(
+                    new Date(2028, 5, 15, 8, 0, 0, 0).valueOf(),
+                );
+
+                expect(form.getRawValue().date).toBe(
+                    new Date(2028, 5, 15, 10, 5, 0, 0).valueOf(),
+                );
+                expect(form.getRawValue().duration).toBe(415);
+                expect(form.getRawValue().date_end).toBe(
+                    new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+                );
+            } finally {
+                jest.useRealTimers();
+            }
+        });
+
         it('should apply updated all-day period settings while all_day is enabled', () => {
             const form = createForm({
                 date: BASE,
@@ -624,7 +682,7 @@ describe('General Methods', () => {
             expect(callback).not.toHaveBeenCalled();
         });
 
-        it('should not re-clamp while all_day is on', () => {
+        it('should keep an all-day range applied while all_day is on', () => {
             const form = createForm({
                 date: BASE,
                 duration: 120,
@@ -634,8 +692,7 @@ describe('General Methods', () => {
 
             handle.updateOptions({ max_duration: 60 });
 
-            // all_day is on — skip re-clamping
-            expect(form.getRawValue().duration).toBe(120);
+            expect(form.getRawValue().duration).toBe(24 * 60 - 1);
         });
 
         it('should update default_duration used when toggling all_day off', () => {

@@ -461,6 +461,7 @@ export class BookingFormService extends AsyncHandler {
             this.timezone,
             period?.start,
             period?.end,
+            this.form.getRawValue().id ? undefined : Date.now(),
         );
     }
 
