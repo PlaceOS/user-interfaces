@@ -106,17 +106,13 @@ function contains(str: string, substr: string) {
                     </div>
                     <div class="flex items-start space-x-4 px-4">
                         <div class="flex-1">
-                            <label
-                                class="mb-1 block px-1 text-xs font-medium uppercase tracking-wide"
-                                for="remote-support-search"
-                            >
-                                Search rooms
-                            </label>
                             <mat-form-field
                                 appearance="outline"
                                 class="no-subscript bg-base-100 w-full"
                             >
-                                <icon matPrefix class="relative -left-2 text-2xl"
+                                <icon
+                                    matPrefix
+                                    class="relative -left-2 text-2xl"
                                     >search</icon
                                 >
                                 <input
@@ -129,12 +125,6 @@ function contains(str: string, substr: string) {
                             </mat-form-field>
                         </div>
                         <div>
-                            <label
-                                class="mb-1 block px-1 text-xs font-medium uppercase tracking-wide"
-                                for="remote-support-state"
-                            >
-                                Room state
-                            </label>
                             <mat-form-field
                                 appearance="outline"
                                 class="no-subscript bg-base-100"
@@ -365,7 +355,8 @@ function contains(str: string, substr: string) {
                                             class="h-full w-full object-cover"
                                             [alt]="
                                                 'Camera feed for ' +
-                                                (space.display_name || space.name)
+                                                (space.display_name ||
+                                                    space.name)
                                             "
                                         />
                                     </div>
@@ -407,7 +398,9 @@ function contains(str: string, substr: string) {
                                     <div class="flex flex-col">
                                         <div>{{ issue.subject }}</div>
                                         @if (data.length > 1) {
-                                            <div class="stagehand-subtle text-xs">
+                                            <div
+                                                class="stagehand-subtle text-xs"
+                                            >
                                                 +{{ data.length - 1 }} more
                                                 issues
                                             </div>

@@ -25,19 +25,19 @@ interface AnalyticsPage {
                 >
                     <h1 class="text-2xl font-bold">AV Systems Analytics</h1>
                     <div>
-                        <label
-                            class="mb-1 block px-1 text-xs font-medium uppercase tracking-wide"
-                            for="analytics-dashboard"
+                        <mat-form-field
+                            appearance="outline"
+                            class="no-subscript"
                         >
-                            Analytics dashboard
-                        </label>
-                        <mat-form-field appearance="outline" class="no-subscript">
                             <mat-select
                                 id="analytics-dashboard"
                                 [(ngModel)]="page"
                                 aria-label="Analytics dashboard"
                             >
-                                @for (page of analytics_pages(); track page.name) {
+                                @for (
+                                    page of analytics_pages();
+                                    track page.name
+                                ) {
                                     <mat-option [value]="page">{{
                                         page.name
                                     }}</mat-option>

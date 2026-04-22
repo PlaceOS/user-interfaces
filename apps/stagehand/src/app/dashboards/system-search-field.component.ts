@@ -48,13 +48,6 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
             form-field
             [class.disabled]="disabled()"
         >
-            <label class="mb-1 block px-1 text-xs font-medium uppercase tracking-wide">
-                {{
-                    placeholder()
-                        ? placeholder()
-                        : 'Search' + (name() ? ' for ' + name() : '')
-                }}
-            </label>
             <mat-form-field appearance="outline" class="no-subscript">
                 <input
                     matInput

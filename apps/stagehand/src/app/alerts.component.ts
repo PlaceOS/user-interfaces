@@ -55,12 +55,6 @@ import { SidebarComponent } from './ui/sidebar.component';
                         </a>
                     }
                     <div class="min-w-64">
-                        <label
-                            class="mb-1 block px-1 text-xs font-medium uppercase tracking-wide"
-                            for="alerts-dashboard"
-                        >
-                            Dashboard
-                        </label>
                         <mat-form-field
                             appearance="outline"
                             class="no-subscript w-full"
@@ -151,12 +145,6 @@ import { SidebarComponent } from './ui/sidebar.component';
                         class="flex flex-col items-center space-y-2 px-4 lg:flex-row lg:space-y-0 lg:space-x-2"
                     >
                         <div class="w-full max-w-full flex-1 lg:max-w-1/2">
-                            <label
-                                class="mb-1 block px-1 text-xs font-medium uppercase tracking-wide"
-                                for="alerts-search"
-                            >
-                                Search alerts
-                            </label>
                             <mat-form-field
                                 appearance="outline"
                                 class="no-subscript bg-base-100 w-full"
@@ -180,12 +168,6 @@ import { SidebarComponent } from './ui/sidebar.component';
                             class="flex w-full max-w-full flex-1 items-center space-x-2 lg:max-w-1/2"
                         >
                             <div class="flex-1">
-                                <label
-                                    class="mb-1 block px-1 text-xs font-medium uppercase tracking-wide"
-                                    for="alerts-severity"
-                                >
-                                    Severity
-                                </label>
                                 <mat-form-field
                                     appearance="outline"
                                     class="no-subscript bg-base-100 w-full"
@@ -237,12 +219,6 @@ import { SidebarComponent } from './ui/sidebar.component';
                                 </mat-select>
                             </mat-form-field> -->
                             <div class="flex-1">
-                                <label
-                                    class="mb-1 block px-1 text-xs font-medium uppercase tracking-wide"
-                                    for="alerts-device-type"
-                                >
-                                    Device type
-                                </label>
                                 <mat-form-field
                                     appearance="outline"
                                     class="no-subscript bg-base-100 w-full"
@@ -252,7 +228,9 @@ import { SidebarComponent } from './ui/sidebar.component';
                                         aria-label="Device type"
                                         placeholder="All Device Types"
                                         [ngModel]="device_type()"
-                                        (ngModelChange)="device_type.set($event)"
+                                        (ngModelChange)="
+                                            device_type.set($event)
+                                        "
                                     >
                                         <mat-option value=""
                                             >All Devices</mat-option
