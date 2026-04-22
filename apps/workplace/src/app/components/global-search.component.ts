@@ -149,7 +149,7 @@ export class GlobalSearchComponent extends AsyncHandler implements OnInit {
     private _service = inject(ExploreSearchService);
     private _schedule = inject(ScheduleStateService);
 
-    public readonly results = this._service.search_results;
+    public readonly results = this._service.global_search_results;
     public readonly loading = this._service.loading;
     public readonly show = signal(false);
 

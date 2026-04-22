@@ -50,6 +50,10 @@ import { ExploreStateService } from './explore-state.service';
 
 const EMERGENCY_CONTACTS_CATEGORY_NAME = '_EMERGENCY_CONTACTS_';
 const BASE_ENDPOINT = '/api/engine/v2';
+const ASCENDING_NAME_SORTER = new Intl.Collator(undefined, {
+    numeric: true,
+    sensitivity: 'base',
+});
 
 interface EmergencyContactFromAsset {
     id: string;
@@ -114,6 +118,38 @@ const TYPES = ['space', 'feature', 'contact', 'user'];
 
 function typeIndex(item: SearchResult): number {
     return TYPES.indexOf(item.is_role ? 'contact' : item.type);
+}
+
+export function compareSearchResultsAscending(
+    item_a: SearchResult,
+    item_b: SearchResult,
+): number {
+    return (
+        ASCENDING_NAME_SORTER.compare(item_a.name || '', item_b.name || '') ||
+        ASCENDING_NAME_SORTER.compare(
+            item_a.description || '',
+            item_b.description || '',
+        ) ||
+        typeIndex(item_a) - typeIndex(item_b)
+    );
+}
+
+export function sortGlobalSearchResults(
+    results: SearchResult[],
+    local_zones: string[],
+): SearchResult[] {
+    const local_zone_set = new Set(local_zones.filter((_) => !!_));
+    const local_contacts = results
+        .filter(
+            (_) => _.is_role && !!_.zone && local_zone_set.has(_.zone || ''),
+        )
+        .sort(compareSearchResultsAscending);
+    const remaining_results = results
+        .filter(
+            (_) => !(_.is_role && !!_.zone && local_zone_set.has(_.zone || '')),
+        )
+        .sort(compareSearchResultsAscending);
+    return [...local_contacts, ...remaining_results];
 }
 
 declare let mapsindoors: any;
@@ -591,6 +627,24 @@ export class ExploreSearchService {
         shareReplay(1),
     );
 
+    public readonly global_search_results: Observable<SearchResult[]> =
+        combineLatest([
+            this.search_results,
+            this._state.level,
+            this._in_progress_bookings,
+        ]).pipe(
+            map(([results, current_level, in_progress_bookings]) =>
+                sortGlobalSearchResults(
+                    results,
+                    this._getPriorityZones(
+                        in_progress_bookings,
+                        current_level?.id,
+                    ),
+                ),
+            ),
+            shareReplay(1),
+        );
+
     /** Extract zones from in-progress bookings */
     private _getInProgressZones(
         bookings: (Booking | CalendarEvent)[],
@@ -617,6 +671,18 @@ export class ExploreSearchService {
         }
         // Filter to only level zones (not building/org zones)
         return zones.filter((z) => this._org.levelWithID([z]));
+    }
+
+    private _getPriorityZones(
+        bookings: (Booking | CalendarEvent)[],
+        current_level_id?: string,
+    ): string[] {
+        return Array.from(
+            new Set([
+                ...(current_level_id ? [current_level_id] : []),
+                ...this._getInProgressZones(bookings),
+            ]),
+        );
     }
     /** Obverable for whether results are being loaded */
     public readonly loading = this._loading.asObservable();

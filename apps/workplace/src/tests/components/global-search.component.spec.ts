@@ -18,6 +18,7 @@ describe('GlobalSearchComponent', () => {
             MockProvider(SettingsService, { get: jest.fn() }),
             MockProvider(ExploreSearchService, {
                 search_results: new BehaviorSubject([]),
+                global_search_results: new BehaviorSubject([]),
                 loading: new BehaviorSubject(''),
                 setFilter: jest.fn(),
                 setInProgressBookings: jest.fn(),
@@ -46,7 +47,7 @@ describe('GlobalSearchComponent', () => {
         expect(service.setFilter).toHaveBeenCalled();
         // expect(document.querySelector('[empty]')).toExist();
         spectator.component.filter_str.set('Alex');
-        (service.search_results as any).next([
+        (service.global_search_results as any).next([
             { id: '1', type: 'user', name: 'Alex S', description: '' },
         ]);
         spectator.detectChanges();
@@ -58,7 +59,7 @@ describe('GlobalSearchComponent', () => {
         expect(document.querySelector('a')).not.toExist();
         const service = spectator.inject(ExploreSearchService);
         spectator.component.filter_str.set('Alex');
-        (service.search_results as any).next([
+        (service.global_search_results as any).next([
             { id: '1', type: 'user', name: 'Alex S', description: '' },
         ]);
         spectator.detectChanges();
