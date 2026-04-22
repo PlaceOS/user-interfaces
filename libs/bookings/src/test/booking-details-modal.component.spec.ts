@@ -129,4 +129,37 @@ describe('BookingDetailsModalComponent', () => {
         expect(refresh_fn).toHaveBeenCalled();
         expect(spectator.component.booking().checked_in).toBe(true);
     });
+
+    it('should show waitlisted status for current week parking requests when enabled', () => {
+        (spectator.component as any).booking.set(
+            new Booking({
+                booking_type: 'parking',
+                type: 'parking',
+                asset_id: 'unallocated-1',
+                date: Date.now(),
+                status: 'tentative',
+            } as any),
+        );
+
+        expect(spectator.component.booking_status()).toBe('info');
+    });
+
+    it('should hide waitlisted status for parking requests when waitlist display is disabled', () => {
+        const settings = spectator.inject(SettingsService);
+        settings.get.mockImplementation((name: string) =>
+            name === 'app.parking.show_waitlist' ? false : undefined,
+        );
+        spectator = createComponent();
+        (spectator.component as any).booking.set(
+            new Booking({
+                booking_type: 'parking',
+                type: 'parking',
+                asset_id: 'unallocated-1',
+                date: Date.now(),
+                status: 'tentative',
+            } as any),
+        );
+
+        expect(spectator.component.booking_status()).toBe('warning');
+    });
 });

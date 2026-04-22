@@ -92,6 +92,7 @@ describe('DateFieldComponent', () => {
         const old_date = new Date('2026-04-08T15:30:00.000Z').valueOf();
         const new_date = new Date('2026-04-12T00:00:00.000Z').valueOf();
         const on_change = jest.fn();
+        spectator.setInput('from', 1);
         spectator.setInput('timezone', timezone);
         spectator.setInput('from', 0);
         spectator.component.registerOnChange(on_change);
