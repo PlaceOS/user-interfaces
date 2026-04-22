@@ -130,4 +130,35 @@ describe('ParkingTopbarComponent', () => {
             queryParamsHandling: 'merge',
         });
     });
+
+    it('should clear search when switching parking views', () => {
+        spectator = createComponent();
+        const router = spectator.inject(Router);
+        Object.defineProperty(router, 'url', {
+            value: '/book/parking/manage/users',
+            configurable: true,
+        });
+
+        (spectator.component as any)._updatePath();
+
+        expect(spectator.inject(ParkingStateService).setOptions).toHaveBeenCalledWith(
+            { search: '' },
+        );
+    });
+
+    it('should clear search when switching parking list routes', () => {
+        spectator = createComponent();
+        const router = spectator.inject(Router);
+        (spectator.component as any)._previous_route_key = 'events/list';
+        Object.defineProperty(router, 'url', {
+            value: '/book/parking/events/requests',
+            configurable: true,
+        });
+
+        (spectator.component as any)._updatePath();
+
+        expect(spectator.inject(ParkingStateService).setOptions).toHaveBeenCalledWith(
+            { search: '' },
+        );
+    });
 });

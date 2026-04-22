@@ -24,7 +24,13 @@ export interface CameraSnapshotData {
                 <h2 class="px-2 text-xl font-medium">
                     Camera Feed - {{ data.room_name }}
                 </h2>
-                <button icon matRipple mat-dialog-close>
+                <button
+                    icon
+                    type="button"
+                    matRipple
+                    aria-label="Close camera feed"
+                    mat-dialog-close
+                >
                     <icon>close</icon>
                 </button>
             </header>
@@ -39,7 +45,7 @@ export interface CameraSnapshotData {
                             auth
                             [source]="snapshot_url()"
                             class="h-full w-full object-contain"
-                            alt="Camera Feed"
+                            [alt]="'Camera feed for ' + data.room_name"
                         />
                         <div
                             class="absolute right-2 bottom-2 overflow-hidden rounded-full px-2 py-1 font-mono text-xs text-white"

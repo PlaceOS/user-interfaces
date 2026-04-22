@@ -14,6 +14,7 @@ import { BookingCardComponent } from '../lib/booking-card.component';
 
 describe('BookingCardComponent', () => {
     let spectator: SpectatorRouting<BookingCardComponent>;
+    const settings_service = createSettingsServiceMock();
     const createComponent = createRoutingFactory({
         component: BookingCardComponent,
         declarations: [
@@ -28,11 +29,15 @@ describe('BookingCardComponent', () => {
                 buildingsForRegion: jest.fn(() => []),
             }),
             MockProvider(MatDialog, { open: jest.fn() }),
-            MockProvider(SettingsService, createSettingsServiceMock()),
+            MockProvider(SettingsService, settings_service),
         ],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        settings_service.get.mockReset();
+        settings_service.get.mockImplementation((_: string) => undefined);
+        spectator = createComponent();
+    });
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
@@ -97,5 +102,36 @@ describe('BookingCardComponent', () => {
         spectator.detectChanges();
 
         expect(spectator.component.resource_label()).toBe('Visitor One');
+    });
+
+    it('should show waitlisted status for current week parking requests when enabled', () => {
+        spectator.setInput({
+            booking: new Booking({
+                booking_type: 'parking',
+                type: 'parking',
+                asset_id: 'unallocated-1',
+                date: Date.now(),
+                status: 'tentative',
+            } as any),
+        });
+
+        expect(spectator.component.status()).toBe('info');
+    });
+
+    it('should hide waitlisted status for parking requests when waitlist display is disabled', () => {
+        settings_service.get.mockImplementation((name: string) =>
+            name === 'app.parking.show_waitlist' ? false : undefined,
+        );
+        spectator.setInput({
+            booking: new Booking({
+                booking_type: 'parking',
+                type: 'parking',
+                asset_id: 'unallocated-1',
+                date: Date.now(),
+                status: 'tentative',
+            } as any),
+        });
+
+        expect(spectator.component.status()).toBe('warning');
     });
 });

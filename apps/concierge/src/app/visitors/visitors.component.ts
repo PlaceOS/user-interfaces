@@ -177,6 +177,7 @@ export class VisitorsComponent implements OnInit, OnDestroy {
     }
 
     public ngOnInit() {
+        this._state.poll();
         this._state.startPolling();
     }
 

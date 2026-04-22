@@ -56,6 +56,11 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
                     [(ngModel)]="search_str"
                     (ngModelChange)="search$.next($event)"
                     [disabled]="disabled()"
+                    [attr.aria-label]="
+                        placeholder()
+                            ? placeholder()
+                            : 'Search' + (name() ? ' for ' + name() : '')
+                    "
                     [placeholder]="
                         placeholder()
                             ? placeholder()
@@ -101,7 +106,7 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
                     </div>
                 } @else {
                     <div
-                        class="flex min-h-48 flex-col items-center justify-center p-8 opacity-30"
+                        class="stagehand-subtle flex min-h-48 flex-col items-center justify-center p-8"
                     >
                         <p class="text-sm">
                             {{
@@ -145,7 +150,7 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
                         }}</code>
                     }
                 </div>
-                <div class="text-xs opacity-60">
+                <div class="stagehand-subtle text-xs">
                     {{ option.id }}
                     {{ option.extra ? ' - ' + option.extra : '' }}
                 </div>

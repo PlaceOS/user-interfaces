@@ -25,6 +25,7 @@ describe('VisitorsComponent', () => {
         providers: [
             MockProvider(VisitorsStateService, {
                 loading: new BehaviorSubject(false),
+                poll: jest.fn(),
                 startPolling: jest.fn(),
                 stopPolling: jest.fn(),
             }),
@@ -48,9 +49,21 @@ describe('VisitorsComponent', () => {
         ],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        spectator = createComponent();
+        const service = spectator.inject(VisitorsStateService) as any;
+        service.poll.mockClear();
+        service.startPolling.mockClear();
+    });
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
+    });
+
+    it('should refresh visitors when the view is initialised', () => {
+        const service = spectator.inject(VisitorsStateService) as any;
+        spectator.component.ngOnInit();
+        expect(service.poll).toHaveBeenCalledTimes(1);
+        expect(service.startPolling).toHaveBeenCalledTimes(1);
     });
 });

@@ -43,6 +43,7 @@ import {
     notifySuccess,
     OrganisationService,
     RecurrenceDays,
+    setTimeInTimezone,
     SettingsService,
     unique,
     User,
@@ -56,7 +57,6 @@ import {
     endOfDay,
     endOfWeek,
     getUnixTime,
-    set,
     startOfDay,
     startOfWeek,
     subDays,
@@ -553,7 +553,12 @@ export class ParkingStateService extends AsyncHandler {
             const user_details = await USER_PIPE.transform(
                 asset_data.assigned_to,
             );
-            const date = set(Date.now(), { hours: 1, minutes: 0, seconds: 0 });
+            const timezone = this._settings.get(
+                'app.bookings.use_building_timezone',
+            )
+                ? this._org.building?.timezone
+                : '';
+            const date = setTimeInTimezone(Date.now(), 1, 0, timezone);
             await saveBooking(
                 new Booking({
                     user_id: user_details.id || asset_data.assigned_to,

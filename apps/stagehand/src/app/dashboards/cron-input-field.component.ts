@@ -40,11 +40,14 @@ function listPattern(fieldPattern) {
     template: `
         <div
             class="border-base-300 focus-within:border-base-content focus-within:outline-base-content mb-1 flex w-full items-center space-x-2 rounded-sm border focus-within:outline-4"
+            role="group"
+            aria-label="CRON expression fields"
             [formGroup]="form"
         >
             <input
                 class="w-px flex-1 border-none bg-none p-2 text-base outline-hidden"
                 placeholder="*"
+                aria-label="CRON minute field"
                 name="minute"
                 formControlName="minute"
                 (keydown)="preventInvalidCharacters($event)"
@@ -52,24 +55,28 @@ function listPattern(fieldPattern) {
             <input
                 class="w-px flex-1 border-none bg-none p-2 text-base outline-hidden"
                 placeholder="*"
+                aria-label="CRON hour field"
                 name="hour"
                 formControlName="hour"
             />
             <input
                 class="w-px flex-1 border-none bg-none p-2 text-base outline-hidden"
                 placeholder="*"
+                aria-label="CRON day of month field"
                 name="day"
                 formControlName="day"
             />
             <input
                 class="w-px flex-1 border-none bg-none p-2 text-base outline-hidden"
                 placeholder="*"
+                aria-label="CRON month field"
                 name="month"
                 formControlName="month"
             />
             <input
                 class="w-px flex-1 border-none bg-none p-2 text-base outline-hidden"
                 placeholder="*"
+                aria-label="CRON day of week field"
                 name="day_of_week"
                 formControlName="day_of_week"
             />

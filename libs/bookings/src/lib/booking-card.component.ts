@@ -215,6 +215,22 @@ export class BookingCardComponent {
             currentUser()?.email?.toLowerCase(),
     );
 
+    public readonly show_waitlist = this._settings.signal(
+        'parking.show_waitlist',
+        true,
+    );
+
+    private readonly _is_visible_waitlisted = computed(() => {
+        const booking = this.booking();
+        return (
+            this.show_waitlist() &&
+            booking?.booking_type === 'parking' &&
+            booking?.status === 'tentative' &&
+            !!booking?.asset_id?.startsWith('unallocated') &&
+            isSameWeek(Date.now(), booking.date)
+        );
+    });
+
     public get time_format() {
         return this._settings.time_format_signal();
     }
@@ -226,10 +242,7 @@ export class BookingCardComponent {
         if (booking?.status === 'declined') return 'error';
         if (booking?.status === 'cancelled') return 'error';
         if (booking?.status === 'tentative') {
-            if (
-                (booking.booking_type === 'parking',
-                isSameWeek(Date.now(), booking.date))
-            ) {
+            if (this._is_visible_waitlisted()) {
                 return 'info';
             }
             return 'warning';

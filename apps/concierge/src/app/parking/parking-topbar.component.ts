@@ -347,6 +347,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         ),
         { initialValue: this._router.url },
     );
+    private _previous_route_key = '';
 
     public readonly section = signal<'events' | 'manage'>('events');
     public readonly view = signal<
@@ -560,6 +561,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         this._updatePath();
         await firstTruthyValueFrom(this._org.initialised);
         await lastValueFrom(timer(1000));
+        this.setSearch('');
         this._ready.set(true);
         this._updatePath();
     }
@@ -596,12 +598,17 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         const parts = this._router.url?.split('/') || [''];
         const [section = 'events', view = 'list'] = parts.slice(-2);
         const current_view = (view || 'list').split('?')[0];
+        const route_key = `${section}/${current_view}`;
         this.section.set(section as any);
         this.view.set(
             current_view === 'bookings' || current_view === 'requests'
                 ? 'list'
                 : (current_view as any),
         );
+        if (this._previous_route_key && this._previous_route_key !== route_key) {
+            this.setSearch('');
+        }
+        this._previous_route_key = route_key;
         if (current_view === 'bookings') {
             this.setRequestFilter('bookings');
         } else if (current_view === 'requests' && this.can_view_requests) {

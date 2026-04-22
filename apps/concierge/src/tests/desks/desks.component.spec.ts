@@ -125,5 +125,23 @@ describe('DesksComponent', () => {
         expect(update_zones).toHaveBeenCalledWith([]);
     });
 
+    it('should clear search when switching desk views', () => {
+        const desks_state = spectator.inject(DesksStateService);
+        (desks_state.setFilters as jest.Mock).mockClear();
+        filters_signal.set({
+            zones: ['level-a'],
+            view: 'manage',
+            search: 'Desk 1',
+        });
+
+        spectator.component.path.set('events');
+        (spectator.component as any)._updateView();
+
+        expect(desks_state.setFilters).toHaveBeenCalledWith({
+            view: 'events',
+            search: '',
+        });
+    });
+
     it.todo('should handle routing events');
 });

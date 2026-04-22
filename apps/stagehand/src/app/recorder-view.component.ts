@@ -32,6 +32,7 @@ interface RecorderStreamMetadata {
                 <h1 class="text-2xl font-bold">Recorder Streams</h1>
             </header>
             <main
+                id="stagehand-page-content"
                 class="grid w-full flex-1 grid-cols-1 gap-4 overflow-auto p-4 sm:grid-cols-3"
             >
                 @for (image of images(); track image.id) {
@@ -43,6 +44,7 @@ interface RecorderStreamMetadata {
                         >
                             <img
                                 class="h-full w-full object-contain object-center"
+                                [alt]="'Recorder stream preview for ' + image.name"
                                 [src]="image.url | safe: 'url'"
                             />
                         </div>

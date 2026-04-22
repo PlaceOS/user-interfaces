@@ -25,7 +25,14 @@ interface SeverityOption {
                 class="bg-base-200 sticky top-0 z-10 mx-2 mt-2 h-14 w-[calc(100%-1rem)] rounded-sm border-none p-2"
             >
                 <h2 class="px-2 text-xl font-medium">Push Notifications</h2>
-                <button icon matRipple mat-dialog-close class="rounded-sm">
+                <button
+                    icon
+                    type="button"
+                    matRipple
+                    aria-label="Close notification settings"
+                    mat-dialog-close
+                    class="rounded-sm"
+                >
                     <icon>close</icon>
                 </button>
             </header>
@@ -56,7 +63,7 @@ interface SeverityOption {
                         <icon class="text-base-400 text-6xl"
                             >notifications_off</icon
                         >
-                        <p class="text-center text-sm opacity-60">
+                        <p class="stagehand-subtle text-center text-sm">
                             Enable push notifications to receive alerts even
                             when the app is in the background.
                         </p>
@@ -71,7 +78,7 @@ interface SeverityOption {
                         </button>
                     </div>
                 } @else {
-                    <p class="mb-4 text-sm opacity-60">
+                    <p class="stagehand-subtle mb-4 text-sm">
                         Choose which alert severity levels should trigger push
                         notifications.
                     </p>
@@ -92,12 +99,17 @@ interface SeverityOption {
                                         <div class="font-medium">
                                             {{ option.label }}
                                         </div>
-                                        <div class="text-xs opacity-50">
+                                        <div class="stagehand-subtle text-xs">
                                             {{ option.description }}
                                         </div>
                                     </div>
                                 </div>
                                 <mat-slide-toggle
+                                    [attr.aria-label]="
+                                        'Toggle ' +
+                                        option.label +
+                                        ' notifications'
+                                    "
                                     [checked]="push.config()[option.key]"
                                     (change)="
                                         toggleSeverity(
@@ -113,7 +125,7 @@ interface SeverityOption {
                     <div class="bg-info-light mt-4 rounded-sm p-3">
                         <div class="flex items-center space-x-2">
                             <icon class="text-info text-2xl">info</icon>
-                            <span class="text-xs opacity-60"
+                            <span class="stagehand-subtle text-xs"
                                 >Notifications will be sent when new alerts
                                 matching these severities are detected.</span
                             >
