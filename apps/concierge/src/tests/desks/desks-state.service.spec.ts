@@ -84,6 +84,7 @@ describe('DesksStateService', () => {
         );
         (common_mod as any).notifySuccess = jest.fn();
         (common_mod as any).notifyError = jest.fn();
+        (common_mod as any).setTimeInTimezone = jest.fn((date) => date);
         (common_mod as any).unique = jest.fn((list) => list);
         (common_mod as any).Booking.mockImplementation(function (data) {
             Object.assign(this, data);
@@ -164,6 +165,13 @@ describe('DesksStateService', () => {
     });
 
     it('should create assigned booking for non-bookable desks', async () => {
+        const mock_now = new Date('2026-06-15T12:00:00Z').valueOf();
+        const assigned_start = new Date('2026-06-15T01:00:00Z').valueOf();
+        current_building = { id: 'bld-1', timezone: 'Australia/Sydney' };
+        active_building.next(current_building);
+        settings_map['app.bookings.use_building_timezone'] = true;
+        jest.spyOn(Date, 'now').mockReturnValue(mock_now);
+        (common_mod as any).setTimeInTimezone.mockReturnValue(assigned_start);
         const dialog_ref = {
             afterClosed: () =>
                 of({
@@ -187,7 +195,20 @@ describe('DesksStateService', () => {
 
         await spectator.service.editDesk({ id: 'desk-1' } as any);
 
-        expect(booking_mod.saveBooking).toHaveBeenCalled();
+        expect(common_mod.setTimeInTimezone).toHaveBeenCalledWith(
+            mock_now,
+            1,
+            0,
+            'Australia/Sydney',
+        );
+        expect(booking_mod.saveBooking).toHaveBeenCalledWith(
+            expect.objectContaining({
+                booking_start: getUnixTime(assigned_start),
+                booking_end: getUnixTime(
+                    assigned_start + 22 * 60 * 60 * 1000,
+                ),
+            }),
+        );
     });
 
     it('should block assignments when the desk limit is reached', async () => {

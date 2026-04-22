@@ -8,6 +8,7 @@ import * as assets_mod from '@placeos/assets';
 import * as booking_mod from '@placeos/bookings';
 import * as common_mod from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
+import { UserPipe } from '@placeos/users';
 import { ParkingStateService } from '../../app/parking/parking-state.service';
 
 jest.mock('@placeos/assets');
@@ -73,6 +74,7 @@ describe('ParkingStateService', () => {
         (assets_mod as any).queryParkingSpacesForZones = jest.fn(() => of([]));
         (booking_mod as any).bookedResourceList = jest.fn(() => of([]));
         (booking_mod as any).queryBookings = jest.fn(() => of([]));
+        (booking_mod as any).saveBooking = jest.fn(() => of({}));
         (booking_mod as any).updateBooking = jest.fn(() => of({}));
         (booking_mod as any).updateBookingInstance = jest.fn(() => of({}));
         (booking_mod as any).approveBooking = jest.fn(() => of({}));
@@ -103,6 +105,52 @@ describe('ParkingStateService', () => {
 
         subscription.unsubscribe();
         jest.useRealTimers();
+    });
+
+    it('should use the building timezone for assigned parking bookings', async () => {
+        const mock_now = new Date('2026-06-15T12:00:00Z').valueOf();
+        const assigned_start = common_mod.setTimeInTimezone(
+            mock_now,
+            1,
+            0,
+            'Australia/Sydney',
+        );
+        const dialog_ref = {
+            afterClosed: () =>
+                of({
+                    reason: 'done',
+                    metadata: {
+                        id: 'space-1',
+                        name: 'Bay 1',
+                        assigned_to: 'staff@example.com',
+                    },
+                }),
+            componentInstance: {
+                event: of({ reason: 'done' }),
+                loading: { set: jest.fn() },
+            },
+            close: jest.fn(),
+        };
+        (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
+        (assets_mod.saveParkingSpace as jest.Mock).mockReturnValue(
+            of({ id: 'space-1', name: 'Bay 1' }),
+        );
+        jest.spyOn(UserPipe.prototype, 'transform').mockResolvedValue({
+            id: 'user-1',
+            name: 'Staff Name',
+        } as any);
+        jest.spyOn(Date, 'now').mockReturnValue(mock_now);
+
+        await spectator.service.editSpace({ id: 'space-0' } as any);
+
+        expect(booking_mod.saveBooking).toHaveBeenCalledWith(
+            expect.objectContaining({
+                booking_start: getUnixTime(assigned_start),
+                booking_end: getUnixTime(
+                    assigned_start + 22 * 60 * 60 * 1000,
+                ),
+            }),
+        );
     });
 
     it('should load spaces for all selected parking levels', async () => {

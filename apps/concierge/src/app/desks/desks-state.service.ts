@@ -30,6 +30,7 @@ import {
     OrganisationService,
     randomInt,
     RecurrenceDays,
+    setTimeInTimezone,
     SettingsService,
     unique,
 } from '@placeos/common';
@@ -44,7 +45,6 @@ import {
     addMinutes,
     endOfDay,
     getUnixTime,
-    set,
     startOfDay,
     subDays,
 } from 'date-fns';
@@ -629,7 +629,10 @@ export class DesksStateService extends AsyncHandler {
     }
 
     private _createAssignedBooking(desk: Desk, zone?: string) {
-        const date = set(Date.now(), { hours: 1, minutes: 0, seconds: 0 });
+        const timezone = this._settings.get('app.bookings.use_building_timezone')
+            ? this._org.building?.timezone
+            : '';
+        const date = setTimeInTimezone(Date.now(), 1, 0, timezone);
         return new Booking({
             user_id: desk.assigned_to,
             user_email: desk.assigned_to,

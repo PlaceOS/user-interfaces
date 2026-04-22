@@ -26,6 +26,7 @@ import {
     OrganisationService,
     randomInt,
     RecurrenceDays,
+    setTimeInTimezone,
     SettingsService,
     StaffUser,
     unique,
@@ -37,7 +38,6 @@ import {
     addMinutes,
     endOfDay,
     getUnixTime,
-    set,
     startOfDay,
     subDays,
 } from 'date-fns';
@@ -555,7 +555,12 @@ export class LockerStateService extends AsyncHandler {
             locker.assigned_to !== new_locker.assigned_to &&
             new_locker.assigned_to
         ) {
-            const date = set(Date.now(), { hours: 2, minutes: 0, seconds: 0 });
+            const timezone = this._settings.get(
+                'app.bookings.use_building_timezone',
+            )
+                ? this._org.building?.timezone
+                : '';
+            const date = setTimeInTimezone(Date.now(), 2, 0, timezone);
             await saveBooking(
                 new Booking({
                     user_id: new_locker.assigned_to,
