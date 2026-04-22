@@ -395,6 +395,7 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     }
 
     public ngOnInit() {
+        this._state.setFilters({ search: '' });
         this.subscription(
             'router.events',
             this._router.events.subscribe((e) => {
@@ -524,7 +525,12 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
 
     private _updateView() {
         const view = this._getViewFromPath();
-        this._state.setFilters({ view });
+        const previous_view = this._state.filters().view;
+        this._state.setFilters(
+            previous_view && previous_view !== view
+                ? { view, search: '' }
+                : { view },
+        );
         this._syncZones(this.levels());
     }
 

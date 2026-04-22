@@ -189,6 +189,7 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
+    private _previous_path = '';
 
     private readonly _ready = signal(false);
     private readonly _query_params = toSignal(this._route.queryParamMap);
@@ -262,6 +263,10 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     constructor() {
         super();
         effect(() => {
+            this._current_url();
+            this._updatePath();
+        });
+        effect(() => {
             if (!this._ready() || !this._router.url.includes('locker')) return;
             const params = this._query_params();
             if (!params?.has('zone_ids')) return;
@@ -308,9 +313,18 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
             : this._org.building?.id || '';
     }
 
+    private _updatePath() {
+        const path = this.path();
+        if (this._previous_path && this._previous_path !== path) {
+            this._state.setSearch('');
+        }
+        this._previous_path = path;
+    }
+
     public async ngOnInit() {
         await firstTruthyValueFrom(this._org.initialised);
         await lastValueFrom(timer(1000));
+        this._state.setSearch('');
         this._ready.set(true);
     }
 
