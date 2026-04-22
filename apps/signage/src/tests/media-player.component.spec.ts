@@ -279,8 +279,7 @@ describe('MediaPlayerComponent', () => {
         spectator.component.duration.set(5);
 
         spectator.component.onPluginInteraction({
-            action: 'reset_playback',
-            options: { playback_duration_ms: 30_000 },
+            new_duration: 30_000,
         });
 
         expect(spectator.component['_playback_duration']).toBe(30_000);
@@ -315,8 +314,7 @@ describe('MediaPlayerComponent', () => {
         spectator.component['_playback_duration'] = 20_000;
 
         spectator.component.onPluginInteraction({
-            action: 'reset_playback',
-            options: { playback_duration_ms: 30_000 },
+            new_duration: 30_000,
         });
 
         expect(spectator.component['_playback_duration']).toBe(20_000);
@@ -341,8 +339,7 @@ describe('MediaPlayerComponent', () => {
         spectator.component['_playback_duration'] = 20_000;
 
         spectator.component.onPluginInteraction({
-            action: 'reset_playback',
-            options: { playback_duration_ms: 30_000 },
+            new_duration: 30_000,
         });
 
         expect(spectator.component['_playback_duration']).toBe(20_000);
