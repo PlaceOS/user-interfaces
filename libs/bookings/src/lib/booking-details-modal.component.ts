@@ -22,7 +22,7 @@ import {
     SettingsService,
     userSignal,
 } from '@placeos/common';
-import { addMinutes, format } from 'date-fns';
+import { addMinutes, format, isSameWeek } from 'date-fns';
 import { lastValueFrom } from 'rxjs';
 
 import { OrganisationService } from '@placeos/common';
@@ -556,6 +556,10 @@ export class BookingDetailsModalComponent {
         `${this.booking()?.type || 'bookings'}.auto_checkin`,
         false,
     );
+    public readonly show_waitlist = this._settings.signal(
+        'parking.show_waitlist',
+        true,
+    );
     public readonly is_checked_in = computed(() => this.booking().checked_in);
     public readonly desk_height_enabled = computed(
         () =>
@@ -605,11 +609,25 @@ export class BookingDetailsModalComponent {
         return this._settings.time_format_signal();
     }
 
+    private readonly _is_visible_waitlisted = computed(() => {
+        const booking = this.booking();
+        return (
+            this.show_waitlist() &&
+            booking?.booking_type === 'parking' &&
+            booking?.status === 'tentative' &&
+            !!booking?.asset_id?.startsWith('unallocated') &&
+            isSameWeek(Date.now(), booking.date)
+        );
+    });
+
     public readonly booking_status = computed(() => {
         if (this.booking()?.is_done) return 'neutral';
         if (this.booking()?.status === 'approved') return 'success';
         if (this.booking()?.status === 'declined') return 'error';
-        if (this.booking()?.status === 'tentative') return 'warning';
+        if (this.booking()?.status === 'tentative') {
+            if (this._is_visible_waitlisted()) return 'info';
+            return 'warning';
+        }
         return 'warning';
     });
 
