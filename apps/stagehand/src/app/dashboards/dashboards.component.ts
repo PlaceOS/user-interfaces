@@ -21,6 +21,7 @@ import { DashboardsService } from './dashboards.service';
                         <a
                             icon
                             matRipple
+                            aria-label="Back to dashboards"
                             [routerLink]="['/dashboards']"
                             [matTooltip]="
                                 'APP.STAGEHAND.DASHBOARD_BACK' | translate
@@ -63,7 +64,10 @@ import { DashboardsService } from './dashboards.service';
                         >
                     }
                 </header>
-                <main class="w-full flex-1 overflow-auto">
+                <main
+                    id="stagehand-page-content"
+                    class="w-full flex-1 overflow-auto"
+                >
                     <router-outlet />
                 </main>
             </div>

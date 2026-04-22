@@ -24,25 +24,41 @@ interface AnalyticsPage {
                     class="border-base-400 bg-base-100 flex h-18 w-full items-center justify-between p-4"
                 >
                     <h1 class="text-2xl font-bold">AV Systems Analytics</h1>
-                    <mat-form-field appearance="outline" class="no-subscript">
-                        <mat-select [(ngModel)]="page">
-                            @for (page of analytics_pages(); track page.name) {
-                                <mat-option [value]="page">{{
-                                    page.name
-                                }}</mat-option>
-                            }
-                        </mat-select>
-                    </mat-form-field>
+                    <div>
+                        <label
+                            class="mb-1 block px-1 text-xs font-medium uppercase tracking-wide"
+                            for="analytics-dashboard"
+                        >
+                            Analytics dashboard
+                        </label>
+                        <mat-form-field appearance="outline" class="no-subscript">
+                            <mat-select
+                                id="analytics-dashboard"
+                                [(ngModel)]="page"
+                                aria-label="Analytics dashboard"
+                            >
+                                @for (page of analytics_pages(); track page.name) {
+                                    <mat-option [value]="page">{{
+                                        page.name
+                                    }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
                 </header>
-                <main class="w-full flex-1 overflow-auto">
+                <main
+                    id="stagehand-page-content"
+                    class="w-full flex-1 overflow-auto"
+                >
                     @if (page()?.url) {
                         <iframe
                             class="h-full w-full"
+                            [title]="page()?.name || 'Analytics dashboard'"
                             [src]="page().url"
                         ></iframe>
                     } @else {
                         <div
-                            class="flex h-full w-full flex-col items-center justify-center space-y-4 p-12 opacity-30"
+                            class="stagehand-subtle flex h-full w-full flex-col items-center justify-center space-y-4 p-12"
                         >
                             <icon class="text-8xl">arrow_warm_up</icon>
                             <p>

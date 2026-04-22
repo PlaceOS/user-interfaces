@@ -94,8 +94,12 @@ import { DashboardsService } from './dashboards.service';
                 <div class="p-2">
                     <button
                         icon
+                        type="button"
                         matRipple
                         class="rounded-sm"
+                        [attr.aria-label]="
+                            'Open actions for alert ' + alert.name
+                        "
                         [matMenuTriggerFor]="menu"
                     >
                         <icon>more_vert</icon>

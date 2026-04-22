@@ -43,6 +43,7 @@ import { DashboardsService } from './dashboards.service';
                     <a
                         icon
                         matRipple
+                        aria-label="Close dashboard editor"
                         [routerLink]="
                             dashboard()
                                 ? ['/dashboards', dashboard().id]
@@ -60,6 +61,7 @@ import { DashboardsService } from './dashboards.service';
                         >
                         <mat-form-field appearance="outline">
                             <input
+                                id="name"
                                 matInput
                                 name="name"
                                 formControlName="name"
@@ -72,6 +74,7 @@ import { DashboardsService } from './dashboards.service';
                         }}</label>
                         <mat-form-field appearance="outline">
                             <textarea
+                                id="description"
                                 matInput
                                 name="description"
                                 formControlName="description"
@@ -86,7 +89,13 @@ import { DashboardsService } from './dashboards.service';
                 <footer
                     class="bg-base-200 fixed bottom-2 flex w-156 max-w-full justify-end rounded-sm p-2"
                 >
-                    <button btn matRipple class="min-w-32" (click)="save()">
+                    <button
+                        btn
+                        type="button"
+                        matRipple
+                        class="min-w-32"
+                        (click)="save()"
+                    >
                         {{ 'COMMON.SAVE' | translate }}
                     </button>
                 </footer>

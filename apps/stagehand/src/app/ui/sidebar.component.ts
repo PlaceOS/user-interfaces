@@ -22,8 +22,9 @@ const COMPACT_SIGNAL = signal(false);
 @Component({
     selector: 'sidebar',
     template: `
-        <div
+        <nav
             sidebar
+            aria-label="Primary"
             class="bg-secondary text-secondary-content flex h-full flex-col"
             [style.width]="is_compact() ? '3.5rem' : '16rem'"
         >
@@ -37,17 +38,21 @@ const COMPACT_SIGNAL = signal(false);
                         <div class="truncate text-2xl font-medium">
                             Stagehand
                         </div>
-                        <div class="truncate text-xs opacity-40">
+                        <div class="stagehand-muted truncate text-xs">
                             by PlaceOS
                         </div>
                     </div>
                 </div>
                 <button
                     icon
+                    type="button"
                     matRipple
                     class="rounded-sm"
                     [class.w-14]="is_compact()"
                     (click)="toggleCompact()"
+                    [attr.aria-label]="
+                        is_compact() ? 'Expand sidebar' : 'Collapse sidebar'
+                    "
                     [matTooltip]="
                         is_compact() ? 'Expand Sidebar' : 'Collapse Sidebar'
                     "
@@ -64,11 +69,21 @@ const COMPACT_SIGNAL = signal(false);
                 @if (r_list.length || bld_list.length) {
                     <div class="space-y-2 p-2">
                         @if (r_list.length > 0) {
+                            <label
+                                class="block px-1 text-xs font-medium uppercase tracking-wide"
+                                for="sidebar-region"
+                            >
+                                Region
+                            </label>
                             <mat-form-field
                                 appearance="outline"
                                 class="no-subscript white-faded w-full"
                             >
-                                <mat-select [(ngModel)]="region">
+                                <mat-select
+                                    id="sidebar-region"
+                                    [(ngModel)]="region"
+                                    aria-label="Region"
+                                >
                                     <mat-option
                                         value=""
                                         (click)="setRegion(null)"
@@ -90,11 +105,21 @@ const COMPACT_SIGNAL = signal(false);
                             </mat-form-field>
                         }
                         @if (bld_list.length > 0 && region()) {
+                            <label
+                                class="block px-1 text-xs font-medium uppercase tracking-wide"
+                                for="sidebar-building"
+                            >
+                                Building
+                            </label>
                             <mat-form-field
                                 appearance="outline"
                                 class="no-subscript white-faded w-full"
                             >
-                                <mat-select [(ngModel)]="building">
+                                <mat-select
+                                    id="sidebar-building"
+                                    [(ngModel)]="building"
+                                    aria-label="Building"
+                                >
                                     <mat-option
                                         value=""
                                         (click)="setBuilding(null)"
@@ -122,6 +147,8 @@ const COMPACT_SIGNAL = signal(false);
                     matRipple
                     class="hover:bg-base-100/10 relative flex w-full items-center space-x-4 p-2"
                     routerLinkActive="bg-secondary-focus!"
+                    ariaCurrentWhenActive="page"
+                    aria-label="Alerts"
                     [routerLink]="['/alerts']"
                     [matTooltip]="is_compact() ? 'Alerts' : ''"
                     matTooltipPosition="right"
@@ -135,6 +162,8 @@ const COMPACT_SIGNAL = signal(false);
                     matRipple
                     class="hover:bg-base-100/10 relative flex w-full items-center space-x-4 p-2"
                     routerLinkActive="bg-secondary-focus!"
+                    ariaCurrentWhenActive="page"
+                    aria-label="Remote support"
                     [routerLink]="['/remote-support']"
                     [matTooltip]="is_compact() ? 'Remote Support' : ''"
                     matTooltipPosition="right"
@@ -149,6 +178,8 @@ const COMPACT_SIGNAL = signal(false);
                         matRipple
                         class="hover:bg-base-100/10 relative flex w-full items-center space-x-4 p-2"
                         routerLinkActive="bg-secondary-focus!"
+                        ariaCurrentWhenActive="page"
+                        aria-label="Analytics"
                         [routerLink]="['/analytics']"
                         [matTooltip]="is_compact() ? 'Analytics' : ''"
                         matTooltipPosition="right"
@@ -163,6 +194,8 @@ const COMPACT_SIGNAL = signal(false);
                     matRipple
                     class="hover:bg-base-100/10 relative flex w-full items-center space-x-4 p-2"
                     routerLinkActive="bg-secondary-focus!"
+                    ariaCurrentWhenActive="page"
+                    aria-label="Manage dashboards"
                     [routerLink]="['/dashboards']"
                     [matTooltip]="is_compact() ? 'Manage Dashboards' : ''"
                     matTooltipPosition="right"
@@ -177,6 +210,8 @@ const COMPACT_SIGNAL = signal(false);
                         matRipple
                         class="relative flex w-full items-center space-x-4 p-2"
                         routerLinkActive="bg-secondary-focus"
+                        ariaCurrentWhenActive="page"
+                        aria-label="Recorder streams"
                         [routerLink]="['/recorder-grid']"
                         [matTooltip]="is_compact() ? 'Recorder Streams' : ''"
                         matTooltipPosition="right"
@@ -199,8 +234,14 @@ const COMPACT_SIGNAL = signal(false);
                 @if (can_change_dark_mode()) {
                     <button
                         matRipple
+                        type="button"
                         class="hover:bg-base-100/10 relative flex w-full items-center justify-center gap-2 rounded-sm p-2"
                         (click)="toggleDarkMode()"
+                        [attr.aria-label]="
+                            dark_mode()
+                                ? 'Switch to light mode'
+                                : 'Switch to dark mode'
+                        "
                         [matTooltip]="
                             is_compact()
                                 ? dark_mode()
@@ -231,8 +272,10 @@ const COMPACT_SIGNAL = signal(false);
                 }
                 <button
                     matRipple
+                    type="button"
                     class="hover:bg-base-100/10 relative flex w-full items-center justify-center gap-2 rounded-sm p-2"
                     (click)="openNotificationSettings()"
+                    aria-label="Notification settings"
                     [matTooltip]="is_compact() ? 'Notification Settings' : ''"
                     matTooltipPosition="right"
                 >
@@ -264,9 +307,10 @@ const COMPACT_SIGNAL = signal(false);
                         is_compact() ? 'Launch PlaceOS Backoffice' : ''
                     "
                     matTooltipPosition="right"
+                    aria-label="Launch PlaceOS Backoffice in a new tab"
                     [href]="backoffice_link()"
                     target="_blank"
-                    ref="noopener noreferrer"
+                    rel="noopener noreferrer"
                 >
                     @if (!is_compact()) {
                         <span class="truncate text-sm">
@@ -278,12 +322,12 @@ const COMPACT_SIGNAL = signal(false);
                     }
                 </a>
                 @if (!is_compact()) {
-                    <p class="text-center text-xs opacity-40">
+                    <p class="stagehand-muted text-center text-xs">
                         Access system configuration and management
                     </p>
                 }
             </div>
-        </div>
+        </nav>
     `,
     styles: [
         `

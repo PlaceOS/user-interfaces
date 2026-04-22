@@ -5,6 +5,9 @@ import { mocksInit } from '@placeos/mocks';
 @Component({
     selector: 'app-root',
     template: `
+        <a class="skip-link" href="#stagehand-page-content">
+            Skip to page content
+        </a>
         <global-banner />
         <div class="relative h-1/2 w-full flex-1">
             <router-outlet></router-outlet>

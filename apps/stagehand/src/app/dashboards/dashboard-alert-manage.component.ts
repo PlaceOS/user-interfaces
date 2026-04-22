@@ -60,6 +60,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                     <a
                         icon
                         matRipple
+                        aria-label="Close alert editor"
                         [routerLink]="
                             dashboard()
                                 ? ['/dashboards', dashboard().id, 'alerts']
@@ -77,6 +78,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                         >
                         <mat-form-field appearance="outline">
                             <input
+                                id="name"
                                 matInput
                                 name="name"
                                 formControlName="name"
@@ -89,6 +91,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                         }}</label>
                         <mat-form-field appearance="outline">
                             <textarea
+                                id="description"
                                 matInput
                                 name="description"
                                 formControlName="description"
@@ -177,6 +180,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                                     'APP.STAGEHAND.ALERT_SYSTEM_SEARCH'
                                         | translate
                                 "
+                                [name]="'system'"
                                 class="w-1/2 flex-1"
                                 [(ngModel)]="template_system"
                                 [ngModelOptions]="{ standalone: true }"
@@ -274,8 +278,12 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                                 >
                                     <button
                                         icon
+                                        type="button"
                                         matRipple
                                         [disabled]="!template_system()"
+                                        [attr.aria-label]="
+                                            'Edit condition ' + row.operator
+                                        "
                                         matTooltip="Edit Condition"
                                         (click)="editCondition(row)"
                                     >
@@ -283,7 +291,11 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                                     </button>
                                     <button
                                         icon
+                                        type="button"
                                         matRipple
+                                        [attr.aria-label]="
+                                            'Remove condition ' + row.operator
+                                        "
                                         matTooltip="Remove Condition"
                                         (click)="removeCondition(row)"
                                     >
@@ -298,7 +310,13 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                 <footer
                     class="bg-base-200 fixed bottom-2 flex w-156 max-w-full justify-end rounded-sm p-2"
                 >
-                    <button btn matRipple class="min-w-32" (click)="save()">
+                    <button
+                        btn
+                        type="button"
+                        matRipple
+                        class="min-w-32"
+                        (click)="save()"
+                    >
                         {{ 'COMMON.SAVE' | translate }}
                     </button>
                 </footer>

@@ -43,6 +43,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                             icon
                             matRipple
                             class="hover:bg-base-200 rounded-xl"
+                            aria-label="Manage selected dashboard"
                             [routerLink]="[
                                 '/dashboards',
                                 dashboard(),
@@ -53,27 +54,40 @@ import { SidebarComponent } from './ui/sidebar.component';
                             <icon>settings</icon>
                         </a>
                     }
-                    <mat-form-field
-                        appearance="outline"
-                        class="no-subscript min-w-64"
-                    >
-                        <mat-select
-                            [(ngModel)]="dashboard"
-                            (ngModelChange)="setDashboard($event)"
-                            placeholder="Select dashboard"
+                    <div class="min-w-64">
+                        <label
+                            class="mb-1 block px-1 text-xs font-medium uppercase tracking-wide"
+                            for="alerts-dashboard"
                         >
-                            <mat-option [value]="''"
-                                >Disconnected Devices</mat-option
+                            Dashboard
+                        </label>
+                        <mat-form-field
+                            appearance="outline"
+                            class="no-subscript w-full"
+                        >
+                            <mat-select
+                                id="alerts-dashboard"
+                                [(ngModel)]="dashboard"
+                                (ngModelChange)="setDashboard($event)"
+                                aria-label="Dashboard"
+                                placeholder="Select dashboard"
                             >
-                            @for (item of dashboards(); track item.id) {
-                                <mat-option [value]="item.id">{{
-                                    item.name
-                                }}</mat-option>
-                            }
-                        </mat-select>
-                    </mat-form-field>
+                                <mat-option [value]="''"
+                                    >Disconnected Devices</mat-option
+                                >
+                                @for (item of dashboards(); track item.id) {
+                                    <mat-option [value]="item.id">{{
+                                        item.name
+                                    }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
                 </header>
-                <main class="bg-base-200 w-full flex-1 overflow-auto">
+                <main
+                    id="stagehand-page-content"
+                    class="bg-base-200 w-full flex-1 overflow-auto"
+                >
                     <!-- @if (dashboard()) { -->
                     <div
                         class="grid w-full flex-1 grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3"
@@ -88,7 +102,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                             >
                             <div class="flex-1">
                                 <h3 class="text-xl font-medium">Critical</h3>
-                                <div class="text-sm opacity-40">
+                                <div class="stagehand-muted text-sm">
                                     Attention required
                                 </div>
                             </div>
@@ -106,7 +120,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                             >
                             <div class="flex-1">
                                 <h3 class="text-xl font-medium">Warnings</h3>
-                                <div class="text-sm opacity-40">
+                                <div class="stagehand-muted text-sm">
                                     May require attention
                                 </div>
                             </div>
@@ -124,7 +138,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                             >
                             <div class="flex-1">
                                 <h3 class="text-xl font-medium">Open</h3>
-                                <div class="text-sm opacity-40">
+                                <div class="stagehand-muted text-sm">
                                     Pending resolution
                                 </div>
                             </div>
@@ -137,6 +151,12 @@ import { SidebarComponent } from './ui/sidebar.component';
                         class="flex flex-col items-center space-y-2 px-4 lg:flex-row lg:space-y-0 lg:space-x-2"
                     >
                         <div class="w-full max-w-full flex-1 lg:max-w-1/2">
+                            <label
+                                class="mb-1 block px-1 text-xs font-medium uppercase tracking-wide"
+                                for="alerts-search"
+                            >
+                                Search alerts
+                            </label>
                             <mat-form-field
                                 appearance="outline"
                                 class="no-subscript bg-base-100 w-full"
@@ -147,7 +167,9 @@ import { SidebarComponent } from './ui/sidebar.component';
                                     >search</icon
                                 >
                                 <input
+                                    id="alerts-search"
                                     matInput
+                                    aria-label="Search alerts"
                                     [ngModel]="search()"
                                     (ngModelChange)="search.set($event)"
                                     placeholder="Search for alert or location..."
@@ -157,27 +179,39 @@ import { SidebarComponent } from './ui/sidebar.component';
                         <div
                             class="flex w-full max-w-full flex-1 items-center space-x-2 lg:max-w-1/2"
                         >
-                            <mat-form-field
-                                appearance="outline"
-                                class="no-subscript bg-base-100 flex-1"
-                            >
-                                <mat-select
-                                    placeholder="All Severities"
-                                    [ngModel]="severity()"
-                                    (ngModelChange)="severity.set($event)"
+                            <div class="flex-1">
+                                <label
+                                    class="mb-1 block px-1 text-xs font-medium uppercase tracking-wide"
+                                    for="alerts-severity"
                                 >
-                                    <mat-option value=""
-                                        >All Severities</mat-option
+                                    Severity
+                                </label>
+                                <mat-form-field
+                                    appearance="outline"
+                                    class="no-subscript bg-base-100 w-full"
+                                >
+                                    <mat-select
+                                        id="alerts-severity"
+                                        aria-label="Severity"
+                                        placeholder="All Severities"
+                                        [ngModel]="severity()"
+                                        (ngModelChange)="severity.set($event)"
                                     >
-                                    <mat-option value="critical"
-                                        >Critical</mat-option
-                                    >
-                                    <mat-option value="high"
-                                        >Warning</mat-option
-                                    >
-                                    <mat-option value="medium">Info</mat-option>
-                                </mat-select>
-                            </mat-form-field>
+                                        <mat-option value=""
+                                            >All Severities</mat-option
+                                        >
+                                        <mat-option value="critical"
+                                            >Critical</mat-option
+                                        >
+                                        <mat-option value="high"
+                                            >Warning</mat-option
+                                        >
+                                        <mat-option value="medium"
+                                            >Info</mat-option
+                                        >
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
                             <!-- <mat-form-field
                                 appearance="outline"
                                 class="no-subscript flex-1 bg-base-100"
@@ -202,31 +236,45 @@ import { SidebarComponent } from './ui/sidebar.component';
                                     >
                                 </mat-select>
                             </mat-form-field> -->
-                            <mat-form-field
-                                appearance="outline"
-                                class="no-subscript bg-base-100 flex-1"
-                            >
-                                <mat-select
-                                    placeholder="All Device Types"
-                                    [ngModel]="device_type()"
-                                    (ngModelChange)="device_type.set($event)"
+                            <div class="flex-1">
+                                <label
+                                    class="mb-1 block px-1 text-xs font-medium uppercase tracking-wide"
+                                    for="alerts-device-type"
                                 >
-                                    <mat-option value=""
-                                        >All Devices</mat-option
+                                    Device type
+                                </label>
+                                <mat-form-field
+                                    appearance="outline"
+                                    class="no-subscript bg-base-100 w-full"
+                                >
+                                    <mat-select
+                                        id="alerts-device-type"
+                                        aria-label="Device type"
+                                        placeholder="All Device Types"
+                                        [ngModel]="device_type()"
+                                        (ngModelChange)="device_type.set($event)"
                                     >
-                                    <mat-option value="display"
-                                        >Display</mat-option
-                                    >
-                                    <mat-option value="audio">Audio</mat-option>
-                                    <mat-option value="video">Video</mat-option>
-                                    <mat-option value="network"
-                                        >Network</mat-option
-                                    >
-                                    <mat-option value="control"
-                                        >Control System</mat-option
-                                    >
-                                </mat-select>
-                            </mat-form-field>
+                                        <mat-option value=""
+                                            >All Devices</mat-option
+                                        >
+                                        <mat-option value="display"
+                                            >Display</mat-option
+                                        >
+                                        <mat-option value="audio"
+                                            >Audio</mat-option
+                                        >
+                                        <mat-option value="video"
+                                            >Video</mat-option
+                                        >
+                                        <mat-option value="network"
+                                            >Network</mat-option
+                                        >
+                                        <mat-option value="control"
+                                            >Control System</mat-option
+                                        >
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
                         </div>
                     </div>
                     <div class="overflow-auto p-4">
@@ -287,7 +335,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                                 <div class="truncate font-medium">
                                     {{ row.subject }}
                                 </div>
-                                <div class="max-w-48 opacity-50">
+                                <div class="stagehand-subtle max-w-48">
                                     {{ row.body }}
                                 </div>
                             </div>
@@ -328,7 +376,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                                 @let name = space?.display_name || space?.name;
                                 <div>{{ name || data }}</div>
                                 @if (name) {
-                                    <div class="text-xs opacity-30">
+                                    <div class="stagehand-subtle text-xs">
                                         {{ data }}
                                     </div>
                                 }
@@ -358,6 +406,9 @@ import { SidebarComponent } from './ui/sidebar.component';
                                 <a
                                     icon
                                     matRipple
+                                    [attr.aria-label]="
+                                        'Manage room ' + row.location
+                                    "
                                     [href]="
                                         (backoffice_link() || '/backoffice/') +
                                         '#/systems/' +
@@ -365,7 +416,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                                         '/modules'
                                     "
                                     target="_blank"
-                                    ref="noopener noreferrer"
+                                    rel="noopener noreferrer"
                                     class="rounded-sm"
                                     matTooltip="Manage Room"
                                 >

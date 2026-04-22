@@ -69,9 +69,6 @@ export function calculateModuleIndex(
                 }
                 @if (form().controls.operator) {
                     <div class="flex flex-1 flex-col">
-                        <label for="operator" hidden>{{
-                            'TRIGGERS.COMPARE_OP' | translate
-                        }}</label>
                         <mat-form-field appearance="outline">
                             <mat-select
                                 name="operator"
@@ -94,9 +91,6 @@ export function calculateModuleIndex(
                 }
                 @if (form().controls.operator) {
                     <div class="flex flex-1 flex-col">
-                        <label for="compared-to" hidden>{{
-                            'TRIGGERS.COMPARE_TO' | translate
-                        }}</label>
                         <mat-form-field appearance="outline">
                             <mat-select
                                 name="compared-to"
@@ -117,9 +111,6 @@ export function calculateModuleIndex(
                 }
                 @if (rhs_type === 'constant' && form().controls.right) {
                     <div class="flex flex-1 flex-col">
-                        <label for="constant" hidden>{{
-                            'TRIGGERS.COMPARE_TO' | translate
-                        }}</label>
                         <mat-form-field appearance="outline">
                             <input
                                 matInput

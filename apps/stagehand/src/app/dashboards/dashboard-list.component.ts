@@ -92,7 +92,6 @@ import { DashboardsService } from './dashboards.service';
                 />
                 <ng-template #alert_actions_template let-alert="row">
                     <div class="flex justify-end space-x-1 p-2">
-                        <button icon matRipple></button>
                         <a
                             icon
                             matRipple
@@ -104,6 +103,7 @@ import { DashboardsService } from './dashboards.service';
                                 alert.id,
                             ]"
                             class="rounded-sm"
+                            [attr.aria-label]="'Edit alert ' + alert.name"
                             [matTooltip]="
                                 'APP.STAGEHAND.DASHBOARD_ALERTS_EDIT'
                                     | translate
@@ -113,9 +113,11 @@ import { DashboardsService } from './dashboards.service';
                         </a>
                         <button
                             icon
+                            type="button"
                             matRipple
                             class="rounded-sm"
                             (click)="removeAlert(alert)"
+                            [attr.aria-label]="'Remove alert ' + alert.name"
                             [matTooltip]="
                                 'APP.STAGEHAND.DASHBOARD_ALERTS_REMOVE'
                                     | translate
@@ -124,7 +126,6 @@ import { DashboardsService } from './dashboards.service';
                             <icon class="text-error text-2xl">delete</icon>
                         </button>
                     </div>
-                    <button icon matRipple></button>
                 </ng-template>
             </ng-template>
             <ng-template #status_template let-enabled="data">
@@ -151,6 +152,9 @@ import { DashboardsService } from './dashboards.service';
                             'manage',
                         ]"
                         class="rounded-sm"
+                        [attr.aria-label]="
+                            'Add alert to dashboard ' + dashboard.name
+                        "
                         [matTooltip]="
                             'APP.STAGEHAND.DASHBOARD_ALERTS_ADD' | translate
                         "
@@ -162,6 +166,9 @@ import { DashboardsService } from './dashboards.service';
                         matRipple
                         [routerLink]="['/dashboards', 'manage', dashboard.id]"
                         class="rounded-sm"
+                        [attr.aria-label]="
+                            'Edit dashboard ' + dashboard.name
+                        "
                         [matTooltip]="
                             'APP.STAGEHAND.DASHBOARD_EDIT' | translate
                         "
@@ -170,9 +177,13 @@ import { DashboardsService } from './dashboards.service';
                     </a>
                     <button
                         icon
+                        type="button"
                         matRipple
                         class="rounded-sm"
                         (click)="remove(dashboard)"
+                        [attr.aria-label]="
+                            'Remove dashboard ' + dashboard.name
+                        "
                         [matTooltip]="
                             'APP.STAGEHAND.DASHBOARD_REMOVE' | translate
                         "
@@ -181,9 +192,20 @@ import { DashboardsService } from './dashboards.service';
                     </button>
                     <button
                         icon
+                        type="button"
                         matRipple
                         class="rounded-sm"
                         (click)="toggleChildren(dashboard)"
+                        [attr.aria-expanded]="
+                            !!show_children()?.[dashboard.id]
+                        "
+                        [attr.aria-label]="
+                            (show_children()?.[dashboard.id]
+                                ? 'Hide'
+                                : 'Show') +
+                            ' alerts for dashboard ' +
+                            dashboard.name
+                        "
                         [matTooltip]="
                             (show_children()?.[dashboard.id]
                                 ? 'APP.STAGEHAND.DASHBOARD_ALERTS_OPEN'
