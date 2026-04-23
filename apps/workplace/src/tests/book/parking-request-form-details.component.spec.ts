@@ -11,6 +11,14 @@ import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 import { ParkingRequestFormDetailsComponent } from '../../app/book/parking-request-flow/parking-request-form-details.component';
 
+jest.mock('@placeos/common', () => {
+    const actual = jest.requireActual('@placeos/common');
+    return {
+        ...actual,
+        currentUser: jest.fn(() => ({ email: 'me@test.com', groups: [] })),
+    };
+});
+
 describe('ParkingRequestFormDetailsComponent', () => {
     let spectator: Spectator<ParkingRequestFormDetailsComponent>;
     let now_spy: jest.SpyInstance | null = null;
@@ -371,6 +379,74 @@ describe('ParkingRequestFormDetailsComponent', () => {
         expect(spectator.component.show_custom_time_inputs()).toBe(false);
         expect(spectator.component.form().getRawValue().date).toBe(base_day);
         expect(spectator.component.form().getRawValue().duration).toBe(1440);
+    });
+
+    it('should clear the plate number when the selected host changes away from the current user', async () => {
+        spectator.component.form().patchValue({
+            user: { email: 'me@test.com', name: 'Me' },
+            plate_number: 'ABC123',
+        });
+        await spectator.component.ngOnInit();
+
+        spectator.component.form().controls.user.setValue({
+            email: 'other@test.com',
+            name: 'Other User',
+        });
+
+        expect(spectator.component.form().getRawValue().plate_number).toBe('');
+    });
+
+    it('should keep the plate number when the selected host remains the current user', async () => {
+        spectator.component.form().patchValue({
+            user: { email: 'me@test.com', name: 'Me' },
+            plate_number: 'ABC123',
+        });
+        await spectator.component.ngOnInit();
+
+        spectator.component.form().controls.user.setValue({
+            email: 'me@test.com',
+            name: 'Me Again',
+        });
+
+        expect(spectator.component.form().getRawValue().plate_number).toBe(
+            'ABC123',
+        );
+    });
+
+    it('should restore the prefilled plate number when the selected host changes back to the current user', async () => {
+        spectator.component.form().patchValue({
+            user: { email: 'me@test.com', name: 'Me' },
+            plate_number: 'ABC123',
+        });
+        await spectator.component.ngOnInit();
+
+        spectator.component.form().controls.user.setValue({
+            email: 'other@test.com',
+            name: 'Other User',
+        });
+        spectator.component.form().patchValue({ plate_number: 'OTHER123' });
+
+        spectator.component.form().controls.user.setValue({
+            email: 'me@test.com',
+            name: 'Me',
+        });
+
+        expect(spectator.component.form().getRawValue().plate_number).toBe(
+            'ABC123',
+        );
+    });
+
+    it('should not clear the plate number for an existing booking already opened for another host', async () => {
+        spectator.component.form().patchValue({
+            user: { email: 'other@test.com', name: 'Other User' },
+            plate_number: 'ABC123',
+        });
+
+        await spectator.component.ngOnInit();
+
+        expect(spectator.component.form().getRawValue().plate_number).toBe(
+            'ABC123',
+        );
     });
 
     it('should restore the selected shift after clearing a forced request time', () => {

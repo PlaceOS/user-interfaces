@@ -1084,6 +1084,7 @@ export class ParkingRequestFormDetailsComponent
     extends AsyncHandler
     implements OnInit
 {
+    private _prefilled_plate_number = '';
     private _parking = inject(ParkingService);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
@@ -1437,6 +1438,8 @@ export class ParkingRequestFormDetailsComponent
         }
         this._syncRequestTypeTime(form);
         this._syncRequestTypeUser(form);
+        this._syncPrefilledPlateNumber(form);
+        this._syncPlateNumberUser(form);
         if (
             this.filtered_approver_group_options().length &&
             !this.is_auto_approved()
@@ -2003,5 +2006,56 @@ export class ParkingRequestFormDetailsComponent
         if (this.host_book_as() === 'internals' && selected_user?.is_external) {
             form.patchValue({ user: current_user || null });
         }
+    }
+
+    private _syncPrefilledPlateNumber(form: FormGroup) {
+        this.subscription(
+            'prefilled_plate_number',
+            form.controls.plate_number.valueChanges
+                .pipe(startWith(form.getRawValue().plate_number))
+                .subscribe((plate_number) => {
+                    if (this._prefilled_plate_number) return;
+                    if (
+                        this._userEmail(form.getRawValue().user) !==
+                        this._userEmail(currentUser())
+                    ) {
+                        return;
+                    }
+                    if (!plate_number) return;
+                    this._prefilled_plate_number = plate_number;
+                }),
+        );
+    }
+
+    private _syncPlateNumberUser(form: FormGroup) {
+        let previous_email = this._userEmail(form.getRawValue().user);
+        this.subscription(
+            'plate_number_user',
+            form.controls.user.valueChanges.subscribe((selected_user) => {
+                const current_email = this._userEmail(currentUser());
+                const selected_email = this._userEmail(selected_user);
+                const user_changed = selected_email !== previous_email;
+                previous_email = selected_email;
+                if (!user_changed || !current_email || !selected_email) return;
+                if (selected_email === current_email) {
+                    if (
+                        this._prefilled_plate_number &&
+                        form.getRawValue().plate_number !==
+                            this._prefilled_plate_number
+                    ) {
+                        form.patchValue({
+                            plate_number: this._prefilled_plate_number,
+                        });
+                    }
+                    return;
+                }
+                if (!form.getRawValue().plate_number) return;
+                form.patchValue({ plate_number: '' });
+            }),
+        );
+    }
+
+    private _userEmail(user: { email?: string } | null | undefined): string {
+        return user?.email?.trim().toLowerCase() || '';
     }
 }
