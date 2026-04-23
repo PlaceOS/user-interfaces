@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
+import { parse } from 'date-fns';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { BuildingPipe, TranslatePipe } from '@placeos/components';
 import { combineLatest, of } from 'rxjs';
@@ -177,11 +178,20 @@ export class VisitorsComponent implements OnInit, OnDestroy {
     }
 
     public ngOnInit() {
+        this._syncDateFilter();
         this._state.poll();
         this._state.startPolling();
     }
 
     public ngOnDestroy() {
         this._state.stopPolling();
+    }
+
+    private _syncDateFilter() {
+        const route_date = this._route.snapshot.queryParamMap.get('date');
+        const date = route_date
+            ? parse(route_date, 'yyyy-MM-dd', new Date()).valueOf()
+            : Date.now();
+        this._state.setFilters({ date: Number.isNaN(date) ? Date.now() : date });
     }
 }
