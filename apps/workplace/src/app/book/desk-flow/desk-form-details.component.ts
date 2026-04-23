@@ -271,7 +271,12 @@ const MINUTES_IN_DAY = 24 * 60;
                                 {{ (options | async)?.group ? 3 : 2 }}
                             </div>
                             <div class="text-xl">
-                                {{ 'RESOURCE.DESK' | translate }}
+                                {{
+                                    ((options | async)?.group
+                                        ? 'BOOKINGS.DESK_GROUP_SELECT'
+                                        : 'RESOURCE.DESK'
+                                    ) | translate
+                                }}
                             </div>
                         </h3>
                         <desk-list-field
