@@ -1,10 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { settingSignal } from '@placeos/common';
+import { Component, signal } from '@angular/core';
 import { FooterMenuComponent } from '../components/footer-menu.component';
-import { FullscreenEmbedComponent } from '../components/fullscreen-embed.component';
-import { SidebarEmbedComponent } from '../components/sidebar-embed.component';
 import { TopbarComponent } from '../components/topbar.component';
+import { VirtualConciergeButtonComponent } from '../components/virtual-concierge-button.component';
 import { TeamQuickActionsComponent } from './team-quick-actions.component';
 import { TeamScheduleFiltersComponent } from './team-schedule-filters.component';
 import { TeamScheduleListComponent } from './team-schedule-list.component';
@@ -27,16 +24,7 @@ import { TeamScheduleTableComponent } from './team-schedule-table.component';
                     </div>
                     <div class="h-4 min-h-px w-full"></div>
                 </div>
-                @if (virtual_concierge_url()) {
-                    <button
-                        icon
-                        matRipple
-                        class="bg-secondary absolute top-1/2 left-2 h-16 w-16 -translate-y-1/2"
-                        (click)="viewVirtualConcierge()"
-                    >
-                        <img class="z-10 h-12" src="assets/icons/roybot.png" />
-                    </button>
-                }
+                <virtual-concierge-button />
             </div>
             @if (!hide_nav()) {
                 <footer-menu />
@@ -48,6 +36,7 @@ import { TeamScheduleTableComponent } from './team-schedule-table.component';
     imports: [
         TopbarComponent,
         FooterMenuComponent,
+        VirtualConciergeButtonComponent,
         TeamQuickActionsComponent,
         TeamScheduleFiltersComponent,
         TeamScheduleTableComponent,
@@ -55,45 +44,5 @@ import { TeamScheduleTableComponent } from './team-schedule-table.component';
     ],
 })
 export class TeamScheduleComponent {
-    private _dialog = inject(MatDialog);
-
     public readonly hide_nav = signal(false);
-    public readonly virtual_concierge_url = settingSignal(
-        'virtual_concierge_url',
-        '',
-    );
-    public readonly virtual_concierge_display = settingSignal<
-        'fullscreen' | 'sidebar'
-    >('virtual_concierge.display', 'fullscreen');
-    public readonly virtual_concierge_side = settingSignal<'left' | 'right'>(
-        'virtual_concierge.side',
-        'left',
-    );
-
-    public viewVirtualConcierge() {
-        const url = this.virtual_concierge_url();
-        const is_sidebar = this.virtual_concierge_display() === 'sidebar';
-        const side = this.virtual_concierge_side();
-        const position =
-            side === 'right'
-                ? { right: '0', top: '0' }
-                : { left: '0', top: '0' };
-        if (is_sidebar) {
-            this._dialog.open(SidebarEmbedComponent, {
-                data: { url, side },
-                height: '100vh',
-                width: '28rem',
-                maxWidth: '100vw',
-                position,
-                panelClass: [
-                    'sidebar-embed-dialog',
-                    `sidebar-embed-dialog-${side}`,
-                ],
-            });
-            return;
-        }
-        this._dialog.open(FullscreenEmbedComponent, {
-            data: url,
-        });
-    }
 }

@@ -8,6 +8,7 @@ import { ExploreMapViewComponent, ExploreStateService } from '@placeos/explore';
 import { differenceInMinutes } from 'date-fns';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { TopbarComponent } from '../components/topbar.component';
+import { VirtualConciergeButtonComponent } from '../components/virtual-concierge-button.component';
 import { LandingStateService } from '../landing/landing-state.service';
 import { EventPinComponent } from './event-pin.component';
 
@@ -64,6 +65,7 @@ import { EventPinComponent } from './event-pin.component';
                     </div>
                 }
             </main>
+            <virtual-concierge-button />
         </div>
 
         @if (!hide_nav) {
@@ -87,6 +89,7 @@ import { EventPinComponent } from './event-pin.component';
     imports: [
         TopbarComponent,
         FooterMenuComponent,
+        VirtualConciergeButtonComponent,
         ExploreMapViewComponent,
         IconComponent,
         TranslatePipe,

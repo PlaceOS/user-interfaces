@@ -9,6 +9,7 @@ import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { TopbarComponent } from '../components/topbar.component';
+import { VirtualConciergeButtonComponent } from '../components/virtual-concierge-button.component';
 import { ScheduleDayViewComponent } from './schedule-day-view.component';
 import { ScheduleFiltersComponent } from './schedule-filters.component';
 import { ScheduleListViewComponent } from './schedule-list-view.component';
@@ -78,6 +79,7 @@ import { ScheduleWeekViewComponent } from './schedule-week-view.component';
                     mode="indeterminate"
                 ></mat-progress-bar>
             }
+            <virtual-concierge-button />
         </div>
         @if (!hide_nav) {
             <footer-menu />
@@ -101,6 +103,7 @@ import { ScheduleWeekViewComponent } from './schedule-week-view.component';
         MatFormFieldModule,
         MatSelectModule,
         FooterMenuComponent,
+        VirtualConciergeButtonComponent,
         ScheduleFiltersComponent,
         ScheduleSidebarComponent,
         TopbarComponent,

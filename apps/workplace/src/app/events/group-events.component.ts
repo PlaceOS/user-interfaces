@@ -7,6 +7,7 @@ import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { TopbarComponent } from '../components/topbar.component';
+import { VirtualConciergeButtonComponent } from '../components/virtual-concierge-button.component';
 import { GroupEventsFiltersListComponent } from './group-events-filters-list.component';
 import { GroupEventsSidebarComponent } from './group-events-sidebar.component';
 import { GroupEventsStateService } from './group-events-state.service';
@@ -52,6 +53,7 @@ import { GroupEventsStateService } from './group-events-state.service';
                     </div>
                 }
             </div>
+            <virtual-concierge-button />
         </main>
         <footer-menu />
     `,
@@ -81,6 +83,7 @@ import { GroupEventsStateService } from './group-events-state.service';
         CommonModule,
         TopbarComponent,
         FooterMenuComponent,
+        VirtualConciergeButtonComponent,
         GroupEventCardComponent,
         GroupEventsFiltersListComponent,
         GroupEventsSidebarComponent,
