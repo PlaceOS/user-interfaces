@@ -3,6 +3,7 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
@@ -68,7 +69,21 @@ import { LandingStateService } from '../landing/landing-state.service';
                 </div>
             }
             <div class="flex flex-col space-y-2 pt-2">
-                @if (filtered_levels().length <= 0) {
+                @if (availability_loading()) {
+                    <div
+                        class="flex min-h-40 flex-col items-center justify-center rounded-xl bg-base-200 py-12 text-center"
+                    >
+                        <mat-spinner [diameter]="32"></mat-spinner>
+                        <div class="mt-3 text-sm opacity-60">
+                            Loading available
+                            {{
+                                active_tab() === 'rooms'
+                                    ? 'rooms'
+                                    : active_tab()
+                            }}...
+                        </div>
+                    </div>
+                } @else if (filtered_levels().length <= 0) {
                     <div
                         class="flex flex-col items-center justify-center rounded-xl bg-base-200 py-12 text-center"
                     >
@@ -146,6 +161,7 @@ import { LandingStateService } from '../landing/landing-state.service';
         RouterLink,
         BuildingPipe,
         MatMenuModule,
+        MatProgressSpinnerModule,
     ],
 })
 export class LandingAvailableNowComponent implements OnInit {
@@ -173,9 +189,20 @@ export class LandingAvailableNowComponent implements OnInit {
         this._event_form.available_spaces,
         { initialValue: [] },
     );
+    public readonly booking_loading = toSignal(this._booking_form.loading, {
+        initialValue: '',
+    });
+    public readonly room_loading = toSignal(this._event_form.loading$, {
+        initialValue: '',
+    });
     public readonly available_resources = toSignal(
         this._booking_form.available_resources,
         { initialValue: [] },
+    );
+    public readonly availability_loading = computed(() =>
+        this.active_tab() === 'rooms'
+            ? !!this.room_loading()
+            : !!this.booking_loading(),
     );
 
     public readonly spaces_by_level = computed(() => {

@@ -13,6 +13,7 @@ describe('LandingAvailableNowComponent', () => {
     let spectator: SpectatorRouting<LandingAvailableNowComponent>;
     const booking_form = {
         available_resources: of([]),
+        loading: of(''),
         form: {
             getRawValue: jest.fn(),
             patchValue: jest.fn(),
@@ -21,6 +22,7 @@ describe('LandingAvailableNowComponent', () => {
     };
     const event_form = {
         available_spaces: of([]),
+        loading$: of(''),
         form: {
             getRawValue: jest.fn(),
             patchValue: jest.fn(),
