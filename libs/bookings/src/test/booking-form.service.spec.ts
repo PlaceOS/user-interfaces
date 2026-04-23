@@ -471,6 +471,46 @@ describe('BookingFormService', () => {
         );
     });
 
+    it('should clamp current-day all-day bookings before posting', async () => {
+        jest.useFakeTimers();
+        jest.setSystemTime(new Date(2026, 2, 20, 10, 2, 0, 0));
+        try {
+            const get = spectator.inject(SettingsService).get as jest.Mock;
+            const save_booking = booking_mod.saveBooking as jest.Mock;
+            (spectator.inject(PaymentsService) as any).enabled = false;
+            get.mockImplementation((key: string) => {
+                if (key === 'app.bookings.all_day_period') {
+                    return { start: 9, end: 17 };
+                }
+                return undefined;
+            });
+            save_booking.mockReset();
+            save_booking.mockImplementation((booking: Booking) => of(booking));
+
+            spectator.service.newForm('desk');
+            spectator.service.form.patchValue({
+                asset_id: 'desk-1',
+                asset_name: 'Desk 1',
+                date: new Date(2026, 2, 20, 8, 0, 0, 0).valueOf(),
+            });
+            spectator.service.form.controls.all_day.setValue(true);
+
+            await spectator.service.postForm(true);
+
+            expect(save_booking).toHaveBeenCalledTimes(1);
+            expect(save_booking.mock.calls[0][0]).toEqual(
+                expect.objectContaining({
+                    all_day: true,
+                    date: new Date(2026, 2, 20, 10, 5, 0, 0).valueOf(),
+                    duration: 415,
+                    date_end: new Date(2026, 2, 20, 17, 0, 0, 0).valueOf(),
+                }),
+            );
+        } finally {
+            jest.useRealTimers();
+        }
+    });
+
     it('should assign unique desks when posting desk group bookings', async () => {
         const desk_list = [
             {

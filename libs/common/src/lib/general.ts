@@ -679,22 +679,43 @@ export function getAllDayTimeRange(
     timezone = '',
     start?: number | null,
     end?: number | null,
+    min_date?: number | null,
 ) {
     const day_start = startOfDayInTimezone(date, timezone);
+    const clampStart = (period_start: number, period_end: number) => {
+        if (!min_date) return period_start;
+        const minimum = roundToNearestMinutes(min_date, {
+            nearestTo: 5,
+            roundingMethod: 'ceil',
+        }).valueOf();
+        const same_day = isSameDay(
+            timezone ? toZonedTime(minimum, timezone) : new Date(minimum),
+            timezone
+                ? toZonedTime(period_start, timezone)
+                : new Date(period_start),
+        );
+        if (!same_day || minimum <= period_start) return period_start;
+        return Math.min(period_end, minimum);
+    };
     if (start == null || end == null) {
+        const period_end = endOfDayInTimezone(day_start, timezone);
+        const period_start = clampStart(day_start, period_end);
         return {
-            date: day_start,
-            duration: 24 * 60 - 1,
-            date_end: endOfDayInTimezone(day_start, timezone),
+            date: period_start,
+            duration: Math.max(0, differenceInMinutes(period_end, period_start)),
+            date_end: period_end,
         };
     }
     const range_start = Math.max(0, Math.min(23, start));
     const range_end = Math.max(range_start + 1, Math.min(24, end));
-    const period_start = addHours(day_start, range_start).valueOf();
     const period_end = addHours(day_start, range_end).valueOf();
+    const period_start = clampStart(
+        addHours(day_start, range_start).valueOf(),
+        period_end,
+    );
     return {
         date: period_start,
-        duration: differenceInMinutes(period_end, period_start),
+        duration: Math.max(0, differenceInMinutes(period_end, period_start)),
         date_end: period_end,
     };
 }
@@ -984,6 +1005,9 @@ export function setupFormTimeSync(
             roundingMethod: 'ceil',
         }).valueOf();
 
+    const allDayMinDate = () =>
+        form.getRawValue().id ? undefined : Date.now();
+
     /** Clamp a duration value to [min_duration, max_duration]. */
     const clampDuration = (dur: number): number => {
         if (is_custom_duration(dur)) return dur;
@@ -1142,7 +1166,25 @@ export function setupFormTimeSync(
     subscriptions.push(
         form.controls.date.valueChanges.subscribe((date: number) => {
             const aligned = alignToBookableHours(date);
-            const effective = aligned !== date ? aligned : date;
+            let effective = aligned !== date ? aligned : date;
+            if (form.value.all_day && effective < Date.now() && !form.value.id) {
+                const snapped = roundCeil(Date.now());
+                effective = alignToBookableHours(snapped) || snapped;
+            }
+            if (form.value.all_day) {
+                form.patchValue(
+                    getAllDayTimeRange(
+                        effective,
+                        timezone,
+                        all_day_start,
+                        all_day_end,
+                        allDayMinDate(),
+                    ),
+                    { emitEvent: false },
+                );
+                on_change?.();
+                return;
+            }
             const expected_end = roundCeil(
                 addMinutes(effective, form.getRawValue().duration),
             );
@@ -1219,17 +1261,16 @@ export function setupFormTimeSync(
         subscriptions.push(
             form.controls.all_day.valueChanges.subscribe((all_day: boolean) => {
                 if (all_day) {
-                    if (all_day_start != null && all_day_end != null) {
-                        form.patchValue(
-                            getAllDayTimeRange(
-                                form.getRawValue().date,
-                                timezone,
-                                all_day_start,
-                                all_day_end,
-                            ),
-                            { emitEvent: false },
-                        );
-                    }
+                    form.patchValue(
+                        getAllDayTimeRange(
+                            form.getRawValue().date,
+                            timezone,
+                            all_day_start,
+                            all_day_end,
+                            allDayMinDate(),
+                        ),
+                        { emitEvent: false },
+                    );
                 } else {
                     const dur = clampDuration(default_duration);
                     const date = form.getRawValue().date;
@@ -1272,8 +1313,7 @@ export function setupFormTimeSync(
 
             if (
                 form.value.all_day &&
-                all_day_start != null &&
-                all_day_end != null
+                form.getRawValue().date
             ) {
                 form.patchValue(
                     getAllDayTimeRange(
@@ -1281,6 +1321,7 @@ export function setupFormTimeSync(
                         timezone,
                         all_day_start,
                         all_day_end,
+                        allDayMinDate(),
                     ),
                     { emitEvent: false },
                 );

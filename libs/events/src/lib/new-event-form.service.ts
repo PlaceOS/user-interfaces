@@ -472,6 +472,7 @@ export class EventFormService extends AsyncHandler {
             this.timezone,
             period?.start,
             period?.end,
+            this._form.getRawValue().id ? undefined : Date.now(),
         );
     }
 
