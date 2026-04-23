@@ -269,6 +269,29 @@ describe('ParkingStateService', () => {
         ).toBe(true);
     });
 
+    it('should hide declined manual requests from pending approval filtering', () => {
+        settings_map['app.parking.show_requests'] = true;
+        const pending_request = {
+            id: 'request-1',
+            asset_id: 'unallocated-1',
+            status: 'tentative',
+            extension_data: { approver_group: 'parking-team' },
+        } as any;
+        const declined_request = {
+            id: 'request-2',
+            asset_id: 'unallocated-2',
+            status: 'declined',
+            extension_data: { approver_group: 'parking-team' },
+        } as any;
+
+        expect(
+            spectator.service.filterEventList(
+                [pending_request, declined_request],
+                'manual',
+            ),
+        ).toEqual([pending_request]);
+    });
+
     it('should assign a space before approving requests when enabled', async () => {
         settings_map['app.parking.assign_space_on_approve'] = true;
         organisation_service.levels = [

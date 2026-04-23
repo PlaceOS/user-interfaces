@@ -339,7 +339,7 @@ export class ParkingStateService extends AsyncHandler {
         }
         if (filter_type === 'manual') {
             return visible_list.filter((booking) =>
-                this.isManualRequest(booking),
+                this.isManualRequest(booking) && booking.status !== 'declined',
             );
         }
         if (filter_type === 'waitlist') {
