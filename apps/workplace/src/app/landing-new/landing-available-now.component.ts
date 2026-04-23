@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
@@ -148,7 +148,7 @@ import { LandingStateService } from '../landing/landing-state.service';
         MatMenuModule,
     ],
 })
-export class LandingAvailableNowComponent {
+export class LandingAvailableNowComponent implements OnInit {
     private _state = inject(LandingStateService);
     private _booking_form = inject(BookingFormService);
     private _event_form = inject(EventFormService);
@@ -219,7 +219,31 @@ export class LandingAvailableNowComponent {
         });
     });
 
+    public ngOnInit() {
+        this.setBookingType('desk');
+        this.ensureBookingWindow();
+        this.ensureRoomWindow();
+    }
+
     public setBookingType(type: BookingType) {
         this._booking_form.setOptions({ type });
+    }
+
+    private ensureBookingWindow() {
+        const { date, duration } = this._booking_form.form.getRawValue();
+        if (date && duration) return;
+        this._booking_form.form.patchValue({
+            date: date || Date.now(),
+            duration: duration || 60,
+        });
+    }
+
+    private ensureRoomWindow() {
+        const { date, duration } = this._event_form.form.getRawValue();
+        if (date && duration) return;
+        this._event_form.form.patchValue({
+            date: date || Date.now(),
+            duration: duration || 60,
+        });
     }
 }
