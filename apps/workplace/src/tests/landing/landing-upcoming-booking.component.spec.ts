@@ -102,13 +102,15 @@ describe('LandingUpcomingBookingComponent', () => {
         jest.useRealTimers();
     });
 
-    it('should debounce checked in state for room events', async () => {
+    it('should update checked in state immediately for room events', () => {
+        jest.useFakeTimers();
         upcoming_events.next([
             new CalendarEvent({
                 id: 'event-1',
                 title: 'Room Booking',
                 date: Date.now(),
                 duration: 60,
+                state: 'started',
                 status: 'approved',
                 system: { id: 'sys-1' },
             } as any),
@@ -116,15 +118,35 @@ describe('LandingUpcomingBookingComponent', () => {
         spectator.component.room_status.set('busy');
 
         spectator.detectChanges();
-
-        expect(spectator.component.isCheckedIn()).toBe(false);
-        expect(spectator.query('button[btn]')).toBeDisabled();
-
-        await new Promise((resolve) => setTimeout(resolve, 350));
+        jest.runOnlyPendingTimers();
         spectator.detectChanges();
 
         expect(spectator.component.isCheckedIn()).toBe(true);
         expect(spectator.query('button[btn]')).toBeDisabled();
+        jest.useRealTimers();
+    });
+
+    it('should preserve room status when the same room event refreshes', async () => {
+        const event_details = {
+            id: 'event-2',
+            title: 'Room Booking',
+            date: Date.now(),
+            duration: 60,
+            state: 'started',
+            status: 'approved',
+            system: { id: 'calendar-resource-id' },
+        };
+        upcoming_events.next([new CalendarEvent(event_details as any)]);
+        spectator.component.room_status.set('busy');
+        spectator.component.room_system_id.set('room-system-1');
+
+        spectator.detectChanges();
+
+        upcoming_events.next([new CalendarEvent(event_details as any)]);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        spectator.detectChanges();
+
+        expect(spectator.component.room_status()).toBe('busy');
     });
 
     it('should resolve the room system id like the details modal', async () => {
@@ -133,7 +155,7 @@ describe('LandingUpcomingBookingComponent', () => {
         transform_spy.mockResolvedValue({ id: 'room-system-1' } as any);
         upcoming_events.next([
             new CalendarEvent({
-                id: 'event-2',
+                id: 'event-3',
                 title: 'Room Booking',
                 date: Date.now(),
                 duration: 60,

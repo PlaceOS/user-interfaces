@@ -33,7 +33,8 @@ import {
 import { getModule } from '@placeos/ts-client';
 import { differenceInMinutes, format, isSameDay } from 'date-fns';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { timer } from 'rxjs';
+import { debounce, distinctUntilChanged } from 'rxjs/operators';
 import { LandingStateService } from '../landing/landing-state.service';
 import { ScheduleStateService } from '../schedule/schedule-state.service';
 
@@ -269,6 +270,7 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
     public readonly upcomingEvents = toSignal(this._state.upcoming_events);
     public readonly room_status = signal('');
     public readonly room_system_id = signal('');
+    private readonly _room_event_key = signal('');
 
     public readonly edit_fn = (i) => this._schedule.edit(i);
     public readonly edit_booking_fn = (i) => this._schedule.editBooking(i);
@@ -370,8 +372,8 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
 
     public readonly isCheckedIn = toSignal(
         toObservable(this._checked_in).pipe(
-            debounceTime(300),
             distinctUntilChanged(),
+            debounce((checked_in) => timer(checked_in ? 0 : 300)),
         ),
         {
             initialValue: this._checked_in(),
@@ -383,16 +385,28 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
         this.subscription(
             'sync_room_status',
             this._state.upcoming_events.subscribe((events) => {
-                this.room_status.set('');
-                this.room_system_id.set('');
                 const event = events?.[0];
                 if (
                     !(event instanceof CalendarEvent) ||
                     event.extension_data?.shared_event
                 ) {
+                    this._room_event_key.set('');
+                    this.room_status.set('');
+                    this.room_system_id.set('');
                     return;
                 }
-                this._resolveRoomSystem(event);
+                const event_key = (event as any).instance
+                    ? `${event.id}|${(event as any).instance}`
+                    : event.id;
+                const same_event = this._room_event_key() === event_key;
+                this._room_event_key.set(event_key);
+                if (!same_event) {
+                    this.room_status.set('');
+                    this.room_system_id.set('');
+                }
+                if (!same_event || !this.room_system_id()) {
+                    this._resolveRoomSystem(event);
+                }
             }),
         );
     }
