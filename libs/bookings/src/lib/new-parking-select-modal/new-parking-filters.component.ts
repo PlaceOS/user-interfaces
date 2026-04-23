@@ -68,7 +68,7 @@ import { BookingFormService } from '../booking-form.service';
                             </mat-select>
                         </mat-form-field>
                     }
-                    @if (!use_region && buildings()?.length > 1) {
+                    @if (!use_region() && buildings()?.length > 1) {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="building"
@@ -265,6 +265,7 @@ export class NewParkingFiltersComponent {
     private _state = inject(BookingFormService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private readonly _use_region = this._settings.signal('use_region', false);
 
     public readonly hide_levels = input<boolean>(undefined);
 
@@ -356,7 +357,6 @@ export class NewParkingFiltersComponent {
         'use_24_hour_time',
         false,
     );
-    private readonly _use_region = this._settings.signal('use_region', false);
     private readonly _use_building_timezone = this._settings.signal(
         'events.use_building_timezone',
         false,
