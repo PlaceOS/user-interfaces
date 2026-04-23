@@ -1443,6 +1443,7 @@
             "PARKING_APPROVE_ERROR": "فشل الموافقة على حجز موقف السيارات. خطأ: {{ error }}",
             "PARKING_APPROVE_SUCCESS": "تمت الموافقة على حجز موقف السيارات بنجاح.",
             "PARKING_ASSIGN_SPACE": "تعيين مكان",
+            "PARKING_ALLOW_DELETING": "السماح بحذف الحجوزات",
             "PARKING_ASSIGN_SPACE_TITLE": "تعيين مكان لوقوف السيارات",
             "PARKING_ASSIGN_SPACE_CONFIRM": "تعيين والموافقة",
             "PARKING_ASSIGN_SPACE_SUCCESS": "تم تعيين مكان لوقوف السيارات والموافقة على الحجز.",

@@ -1443,6 +1443,7 @@
             "PARKING_APPROVE_ERROR": "Falha ao aprovar a reserva de estacionamento. Erro: {{ error }}",
             "PARKING_APPROVE_SUCCESS": "Reserva de estacionamento aprovada com sucesso.",
             "PARKING_ASSIGN_SPACE": "Atribuir vaga",
+            "PARKING_ALLOW_DELETING": "Permitir exclusao de reservas",
             "PARKING_ASSIGN_SPACE_TITLE": "Atribuir vaga de estacionamento",
             "PARKING_ASSIGN_SPACE_CONFIRM": "Atribuir e aprovar",
             "PARKING_ASSIGN_SPACE_SUCCESS": "Vaga de estacionamento atribuída e reserva aprovada.",

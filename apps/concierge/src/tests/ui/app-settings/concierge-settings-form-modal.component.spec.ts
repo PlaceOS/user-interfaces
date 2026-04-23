@@ -149,6 +149,7 @@ describe('ConciergeSettingsFormModalComponent', () => {
         expect(parking.get('disable_styles')).toBeTruthy();
         expect(parking.get('disable_bookings')).toBeTruthy();
         expect(parking.get('hide_level_selector_on_booking_list')).toBeTruthy();
+        expect(parking.get('allow_deleting')).toBeTruthy();
         expect(parking.get('max_assigned_count')).toBeTruthy();
     });
 

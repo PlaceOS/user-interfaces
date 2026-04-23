@@ -89,6 +89,7 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                         content: action_template,
                         size: '6.5rem',
                         sortable: false,
+                        show: show_action_column(),
                     },
                 ]"
                 [filter]="options().search"
@@ -338,6 +339,21 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                             <icon class="text-2xl">edit</icon>
                         </button>
                     }
+                    @if (can_delete()) {
+                        <button
+                            icon
+                            matRipple
+                            [disabled]="
+                                row.checked_in ||
+                                row.state === 'in_progress' ||
+                                row.status === 'ended'
+                            "
+                            [matTooltip]="'COMMON.DELETE' | translate"
+                            (click)="removeBooking(row)"
+                        >
+                            <icon class="text-2xl">delete</icon>
+                        </button>
+                    }
                 </div>
             </ng-template>
             <div class="h-20 w-full"></div>
@@ -401,6 +417,7 @@ export class ParkingBookingsListComponent
     public readonly approve = (e) => this._state.approveBooking(e);
     public readonly editReservation = (e) => this._state.editReservation(e);
     public readonly assignSpace = (e) => this._state.assignSpace(e);
+    public readonly removeBooking = (e) => this._state.removeBooking(e);
     public readonly isRequest = (e) => this._state.isRequest(e);
     public readonly isManualRequest = (e) => this._state.isManualRequest(e);
     public readonly isWaitlisted = (e) => this._state.isWaitlisted(e);
@@ -413,8 +430,16 @@ export class ParkingBookingsListComponent
         const { request_filter } = this.options();
         return this.hide_bay_number || this.isRequestFilter(request_filter);
     });
+    public readonly show_action_column = computed(() => {
+        const { search, request_filter } = this.options();
+        const list = this._state.filterEventList(this.bookings(), request_filter);
+        return this._state
+            .filterEventSearch(list, search)
+            .some((booking) => this.hasVisibleActions(booking));
+    });
 
     public readonly can_edit = settingSignal('parking.allow_editing', true);
+    public readonly can_delete = settingSignal('parking.allow_deleting', false);
 
     public get show_request_types() {
         return !!this._settings.get('app.parking.show_requests');
@@ -448,6 +473,14 @@ export class ParkingBookingsListComponent
 
     public isRequestId(id?: string) {
         return !!id?.startsWith('unallocated');
+    }
+
+    public hasVisibleActions(booking: Booking) {
+        return (
+            (this.isRequest(booking) && !this.hide_assign_space) ||
+            this.can_edit() ||
+            this.can_delete()
+        );
     }
 
     public bookingType(booking: Booking) {

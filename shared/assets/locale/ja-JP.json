@@ -1443,6 +1443,7 @@
             "PARKING_APPROVE_ERROR": "駐車予約の承認に失敗しました。エラー: {{ error }}",
             "PARKING_APPROVE_SUCCESS": "駐車予約の承認に成功しました。",
             "PARKING_ASSIGN_SPACE": "スペースを割り当て",
+            "PARKING_ALLOW_DELETING": "予約の削除を許可",
             "PARKING_ASSIGN_SPACE_TITLE": "駐車スペースの割り当て",
             "PARKING_ASSIGN_SPACE_CONFIRM": "割り当てて承認",
             "PARKING_ASSIGN_SPACE_SUCCESS": "駐車スペースが割り当てられ、予約が承認されました。",

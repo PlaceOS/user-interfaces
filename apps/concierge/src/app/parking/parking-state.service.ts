@@ -23,7 +23,7 @@ import {
     queryBookings,
     rejectBooking,
     rejectBookingInstance,
-    removeBooking,
+    removeBooking as removeBookingApi,
     saveBooking,
     updateBooking,
     updateBookingInstance,
@@ -339,7 +339,7 @@ export class ParkingStateService extends AsyncHandler {
         }
         if (filter_type === 'manual') {
             return visible_list.filter((booking) =>
-                this.isManualRequest(booking),
+                this.isManualRequest(booking) && booking.status !== 'declined',
             );
         }
         if (filter_type === 'waitlist') {
@@ -925,6 +925,37 @@ export class ParkingStateService extends AsyncHandler {
         );
     }
 
+    public async removeBooking(booking: Booking) {
+        const details = await openConfirmModal(
+            {
+                title: i18n('APP.CONCIERGE.BOOKING_REMOVE_TITLE'),
+                content: i18n('APP.CONCIERGE.BOOKING_REMOVE_MSG', {
+                    name:
+                        booking.asset_name ||
+                        booking.user_name ||
+                        booking.user_email ||
+                        booking.id,
+                    time: new Date(booking.date).toLocaleString(),
+                }),
+                icon: { class: 'material-symbols-rounded', content: 'delete' },
+            },
+            this._dialog,
+        );
+        if (details?.reason !== 'done') return;
+        details.loading(i18n('APP.CONCIERGE.BOOKING_REMOVE_LOADING'));
+        const query = booking.instance
+            ? { instance: true, start_time: booking.instance }
+            : {};
+        await lastValueFrom(removeBookingApi(booking.id, query)).catch((e) => {
+            notifyError(i18n('APP.CONCIERGE.BOOKING_REMOVE_ERROR', { error: e }));
+            details.close();
+            throw e;
+        });
+        details.close();
+        notifySuccess(i18n('APP.CONCIERGE.BOOKING_REMOVE_SUCCESS'));
+        this._change.next(Date.now());
+    }
+
     private async _checkAssignedParkingLimit(
         user_email: string,
         current_space_id?: string,
@@ -987,7 +1018,7 @@ export class ParkingStateService extends AsyncHandler {
                     ),
                 );
             } else {
-                await lastValueFrom(removeBooking(booking.id));
+                await lastValueFrom(removeBookingApi(booking.id));
             }
         }
     }
