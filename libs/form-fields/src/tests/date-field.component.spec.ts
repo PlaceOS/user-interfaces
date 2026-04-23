@@ -1,7 +1,8 @@
 import { fakeAsync } from '@angular/core/testing';
 import { FormsModule, NgControl } from '@angular/forms';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { addDays, format } from 'date-fns';
+import { addDays, format, set, startOfMinute } from 'date-fns';
+import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -10,8 +11,8 @@ import { MatInputModule } from '@angular/material/input';
 
 import {
     getTimeInTimezone,
+    getTimezoneOffsetInMinutes,
     randomInt,
-    setTimeInTimezone,
 } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
@@ -20,6 +21,7 @@ import { DateFieldComponent } from '../lib/date-field.component';
 
 describe('DateFieldComponent', () => {
     let spectator: Spectator<DateFieldComponent>;
+    const reference_date = new Date('2026-04-12T12:00:00.000Z');
     const createComponent = createComponentFactory({
         component: DateFieldComponent,
         declarations: [
@@ -36,6 +38,40 @@ describe('DateFieldComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
+
+    const pickTimezoneBehindLocal = () => {
+        const local_timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const local_offset = getTimezoneOffsetInMinutes(
+            local_timezone,
+            reference_date,
+        );
+        const supported_timezones =
+            ((Intl as any).supportedValuesOf?.('timeZone') as string[]) || [
+                'Pacific/Pago_Pago',
+                'Pacific/Honolulu',
+                'America/Adak',
+                'America/Anchorage',
+                'America/Los_Angeles',
+                'America/New_York',
+                'UTC',
+            ];
+        return supported_timezones
+            .filter((timezone) => {
+                try {
+                    return (
+                        getTimezoneOffsetInMinutes(timezone, reference_date) <
+                        local_offset
+                    );
+                } catch {
+                    return false;
+                }
+            })
+            .sort(
+                (left, right) =>
+                    getTimezoneOffsetInMinutes(left, reference_date) -
+                    getTimezoneOffsetInMinutes(right, reference_date),
+            )[0];
+    };
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
@@ -85,8 +121,9 @@ describe('DateFieldComponent', () => {
         expect(spectator.query('button[aria-label="Clear date"]')).toBeNull();
     });
 
-    it('should preserve wall-clock time in the configured timezone', () => {
-        const timezone = 'UTC';
+    it('should preserve the selected calendar day in the configured timezone', () => {
+        const timezone = pickTimezoneBehindLocal();
+        expect(timezone).toBeTruthy();
         const old_date = new Date('2026-04-08T15:30:00.000Z').valueOf();
         const new_date = new Date('2026-04-12T00:00:00.000Z').valueOf();
         const on_change = jest.fn();
@@ -98,8 +135,23 @@ describe('DateFieldComponent', () => {
         spectator.component.setValue(new_date);
 
         const { hours, minutes } = getTimeInTimezone(old_date, timezone);
+        const selected_date = new Date(new_date);
+        const expected = startOfMinute(
+            fromZonedTime(
+                set(toZonedTime(old_date, timezone), {
+                    year: selected_date.getFullYear(),
+                    month: selected_date.getMonth(),
+                    date: selected_date.getDate(),
+                    hours,
+                    minutes,
+                    seconds: 0,
+                    milliseconds: 0,
+                }),
+                timezone,
+            ),
+        ).valueOf();
         expect(on_change).toHaveBeenCalledWith(
-            setTimeInTimezone(new_date, hours, minutes, timezone),
+            expected,
         );
     });
 });

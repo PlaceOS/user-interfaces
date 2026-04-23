@@ -23,7 +23,8 @@ import {
     markUserDateChange,
     setTimeInTimezone,
 } from '@placeos/common';
-import { addYears, endOfDay, startOfDay } from 'date-fns';
+import { addYears, endOfDay, set, startOfDay, startOfMinute } from 'date-fns';
+import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -249,6 +250,24 @@ export class DateFieldComponent
             timezone,
         );
         let new_date = setTimeInTimezone(new_value, hours, minutes, timezone);
+        if (timezone) {
+            const selected_date = new Date(new_value);
+            const zoned_date = toZonedTime(this.date() || Date.now(), timezone);
+            new_date = startOfMinute(
+                fromZonedTime(
+                    set(zoned_date, {
+                        year: selected_date.getFullYear(),
+                        month: selected_date.getMonth(),
+                        date: selected_date.getDate(),
+                        hours,
+                        minutes,
+                        seconds: 0,
+                        milliseconds: 0,
+                    }),
+                    timezone,
+                ),
+            ).valueOf();
+        }
         // Check that new date is before from
         if (new_date < this.from.valueOf()) {
             new_date = this.from.valueOf();
