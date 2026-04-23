@@ -23,7 +23,8 @@ import {
     markUserDateChange,
     setTimeInTimezone,
 } from '@placeos/common';
-import { addYears, endOfDay, startOfDay } from 'date-fns';
+import { addYears, endOfDay, set, startOfDay, startOfMinute } from 'date-fns';
+import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -242,13 +243,31 @@ export class DateFieldComponent
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: number) {
-        // Keep the existing wall-clock time in the selected timezone.
+        // Preserve the selected calendar day and existing wall-clock time in the selected timezone.
         const timezone = this.timezone() || undefined;
         const { hours, minutes } = getTimeInTimezone(
             this.date() || Date.now(),
             timezone,
         );
         let new_date = setTimeInTimezone(new_value, hours, minutes, timezone);
+        if (timezone) {
+            const selected_date = new Date(new_value);
+            const zoned_date = toZonedTime(this.date() || Date.now(), timezone);
+            new_date = startOfMinute(
+                fromZonedTime(
+                    set(zoned_date, {
+                        year: selected_date.getFullYear(),
+                        month: selected_date.getMonth(),
+                        date: selected_date.getDate(),
+                        hours,
+                        minutes,
+                        seconds: 0,
+                        milliseconds: 0,
+                    }),
+                    timezone,
+                ),
+            ).valueOf();
+        }
         // Check that new date is not before the configured minimum.
         if (new_date < this.from.valueOf()) {
             new_date = this.from.valueOf();
