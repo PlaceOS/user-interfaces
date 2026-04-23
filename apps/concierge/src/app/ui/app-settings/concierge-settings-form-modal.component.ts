@@ -1482,6 +1482,13 @@ import { UploadButtonComponent } from './upload-button.component';
                                         formControlName="hide_assign_space"
                                     ></settings-toggle>
                                     <settings-toggle
+                                        [name]="
+                                            'APP.CONCIERGE.PARKING_ALLOW_DELETING'
+                                                | translate
+                                        "
+                                        formControlName="allow_deleting"
+                                    ></settings-toggle>
+                                    <settings-toggle
                                         name="Assign a space when approving requests"
                                         formControlName="assign_space_on_approve"
                                     ></settings-toggle>
@@ -1818,6 +1825,7 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
             hide_bay_number: new FormControl(false),
             hide_level_selector_on_booking_list: new FormControl(false),
             hide_assign_space: new FormControl(false),
+            allow_deleting: new FormControl(false),
             assign_space_on_approve: new FormControl(false),
             available_period: new FormControl(7),
             max_duration: new FormControl(480),

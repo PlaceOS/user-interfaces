@@ -279,6 +279,25 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                                             <icon class="text-base">edit</icon>
                                         </button>
                                     }
+                                    @if (can_delete()) {
+                                        <button
+                                            icon
+                                            matRipple
+                                            class="h-6 w-6"
+                                            [disabled]="
+                                                booking.checked_in ||
+                                                booking.state ===
+                                                    'in_progress' ||
+                                                booking.status === 'ended'
+                                            "
+                                            [matTooltip]="
+                                                'COMMON.DELETE' | translate
+                                            "
+                                            (click)="removeBooking(booking)"
+                                        >
+                                            <icon class="text-base">delete</icon>
+                                        </button>
+                                    }
                                 </div>
                             </div>
                         }
@@ -387,6 +406,7 @@ export class ParkingBookingsWeekViewComponent
     public readonly editReservation = (e: Booking) =>
         this._state.editReservation(e);
     public readonly assignSpace = (e: Booking) => this._state.assignSpace(e);
+    public readonly removeBooking = (e: Booking) => this._state.removeBooking(e);
     public readonly isRequest = (e: Booking) => this._state.isRequest(e);
     public readonly isWaitlisted = (e: Booking) => this._state.isWaitlisted(e);
     public readonly canApproveBooking = (e: Booking) =>
@@ -395,6 +415,7 @@ export class ParkingBookingsWeekViewComponent
         e?.status === 'ended' || !this.canApproveBooking(e);
 
     public readonly can_edit = settingSignal('parking.allow_editing', true);
+    public readonly can_delete = settingSignal('parking.allow_deleting', false);
 
     public get time_format() {
         return this._settings.time_format;

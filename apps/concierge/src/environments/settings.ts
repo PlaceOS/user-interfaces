@@ -43,6 +43,7 @@ const app = {
         hide_bay_number: false,
         hide_level_selector_on_booking_list: false,
         hide_assign_space: false,
+        allow_deleting: false,
         assign_space_on_approve: false,
         max_assigned_count: 0,
     },

@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { Booking, SettingsService } from '@placeos/common';
+import { Booking, settingSignal, SettingsService } from '@placeos/common';
 import { SimpleTableComponent } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
 import { defer, of } from 'rxjs';
@@ -41,6 +41,7 @@ describe('ParkingBookingsListComponent', () => {
                 approveBooking: jest.fn(),
                 editReservation: jest.fn(),
                 assignSpace: jest.fn(),
+                removeBooking: jest.fn(),
                 isRequest: jest.fn((booking: Booking) =>
                     booking.asset_id?.startsWith('unallocated'),
                 ),
@@ -79,10 +80,22 @@ describe('ParkingBookingsListComponent', () => {
         hide_assign_space = false;
         show_waitlist = true;
         request_filter = 'all';
+        settingSignal('parking.allow_editing', true).set(true);
+        settingSignal('parking.allow_deleting', false).set(false);
     });
 
     it('should show the booking type column when requests are enabled', () => {
         show_requests = true;
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'bay-1',
+                status: 'approved',
+                date: Date.now(),
+                date_end: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            } as Booking,
+        ];
         spectator = createComponent();
 
         const table = spectator.query(SimpleTableComponent);
@@ -101,6 +114,16 @@ describe('ParkingBookingsListComponent', () => {
 
     it('should hide the booking type column when requests are disabled', () => {
         show_requests = false;
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'bay-1',
+                status: 'approved',
+                date: Date.now(),
+                date_end: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            } as Booking,
+        ];
         spectator = createComponent();
 
         const table = spectator.query(SimpleTableComponent);
@@ -150,6 +173,54 @@ describe('ParkingBookingsListComponent', () => {
                 .queryAll('icon')
                 .some((icon) => icon.textContent?.includes('add_location')),
         ).toBe(false);
+    });
+
+    it('should hide the actions column when no visible actions are available', () => {
+        hide_assign_space = true;
+        request_filter = 'bookings';
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'bay-1',
+                status: 'approved',
+                date: Date.now(),
+                date_end: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            } as Booking,
+        ];
+        spectator = createComponent();
+        spectator.component.can_edit.set(false);
+        spectator.detectChanges();
+
+        const table = spectator.query(SimpleTableComponent);
+        expect(
+            table?.active_columns().map((column) => column.key),
+        ).not.toContain('actions');
+    });
+
+    it('should show the delete action when deleting is enabled', () => {
+        hide_assign_space = true;
+        request_filter = 'bookings';
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'bay-1',
+                status: 'approved',
+                date: Date.now(),
+                date_end: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            } as Booking,
+        ];
+        settingSignal('parking.allow_deleting', false).set(true);
+        spectator = createComponent();
+        spectator.component.can_edit.set(false);
+        spectator.detectChanges();
+
+        expect(
+            spectator
+                .queryAll('icon')
+                .some((icon) => icon.textContent?.includes('delete')),
+        ).toBe(true);
     });
 
     it('should map bookings to the expected type labels', () => {

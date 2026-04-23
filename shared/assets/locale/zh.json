@@ -1439,6 +1439,7 @@
             "PARKING_APPROVE_ERROR": "批准停车预留失败。错误：{{ error }}",
             "PARKING_APPROVE_SUCCESS": "成功批准停车预留。",
             "PARKING_ASSIGN_SPACE": "分配车位",
+            "PARKING_ALLOW_DELETING": "允许删除预订",
             "PARKING_ASSIGN_SPACE_TITLE": "分配停车位",
             "PARKING_ASSIGN_SPACE_CONFIRM": "分配并批准",
             "PARKING_ASSIGN_SPACE_SUCCESS": "停车位已分配，预订已批准。",

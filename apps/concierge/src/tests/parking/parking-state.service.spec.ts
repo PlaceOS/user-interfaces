@@ -7,12 +7,14 @@ import { BehaviorSubject, of } from 'rxjs';
 import * as assets_mod from '@placeos/assets';
 import * as booking_mod from '@placeos/bookings';
 import * as common_mod from '@placeos/common';
+import * as component_mod from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
 import { UserPipe } from '@placeos/users';
 import { ParkingStateService } from '../../app/parking/parking-state.service';
 
 jest.mock('@placeos/assets');
 jest.mock('@placeos/bookings');
+jest.mock('@placeos/components');
 jest.mock('@placeos/common', () => {
     const actual = jest.requireActual('@placeos/common');
     return {
@@ -79,6 +81,12 @@ describe('ParkingStateService', () => {
         (booking_mod as any).updateBookingInstance = jest.fn(() => of({}));
         (booking_mod as any).approveBooking = jest.fn(() => of({}));
         (booking_mod as any).approveBookingInstance = jest.fn(() => of({}));
+        (booking_mod as any).removeBooking = jest.fn(() => of({}));
+        (component_mod as any).openConfirmModal = jest.fn(async () => ({
+            reason: 'done',
+            loading: jest.fn(),
+            close: jest.fn(),
+        }));
         jest.clearAllMocks();
         (common_mod.getTimezoneDifferenceInHours as jest.Mock).mockReturnValue(
             2,
@@ -369,6 +377,22 @@ describe('ParkingStateService', () => {
         expect(booking_mod.updateBooking).not.toHaveBeenCalled();
         expect(booking_mod.approveBooking).not.toHaveBeenCalled();
         expect(common_mod.notifyError).toHaveBeenCalled();
+    });
+
+    it('should delete parking bookings after confirmation', async () => {
+        const booking = {
+            id: 'booking-1',
+            asset_name: 'Bay 1',
+            user_name: 'Test User',
+            user_email: 'test@example.com',
+            date: Date.now(),
+        } as Booking;
+
+        await spectator.service.removeBooking(booking);
+
+        expect(component_mod.openConfirmModal).toHaveBeenCalled();
+        expect(booking_mod.removeBooking).toHaveBeenCalledWith('booking-1', {});
+        expect(common_mod.notifySuccess).toHaveBeenCalled();
     });
 
     it('should block assigned parking when the limit is reached', async () => {

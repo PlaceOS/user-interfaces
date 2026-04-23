@@ -1439,6 +1439,7 @@
             "PARKING_APPROVE_ERROR": "Impossibile approvare la prenotazione. Errore: {{ error }}",
             "PARKING_APPROVE_SUCCESS": "Prenotazione del parcheggio approvata con successo.",
             "PARKING_ASSIGN_SPACE": "Assegna spazio",
+            "PARKING_ALLOW_DELETING": "Consenti l'eliminazione delle prenotazioni",
             "PARKING_ASSIGN_SPACE_TITLE": "Assegna posto auto",
             "PARKING_ASSIGN_SPACE_CONFIRM": "Assegna e approva",
             "PARKING_ASSIGN_SPACE_SUCCESS": "Posto auto assegnato e prenotazione approvata.",
