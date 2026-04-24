@@ -20,10 +20,12 @@ import { TranslatePipe } from '@placeos/components';
 @Component({
     selector: '[app-bootstrap]',
     template: `
-        <div class="bg-base-300 absolute inset-0">
+        <div
+            class="bg-base-200 absolute inset-0 flex flex-col items-center p-3"
+        >
             <div
                 form
-                class="bg-base-100 absolute top-2 left-1/2 flex w-120 max-w-[calc(100vw-2rem)] -translate-x-1/2 transform flex-col items-center overflow-hidden rounded-sm shadow-sm"
+                class="bg-base-100 border-base-300 flex w-120 max-w-[calc(100vw-2rem)] flex-col items-center overflow-hidden rounded-sm border shadow-md"
             >
                 <header
                     class="bg-secondary text-secondary-content flex w-full items-center justify-between px-4 py-3 text-xl font-medium"

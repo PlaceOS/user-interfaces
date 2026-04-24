@@ -112,12 +112,14 @@ import { PanelStateService } from './panel-state.service';
                 </p>
             </footer>
             @if (!hide_qr() && checkin) {
-                <div class="absolute top-1/2 -right-[2px] -translate-y-1/2">
+                <div
+                    class="fixed top-1/2 -right-px flex -translate-y-1/2 items-center"
+                >
                     <button
                         book-tag
                         matRipple
                         (click)="toggleQRShow()"
-                        class="border-base-300 bg-base-100 absolute top-1/2 left-px z-20 -translate-x-full -translate-y-1/2 rounded-l-lg border-y border-l px-1 py-4 uppercase"
+                        class="border-base-300 bg-base-100 relative z-20 h-28 w-12 rounded-l-lg border-y border-l uppercase"
                     >
                         {{ 'COMMON.BOOK' | translate }}
                     </button>
