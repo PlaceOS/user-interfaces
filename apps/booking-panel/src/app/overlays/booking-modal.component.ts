@@ -75,120 +75,111 @@ export async function openBookingModal(
     selector: 'booking-modal',
     template: `
         <div
-            class="absolute top-0 left-0 z-50 h-screen w-screen -translate-x-1/2 -translate-y-1/2 sm:m-4"
+            class="bg-base-100 mx-auto h-full w-full overflow-auto rounded-sm sm:h-auto sm:w-lg"
         >
-            <div
-                class="bg-base-100 mx-auto h-full w-full overflow-auto rounded-sm sm:h-auto sm:w-lg"
+            <header
+                class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
             >
-                <header
-                    class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
-                >
-                    <h2 class="px-2 text-xl font-medium">
-                        {{ 'APP.BOOKING_PANEL.BOOKING_NEW' | translate }}
-                    </h2>
-                    @if (!loading()) {
-                        <button icon matRipple mat-dialog-close>
-                            <icon>close</icon>
-                        </button>
-                    }
-                </header>
-                @if (form && !loading()) {
-                    <div
-                        form
-                        [formGroup]="form"
-                        class="max-h-[calc(100vh-12rem)] w-full overflow-auto px-4"
-                    >
-                        @if (!hide_host() && form.controls.organiser) {
-                            <div class="field">
-                                <label for="host"
-                                    >{{
-                                        'APP.BOOKING_PANEL.BOOKING_HOST'
-                                            | translate
-                                    }}<span>*</span></label
-                                >
-                                <a-user-search-field
-                                    name="host"
-                                    [query_fn]="searchStaff"
-                                    formControlName="organiser"
-                                    class="mb-2"
-                                    [error]="'Host is required'"
-                                ></a-user-search-field>
-                            </div>
-                        }
-                        <div class="flex space-x-2">
-                            @if (form.controls.date && future) {
-                                <div class="flex-1">
-                                    <label for="start-time">{{
-                                        'FORM.TIME_START' | translate
-                                    }}</label>
-                                    <a-time-field
-                                        name="start-time"
-                                        formControlName="date"
-                                    ></a-time-field>
-                                </div>
-                            }
-                            @if (form.controls.duration) {
-                                <div class="flex-1">
-                                    <label for="duration">{{
-                                        'FORM.DURATION' | translate
-                                    }}</label>
-                                    <a-duration-field
-                                        [min]="min_duration"
-                                        [max]="max_duration"
-                                        [step]="max_duration < 120 ? 5 : 15"
-                                        name="duration"
-                                        formControlName="duration"
-                                    ></a-duration-field>
-                                </div>
-                            }
-                        </div>
-                        @if (form.controls.title) {
-                            <div class="flex flex-col">
-                                <label for="title">{{
-                                    'FORM.TITLE' | translate
-                                }}</label>
-                                <mat-form-field
-                                    appearance="outline"
-                                    class="w-full"
-                                >
-                                    <input
-                                        matInput
-                                        name="title"
-                                        [placeholder]="'FORM.TITLE' | translate"
-                                        formControlName="title"
-                                    />
-                                </mat-form-field>
-                            </div>
-                        }
-                    </div>
-                } @else {
-                    <div
-                        class="flex h-64 flex-col items-center justify-center space-y-4 p-8"
-                    >
-                        <mat-spinner [diameter]="32"></mat-spinner>
-                        <p>
-                            {{
-                                'APP.BOOKING_PANEL.BOOKING_LOADING' | translate
-                            }}
-                        </p>
-                    </div>
-                }
+                <h2 class="px-2 text-xl font-medium">
+                    {{ 'APP.BOOKING_PANEL.BOOKING_NEW' | translate }}
+                </h2>
                 @if (!loading()) {
-                    <footer
-                        class="bg-base-200 sticky bottom-0 z-10 m-2 flex w-[calc(100%-1rem)] justify-end rounded-sm border-none p-2"
-                    >
-                        <button
-                            btn
-                            matRipple
-                            name="save"
-                            class="w-32"
-                            (click)="save()"
-                        >
-                            {{ 'COMMON.SAVE' | translate }}
-                        </button>
-                    </footer>
+                    <button icon matRipple mat-dialog-close>
+                        <icon>close</icon>
+                    </button>
                 }
-            </div>
+            </header>
+            @if (form && !loading()) {
+                <div
+                    form
+                    [formGroup]="form"
+                    class="max-h-[calc(100vh-12rem)] w-full overflow-auto px-4"
+                >
+                    @if (!hide_host() && form.controls.organiser) {
+                        <div class="field">
+                            <label for="host"
+                                >{{
+                                    'APP.BOOKING_PANEL.BOOKING_HOST'
+                                        | translate
+                                }}<span>*</span></label
+                            >
+                            <a-user-search-field
+                                name="host"
+                                [query_fn]="searchStaff"
+                                formControlName="organiser"
+                                class="mb-2"
+                                [error]="'Host is required'"
+                            ></a-user-search-field>
+                        </div>
+                    }
+                    <div class="flex space-x-2">
+                        @if (form.controls.date && future) {
+                            <div class="flex-1">
+                                <label for="start-time">{{
+                                    'FORM.TIME_START' | translate
+                                }}</label>
+                                <a-time-field
+                                    name="start-time"
+                                    formControlName="date"
+                                ></a-time-field>
+                            </div>
+                        }
+                        @if (form.controls.duration) {
+                            <div class="flex-1">
+                                <label for="duration">{{
+                                    'FORM.DURATION' | translate
+                                }}</label>
+                                <a-duration-field
+                                    [min]="min_duration"
+                                    [max]="max_duration"
+                                    [step]="max_duration < 120 ? 5 : 15"
+                                    name="duration"
+                                    formControlName="duration"
+                                ></a-duration-field>
+                            </div>
+                        }
+                    </div>
+                    @if (form.controls.title) {
+                        <div class="flex flex-col">
+                            <label for="title">{{
+                                'FORM.TITLE' | translate
+                            }}</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <input
+                                    matInput
+                                    name="title"
+                                    [placeholder]="'FORM.TITLE' | translate"
+                                    formControlName="title"
+                                />
+                            </mat-form-field>
+                        </div>
+                    }
+                </div>
+            } @else {
+                <div
+                    class="flex h-64 flex-col items-center justify-center space-y-4 p-8"
+                >
+                    <mat-spinner [diameter]="32"></mat-spinner>
+                    <p>
+                        {{ 'APP.BOOKING_PANEL.BOOKING_LOADING' | translate }}
+                    </p>
+                </div>
+            }
+            @if (!loading()) {
+                <footer
+                    class="bg-base-200 sticky bottom-0 z-10 m-2 flex w-[calc(100%-1rem)] justify-end rounded-sm border-none p-2"
+                >
+                    <button
+                        btn
+                        matRipple
+                        name="save"
+                        class="w-32"
+                        (click)="save()"
+                    >
+                        {{ 'COMMON.SAVE' | translate }}
+                    </button>
+                </footer>
+            }
         </div>
     `,
     styles: [``],
