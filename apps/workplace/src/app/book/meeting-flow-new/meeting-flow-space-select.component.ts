@@ -774,6 +774,7 @@ export class MeetingFlowSpaceSelectComponent {
             return viewable_levels.sort(
                 (a, b) =>
                     a.parent_id.localeCompare(b.parent_id) ||
+                    (a.name || '').localeCompare(b.name || '') ||
                     (a.display_name || '').localeCompare(b.display_name || ''),
             );
         }),
