@@ -51,7 +51,7 @@ import { PanelStateService } from '../panel-state.service';
                 </div>
             }
             <div
-                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 space-y-4 text-center font-normal"
+                class="absolute inset-0 flex flex-col items-center justify-center space-y-4 font-normal"
                 [class.pb-8]="
                     cur && !hide_meeting_details && !hide_meeting_title
                 "

@@ -602,7 +602,8 @@ export class EventFormService extends AsyncHandler {
                       date_end: raw_value.date_end,
                   };
             const has_time_changed =
-                !event.id || event.date !== raw_value.date ||
+                !event.id ||
+                event.date !== raw_value.date ||
                 event.duration !== raw_value.duration;
             this.form.patchValue(
                 { timezone: this.timezone || raw_value.timezone },
@@ -908,7 +909,9 @@ export class EventFormService extends AsyncHandler {
         const user =
             host === current_user.email
                 ? current_user
-                : await this._user_pipe.transform(host);
+                : await this._user_pipe
+                      .transform(host)
+                      .catch(() => ({ email: host, name: host }));
         const rules = await nextValueFrom(this.booking_rules$);
         const space_rules = spaces.map((space) => {
             const bld = this._org.buildings.find((b) =>

@@ -100,6 +100,11 @@ export type { ParkingFleetVehicle, ParkingUser } from '@placeos/assets';
 
 const USER_PIPE = new UserPipe();
 
+function csvList(value: unknown): string[] {
+    const list = Array.isArray(value) ? value : String(value || '').split(/[|,]/);
+    return list.map((_) => String(_).trim()).filter(Boolean);
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -450,14 +455,8 @@ export class ParkingStateService extends AsyncHandler {
                             row.bookable === true ||
                             row.bookable === 'true' ||
                             row.bookable === 'TRUE',
-                        place_groups: row.place_groups
-                            ? String(row.place_groups)
-                                  .split('|')
-                                  .filter(Boolean)
-                            : [],
-                        features: row.features
-                            ? String(row.features).split('|').filter(Boolean)
-                            : [],
+                        place_groups: csvList(row.place_groups),
+                        features: csvList(row.features),
                         notes: row.notes || '',
                         ...(!row.id ? { zone_id } : {}),
                     };

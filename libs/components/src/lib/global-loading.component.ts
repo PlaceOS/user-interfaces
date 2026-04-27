@@ -34,15 +34,15 @@ import { TranslatePipe } from './translate.pipe';
         @if (loading()) {
             <div
                 loader
-                class="bg-base-300 pointer-events-auto fixed inset-0 z-9998 flex items-center justify-center"
+                class="bg-base-300 pointer-events-auto fixed inset-0 z-9998 flex flex-col items-center justify-end space-y-2 p-4"
             >
                 <div
-                    class="border-base-300 bg-base-100 absolute bottom-5 left-1/2 w-[24rem] max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-lg border p-2 text-center text-xs shadow-sm"
+                    class="border-base-300 bg-base-100 w-[24rem] max-w-[calc(100vw-2rem)] rounded-lg border p-2 text-center text-xs shadow-sm"
                 >
                     <p class="text-center font-mono">{{ message() }}</p>
                 </div>
                 <div
-                    class="border-base-300 absolute bottom-2 left-1/2 w-[24rem] max-w-[calc(100vw-2rem)] -translate-x-1/2 overflow-hidden rounded-full border shadow-sm"
+                    class="border-base-300 w-[24rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-full border shadow-sm"
                 >
                     <mat-progress-bar
                         mode="indeterminate"

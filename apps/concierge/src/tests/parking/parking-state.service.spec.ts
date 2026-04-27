@@ -20,6 +20,7 @@ jest.mock('@placeos/common', () => {
     return {
         ...actual,
         getTimezoneDifferenceInHours: jest.fn(() => 0),
+        loadTextFileFromInputEvent: jest.fn(),
         notifyError: jest.fn(),
         notifySuccess: jest.fn(),
     };
@@ -436,6 +437,28 @@ describe('ParkingStateService', () => {
         expect(booking_mod.saveBooking).not.toHaveBeenCalled();
         expect(dialog_ref.componentInstance.loading.set).toHaveBeenCalledWith(
             false,
+        );
+    });
+
+    it('should split comma separated features when uploading parking spaces', async () => {
+        organisation_service.levels = [
+            { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
+        ];
+        (common_mod.loadTextFileFromInputEvent as jest.Mock).mockResolvedValue(
+            'identifier,map_id,bookable,place_groups,features,notes\n' +
+                'G.123,G.123,true,,"Maximum Height 2.3m,Open Ground Level",Car',
+        );
+        (assets_mod.saveParkingSpace as jest.Mock).mockReturnValue(of({}));
+
+        await spectator.service.uploadSpacesCSV({} as InputEvent);
+
+        expect(assets_mod.saveParkingSpace).toHaveBeenCalledWith(
+            expect.objectContaining({
+                identifier: 'G.123',
+                features: ['Maximum Height 2.3m', 'Open Ground Level'],
+                notes: 'Car',
+                zone_id: 'lvl-1',
+            }),
         );
     });
 });
