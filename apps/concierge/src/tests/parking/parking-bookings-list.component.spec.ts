@@ -90,7 +90,7 @@ describe('ParkingBookingsListComponent', () => {
             {
                 id: 'booking-1',
                 asset_id: 'bay-1',
-                status: 'approved',
+                status: 'tentative',
                 date: Date.now(),
                 date_end: Date.now() + 60 * 60 * 1000,
                 duration: 60,
@@ -364,5 +364,49 @@ describe('ParkingBookingsListComponent', () => {
 
         expect(status_button).toBeDisabled();
         expect(status_button).toHaveClass('opacity-30');
+    });
+
+    it('should show assigned bookings as assigned and disable status actions', () => {
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'bay-1',
+                status: 'approved',
+                date: Date.now(),
+                date_end: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                extension_data: { is_assigned: true },
+            } as Booking,
+        ];
+        spectator = createComponent();
+
+        const booking = {
+            asset_id: 'bay-1',
+            status: 'tentative',
+            extension_data: { is_assigned: true },
+        } as Booking;
+        const status_button = spectator
+            .queryAll('button')
+            .find(
+                (button) =>
+                    button.classList.contains('w-30') &&
+                    button.classList.contains('rounded-3xl'),
+            );
+
+        expect(spectator.component.statusLabel(booking)).toBe(
+            'APP.CONCIERGE.BOOKING_STATUS_ASSIGNED',
+        );
+        expect(spectator.component.isStatusActionDisabled(booking)).toBe(true);
+        expect(status_button).toBeDisabled();
+        expect(status_button).toHaveClass('bg-secondary!');
+        expect(status_button).toHaveClass('text-secondary-content!');
+        expect(status_button).not.toHaveClass('bg-success');
+        expect(status_button).not.toHaveClass('bg-warning');
+        expect(status_button).not.toHaveClass('opacity-30');
+        expect(
+            spectator
+                .queryAll('icon')
+                .some((icon) => icon.textContent?.includes('arrow_drop_down')),
+        ).toBe(false);
     });
 });

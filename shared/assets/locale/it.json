@@ -1080,6 +1080,7 @@
             "BOOKING_EXPIRED": "Scaduta",
             "BOOKING_STATUS_ENDED": "Terminata",
             "BOOKING_STATUS_APPROVED": "Approvata",
+            "BOOKING_STATUS_ASSIGNED": "Assegnata",
             "BOOKING_STATUS_DECLINED": "Rifiutata",
             "BOOKING_STATUS_PENDING": "In attesa",
             "REGIONS_HEADER": "Gestione regioni",
