@@ -374,7 +374,7 @@ export class EventsStateService extends AsyncHandler {
         this.replace(details.metadata);
     }
 
-    public async removeBooking(event: CalendarEvent) {
+    public async removeBooking(event: CalendarEvent, series = false) {
         const time = `${format(event.date, 'dd MMM yyyy ' + this.time_format)}`;
         const resource_name = event.space?.display_name || event.location;
         const details = await openConfirmModal(
@@ -391,10 +391,13 @@ export class EventsStateService extends AsyncHandler {
         );
         if (details.reason !== 'done') return false;
         details.loading(i18n('APP.CONCIERGE.BOOKING_REMOVE_LOADING'));
-        await declineEvent(event.id, {
-            calendar: event.calendar || event.mailbox || event.host,
-            system_id: event.system?.id,
-        })
+        await declineEvent(
+            series ? event.recurring_event_id || event.id : event.id,
+            {
+                calendar: event.calendar || event.mailbox || event.host,
+                system_id: event.system?.id,
+            },
+        )
             .toPromise()
             .catch((e) => {
                 notifyError(
