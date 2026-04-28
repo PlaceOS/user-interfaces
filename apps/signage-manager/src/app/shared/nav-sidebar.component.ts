@@ -1,6 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { IconComponent } from '@placeos/components';
+import { SettingsService } from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+} from '@placeos/components';
 import { NAV_ITEMS } from './nav-items';
 
 @Component({
@@ -12,9 +16,18 @@ import { NAV_ITEMS } from './nav-items';
         >
             <div
                 logo
-                class="bg-base-300/30 mx-auto flex h-20 w-20 items-center justify-center rounded-xl"
+                class="bg-base-300/20 mx-auto flex h-20 w-20 items-center justify-center rounded-xl"
             >
-                <div class="opacity-20">LOGO</div>
+                @if (logo_src; as logo) {
+                    <img
+                        auth
+                        class="max-h-18 max-w-18 object-contain"
+                        alt="Logo"
+                        [source]="logo"
+                    />
+                } @else {
+                    <div class="opacity-20">LOGO</div>
+                }
             </div>
             <div class="flex flex-col gap-4 p-2">
                 @for (item of nav_items; track item.route) {
@@ -53,8 +66,19 @@ import { NAV_ITEMS } from './nav-items';
             }
         `,
     ],
-    imports: [RouterModule, IconComponent],
+    imports: [RouterModule, IconComponent, AuthenticatedImageDirective],
 })
 export class NavSidebarComponent {
+    private readonly _settings = inject(SettingsService);
+
     public readonly nav_items = NAV_ITEMS;
+
+    public get logo_src(): string {
+        const logo = this._settings.get<string | { src?: string }>(
+            this._settings.theme === 'dark'
+                ? 'app.logo_dark'
+                : 'app.logo_light',
+        );
+        return typeof logo === 'string' ? logo : logo?.src || '';
+    }
 }
