@@ -294,6 +294,7 @@ export class RoomBookingsListComponent {
     });
     public readonly bookings = computed(() =>
         [...this.events()]
+            .filter((event) => !event.is_system_event)
             .sort((a, b) => a.date - b.date)
             .map((event) => ({
                 ...event,

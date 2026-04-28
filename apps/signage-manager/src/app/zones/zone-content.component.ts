@@ -53,114 +53,148 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                     playlist of zone_playlists();
                                     track playlist.id
                                 ) {
-                                    <a
-                                        matRipple
-                                        class="border-base-300 bg-base-100 hover:bg-base-200 mb-2 flex items-center gap-3 rounded-lg border p-0.5 pl-1 no-underline transition-colors"
-                                        [routerLink]="[
-                                            '/playlists',
-                                            playlist.id,
-                                        ]"
-                                        [attr.aria-label]="
-                                            'Open playlist ' + playlist.name
-                                        "
+                                    <div
+                                        class="border-base-300 bg-base-100 mb-2 flex items-center gap-3 rounded-lg border p-0.5 pl-1"
                                     >
-                                        <div
-                                            class="border-base-200 relative h-12 w-12 shrink-0 overflow-hidden rounded-md border"
+                                        <a
+                                            matRipple
+                                            class="hover:bg-base-200 flex min-w-0 flex-1 items-center gap-3 rounded-lg p-1 no-underline transition-colors"
+                                            [routerLink]="[
+                                                '/playlists',
+                                                playlist.id,
+                                            ]"
+                                            [attr.aria-label]="
+                                                'Open playlist ' + playlist.name
+                                            "
                                         >
-                                            @if (
-                                                playlist_thumbnail_media()[
-                                                    playlist.id
-                                                ]?.length
-                                            ) {
-                                                @for (
-                                                    media of playlist_thumbnail_media()[
+                                            <div
+                                                class="border-base-200 relative h-12 w-12 shrink-0 overflow-hidden rounded-md border"
+                                            >
+                                                @if (
+                                                    playlist_thumbnail_media()[
                                                         playlist.id
-                                                    ];
-                                                    track media;
-                                                    let i = $index;
-                                                    let len = $count
+                                                    ]?.length
                                                 ) {
-                                                    <img
-                                                        auth
-                                                        [source]="media"
-                                                        alt=""
-                                                        class="border-base-300 bg-base-200 absolute h-9 w-9 rounded-sm border object-cover shadow"
-                                                        [style.top]="
-                                                            0.3 -
-                                                            (len - 1) * 0.125 +
-                                                            (len - 1 - i) *
-                                                                0.25 +
-                                                            'rem'
-                                                        "
-                                                        [style.left]="
-                                                            0.3 -
-                                                            (len - 1) * 0.125 +
-                                                            (len - 1 - i) *
-                                                                0.25 +
-                                                            'rem'
-                                                        "
-                                                        [style.z-index]="i"
-                                                    />
-                                                }
-                                            } @else {
-                                                <div
-                                                    class="text-base-content/35 flex h-full w-full items-center justify-center"
-                                                >
-                                                    <icon class="text-2xl">
-                                                        playlist_play
-                                                    </icon>
-                                                </div>
-                                            }
-                                        </div>
-                                        <div class="min-w-0 flex-1">
-                                            <div
-                                                class="truncate text-sm font-medium"
-                                            >
-                                                {{ playlist.name }}
-                                            </div>
-                                            <div
-                                                class="mt-1 flex flex-wrap gap-1"
-                                            >
-                                                @if (!playlist.enabled) {
-                                                    <span
-                                                        class="bg-warning text-warning-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
+                                                    @for (
+                                                        media of playlist_thumbnail_media()[
+                                                            playlist.id
+                                                        ];
+                                                        track media;
+                                                        let i = $index;
+                                                        let len = $count
+                                                    ) {
+                                                        <img
+                                                            auth
+                                                            [source]="media"
+                                                            alt=""
+                                                            class="border-base-300 bg-base-200 absolute h-9 w-9 rounded-sm border object-cover shadow"
+                                                            [style.top]="
+                                                                0.3 -
+                                                                (len - 1) *
+                                                                    0.125 +
+                                                                (len -
+                                                                    1 -
+                                                                    i) *
+                                                                    0.25 +
+                                                                'rem'
+                                                            "
+                                                            [style.left]="
+                                                                0.3 -
+                                                                (len - 1) *
+                                                                    0.125 +
+                                                                (len -
+                                                                    1 -
+                                                                    i) *
+                                                                    0.25 +
+                                                                'rem'
+                                                            "
+                                                            [style.z-index]="i"
+                                                        />
+                                                    }
+                                                } @else {
+                                                    <div
+                                                        class="text-base-content/35 flex h-full w-full items-center justify-center"
                                                     >
-                                                        Disabled
-                                                    </span>
-                                                }
-                                                @switch (getStatus(playlist)) {
-                                                    @case ('expired') {
-                                                        <span
-                                                            class="bg-error text-error-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
-                                                        >
-                                                            Expired
-                                                        </span>
-                                                    }
-                                                    @case ('pending') {
-                                                        <span
-                                                            class="bg-info text-info-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
-                                                        >
-                                                            Pending
-                                                        </span>
-                                                    }
-                                                    @case ('awaiting_approval') {
-                                                        <span
-                                                            class="bg-secondary text-secondary-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
-                                                        >
-                                                            Awaiting Approval
-                                                        </span>
-                                                    }
+                                                        <icon class="text-2xl">
+                                                            playlist_play
+                                                        </icon>
+                                                    </div>
                                                 }
                                             </div>
-                                            @if (playlist.description) {
+                                            <div class="min-w-0 flex-1">
                                                 <div
-                                                    class="text-base-content/70 mt-0.5 truncate text-xs"
+                                                    class="truncate text-sm font-medium"
                                                 >
-                                                    {{ playlist.description }}
+                                                    {{ playlist.name }}
                                                 </div>
-                                            }
-                                        </div>
-                                    </a>
+                                                <div
+                                                    class="mt-1 flex flex-wrap gap-1"
+                                                >
+                                                    @if (!playlist.enabled) {
+                                                        <span
+                                                            class="bg-warning text-warning-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
+                                                        >
+                                                            Disabled
+                                                        </span>
+                                                    }
+                                                    @switch (
+                                                        getStatus(playlist)
+                                                    ) {
+                                                        @case ('expired') {
+                                                            <span
+                                                                class="bg-error text-error-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
+                                                            >
+                                                                Expired
+                                                            </span>
+                                                        }
+                                                        @case ('pending') {
+                                                            <span
+                                                                class="bg-info text-info-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
+                                                            >
+                                                                Pending
+                                                            </span>
+                                                        }
+                                                        @case ('awaiting_approval') {
+                                                            <span
+                                                                class="bg-secondary text-secondary-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
+                                                            >
+                                                                Awaiting Approval
+                                                            </span>
+                                                        }
+                                                    }
+                                                </div>
+                                                @if (playlist.description) {
+                                                    <div
+                                                        class="text-base-content/70 mt-0.5 truncate text-xs"
+                                                    >
+                                                        {{ playlist.description }}
+                                                    </div>
+                                                }
+                                            </div>
+                                        </a>
+                                        <button
+                                            icon
+                                            type="button"
+                                            matRipple
+                                            class="border-base-200 hover:bg-base-200 hover:border-base-300 mr-1 rounded-lg border hover:shadow-md"
+                                            matTooltip="Remove playlist"
+                                            (click)="
+                                                removePlaylist(
+                                                    $event,
+                                                    playlist.id
+                                                )
+                                            "
+                                            [attr.aria-label]="
+                                                'Remove playlist ' +
+                                                playlist.name +
+                                                ' from zone'
+                                            "
+                                        >
+                                            <icon class="text-error">
+                                                close
+                                            </icon>
+                                        </button>
+                                    </div>
                                 }
                             } @else {
                                 <div
@@ -335,6 +369,13 @@ export class ZoneContentComponent {
     public addPlaylist() {
         const zone = this.selected_zone();
         if (zone) this._service.addPlaylistToZone(zone);
+    }
+
+    public removePlaylist(event: Event, playlist_id: string) {
+        event.preventDefault();
+        event.stopPropagation();
+        const zone = this.selected_zone();
+        if (zone) this._service.removePlaylistFromZone(zone, playlist_id);
     }
 
     public addDisplay() {

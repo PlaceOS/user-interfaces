@@ -1084,6 +1084,7 @@
             "BOOKING_EXPIRED": "Expiré",
             "BOOKING_STATUS_ENDED": "Terminé",
             "BOOKING_STATUS_APPROVED": "Approuvé",
+            "BOOKING_STATUS_ASSIGNED": "Assigné",
             "BOOKING_STATUS_DECLINED": "Refusé",
             "BOOKING_STATUS_PENDING": "En attente",
             "REGIONS_HEADER": "Gestion des régions",

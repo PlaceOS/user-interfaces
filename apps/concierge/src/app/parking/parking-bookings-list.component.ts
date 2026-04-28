@@ -220,28 +220,46 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                         matRipple
                         class="h-10 w-30 rounded-3xl border-none"
                         [class.text-success-content]="
-                            row?.status === 'approved'
+                            row?.status === 'approved' && !isAssignedBooking(row)
                         "
-                        [class.bg-success]="row?.status === 'approved'"
-                        [class.text-error-content]="row?.status === 'declined'"
-                        [class.bg-error]="row?.status === 'declined'"
-                        [class.text-neutral-content]="row?.status === 'ended'"
-                        [class.bg-neutral]="row?.status === 'ended'"
-                        [class.opacity-30]="isStatusActionDisabled(row)"
+                        [class.bg-success]="
+                            row?.status === 'approved' && !isAssignedBooking(row)
+                        "
+                        [class.text-secondary-content!]="isAssignedBooking(row)"
+                        [class.bg-secondary!]="isAssignedBooking(row)"
+                        [class.text-error-content]="
+                            row?.status === 'declined' && !isAssignedBooking(row)
+                        "
+                        [class.bg-error]="
+                            row?.status === 'declined' && !isAssignedBooking(row)
+                        "
+                        [class.text-neutral-content]="
+                            row?.status === 'ended' && !isAssignedBooking(row)
+                        "
+                        [class.bg-neutral]="
+                            row?.status === 'ended' && !isAssignedBooking(row)
+                        "
+                        [class.opacity-30]="
+                            isStatusActionDisabled(row) && !isAssignedBooking(row)
+                        "
                         [class.text-warning-content]="
                             row?.status === 'tentative' &&
+                            !isAssignedBooking(row) &&
                             !isVisibleWaitlisted(row)
                         "
                         [class.bg-warning]="
                             row?.status === 'tentative' &&
+                            !isAssignedBooking(row) &&
                             !isVisibleWaitlisted(row)
                         "
                         [class.text-info-content]="
                             row?.status === 'tentative' &&
+                            !isAssignedBooking(row) &&
                             isVisibleWaitlisted(row)
                         "
                         [class.bg-info]="
                             row?.status === 'tentative' &&
+                            !isAssignedBooking(row) &&
                             isVisibleWaitlisted(row)
                         "
                         [matMenuTriggerFor]="menu"
@@ -249,20 +267,11 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                     >
                         <div class="flex items-center space-x-2 pr-2 pl-4">
                             <div class="flex-1 text-left">
-                                {{
-                                    (row?.status === 'ended'
-                                        ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
-                                        : row?.status === 'approved'
-                                          ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
-                                          : row?.status === 'declined'
-                                            ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                                            : isVisibleWaitlisted(row)
-                                              ? 'APP.CONCIERGE.PARKING_WAITLISTED'
-                                              : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
-                                    ) | translate
-                                }}
+                                {{ statusLabel(row) | translate }}
                             </div>
-                            <icon class="text-2xl">arrow_drop_down</icon>
+                            @if (!isStatusActionDisabled(row)) {
+                                <icon class="text-2xl">arrow_drop_down</icon>
+                            }
                         </div>
                     </button>
                 </div>
@@ -425,7 +434,9 @@ export class ParkingBookingsListComponent
     public readonly canApproveBooking = (e: Booking) =>
         this._state.canApproveBooking(e);
     public readonly isStatusActionDisabled = (e: Booking) =>
-        e?.status === 'ended' || !this.canApproveBooking(e);
+        e?.status === 'ended' ||
+        this.isAssignedBooking(e) ||
+        !this.canApproveBooking(e);
     public readonly hide_bay_number_column = computed(() => {
         const { request_filter } = this.options();
         return this.hide_bay_number || this.isRequestFilter(request_filter);
@@ -473,6 +484,24 @@ export class ParkingBookingsListComponent
 
     public isRequestId(id?: string) {
         return !!id?.startsWith('unallocated');
+    }
+
+    public isAssignedBooking(booking: Booking) {
+        return !!booking?.extension_data?.is_assigned;
+    }
+
+    public statusLabel(booking: Booking) {
+        return this.isAssignedBooking(booking)
+            ? 'APP.CONCIERGE.BOOKING_STATUS_ASSIGNED'
+            : booking?.status === 'ended'
+              ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
+              : booking?.status === 'approved'
+                ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
+                : booking?.status === 'declined'
+                  ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
+                  : this.isVisibleWaitlisted(booking)
+                    ? 'APP.CONCIERGE.PARKING_WAITLISTED'
+                    : 'APP.CONCIERGE.BOOKING_STATUS_PENDING';
     }
 
     public hasVisibleActions(booking: Booking) {
