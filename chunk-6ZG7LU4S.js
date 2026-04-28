@@ -1,0 +1,1 @@
+var o="PLACEOS.concierge.zones";function a(r,t){if(!t)return[];try{let e=localStorage.getItem(`${o}.${r}.${t}`),n=JSON.parse(e||"[]");return Array.isArray(n)?n.filter(s=>typeof s=="string"):[]}catch{return[]}}function c(r,t,e=[]){if(t)try{localStorage.setItem(`${o}.${r}.${t}`,JSON.stringify(e))}catch{}}export{a,c as b};
