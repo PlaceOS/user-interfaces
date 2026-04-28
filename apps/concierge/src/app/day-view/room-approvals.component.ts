@@ -261,7 +261,7 @@ import { EventsStateService } from './events-state.service';
                 btn
                 icon
                 matRipple
-                class="bg-warning text-warning-content absolute top-3 -left-8 shadow-sm"
+                class="border-base-200 hover:bg-info-light absolute top-3 -left-8 border shadow-md"
                 (click)="setShow(!show())"
                 [matTooltip]="'APP.CONCIERGE.ROOMS_PENDING_SHOW' | translate"
                 matTooltipPosition="left"
