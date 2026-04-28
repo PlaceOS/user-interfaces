@@ -171,6 +171,7 @@ export class LandingAvailableNowComponent implements OnInit {
     private _booking_form = inject(BookingFormService);
     private _event_form = inject(EventFormService);
     private _org = inject(OrganisationService);
+    private _loading = signal(false);
 
     public readonly active_tab = signal('desks');
     public readonly active_filter = signal('nearest');
@@ -201,10 +202,12 @@ export class LandingAvailableNowComponent implements OnInit {
         this._booking_form.available_resources,
         { initialValue: [] },
     );
-    public readonly availability_loading = computed(() =>
-        this.active_tab() === 'rooms'
-            ? !!this.room_loading()
-            : !!this.booking_loading(),
+    public readonly availability_loading = computed(
+        () =>
+            this._loading() ||
+            (this.active_tab() === 'rooms'
+                ? !!this.room_loading()
+                : !!this.booking_loading()),
     );
 
     public readonly spaces_by_level = computed(() => {
@@ -249,9 +252,11 @@ export class LandingAvailableNowComponent implements OnInit {
     });
 
     public ngOnInit() {
+        this._loading.set(true);
         this.setBookingType('desk');
         this.ensureBookingWindow();
         this.ensureRoomWindow();
+        setTimeout(() => this._loading.set(false), 600);
     }
 
     public setBookingType(type: BookingType) {
