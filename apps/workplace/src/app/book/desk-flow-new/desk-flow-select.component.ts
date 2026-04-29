@@ -714,6 +714,9 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
     public readonly loading = this._booking_form.loading;
 
     public readonly active = signal('');
+    private readonly bookable_resources = toSignal(this._booking_form.resources, {
+        initialValue: [],
+    });
 
     constructor() {
         super();
@@ -728,13 +731,20 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
     public readonly levels = combineLatest([
         this._org.active_region,
         this._org.active_building,
+        this._booking_form.resources,
     ]).pipe(
-        map(([region, bld]) => {
+        map(([region, bld, resources]) => {
             const level_list = this.use_region()
                 ? this._org.levelsForRegion(region)
                 : this._org.levelsForBuilding(bld);
+            const level_ids = new Set(
+                resources
+                    .filter((resource) => resource.bookable !== false)
+                    .map((resource) => resource.zone?.id)
+                    .filter((_) => _),
+            );
             const viewable_levels = level_list.filter(
-                (lvl) => !lvl.tags.includes('parking'),
+                (lvl) => !lvl.tags.includes('parking') && level_ids.has(lvl.id),
             );
             return viewable_levels.sort(
                 (a, b) =>
@@ -835,8 +845,14 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
         const level_list = this.use_region()
             ? this._org.levelsForRegion(this._org.region)
             : this._org.levelsForBuilding(this._org.building);
+        const level_ids = new Set(
+            this.bookable_resources()
+                .filter((resource) => resource.bookable !== false)
+                .map((resource) => resource.zone?.id)
+                .filter((_) => _),
+        );
         const viewable_levels = level_list.filter(
-            (lvl) => !lvl.tags.includes('parking'),
+            (lvl) => !lvl.tags.includes('parking') && level_ids.has(lvl.id),
         );
         if (viewable_levels.length) {
             const current_zones = this.options_value()?.zones || [];

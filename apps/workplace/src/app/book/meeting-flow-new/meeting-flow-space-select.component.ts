@@ -759,17 +759,24 @@ export class MeetingFlowSpaceSelectComponent {
 
     public readonly room_alerts = this._event_form.room_alerts;
     public readonly active = signal('');
+    private readonly bookable_spaces = toSignal(this._event_form.spaces$, {
+        initialValue: [],
+    });
 
     public readonly levels = combineLatest([
         this._org.active_region,
         this._org.active_building,
+        this._event_form.spaces$,
     ]).pipe(
-        map(([region, bld]) => {
+        map(([region, bld, spaces]) => {
             const level_list = this.use_region()
                 ? this._org.levelsForRegion(region)
                 : this._org.levelsForBuilding(bld);
+            const level_ids = new Set(
+                flatten(spaces.map((space) => space.zones || [])),
+            );
             const viewable_levels = level_list.filter(
-                (lvl) => !lvl.tags.includes('parking'),
+                (lvl) => !lvl.tags.includes('parking') && level_ids.has(lvl.id),
             );
             return viewable_levels.sort(
                 (a, b) =>
@@ -825,8 +832,11 @@ export class MeetingFlowSpaceSelectComponent {
         const level_list = this.use_region()
             ? this._org.levelsForRegion(this._org.region)
             : this._org.levelsForBuilding(this._org.building);
+        const level_ids = new Set(
+            flatten(this.bookable_spaces().map((space) => space.zones || [])),
+        );
         const viewable_levels = level_list.filter(
-            (lvl) => !lvl.tags.includes('parking'),
+            (lvl) => !lvl.tags.includes('parking') && level_ids.has(lvl.id),
         );
         if (viewable_levels.length) {
             const current_zones = this._event_form.options?.zones || [];
