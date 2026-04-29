@@ -12,7 +12,7 @@ interface SidebarEmbedData {
     selector: 'sidebar-embed',
     template: `
         <div
-            class="bg-base-200 fixed inset-y-0 z-0 w-100"
+            class="bg-base-200 fixed inset-y-0 z-0 w-screen sm:w-100"
             [class.right-0]="close_button_side() === 'left'"
             [class.left-0]="close_button_side() === 'right'"
         >
@@ -25,9 +25,9 @@ interface SidebarEmbedData {
             icon
             matRipple
             mat-dialog-close
-            class="border-base-300 bg-base-100 fixed top-2 z-10 rounded border"
-            [class.right-102]="close_button_side() === 'left'"
-            [class.left-102]="close_button_side() === 'right'"
+            class="border-base-300 bg-base-100 fixed top-2 left-2 z-10 rounded border"
+            [class.sm:right-102]="close_button_side() === 'left'"
+            [class.sm:left-102]="close_button_side() === 'right'"
         >
             <icon>close</icon>
         </button>
