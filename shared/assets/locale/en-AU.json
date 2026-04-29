@@ -1302,6 +1302,7 @@
             "BOOKING_STATUS_ASSIGNED": "Assigned",
             "BOOKING_STATUS_DECLINED": "Declined",
             "BOOKING_STATUS_PENDING": "Pending",
+            "SCHEDULE_EMPTY": "No bookings for the selected dates",
             "ZONES_HEADER": "Zone Management",
             "TAB_REGIONS": "Regions",
             "TAB_BUILDINGS": "Buildings",
