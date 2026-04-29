@@ -125,49 +125,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                 </mat-select>
                             </mat-form-field>
                         }
-                        @if (view() === 'map') {
-                            <mat-form-field appearance="outline" class="w-full">
-                                <mat-select
-                                    name="location-single"
-                                    [ngModel]="(options | async)?.zones?.[0]"
-                                    (ngModelChange)="
-                                        setOptions({ zones: [$event] })
-                                    "
-                                    [ngModelOptions]="{ standalone: true }"
-                                    [placeholder]="
-                                        'COMMON.LEVEL_ANY' | translate
-                                    "
-                                >
-                                    @for (lvl of levels | async; track lvl) {
-                                        <mat-option [value]="lvl.id">
-                                            <div class="flex flex-col-reverse">
-                                                @if (use_region()) {
-                                                    <div
-                                                        class="text-xs opacity-30"
-                                                    >
-                                                        {{
-                                                            (
-                                                                lvl?.parent_id
-                                                                | building
-                                                            )?.display_name
-                                                        }}
-                                                        <span class="opacity-0">
-                                                            -
-                                                        </span>
-                                                    </div>
-                                                }
-                                                <div>
-                                                    {{
-                                                        lvl.display_name ||
-                                                            lvl.name
-                                                    }}
-                                                </div>
-                                            </div>
-                                        </mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                        } @else {
+                        @if (view() === 'list') {
                             <mat-form-field appearance="outline" class="w-full">
                                 <mat-select
                                     name="location-multi"
@@ -247,37 +205,39 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                 />
                             </div>
                         }
-                        <settings-toggle
-                            class="mb-4"
-                            [ngModel]="(options | async)?.show_fav"
-                            (ngModelChange)="setOptions({ show_fav: $event })"
-                            [ngModelOptions]="{ standalone: true }"
-                            >{{
-                                'COMMON.FAVOURITES_ONLY' | translate
-                            }}</settings-toggle
-                        >
-                        <h2 class="text-lg font-medium">
-                            {{ 'BOOKINGS.FACILITIES' | translate }}
-                        </h2>
-                        <div class="mb-4 flex flex-col space-y-2">
-                            @for (feat of features | async; track feat) {
-                                @if (!hide_features().includes(feat)) {
-                                    <settings-toggle
-                                        class="w-full"
-                                        [name]="feature_display()[feat] || feat"
-                                        [ngModel]="
-                                            (
-                                                options | async
-                                            )?.features?.includes(feat)
-                                        "
-                                        (ngModelChange)="
-                                            toggleFeature(feat, $event)
-                                        "
-                                        [ngModelOptions]="{ standalone: true }"
-                                    ></settings-toggle>
+                        @if (view() === 'list') {
+                            <settings-toggle
+                                class="mb-4"
+                                [ngModel]="(options | async)?.show_fav"
+                                (ngModelChange)="setOptions({ show_fav: $event })"
+                                [ngModelOptions]="{ standalone: true }"
+                                >{{
+                                    'COMMON.FAVOURITES_ONLY' | translate
+                                }}</settings-toggle
+                            >
+                            <h2 class="text-lg font-medium">
+                                {{ 'BOOKINGS.FACILITIES' | translate }}
+                            </h2>
+                            <div class="mb-4 flex flex-col space-y-2">
+                                @for (feat of features | async; track feat) {
+                                    @if (!hide_features().includes(feat)) {
+                                        <settings-toggle
+                                            class="w-full"
+                                            [name]="feature_display()[feat] || feat"
+                                            [ngModel]="
+                                                (
+                                                    options | async
+                                                )?.features?.includes(feat)
+                                            "
+                                            (ngModelChange)="
+                                                toggleFeature(feat, $event)
+                                            "
+                                            [ngModelOptions]="{ standalone: true }"
+                                        ></settings-toggle>
+                                    }
                                 }
-                            }
-                        </div>
+                            </div>
+                        }
                     </div>
                 </div>
                 <!-- Main content area -->
@@ -445,44 +405,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                             </mat-select>
                         </mat-form-field>
                     }
-                    @if (view() === 'map') {
-                        <mat-form-field appearance="outline" class="w-full">
-                            <mat-select
-                                name="location-single-mobile"
-                                [ngModel]="(options | async)?.zones?.[0]"
-                                (ngModelChange)="
-                                    setOptions({ zones: [$event] })
-                                "
-                                [ngModelOptions]="{ standalone: true }"
-                                [placeholder]="'COMMON.LEVEL_ANY' | translate"
-                            >
-                                @for (lvl of levels | async; track lvl) {
-                                    <mat-option [value]="lvl.id">
-                                        <div class="flex flex-col-reverse">
-                                            @if (use_region()) {
-                                                <div class="text-xs opacity-30">
-                                                    {{
-                                                        (
-                                                            lvl?.parent_id
-                                                            | building
-                                                        )?.display_name
-                                                    }}
-                                                    <span class="opacity-0">
-                                                        -
-                                                    </span>
-                                                </div>
-                                            }
-                                            <div>
-                                                {{
-                                                    lvl.display_name || lvl.name
-                                                }}
-                                            </div>
-                                        </div>
-                                    </mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
-                    } @else {
+                    @if (view() === 'list') {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="location-multi-mobile"
@@ -551,37 +474,39 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                             />
                         </div>
                     }
-                    <settings-toggle
-                        class="mb-4"
-                        [ngModel]="(options | async)?.show_fav"
-                        (ngModelChange)="setOptions({ show_fav: $event })"
-                        [ngModelOptions]="{ standalone: true }"
-                        >{{
-                            'COMMON.FAVOURITES_ONLY' | translate
-                        }}</settings-toggle
-                    >
-                    <h2 class="text-lg font-medium">
-                        {{ 'CALENDAR_EVENT.FACILITIES' | translate }}
-                    </h2>
-                    <div class="mb-4 flex flex-col space-y-2">
-                        @for (feat of features | async; track feat) {
-                            @if (!hide_features().includes(feat)) {
-                                <settings-toggle
-                                    class="w-full"
-                                    [name]="feature_display()[feat] || feat"
-                                    [ngModel]="
-                                        (options | async)?.features?.includes(
-                                            feat
-                                        )
-                                    "
-                                    (ngModelChange)="
-                                        toggleFeature(feat, $event)
-                                    "
-                                    [ngModelOptions]="{ standalone: true }"
-                                ></settings-toggle>
+                    @if (view() === 'list') {
+                        <settings-toggle
+                            class="mb-4"
+                            [ngModel]="(options | async)?.show_fav"
+                            (ngModelChange)="setOptions({ show_fav: $event })"
+                            [ngModelOptions]="{ standalone: true }"
+                            >{{
+                                'COMMON.FAVOURITES_ONLY' | translate
+                            }}</settings-toggle
+                        >
+                        <h2 class="text-lg font-medium">
+                            {{ 'CALENDAR_EVENT.FACILITIES' | translate }}
+                        </h2>
+                        <div class="mb-4 flex flex-col space-y-2">
+                            @for (feat of features | async; track feat) {
+                                @if (!hide_features().includes(feat)) {
+                                    <settings-toggle
+                                        class="w-full"
+                                        [name]="feature_display()[feat] || feat"
+                                        [ngModel]="
+                                            (options | async)?.features?.includes(
+                                                feat
+                                            )
+                                        "
+                                        (ngModelChange)="
+                                            toggleFeature(feat, $event)
+                                        "
+                                        [ngModelOptions]="{ standalone: true }"
+                                    ></settings-toggle>
+                                }
                             }
-                        }
-                    </div>
+                        </div>
+                    }
                 </div>
             </div>
         </div>

@@ -9,6 +9,9 @@ import {
     signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { BookingFormService } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -18,16 +21,50 @@ import {
     Space,
 } from '@placeos/common';
 import {
+    BuildingPipe,
     IconComponent,
     InteractiveMapComponent,
     TranslatePipe,
 } from '@placeos/components';
 import { DEFAULT_COLOURS } from '@placeos/explore';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+import { combineLatest, map } from 'rxjs';
 
 @Component({
     selector: 'desk-flow-select-map',
     template: `
+        @if (levels()?.length) {
+            <div
+                class="absolute top-2 right-2 left-2 z-10 rounded border border-base-300 bg-base-100 p-2 shadow"
+            >
+                <mat-form-field appearance="outline" class="no-subscript w-full">
+                    <mat-select
+                        name="location"
+                        [ngModel]="level()"
+                        (ngModelChange)="setLevel($event)"
+                        [ngModelOptions]="{ standalone: true }"
+                        [placeholder]="'COMMON.LEVEL_ANY' | translate"
+                    >
+                        @for (lvl of levels(); track lvl) {
+                            <mat-option [value]="lvl">
+                                <div class="flex flex-col-reverse">
+                                    @if (use_region()) {
+                                        <div class="text-xs opacity-30">
+                                            {{
+                                                (lvl?.parent_id | building)
+                                                    ?.display_name
+                                            }}
+                                            <span class="opacity-0"> - </span>
+                                        </div>
+                                    }
+                                    <div>{{ lvl.display_name || lvl.name }}</div>
+                                </div>
+                            </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+            </div>
+        }
         <div class="absolute inset-0 w-full flex-1">
             <interactive-map
                 [src]="map_url()"
@@ -92,8 +129,12 @@ import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticat
     imports: [
         CommonModule,
         InteractiveMapComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+        FormsModule,
         IconComponent,
         TranslatePipe,
+        BuildingPipe,
         AuthenticatedImageDirective,
     ],
 })
@@ -101,6 +142,7 @@ export class DeskFlowSelectMapComponent extends AsyncHandler implements OnInit {
     private _booking_form = inject(BookingFormService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private readonly _use_region = this._settings.signal('use_region', false);
 
     public readonly selected_items = input<string[]>([]);
     public readonly active = input<string>(undefined);
@@ -146,6 +188,40 @@ export class DeskFlowSelectMapComponent extends AsyncHandler implements OnInit {
     public readonly map_url = computed(() => this.level()?.map_id || '');
     public readonly resource_list = toSignal(this._booking_form.resources);
     public readonly features = signal([]);
+    public readonly use_region = this._use_region;
+    public readonly levels = toSignal(
+        combineLatest([
+            this._org.active_region,
+            this._org.active_building,
+            this._booking_form.resources,
+        ]).pipe(
+            map(([region, bld, resources]) => {
+                const level_list = this.use_region()
+                    ? this._org.levelsForRegion(region)
+                    : this._org.levelsForBuilding(bld);
+                const level_ids = new Set(
+                    resources
+                        .filter((resource) => resource.bookable !== false)
+                        .map((resource) => resource.zone?.id)
+                        .filter((_) => _),
+                );
+                return level_list
+                    .filter(
+                        (lvl) =>
+                            !lvl.tags.includes('parking') &&
+                            level_ids.has(lvl.id),
+                    )
+                    .sort(
+                        (a, b) =>
+                            a.parent_id.localeCompare(b.parent_id) ||
+                            (a.display_name || '').localeCompare(
+                                b.display_name || '',
+                            ),
+                    );
+            }),
+        ),
+        { initialValue: [] },
+    );
 
     public readonly selected_desk = computed(() => {
         const selected_ids = this.selected_items();
@@ -194,7 +270,7 @@ export class DeskFlowSelectMapComponent extends AsyncHandler implements OnInit {
     }
 
     public setLevel(level: BuildingLevel) {
-        this.setOptions({ zone_ids: [level?.id] });
+        this.setOptions({ zones: [level?.id], zone_id: level?.id });
         const bld = this._org.buildings.find((_) => _.id === level?.parent_id);
         if (bld) {
             const [latitude, longitude] = (level.location || bld.location)
