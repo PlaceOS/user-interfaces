@@ -15,7 +15,12 @@ import {
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { BuildingLevel, SettingsService, Space } from '@placeos/common';
+import {
+    BuildingLevel,
+    settingSignal,
+    SettingsService,
+    Space,
+} from '@placeos/common';
 import { combineLatest } from 'rxjs';
 import { debounceTime, map, tap } from 'rxjs/operators';
 
@@ -103,7 +108,6 @@ export class NewSpaceMapComponent implements OnInit {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
     private _destroy_ref = inject(DestroyRef);
-    private readonly _use_region = this._settings.signal('use_region', false);
 
     public readonly selected = input<string[]>([]);
     public readonly active = input<string>(undefined);
@@ -113,6 +117,7 @@ export class NewSpaceMapComponent implements OnInit {
     public zoom = 1;
     public center = { x: 0.5, y: 0.5 };
     public coordinates = undefined;
+    public readonly use_region = settingSignal('use_region', false);
 
     private _seletedSpace = (s) => () => {
         this.onSelect.emit(s);
@@ -210,7 +215,6 @@ export class NewSpaceMapComponent implements OnInit {
     );
 
     public readonly styles = toSignal(this._styles$, { initialValue: {} });
-    public readonly use_region = this._use_region;
 
     public ngOnInit() {
         this._event_form.options$
