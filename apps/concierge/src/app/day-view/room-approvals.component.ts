@@ -332,11 +332,15 @@ export class RoomBookingsApprovalsComponent implements OnInit {
 
     public readonly filtered_pending = computed(() => {
         const search = this.search().toLowerCase();
+        const status = this.status();
         return this.pending().filter(
             (event) =>
-                event.title.toLowerCase().includes(search) ||
-                event.host.toLowerCase().includes(search) ||
-                event.organiser?.name?.toLowerCase().includes(search),
+                !status[event.id] &&
+                (!event.recurring_event_id ||
+                    !status[event.recurring_event_id]) &&
+                (event.title.toLowerCase().includes(search) ||
+                    event.host.toLowerCase().includes(search) ||
+                    event.organiser?.name?.toLowerCase().includes(search)),
         );
     });
 
@@ -375,9 +379,8 @@ export class RoomBookingsApprovalsComponent implements OnInit {
                 30 * 1000,
             )
             .catch();
-        await mod.execute('find_bookings_for_approval').catch();
         this.loading.set(false);
-        this.status.update((s) => ({ ...s, [event.id]: 'accept' }));
+        this._setSeriesStatus(event, 'accept');
     }
 
     public async reject(event: CalendarEvent) {
@@ -400,8 +403,23 @@ export class RoomBookingsApprovalsComponent implements OnInit {
                 30 * 1000,
             )
             .catch();
-        await mod.execute('find_bookings_for_approval').catch();
         this.loading.set(false);
-        this.status.update((s) => ({ ...s, [event.id]: 'decline' }));
+        this._setSeriesStatus(event, 'decline');
+    }
+
+    private _setSeriesStatus(
+        event: CalendarEvent,
+        status: 'accept' | 'decline',
+    ) {
+        const recurring_event_id = event.recurring_event_id || event.id;
+        const series_events = this.pending().filter(
+            (_) => (_.recurring_event_id || _.id) === recurring_event_id,
+        );
+        this.status.update((s) => ({
+            ...s,
+            [recurring_event_id]: status,
+            ...Object.fromEntries(series_events.map((_) => [_.id, status])),
+            [event.id]: status,
+        }));
     }
 }
