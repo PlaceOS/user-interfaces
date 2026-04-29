@@ -10,6 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import {
+    BuildingLevel,
     MapsPeopleService,
     OrganisationService,
     SettingsService,
@@ -29,6 +30,7 @@ import { SpacesService } from '../../lib/spaces.service';
 
 describe('SpaceFiltersComponent', () => {
     let spectator: Spectator<SpaceFiltersComponent>;
+    let levels: BuildingLevel[] = [];
     const createComponent = createComponentFactory({
         component: SpaceFiltersComponent,
         providers: [
@@ -41,8 +43,8 @@ describe('SpaceFiltersComponent', () => {
                 region_list: new BehaviorSubject([{}]),
                 level_list: [],
                 buildings: [],
-                levelsForBuilding: jest.fn(() => []),
-                levelsForRegion: jest.fn(() => []),
+                levelsForBuilding: jest.fn(() => levels),
+                levelsForRegion: jest.fn(() => levels),
             } as any),
             MockProvider(SpacesService, { features: of(['Whiteboard']) }),
             MockProvider(EventFormService, {
@@ -77,13 +79,25 @@ describe('SpaceFiltersComponent', () => {
         ],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        levels = [];
+        spectator = createComponent();
+    });
 
     it('should create component', () =>
         expect(spectator.component).toBeTruthy());
 
-    it('should allow changing location', () =>
-        expect('[name="location"]').toExist());
+    it('should hide location when there is one or less levels', () =>
+        expect('[name="location"]').not.toExist());
+
+    it('should allow changing location when there are multiple levels', () => {
+        levels = [
+            new BuildingLevel({ id: 'level-1', parent_id: 'bld-1' }),
+            new BuildingLevel({ id: 'level-2', parent_id: 'bld-1' }),
+        ];
+        spectator = createComponent();
+        expect('[name="location"]').toExist();
+    });
 
     it('should allow date', () => expect('[name="date"]').toExist());
 

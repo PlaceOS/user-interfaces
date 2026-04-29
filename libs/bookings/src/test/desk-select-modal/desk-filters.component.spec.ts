@@ -12,6 +12,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { BookingFormService } from '@placeos/bookings';
 import {
     Building,
+    BuildingLevel,
     OrganisationService,
     Region,
     SettingsService,
@@ -23,6 +24,7 @@ import { DeskFiltersComponent } from '../../lib/desk-select-modal/desk-filters.c
 
 describe('DeskFiltersComponent', () => {
     let spectator: Spectator<DeskFiltersComponent>;
+    let levels: BuildingLevel[] = [];
     const createComponent = createComponentFactory({
         component: DeskFiltersComponent,
         shallow: true,
@@ -39,8 +41,8 @@ describe('DeskFiltersComponent', () => {
                     new Building({ id: '1' }),
                     new Building({ id: '2' }),
                 ],
-                levelsForBuilding: jest.fn(() => []),
-                levelsForRegion: jest.fn(() => []),
+                levelsForBuilding: jest.fn(() => levels),
+                levelsForRegion: jest.fn(() => levels),
             }),
             MockProvider(BookingFormService, {
                 features: new BehaviorSubject(['standing']),
@@ -61,12 +63,27 @@ describe('DeskFiltersComponent', () => {
         ],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        levels = [];
+        spectator = createComponent();
+    });
 
     it('should create component', () =>
         expect(spectator.component).toBeTruthy());
 
     it('should allow changing date', () => expect('[name="date"]').toExist());
+
+    it('should hide location when there is one or less levels', () =>
+        expect('[name="location"]').not.toExist());
+
+    it('should allow changing location when there are multiple levels', () => {
+        levels = [
+            new BuildingLevel({ id: 'level-1', parent_id: 'bld-1' }),
+            new BuildingLevel({ id: 'level-2', parent_id: 'bld-1' }),
+        ];
+        spectator = createComponent();
+        expect('[name="location"]').toExist();
+    });
 
     it('should allow start time', () =>
         expect('[name="start-time"]').toExist());
