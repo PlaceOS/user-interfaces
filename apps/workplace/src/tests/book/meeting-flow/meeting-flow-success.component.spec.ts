@@ -1,13 +1,22 @@
 import { signal } from '@angular/core';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
-import { OrganisationService, SettingsService } from '@placeos/common';
-import { EventFormService } from '@placeos/events';
+import {
+    BuildingLevel,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
+import { EventFormService, SpacePipe } from '@placeos/events';
 import { MeetingFlowSuccessComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-flow-success.component';
 import { MockProvider } from 'ng-mocks';
 
 describe('MeetingFlowSuccessComponent', () => {
     let spectator: Spectator<MeetingFlowSuccessComponent>;
     let hide_nearby_desks = false;
+    const level_2 = new BuildingLevel({
+        id: 'level-2',
+        name: 'Level 2',
+        display_name: 'Level 2',
+    } as any);
     const create_settings = () => ({
         get: jest.fn((key: string) => {
             if (key === 'app.features') return ['desks'];
@@ -37,16 +46,29 @@ describe('MeetingFlowSuccessComponent', () => {
                 },
             },
             MockProvider(OrganisationService, {
-                levelWithID: jest.fn(() => null),
-                levelsForBuilding: jest.fn(() => []),
+                levelWithID: jest.fn((zones = []) =>
+                    zones.includes('level-2') ? level_2 : null,
+                ),
+            } as any),
+        ],
+        componentProviders: [
+            MockProvider(SpacePipe, {
+                transform: jest.fn(() =>
+                    Promise.resolve({
+                        email: 'room@placeos.test',
+                        id: 'room-1',
+                        zones: ['level-2'],
+                    }),
+                ),
             } as any),
         ],
         declarations: [],
     });
 
-    beforeEach(() => {
+    beforeEach(async () => {
         hide_nearby_desks = false;
         spectator = createComponent();
+        await spectator.fixture.whenStable();
         spectator.component.loading.set(false);
         spectator.detectChanges();
     });
@@ -61,5 +83,9 @@ describe('MeetingFlowSuccessComponent', () => {
         hide_nearby_desks = true;
         spectator.detectChanges();
         expect(spectator.query('button')).not.toExist();
+    });
+
+    it("should show the resolved space's level", () => {
+        expect(spectator.component.level).toBe(level_2);
     });
 });

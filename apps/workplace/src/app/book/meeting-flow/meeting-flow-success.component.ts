@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { OrganisationService, SettingsService, Space } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
-import { EventFormService } from '@placeos/events';
+import { EventFormService, SpacePipe } from '@placeos/events';
 
 @Component({
     selector: 'meeting-flow-success',
@@ -89,15 +89,18 @@ import { EventFormService } from '@placeos/events';
     `,
     styles: [``],
     imports: [CommonModule, RouterModule, TranslatePipe],
+    providers: [SpacePipe],
 })
 export class MeetingFlowSuccessComponent implements OnInit {
     private _event_form = inject(EventFormService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
     private _router = inject(Router);
+    private _space_pipe = inject(SpacePipe);
 
     public readonly loading = signal(false);
     public readonly last_event = this._event_form.last_success;
+    public readonly resolved_space = signal<Space | null>(null);
 
     public get allow_desk_booking() {
         return (
@@ -107,13 +110,12 @@ export class MeetingFlowSuccessComponent implements OnInit {
     }
 
     public get space() {
-        return this.last_event()?.space;
+        return this.resolved_space() || this.last_event()?.space;
     }
 
     public get level() {
         return (
-            this._org.levelWithID(this.space?.zones) ||
-            this._org.levelsForBuilding()[0]
+            this._org.levelWithID(this.space?.zones || []) || this.space?.level
         );
     }
 
@@ -121,8 +123,21 @@ export class MeetingFlowSuccessComponent implements OnInit {
         return this._settings.time_format;
     }
 
-    public ngOnInit() {
+    public async ngOnInit() {
         this.loading.set(true);
+        const space = this.last_event()?.space;
+        if (space?.email || space?.id) {
+            const resolved_space = await this._space_pipe.transform(
+                space.email || space.id,
+            );
+            if (
+                resolved_space &&
+                (resolved_space.id ||
+                    resolved_space.email !== 'empty.space@place.os')
+            ) {
+                this.resolved_space.set(resolved_space);
+            }
+        }
         setTimeout(() => this.loading.set(false), 500);
     }
 
