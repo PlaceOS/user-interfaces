@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, effect, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -356,13 +356,18 @@ export class NewSpaceFiltersComponent {
         combineLatest([
             this._org.active_region,
             this._org.active_building,
+            this._event_form.spaces$,
         ]).pipe(
-            map(([region, bld]) => {
+            map(([region, bld, spaces]) => {
                 const level_list = this.use_region()
                     ? this._org.levelsForRegion(region)
                     : this._org.levelsForBuilding(bld);
+                const level_ids = new Set(
+                    flatten(spaces.map((space) => space.zones || [])),
+                );
                 const viewable_levels = level_list.filter(
-                    (lvl) => !lvl.tags.includes('parking'),
+                    (lvl) =>
+                        !lvl.tags.includes('parking') && level_ids.has(lvl.id),
                 );
                 return viewable_levels.sort(
                     (a, b) =>
@@ -375,6 +380,18 @@ export class NewSpaceFiltersComponent {
         ),
         { initialValue: [] },
     );
+
+    private readonly _clear_invalid_levels = effect(() => {
+        const levels = this.levels();
+        const zones = this.options()?.zones || [];
+        if (!zones.length) return;
+        const valid_zones = zones.filter((zone) =>
+            levels.some((lvl) => lvl.id === zone),
+        );
+        if (valid_zones.length !== zones.length) {
+            this._event_form.setOptions({ zones: valid_zones });
+        }
+    });
 
     public readonly regions = toSignal(this._org.region_list, {
         initialValue: [],
