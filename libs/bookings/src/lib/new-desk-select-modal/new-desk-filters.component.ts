@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, effect, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { SettingsService } from '@placeos/common';
 import { addDays, endOfDay } from 'date-fns';
@@ -260,13 +260,20 @@ export class NewDeskFiltersComponent {
         combineLatest([
             this._org.active_region,
             this._org.active_building,
+            this._state.resources,
         ]).pipe(
-            map(([region, bld]) => {
+            map(([region, bld, resources]) => {
                 const level_list = this._use_region()
                     ? this._org.levelsForRegion(region)
                     : this._org.levelsForBuilding(bld);
+                const level_ids = new Set(
+                    resources
+                        .map((resource) => resource.zone?.id)
+                        .filter((_) => _),
+                );
                 const viewable_levels = level_list.filter(
-                    (lvl) => !lvl.tags.includes('parking'),
+                    (lvl) =>
+                        !lvl.tags.includes('parking') && level_ids.has(lvl.id),
                 );
                 return viewable_levels.sort(
                     (a, b) =>
@@ -279,6 +286,14 @@ export class NewDeskFiltersComponent {
         ),
         { initialValue: [] },
     );
+
+    private readonly _clear_invalid_level = effect(() => {
+        const zone_id = this.options()?.zone_id;
+        if (!zone_id) return;
+        if (!this.levels().some((lvl) => lvl.id === zone_id)) {
+            this._state.setOptions({ zone_id: undefined });
+        }
+    });
 
     public get building() {
         return this._org.building;

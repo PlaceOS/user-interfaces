@@ -43,8 +43,9 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { combineLatest } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
+import { showMetadata } from '@placeos/ts-client';
+import { combineLatest, forkJoin, of } from 'rxjs';
+import { catchError, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
@@ -346,9 +347,10 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     public readonly downloading = signal(false);
     public readonly path = signal('');
     public readonly manage = computed(() => this.path() === 'manage');
+    private readonly _desk_levels_loaded = signal(false);
     /** Signal for filters */
     public readonly filters = this._state.filters;
-    private readonly _levels$ = combineLatest([
+    private readonly _all_levels$ = combineLatest([
         this._org.active_building,
         this._org.active_region,
     ]).pipe(
@@ -359,8 +361,43 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
         ),
         shareReplay(1),
     );
+    private readonly _desk_levels$ = this._all_levels$.pipe(
+        switchMap((levels) => {
+            this._desk_levels_loaded.set(false);
+            if (!levels.length) return of([]);
+            return forkJoin(
+                levels.map((level) =>
+                    showMetadata(level.id, 'desks').pipe(
+                        map((metadata) =>
+                            metadata.details instanceof Array &&
+                            metadata.details.length
+                                ? level
+                                : null,
+                        ),
+                        catchError(() => of(null)),
+                    ),
+                ),
+            );
+        }),
+        map((levels) =>
+            levels.filter((level): level is BuildingLevel => !!level),
+        ),
+        tap(() => this._desk_levels_loaded.set(true)),
+        shareReplay(1),
+    );
+    private readonly _all_levels = toSignal(this._all_levels$, {
+        initialValue: [],
+    });
+    private readonly _desk_levels = toSignal(this._desk_levels$, {
+        initialValue: [],
+    });
     /** Signal for levels for the active building */
-    public readonly levels = toSignal(this._levels$, { initialValue: [] });
+    public readonly levels = computed(() => {
+        const desk_levels = this._desk_levels();
+        return this.manage() || !this._desk_levels_loaded()
+            ? this._all_levels()
+            : desk_levels;
+    });
     public readonly setDate = (date) => this._state.setFilters({ date });
     public readonly setFilters = (o) => this._state.setFilters(o);
     public readonly refresh = () => this._state.refresh();
@@ -426,7 +463,13 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
         );
         this.subscription(
             'level-changes',
-            this._levels$.subscribe((levels) => this._syncZones(levels)),
+            this._all_levels$.subscribe((levels) => this._syncZones(levels)),
+        );
+        this.subscription(
+            'desk-level-changes',
+            this._desk_levels$.subscribe((levels) => {
+                if (!this.manage()) this._syncZones(levels);
+            }),
         );
         const parts = this._router.url?.split('/') || [''];
         this.path.set(parts[parts.length - 1].split('?')[0]);
