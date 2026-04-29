@@ -18,26 +18,48 @@ const children = [
         path: 'list',
         component: AssetListingComponent,
         children: [
-            { path: 'items', component: AssetItemListComponent },
-            { path: 'requests', component: AssetRequestListComponent },
+            {
+                path: 'items',
+                component: AssetItemListComponent,
+                title: 'Assets',
+            },
+            {
+                path: 'requests',
+                component: AssetRequestListComponent,
+                title: 'Asset Requests',
+            },
             {
                 path: 'purchase-orders',
                 component: AssetPurchaseOrderListComponent,
+                title: 'Asset Purchase Orders',
             },
             { path: '**', redirectTo: 'requests' },
         ],
     },
-    { path: 'view/:id', component: AssetViewComponent },
+    { path: 'view/:id', component: AssetViewComponent, title: 'Asset Details' },
     {
         path: 'manage',
         children: [
-            { path: 'group', component: AssetGroupFormComponent },
-            { path: 'asset', component: AssetFormComponent },
-            { path: 'asset-bulk', component: AssetBulkFormComponent },
-            { path: 'category', component: AssetCategoryFormComponent },
+            {
+                path: 'group',
+                component: AssetGroupFormComponent,
+                title: 'Asset Groups',
+            },
+            { path: 'asset', component: AssetFormComponent, title: 'Assets' },
+            {
+                path: 'asset-bulk',
+                component: AssetBulkFormComponent,
+                title: 'Bulk Assets',
+            },
+            {
+                path: 'category',
+                component: AssetCategoryFormComponent,
+                title: 'Asset Categories',
+            },
             {
                 path: 'purchase-order',
                 component: AssetPurchaseOrderFormComponent,
+                title: 'Asset Purchase Orders',
             },
         ],
     },

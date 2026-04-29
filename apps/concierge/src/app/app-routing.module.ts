@@ -9,9 +9,10 @@ import {
 
 const routes: Routes = [
     { path: '-', component: RedirectComponent },
-    { path: 'unauthorised', component: UnauthorisedComponent },
+    { path: 'unauthorised', component: UnauthorisedComponent, title: 'Unauthorised' },
     {
         path: 'book/rooms',
+        title: 'Room Bookings',
         loadChildren: () =>
             import('./day-view/day-view.module').then((m) => m.DayViewModule),
         canActivate: [AuthorisedUserGuard],
@@ -19,6 +20,7 @@ const routes: Routes = [
     },
     {
         path: 'facilities',
+        title: 'Facilities',
         loadChildren: () =>
             import('./facilities/facilities.module').then(
                 (m) => m.FacilitiesModule,
@@ -28,6 +30,7 @@ const routes: Routes = [
     },
     {
         path: 'book/visitors',
+        title: 'Visitors',
         loadChildren: () =>
             import('./visitors/visitors.module').then((m) => m.VisitorsModule),
         canActivate: [AuthorisedUserGuard],
@@ -35,6 +38,7 @@ const routes: Routes = [
     },
     {
         path: 'book/assets',
+        title: 'Assets',
         loadChildren: () =>
             import('./asset-manager/asset-manager.module').then(
                 (m) => m.AppAssetManangerModule,
@@ -44,6 +48,7 @@ const routes: Routes = [
     },
     {
         path: 'book/desks',
+        title: 'Desk Bookings',
         loadChildren: () =>
             import('./desks/desks.module').then((m) => m.DesksModule),
         canActivate: [AuthorisedUserGuard],
@@ -51,6 +56,7 @@ const routes: Routes = [
     },
     {
         path: 'book/lockers',
+        title: 'Locker Bookings',
         loadChildren: () =>
             import('./lockers/lockers.module').then((m) => m.LockersModule),
         canActivate: [AuthorisedUserGuard],
@@ -58,6 +64,7 @@ const routes: Routes = [
     },
     {
         path: 'reports',
+        title: 'Reports',
         loadChildren: () =>
             import('./reports/reports.module').then((m) => m.ReportsModule),
         canActivate: [AuthorisedUserGuard],
@@ -65,6 +72,7 @@ const routes: Routes = [
     },
     {
         path: 'entertainment/events',
+        title: 'Events',
         loadChildren: () =>
             import('./events/events.module').then((m) => m.EventsModule),
         canActivate: [AuthorisedUserGuard],
@@ -72,6 +80,7 @@ const routes: Routes = [
     },
     {
         path: 'users/staff',
+        title: 'Staff',
         loadChildren: () =>
             import('./staff/staff.module').then((m) => m.StaffModule),
         canActivate: [AuthorisedUserGuard],
@@ -79,6 +88,7 @@ const routes: Routes = [
     },
     {
         path: 'book/catering',
+        title: 'Catering',
         loadChildren: () =>
             import('./catering/catering.module').then((m) => m.CateringModule),
         canActivate: [AuthorisedUserGuard],
@@ -86,6 +96,7 @@ const routes: Routes = [
     },
     {
         path: 'points-management',
+        title: 'Points Management',
         loadChildren: () =>
             import('./points/points.module').then((m) => m.PointsModule),
         canActivate: [AuthorisedUserGuard],
@@ -93,6 +104,7 @@ const routes: Routes = [
     },
     {
         path: 'book/parking',
+        title: 'Parking Bookings',
         loadChildren: () =>
             import('./parking/parking.module').then((m) => m.AppParkingModule),
         canActivate: [AuthorisedUserGuard],
@@ -100,6 +112,7 @@ const routes: Routes = [
     },
     {
         path: 'surveys',
+        title: 'Surveys',
         loadChildren: () =>
             import('./surveys/surveys.module').then((m) => m.SurveysModule),
         canActivate: [AuthorisedUserGuard],
@@ -107,6 +120,7 @@ const routes: Routes = [
     },
     {
         path: 'room-management',
+        title: 'Room Management',
         loadChildren: () =>
             import('./room-manager/room-manager.module').then(
                 (m) => m.RoomManagerModule,
@@ -116,6 +130,7 @@ const routes: Routes = [
     },
     {
         path: 'zone-management',
+        title: 'Zone Management',
         loadChildren: () =>
             import('./zone-manager/zone-manager.module').then(
                 (m) => m.ZoneManagerModule,
@@ -137,6 +152,7 @@ const routes: Routes = [
     },
     {
         path: 'email-templates',
+        title: 'Email Templates',
         loadChildren: () =>
             import('./email-templates/email-templates.module').then(
                 (m) => m.EmailTemplatesModule,
@@ -144,11 +160,13 @@ const routes: Routes = [
     },
     {
         path: 'deals-n-offers',
+        title: 'Deals & Offers',
         loadChildren: () =>
             import('./deals/deals.module').then((m) => m.DealsModule),
     },
     {
         path: 'points-of-interest',
+        title: 'Points of Interest',
         loadChildren: () =>
             import('./poi-manager/poi-manager.module').then(
                 (m) => m.POIManagerModule,
@@ -158,6 +176,7 @@ const routes: Routes = [
     },
     {
         path: 'url-management',
+        title: 'URL Management',
         loadChildren: () =>
             import('./url-management/url-manager.module').then(
                 (m) => m.UrlManagerModule,
@@ -167,6 +186,7 @@ const routes: Routes = [
     },
     {
         path: 'signage',
+        title: 'Signage',
         loadChildren: () =>
             import('./signage/signage.module').then((m) => m.SignageModule),
         canActivate: [AuthorisedUserGuard],

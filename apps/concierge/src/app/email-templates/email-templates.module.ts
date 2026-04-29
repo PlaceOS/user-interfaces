@@ -9,10 +9,24 @@ const ROUTES: Route[] = [
     {
         path: '',
         component: EmailTemplatesComponent,
-        children: [{ path: '', component: EmailTemplatesListComponent }],
+        children: [
+            {
+                path: '',
+                component: EmailTemplatesListComponent,
+                title: 'Email Templates',
+            },
+        ],
     },
-    { path: 'manage', component: EmailTemplateManageComponent },
-    { path: 'manage/:id', component: EmailTemplateManageComponent },
+    {
+        path: 'manage',
+        component: EmailTemplateManageComponent,
+        title: 'Manage Email Template',
+    },
+    {
+        path: 'manage/:id',
+        component: EmailTemplateManageComponent,
+        title: 'Manage Email Template',
+    },
     { path: '**', redirectTo: '' },
 ];
 

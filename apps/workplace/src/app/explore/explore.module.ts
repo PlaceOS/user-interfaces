@@ -6,8 +6,12 @@ import { ExploreComponent } from './explore.component';
 import { MAP_FEATURE_DATA } from '@placeos/common';
 
 const ROUTES: Route[] = [
-    { path: '', component: ExploreComponent },
-    { path: ':search_type', component: ExploreComponent },
+    { path: '', component: ExploreComponent, title: 'Explore' },
+    {
+        path: ':search_type',
+        component: ExploreComponent,
+        title: 'Explore',
+    },
 ];
 
 @NgModule({

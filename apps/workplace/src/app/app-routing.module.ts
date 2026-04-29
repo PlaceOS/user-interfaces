@@ -10,17 +10,19 @@ import {
 
 const routes: Routes = [
     { path: '-', component: RedirectComponent },
-    { path: 'unauthorised', component: UnauthorisedComponent },
-    { path: 'misconfigured', component: MisconfiguredComponent },
-    // {
-    //     path: 'landing',
-    //     canActivate: [AuthorisedUserGuard],
-    //     canLoad: [AuthorisedUserGuard],
-    //     loadChildren: () =>
-    //         import('./landing/landing.module').then((m) => m.AppLandingModule),
-    // },
+    {
+        path: 'unauthorised',
+        component: UnauthorisedComponent,
+        title: 'Unauthorised',
+    },
+    {
+        path: 'misconfigured',
+        component: MisconfiguredComponent,
+        title: 'Misconfigured',
+    },
     {
         path: 'book',
+        title: 'Book',
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
         loadChildren: () =>
@@ -28,6 +30,7 @@ const routes: Routes = [
     },
     {
         path: 'explore',
+        title: 'Explore',
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
         loadChildren: () =>
@@ -35,6 +38,7 @@ const routes: Routes = [
     },
     {
         path: 'control',
+        title: 'Control',
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
         loadChildren: () =>
@@ -42,6 +46,7 @@ const routes: Routes = [
     },
     {
         path: 'directory',
+        title: 'Directory',
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
         loadChildren: () =>
@@ -51,6 +56,7 @@ const routes: Routes = [
     },
     {
         path: 'your-bookings',
+        title: 'Your Bookings',
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
         loadChildren: () =>
@@ -60,6 +66,7 @@ const routes: Routes = [
     },
     {
         path: 'group-events',
+        title: 'Group Events',
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
         loadChildren: () =>
@@ -69,6 +76,7 @@ const routes: Routes = [
     },
     {
         path: 'deals-n-offers',
+        title: 'Deals & Offers',
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
         loadChildren: () =>
@@ -76,6 +84,7 @@ const routes: Routes = [
     },
     {
         path: 'landing',
+        title: 'Home',
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
         loadComponent: () =>

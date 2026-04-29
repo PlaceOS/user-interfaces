@@ -3,7 +3,13 @@ import { Route, RouterModule } from '@angular/router';
 
 import { GroupEventsComponent } from './group-events.component';
 
-const ROUTES: Route[] = [{ path: '', component: GroupEventsComponent }];
+const ROUTES: Route[] = [
+    {
+        path: '',
+        component: GroupEventsComponent,
+        title: 'Group Events',
+    },
+];
 
 @NgModule({
     declarations: [],

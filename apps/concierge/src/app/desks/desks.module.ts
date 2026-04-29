@@ -12,9 +12,17 @@ const ROUTES: Route[] = [
         path: '',
         component: DesksComponent,
         children: [
-            { path: 'events', component: DeskBookingsComponent },
-            { path: 'map', component: DeskMapViewComponent },
-            { path: 'manage', component: DesksManageComponent },
+            {
+                path: 'events',
+                component: DeskBookingsComponent,
+                title: 'Desk Bookings',
+            },
+            { path: 'map', component: DeskMapViewComponent, title: 'Desk Map' },
+            {
+                path: 'manage',
+                component: DesksManageComponent,
+                title: 'Desk Management',
+            },
             { path: '**', redirectTo: 'events' },
         ],
     },

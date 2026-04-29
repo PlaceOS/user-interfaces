@@ -3,7 +3,9 @@ import { Route, RouterModule } from '@angular/router';
 
 import { POIManagerComponent } from './poi-manager.component';
 
-const ROUTES: Route[] = [{ path: '', component: POIManagerComponent }];
+const ROUTES: Route[] = [
+    { path: '', component: POIManagerComponent, title: 'Points of Interest' },
+];
 
 @NgModule({
     declarations: [],

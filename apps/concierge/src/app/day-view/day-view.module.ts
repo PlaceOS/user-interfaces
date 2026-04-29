@@ -4,7 +4,7 @@ import { Route, RouterModule } from '@angular/router';
 import { DayViewComponent } from './day-view.component';
 
 const ROUTES: Route[] = [
-    { path: '', component: DayViewComponent },
+    { path: '', component: DayViewComponent, title: 'Room Bookings' },
     { path: '**', redirectTo: '' },
 ];
 

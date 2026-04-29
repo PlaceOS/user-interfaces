@@ -15,20 +15,45 @@ import { ReportSpacesComponent } from './spaces/report-spaces.component';
 import { VisitorsReportComponent } from './visitors/visitors-report.component';
 
 const children: Route[] = [
-    { path: '', component: ReportsOptionsComponent },
-    { path: 'bookings', component: ReportSpacesComponent },
-    { path: 'attendance', component: SiteAttendanceReportComponent },
-    { path: 'desks', component: ReportDesksComponent },
-    { path: 'parking', component: ParkingReportComponent },
-    { path: 'lockers', component: LockersReportComponent },
-    { path: 'catering', component: CateringReportComponent },
+    { path: '', component: ReportsOptionsComponent, title: 'Reports' },
+    {
+        path: 'bookings',
+        component: ReportSpacesComponent,
+        title: 'Booking Reports',
+    },
+    {
+        path: 'attendance',
+        component: SiteAttendanceReportComponent,
+        title: 'Attendance Reports',
+    },
+    { path: 'desks', component: ReportDesksComponent, title: 'Desk Reports' },
+    {
+        path: 'parking',
+        component: ParkingReportComponent,
+        title: 'Parking Reports',
+    },
+    {
+        path: 'lockers',
+        component: LockersReportComponent,
+        title: 'Locker Reports',
+    },
+    {
+        path: 'catering',
+        component: CateringReportComponent,
+        title: 'Catering Reports',
+    },
     {
         path: 'contact-tracing',
         component: ContactTracingReportComponent,
+        title: 'Contact Tracing Reports',
     },
-    { path: 'assets', component: AssetsReportComponent },
-    { path: 'visitors', component: VisitorsReportComponent },
-    { path: ':id', component: CustomReportComponent },
+    { path: 'assets', component: AssetsReportComponent, title: 'Asset Reports' },
+    {
+        path: 'visitors',
+        component: VisitorsReportComponent,
+        title: 'Visitor Reports',
+    },
+    { path: ':id', component: CustomReportComponent, title: 'Reports' },
     { path: '**', redirectTo: 'desks', pathMatch: 'full' },
 ];
 

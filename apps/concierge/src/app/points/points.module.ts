@@ -10,8 +10,16 @@ const ROUTES: Route[] = [
         path: '',
         component: PointsComponent,
         children: [
-            { path: 'assets', component: PointsAssetsComponent },
-            { path: 'overview', component: PointsOverviewComponent },
+            {
+                path: 'assets',
+                component: PointsAssetsComponent,
+                title: 'Point Assets',
+            },
+            {
+                path: 'overview',
+                component: PointsOverviewComponent,
+                title: 'Points Overview',
+            },
             { path: '**', redirectTo: 'overview', pathMatch: 'full' },
         ],
     },

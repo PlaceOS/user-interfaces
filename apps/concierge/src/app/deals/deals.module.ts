@@ -9,10 +9,12 @@ const ROUTES: Route[] = [
     {
         path: '',
         component: DealsComponent,
-        children: [{ path: '', component: DealsListComponent }],
+        children: [
+            { path: '', component: DealsListComponent, title: 'Deals & Offers' },
+        ],
     },
-    { path: 'manage', component: DealsManageComponent },
-    { path: 'manage/:id', component: DealsManageComponent },
+    { path: 'manage', component: DealsManageComponent, title: 'Manage Deal' },
+    { path: 'manage/:id', component: DealsManageComponent, title: 'Manage Deal' },
     { path: '**', redirectTo: '' },
 ];
 

@@ -29,6 +29,58 @@ describe('OrganisationService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
+    it('should sort levels by parent, name then display name', () => {
+        spectator.service.addZone({
+            id: 'region-1',
+            tags: ['region'],
+            name: 'Region 1',
+        } as any);
+        spectator.service.addZone({
+            id: 'bld-b',
+            parent_id: 'region-1',
+            tags: ['building'],
+            name: 'Building B',
+        } as any);
+        spectator.service.addZone({
+            id: 'bld-a',
+            parent_id: 'region-1',
+            tags: ['building'],
+            name: 'Building A',
+        } as any);
+        spectator.service.addZone({
+            id: 'lvl-b2',
+            parent_id: 'bld-b',
+            tags: ['level'],
+            name: 'Level 2',
+            display_name: 'Z Display',
+        } as any);
+        spectator.service.addZone({
+            id: 'lvl-b2-display',
+            parent_id: 'bld-b',
+            tags: ['level'],
+            name: 'Level 2',
+            display_name: 'A Display',
+        } as any);
+        spectator.service.addZone({
+            id: 'lvl-a2',
+            parent_id: 'bld-a',
+            tags: ['level'],
+            name: 'Level 2',
+        } as any);
+        spectator.service.addZone({
+            id: 'lvl-b1',
+            parent_id: 'bld-b',
+            tags: ['level'],
+            name: 'Level 1',
+        } as any);
+
+        expect(
+            spectator.service.levelsForRegion(spectator.service.regions[0]).map(
+                ({ id }) => id,
+            ),
+        ).toEqual(['lvl-a2', 'lvl-b1', 'lvl-b2-display', 'lvl-b2']);
+    });
+
     /// TODO: fix
     // it('should load organisation', async () => {
     //     const orgs = [{ id: 'org-1' }, { id: 'org-2' }];

@@ -3,7 +3,9 @@ import { Route, RouterModule } from '@angular/router';
 
 import { FacilitiesComponent } from './facilities.component';
 
-const ROUTES: Route[] = [{ path: '', component: FacilitiesComponent }];
+const ROUTES: Route[] = [
+    { path: '', component: FacilitiesComponent, title: 'Facilities' },
+];
 
 @NgModule({
     declarations: [],
