@@ -12,6 +12,7 @@ describe('RoomBookingsListComponent', () => {
     let spectator: Spectator<RoomBookingsListComponent>;
     const filtered = new BehaviorSubject<CalendarEvent[]>([]);
     const spaces = new BehaviorSubject<any[]>([]);
+    const loading = new BehaviorSubject(false);
     const createComponent = createComponentFactory({
         component: RoomBookingsListComponent,
         shallow: true,
@@ -22,6 +23,7 @@ describe('RoomBookingsListComponent', () => {
                 date: of(Date.now()),
                 period: of('day'),
                 spaces,
+                loading,
                 setDate: jest.fn(),
                 newBooking: jest.fn(),
                 removeBooking: jest.fn(),
@@ -43,6 +45,7 @@ describe('RoomBookingsListComponent', () => {
     beforeEach(() => {
         filtered.next([]);
         spaces.next([]);
+        loading.next(false);
         spectator = createComponent();
     });
 
@@ -63,5 +66,13 @@ describe('RoomBookingsListComponent', () => {
         expect(spectator.component.bookings().map((event) => event.id)).toEqual([
             'booking',
         ]);
+    });
+
+    it('should expose the state loading value', () => {
+        expect(spectator.component.loading()).toBe(false);
+
+        loading.next(true);
+
+        expect(spectator.component.loading()).toBe(true);
     });
 });

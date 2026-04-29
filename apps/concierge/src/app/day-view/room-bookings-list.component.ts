@@ -4,6 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SettingsService, i18n } from '@placeos/common';
 import {
     IconComponent,
@@ -90,6 +91,19 @@ import { EventsStateService } from './events-state.service';
                     [sortable]="true"
                 ></simple-table>
             </div>
+            @if (loading()) {
+                <div
+                    class="absolute top-14 right-0 bottom-0 left-0 z-30 flex flex-col items-center justify-center space-y-2 p-2"
+                >
+                    <div
+                        class="bg-base-100 absolute inset-0 z-0 opacity-80"
+                    ></div>
+                    <mat-spinner diameter="32"></mat-spinner>
+                    <p class="relative z-10">
+                        {{ 'COMMON.LOADING' | translate }}...
+                    </p>
+                </div>
+            }
             <ng-template #date_template let-date="data">
                 <div
                     class="flex w-full flex-col items-center justify-center py-2"
@@ -269,6 +283,7 @@ import { EventsStateService } from './events-state.service';
         TranslatePipe,
         MatRippleModule,
         MatMenuModule,
+        MatProgressSpinnerModule,
         IconComponent,
         SimpleTableComponent,
         DateOptionsComponent,
@@ -291,6 +306,9 @@ export class RoomBookingsListComponent {
     });
     public readonly spaces = toSignal(this._state.spaces, {
         initialValue: [],
+    });
+    public readonly loading = toSignal(this._state.loading, {
+        initialValue: false,
     });
     public readonly bookings = computed(() =>
         [...this.events()]
