@@ -267,8 +267,10 @@ export class OrganisationService {
      * @param bld Building to list levels for
      */
     public levelsForBuilding(bld: Building = this.building): BuildingLevel[] {
-        return this.levels.filter(
-            (lvl) => lvl.parent_id && lvl.parent_id === bld?.id,
+        return this._sortLevels(
+            this.levels.filter(
+                (lvl) => lvl.parent_id && lvl.parent_id === bld?.id,
+            ),
         );
     }
 
@@ -286,10 +288,12 @@ export class OrganisationService {
      */
     public levelsForRegion(region: Region = this.region): BuildingLevel[] {
         const bld_list = this.buildingsForRegion(region);
-        return this.levels.filter(
-            (lvl) =>
-                lvl.parent_id &&
-                bld_list.find((bld) => bld.id === lvl.parent_id),
+        return this._sortLevels(
+            this.levels.filter(
+                (lvl) =>
+                    lvl.parent_id &&
+                    bld_list.find((bld) => bld.id === lvl.parent_id),
+            ),
         );
     }
 
@@ -317,9 +321,7 @@ export class OrganisationService {
             const lvl = new BuildingLevel(zone);
             let levels = this._levels.getValue().filter((_) => _.id !== lvl.id);
             levels.push(lvl);
-            levels = levels.sort((a, b) =>
-                (a.name || '').localeCompare(b.name || ''),
-            );
+            levels = this._sortLevels(levels);
             this._levels.next(levels);
             this.levels_signal.set(levels);
         } else {
@@ -328,6 +330,15 @@ export class OrganisationService {
                 zone.id,
             );
         }
+    }
+
+    private _sortLevels(levels: BuildingLevel[]): BuildingLevel[] {
+        return [...levels].sort(
+            (a, b) =>
+                (a.parent_id || '').localeCompare(b.parent_id || '') ||
+                (a.name || '').localeCompare(b.name || '') ||
+                (a.display_name || '').localeCompare(b.display_name || ''),
+        );
     }
 
     public removeZone(zone: PlaceZone) {
