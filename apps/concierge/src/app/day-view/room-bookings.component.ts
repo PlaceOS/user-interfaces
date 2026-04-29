@@ -25,10 +25,17 @@ import {
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { requestSpacesForZone } from '@placeos/events';
 import { UserPipe } from '@placeos/users';
 import { format } from 'date-fns';
-import { combineLatest } from 'rxjs';
-import { debounceTime, map } from 'rxjs/operators';
+import { combineLatest, of } from 'rxjs';
+import {
+    catchError,
+    debounceTime,
+    map,
+    shareReplay,
+    switchMap,
+} from 'rxjs/operators';
 import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
 import { BookingUIOptions, EventsStateService } from './events-state.service';
 import { RoomBookingsApprovalsComponent } from './room-approvals.component';
@@ -282,19 +289,29 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     public readonly ui_options = toSignal(this._state.options, {
         initialValue: {} as BookingUIOptions,
     });
-    public readonly levels = toSignal(
-        combineLatest([
-            this._org.active_building,
-            this._org.active_region,
-        ]).pipe(
-            map(([bld, region]) =>
-                this.use_region
-                    ? this._org.levelsForRegion(region)
-                    : this._org.levelsForBuilding(bld),
-            ),
-        ),
-        { initialValue: [] },
+    private readonly _levels$ = combineLatest([
+        this._org.active_building,
+        this._org.active_region,
+    ]).pipe(
+        switchMap(([bld, region]) => {
+            const zone = this.use_region ? region : bld;
+            if (!zone?.id) return of([]);
+            return requestSpacesForZone(zone.id).pipe(catchError(() => of([])));
+        }),
+        map((spaces) => {
+            const level_ids = new Set(
+                spaces
+                    .filter((space) => space.bookable)
+                    .flatMap((space) => space.zones || []),
+            );
+            const level_list = this.use_region
+                ? this._org.levelsForRegion(this._org.region)
+                : this._org.levelsForBuilding(this._org.building);
+            return level_list.filter((level) => level_ids.has(level.id));
+        }),
+        shareReplay(1),
     );
+    public readonly levels = toSignal(this._levels$, { initialValue: [] });
     /** List of levels for the active building */
     public readonly updateZones = (zones: string[]) => {
         const zone_ids = this._clean_zone_ids(zones);
@@ -399,30 +416,26 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
         );
         this.subscription(
             'levels',
-            this._org.active_levels
-                .pipe(debounceTime(300))
-                .subscribe(async (levels) => {
-                    if (this.use_region) return;
-                    const current = this.zones().filter((zone) =>
-                        levels.find((lvl) => lvl.id === zone),
-                    );
-                    if (!this.zones().length) {
-                        // Restore persisted selection when the view first
-                        // loads without an explicit URL filter. Empty means
-                        // "all levels".
-                        const persisted = loadPersistedZones(
-                            'room-bookings',
-                            this._persistScopeId(),
-                        ).filter((zone) =>
-                            levels.find((lvl) => lvl.id === zone),
-                        );
-                        if (persisted.length) {
-                            this.updateZones(persisted);
-                            return;
-                        }
+            this._levels$.pipe(debounceTime(300)).subscribe(async (levels) => {
+                if (this.use_region) return;
+                const current = this.zones().filter((zone) =>
+                    levels.find((lvl) => lvl.id === zone),
+                );
+                if (!this.zones().length) {
+                    // Restore persisted selection when the view first
+                    // loads without an explicit URL filter. Empty means
+                    // "all levels".
+                    const persisted = loadPersistedZones(
+                        'room-bookings',
+                        this._persistScopeId(),
+                    ).filter((zone) => levels.find((lvl) => lvl.id === zone));
+                    if (persisted.length) {
+                        this.updateZones(persisted);
+                        return;
                     }
-                    this.updateZones(current);
-                }),
+                }
+                this.updateZones(current);
+            }),
         );
     }
 
