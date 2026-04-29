@@ -16,6 +16,7 @@ import {
     notifySuccess,
     OrganisationService,
     randomInt,
+    settingSignal,
     SettingsService,
 } from '@placeos/common';
 import {
@@ -322,16 +323,21 @@ export class DesksManageComponent extends AsyncHandler {
         this.loading.set('');
     }
 
-    public get kiosk_url() {
+    public get workplace_url() {
         const path =
             this._settings.get('app.workplace_url_path') || '/workplace';
         return `${window.location.origin}${path}`;
     }
 
+    public readonly link_path = settingSignal(
+        'workplace_desk_action_path',
+        '/#/book/code?asset_id={asset_id}',
+    );
+
     public loadQrCode(item: any) {
         const link = `${
-            this.kiosk_url
-        }/#/book/code?asset_id=${encodeURIComponent(item.id)}`;
+            this.workplace_url
+        }${this.link_path().replace('{asset_id}', encodeURIComponent(item.id))}`;
         item.qr_link = link;
         item.qr_code = generateQRCode(link);
         this.qr_code.update((map) => map.set(item.id, item.qr_code));
