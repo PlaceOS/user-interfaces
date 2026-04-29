@@ -64,9 +64,11 @@ import { BookingFormService } from '../booking-form.service';
                     {{ 'BOOKINGS.DETAILS' | translate }}
                 </h2>
                 <div class="flex min-w-32 flex-1 flex-col">
-                    <label for="location">
-                        {{ 'BOOKINGS.LOCATION' | translate }}
-                    </label>
+                    @if (show_location_filters()) {
+                        <label for="location">
+                            {{ 'BOOKINGS.LOCATION' | translate }}
+                        </label>
+                    }
                     @if (use_region() && regions()?.length) {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
@@ -103,7 +105,7 @@ import { BookingFormService } from '../booking-form.service';
                             </mat-select>
                         </mat-form-field>
                     }
-                    @if (!hide_levels()) {
+                    @if (show_level_select()) {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="location"
@@ -315,6 +317,16 @@ export class DeskFiltersComponent {
             }),
         ),
         { initialValue: [] },
+    );
+
+    public readonly show_level_select = computed(
+        () => !this.hide_levels() && this.levels().length > 1,
+    );
+    public readonly show_location_filters = computed(
+        () =>
+            (this.use_region() && !!this.regions()?.length) ||
+            (!this.use_region() && this.buildings()?.length > 1) ||
+            this.show_level_select(),
     );
 
     public get building() {

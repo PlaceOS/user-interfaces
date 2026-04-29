@@ -59,9 +59,11 @@ import { SpacesService } from '../spaces.service';
                     {{ 'CALENDAR_EVENT.DETAILS' | translate }}
                 </h2>
                 <div class="flex min-w-32 flex-1 flex-col">
-                    <label for="location">
-                        {{ 'CALENDAR_EVENT.SPACE_LOCATION' | translate }}
-                    </label>
+                    @if (show_location_filters()) {
+                        <label for="location">
+                            {{ 'CALENDAR_EVENT.SPACE_LOCATION' | translate }}
+                        </label>
+                    }
                     @if (use_region() && regions()?.length) {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
@@ -101,7 +103,7 @@ import { SpacesService } from '../spaces.service';
                             </mat-select>
                         </mat-form-field>
                     }
-                    @if (!hide_levels()) {
+                    @if (show_level_select()) {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="location"
@@ -380,6 +382,16 @@ export class SpaceFiltersComponent {
             }),
         ),
         { initialValue: [] },
+    );
+
+    public readonly show_level_select = computed(
+        () => !this.hide_levels() && this.levels().length > 1,
+    );
+    public readonly show_location_filters = computed(
+        () =>
+            (this.use_region() && !!this.regions()?.length) ||
+            (!this.use_region() && this.buildings()?.length > 1) ||
+            this.show_level_select(),
     );
 
     public readonly regions = toSignal(this._org.region_list, {

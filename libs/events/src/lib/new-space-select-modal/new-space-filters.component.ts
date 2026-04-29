@@ -46,7 +46,7 @@ import { SpacesService } from '../spaces.service';
                 </h2>
                 <div class="flex min-w-32 flex-1 flex-col">
                     @if (
-                        !hide_levels() &&
+                        show_level_select() &&
                         !(use_region() && regions()?.length) &&
                         !(!use_region() && buildings()?.length > 1)
                     ) {
@@ -90,7 +90,7 @@ import { SpacesService } from '../spaces.service';
                             </mat-select>
                         </mat-form-field>
                     }
-                    @if (!hide_levels()) {
+                    @if (show_level_select()) {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="location"
@@ -379,6 +379,10 @@ export class NewSpaceFiltersComponent {
             }),
         ),
         { initialValue: [] },
+    );
+
+    public readonly show_level_select = computed(
+        () => !this.hide_levels() && this.levels().length > 1,
     );
 
     private readonly _clear_invalid_levels = effect(() => {
