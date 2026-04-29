@@ -17,15 +17,25 @@ const ROUTES: Route[] = [
                 path: 'events',
                 children: [
                     { path: '', pathMatch: 'full', redirectTo: 'list' },
-                    { path: 'map', component: ParkingMapComponent },
-                    { path: 'list', component: ParkingBookingsListComponent },
+                    {
+                        path: 'map',
+                        component: ParkingMapComponent,
+                        title: 'Parking Map',
+                    },
+                    {
+                        path: 'list',
+                        component: ParkingBookingsListComponent,
+                        title: 'Parking Bookings',
+                    },
                     {
                         path: 'requests',
                         component: ParkingBookingsListComponent,
+                        title: 'Parking Requests',
                     },
                     {
                         path: 'bookings',
                         component: ParkingBookingsListComponent,
+                        title: 'Parking Bookings',
                     },
                     { path: '**', redirectTo: 'list' },
                 ],
@@ -33,10 +43,26 @@ const ROUTES: Route[] = [
             {
                 path: 'manage',
                 children: [
-                    { path: 'fleet', component: ParkingFleetListComponent },
-                    { path: 'users', component: ParkingUsersListComponent },
-                    { path: 'map', component: ParkingMapComponent },
-                    { path: 'spaces', component: ParkingSpaceListComponent },
+                    {
+                        path: 'fleet',
+                        component: ParkingFleetListComponent,
+                        title: 'Parking Fleet',
+                    },
+                    {
+                        path: 'users',
+                        component: ParkingUsersListComponent,
+                        title: 'Parking Users',
+                    },
+                    {
+                        path: 'map',
+                        component: ParkingMapComponent,
+                        title: 'Parking Map',
+                    },
+                    {
+                        path: 'spaces',
+                        component: ParkingSpaceListComponent,
+                        title: 'Parking Spaces',
+                    },
                     { path: '**', redirectTo: 'spaces' },
                 ],
             },

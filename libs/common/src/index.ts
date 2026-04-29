@@ -17,6 +17,7 @@ export * from './lib/qr-code';
 export * from './lib/recurrence';
 export * from './lib/remote-logging.service';
 export * from './lib/settings.service';
+export * from './lib/settings-title-strategy.service';
 export * from './lib/shorten.fn';
 export * from './lib/timezone-helpers';
 export * from './lib/uploads.service';

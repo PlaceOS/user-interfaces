@@ -3,7 +3,13 @@ import { Route, RouterModule } from '@angular/router';
 
 import { DirectoryUserListComponent } from './user-list.component';
 
-const ROUTES: Route[] = [{ path: '', component: DirectoryUserListComponent }];
+const ROUTES: Route[] = [
+    {
+        path: '',
+        component: DirectoryUserListComponent,
+        title: 'Directory',
+    },
+];
 
 @NgModule({
     declarations: [],

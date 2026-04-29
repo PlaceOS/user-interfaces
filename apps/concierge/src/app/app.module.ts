@@ -13,7 +13,7 @@ import {
     BrowserAnimationsModule,
     provideAnimations,
 } from '@angular/platform-browser/animations';
-import { Router } from '@angular/router';
+import { Router, TitleStrategy } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
@@ -32,7 +32,7 @@ import localeFr from '@angular/common/locales/fr';
 import localeIt from '@angular/common/locales/it';
 import localeJa from '@angular/common/locales/ja';
 import localeZh from '@angular/common/locales/zh';
-import { LocaleService } from '@placeos/common';
+import { LocaleService, SettingsTitleStrategy } from '@placeos/common';
 import {
     ChatComponent,
     GlobalBannerComponent,
@@ -79,6 +79,7 @@ import { AppComponent } from './app.component';
             deps: [LocaleService],
             useFactory: (localeService: LocaleService) => localeService.locale,
         },
+        { provide: TitleStrategy, useClass: SettingsTitleStrategy },
         provideHttpClient(withInterceptorsFromDi()),
     ],
 })

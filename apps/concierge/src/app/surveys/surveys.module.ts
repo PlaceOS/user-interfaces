@@ -14,15 +14,31 @@ const routes: Route[] = [
         path: '',
         component: SurveyComponent,
         children: [
-            { path: '', component: BuildingListComponent },
-            { path: 'list/:id', component: SurveyListingsComponent },
-            { path: 'builder', component: SurveyBuilderComponent },
-            { path: 'builder/:id', component: SurveyBuilderComponent },
-            { path: 'responses/:id', component: SurveyResponsesComponent },
+            { path: '', component: BuildingListComponent, title: 'Surveys' },
+            {
+                path: 'list/:id',
+                component: SurveyListingsComponent,
+                title: 'Surveys',
+            },
+            {
+                path: 'builder',
+                component: SurveyBuilderComponent,
+                title: 'Survey Builder',
+            },
+            {
+                path: 'builder/:id',
+                component: SurveyBuilderComponent,
+                title: 'Survey Builder',
+            },
+            {
+                path: 'responses/:id',
+                component: SurveyResponsesComponent,
+                title: 'Survey Responses',
+            },
             { path: '**', pathMatch: 'full', redirectTo: '' },
         ],
     },
-    { path: 'run/:id', component: SurveyOutletComponent },
+    { path: 'run/:id', component: SurveyOutletComponent, title: 'Survey' },
     { path: '**', pathMatch: 'full', redirectTo: '' },
 ];
 

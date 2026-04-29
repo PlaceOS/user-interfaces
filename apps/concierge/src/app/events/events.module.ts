@@ -10,11 +10,11 @@ const ROUTES: Route[] = [
     {
         path: '',
         component: EventsComponent,
-        children: [{ path: '', component: EventsListComponent }],
+        children: [{ path: '', component: EventsListComponent, title: 'Events' }],
     },
-    { path: 'manage', component: EventManageComponent },
-    { path: 'manage/:id', component: EventManageComponent },
-    { path: 'view/:id', component: EventViewComponent },
+    { path: 'manage', component: EventManageComponent, title: 'Manage Event' },
+    { path: 'manage/:id', component: EventManageComponent, title: 'Manage Event' },
+    { path: 'view/:id', component: EventViewComponent, title: 'Event Details' },
     { path: '**', redirectTo: '' },
 ];
 

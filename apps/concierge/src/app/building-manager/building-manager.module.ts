@@ -3,7 +3,13 @@ import { Route, RouterModule } from '@angular/router';
 
 import { BuildingManagerComponent } from './building-manager.component';
 
-const ROUTES: Route[] = [{ path: '', component: BuildingManagerComponent }];
+const ROUTES: Route[] = [
+    {
+        path: '',
+        component: BuildingManagerComponent,
+        title: 'Building Management',
+    },
+];
 
 @NgModule({
     declarations: [],
