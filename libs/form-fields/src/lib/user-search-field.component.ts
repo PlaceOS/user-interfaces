@@ -304,7 +304,7 @@ export class UserSearchFieldComponent
             !this.use_basic_search() &&
             (value?.id || value?.email)
         ) {
-            lastValueFrom(showUser(value.id || value.email))
+            lastValueFrom(showUser(value.email || value.id))
                 .then((details) => {
                     if (!details) return;
                     const updated = new User({
@@ -314,7 +314,7 @@ export class UserSearchFieldComponent
                     this._onChange ? this._onChange(updated) : null;
                     this.user.set(updated);
                 })
-                .catch(() => null);
+                .catch(() => value);
         }
     }
 
