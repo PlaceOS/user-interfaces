@@ -38,6 +38,7 @@ describe('RoomBookingsComponent', () => {
                 options: of({}),
                 filtered: of([]),
                 spaces: of([]),
+                loading: of(false),
                 filters: {},
                 setZones: jest.fn((zone_ids: string[]) => zones.next(zone_ids)),
                 setPeriod: jest.fn(),

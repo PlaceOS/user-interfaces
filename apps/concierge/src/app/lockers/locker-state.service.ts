@@ -108,7 +108,6 @@ export class LockerStateService extends AsyncHandler {
             return _.filter((lvl) => lvl.parent_id === this._org.building.id);
         }),
     );
-
     public readonly loading = this._loading.asObservable();
 
     public get tz_offset() {
@@ -141,6 +140,20 @@ export class LockerStateService extends AsyncHandler {
         ]),
         this.lockers_banks$,
         () => this._settings.get('app.use_region'),
+    );
+    /** List of levels with bookable locker resources */
+    public bookable_levels = combineLatest([this.levels, this.lockers$]).pipe(
+        map(([levels, lockers]) =>
+            levels.filter((level) =>
+                lockers.some(
+                    (locker) =>
+                        locker.bookable &&
+                        ((locker as any).zones || locker.bank?.zones || [])
+                            .includes(level.id),
+                ),
+            ),
+        ),
+        shareReplay(1),
     );
 
     public filtered_lockers = combineLatest([

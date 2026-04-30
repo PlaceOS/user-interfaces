@@ -162,6 +162,34 @@ export class DesksStateService extends AsyncHandler {
         initialValue: [] as Desk[],
     });
 
+    /** List of levels with bookable desk resources */
+    public readonly levels = this._org.active_levels.pipe(
+        switchMap((levels) => {
+            if (!levels.length) {
+                return of(
+                    [] as { level: BuildingLevel; has_bookable: boolean }[],
+                );
+            }
+            return combineLatest(
+                levels.map((level) =>
+                    showMetadata(level.id, 'desks').pipe(
+                        map((metadata) => ({
+                            level,
+                            has_bookable:
+                                metadata.details instanceof Array &&
+                                metadata.details.some((desk) => desk.bookable),
+                        })),
+                        catchError(() => of({ level, has_bookable: false })),
+                    ),
+                ),
+            );
+        }),
+        map((levels) =>
+            levels.filter((item) => item.has_bookable).map((item) => item.level),
+        ),
+        shareReplay(1),
+    );
+
     private _next_page = new Subject<() => QueryResponse<Booking>>();
     private _call_next_page = new Subject<string>();
     private _all_zones_keys = ['All', -1, '-1', ''];

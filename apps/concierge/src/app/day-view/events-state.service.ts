@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
+    BuildingLevel,
     CalendarEvent,
     OrganisationService,
     SettingsService,
@@ -131,6 +132,39 @@ export class EventsStateService extends AsyncHandler {
     public readonly event = this._event.asObservable();
     /** Period of time to show events for */
     public readonly period = this._period.asObservable();
+
+    /** List of levels with bookable room resources */
+    public readonly levels: Observable<BuildingLevel[]> =
+        (this._org.active_levels || of([] as BuildingLevel[])).pipe(
+            switchMap((levels) => {
+                if (!levels.length) {
+                    return of(
+                        [] as { level: BuildingLevel; has_bookable: boolean }[],
+                    );
+                }
+                return forkJoin(
+                    levels.map((level) =>
+                        requestSpacesForZone(level.id).pipe(
+                            map((spaces) => ({
+                                level,
+                                has_bookable: spaces.some(
+                                    (space) => space.bookable,
+                                ),
+                            })),
+                            catchError(() =>
+                                of({ level, has_bookable: false }),
+                            ),
+                        ),
+                    ),
+                );
+            }),
+            map((levels) =>
+                levels
+                    .filter((item) => item.has_bookable)
+                    .map((item) => item.level),
+            ),
+            shareReplay(1),
+        );
 
     public readonly spaces: Observable<Space[]> = combineLatest([
         this._zones,
