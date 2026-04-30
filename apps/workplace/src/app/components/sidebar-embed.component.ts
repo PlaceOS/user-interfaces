@@ -12,12 +12,10 @@ interface SidebarEmbedData {
     selector: 'sidebar-embed',
     template: `
         <div
-            class="bg-base-200 fixed inset-y-0 z-0 w-screen sm:w-100"
-            [class.right-0]="close_button_side() === 'left'"
-            [class.left-0]="close_button_side() === 'right'"
+            class="sidebar-embed__container h-full w-full"
         >
             <iframe
-                class="h-full w-full"
+                class="block h-full w-full border-0"
                 [src]="embed_url() | safe: 'resource'"
             ></iframe>
         </div>
@@ -25,14 +23,41 @@ interface SidebarEmbedData {
             icon
             matRipple
             mat-dialog-close
-            class="border-base-300 bg-base-100 fixed top-2 left-2 z-10 rounded border"
-            [class.sm:right-102]="close_button_side() === 'left'"
-            [class.sm:left-102]="close_button_side() === 'right'"
+            class="sidebar-embed__close border-base-300 bg-base-100 fixed top-2 z-10 rounded border"
+            [class.sidebar-embed__close--left]="close_button_side() === 'left'"
+            [class.sidebar-embed__close--right]="close_button_side() === 'right'"
         >
             <icon>close</icon>
         </button>
     `,
-    styles: [``],
+    styles: [
+        `
+            :host {
+                display: block;
+                height: 100%;
+                width: 100%;
+            }
+
+            .sidebar-embed__container {
+                overflow: hidden;
+            }
+
+            .sidebar-embed__close {
+                left: 0.5rem;
+            }
+
+            @media (min-width: 640px) {
+                .sidebar-embed__close--left {
+                    right: calc(28rem + 0.5rem);
+                    left: auto;
+                }
+
+                .sidebar-embed__close--right {
+                    left: calc(28rem + 0.5rem);
+                }
+            }
+        `,
+    ],
     imports: [IconComponent, MatRippleModule, SafePipe, MatDialogModule],
 })
 export class SidebarEmbedComponent {
