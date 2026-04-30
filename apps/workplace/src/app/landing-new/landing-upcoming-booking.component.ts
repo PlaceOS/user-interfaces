@@ -7,6 +7,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterLink } from '@angular/router';
 import {
     BookingDetailsModalComponent,
+    canEditBooking,
     checkinBooking,
 } from '@placeos/bookings';
 import {
@@ -53,6 +54,14 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                         [sys]="room_id"
                         mod="Bookings"
                         bind="status"
+                    ></i>
+                    <i
+                        binding
+                        class="hidden"
+                        [(model)]="room_booking_start"
+                        [sys]="room_id"
+                        mod="Bookings"
+                        bind="last_booking_started"
                     ></i>
                 }
                 <div class="flex w-full items-center justify-between">
@@ -142,6 +151,7 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                                 matRiple
                                 matTooltip="Edit Booking"
                                 matTooltipPosition="left"
+                                [disabled]="!canEdit()"
                                 class="white inverse h-12 w-12 px-0"
                                 (click)="edit()"
                             >
@@ -269,6 +279,7 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
 
     public readonly upcomingEvents = toSignal(this._state.upcoming_events);
     public readonly room_status = signal('');
+    public readonly room_booking_start = signal(0);
     public readonly room_system_id = signal('');
     private readonly _room_event_key = signal('');
 
@@ -305,6 +316,13 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
     public readonly checkinDisabled = computed(
         () => !this.canCheckin() || this.isCheckedIn(),
     );
+
+    public readonly canEdit = computed(() => {
+        const event = this.nextEvent();
+        if (!event) return false;
+        if (event instanceof Booking) return canEditBooking(event);
+        return !event.extension_data?.shared_event;
+    });
 
     public readonly eventTitle = computed(() => {
         const event = this.nextEvent();
@@ -360,7 +378,11 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
         if (!event) return true;
         if (event instanceof Booking) return event.checked_in;
         if (!event.extension_data?.shared_event) {
-            return !!this.room_status() && this.room_status() !== 'pending';
+            return (
+                this.room_status() !== 'pending' &&
+                this.room_status() !== 'free' &&
+                this._roomBookingMatchesEventStart(event)
+            );
         }
         const user_email = currentUser()?.email?.toLowerCase();
         if (!user_email) return false;
@@ -392,6 +414,7 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
                 ) {
                     this._room_event_key.set('');
                     this.room_status.set('');
+                    this.room_booking_start.set(0);
                     this.room_system_id.set('');
                     return;
                 }
@@ -402,6 +425,7 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
                 this._room_event_key.set(event_key);
                 if (!same_event) {
                     this.room_status.set('');
+                    this.room_booking_start.set(0);
                     this.room_system_id.set('');
                 }
                 if (!same_event || !this.room_system_id()) {
@@ -495,6 +519,7 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
 
     public edit() {
         const event = this.nextEvent();
+        if (!event || !this.canEdit()) return;
         event instanceof CalendarEvent
             ? this.edit_fn(event)
             : this.edit_booking_fn(event);
@@ -562,5 +587,15 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
         const space = await this._space_pipe.transform(lookup_id);
         if (this.nextEvent()?.id !== event.id) return;
         this.room_system_id.set(space?.id || event.system?.id || '');
+    }
+
+    private _roomBookingMatchesEventStart(event: CalendarEvent) {
+        const booking_start = this.room_booking_start();
+        if (!booking_start) return false;
+        const booking_start_ms =
+            booking_start < 1_000_000_000_000
+                ? booking_start * 1000
+                : booking_start;
+        return Math.abs(booking_start_ms - event.date) <= 60 * 1000;
     }
 }

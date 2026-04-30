@@ -102,13 +102,49 @@ describe('LandingUpcomingBookingComponent', () => {
         jest.useRealTimers();
     });
 
+    it('should disable edit when the booking details modal cannot edit', () => {
+        upcoming_events.next([
+            new Booking({
+                id: 'booking-visitor-1',
+                booking_type: 'visitor',
+                type: 'visitor',
+                description: 'Visitor Booking',
+                date: Date.now(),
+                duration: 60,
+                status: 'approved',
+            } as any),
+        ]);
+        spectator.detectChanges();
+
+        expect(spectator.component.canEdit()).toBe(false);
+        expect(spectator.queryAll('button[btn]')[1]).toBeDisabled();
+    });
+
+    it('should disable edit when the event details modal cannot edit', () => {
+        upcoming_events.next([
+            new CalendarEvent({
+                id: 'event-shared-1',
+                title: 'Shared Event',
+                date: Date.now(),
+                duration: 60,
+                status: 'approved',
+                extension_data: { shared_event: true },
+            } as any),
+        ]);
+        spectator.detectChanges();
+
+        expect(spectator.component.canEdit()).toBe(false);
+        expect(spectator.queryAll('button[btn]')[1]).toBeDisabled();
+    });
+
     it('should update checked in state immediately for room events', () => {
         jest.useFakeTimers();
+        const date = Date.now();
         upcoming_events.next([
             new CalendarEvent({
                 id: 'event-1',
                 title: 'Room Booking',
-                date: Date.now(),
+                date,
                 duration: 60,
                 state: 'started',
                 status: 'approved',
@@ -116,6 +152,7 @@ describe('LandingUpcomingBookingComponent', () => {
             } as any),
         ]);
         spectator.component.room_status.set('busy');
+        spectator.component.room_booking_start.set(date / 1000);
 
         spectator.detectChanges();
         jest.runOnlyPendingTimers();
@@ -123,6 +160,31 @@ describe('LandingUpcomingBookingComponent', () => {
 
         expect(spectator.component.isCheckedIn()).toBe(true);
         expect(spectator.query('button[btn]')).toBeDisabled();
+        jest.useRealTimers();
+    });
+
+    it('should not show checked in for room events when the driver booking start does not match', () => {
+        jest.useFakeTimers();
+        const date = Date.now();
+        upcoming_events.next([
+            new CalendarEvent({
+                id: 'event-1',
+                title: 'Room Booking',
+                date,
+                duration: 60,
+                state: 'started',
+                status: 'approved',
+                system: { id: 'sys-1' },
+            } as any),
+        ]);
+        spectator.component.room_status.set('busy');
+        spectator.component.room_booking_start.set(date / 1000 + 61);
+
+        spectator.detectChanges();
+        jest.runOnlyPendingTimers();
+        spectator.detectChanges();
+
+        expect(spectator.component.isCheckedIn()).toBe(false);
         jest.useRealTimers();
     });
 
@@ -138,6 +200,7 @@ describe('LandingUpcomingBookingComponent', () => {
         };
         upcoming_events.next([new CalendarEvent(event_details as any)]);
         spectator.component.room_status.set('busy');
+        spectator.component.room_booking_start.set(event_details.date / 1000);
         spectator.component.room_system_id.set('room-system-1');
 
         spectator.detectChanges();
@@ -147,6 +210,9 @@ describe('LandingUpcomingBookingComponent', () => {
         spectator.detectChanges();
 
         expect(spectator.component.room_status()).toBe('busy');
+        expect(spectator.component.room_booking_start()).toBe(
+            event_details.date / 1000,
+        );
     });
 
     it('should resolve the room system id like the details modal', async () => {
