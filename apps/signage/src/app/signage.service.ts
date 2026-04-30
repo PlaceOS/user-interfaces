@@ -7,6 +7,7 @@ import {
     shuffleArray,
 } from '@placeos/common';
 import {
+    cleanObject,
     getModule,
     post,
     responseHeaders,
@@ -97,7 +98,10 @@ export class SignageService extends AsyncHandler {
         switchMap(([id]) =>
             showSignage(
                 id,
-                { preview: this.debug(), item_id: this.playing_id() },
+                cleanObject(
+                    { preview: this.debug(), item_id: this.playing_id() },
+                    [undefined, null, ''],
+                ),
                 {
                     headers: {
                         'If-Modified-Since': new Date(
