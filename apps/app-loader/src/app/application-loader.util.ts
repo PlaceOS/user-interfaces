@@ -45,7 +45,7 @@ export function appInitial(name: string) {
     return `${name || '?'}`.trim().charAt(0).toUpperCase() || '?';
 }
 
-export function nameFromUri(uri: string) {
+function nameFromUri(uri: string) {
     try {
         return new URL(uri, location.origin).hostname;
     } catch {
@@ -53,7 +53,7 @@ export function nameFromUri(uri: string) {
     }
 }
 
-export function isSupportedRedirectUri(uri?: string) {
+function isSupportedRedirectUri(uri?: string) {
     if (!uri) return false;
     try {
         const protocol = new URL(uri, location.origin).protocol;

@@ -145,7 +145,7 @@ function generateElementBounds(data: string): ElementBoundsResult {
     return { bounds: bounds_map, aspect_ratio };
 }
 
-export class MapStore {
+class MapStore {
     store: Map<string, MapDetails> = new Map();
     auth_type: 'cookie' | 'header' = 'cookie';
     token = '';

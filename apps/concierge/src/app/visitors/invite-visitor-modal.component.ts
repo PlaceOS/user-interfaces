@@ -2,14 +2,12 @@ import { Component, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
-    BookingFormService,
-    VisitorInviteFormComponent,
-    VisitorInviteSuccessComponent,
-} from '@placeos/bookings';
-import {
     FullscreenModalShellComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
+import { VisitorInviteFormComponent } from 'libs/bookings/src/lib/visitor-invite-form.component';
+import { VisitorInviteSuccessComponent } from 'libs/bookings/src/lib/visitor-invite-success.component';
 
 @Component({
     selector: 'invite-visitor-modal',
@@ -65,4 +63,8 @@ export class InviteVisitorModalComponent {
         this.post_time.set(0);
         this.done.set(0);
     };
+
+    public constructor() {
+        this._form.clearOldState();
+    }
 }

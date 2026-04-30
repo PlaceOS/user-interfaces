@@ -26,7 +26,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AsyncHandler, settingSignal, User } from '@placeos/common';
 import { authority, queryUsers, showUser } from '@placeos/ts-client';
-import { searchGuests, searchStaff } from '@placeos/users';
 import { forkJoin, lastValueFrom, Observable, of } from 'rxjs';
 import {
     catchError,
@@ -41,6 +40,8 @@ import {
 import { UserAvatarComponent } from '@placeos/components';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { searchGuests } from 'libs/users/src/lib/guests.fn';
+import { searchStaff } from 'libs/users/src/lib/staff.fn';
 
 @Component({
     selector: 'a-user-search-field',

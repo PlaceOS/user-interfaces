@@ -26,8 +26,8 @@ export const SIGNAGE_MEDIA_PICKER_ACCEPT = [
     '.mov',
     'video/quicktime',
 ].join(',');
-export const SIGNAGE_MEDIA_MAX_WIDTH = 3840;
-export const SIGNAGE_MEDIA_MAX_HEIGHT = 2160;
+const SIGNAGE_MEDIA_MAX_WIDTH = 3840;
+const SIGNAGE_MEDIA_MAX_HEIGHT = 2160;
 
 const IMAGE_MIME_TYPES = new Set([
     'image/png',
