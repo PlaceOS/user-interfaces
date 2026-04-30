@@ -10,6 +10,7 @@ import {
 import {
     AuthenticatedImageDirective,
     IconComponent,
+    SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
 import { debounceTime } from 'rxjs/operators';
@@ -259,6 +260,144 @@ const CARD_DETAILS = {
                             </div>
                         }
                     </div>
+
+                    <div class="px-4 pb-8">
+                        <div
+                            class="border-base-200 bg-base-100 overflow-hidden rounded-sm border shadow-sm"
+                        >
+                            <h3
+                                class="border-base-200 border-b p-4 text-lg font-semibold"
+                            >
+                                {{
+                                    'APP.CONCIERGE.REPORTS_HOSTS_HEADER'
+                                        | translate
+                                }}
+                            </h3>
+                            <simple-table
+                                class="block w-full text-sm"
+                                [data]="report().hosts"
+                                [columns]="[
+                                    {
+                                        key: 'name',
+                                        name: 'FORM.HOST' | translate,
+                                        content: person_template,
+                                    },
+                                    {
+                                        key: 'events',
+                                        name: 'RESOURCE.ROOMS' | translate,
+                                        show: hasResource('events'),
+                                    },
+                                    {
+                                        key: 'desks',
+                                        name: 'RESOURCE.DESKS' | translate,
+                                        show: hasResource('desks'),
+                                    },
+                                    {
+                                        key: 'parking',
+                                        name: 'RESOURCE.PARKING' | translate,
+                                        show: hasResource('parking'),
+                                    },
+                                    {
+                                        key: 'lockers',
+                                        name: 'RESOURCE.LOCKERS' | translate,
+                                        show: hasResource('lockers'),
+                                    },
+                                    {
+                                        key: 'visitors',
+                                        name: 'RESOURCE.VISITORS' | translate,
+                                        show: hasResource('visitors'),
+                                    },
+                                    {
+                                        key: 'total',
+                                        name:
+                                            'APP.CONCIERGE.REPORTS_TOTAL_BOOKINGS'
+                                            | translate,
+                                    },
+                                ]"
+                                [page_size]="printing() ? 0 : 10"
+                                [sortable]="true"
+                                [empty_message]="
+                                    'APP.CONCIERGE.REPORTS_DAILY_EMPTY'
+                                        | translate
+                                "
+                            ></simple-table>
+                        </div>
+                    </div>
+
+                    <div class="px-4 pb-8">
+                        <div
+                            class="border-base-200 bg-base-100 overflow-hidden rounded-sm border shadow-sm"
+                        >
+                            <h3
+                                class="border-base-200 border-b p-4 text-lg font-semibold"
+                            >
+                                {{ 'CALENDAR_EVENT.ATTENDEES' | translate }}
+                            </h3>
+                            <simple-table
+                                class="block w-full text-sm"
+                                [data]="report().attendees"
+                                [columns]="[
+                                    {
+                                        key: 'name',
+                                        name:
+                                            'CALENDAR_EVENT.ATTENDEES'
+                                            | translate,
+                                        content: person_template,
+                                    },
+                                    {
+                                        key: 'events',
+                                        name: 'RESOURCE.ROOMS' | translate,
+                                        show: hasResource('events'),
+                                    },
+                                    {
+                                        key: 'desks',
+                                        name: 'RESOURCE.DESKS' | translate,
+                                        show: hasResource('desks'),
+                                    },
+                                    {
+                                        key: 'parking',
+                                        name: 'RESOURCE.PARKING' | translate,
+                                        show: hasResource('parking'),
+                                    },
+                                    {
+                                        key: 'lockers',
+                                        name: 'RESOURCE.LOCKERS' | translate,
+                                        show: hasResource('lockers'),
+                                    },
+                                    {
+                                        key: 'visitors',
+                                        name: 'RESOURCE.VISITORS' | translate,
+                                        show: hasResource('visitors'),
+                                    },
+                                    {
+                                        key: 'total',
+                                        name:
+                                            'APP.CONCIERGE.REPORTS_TOTAL_BOOKINGS'
+                                            | translate,
+                                    },
+                                ]"
+                                [page_size]="printing() ? 0 : 10"
+                                [sortable]="true"
+                                [empty_message]="
+                                    'APP.CONCIERGE.REPORTS_DAILY_EMPTY'
+                                        | translate
+                                "
+                            ></simple-table>
+                        </div>
+                    </div>
+
+                    <ng-template #person_template let-row="row">
+                        <div class="p-4">
+                            <div class="font-medium">
+                                {{ row.name }}
+                            </div>
+                            @if (row.name !== row.id) {
+                                <div class="text-xs opacity-60">
+                                    {{ row.id }}
+                                </div>
+                            }
+                        </div>
+                    </ng-template>
                 } @else {
                     <div
                         class="screen-only flex h-full w-full flex-col items-center p-8"
@@ -310,6 +449,7 @@ const CARD_DETAILS = {
         ReportsOptionsComponent,
         AuthenticatedImageDirective,
         IconComponent,
+        SimpleTableComponent,
         MatProgressSpinnerModule,
         TranslatePipe,
     ],
@@ -341,6 +481,8 @@ export class SiteAttendanceReportComponent extends AsyncHandler {
 
     public readonly downloadReport = () => this._state.downloadReport();
     public readonly generateReport = () => this._state.generateReport();
+    public readonly hasResource = (id: keyof typeof CARD_DETAILS) =>
+        this.report().cards.some((card) => card.id === id);
 
     public readonly logo = computed(() => {
         this._active_building();

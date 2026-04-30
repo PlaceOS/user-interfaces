@@ -136,6 +136,8 @@ describe('SiteAttendanceReportComponent', () => {
             active_types: 5,
             unique_people: 6,
             cards: [],
+            hosts: [],
+            attendees: [],
         });
         spectator.detectChanges();
 

@@ -45,6 +45,17 @@ export interface SiteAttendanceCard {
     status_rate: number;
 }
 
+export interface SiteAttendancePersonRow {
+    id: string;
+    name: string;
+    events: number;
+    desks: number;
+    parking: number;
+    lockers: number;
+    visitors: number;
+    total: number;
+}
+
 export interface SiteAttendanceReport {
     business_days: number;
     total_attendance: number;
@@ -52,6 +63,8 @@ export interface SiteAttendanceReport {
     active_types: number;
     unique_people: number;
     cards: SiteAttendanceCard[];
+    hosts: SiteAttendancePersonRow[];
+    attendees: SiteAttendancePersonRow[];
 }
 
 export const EMPTY_REPORT: SiteAttendanceReport = {
@@ -61,6 +74,8 @@ export const EMPTY_REPORT: SiteAttendanceReport = {
     active_types: 0,
     unique_people: 0,
     cards: [],
+    hosts: [],
+    attendees: [],
 };
 
 @Injectable({
@@ -93,44 +108,60 @@ export class SiteAttendanceReportService {
         const booking_zones = this.getBookingZones(options.zones);
         const level_ids = this.getLevelIds(options.zones);
         const space_zones = this.getSpaceZones(options.zones);
+        const enabled = this.getEnabledResources();
         const query = {
             period_start: getUnixTime(start),
             period_end: getUnixTime(end),
         };
         this._loading.next(true);
         forkJoin({
-            events: queryAllEvents({
-                ...query,
-                zone_ids: booking_zones,
-                limit: 1000,
-            }).pipe(catchError(() => of([]))),
-            desks: queryAllBookings({
-                ...query,
-                zones: booking_zones,
-                type: 'desk',
-                limit: 1000,
-            }).pipe(catchError(() => of([]))),
-            parking: queryAllBookings({
-                ...query,
-                zones: booking_zones,
-                type: 'parking',
-                limit: 1000,
-            }).pipe(catchError(() => of([]))),
-            lockers: queryAllBookings({
-                ...query,
-                zones: booking_zones,
-                type: 'locker',
-                limit: 1000,
-            }).pipe(catchError(() => of([]))),
-            visitors: queryBookings({
-                ...query,
-                type: 'visitor',
-                zones: booking_zones,
-            }).pipe(catchError(() => of([]))),
-            room_count: this.getRoomCount(space_zones),
-            desk_count: this.getDeskCount(level_ids),
-            parking_count: this.getParkingCount(level_ids),
-            locker_count: this.getLockerCount(level_ids),
+            events: enabled.events
+                ? queryAllEvents({
+                      ...query,
+                      zone_ids: booking_zones,
+                      limit: 1000,
+                  }).pipe(catchError(() => of([])))
+                : of([]),
+            desks: enabled.desks
+                ? queryAllBookings({
+                      ...query,
+                      zones: booking_zones,
+                      type: 'desk',
+                      limit: 1000,
+                  }).pipe(catchError(() => of([])))
+                : of([]),
+            parking: enabled.parking
+                ? queryAllBookings({
+                      ...query,
+                      zones: booking_zones,
+                      type: 'parking',
+                      limit: 1000,
+                  }).pipe(catchError(() => of([])))
+                : of([]),
+            lockers: enabled.lockers
+                ? queryAllBookings({
+                      ...query,
+                      zones: booking_zones,
+                      type: 'locker',
+                      limit: 1000,
+                  }).pipe(catchError(() => of([])))
+                : of([]),
+            visitors: enabled.visitors
+                ? queryBookings({
+                      ...query,
+                      type: 'visitor',
+                      zones: booking_zones,
+                  }).pipe(catchError(() => of([])))
+                : of([]),
+            room_count: enabled.events ? this.getRoomCount(space_zones) : of(0),
+            desk_count: enabled.desks ? this.getDeskCount(level_ids) : of(0),
+            parking_count: enabled.parking
+                ? this.getParkingCount(level_ids)
+                : of(0),
+            locker_count: enabled.lockers
+                ? this.getLockerCount(level_ids)
+                : of(0),
+            enabled: of(enabled),
         })
             .pipe(
                 takeUntil(this._options.pipe(skip(1))),
@@ -212,6 +243,17 @@ export class SiteAttendanceReportService {
         ].filter((zone) => !!zone);
     }
 
+    private getEnabledResources() {
+        const features = this._settings.get('app.features') || [];
+        return {
+            events: features.includes('spaces'),
+            desks: features.includes('desks'),
+            parking: features.includes('parking'),
+            lockers: features.includes('lockers'),
+            visitors: features.includes('visitors'),
+        };
+    }
+
     private getRoomCount(zones: string[]) {
         if (!zones.length) return of(0);
         return forkJoin(
@@ -284,6 +326,9 @@ export class SiteAttendanceReportService {
             desk_count: number;
             parking_count: number;
             locker_count: number;
+            enabled: ReturnType<
+                SiteAttendanceReportService['getEnabledResources']
+            >;
         },
         start: number,
         end: number,
@@ -294,31 +339,41 @@ export class SiteAttendanceReportService {
                 startOfDay(start),
             ) || 1;
         const cards: SiteAttendanceCard[] = [
-            this.buildEventCard(
-                result.events || [],
-                result.room_count || 0,
-                business_days,
-            ),
-            this.buildBookingCard(
-                'desks',
-                result.desks || [],
-                result.desk_count || 0,
-                business_days,
-            ),
-            this.buildBookingCard(
-                'parking',
-                result.parking || [],
-                result.parking_count || 0,
-                business_days,
-            ),
-            this.buildBookingCard(
-                'lockers',
-                result.lockers || [],
-                result.locker_count || 0,
-                business_days,
-            ),
-            this.buildVisitorCard(result.visitors || [], business_days),
-        ];
+            result.enabled.events
+                ? this.buildEventCard(
+                      result.events || [],
+                      result.room_count || 0,
+                      business_days,
+                  )
+                : null,
+            result.enabled.desks
+                ? this.buildBookingCard(
+                      'desks',
+                      result.desks || [],
+                      result.desk_count || 0,
+                      business_days,
+                  )
+                : null,
+            result.enabled.parking
+                ? this.buildBookingCard(
+                      'parking',
+                      result.parking || [],
+                      result.parking_count || 0,
+                      business_days,
+                  )
+                : null,
+            result.enabled.lockers
+                ? this.buildBookingCard(
+                      'lockers',
+                      result.lockers || [],
+                      result.locker_count || 0,
+                      business_days,
+                  )
+                : null,
+            result.enabled.visitors
+                ? this.buildVisitorCard(result.visitors || [], business_days)
+                : null,
+        ].filter((card): card is SiteAttendanceCard => !!card);
         const unique_people = new Set<string>([
             ...this.getEventPeople(result.events || []),
             ...this.getBookingPeople(result.desks || []),
@@ -339,7 +394,115 @@ export class SiteAttendanceReportService {
             active_types: cards.filter((card) => card.bookings > 0).length,
             unique_people,
             cards,
+            hosts: this.buildHostRows(result),
+            attendees: this.buildAttendeeRows(result),
         };
+    }
+
+    private buildHostRows(result: {
+        events: CalendarEvent[];
+        desks: Booking[];
+        parking: Booking[];
+        lockers: Booking[];
+        visitors: Booking[];
+    }) {
+        const rows = new Map<string, SiteAttendancePersonRow>();
+        const addBooking = (
+            person: { id: string; name: string },
+            type: 'events' | 'desks' | 'parking' | 'lockers' | 'visitors',
+        ) => {
+            if (!person.id) return;
+            const id = person.id.toLowerCase();
+            const row = rows.get(id) || {
+                id,
+                name: person.name || person.id,
+                events: 0,
+                desks: 0,
+                parking: 0,
+                lockers: 0,
+                visitors: 0,
+                total: 0,
+            };
+            row[type] += 1;
+            row.total += 1;
+            rows.set(id, row);
+        };
+
+        for (const booking of result.events || []) {
+            addBooking(this.getEventPerson(booking), 'events');
+        }
+        for (const booking of result.desks || []) {
+            addBooking(this.getBookingPerson(booking), 'desks');
+        }
+        for (const booking of result.parking || []) {
+            addBooking(this.getBookingPerson(booking), 'parking');
+        }
+        for (const booking of result.lockers || []) {
+            addBooking(this.getBookingPerson(booking), 'lockers');
+        }
+        for (const booking of result.visitors || []) {
+            addBooking(this.getBookingPerson(booking), 'visitors');
+        }
+        return [...rows.values()].sort(
+            (a, b) => b.total - a.total || a.name.localeCompare(b.name),
+        );
+    }
+
+    private buildAttendeeRows(result: {
+        events: CalendarEvent[];
+        desks: Booking[];
+        parking: Booking[];
+        lockers: Booking[];
+        visitors: Booking[];
+    }) {
+        const rows = new Map<string, SiteAttendancePersonRow>();
+        const addBooking = (
+            person: { id: string; name: string },
+            type: 'events' | 'desks' | 'parking' | 'lockers' | 'visitors',
+        ) => {
+            if (!person.id) return;
+            const id = person.id.toLowerCase();
+            const row = rows.get(id) || {
+                id,
+                name: person.name || person.id,
+                events: 0,
+                desks: 0,
+                parking: 0,
+                lockers: 0,
+                visitors: 0,
+                total: 0,
+            };
+            row[type] += 1;
+            row.total += 1;
+            rows.set(id, row);
+        };
+
+        for (const booking of result.events || []) {
+            for (const attendee of this.getEventAttendees(booking)) {
+                addBooking(attendee, 'events');
+            }
+        }
+        for (const booking of result.desks || []) {
+            for (const attendee of this.getBookingAttendees(booking)) {
+                addBooking(attendee, 'desks');
+            }
+        }
+        for (const booking of result.parking || []) {
+            for (const attendee of this.getBookingAttendees(booking)) {
+                addBooking(attendee, 'parking');
+            }
+        }
+        for (const booking of result.lockers || []) {
+            for (const attendee of this.getBookingAttendees(booking)) {
+                addBooking(attendee, 'lockers');
+            }
+        }
+        for (const booking of result.visitors || []) {
+            addBooking(this.getVisitorPerson(booking), 'visitors');
+        }
+        return [...rows.values()].sort(
+            (a, b) => b.total - a.total || a.name.localeCompare(b.name),
+        );
     }
 
     private buildEventCard(
@@ -468,30 +631,63 @@ export class SiteAttendanceReportService {
 
     private getEventPeople(bookings: CalendarEvent[]) {
         return bookings
-            .map((booking) => booking.host || booking.organiser?.email)
+            .map((booking) => this.getEventPerson(booking).id)
             .filter((value) => !!value);
     }
 
     private getBookingPeople(bookings: Booking[]) {
         return bookings
-            .map(
-                (booking) =>
-                    booking.user_email ||
-                    booking.booked_by_email ||
-                    booking.user_id,
-            )
+            .map((booking) => this.getBookingPerson(booking).id)
             .filter((value) => !!value);
+    }
+
+    private getEventPerson(booking: CalendarEvent) {
+        const id = booking.host || booking.organiser?.email || '';
+        return { id, name: booking.organiser?.name || id };
+    }
+
+    private getBookingPerson(booking: Booking) {
+        const id =
+            booking.user_email || booking.booked_by_email || booking.user_id || '';
+        return { id, name: booking.user_name || booking.booked_by_name || id };
+    }
+
+    private getEventAttendees(booking: CalendarEvent) {
+        const host_id = this.getEventPerson(booking).id.toLowerCase();
+        return (booking.attendees || [])
+            .map((user) => this.getUserPerson(user))
+            .filter(
+                (person) => person.id && person.id.toLowerCase() !== host_id,
+            );
+    }
+
+    private getBookingAttendees(booking: Booking) {
+        return (booking.attendees || [])
+            .map((user) => this.getUserPerson(user))
+            .filter((person) => !!person.id);
+    }
+
+    private getUserPerson(user: { email?: string; id?: string; name?: string }) {
+        const id = user.email || user.id || user.name || '';
+        return { id, name: user.name || id };
+    }
+
+    private getVisitorPerson(booking: Booking) {
+        const id =
+            booking.asset_id ||
+            booking.extension_data?.visitor_email ||
+            booking.asset_name ||
+            booking.extension_data?.visitor_name ||
+            '';
+        return {
+            id,
+            name: booking.asset_name || booking.extension_data?.visitor_name || id,
+        };
     }
 
     private getVisitorPeople(bookings: Booking[]) {
         return bookings
-            .map(
-                (booking) =>
-                    booking.asset_id ||
-                    booking.extension_data?.visitor_email ||
-                    booking.asset_name ||
-                    booking.extension_data?.visitor_name,
-            )
+            .map((booking) => this.getVisitorPerson(booking).id)
             .filter((value) => !!value);
     }
 

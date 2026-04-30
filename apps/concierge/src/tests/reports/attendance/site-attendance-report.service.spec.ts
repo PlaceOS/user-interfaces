@@ -19,13 +19,16 @@ jest.mock('@placeos/ts-client');
 
 describe('SiteAttendanceReportService', () => {
     let spectator: SpectatorService<SiteAttendanceReportService>;
+    let features: string[];
     const createService = createServiceFactory({
         service: SiteAttendanceReportService,
         providers: [
             MockProvider(SettingsService, {
-                get: jest.fn((name: string) =>
-                    name === 'app.use_region' ? false : undefined,
-                ),
+                get: jest.fn((name: string) => {
+                    if (name === 'app.use_region') return false;
+                    if (name === 'app.features') return features;
+                    return undefined;
+                }),
             } as any),
             MockProvider(OrganisationService, {
                 building: { id: 'building-1' },
@@ -43,6 +46,7 @@ describe('SiteAttendanceReportService', () => {
     });
 
     beforeEach(() => {
+        features = ['spaces', 'desks', 'parking', 'lockers', 'visitors'];
         (booking_mod.queryAllBookings as jest.Mock).mockImplementation(
             ({ type }) => {
                 if (type === 'desk') {
@@ -82,6 +86,7 @@ describe('SiteAttendanceReportService', () => {
             of([
                 {
                     asset_id: 'visitor-1@example.com',
+                    user_email: 'visitor.host@example.com',
                     extension_data: {},
                     duration: 60,
                     checked_in: true,
@@ -175,6 +180,55 @@ describe('SiteAttendanceReportService', () => {
                 status_count: 1,
             }),
         );
+        expect(report.hosts).toEqual([
+            expect.objectContaining({
+                id: 'desk.user@example.com',
+                desks: 1,
+                total: 1,
+            }),
+            expect.objectContaining({
+                id: 'host-1@example.com',
+                events: 1,
+                total: 1,
+            }),
+            expect.objectContaining({
+                id: 'host-2@example.com',
+                events: 1,
+                total: 1,
+            }),
+            expect.objectContaining({
+                id: 'locker.user@example.com',
+                lockers: 1,
+                total: 1,
+            }),
+            expect.objectContaining({
+                id: 'parking.user@example.com',
+                parking: 1,
+                total: 1,
+            }),
+            expect.objectContaining({
+                id: 'visitor.host@example.com',
+                visitors: 1,
+                total: 1,
+            }),
+        ]);
+        expect(report.attendees).toEqual([
+            expect.objectContaining({
+                id: 'a',
+                events: 1,
+                total: 1,
+            }),
+            expect.objectContaining({
+                id: 'b',
+                events: 1,
+                total: 1,
+            }),
+            expect.objectContaining({
+                id: 'visitor-1@example.com',
+                visitors: 1,
+                total: 1,
+            }),
+        ]);
     });
 
     it('should notify when no bookings are found', async () => {
@@ -197,6 +251,39 @@ describe('SiteAttendanceReportService', () => {
         expect(common_mod.notifyError).toHaveBeenCalledWith(
             'APP.CONCIERGE.REPORTS_LOAD_ERROR',
         );
+    });
+
+    it('should only request enabled resource bookings', async () => {
+        features = ['desks'];
+        spectator = createService();
+        jest.clearAllMocks();
+
+        const report_promise = firstValueFrom(
+            spectator.service.report$.pipe(skip(1), take(1)),
+        );
+        spectator.service.generateReport();
+        const report = await report_promise;
+
+        expect(event_mod.queryAllEvents).not.toHaveBeenCalled();
+        expect(booking_mod.queryBookings).not.toHaveBeenCalled();
+        expect(asset_mod.queryParkingSpaces).not.toHaveBeenCalled();
+        expect(ts_client_mod.showMetadata).toHaveBeenCalledWith(
+            'level-1',
+            'desks',
+        );
+        expect(ts_client_mod.showMetadata).toHaveBeenCalledWith(
+            'level-2',
+            'desks',
+        );
+        expect(ts_client_mod.showMetadata).not.toHaveBeenCalledWith(
+            expect.any(String),
+            'lockers-spaces',
+        );
+        expect(booking_mod.queryAllBookings).toHaveBeenCalledTimes(1);
+        expect(booking_mod.queryAllBookings).toHaveBeenCalledWith(
+            expect.objectContaining({ type: 'desk' }),
+        );
+        expect(report.cards.map((card) => card.id)).toEqual(['desks']);
     });
 
     it('should export report data', () => {
@@ -224,6 +311,8 @@ describe('SiteAttendanceReportService', () => {
                     status_rate: 50,
                 },
             ],
+            hosts: [],
+            attendees: [],
         });
 
         spectator.service.downloadReport();
