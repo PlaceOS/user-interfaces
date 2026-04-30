@@ -1,7 +1,7 @@
 import { SignagePlaylist } from '@placeos/ts-client';
 import { isSameDay, startOfDay } from 'date-fns';
 
-export const BLOCK_PALETTE = [
+const BLOCK_PALETTE = [
     { bg: '#dbeafe', text: '#1e40af' },
     { bg: '#d1fae5', text: '#065f46' },
     { bg: '#fef3c7', text: '#92400e' },
@@ -13,7 +13,7 @@ export const BLOCK_PALETTE = [
 
 export const DAY_COUNT = 7;
 export const MINUTES_PER_DAY = 1440;
-export const DEFAULT_PLAYLIST_DURATION = 60;
+const DEFAULT_PLAYLIST_DURATION = 60;
 export const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 export interface ScheduleBlock {
@@ -92,13 +92,13 @@ function parseDurationMinutes(hhmm: string): number {
     return (hours || 0) * 60 + (minutes || 0);
 }
 
-export function formatTime(minutes: number): string {
+function formatTime(minutes: number): string {
     const hours = Math.floor(minutes / 60) % 24;
     const mins = minutes % 60;
     return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
 }
 
-export function formatTimeRange(
+function formatTimeRange(
     start_minutes: number,
     duration_minutes: number,
 ): string {

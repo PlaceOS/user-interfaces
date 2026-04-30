@@ -31,7 +31,7 @@ import {
     SettingsService,
     User,
 } from '@placeos/common';
-import { TranslatePipe } from '@placeos/components';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { HostSelectFieldComponent } from 'libs/form-fields/src/lib/host-select-field.component';

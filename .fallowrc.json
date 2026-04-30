@@ -1,0 +1,62 @@
+{
+    "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/config-schema.json",
+    "dynamicallyLoaded": [
+        "apps/**/src/environments/*.ts",
+        "apps/**/src/test-setup.ts",
+        "apps/**/src/index.html",
+        "apps/**/src/manifest.webmanifest",
+        "apps/outlook-addin/commands/commands.ts",
+        "apps/outlook-addin/lib/**/*.js",
+        "apps/outlook-addin/src/function-file/**/*.js",
+        "apps/outlook-addin/taskpane/taskpane.ts",
+        "config/proxy.conf.js",
+        "jest.preset.js",
+        "libs/**/src/lib/**/*.ts",
+        "libs/**/src/test-setup.ts",
+        "libs/mocks/src/empty.ts",
+        "libs/mocks/src/mocks.ts",
+        "shared/assets/**",
+        "shared/styles/**",
+        "tools/**/*.js",
+        "tools/**/*.mjs"
+    ],
+    "ignoreDependencies": [
+        "@nrwl/cli",
+        "angular",
+        "angular-animate",
+        "angular-route",
+        "angular-sanitize",
+        "core-js",
+        "fs-extra",
+        "regenerator-runtime"
+    ],
+    "ignoreExports": [
+        {
+            "file": "libs/**/src/index.ts",
+            "exports": ["*"]
+        },
+        {
+            "file": "libs/**/src/lib/**/*.ts",
+            "exports": ["*"]
+        },
+        {
+            "file": "libs/**/src/tests/**/*.ts",
+            "exports": ["*"]
+        },
+        {
+            "file": "apps/**/e2e/test-utils.ts",
+            "exports": ["*"]
+        },
+        {
+            "file": "apps/outlook-addin/src/tests/test-mocks.ts",
+            "exports": ["*"]
+        }
+    ],
+    "rules": {
+        "unused-class-members": "off",
+        "unused-dev-dependencies": "off",
+        "unresolved-imports": "off",
+        "duplicate-exports": "off",
+        "circular-dependencies": "off"
+    }
+}

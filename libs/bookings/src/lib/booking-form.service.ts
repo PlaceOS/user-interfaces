@@ -689,6 +689,7 @@ export class BookingFormService extends AsyncHandler {
     public clearOldState() {
         sessionStorage.removeItem('PLACEOS.last_booked_booking');
         sessionStorage.removeItem('PLACEOS.last_booked_count');
+        this._loading.next('');
         this.last_success = new Booking();
     }
 

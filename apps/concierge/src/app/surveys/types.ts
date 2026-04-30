@@ -1,4 +1,4 @@
-export enum TriggerEnum {
+enum TriggerEnum {
     None = 'NONE',
     Reserved = 'RESERVED',
     Checked_In = 'CHECKEDIN',
@@ -24,7 +24,7 @@ export const TriggerOptions = getEnumOptions(TriggerEnum);
 export const QuestionTypeOptions = getEnumOptions(QuestionType);
 export const QuestionTypeMap = getEnumMap(QuestionType);
 
-export function getEnumOptions<T>(targetEnum: T) {
+function getEnumOptions<T>(targetEnum: T) {
     return Object.entries(targetEnum)
         .filter((e) => isNaN(Number(e[0])))
         .map((e) => ({
@@ -33,7 +33,7 @@ export function getEnumOptions<T>(targetEnum: T) {
         }));
 }
 
-export function getEnumMap<T>(targetEnum: T) {
+function getEnumMap<T>(targetEnum: T) {
     const enum_map = {};
     Object.entries(targetEnum)
         .filter((e) => isNaN(Number(e[0])))
