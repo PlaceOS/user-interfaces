@@ -1,4 +1,4 @@
-import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
     ActivatedRoute,
@@ -356,7 +356,18 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     /** List of selected levels */
     public readonly zones = signal<string[]>([]);
     /** List of levels for the active building */
-    public readonly levels = toSignal(this._state.levels, { initialValue: [] });
+    public readonly all_levels = toSignal(this._state.levels, {
+        initialValue: [],
+    });
+    /** List of levels with parking spaces */
+    public readonly bookable_levels = toSignal(
+        this._state.bookable_levels || this._state.levels,
+        { initialValue: [] },
+    );
+    /** List of levels to show for the current section */
+    public readonly levels = computed(() =>
+        this.section() === 'manage' ? this.all_levels() : this.bookable_levels(),
+    );
     /** Options set for week view */
     public readonly options = toSignal(this._state.options, {
         initialValue: this._default_options,

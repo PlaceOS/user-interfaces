@@ -212,7 +212,18 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     /** List of selected levels */
     public readonly zones = signal<string[]>([]);
     /** List of levels for the active building */
-    public readonly levels = toSignal(this._state.levels, { initialValue: [] });
+    public readonly all_levels = toSignal(this._state.levels, {
+        initialValue: [],
+    });
+    /** List of levels with bookable locker resources */
+    public readonly bookable_levels = toSignal(
+        this._state.bookable_levels || this._state.levels,
+        { initialValue: [] },
+    );
+    /** List of levels to show for the current view */
+    public readonly levels = computed(() =>
+        this.path() === 'manage' ? this.all_levels() : this.bookable_levels(),
+    );
     /** Options set for week view */
     public readonly options = toSignal(this._state.filters, {
         initialValue: {} as LockerFilters,

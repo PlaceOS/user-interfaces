@@ -117,9 +117,12 @@ export class DayviewTopbarComponent extends AsyncHandler implements OnInit {
     /** List of selected types */
     public readonly type_list = signal(this.types.map((i) => `${i.id}`));
     /** List of levels for the active building */
-    public readonly levels = toSignal(this._org.active_levels || of([]), {
-        initialValue: [],
-    });
+    public readonly levels = toSignal(
+        this._state.levels || this._org.active_levels,
+        {
+            initialValue: [],
+        },
+    );
     /** List of levels for the active building */
     public readonly ui_options = toSignal(
         this._state.options || of({} as BookingUIOptions),
@@ -133,6 +136,7 @@ export class DayviewTopbarComponent extends AsyncHandler implements OnInit {
     public readonly updateZones = (zones: string[]) => {
         const zone_ids = this._clean_zone_ids(zones);
         this.zones.set(zone_ids);
+        this._state.setZones?.(zone_ids);
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: {
@@ -171,6 +175,7 @@ export class DayviewTopbarComponent extends AsyncHandler implements OnInit {
                     );
                     if (zones.length) {
                         this.zones.set(zones);
+                        this._state.setZones?.(zones);
                         const level = this._org.levelWithID(zones);
                         if (!level) return;
                         this._org.building = this._org.buildings.find(

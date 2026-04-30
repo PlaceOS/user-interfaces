@@ -61,7 +61,13 @@ import {
     startOfWeek,
     subDays,
 } from 'date-fns';
-import { BehaviorSubject, combineLatest, lastValueFrom, of } from 'rxjs';
+import {
+    BehaviorSubject,
+    combineLatest,
+    forkJoin,
+    lastValueFrom,
+    of,
+} from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -159,6 +165,34 @@ export class ParkingStateService extends AsyncHandler {
             }
             return levels.filter((lvl) => lvl.parent_id === bld.id);
         }),
+    );
+    /** List of parking levels with parking space resources */
+    public bookable_levels = this.levels.pipe(
+        switchMap((levels) => {
+            if (!levels.length) {
+                return of(
+                    [] as {
+                        level: (typeof levels)[number];
+                        has_bookable: boolean;
+                    }[],
+                );
+            }
+            return forkJoin(
+                levels.map((level) =>
+                    queryParkingSpacesForZones([level.id]).pipe(
+                        map((spaces) => ({
+                            level,
+                            has_bookable: spaces.length > 0,
+                        })),
+                        catchError(() => of({ level, has_bookable: false })),
+                    ),
+                ),
+            );
+        }),
+        map((levels) =>
+            levels.filter((item) => item.has_bookable).map((item) => item.level),
+        ),
+        shareReplay(1),
     );
     /** List of parking spaces for the current building/level */
     public spaces = combineLatest([

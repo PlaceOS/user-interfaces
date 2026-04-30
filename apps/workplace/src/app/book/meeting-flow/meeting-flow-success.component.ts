@@ -3,7 +3,6 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import {
     BuildingLevel,
-    firstTruthyValueFrom,
     formatRecurrence,
     fromEventRecurrence,
     OrganisationService,
@@ -113,13 +112,14 @@ import { EventFormService, SpacePipe } from '@placeos/events';
     `,
     styles: [``],
     imports: [CommonModule, RouterModule, TranslatePipe, IconComponent],
+    providers: [SpacePipe],
 })
 export class MeetingFlowSuccessComponent implements OnInit {
     private _event_form = inject(EventFormService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
     private _router = inject(Router);
-    private _space_pipe = new SpacePipe();
+    private _space_pipe = inject(SpacePipe);
 
     public readonly loading = signal(false);
     public readonly desk_loading = signal(false);
@@ -154,18 +154,20 @@ export class MeetingFlowSuccessComponent implements OnInit {
 
     public async ngOnInit() {
         this.loading.set(true);
-        if ((this._org as any).initialised) {
-            await firstTruthyValueFrom((this._org as any).initialised);
-        }
         const event_space = this.last_event()?.space;
         if (event_space) {
             this.space.set(new Space(event_space));
             try {
-                this.space.set(
-                    await this._space_pipe.transform(
-                        event_space.email || event_space.id,
-                    ),
+                const resolved_space = await this._space_pipe.transform(
+                    event_space.email || event_space.id,
                 );
+                if (
+                    resolved_space &&
+                    (resolved_space.id ||
+                        resolved_space.email !== 'empty.space@place.os')
+                ) {
+                    this.space.set(new Space(resolved_space));
+                }
             } catch {
                 /* Falls back to event space details when org data is unavailable */
             }

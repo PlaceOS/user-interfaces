@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
@@ -155,9 +155,20 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
     private _dialog = inject(MatDialog);
 
     /** List of levels for the active building */
-    public readonly levels = toSignal(this._org.active_levels, {
+    public readonly all_levels = toSignal(this._org.active_levels, {
         initialValue: [],
     });
+    /** List of levels with bookable desk resources */
+    public readonly bookable_levels = toSignal(
+        this._desks.levels || this._org.active_levels,
+        {
+            initialValue: [],
+        },
+    );
+    /** List of levels to show for the current view */
+    public readonly levels = computed(() =>
+        this.manage() ? this.all_levels() : this.bookable_levels(),
+    );
     /** List of levels for the active building */
     public readonly filters = this._desks.filters;
 
