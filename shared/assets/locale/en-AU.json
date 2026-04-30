@@ -2117,6 +2117,8 @@
             "REPORTS_ASSETS_HEADER": "Assets Report",
             "REPORTS_VISITORS_HEADER": "Visitors Report",
             "REPORTS_SITE_ATTENDANCE_HEADER": "Site Attendance Report",
+            "REPORTS_USERS_HOSTS_HEADER": "Users and Hosts",
+            "REPORTS_HOSTS_HEADER": "Hosts",
             "REPORTS_LOAD_ERROR": "No bookings found for the selected zones and date range",
             "REPORTS_CATERING_ITEMS_HEADER": "Ordered Items",
             "REPORTS_CATERING_ITEMS_UNIQUE": "Unique Items",
