@@ -12,7 +12,6 @@ import {
     SettingsService,
 } from '@placeos/common';
 import {
-    PrintableComponent,
     SanitizePipe,
     TranslatePipe,
 } from '@placeos/components';
@@ -50,33 +49,6 @@ const DEFAULT_TEMPLATE = `
                     class=""
                     [innerHTML]="result_template() | sanitize: 'html'"
                 ></div>
-                @if (printing()) {
-                    <div printable class="print-only" [content]="print_content">
-                        <ng-template #print_content>
-                            <user-label
-                                [user]="
-                                    $any({
-                                        name: ev?.asset_name || ev?.description,
-                                        email: ev?.asset_id,
-                                        photo: photo(),
-                                        title: ev?.title,
-                                        host: ev?.user_name || ev.user_email,
-                                        zones: ev?.zones,
-                                        date: ev?.date || date(),
-                                        extra_details:
-                                            ev?.extension_data?.extra_details,
-                                        pass_number:
-                                            ev?.extension_data?.pass_number,
-                                        qr_code: qr_code(),
-                                    })
-                                "
-                                [width]="label_size().width"
-                                [height]="label_size().height"
-                                [style.font-size]="label_size().scale + 'mm'"
-                            />
-                        </ng-template>
-                    </div>
-                }
                 <div class="flex items-center space-x-2">
                     @if (allow_printing_label) {
                         <button btn matRipple class="w-32" (click)="print()">
@@ -98,6 +70,29 @@ const DEFAULT_TEMPLATE = `
                     </button>
                 </div>
             </div>
+            @if (printing()) {
+                <div class="print-only fixed top-0 left-0">
+                    <user-label
+                        [user]="
+                            $any({
+                                name: ev?.asset_name || ev?.description,
+                                email: ev?.asset_id,
+                                photo: photo(),
+                                title: ev?.title,
+                                host: ev?.user_name || ev.user_email,
+                                zones: ev?.zones,
+                                date: ev?.date || date(),
+                                extra_details: ev?.extension_data?.extra_details,
+                                pass_number: ev?.extension_data?.pass_number,
+                                qr_code: qr_code(),
+                            })
+                        "
+                        [width]="label_size().width"
+                        [height]="label_size().height"
+                        [style.font-size]="label_size().scale + 'mm'"
+                    />
+                </div>
+            }
         }
     `,
     styles: [
@@ -114,7 +109,6 @@ const DEFAULT_TEMPLATE = `
         TranslatePipe,
         UserLabelComponent,
         SanitizePipe,
-        PrintableComponent,
     ],
 })
 export class CheckinResultsComponent extends AsyncHandler implements OnInit {
