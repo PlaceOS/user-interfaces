@@ -35,7 +35,7 @@ import {
     DurationFieldComponent,
     TimeFieldComponent,
 } from '@placeos/form-fields';
-import { combineLatest, map } from 'rxjs';
+import { combineLatest, map, pairwise } from 'rxjs';
 import { DeskFlowSelectListComponent } from './desk-flow-select-list.component';
 import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
 
@@ -702,6 +702,15 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit() {
+        this.subscription(
+            'clear_selected_desk_on_building_change',
+            this._org.active_building.pipe(pairwise()).subscribe(([old_bld, bld]) => {
+                if (old_bld?.id && bld?.id && old_bld.id !== bld.id) {
+                    this.clearSelectedDesk();
+                }
+            }),
+        );
+
         const resources = this.field('resources') || [];
         const selected_ids = resources.map(({ id }) => id);
 
@@ -746,6 +755,11 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
 
     public field(name: string) {
         return this.form()?.getRawValue()?.[name];
+    }
+
+    public clearSelectedDesk() {
+        this.form().patchValue({ resources: [], asset_id: '' });
+        this.selected.set([]);
     }
 
     public async toggleFeature(feat: string, state: boolean) {
