@@ -107,7 +107,9 @@ export type { ParkingFleetVehicle, ParkingUser } from '@placeos/assets';
 const USER_PIPE = new UserPipe();
 
 function csvList(value: unknown): string[] {
-    const list = Array.isArray(value) ? value : String(value || '').split(/[|,]/);
+    const list = Array.isArray(value)
+        ? value
+        : String(value || '').split(/[|,]/);
     return list.map((_) => String(_).trim()).filter(Boolean);
 }
 
@@ -190,7 +192,9 @@ export class ParkingStateService extends AsyncHandler {
             );
         }),
         map((levels) =>
-            levels.filter((item) => item.has_bookable).map((item) => item.level),
+            levels
+                .filter((item) => item.has_bookable)
+                .map((item) => item.level),
         ),
         shareReplay(1),
     );
@@ -377,8 +381,10 @@ export class ParkingStateService extends AsyncHandler {
             return visible_list.filter((booking) => this.isRequest(booking));
         }
         if (filter_type === 'manual') {
-            return visible_list.filter((booking) =>
-                this.isManualRequest(booking) && booking.status !== 'declined',
+            return visible_list.filter(
+                (booking) =>
+                    this.isManualRequest(booking) &&
+                    booking.status !== 'declined',
             );
         }
         if (filter_type === 'waitlist') {
@@ -576,7 +582,16 @@ export class ParkingStateService extends AsyncHandler {
             await this._clearAssignedBooking(space);
             recreate = true;
         }
-        const saved = await saveParkingSpace(asset_data).toPromise();
+        const zones = unique([
+            this._org.organisation.id,
+            this._org.region?.id,
+            this._org.building?.id,
+            zone_id,
+        ]);
+        const saved = await saveParkingSpace({
+            ...asset_data,
+            zones,
+        }).toPromise();
         if (
             (space.assigned_to !== asset_data.assigned_to || recreate) &&
             asset_data.assigned_to
@@ -610,12 +625,7 @@ export class ParkingStateService extends AsyncHandler {
                         RecurrenceDays.WEDNESDAY |
                         RecurrenceDays.THURSDAY |
                         RecurrenceDays.FRIDAY,
-                    zones: unique([
-                        this._org.organisation.id,
-                        this._org.region?.id,
-                        this._org.building?.id,
-                        zone_id,
-                    ]),
+                    zones,
                     extension_data: {
                         asset_name: saved.name,
                         is_assigned: true,
@@ -980,7 +990,9 @@ export class ParkingStateService extends AsyncHandler {
             ? { instance: true, start_time: booking.instance }
             : {};
         await lastValueFrom(removeBookingApi(booking.id, query)).catch((e) => {
-            notifyError(i18n('APP.CONCIERGE.BOOKING_REMOVE_ERROR', { error: e }));
+            notifyError(
+                i18n('APP.CONCIERGE.BOOKING_REMOVE_ERROR', { error: e }),
+            );
             details.close();
             throw e;
         });
