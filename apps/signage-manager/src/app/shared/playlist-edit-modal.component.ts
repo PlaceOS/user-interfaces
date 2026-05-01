@@ -29,6 +29,11 @@ import { lastValueFrom } from 'rxjs';
 
 export interface PlaylistEditModalData {
     playlist: SignagePlaylist;
+    onAdd?: (data: Partial<SignagePlaylist>) => Promise<SignagePlaylist>;
+    onEdit?: (
+        id: string,
+        data: Partial<SignagePlaylist>,
+    ) => Promise<SignagePlaylist>;
 }
 
 @Component({
@@ -299,11 +304,15 @@ export class PlaylistEditModalComponent {
         try {
             let result: SignagePlaylist;
             if (this.playlist.id) {
-                result = await lastValueFrom(
-                    updateSignagePlaylist(this.playlist.id, data),
-                );
+                result = this._data.onEdit
+                    ? await this._data.onEdit(this.playlist.id, data)
+                    : await lastValueFrom(
+                          updateSignagePlaylist(this.playlist.id, data),
+                      );
             } else {
-                result = await lastValueFrom(addSignagePlaylist(data));
+                result = this._data.onAdd
+                    ? await this._data.onAdd(data)
+                    : await lastValueFrom(addSignagePlaylist(data));
             }
             this._dialog_ref.disableClose = false;
             this._dialog_ref.close(result);

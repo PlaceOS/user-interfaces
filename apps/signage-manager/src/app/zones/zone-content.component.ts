@@ -35,17 +35,19 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                 <icon class="text-lg">playlist_play</icon>
                                 Playlists ({{ zone_playlists().length }})
                             </h5>
-                            <button
-                                icon
-                                type="button"
-                                matRipple
-                                class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                                matTooltip="Add playlist"
-                                (click)="addPlaylist()"
-                                aria-label="Add playlist to zone"
-                            >
-                                <icon>add</icon>
-                            </button>
+                            @if (can_update()) {
+                                <button
+                                    icon
+                                    type="button"
+                                    matRipple
+                                    class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
+                                    matTooltip="Add playlist"
+                                    (click)="addPlaylist()"
+                                    aria-label="Add playlist to zone"
+                                >
+                                    <icon>add</icon>
+                                </button>
+                            }
                         </div>
                         <div class="gap-2 p-2">
                             @if (zone_playlists().length > 0) {
@@ -92,9 +94,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                                 0.3 -
                                                                 (len - 1) *
                                                                     0.125 +
-                                                                (len -
-                                                                    1 -
-                                                                    i) *
+                                                                (len - 1 - i) *
                                                                     0.25 +
                                                                 'rem'
                                                             "
@@ -102,9 +102,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                                 0.3 -
                                                                 (len - 1) *
                                                                     0.125 +
-                                                                (len -
-                                                                    1 -
-                                                                    i) *
+                                                                (len - 1 - i) *
                                                                     0.25 +
                                                                 'rem'
                                                             "
@@ -158,7 +156,8 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                             <span
                                                                 class="bg-secondary text-secondary-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
                                                             >
-                                                                Awaiting Approval
+                                                                Awaiting
+                                                                Approval
                                                             </span>
                                                         }
                                                     }
@@ -167,33 +166,37 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                     <div
                                                         class="text-base-content/70 mt-0.5 truncate text-xs"
                                                     >
-                                                        {{ playlist.description }}
+                                                        {{
+                                                            playlist.description
+                                                        }}
                                                     </div>
                                                 }
                                             </div>
                                         </a>
-                                        <button
-                                            icon
-                                            type="button"
-                                            matRipple
-                                            class="border-base-200 hover:bg-base-200 hover:border-base-300 mr-1 rounded-lg border hover:shadow-md"
-                                            matTooltip="Remove playlist"
-                                            (click)="
-                                                removePlaylist(
-                                                    $event,
-                                                    playlist.id
-                                                )
-                                            "
-                                            [attr.aria-label]="
-                                                'Remove playlist ' +
-                                                playlist.name +
-                                                ' from zone'
-                                            "
-                                        >
-                                            <icon class="text-error">
-                                                close
-                                            </icon>
-                                        </button>
+                                        @if (can_update()) {
+                                            <button
+                                                icon
+                                                type="button"
+                                                matRipple
+                                                class="border-base-200 hover:bg-base-200 hover:border-base-300 mr-1 rounded-lg border hover:shadow-md"
+                                                matTooltip="Remove playlist"
+                                                (click)="
+                                                    removePlaylist(
+                                                        $event,
+                                                        playlist.id
+                                                    )
+                                                "
+                                                [attr.aria-label]="
+                                                    'Remove playlist ' +
+                                                    playlist.name +
+                                                    ' from zone'
+                                                "
+                                            >
+                                                <icon class="text-error">
+                                                    close
+                                                </icon>
+                                            </button>
+                                        }
                                     </div>
                                 }
                             } @else {
@@ -227,17 +230,19 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                 <icon class="text-lg">tv</icon>
                                 Displays ({{ zone_displays().length }})
                             </h5>
-                            <button
-                                icon
-                                type="button"
-                                matRipple
-                                class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                                matTooltip="Add display"
-                                (click)="addDisplay()"
-                                aria-label="Add display to zone"
-                            >
-                                <icon>add</icon>
-                            </button>
+                            @if (can_update()) {
+                                <button
+                                    icon
+                                    type="button"
+                                    matRipple
+                                    class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
+                                    matTooltip="Add display"
+                                    (click)="addDisplay()"
+                                    aria-label="Add display to zone"
+                                >
+                                    <icon>add</icon>
+                                </button>
+                            }
                         </div>
                         <div class="gap-2 p-2">
                             @if (zone_displays().length > 0) {
@@ -340,6 +345,7 @@ export class ZoneContentComponent {
         this._service.playlist_thumbnail_media;
     public readonly playlist_approval_status =
         this._service.playlist_approval_status;
+    public readonly can_update = this._service.can_update;
 
     private readonly _playlists = toSignal(this._service.playlists, {
         initialValue: [],

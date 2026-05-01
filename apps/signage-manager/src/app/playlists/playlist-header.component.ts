@@ -19,17 +19,19 @@ import { SignageService } from '../signage.service';
                 </div>
             </div>
             <div class="w-px flex-1"></div>
-            <button
-                btn
-                type="button"
-                matRipple
-                class="bg-secondary text-secondary-content h-12 shrink-0 rounded-lg px-4"
-                (click)="addPlaylist()"
-                aria-label="Create new playlist"
-            >
-                <icon class="mr-2 text-2xl">add</icon>
-                <div>New Playlist</div>
-            </button>
+            @if (can_create()) {
+                <button
+                    btn
+                    type="button"
+                    matRipple
+                    class="bg-secondary text-secondary-content h-12 shrink-0 rounded-lg px-4"
+                    (click)="addPlaylist()"
+                    aria-label="Create new playlist"
+                >
+                    <icon class="mr-2 text-2xl">add</icon>
+                    <div>New Playlist</div>
+                </button>
+            }
         </div>
     `,
     imports: [MatRippleModule, IconComponent, TranslatePipe],
@@ -40,6 +42,7 @@ export class PlaylistHeaderComponent {
     public readonly total_count = computed(
         () => this._service.filtered_playlists().length,
     );
+    public readonly can_create = this._service.can_create;
 
     public addPlaylist() {
         this._service.addPlaylist();

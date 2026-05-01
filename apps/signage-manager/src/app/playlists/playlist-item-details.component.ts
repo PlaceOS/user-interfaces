@@ -180,17 +180,19 @@ import { SignageService } from '../signage.service';
                                     <icon class="text-lg">tv</icon>
                                     Displays ({{ playlist_displays().length }})
                                 </h5>
-                                <button
-                                    icon
-                                    type="button"
-                                    matRipple
-                                    class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                                    matTooltip="Add display"
-                                    (click)="addDisplay()"
-                                    aria-label="Add display to playlist"
-                                >
-                                    <icon>add</icon>
-                                </button>
+                                @if (can_update()) {
+                                    <button
+                                        icon
+                                        type="button"
+                                        matRipple
+                                        class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
+                                        matTooltip="Add display"
+                                        (click)="addDisplay()"
+                                        aria-label="Add display to playlist"
+                                    >
+                                        <icon>add</icon>
+                                    </button>
+                                }
                             </div>
                             <div class="min-h-0 flex-1 gap-2 overflow-auto p-2">
                                 @if (playlist_displays().length > 0) {
@@ -238,29 +240,31 @@ import { SignageService } from '../signage.service';
                                                     }
                                                 </div>
                                             </a>
-                                            <button
-                                                icon
-                                                type="button"
-                                                matRipple
-                                                class="border-base-200 hover:bg-base-200 hover:border-base-300 mr-1 rounded-lg border hover:shadow-md"
-                                                matTooltip="Remove display"
-                                                (click)="
-                                                    removeDisplay(
-                                                        $event,
-                                                        display
-                                                    )
-                                                "
-                                                [attr.aria-label]="
-                                                    'Remove display ' +
-                                                    (display.display_name ||
-                                                        display.name) +
-                                                    ' from playlist'
-                                                "
-                                            >
-                                                <icon class="text-error">
-                                                    close
-                                                </icon>
-                                            </button>
+                                            @if (can_update()) {
+                                                <button
+                                                    icon
+                                                    type="button"
+                                                    matRipple
+                                                    class="border-base-200 hover:bg-base-200 hover:border-base-300 mr-1 rounded-lg border hover:shadow-md"
+                                                    matTooltip="Remove display"
+                                                    (click)="
+                                                        removeDisplay(
+                                                            $event,
+                                                            display
+                                                        )
+                                                    "
+                                                    [attr.aria-label]="
+                                                        'Remove display ' +
+                                                        (display.display_name ||
+                                                            display.name) +
+                                                        ' from playlist'
+                                                    "
+                                                >
+                                                    <icon class="text-error">
+                                                        close
+                                                    </icon>
+                                                </button>
+                                            }
                                         </div>
                                     }
                                 } @else {
@@ -290,17 +294,19 @@ import { SignageService } from '../signage.service';
                                     <icon class="text-lg">layers</icon>
                                     Zones ({{ playlist_zones().length }})
                                 </h5>
-                                <button
-                                    icon
-                                    type="button"
-                                    matRipple
-                                    class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                                    matTooltip="Add zone"
-                                    (click)="addZone()"
-                                    aria-label="Add zone to playlist"
-                                >
-                                    <icon>add</icon>
-                                </button>
+                                @if (can_update()) {
+                                    <button
+                                        icon
+                                        type="button"
+                                        matRipple
+                                        class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
+                                        matTooltip="Add zone"
+                                        (click)="addZone()"
+                                        aria-label="Add zone to playlist"
+                                    >
+                                        <icon>add</icon>
+                                    </button>
+                                }
                             </div>
                             <div class="min-h-0 flex-1 gap-2 overflow-auto p-2">
                                 @if (playlist_zones().length > 0) {
@@ -348,26 +354,28 @@ import { SignageService } from '../signage.service';
                                                     }
                                                 </div>
                                             </a>
-                                            <button
-                                                icon
-                                                type="button"
-                                                matRipple
-                                                class="border-base-200 hover:bg-base-200 hover:border-base-300 mr-1 rounded-lg border hover:shadow-md"
-                                                matTooltip="Remove zone"
-                                                (click)="
-                                                    removeZone($event, zone)
-                                                "
-                                                [attr.aria-label]="
-                                                    'Remove zone ' +
-                                                    (zone.display_name ||
-                                                        zone.name) +
-                                                    ' from playlist'
-                                                "
-                                            >
-                                                <icon class="text-error">
-                                                    close
-                                                </icon>
-                                            </button>
+                                            @if (can_update()) {
+                                                <button
+                                                    icon
+                                                    type="button"
+                                                    matRipple
+                                                    class="border-base-200 hover:bg-base-200 hover:border-base-300 mr-1 rounded-lg border hover:shadow-md"
+                                                    matTooltip="Remove zone"
+                                                    (click)="
+                                                        removeZone($event, zone)
+                                                    "
+                                                    [attr.aria-label]="
+                                                        'Remove zone ' +
+                                                        (zone.display_name ||
+                                                            zone.name) +
+                                                        ' from playlist'
+                                                    "
+                                                >
+                                                    <icon class="text-error">
+                                                        close
+                                                    </icon>
+                                                </button>
+                                            }
                                         </div>
                                     }
                                 } @else {
@@ -431,6 +439,7 @@ export class PlaylistItemDetailsComponent {
     });
 
     public readonly item_count = computed(() => this._items().length);
+    public readonly can_update = this._service.can_update;
 
     public readonly playlist_displays = computed(() => {
         const pl = this.playlist();

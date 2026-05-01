@@ -746,6 +746,79 @@ const MOCK_MEDIA = generateMockMedia();
 const MOCK_PLAYLISTS = generateMockPlaylists(MOCK_DISPLAYS, MOCK_MEDIA);
 const MOCK_TRIGGERS = generateMockTriggers();
 
+const SIGNAGE_GROUPS = [
+    {
+        group: {
+            id: 'signage-group-facilities',
+            name: 'Facilities Signage',
+            description: 'Facility-managed signage content',
+            subsystems: ['signage'],
+        },
+        permissions: 0xff,
+    },
+    {
+        group: {
+            id: 'signage-group-marketing',
+            name: 'Marketing Signage',
+            description: 'Marketing managed signage content',
+            subsystems: ['signage'],
+        },
+        permissions: 0x81,
+    },
+];
+
+function filterByGroup<T>(items: T[], group_id = '') {
+    if (!group_id || group_id === SIGNAGE_GROUPS[0].group.id) return items;
+    return items.filter((_, index) => index % 2 === 0);
+}
+
+function toEngineMedia(item: any) {
+    const is_video = item.type === 'video';
+    return {
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        media_type: is_video ? 'video' : 'image',
+        media_uri: item.file?.url,
+        media_id: '',
+        thumbnail_id: item.file?.thumbnail_url ? item.id + '-thumb' : '',
+        orientation: 'landscape',
+        play_time: item.display_properties?.duration_ms || 15000,
+        video_length: is_video ? item.display_properties?.duration_ms : 0,
+        created_at: item.created_at,
+        updated_at: item.updated_at,
+        valid_from: item.scheduling?.start_date,
+        valid_until: item.scheduling?.end_date,
+    };
+}
+
+function toEnginePlaylist(item: any) {
+    return {
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        enabled: item.status !== 'disabled',
+        random: !!item.settings?.shuffle,
+        default_duration: item.settings?.default_duration || 15000,
+        default_animation: 1,
+        orientation: 'landscape',
+        play_count: 0,
+        created_at: item.created_at,
+        updated_at: item.updated_at,
+    };
+}
+
+function playlistMediaResponse(playlist_id: string, approved = false) {
+    const playlist = MOCK_PLAYLISTS.find((item) => item.id === playlist_id);
+    return {
+        id: `${playlist_id}-media`,
+        playlist_id,
+        items: (playlist?.items || []).map((item) => item.media_id),
+        approved,
+        updated_at: playlist?.updated_at || getUnixTime(Date.now()),
+    };
+}
+
 // Add signage zones to the global zones array
 export function registerMockSignage() {
     // MOCK_ZONES is already imported at the top of the file
@@ -769,6 +842,155 @@ export function registerMockSignage() {
     });
 
     // Register API endpoints
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/groups/current',
+        metadata: {},
+        method: 'GET',
+        callback: (request) => {
+            if (request.query_params?.subsystem === 'signage') {
+                return SIGNAGE_GROUPS;
+            }
+            return [];
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/media',
+        metadata: {},
+        method: 'GET',
+        callback: (request) =>
+            filterByGroup(MOCK_MEDIA, request.query_params?.group_id).map(
+                toEngineMedia,
+            ),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/media',
+        metadata: {},
+        method: 'POST',
+        callback: (request) => ({
+            ...request.body,
+            id: `media-${Date.now()}`,
+            created_at: getUnixTime(Date.now()),
+            updated_at: getUnixTime(Date.now()),
+        }),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/media/:id',
+        metadata: {},
+        method: 'PATCH',
+        callback: (request) => ({
+            ...toEngineMedia(
+                MOCK_MEDIA.find((item) => item.id === request.route_params.id),
+            ),
+            ...request.body,
+            updated_at: getUnixTime(Date.now()),
+        }),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/media/:id',
+        metadata: {},
+        method: 'DELETE',
+        callback: () => ({}),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/media/share',
+        metadata: {},
+        method: 'POST',
+        callback: () => ({}),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/playlists',
+        metadata: {},
+        method: 'GET',
+        callback: (request) =>
+            filterByGroup(MOCK_PLAYLISTS, request.query_params?.group_id).map(
+                toEnginePlaylist,
+            ),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/playlists',
+        metadata: {},
+        method: 'POST',
+        callback: (request) => ({
+            ...request.body,
+            id: `playlist-${Date.now()}`,
+            created_at: getUnixTime(Date.now()),
+            updated_at: getUnixTime(Date.now()),
+        }),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/playlists/:id',
+        metadata: {},
+        method: 'PATCH',
+        callback: (request) => ({
+            ...toEnginePlaylist(
+                MOCK_PLAYLISTS.find(
+                    (item) => item.id === request.route_params.id,
+                ),
+            ),
+            ...request.body,
+            updated_at: getUnixTime(Date.now()),
+        }),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/playlists/:id',
+        metadata: {},
+        method: 'DELETE',
+        callback: () => ({}),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/playlists/:id/media',
+        metadata: {},
+        method: 'GET',
+        callback: (request) =>
+            playlistMediaResponse(request.route_params.id, false),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/playlists/:id/media',
+        metadata: {},
+        method: 'POST',
+        callback: (request) => ({
+            ...playlistMediaResponse(request.route_params.id, false),
+            items: request.body || [],
+            updated_at: getUnixTime(Date.now()),
+        }),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/playlists/:id/media/revisions',
+        metadata: {},
+        method: 'GET',
+        callback: (request) => [
+            playlistMediaResponse(request.route_params.id, false),
+            playlistMediaResponse(request.route_params.id, true),
+        ],
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/playlists/:id/media/approve',
+        metadata: {},
+        method: 'POST',
+        callback: (request) =>
+            playlistMediaResponse(request.route_params.id, true),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/playlists/share',
+        metadata: {},
+        method: 'POST',
+        callback: () => ({}),
+    });
 
     // Displays
     registerMockEndpoint({
