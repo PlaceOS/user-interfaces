@@ -47,6 +47,7 @@ import { MediaPreviewModalComponent } from './shared/media-preview-modal.compone
 import { PlaylistApproveModalComponent } from './shared/playlist-approve-modal.component';
 import { PlaylistEditModalComponent } from './shared/playlist-edit-modal.component';
 import { PlaylistSelectModalComponent } from './shared/playlist-select-modal.component';
+import { ZoneSelectModalComponent } from './shared/zone-select-modal.component';
 import {
     getVideoContainer,
     isImageSourceFile,
@@ -997,6 +998,54 @@ export class SignageService {
         this.selected_display.set(updated);
         this.changed();
         notifySuccess('Playlist added to display');
+    }
+
+    public async addDisplayToPlaylist(playlist: SignagePlaylist) {
+        const ref = this._dialog.open(DisplaySelectModalComponent, {
+            data: { playlist_id: playlist.id },
+            panelClass: 'mobile-fullscreen',
+        });
+        const display_id = await lastValueFrom(ref.afterClosed());
+        if (!display_id) return;
+        const displays = await lastValueFrom(this.displays);
+        const display = displays.find((d: any) => d.id === display_id);
+        if (!display) return;
+        if (display.playlists?.includes(playlist.id)) {
+            notifyError('Playlist already assigned to this display.');
+            return;
+        }
+        const playlists = [...(display.playlists || []), playlist.id];
+        await lastValueFrom(
+            updateSystem(
+                display.id,
+                { playlists, version: display.version } as any,
+                'patch',
+            ),
+        );
+        this.changed();
+        notifySuccess('Display added to playlist');
+    }
+
+    public async addZoneToPlaylist(playlist: SignagePlaylist) {
+        const ref = this._dialog.open(ZoneSelectModalComponent, {
+            data: { playlist_id: playlist.id },
+            panelClass: 'mobile-fullscreen',
+        });
+        const zone_id = await lastValueFrom(ref.afterClosed());
+        if (!zone_id) return;
+        const zones = await lastValueFrom(this.zones);
+        const zone = zones.find((z: any) => z.id === zone_id);
+        if (!zone) return;
+        if (zone.playlists?.includes(playlist.id)) {
+            notifyError('Playlist already assigned to this zone.');
+            return;
+        }
+        const playlists = [...(zone.playlists || []), playlist.id];
+        await lastValueFrom(
+            updateZone(zone.id, { playlists, version: zone.version }, 'patch'),
+        );
+        this.changed();
+        notifySuccess('Zone added to playlist');
     }
 
     public async removePlaylistFromDisplay(display: any, playlist_id: string) {
