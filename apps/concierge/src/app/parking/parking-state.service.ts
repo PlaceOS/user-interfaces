@@ -217,6 +217,9 @@ export class ParkingStateService extends AsyncHandler {
             this._loading.next([...this._loading.getValue(), 'spaces']);
             return queryParkingSpacesForZones(zone_ids);
         }),
+        map((_) =>
+            _.sort((a, b) => (a.name || '').localeCompare(b.name || '')),
+        ),
         tap(() =>
             this._loading.next(
                 this._loading.getValue().filter((_) => _ !== 'spaces'),
