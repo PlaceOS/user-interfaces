@@ -115,6 +115,12 @@ export class SignageService {
     private readonly _uploads = inject(UploadsService);
     private readonly _dialog = inject(MatDialog);
     private readonly _change = new BehaviorSubject(Date.now());
+    private readonly _display_overrides = signal<Record<string, any>>({});
+    private readonly _display_overrides$ = toObservable(
+        this._display_overrides,
+    );
+    private readonly _zone_overrides = signal<Record<string, any>>({});
+    private readonly _zone_overrides$ = toObservable(this._zone_overrides);
     public readonly media_upload_accept = SIGNAGE_MEDIA_PICKER_ACCEPT;
 
     public readonly search_term = signal('');
@@ -166,73 +172,59 @@ export class SignageService {
     );
 
     public readonly displays = combineLatest([
-        this._org.initialised,
-        this._change,
+        combineLatest([this._org.initialised, this._change]).pipe(
+            filter(([_]) => !_),
+            debounceTime(300),
+            switchMap(() =>
+                querySystems({
+                    zone_id: this._org.organisation?.id,
+                    limit: 500,
+                    signage: true,
+                } as any).pipe(catchError(() => of({ data: [] }))),
+            ),
+            map((result: any) => (result.data || []).filter((s) => s.signage)),
+            startWith([]),
+        ),
+        this._display_overrides$,
     ]).pipe(
-        filter(([_]) => !_),
-        debounceTime(300),
-        switchMap(([building]) =>
-            querySystems({
-                zone_id: this._org.organisation?.id,
-                limit: 500,
-                signage: true,
-            } as any).pipe(catchError(() => of({ data: [] }))),
-        ),
-        map((result: any) =>
-            (result.data || [])
-                .filter((s) => s.signage)
-                .sort((a, b) =>
-                    (a.display_name || a.name).localeCompare(
-                        b.display_name || b.name,
-                    ),
-                ),
-        ),
-        startWith([]),
+        map(([displays, overrides]) => this._mergeItems(displays, overrides)),
         shareReplay(1),
     );
 
     public readonly zones = combineLatest([
-        this._org.active_building,
-        this._change,
-    ]).pipe(
-        filter(([building]) => !!building?.id),
-        debounceTime(300),
-        switchMap(() =>
-            queryZones({
-                limit: 250,
-                tags: 'signage',
-            } as any).pipe(catchError(() => of({ data: [] }))),
-        ),
-        map((result: any) =>
-            (result.data || []).sort((a, b) =>
-                (a.display_name || a.name).localeCompare(
-                    b.display_name || b.name,
-                ),
+        combineLatest([this._org.active_building, this._change]).pipe(
+            filter(([building]) => !!building?.id),
+            debounceTime(300),
+            switchMap(() =>
+                queryZones({
+                    limit: 250,
+                    tags: 'signage',
+                } as any).pipe(catchError(() => of({ data: [] }))),
             ),
+            map((result: any) => result.data || []),
+            startWith([]),
         ),
-        startWith([]),
+        this._zone_overrides$,
+    ]).pipe(
+        map(([zones, overrides]) => this._mergeItems(zones, overrides)),
         shareReplay(1),
     );
 
     public readonly all_zones = combineLatest([
-        this._org.initialised,
-        this._change,
-    ]).pipe(
-        filter(([initialised]) => !!initialised),
-        debounceTime(300),
-        switchMap(() =>
-            queryZones({ limit: 2500 } as any).pipe(
-                catchError(() => of({ data: [] })),
-            ),
-        ),
-        map((result: any) =>
-            (result.data || []).sort((a, b) =>
-                (a.display_name || a.name).localeCompare(
-                    b.display_name || b.name,
+        combineLatest([this._org.initialised, this._change]).pipe(
+            filter(([initialised]) => !!initialised),
+            debounceTime(300),
+            switchMap(() =>
+                queryZones({ limit: 2500 } as any).pipe(
+                    catchError(() => of({ data: [] })),
                 ),
             ),
+            map((result: any) => result.data || []),
+            startWith([]),
         ),
-        startWith([]),
+        this._zone_overrides$,
+    ]).pipe(
+        map(([zones, overrides]) => this._mergeItems(zones, overrides)),
         shareReplay(1),
     );
 
@@ -479,6 +471,32 @@ export class SignageService {
 
     public changed() {
         this._change.next(Date.now());
+    }
+
+    private _cacheDisplay(display: any) {
+        if (!display?.id) return;
+        this._display_overrides.update((state) => ({
+            ...state,
+            [display.id]: display,
+        }));
+    }
+
+    private _cacheZone(zone: any) {
+        if (!zone?.id) return;
+        this._zone_overrides.update((state) => ({
+            ...state,
+            [zone.id]: zone,
+        }));
+    }
+
+    private _mergeItems(list: any[], overrides: Record<string, any>) {
+        const item_map = new Map((list || []).map((item) => [item.id, item]));
+        for (const item of Object.values(overrides)) {
+            if (item?.id) item_map.set(item.id, item);
+        }
+        return [...item_map.values()].sort((a, b) =>
+            (a.display_name || a.name).localeCompare(b.display_name || b.name),
+        );
     }
 
     public async updatePlaylistMedia(playlist_id: string, list: string[]) {
@@ -915,6 +933,7 @@ export class SignageService {
         const updated = await lastValueFrom(
             updateZone(zone.id, { playlists, version: zone.version }, 'patch'),
         );
+        this._cacheZone(updated);
         this.selected_zone.set(updated);
         this.changed();
         notifySuccess('Playlist added to zone');
@@ -927,6 +946,7 @@ export class SignageService {
         const updated = await lastValueFrom(
             updateZone(zone.id, { playlists, version: zone.version }, 'patch'),
         );
+        this._cacheZone(updated);
         this.selected_zone.set(updated);
         this.changed();
         notifySuccess('Playlist removed from zone');
@@ -939,7 +959,7 @@ export class SignageService {
         });
         const display_id = await lastValueFrom(ref.afterClosed());
         if (!display_id) return;
-        const displays = await lastValueFrom(this.displays);
+        const displays = this._displays();
         const display = displays.find((d: any) => d.id === display_id);
         if (!display) return;
         if (display.zones?.includes(zone.id)) {
@@ -947,31 +967,33 @@ export class SignageService {
             return;
         }
         const zones = [...(display.zones || []), zone.id];
-        await lastValueFrom(
+        const updated = await lastValueFrom(
             updateSystem(
                 display.id,
                 { zones, version: display.version } as any,
                 'patch',
             ),
         );
+        this._cacheDisplay(updated);
         this.changed();
         notifySuccess('Display added to zone');
     }
 
     public async removeDisplayFromZone(zone: any, display_id: string) {
-        const displays = await lastValueFrom(this.displays);
+        const displays = this._displays();
         const display = displays.find((d: any) => d.id === display_id);
         if (!display) return;
         const zones = (display.zones || []).filter(
             (id: string) => id !== zone.id,
         );
-        await lastValueFrom(
+        const updated = await lastValueFrom(
             updateSystem(
                 display.id,
                 { zones, version: display.version } as any,
                 'patch',
             ),
         );
+        this._cacheDisplay(updated);
         this.changed();
         notifySuccess('Display removed from zone');
     }
@@ -995,6 +1017,7 @@ export class SignageService {
                 'patch',
             ),
         );
+        this._cacheDisplay(updated);
         this.selected_display.set(updated);
         this.changed();
         notifySuccess('Playlist added to display');
@@ -1007,7 +1030,7 @@ export class SignageService {
         });
         const display_id = await lastValueFrom(ref.afterClosed());
         if (!display_id) return;
-        const displays = await lastValueFrom(this.displays);
+        const displays = this._displays();
         const display = displays.find((d: any) => d.id === display_id);
         if (!display) return;
         if (display.playlists?.includes(playlist.id)) {
@@ -1015,13 +1038,17 @@ export class SignageService {
             return;
         }
         const playlists = [...(display.playlists || []), playlist.id];
-        await lastValueFrom(
+        const updated = await lastValueFrom(
             updateSystem(
                 display.id,
                 { playlists, version: display.version } as any,
                 'patch',
             ),
         );
+        this._cacheDisplay(updated);
+        if (this.selected_display()?.id === display.id) {
+            this.selected_display.set(updated);
+        }
         this.changed();
         notifySuccess('Display added to playlist');
     }
@@ -1033,7 +1060,7 @@ export class SignageService {
         });
         const zone_id = await lastValueFrom(ref.afterClosed());
         if (!zone_id) return;
-        const zones = await lastValueFrom(this.zones);
+        const zones = this._zones();
         const zone = zones.find((z: any) => z.id === zone_id);
         if (!zone) return;
         if (zone.playlists?.includes(playlist.id)) {
@@ -1041,11 +1068,52 @@ export class SignageService {
             return;
         }
         const playlists = [...(zone.playlists || []), playlist.id];
-        await lastValueFrom(
+        const updated = await lastValueFrom(
             updateZone(zone.id, { playlists, version: zone.version }, 'patch'),
         );
+        this._cacheZone(updated);
+        if (this.selected_zone()?.id === zone.id) {
+            this.selected_zone.set(updated);
+        }
         this.changed();
         notifySuccess('Zone added to playlist');
+    }
+
+    public async removeDisplayFromPlaylist(
+        playlist: SignagePlaylist,
+        display: any,
+    ) {
+        const playlists = (display.playlists || []).filter(
+            (id: string) => id !== playlist.id,
+        );
+        const updated = await lastValueFrom(
+            updateSystem(
+                display.id,
+                { playlists, version: display.version } as any,
+                'patch',
+            ),
+        );
+        this._cacheDisplay(updated);
+        if (this.selected_display()?.id === display.id) {
+            this.selected_display.set(updated);
+        }
+        this.changed();
+        notifySuccess('Display removed from playlist');
+    }
+
+    public async removeZoneFromPlaylist(playlist: SignagePlaylist, zone: any) {
+        const playlists = (zone.playlists || []).filter(
+            (id: string) => id !== playlist.id,
+        );
+        const updated = await lastValueFrom(
+            updateZone(zone.id, { playlists, version: zone.version }, 'patch'),
+        );
+        this._cacheZone(updated);
+        if (this.selected_zone()?.id === zone.id) {
+            this.selected_zone.set(updated);
+        }
+        this.changed();
+        notifySuccess('Zone removed from playlist');
     }
 
     public async removePlaylistFromDisplay(display: any, playlist_id: string) {
@@ -1059,6 +1127,7 @@ export class SignageService {
                 'patch',
             ),
         );
+        this._cacheDisplay(updated);
         this.selected_display.set(updated);
         this.changed();
         notifySuccess('Playlist removed from display');

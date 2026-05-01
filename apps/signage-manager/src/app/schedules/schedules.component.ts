@@ -364,6 +364,7 @@ export class SchedulesSectionComponent {
                     route: ['/zones', zone.id],
                     blocks,
                     search_index,
+                    updated_at: zone.updated_at,
                 };
             })
             .filter((row) => !search || row.search_index.includes(search));
