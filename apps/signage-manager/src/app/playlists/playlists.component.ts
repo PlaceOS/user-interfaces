@@ -60,43 +60,61 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                     </h4>
                                 </div>
                                 @if (requires_approval()) {
+                                    @if (can_approve()) {
+                                        <button
+                                            icon
+                                            type="button"
+                                            matRipple
+                                            class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
+                                            matTooltip="Approve playlist"
+                                            (click)="approvePlaylist()"
+                                            aria-label="Approve selected playlist"
+                                        >
+                                            <icon class="text-warning"
+                                                >order_approve</icon
+                                            >
+                                        </button>
+                                    }
+                                }
+                                @if (can_update()) {
                                     <button
                                         icon
                                         type="button"
                                         matRipple
                                         class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                                        matTooltip="Approve playlist"
-                                        [disabled]="!is_admin()"
-                                        (click)="approvePlaylist()"
-                                        aria-label="Approve selected playlist"
+                                        matTooltip="Edit playlist"
+                                        (click)="editPlaylist()"
+                                        aria-label="Edit selected playlist"
                                     >
-                                        <icon class="text-warning"
-                                            >order_approve</icon
-                                        >
+                                        <icon>edit</icon>
                                     </button>
                                 }
-                                <button
-                                    icon
-                                    type="button"
-                                    matRipple
-                                    class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                                    matTooltip="Edit playlist"
-                                    (click)="editPlaylist()"
-                                    aria-label="Edit selected playlist"
-                                >
-                                    <icon>edit</icon>
-                                </button>
-                                <button
-                                    icon
-                                    type="button"
-                                    matRipple
-                                    class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                                    matTooltip="Delete playlist"
-                                    (click)="removePlaylist()"
-                                    aria-label="Delete selected playlist"
-                                >
-                                    <icon class="text-error">delete</icon>
-                                </button>
+                                @if (can_share()) {
+                                    <button
+                                        icon
+                                        type="button"
+                                        matRipple
+                                        class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
+                                        matTooltip="Share playlist"
+                                        (click)="sharePlaylist()"
+                                        aria-label="Share selected playlist"
+                                    >
+                                        <icon>ios_share</icon>
+                                    </button>
+                                }
+                                @if (can_delete()) {
+                                    <button
+                                        icon
+                                        type="button"
+                                        matRipple
+                                        class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
+                                        matTooltip="Delete playlist"
+                                        (click)="removePlaylist()"
+                                        aria-label="Delete selected playlist"
+                                    >
+                                        <icon class="text-error">delete</icon>
+                                    </button>
+                                }
                             </div>
                             <div
                                 class="bg-base-100 border-base-300 mx-2 my-2 flex rounded-lg border lg:hidden"
@@ -223,7 +241,10 @@ export class PlaylistsSectionComponent {
     public readonly selected_playlist = this._service.selected_playlist;
     public readonly requires_approval =
         this._service.selected_playlist_requires_approval;
-    public readonly is_admin = this._service.is_admin;
+    public readonly can_approve = this._service.can_approve;
+    public readonly can_update = this._service.can_update;
+    public readonly can_delete = this._service.can_delete;
+    public readonly can_share = this._service.can_share;
 
     private readonly _playlists = toSignal(this._service.playlists, {
         initialValue: [],
@@ -302,6 +323,11 @@ export class PlaylistsSectionComponent {
     public approvePlaylist() {
         const playlist = this.selected_playlist();
         if (playlist) this._service.approvePlaylist(playlist);
+    }
+
+    public sharePlaylist() {
+        const playlist = this.selected_playlist();
+        if (playlist) this._service.sharePlaylist(playlist);
     }
 
     public deselectPlaylist() {

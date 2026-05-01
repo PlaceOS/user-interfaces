@@ -6,13 +6,14 @@ import {
     IconComponent,
 } from '@placeos/components';
 import { NAV_ITEMS } from './nav-items';
+import { SignageGroupSelectorComponent } from './signage-group-selector.component';
 
 @Component({
     selector: 'nav-sidebar',
     template: `
         <nav
             aria-label="Primary navigation"
-            class="bg-secondary text-secondary-content border-base-100 relative z-30 hidden h-full border-r p-2 shadow-lg sm:block"
+            class="bg-secondary text-secondary-content border-base-100 relative z-30 hidden h-full flex-col border-r p-2 shadow-lg sm:flex"
         >
             <div
                 logo
@@ -29,7 +30,7 @@ import { NAV_ITEMS } from './nav-items';
                     <div class="opacity-20">LOGO</div>
                 }
             </div>
-            <div class="flex flex-col gap-4 p-2">
+            <div class="flex flex-1 flex-col gap-4 p-2">
                 @for (item of nav_items; track item.route) {
                     <a
                         #route_active="routerLinkActive"
@@ -50,6 +51,9 @@ import { NAV_ITEMS } from './nav-items';
                     </a>
                 }
             </div>
+            <div class="p-2">
+                <signage-group-selector />
+            </div>
         </nav>
     `,
     styles: [
@@ -66,7 +70,12 @@ import { NAV_ITEMS } from './nav-items';
             }
         `,
     ],
-    imports: [RouterModule, IconComponent, AuthenticatedImageDirective],
+    imports: [
+        RouterModule,
+        IconComponent,
+        AuthenticatedImageDirective,
+        SignageGroupSelectorComponent,
+    ],
 })
 export class NavSidebarComponent {
     private readonly _settings = inject(SettingsService);

@@ -48,17 +48,19 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                     <icon class="text-lg">playlist_play</icon>
                                     Playlists ({{ display_playlists().length }})
                                 </h5>
-                                <button
-                                    icon
-                                    type="button"
-                                    matRipple
-                                    class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                                    matTooltip="Add playlist"
-                                    (click)="addPlaylist()"
-                                    aria-label="Add playlist to display"
-                                >
-                                    <icon>add</icon>
-                                </button>
+                                @if (can_update()) {
+                                    <button
+                                        icon
+                                        type="button"
+                                        matRipple
+                                        class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
+                                        matTooltip="Add playlist"
+                                        (click)="addPlaylist()"
+                                        aria-label="Add playlist to display"
+                                    >
+                                        <icon>add</icon>
+                                    </button>
+                                }
                             </div>
                             <div class="gap-2 p-2">
                                 @if (display_playlists().length > 0) {
@@ -195,28 +197,30 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                     }
                                                 </div>
                                             </a>
-                                            <button
-                                                icon
-                                                type="button"
-                                                matRipple
-                                                class="border-base-200 hover:bg-base-200 hover:border-base-300 mr-1 rounded-lg border hover:shadow-md"
-                                                matTooltip="Remove playlist"
-                                                (click)="
-                                                    removePlaylist(
-                                                        $event,
-                                                        playlist.id
-                                                    )
-                                                "
-                                                [attr.aria-label]="
-                                                    'Remove playlist ' +
-                                                    playlist.name +
-                                                    ' from display'
-                                                "
-                                            >
-                                                <icon class="text-error">
-                                                    close
-                                                </icon>
-                                            </button>
+                                            @if (can_update()) {
+                                                <button
+                                                    icon
+                                                    type="button"
+                                                    matRipple
+                                                    class="border-base-200 hover:bg-base-200 hover:border-base-300 mr-1 rounded-lg border hover:shadow-md"
+                                                    matTooltip="Remove playlist"
+                                                    (click)="
+                                                        removePlaylist(
+                                                            $event,
+                                                            playlist.id
+                                                        )
+                                                    "
+                                                    [attr.aria-label]="
+                                                        'Remove playlist ' +
+                                                        playlist.name +
+                                                        ' from display'
+                                                    "
+                                                >
+                                                    <icon class="text-error">
+                                                        close
+                                                    </icon>
+                                                </button>
+                                            }
                                         </div>
                                     }
                                 } @else {
@@ -347,6 +351,7 @@ export class DisplayContentComponent {
         this._service.playlist_thumbnail_media;
     public readonly playlist_approval_status =
         this._service.playlist_approval_status;
+    public readonly can_update = this._service.can_update;
 
     private readonly _playlists = toSignal(this._service.playlists, {
         initialValue: [],

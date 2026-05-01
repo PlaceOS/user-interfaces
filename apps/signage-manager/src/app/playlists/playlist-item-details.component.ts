@@ -2,6 +2,7 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { IconComponent, MediaDurationPipe } from '@placeos/components';
 import { MediaAnimation } from '@placeos/ts-client';
@@ -169,106 +170,227 @@ import { SignageService } from '../signage.service';
                         <ng-template mat-tab-label>
                             Displays ({{ playlist_displays().length }})
                         </ng-template>
-                        <div class="h-full gap-2 overflow-auto p-2">
-                            @if (playlist_displays().length > 0) {
-                                @for (
-                                    display of playlist_displays();
-                                    track display.id
-                                ) {
-                                    <a
+                        <div class="flex h-full flex-col overflow-hidden">
+                            <div
+                                class="border-base-300 flex items-center gap-2 border-b px-4 py-3"
+                            >
+                                <h5
+                                    class="text-base-content/80 flex flex-1 items-center gap-2 font-medium tracking-wider uppercase"
+                                >
+                                    <icon class="text-lg">tv</icon>
+                                    Displays ({{ playlist_displays().length }})
+                                </h5>
+                                @if (can_update()) {
+                                    <button
+                                        icon
+                                        type="button"
                                         matRipple
-                                        class="border-base-300 hover:bg-base-200 flex items-center gap-3 rounded-lg border px-4 py-3 no-underline transition-colors"
-                                        [routerLink]="['/displays', display.id]"
-                                        [attr.aria-label]="
-                                            'Open display ' +
-                                            (display.display_name ||
-                                                display.name)
-                                        "
+                                        class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
+                                        matTooltip="Add display"
+                                        (click)="addDisplay()"
+                                        aria-label="Add display to playlist"
                                     >
-                                        <icon
-                                            class="shrink-0 text-xl opacity-60"
-                                            >tv</icon
+                                        <icon>add</icon>
+                                    </button>
+                                }
+                            </div>
+                            <div class="min-h-0 flex-1 gap-2 overflow-auto p-2">
+                                @if (playlist_displays().length > 0) {
+                                    @for (
+                                        display of playlist_displays();
+                                        track display.id
+                                    ) {
+                                        <div
+                                            class="border-base-300 bg-base-100 mb-2 flex items-center gap-3 rounded-lg border p-0.5 pl-1"
                                         >
-                                        <div class="min-w-0 flex-1">
-                                            <div
-                                                class="truncate text-sm font-medium"
+                                            <a
+                                                matRipple
+                                                class="hover:bg-base-200 flex min-w-0 flex-1 items-center gap-3 rounded-lg p-1 no-underline transition-colors"
+                                                [routerLink]="[
+                                                    '/displays',
+                                                    display.id,
+                                                ]"
+                                                [attr.aria-label]="
+                                                    'Open display ' +
+                                                    (display.display_name ||
+                                                        display.name)
+                                                "
                                             >
-                                                {{
-                                                    display.display_name ||
-                                                        display.name
-                                                }}
-                                            </div>
-                                            @if (display.description) {
-                                                <div
-                                                    class="text-base-content/70 truncate text-xs"
+                                                <icon
+                                                    class="shrink-0 text-xl opacity-60"
+                                                    >tv</icon
                                                 >
-                                                    {{ display.description }}
+                                                <div class="min-w-0 flex-1">
+                                                    <div
+                                                        class="truncate text-sm font-medium"
+                                                    >
+                                                        {{
+                                                            display.display_name ||
+                                                                display.name
+                                                        }}
+                                                    </div>
+                                                    @if (display.description) {
+                                                        <div
+                                                            class="text-base-content/70 truncate text-xs"
+                                                        >
+                                                            {{
+                                                                display.description
+                                                            }}
+                                                        </div>
+                                                    }
                                                 </div>
+                                            </a>
+                                            @if (can_update()) {
+                                                <button
+                                                    icon
+                                                    type="button"
+                                                    matRipple
+                                                    class="border-base-200 hover:bg-base-200 hover:border-base-300 mr-1 rounded-lg border hover:shadow-md"
+                                                    matTooltip="Remove display"
+                                                    (click)="
+                                                        removeDisplay(
+                                                            $event,
+                                                            display
+                                                        )
+                                                    "
+                                                    [attr.aria-label]="
+                                                        'Remove display ' +
+                                                        (display.display_name ||
+                                                            display.name) +
+                                                        ' from playlist'
+                                                    "
+                                                >
+                                                    <icon class="text-error">
+                                                        close
+                                                    </icon>
+                                                </button>
                                             }
                                         </div>
-                                    </a>
+                                    }
+                                } @else {
+                                    <div
+                                        class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-8"
+                                    >
+                                        <icon class="text-4xl">tv_off</icon>
+                                        <p class="text-sm">
+                                            No displays use this playlist.
+                                        </p>
+                                    </div>
                                 }
-                            } @else {
-                                <div
-                                    class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-8"
-                                >
-                                    <icon class="text-4xl">tv_off</icon>
-                                    <p class="text-sm">
-                                        No displays use this playlist.
-                                    </p>
-                                </div>
-                            }
+                            </div>
                         </div>
                     </mat-tab>
                     <mat-tab>
                         <ng-template mat-tab-label>
                             Zones ({{ playlist_zones().length }})
                         </ng-template>
-                        <div class="h-full gap-2 overflow-auto p-2">
-                            @if (playlist_zones().length > 0) {
-                                @for (zone of playlist_zones(); track zone.id) {
-                                    <a
+                        <div class="flex h-full flex-col overflow-hidden">
+                            <div
+                                class="border-base-300 flex items-center gap-2 border-b px-4 py-3"
+                            >
+                                <h5
+                                    class="text-base-content/80 flex flex-1 items-center gap-2 font-medium tracking-wider uppercase"
+                                >
+                                    <icon class="text-lg">layers</icon>
+                                    Zones ({{ playlist_zones().length }})
+                                </h5>
+                                @if (can_update()) {
+                                    <button
+                                        icon
+                                        type="button"
                                         matRipple
-                                        class="border-base-300 hover:bg-base-200 flex items-center gap-3 rounded-lg border px-4 py-3 no-underline transition-colors"
-                                        [routerLink]="['/zones', zone.id]"
-                                        [attr.aria-label]="
-                                            'Open zone ' +
-                                            (zone.display_name || zone.name)
-                                        "
+                                        class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
+                                        matTooltip="Add zone"
+                                        (click)="addZone()"
+                                        aria-label="Add zone to playlist"
                                     >
-                                        <icon
-                                            class="shrink-0 text-xl opacity-60"
-                                            >location_on</icon
+                                        <icon>add</icon>
+                                    </button>
+                                }
+                            </div>
+                            <div class="min-h-0 flex-1 gap-2 overflow-auto p-2">
+                                @if (playlist_zones().length > 0) {
+                                    @for (
+                                        zone of playlist_zones();
+                                        track zone.id
+                                    ) {
+                                        <div
+                                            class="border-base-300 bg-base-100 mb-2 flex items-center gap-3 rounded-lg border p-0.5 pl-1"
                                         >
-                                        <div class="min-w-0 flex-1">
-                                            <div
-                                                class="truncate text-sm font-medium"
+                                            <a
+                                                matRipple
+                                                class="hover:bg-base-200 flex min-w-0 flex-1 items-center gap-3 rounded-lg p-1 no-underline transition-colors"
+                                                [routerLink]="[
+                                                    '/zones',
+                                                    zone.id,
+                                                ]"
+                                                [attr.aria-label]="
+                                                    'Open zone ' +
+                                                    (zone.display_name ||
+                                                        zone.name)
+                                                "
                                             >
-                                                {{
-                                                    zone.display_name ||
-                                                        zone.name
-                                                }}
-                                            </div>
-                                            @if (zone.description) {
-                                                <div
-                                                    class="text-base-content/70 truncate text-xs"
+                                                <icon
+                                                    class="shrink-0 text-xl opacity-60"
+                                                    >location_on</icon
                                                 >
-                                                    {{ zone.description }}
+                                                <div class="min-w-0 flex-1">
+                                                    <div
+                                                        class="truncate text-sm font-medium"
+                                                    >
+                                                        {{
+                                                            zone.display_name ||
+                                                                zone.name
+                                                        }}
+                                                    </div>
+                                                    @if (zone.description) {
+                                                        <div
+                                                            class="text-base-content/70 truncate text-xs"
+                                                        >
+                                                            {{
+                                                                zone.description
+                                                            }}
+                                                        </div>
+                                                    }
                                                 </div>
+                                            </a>
+                                            @if (can_update()) {
+                                                <button
+                                                    icon
+                                                    type="button"
+                                                    matRipple
+                                                    class="border-base-200 hover:bg-base-200 hover:border-base-300 mr-1 rounded-lg border hover:shadow-md"
+                                                    matTooltip="Remove zone"
+                                                    (click)="
+                                                        removeZone($event, zone)
+                                                    "
+                                                    [attr.aria-label]="
+                                                        'Remove zone ' +
+                                                        (zone.display_name ||
+                                                            zone.name) +
+                                                        ' from playlist'
+                                                    "
+                                                >
+                                                    <icon class="text-error">
+                                                        close
+                                                    </icon>
+                                                </button>
                                             }
                                         </div>
-                                    </a>
+                                    }
+                                } @else {
+                                    <div
+                                        class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-8"
+                                    >
+                                        <icon class="text-4xl"
+                                            >location_off</icon
+                                        >
+                                        <p class="text-sm">
+                                            No zones use this playlist.
+                                        </p>
+                                    </div>
                                 }
-                            } @else {
-                                <div
-                                    class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-8"
-                                >
-                                    <icon class="text-4xl">location_off</icon>
-                                    <p class="text-sm">
-                                        No zones use this playlist.
-                                    </p>
-                                </div>
-                            }
+                            </div>
                         </div>
                     </mat-tab>
                 </mat-tab-group>
@@ -294,6 +416,7 @@ import { SignageService } from '../signage.service';
     imports: [
         MatRippleModule,
         MatTabsModule,
+        MatTooltipModule,
         RouterLink,
         IconComponent,
         MediaDurationPipe,
@@ -316,6 +439,7 @@ export class PlaylistItemDetailsComponent {
     });
 
     public readonly item_count = computed(() => this._items().length);
+    public readonly can_update = this._service.can_update;
 
     public readonly playlist_displays = computed(() => {
         const pl = this.playlist();
@@ -367,5 +491,30 @@ export class PlaylistItemDetailsComponent {
             this.playlist();
             this.active_tab.set(0);
         });
+    }
+
+    public addDisplay() {
+        const playlist = this.playlist();
+        if (playlist) this._service.addDisplayToPlaylist(playlist);
+    }
+
+    public addZone() {
+        const playlist = this.playlist();
+        if (playlist) this._service.addZoneToPlaylist(playlist);
+    }
+
+    public removeDisplay(event: Event, display: any) {
+        event.preventDefault();
+        event.stopPropagation();
+        const playlist = this.playlist();
+        if (playlist)
+            this._service.removeDisplayFromPlaylist(playlist, display);
+    }
+
+    public removeZone(event: Event, zone: any) {
+        event.preventDefault();
+        event.stopPropagation();
+        const playlist = this.playlist();
+        if (playlist) this._service.removeZoneFromPlaylist(playlist, zone);
     }
 }

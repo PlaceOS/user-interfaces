@@ -176,17 +176,21 @@ import { SignageService } from '../signage.service';
                                 <icon>more_vert</icon>
                             </button>
                             <mat-menu #menu="matMenu">
-                                <button
-                                    type="button"
-                                    mat-menu-item
-                                    (click)="editItem(media_item)"
-                                >
-                                    <div class="flex items-center space-x-2">
-                                        <icon class="text-2xl">edit</icon>
-                                        <div class="pr-2">Edit</div>
-                                    </div>
-                                </button>
-                                @if (sidebar_hidden()) {
+                                @if (can_update()) {
+                                    <button
+                                        type="button"
+                                        mat-menu-item
+                                        (click)="editItem(media_item)"
+                                    >
+                                        <div
+                                            class="flex items-center space-x-2"
+                                        >
+                                            <icon class="text-2xl">edit</icon>
+                                            <div class="pr-2">Edit</div>
+                                        </div>
+                                    </button>
+                                }
+                                @if (sidebar_hidden() && can_update()) {
                                     <button
                                         type="button"
                                         mat-menu-item
@@ -202,6 +206,22 @@ import { SignageService } from '../signage.service';
                                         </div>
                                     </button>
                                 }
+                                @if (can_share()) {
+                                    <button
+                                        type="button"
+                                        mat-menu-item
+                                        (click)="shareItem(media_item)"
+                                    >
+                                        <div
+                                            class="flex items-center space-x-2"
+                                        >
+                                            <icon class="text-2xl"
+                                                >ios_share</icon
+                                            >
+                                            <div class="pr-2">Share</div>
+                                        </div>
+                                    </button>
+                                }
                                 <button
                                     type="button"
                                     mat-menu-item
@@ -212,18 +232,22 @@ import { SignageService } from '../signage.service';
                                         <div class="pr-2">Preview</div>
                                     </div>
                                 </button>
-                                <button
-                                    type="button"
-                                    mat-menu-item
-                                    (click)="removeItem(media_item)"
-                                >
-                                    <div class="flex items-center space-x-2">
-                                        <icon class="text-error text-2xl">
-                                            delete
-                                        </icon>
-                                        <div class="pr-2">Remove</div>
-                                    </div>
-                                </button>
+                                @if (can_delete()) {
+                                    <button
+                                        type="button"
+                                        mat-menu-item
+                                        (click)="removeItem(media_item)"
+                                    >
+                                        <div
+                                            class="flex items-center space-x-2"
+                                        >
+                                            <icon class="text-error text-2xl">
+                                                delete
+                                            </icon>
+                                            <div class="pr-2">Remove</div>
+                                        </div>
+                                    </button>
+                                }
                             </mat-menu>
                         </div>
                     </div>
@@ -303,6 +327,13 @@ export class MediaListComponent implements OnChanges, OnInit {
 
     public readonly addToPlaylist = (media_id: string) =>
         this._service.openPlaylistSelectModal(media_id);
+
+    public readonly shareItem = (item: SignageMedia) =>
+        this._service.shareMedia(item);
+
+    public readonly can_update = this._service.can_update;
+    public readonly can_delete = this._service.can_delete;
+    public readonly can_share = this._service.can_share;
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.playlist_count) {

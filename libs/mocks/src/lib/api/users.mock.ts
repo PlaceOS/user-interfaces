@@ -15,6 +15,13 @@ export function registerMockUsers() {
         method: 'GET',
         callback: (request) => {
             if (request.route_params.id === 'current') {
+                if (localStorage.getItem('mock-signage-user') === 'group') {
+                    return {
+                        ...ACTIVE_USER,
+                        groups: ['staff', 'engineering', 'senior'],
+                        sys_admin: false,
+                    };
+                }
                 return ACTIVE_USER;
             }
             const person = MOCK_STAFF.find(

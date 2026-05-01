@@ -11,11 +11,21 @@ export function registerMockSystems() {
         metadata: {},
         method: 'GET',
         callback: (request) => {
-            return request.query_params?.zone_id
+            const systems = request.query_params?.zone_id
                 ? MOCK_SPACES.filter((_) =>
                       _.zones.includes(request.query_params.zone_id),
                   )
                 : MOCK_SPACES;
+            if (request.query_params?.signage) {
+                return systems.map((space) => ({
+                    ...space,
+                    signage: true,
+                    display_name: space.display_name || space.name,
+                    playlists: space.playlists || [],
+                    zones: space.zones || [],
+                }));
+            }
+            return systems;
         },
     });
 

@@ -415,15 +415,16 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
                 queryCalendarPermission(checked_email),
             );
             if (this.form()?.value?.organiser?.email !== checked_email) return;
-            if (
-                !permission.has_access ||
-                !ALLOWED_CALENDAR_ROLES.includes(permission.role)
-            ) {
+            const can_book =
+                (permission.has_access &&
+                    ALLOWED_CALENDAR_ROLES.includes(permission.role)) ||
+                permission.can_edit;
+            if (!can_book) {
                 this.permission_error.set(
-                    "You don't have permission to book on behalf of that user, please select a user which has shared their calendar with Edit or Delegate permissions.",
+                    "You don't have permission to book on behalf of that user, please select a user which has shared their calendar with Edit or Delegate permissions. Host reverted back to you.",
                 );
                 this.form()?.patchValue(
-                    { organiser: currentUser() },
+                    { organiser: currentUser(), user: currentUser() },
                     { emitEvent: false },
                 );
             }
