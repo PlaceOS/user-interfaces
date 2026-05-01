@@ -10,6 +10,10 @@ import { MediaEvent, SignageService } from './signage.service';
 const REMOTE_PAUSE = 'signage:pause';
 const REMOTE_RESUME = 'signage:resume';
 
+function isDebugEnabled(value: string | null) {
+    return value !== null && value !== 'false';
+}
+
 @Component({
     selector: 'signage-panel',
     template: `
@@ -100,6 +104,18 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
             },
             3000,
         );
+        const debug = sessionStorage.getItem('SIGNAGE.debug');
+        if (debug !== null) this.debug.set(isDebugEnabled(debug));
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((params) => {
+                if (params.has('debug')) {
+                    const enabled = isDebugEnabled(params.get('debug'));
+                    this.debug.set(enabled);
+                    sessionStorage.setItem('SIGNAGE.debug', `${enabled}`);
+                }
+            }),
+        );
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((params) => {
@@ -113,20 +129,6 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
                 }
             }),
         );
-        this.subscription(
-            'route.query',
-            this._route.queryParamMap.subscribe((params) => {
-                if (params.has('debug')) {
-                    this.debug.set(true);
-                    sessionStorage.setItem(
-                        'SIGNAGE.debug',
-                        params.get('debug'),
-                    );
-                }
-            }),
-        );
-        const debug = sessionStorage.getItem('SIGNAGE.debug');
-        if (debug && debug !== 'false') this.debug.set(true);
         // Check override playlists for time endings
         this.interval('check_override', () => {
             const { ends_at } = this.override_playlist();

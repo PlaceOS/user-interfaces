@@ -40,6 +40,7 @@ export class AppComponent implements OnInit {
             const url_token = parseTokenFromUrl(window.location.href);
             if (url_token) this._placeos.setInitialToken(url_token);
         }
+
         setMocks(mocksInit);
         this._placeos.init();
     }

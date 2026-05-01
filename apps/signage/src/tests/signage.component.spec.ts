@@ -39,7 +39,7 @@ describe('SignagePanelComponent', () => {
 
     afterEach(() => jest.useRealTimers());
 
-    function build_component() {
+    function build_component(route_options = {}) {
         spectator = create_component({
             providers: [
                 MockProvider(SignageService, signage_service),
@@ -50,6 +50,7 @@ describe('SignagePanelComponent', () => {
                             : null) as any,
                 }),
             ],
+            ...route_options,
         });
         return spectator;
     }
@@ -97,6 +98,30 @@ describe('SignagePanelComponent', () => {
 
         expect(spectator.component.debug()).toBe(true);
         expect(sessionStorage.getItem('SIGNAGE.debug')).toBe('true');
+    });
+
+    it('should apply the initial debug query before setting the display', () => {
+        signage_service.setDisplay.mockImplementation(() => {
+            expect(signage_service.debug()).toBe(true);
+        });
+
+        build_component({
+            params: { system_id: 'display-1' },
+            queryParams: { debug: 'true' },
+        });
+
+        expect(signage_service.setDisplay).toHaveBeenCalledWith('display-1');
+    });
+
+    it('should disable debug mode from the route query string', () => {
+        sessionStorage.setItem('SIGNAGE.debug', 'true');
+        build_component();
+
+        spectator.setRouteQueryParam('debug', 'false');
+        spectator.detectChanges();
+
+        expect(spectator.component.debug()).toBe(false);
+        expect(sessionStorage.getItem('SIGNAGE.debug')).toBe('false');
     });
 
     it('should restore debug mode from session storage', () => {
