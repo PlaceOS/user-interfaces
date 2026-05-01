@@ -421,7 +421,7 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
                 permission.can_edit;
             if (!can_book) {
                 this.permission_error.set(
-                    "You don't have permission to book on behalf of that user, please select a user which has shared their calendar with Edit or Delegate permissions.",
+                    "You don't have permission to book on behalf of that user, please select a user which has shared their calendar with Edit or Delegate permissions. Host reverted back to you.",
                 );
                 this.form()?.patchValue(
                     { organiser: currentUser(), user: currentUser() },
