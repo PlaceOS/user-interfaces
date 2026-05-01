@@ -17,7 +17,7 @@ import {
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SpacePipe } from '@placeos/events';
 import { set } from 'date-fns';
-import { firstValueFrom, map } from 'rxjs';
+import { filter, firstValueFrom, map, of, timeout } from 'rxjs';
 import { DeskFlowAutoAssignComponent } from './desk-flow-auto-assign.component';
 import { DeskFlowDetailsComponent } from './desk-flow-details.component';
 import { DeskFlowSelectComponent } from './desk-flow-select.component';
@@ -183,10 +183,15 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
                 await firstTruthyValueFrom(
                     this._booking_form.loading.pipe(map((_) => !_)),
                 );
-                const resources = await firstValueFrom(
-                    this._booking_form.resources,
+                const resource = await firstValueFrom(
+                    this._booking_form.resources.pipe(
+                        map((resources) =>
+                            resources.find((item) => item.id === asset_id),
+                        ),
+                        filter((resource) => !!resource),
+                        timeout({ first: 5000, with: () => of(null) }),
+                    ),
                 );
-                const resource = resources.find((item) => item.id === asset_id);
                 if (!resource) return;
                 const building = resource.zone?.parent_id
                     ? this._org.find(resource.zone.parent_id)
