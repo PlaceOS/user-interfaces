@@ -508,6 +508,8 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
 
     private async _bookDesk(desk: Desk, options: DeskOptions) {
         const d_id = this._desk_key(desk);
+        const asset_id = desk.id || desk.map_id;
+        const resource = { ...desk, id: asset_id };
         if (this._statuses[d_id]?.() !== 'free') {
             return notifyError(
                 i18n('EXPLORE.DESK_AVAILABLE_ERROR', {
@@ -564,8 +566,8 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         user = user || options.host || currentUser();
         const user_email = user?.email;
         this._bookings.form.patchValue({
-            resources: [desk],
-            asset_id: desk.id,
+            resources: [resource],
+            asset_id,
             asset_name: desk.name,
             date,
             duration: all_day ? 12 * 60 : duration,
@@ -585,7 +587,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 duration,
                 host: currentUser(),
                 resource: {
-                    id: desk.id,
+                    id: asset_id,
                     zones: [desk.zone?.parent_id, desk.zone?.id],
                 },
             },
