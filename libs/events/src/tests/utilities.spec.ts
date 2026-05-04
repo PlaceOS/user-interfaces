@@ -1,5 +1,6 @@
 import { CalendarEvent } from '@placeos/common';
 
+import { generateSystemsFormFields } from '../lib/space.utilities';
 import { generateEventForm } from '../lib/utilities';
 
 describe('utilities', () => {
@@ -55,6 +56,24 @@ describe('utilities', () => {
             (form as any)._lock_start_time = false;
             form.patchValue({ title: 'Update Again' });
             expect(form.controls.date.disabled).toBe(false);
+        });
+    });
+
+    describe('generateSystemsFormFields', () => {
+        it('should not reuse the source features array', () => {
+            const system = { id: 'room-1', features: ['Display'] } as any;
+            const form = generateSystemsFormFields(system);
+
+            form.controls.features.setValue([
+                ...(form.controls.features.value || []),
+                'Whiteboard',
+            ]);
+
+            expect(system.features).toEqual(['Display']);
+            expect(form.controls.features.value).toEqual([
+                'Display',
+                'Whiteboard',
+            ]);
         });
     });
 });

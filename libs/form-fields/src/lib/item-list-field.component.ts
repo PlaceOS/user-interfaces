@@ -21,7 +21,7 @@ export function addChipItem<T = string>(
     if (!control) return;
     const input = event.input;
     const value = event.value as any;
-    const item_list = control.value;
+    const item_list = [...(control.value || [])];
     if (value.includes(',')) {
         const list = value.split(',');
         for (const item of list) {
@@ -54,7 +54,7 @@ export function removeChipItem<T = string>(
     if (!control) {
         return;
     }
-    const item_list = control.value;
+    const item_list = [...(control.value || [])];
     const index = item_list.indexOf(item);
 
     if (index >= 0) {

@@ -524,7 +524,7 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
     public readonly separators: number[] = [ENTER, COMMA, SPACE];
 
     public get feature_list(): string[] {
-        return this.form.controls.features.value;
+        return this.form.controls.features.value || [];
     }
 
     public async ngOnInit() {
@@ -546,9 +546,9 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
         if (!this.form || !this.form.controls.features) return;
         const input = event.input;
         const value = event.value;
-        const feature_list = this.feature_list;
+        const feature_list = [...this.feature_list];
         if ((value || '').trim()) {
-            feature_list.push(value);
+            feature_list.push(value.trim());
             this.form.controls.features.setValue(feature_list);
         }
 
@@ -564,7 +564,7 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
      */
     public removeFeature(existing_feature: string): void {
         if (!this.form || !this.form.controls.features) return;
-        const feature_list = this.feature_list;
+        const feature_list = [...this.feature_list];
         const index = feature_list.indexOf(existing_feature);
 
         if (index >= 0) {
