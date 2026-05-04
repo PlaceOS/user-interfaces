@@ -26,6 +26,11 @@ export function reportBookingStatus(booking: Booking): string {
     return booking.deleted ? 'Deleted' : booking.status || 'tentative';
 }
 
+export function formatReportPercentage(value = 0, total = 0): string {
+    const percent = total ? Math.floor((value / total) * 1000) / 10 : 0;
+    return `${value || 0} (${percent}%)`;
+}
+
 export function isActiveReportEvent(event: CalendarEvent): boolean {
     return !event.deleted && event.type !== 'cancelled';
 }

@@ -10,6 +10,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { format } from 'date-fns';
+import { formatReportPercentage } from '../reports.utilities';
 import { AssetsReportService } from './assets-report.service';
 
 @Component({
@@ -58,10 +59,12 @@ import { AssetsReportService } from './assets-report.service';
                     {
                         key: 'cancelled_count',
                         name: 'Cancelled',
+                        content: booking_percent_template,
                     },
                     {
                         key: 'deleted_count',
                         name: 'Deleted',
+                        content: booking_percent_template,
                     },
                     {
                         key: 'booked_count',
@@ -83,6 +86,15 @@ import { AssetsReportService } from './assets-report.service';
             <ng-template #date_template let-row="row">
                 <div class="p-4">
                     {{ row.date | date: 'mediumDate' }}
+                </div>
+            </ng-template>
+            <ng-template
+                #booking_percent_template
+                let-data="data"
+                let-row="row"
+            >
+                <div class="p-4">
+                    {{ formatPercent(data, row.booking_count) }}
                 </div>
             </ng-template>
         </div>
@@ -150,7 +162,17 @@ export class AssetReportDailyUsageComponent {
         const data = this.daily_products().map((booking) => ({
             ...booking,
             date: format(booking.date, 'yyyy-MM-dd HH:mm'),
+            cancelled_count: formatReportPercentage(
+                booking.cancelled_count,
+                booking.booking_count,
+            ),
+            deleted_count: formatReportPercentage(
+                booking.deleted_count,
+                booking.booking_count,
+            ),
         }));
         downloadFile('report-assets-daily-usage.csv', jsonToCsv(data));
     };
+
+    public readonly formatPercent = formatReportPercentage;
 }
