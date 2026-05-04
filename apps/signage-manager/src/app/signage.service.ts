@@ -14,6 +14,9 @@ import {
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
 import {
+    addGroup,
+    addGroupUser,
+    addGroupZone,
     addSignageMedia,
     addSignagePlaylist,
     apiEndpoint,
@@ -21,12 +24,24 @@ import {
     listSignagePlaylistMedia,
     mediaThumbnail,
     PlaceCurrentGroup,
+    PlaceGroup,
+    PlaceGroupUser,
+    PlaceGroupZone,
+    PlaceUser,
+    PlaceZone,
     post,
+    queryGroups,
+    queryGroupUsers,
+    queryGroupZones,
     querySignageMedia,
     querySignagePlaylists,
     querySignagePlugins,
     querySystems,
+    queryUsers,
     queryZones,
+    removeGroup,
+    removeGroupUser,
+    removeGroupZone,
     removeSignageMedia,
     removeSignagePlaylist,
     shareSignageMedia,
@@ -34,6 +49,9 @@ import {
     SignageMedia,
     SignagePlaylist,
     SignagePlugin,
+    updateGroup,
+    updateGroupUser,
+    updateGroupZone,
     updateSignageMedia,
     updateSignagePlaylist,
     updateSignagePlaylistMedia,
@@ -163,6 +181,7 @@ export class SignageService {
     private readonly _uploads = inject(UploadsService);
     private readonly _dialog = inject(MatDialog);
     private readonly _change = new BehaviorSubject(Date.now());
+    private readonly _groups_change = new BehaviorSubject(Date.now());
     private readonly _display_overrides = signal<Record<string, any>>({});
     private readonly _display_overrides$ = toObservable(
         this._display_overrides,
@@ -172,18 +191,26 @@ export class SignageService {
     public readonly media_upload_accept = SIGNAGE_MEDIA_PICKER_ACCEPT;
 
     public readonly search_term = signal('');
+    public readonly managed_group_id = signal('');
+    public readonly managed_group_tab = signal<'users' | 'zones'>('users');
     private search_term$ = toObservable(this.search_term);
+    private managed_group_id$ = toObservable(this.managed_group_id);
     private readonly _current_user = toSignal(current_user, {
         initialValue: currentUser(),
     });
     private readonly _signage_groups_loaded = signal(false);
     public readonly selected_group_id = signal(loadSelectedGroupId());
     public readonly signage_groups = toSignal(
-        current_user.pipe(
-            filter(
-                (user) =>
-                    !!user?.email && user.email !== '<empty>@dev.place.tech',
+        combineLatest([
+            current_user.pipe(
+                filter(
+                    (user) =>
+                        !!user?.email &&
+                        user.email !== '<empty>@dev.place.tech',
+                ),
             ),
+            this._groups_change,
+        ]).pipe(
             switchMap(() =>
                 currentGroups({ subsystem: 'signage' }).pipe(
                     catchError(() => of([] as PlaceCurrentGroup[])),
@@ -197,8 +224,122 @@ export class SignageService {
         const group_id = this.selected_group_id();
         return this.signage_groups().find((item) => item.group.id === group_id);
     });
-    public readonly is_sys_admin = computed(() =>
-        (this._current_user().groups || []).includes('placeos_admin'),
+    public readonly is_sys_admin = computed(() => {
+        const user = this._current_user() as any as {
+            groups?: string[];
+            sys_admin?: boolean;
+        };
+        return (
+            !!user.sys_admin || (user.groups || []).includes('placeos_admin')
+        );
+    });
+    public readonly is_support = computed(() => {
+        const user = this._current_user() as any as {
+            groups?: string[];
+            support?: boolean;
+        };
+        return (
+            !!user.support || (user.groups || []).includes('placeos_support')
+        );
+    });
+    public readonly can_manage_all_groups = computed(
+        () => this.is_sys_admin() || this.is_support(),
+    );
+    public readonly manageable_signage_groups = toSignal(
+        combineLatest([
+            current_user.pipe(
+                filter(
+                    (user) =>
+                        !!user?.email &&
+                        user.email !== '<empty>@dev.place.tech',
+                ),
+            ),
+            this._groups_change,
+        ]).pipe(
+            switchMap(() =>
+                this.can_manage_all_groups()
+                    ? queryGroups({
+                          limit: 1000,
+                          fields: [
+                              'id',
+                              'name',
+                              'description',
+                              'subsystems',
+                              'authority_id',
+                              'parent_id',
+                          ].join(','),
+                          subsystem: 'signage',
+                      } as any).pipe(
+                          map(({ data }) =>
+                              data.filter((group) =>
+                                  group.subsystems?.includes('signage'),
+                              ),
+                          ),
+                      )
+                    : currentGroups({ subsystem: 'signage' }).pipe(
+                          map((groups) =>
+                              groups
+                                  .filter(
+                                      (item) =>
+                                          !!(
+                                              item.permissions &
+                                              SignageGroupPermission.Manage
+                                          ),
+                                  )
+                                  .map((item) => item.group),
+                          ),
+                      ),
+            ),
+            catchError(() => of([] as PlaceGroup[])),
+            map((groups) =>
+                groups.sort((a, b) => a.name.localeCompare(b.name)),
+            ),
+        ),
+        { initialValue: [] as PlaceGroup[] },
+    );
+    public readonly managed_group = computed(() => {
+        const group_id = this.managed_group_id();
+        return this.manageable_signage_groups().find(
+            (group) => group.id === group_id,
+        );
+    });
+    public readonly managed_group_users = combineLatest([
+        this.managed_group_id$,
+        this._groups_change,
+    ]).pipe(
+        filter(([group_id]) => !!group_id),
+        switchMap(([group_id]) =>
+            queryGroupUsers({ group_id, limit: 1000 }).pipe(
+                catchError(() => of({ data: [] })),
+            ),
+        ),
+        map(({ data }) =>
+            data.sort((a, b) =>
+                (a.user?.name || a.user_id).localeCompare(
+                    b.user?.name || b.user_id,
+                ),
+            ),
+        ),
+        shareReplay(1),
+    );
+    public readonly managed_group_zones = combineLatest([
+        this.managed_group_id$,
+        this._groups_change,
+    ]).pipe(
+        filter(([group_id]) => !!group_id),
+        switchMap(([group_id]) =>
+            queryGroupZones({ group_id, limit: 1000 }).pipe(
+                catchError(() => of({ data: [] })),
+            ),
+        ),
+        map(({ data }) =>
+            data.sort((a, b) =>
+                (a.zone?.name || a.zone_id).localeCompare(
+                    b.zone?.name || b.zone_id,
+                ),
+            ),
+        ),
+        shareReplay(1),
     );
     private readonly _api_group_id = computed(
         () => this.selected_group()?.group.id || '',
@@ -511,6 +652,19 @@ export class SignageService {
             );
         });
 
+        effect(() => {
+            const groups = this.manageable_signage_groups();
+            const group_id = this.managed_group_id();
+            if (!groups.length) {
+                this.managed_group_id.set('');
+            } else if (
+                !group_id ||
+                !groups.some((group) => group.id === group_id)
+            ) {
+                this.managed_group_id.set(groups[0].id);
+            }
+        });
+
         effect(() => persistSelectedGroupId(this.selected_group_id()));
     }
 
@@ -659,6 +813,194 @@ export class SignageService {
 
     public changed() {
         this._change.next(Date.now());
+    }
+
+    public canManageSignageGroup(group_id = '') {
+        if (this.can_manage_all_groups()) return true;
+        const group = this.signage_groups().find(
+            (item) => item.group.id === group_id,
+        );
+        return !!(group?.permissions & SignageGroupPermission.Manage);
+    }
+
+    public async saveSignageGroup(
+        group: Partial<PlaceGroup>,
+        data: Partial<PlaceGroup>,
+    ) {
+        const managed_group_id = group.id || data.parent_id || '';
+        if (!this.canManageSignageGroup(managed_group_id)) {
+            notifyWarn('You cannot manage this signage group.');
+            return null;
+        }
+        const payload = {
+            ...group,
+            ...data,
+            subsystems: Array.from(
+                new Set([...(group.subsystems || []), 'signage']),
+            ),
+        };
+        const result = await lastValueFrom(
+            group.id ? updateGroup(group.id, payload) : addGroup(payload),
+        ).catch((error) => {
+            notifyError('Error saving signage group');
+            throw error;
+        });
+        this._groups_change.next(Date.now());
+        notifySuccess('Signage group saved');
+        return result;
+    }
+
+    public async removeSignageGroup(group: PlaceGroup) {
+        if (!group?.id) return;
+        if (!this.canManageSignageGroup(group.id)) {
+            notifyWarn('You cannot manage this signage group.');
+            return;
+        }
+        const result = await openConfirmModal(
+            {
+                title: 'Remove signage group?',
+                content: `Delete "${group.name}"?`,
+                icon: { content: 'delete' },
+            },
+            this._dialog,
+        );
+        if (result.reason !== 'done') return;
+        await lastValueFrom(removeGroup(group.id)).catch((error) => {
+            result.close();
+            notifyError('Error removing signage group');
+            throw error;
+        });
+        result.close();
+        if (this.selected_group_id() === group.id) {
+            this.selected_group_id.set('');
+        }
+        this._groups_change.next(Date.now());
+        notifySuccess('Signage group removed');
+    }
+
+    public searchGroupUsers(search = '') {
+        const group = this.managed_group();
+        return queryUsers({
+            q: search,
+            limit: 20,
+            ...(group?.authority_id
+                ? { authority_id: group.authority_id }
+                : {}),
+        }).pipe(map(({ data }) => data));
+    }
+
+    public searchGroupZones(search = '') {
+        const group = this.managed_group();
+        return queryZones({
+            q: search,
+            limit: 20,
+            ...(group?.authority_id
+                ? { authority_id: group.authority_id }
+                : {}),
+        } as Record<string, unknown>).pipe(map(({ data }) => data));
+    }
+
+    public async addManagedGroupUser(user: PlaceUser) {
+        const group_id = this.managed_group_id();
+        if (!user?.id || !this.canManageSignageGroup(group_id)) return;
+        await lastValueFrom(
+            addGroupUser({ group_id, user_id: user.id, permissions: 0 }),
+        ).catch((error) => {
+            notifyError('Error adding group user');
+            throw error;
+        });
+        this._groups_change.next(Date.now());
+        notifySuccess('Group user added');
+    }
+
+    public async updateManagedGroupUser(
+        item: PlaceGroupUser,
+        permissions: number,
+    ) {
+        if (!this.canManageSignageGroup(item.group_id)) return;
+        await lastValueFrom(
+            updateGroupUser(item.user_id, item.group_id, { permissions }),
+        ).catch((error) => {
+            notifyError('Error updating group user');
+            throw error;
+        });
+        this._groups_change.next(Date.now());
+        notifySuccess('Group user updated');
+    }
+
+    public async removeManagedGroupUser(item: PlaceGroupUser) {
+        if (!this.canManageSignageGroup(item.group_id)) return;
+        const result = await openConfirmModal(
+            {
+                title: 'Remove group user?',
+                content: `Remove "${item.user?.name || item.user_id}" from this group?`,
+                icon: { content: 'delete' },
+            },
+            this._dialog,
+        );
+        if (result.reason !== 'done') return;
+        await lastValueFrom(removeGroupUser(item.user_id, item.group_id)).catch(
+            (error) => {
+                result.close();
+                notifyError('Error removing group user');
+                throw error;
+            },
+        );
+        result.close();
+        this._groups_change.next(Date.now());
+        notifySuccess('Group user removed');
+    }
+
+    public async addManagedGroupZone(zone: PlaceZone) {
+        const group_id = this.managed_group_id();
+        if (!zone?.id || !this.canManageSignageGroup(group_id)) return;
+        await lastValueFrom(
+            addGroupZone({ group_id, zone_id: zone.id, permissions: 0 }),
+        ).catch((error) => {
+            notifyError('Error adding group zone');
+            throw error;
+        });
+        this._groups_change.next(Date.now());
+        notifySuccess('Group zone added');
+    }
+
+    public async updateManagedGroupZone(
+        item: PlaceGroupZone,
+        permissions: number,
+        deny: boolean,
+    ) {
+        if (!this.canManageSignageGroup(item.group_id)) return;
+        await lastValueFrom(
+            updateGroupZone(item.group_id, item.zone_id, { permissions, deny }),
+        ).catch((error) => {
+            notifyError('Error updating group zone');
+            throw error;
+        });
+        this._groups_change.next(Date.now());
+        notifySuccess('Group zone updated');
+    }
+
+    public async removeManagedGroupZone(item: PlaceGroupZone) {
+        if (!this.canManageSignageGroup(item.group_id)) return;
+        const result = await openConfirmModal(
+            {
+                title: 'Remove group zone?',
+                content: `Remove "${item.zone?.name || item.zone_id}" from this group?`,
+                icon: { content: 'delete' },
+            },
+            this._dialog,
+        );
+        if (result.reason !== 'done') return;
+        await lastValueFrom(removeGroupZone(item.group_id, item.zone_id)).catch(
+            (error) => {
+                result.close();
+                notifyError('Error removing group zone');
+                throw error;
+            },
+        );
+        result.close();
+        this._groups_change.next(Date.now());
+        notifySuccess('Group zone removed');
     }
 
     public setSelectedGroup(group_id: string) {

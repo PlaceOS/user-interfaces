@@ -58,6 +58,13 @@ const APP_ROUTES: Routes = [
             ),
     },
     {
+        path: 'groups',
+        loadComponent: () =>
+            import('./groups/groups.component').then(
+                (m) => m.GroupsSectionComponent,
+            ),
+    },
+    {
         path: 'zones/:id',
         loadComponent: () =>
             import('./zones/zones.component').then(

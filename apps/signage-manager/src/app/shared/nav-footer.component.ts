@@ -47,14 +47,16 @@ import { NAV_ITEMS } from './nav-items';
                     <div class="truncate font-medium">More</div>
                 </button>
                 <mat-menu #more_menu="matMenu">
-                    <a mat-menu-item [routerLink]="schedule_item.route">
-                        <div class="flex items-center gap-2">
-                            <icon class="mr-2 text-2xl">{{
-                                schedule_item.icon
-                            }}</icon>
-                            <span>{{ schedule_item.label }}</span>
-                        </div>
-                    </a>
+                    @for (item of more_nav_items; track item.route) {
+                        <a mat-menu-item [routerLink]="item.route">
+                            <div class="flex items-center gap-2">
+                                <icon class="mr-2 text-2xl">{{
+                                    item.icon
+                                }}</icon>
+                                <span>{{ item.label }}</span>
+                            </div>
+                        </a>
+                    }
                     @if (is_sys_admin() || groups().length) {
                         <div
                             class="border-base-300 my-1 border-t"
@@ -148,10 +150,10 @@ export class NavFooterComponent {
     private readonly _service = inject(SignageService);
 
     public readonly primary_nav_items = NAV_ITEMS.filter(
-        (item) => item.route !== '/schedules',
+        (item) => !['/schedules', '/groups'].includes(item.route),
     );
-    public readonly schedule_item = NAV_ITEMS.find(
-        (item) => item.route === '/schedules',
+    public readonly more_nav_items = NAV_ITEMS.filter((item) =>
+        ['/schedules', '/groups'].includes(item.route),
     );
     public readonly groups = this._service.signage_groups;
     public readonly selected_group_id = this._service.selected_group_id;

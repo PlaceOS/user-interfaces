@@ -1,6 +1,7 @@
 import { predictableRandomInt } from '@placeos/common';
 import { registerMockEndpoint } from '@placeos/ts-client';
 import { addDays, getUnixTime, subDays } from 'date-fns';
+import { MOCK_STAFF } from './users.data';
 import { MOCK_BUILDINGS, MOCK_LEVELS, MOCK_ZONES } from './zone.data';
 
 // Content Categories and Types
@@ -746,7 +747,7 @@ const MOCK_MEDIA = generateMockMedia();
 const MOCK_PLAYLISTS = generateMockPlaylists(MOCK_DISPLAYS, MOCK_MEDIA);
 const MOCK_TRIGGERS = generateMockTriggers();
 
-const SIGNAGE_GROUPS = [
+const SIGNAGE_GROUPS: Array<{ group: any; permissions: number }> = [
     {
         group: {
             id: 'signage-group-facilities',
@@ -766,6 +767,59 @@ const SIGNAGE_GROUPS = [
         permissions: 0x81,
     },
 ];
+
+const SIGNAGE_GROUP_USERS: any[] = [
+    {
+        group_id: 'signage-group-facilities',
+        user_id: MOCK_STAFF[0].email,
+        permissions: 0xff,
+        user: MOCK_STAFF[0],
+    },
+    {
+        group_id: 'signage-group-facilities',
+        user_id: MOCK_STAFF[1].email,
+        permissions: 0x41,
+        user: MOCK_STAFF[1],
+    },
+];
+
+const SIGNAGE_GROUP_ZONES: any[] = [
+    {
+        group_id: 'signage-group-facilities',
+        zone_id: MOCK_BUILDINGS[0].id,
+        permissions: 0xff,
+        deny: false,
+        zone: MOCK_BUILDINGS[0],
+    },
+];
+
+function listSignageMockGroups(query_params: Record<string, string> = {}) {
+    const groups = SIGNAGE_GROUPS.map((item) => item.group).filter((group) => {
+        if (
+            query_params.subsystem &&
+            !group.subsystems?.includes(query_params.subsystem)
+        ) {
+            return false;
+        }
+        if (
+            query_params.parent_id &&
+            group.parent_id !== query_params.parent_id
+        ) {
+            return false;
+        }
+        if (query_params.q) {
+            const search = query_params.q.toLowerCase();
+            return (
+                group.name.toLowerCase().includes(search) ||
+                group.description.toLowerCase().includes(search)
+            );
+        }
+        return true;
+    });
+    const limit = Number(query_params.limit || groups.length) || groups.length;
+    const offset = Number(query_params.offset || 0) || 0;
+    return groups.slice(offset, offset + limit);
+}
 
 function filterByGroup<T>(items: T[], group_id = '') {
     if (!group_id || group_id === SIGNAGE_GROUPS[0].group.id) return items;
@@ -852,6 +906,191 @@ export function registerMockSignage() {
                 return SIGNAGE_GROUPS;
             }
             return [];
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/groups',
+        metadata: {},
+        method: 'GET',
+        callback: (request) => listSignageMockGroups(request.query_params),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/groups',
+        metadata: {},
+        method: 'POST',
+        callback: (request) => {
+            const group = {
+                ...request.body,
+                id: `signage-group-${Date.now()}`,
+                subsystems: request.body?.subsystems || ['signage'],
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+            };
+            SIGNAGE_GROUPS.push({ group, permissions: 0xff });
+            return group;
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/groups/:id',
+        metadata: {},
+        method: 'PATCH',
+        callback: (request) => {
+            const item = SIGNAGE_GROUPS.find(
+                ({ group }) => group.id === request.route_params.id,
+            );
+            if (!item) throw { status: 404, message: 'Group not found' };
+            item.group = {
+                ...item.group,
+                ...request.body,
+                updated_at: new Date().toISOString(),
+            };
+            return item.group;
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/groups/:id',
+        metadata: {},
+        method: 'DELETE',
+        callback: (request) => {
+            const index = SIGNAGE_GROUPS.findIndex(
+                ({ group }) => group.id === request.route_params.id,
+            );
+            if (index >= 0) SIGNAGE_GROUPS.splice(index, 1);
+            return {};
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/group_users',
+        metadata: {},
+        method: 'GET',
+        callback: (request) =>
+            SIGNAGE_GROUP_USERS.filter(
+                (item) => item.group_id === request.query_params?.group_id,
+            ),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/group_users',
+        metadata: {},
+        method: 'POST',
+        callback: (request) => {
+            const user = MOCK_STAFF.find(
+                (item) =>
+                    item.email === request.body.user_id ||
+                    item.id === request.body.user_id,
+            );
+            const item = {
+                ...request.body,
+                user_id: request.body.user_id,
+                permissions: request.body.permissions || 0,
+                user,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+            };
+            SIGNAGE_GROUP_USERS.push(item);
+            return item;
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/group_users/:user_id/:group_id',
+        metadata: {},
+        method: 'PATCH',
+        callback: (request) => {
+            const user_id = decodeURIComponent(request.route_params.user_id);
+            const group_id = decodeURIComponent(request.route_params.group_id);
+            const item = SIGNAGE_GROUP_USERS.find(
+                (row) => row.user_id === user_id && row.group_id === group_id,
+            );
+            if (!item) throw { status: 404, message: 'Group user not found' };
+            Object.assign(item, request.body, {
+                updated_at: new Date().toISOString(),
+            });
+            return item;
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/group_users/:user_id/:group_id',
+        metadata: {},
+        method: 'DELETE',
+        callback: (request) => {
+            const user_id = decodeURIComponent(request.route_params.user_id);
+            const group_id = decodeURIComponent(request.route_params.group_id);
+            const index = SIGNAGE_GROUP_USERS.findIndex(
+                (row) => row.user_id === user_id && row.group_id === group_id,
+            );
+            if (index >= 0) SIGNAGE_GROUP_USERS.splice(index, 1);
+            return {};
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/group_zones',
+        metadata: {},
+        method: 'GET',
+        callback: (request) =>
+            SIGNAGE_GROUP_ZONES.filter(
+                (item) => item.group_id === request.query_params?.group_id,
+            ),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/group_zones',
+        metadata: {},
+        method: 'POST',
+        callback: (request) => {
+            const zone = MOCK_ZONES.find(
+                (item) => item.id === request.body.zone_id,
+            );
+            const item = {
+                ...request.body,
+                permissions: request.body.permissions || 0,
+                deny: !!request.body.deny,
+                zone,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+            };
+            SIGNAGE_GROUP_ZONES.push(item);
+            return item;
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/group_zones/:group_id/:zone_id',
+        metadata: {},
+        method: 'PATCH',
+        callback: (request) => {
+            const group_id = decodeURIComponent(request.route_params.group_id);
+            const zone_id = decodeURIComponent(request.route_params.zone_id);
+            const item = SIGNAGE_GROUP_ZONES.find(
+                (row) => row.group_id === group_id && row.zone_id === zone_id,
+            );
+            if (!item) throw { status: 404, message: 'Group zone not found' };
+            Object.assign(item, request.body, {
+                updated_at: new Date().toISOString(),
+            });
+            return item;
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/group_zones/:group_id/:zone_id',
+        metadata: {},
+        method: 'DELETE',
+        callback: (request) => {
+            const group_id = decodeURIComponent(request.route_params.group_id);
+            const zone_id = decodeURIComponent(request.route_params.zone_id);
+            const index = SIGNAGE_GROUP_ZONES.findIndex(
+                (row) => row.group_id === group_id && row.zone_id === zone_id,
+            );
+            if (index >= 0) SIGNAGE_GROUP_ZONES.splice(index, 1);
+            return {};
         },
     });
 
