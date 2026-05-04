@@ -298,6 +298,8 @@ export class CalendarEvent {
     public readonly organiser: User;
     /** Type of event */
     public readonly type: 'cancelled' | 'external' | 'internal';
+    /** Whether event has been deleted */
+    public readonly deleted: boolean;
     /** Whether this event was from a PlaceOS booking instead of a user calendar */
     public readonly from_bookings: boolean;
     /** Master event */
@@ -476,6 +478,7 @@ export class CalendarEvent {
         this.is_system_event = this.body.includes('main_event_id');
         this.attachments = data.attachments || [];
         this.extension_data = data.extension_data || {};
+        this.deleted = !!(data as any).deleted;
         this.status = eventStatus({ ...data, ...this }) || 'none';
         this.location =
             data.location || this.space?.display_name || this.space?.name || '';
@@ -483,7 +486,7 @@ export class CalendarEvent {
         this.breakdown_time = data.breakdown_time || 0;
         this.visibility = data.visibility || 'normal';
         this.type =
-            this.status === 'declined'
+            this.deleted || this.status === 'declined'
                 ? 'cancelled'
                 : this.attendees.find((_) => _.is_external)
                   ? 'external'

@@ -11,6 +11,7 @@ import {
 } from '@placeos/components';
 import { format } from 'date-fns';
 import { DurationPipe } from 'libs/components/src/lib/duration.pipe';
+import { reportBookingStatus } from '../reports.utilities';
 import { ParkingReportService } from './parking-report.service';
 
 @Component({
@@ -63,6 +64,10 @@ import { ParkingReportService } from './parking-report.service';
                     {
                         key: 'checked_in',
                         name: 'COMMON.CHECKED_IN' | translate,
+                    },
+                    {
+                        key: 'status',
+                        name: 'COMMON.STATUS' | translate,
                     },
                 ]"
                 [sortable]="true"
@@ -122,6 +127,7 @@ export class ParkingReportListComponent {
                 checked_in: i18n(
                     booking.checked_in ? 'COMMON.TRUE' : 'COMMON.FALSE',
                 ),
+                status: reportBookingStatus(booking),
                 self_registered: i18n(
                     booking.extension_data?.self_registered
                         ? 'COMMON.TRUE'

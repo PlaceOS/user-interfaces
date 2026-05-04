@@ -52,6 +52,18 @@ import { AssetsReportService } from './assets-report.service';
                             | translate,
                     },
                     {
+                        key: 'active_count',
+                        name: 'Active',
+                    },
+                    {
+                        key: 'cancelled_count',
+                        name: 'Cancelled',
+                    },
+                    {
+                        key: 'deleted_count',
+                        name: 'Deleted',
+                    },
+                    {
                         key: 'booked_count',
                         name: 'APP.CONCIERGE.REPORTS_TOTAL_BOOKED' | translate,
                     },
@@ -96,15 +108,26 @@ export class AssetReportDailyUsageComponent {
         const days = this._daily_stats();
         let list = [];
         for (const date in days) {
-            const { bookings, products } = days[date];
+            const { all_bookings, bookings, products } = days[date];
             const products_list = (products || []).map((p) => {
+                const all_product_bookings = (all_bookings || bookings).filter(
+                    (b) => p.assets.find(({ id }) => b.asset_ids.includes(id)),
+                );
                 const product_bookings = bookings.filter((b) =>
                     p.assets.find(({ id }) => b.asset_ids.includes(id)),
                 );
                 return {
                     name: p.name,
                     date,
-                    booking_count: product_bookings.length,
+                    booking_count: all_product_bookings.length,
+                    active_count: product_bookings.length,
+                    cancelled_count: all_product_bookings.filter(
+                        (booking) =>
+                            !booking.deleted && booking.status === 'cancelled',
+                    ).length,
+                    deleted_count: all_product_bookings.filter(
+                        (booking) => booking.deleted,
+                    ).length,
                     booked_count: product_bookings.reduce(
                         (acc, b) =>
                             acc +

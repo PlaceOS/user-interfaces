@@ -57,6 +57,8 @@ import { ReportsStateService } from '../reports-state.service';
                                 'APP.CONCIERGE.REPORTS_TOTAL_REQUESTS'
                                 | translate,
                         },
+                        { key: 'cancelled', name: 'Cancelled' },
+                        { key: 'deleted', name: 'Deleted' },
                         {
                             key: 'utilisation',
                             name:

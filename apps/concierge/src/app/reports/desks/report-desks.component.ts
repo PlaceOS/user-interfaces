@@ -56,6 +56,18 @@ import { ReportDesksOverallListComponent } from './report-desks-overall-list.com
                             <p>{{ total_count() || 0 }}</p>
                         </div>
                         <div class="flex flex-1 flex-col items-center">
+                            <h3>Active</h3>
+                            <p>{{ active_count() || 0 }}</p>
+                        </div>
+                        <div class="flex flex-1 flex-col items-center">
+                            <h3>Cancelled</h3>
+                            <p>{{ cancelled_count() || 0 }}</p>
+                        </div>
+                        <div class="flex flex-1 flex-col items-center">
+                            <h3>Deleted</h3>
+                            <p>{{ deleted_count() || 0 }}</p>
+                        </div>
+                        <div class="flex flex-1 flex-col items-center">
                             <h3>
                                 {{
                                     'APP.CONCIERGE.REPORTS_UTILISATION'
@@ -123,7 +135,13 @@ export class ReportDesksComponent extends AsyncHandler {
     private _org = inject(OrganisationService);
 
     private readonly _stats = toSignal(this._state.stats, {
-        initialValue: { count: 0, utilisation: 0 },
+        initialValue: {
+            count: 0,
+            utilisation: 0,
+            total_count: 0,
+            cancelled_count: 0,
+            deleted_count: 0,
+        },
     });
     private readonly _loading = toSignal(this._state.loading, {
         initialValue: '',
@@ -136,7 +154,16 @@ export class ReportDesksComponent extends AsyncHandler {
     });
 
     public readonly printing = signal(false);
-    public readonly total_count = computed(() => this._stats().count || 0);
+    public readonly total_count = computed(
+        () => this._stats().total_count || this._stats().count || 0,
+    );
+    public readonly active_count = computed(() => this._stats().count || 0);
+    public readonly cancelled_count = computed(
+        () => this._stats().cancelled_count || 0,
+    );
+    public readonly deleted_count = computed(
+        () => this._stats().deleted_count || 0,
+    );
     public readonly utilisation = computed(() =>
         ((this._stats().utilisation || 0) * 100).toFixed(1),
     );

@@ -49,8 +49,12 @@ import {
     takeUntil,
 } from 'rxjs/operators';
 import {
+    activeReportBookings,
+    activeReportEvents,
     generateReportForBookings,
     generateReportForDeskBookings,
+    reportBookingStatusStats,
+    reportEventStatusStats,
 } from './reports.utilities';
 
 export interface ReportOptions {
@@ -147,11 +151,16 @@ export class ReportsStateService {
                 period_start: getUnixTime(start),
                 period_end: getUnixTime(end),
             };
+            const bookings_query = {
+                ...query,
+                include_deleted: true as any,
+                include_checked_out: true,
+            };
             let request$: Observable<(CalendarEvent | Booking)[]>;
             switch (options.type) {
                 case 'desks':
                     request$ = queryAllBookings({
-                        ...query,
+                        ...bookings_query,
                         zones: zones,
                         type: 'desk',
                         limit: 1000,
@@ -159,7 +168,7 @@ export class ReportsStateService {
                     break;
                 case 'parking':
                     request$ = queryAllBookings({
-                        ...query,
+                        ...bookings_query,
                         zones: zones,
                         type: 'parking',
                         limit: 1000,
@@ -167,7 +176,7 @@ export class ReportsStateService {
                     break;
                 case 'lockers':
                     request$ = queryAllBookings({
-                        ...query,
+                        ...bookings_query,
                         zones: zones,
                         type: 'locker',
                         limit: 1000,
@@ -175,7 +184,7 @@ export class ReportsStateService {
                     break;
                 case 'assets':
                     request$ = queryAllBookings({
-                        ...query,
+                        ...bookings_query,
                         zones: zones,
                         type: 'asset-request',
                         limit: 1000,
@@ -183,7 +192,7 @@ export class ReportsStateService {
                     break;
                 case 'catering':
                     request$ = queryAllBookings({
-                        ...query,
+                        ...bookings_query,
                         zones: zones,
                         type: 'catering-order',
                         limit: 1000,
@@ -193,6 +202,7 @@ export class ReportsStateService {
                     request$ = queryAllEvents({
                         ...query,
                         zone_ids: zones,
+                        include_cancelled: true,
                         limit: 1000,
                     }).pipe(catchError((_) => of([])));
                     break;
@@ -209,12 +219,11 @@ export class ReportsStateService {
             if (!list?.length) {
                 notifyError('No bookings for the selected levels and period');
             }
-            list = list.filter(
-                (bkn) =>
-                    !this._ignore_days.includes(
-                        DAYS_OF_WEEK_INDEX[new Date(bkn.date).getDay()],
-                    ),
-            );
+            list = list.filter((bkn) => {
+                return !this._ignore_days.includes(
+                    DAYS_OF_WEEK_INDEX[new Date(bkn.date).getDay()],
+                );
+            });
             this._active_bookings.next(list || []);
             return list;
         }),
@@ -294,17 +303,27 @@ export class ReportsStateService {
         debounceTime(300),
         switchMap(async ([counts, list]) => {
             if (list[0] instanceof CalendarEvent) {
-                return generateReportForBookings(
-                    list as CalendarEvent[],
-                    this.duration * 8,
-                    counts,
-                );
+                const events = (list as CalendarEvent[]) || [];
+                return {
+                    ...generateReportForBookings(
+                        activeReportEvents(events),
+                        this.duration * 8,
+                        counts,
+                    ),
+                    ...reportEventStatusStats(events),
+                    all_events: events,
+                };
             }
-            return generateReportForDeskBookings(
-                (list as Booking[]) || [],
-                this.duration,
-                counts,
-            );
+            const bookings = (list as Booking[]) || [];
+            return {
+                ...generateReportForDeskBookings(
+                    activeReportBookings(bookings),
+                    this.duration,
+                    counts,
+                ),
+                ...reportBookingStatusStats(bookings),
+                all_events: bookings,
+            };
         }),
         shareReplay(1),
     );
@@ -326,7 +345,16 @@ export class ReportsStateService {
                 }
                 const s = startOfDay(date).valueOf();
                 const e = endOfDay(s).valueOf();
-                const events: Booking[] =
+                const all_events: (Booking | CalendarEvent)[] =
+                    stats.all_events?.filter((bkn) =>
+                        timePeriodsIntersect(
+                            s,
+                            e,
+                            bkn.date,
+                            bkn.date + bkn.duration * 60 * 1000,
+                        ),
+                    ) || [];
+                const events: (Booking | CalendarEvent)[] =
                     stats.events?.filter((bkn) =>
                         timePeriodsIntersect(
                             s,
@@ -346,10 +374,20 @@ export class ReportsStateService {
                     free: stats.total - events.length,
                     approved: events.reduce(
                         (c, e) =>
-                            c + (e.approved || e.status === 'approved' ? 1 : 0),
+                            c +
+                            ((e as Booking).approved || e.status === 'approved'
+                                ? 1
+                                : 0),
                         0,
                     ),
-                    count: events.length,
+                    cancelled: all_events.filter(
+                        (event) =>
+                            !event.deleted &&
+                            ((event as CalendarEvent).type === 'cancelled' ||
+                                event.status === 'cancelled'),
+                    ).length,
+                    deleted: all_events.filter((event) => event.deleted).length,
+                    count: all_events.length,
                     utilisation: (
                         (events.length /
                             Math.max(events.length || 1, stats.total)) *

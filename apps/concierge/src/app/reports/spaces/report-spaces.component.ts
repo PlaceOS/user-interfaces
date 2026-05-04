@@ -106,7 +106,7 @@ export class ReportSpacesComponent extends AsyncHandler implements OnInit {
 
     public readonly printing = signal(false);
     public readonly total_count = toSignal(
-        this._state.stats.pipe(map((i) => i.count || 0)),
+        this._state.stats.pipe(map((i) => i.total_count || i.count || 0)),
         { initialValue: 0 },
     );
     public readonly loading = toSignal(this._state.loading, {

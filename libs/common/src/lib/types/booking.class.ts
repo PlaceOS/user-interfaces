@@ -325,13 +325,15 @@ export class Booking {
         this.linked_parent_booking = data.linked_parent_booking || null;
         this.images = data.images || [];
         this.status =
-            this.checked_out_at > 0 || isAfter(Date.now(), this.date_end)
-                ? 'ended'
-                : this.rejected || this.deleted
-                  ? 'declined'
-                  : this.approved
-                    ? 'approved'
-                    : 'tentative';
+            this.deleted || data.status === 'cancelled'
+                ? 'cancelled'
+                : this.checked_out_at > 0 || isAfter(Date.now(), this.date_end)
+                  ? 'ended'
+                  : this.rejected || data.status === 'declined'
+                    ? 'declined'
+                    : this.approved || data.status === 'approved'
+                      ? 'approved'
+                      : 'tentative';
         this.process_state = data.process_state || 'pending';
 
         this.recurrence_type = data.recurrence_type || 'none';

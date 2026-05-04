@@ -40,6 +40,10 @@ import {
     tap,
 } from 'rxjs/operators';
 import { REMOVE_KEYS } from '../reports-state.service';
+import {
+    activeReportBookings,
+    reportBookingStatusStats,
+} from '../reports.utilities';
 
 export interface AssetsReportOptions {
     /** Zones to check available space for */
@@ -96,6 +100,8 @@ export class AssetsReportService {
                 period_start: getUnixTime(startOfDay(start || Date.now())),
                 period_end: getUnixTime(endOfDay(end || start || Date.now())),
                 type: 'asset-request',
+                include_deleted: true as any,
+                include_checked_out: true,
                 zones:
                     (zones || [])?.join(',') ||
                     (this._settings.get('app.use_region')
@@ -169,25 +175,28 @@ export class AssetsReportService {
         booking_list: Booking[],
         products: AssetGroup[],
     ) {
-        const booked_assets = booking_list
+        const active_bookings = activeReportBookings(booking_list);
+        const booked_assets = active_bookings
             .map((_) => _.asset_ids?.length || [_.asset_id])
             .flat();
         const unique_events = unique(
-            booking_list
+            active_bookings
                 .map((_) => _.linked_event || _.linked_bookings[0])
                 .filter((_) => _),
             'id',
         ).map((i) => new CalendarEvent(i as any));
         return {
             events: unique_events,
-            bookings: booking_list,
+            bookings: active_bookings,
+            all_bookings: booking_list,
             products,
-            booking_count: booking_list.length,
+            booking_count: active_bookings.length,
             event_count: unique_events.length,
-            total_booked_items: booking_list.reduce(
+            total_booked_items: active_bookings.reduce(
                 (c, i) => c + i.asset_ids.length,
                 0,
             ),
+            ...reportBookingStatusStats(booking_list),
             unique_items: products.filter((p) =>
                 p.assets.find((_) => booked_assets.includes(_.id)),
             ).length,
