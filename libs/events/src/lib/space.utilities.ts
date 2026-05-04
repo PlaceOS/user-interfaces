@@ -52,9 +52,9 @@ export function generateSystemsFormFields(system?: PlaceSystem) {
             [Validators.pattern('[0-9]*')],
         ),
         features: new FormControl(
-            (typeof system.features === 'string'
+            typeof system.features === 'string'
                 ? (system.features as any).split(' ')
-                : system.features) || [],
+                : [...(system.features || [])],
         ),
         capacity: new FormControl(system.capacity || 0, [
             Validators.pattern('[0-9]*'),

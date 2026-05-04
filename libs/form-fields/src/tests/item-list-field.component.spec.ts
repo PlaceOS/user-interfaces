@@ -52,4 +52,23 @@ describe('ItemListFieldComponent', () => {
         spectator.detectChanges();
         expect('mat-chip-row').toHaveLength(2);
     });
+
+    it('should not mutate external values when adding items', () => {
+        const value = ['Element1'];
+        const input: HTMLInputElement = spectator.query('input');
+        spectator.component.writeValue(value);
+        spectator.component.add({ input, value: 'Element2' } as any);
+
+        expect(value).toEqual(['Element1']);
+        expect(spectator.component.value).toEqual(['Element1', 'Element2']);
+    });
+
+    it('should not mutate external values when removing items', () => {
+        const value = ['Element1', 'Element2'];
+        spectator.component.writeValue(value);
+        spectator.component.remove('Element1');
+
+        expect(value).toEqual(['Element1', 'Element2']);
+        expect(spectator.component.value).toEqual(['Element2']);
+    });
 });

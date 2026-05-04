@@ -24,6 +24,18 @@ import { AssetsReportService } from './assets-report.service';
                 <p class="text-2xl">{{ total_count() || 0 }}</p>
             </div>
             <div class="flex flex-1 flex-col items-center">
+                <h3 class="text-sm">Active</h3>
+                <p class="text-2xl">{{ active_count() || 0 }}</p>
+            </div>
+            <div class="flex flex-1 flex-col items-center">
+                <h3 class="text-sm">Cancelled</h3>
+                <p class="text-2xl">{{ cancelled_count() || 0 }}</p>
+            </div>
+            <div class="flex flex-1 flex-col items-center">
+                <h3 class="text-sm">Deleted</h3>
+                <p class="text-2xl">{{ deleted_count() || 0 }}</p>
+            </div>
+            <div class="flex flex-1 flex-col items-center">
                 <h3 class="text-sm">
                     {{ 'APP.CONCIERGE.REPORTS_AVERAGE_LENGTH' | translate }}
                 </h3>
@@ -41,8 +53,14 @@ export class AssetReportOverallComponent {
         initialValue: {
             events: [],
             bookings: [],
+            all_bookings: [],
             products: [],
             booking_count: 0,
+            active_count: 0,
+            cancelled_count: 0,
+            deleted_count: 0,
+            inactive_count: 0,
+            total_count: 0,
             event_count: 0,
             total_booked_items: 0,
             unique_items: 0,
@@ -54,7 +72,16 @@ export class AssetReportOverallComponent {
     });
 
     public readonly total_count = computed(
-        () => this._stats().booking_count || 0,
+        () => this._stats().total_count || this._stats().booking_count || 0,
+    );
+    public readonly active_count = computed(
+        () => this._stats().active_count || this._stats().booking_count || 0,
+    );
+    public readonly cancelled_count = computed(
+        () => this._stats().cancelled_count || 0,
+    );
+    public readonly deleted_count = computed(
+        () => this._stats().deleted_count || 0,
     );
     public readonly business_days = computed(() => {
         const { start, end } = this._options();

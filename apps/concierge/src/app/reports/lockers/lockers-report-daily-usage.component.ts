@@ -54,6 +54,18 @@ import { LockersReportService } from './lockers-report.service';
                             | translate,
                     },
                     {
+                        key: 'active_count',
+                        name: 'Active',
+                    },
+                    {
+                        key: 'cancelled_count',
+                        name: 'Cancelled',
+                    },
+                    {
+                        key: 'deleted_count',
+                        name: 'Deleted',
+                    },
+                    {
                         key: 'booked_count',
                         name:
                             'APP.CONCIERGE.REPORTS_BOOKING_COUNT_HEADER'
@@ -99,6 +111,15 @@ export class LockersReportDailyUsageComponent {
                 date,
                 booking_count: unique(days[date].bookings, 'asset_id').length,
                 host_count: unique(days[date].bookings, 'user_email').length,
+                active_count: days[date].bookings.filter(
+                    (booking) => !booking.deleted && booking.status !== 'cancelled',
+                ).length,
+                cancelled_count: days[date].bookings.filter(
+                    (booking) => !booking.deleted && booking.status === 'cancelled',
+                ).length,
+                deleted_count: days[date].bookings.filter(
+                    (booking) => booking.deleted,
+                ).length,
                 booked_count: days[date].bookings.length,
             });
         }

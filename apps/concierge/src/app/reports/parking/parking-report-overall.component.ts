@@ -3,6 +3,10 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { formatDuration } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { differenceInBusinessDays, endOfDay, startOfDay } from 'date-fns';
+import {
+    activeReportBookings,
+    reportBookingStatusStats,
+} from '../reports.utilities';
 import { ParkingReportService } from './parking-report.service';
 
 @Component({
@@ -24,6 +28,18 @@ import { ParkingReportService } from './parking-report.service';
                 <p class="text-2xl">{{ total_count() || 0 }}</p>
             </div>
             <div class="flex flex-1 flex-col items-center">
+                <h3 class="text-sm">Active</h3>
+                <p class="text-2xl">{{ active_count() || 0 }}</p>
+            </div>
+            <div class="flex flex-1 flex-col items-center">
+                <h3 class="text-sm">Cancelled</h3>
+                <p class="text-2xl">{{ cancelled_count() || 0 }}</p>
+            </div>
+            <div class="flex flex-1 flex-col items-center">
+                <h3 class="text-sm">Deleted</h3>
+                <p class="text-2xl">{{ deleted_count() || 0 }}</p>
+            </div>
+            <div class="flex flex-1 flex-col items-center">
                 <h3 class="text-sm">
                     {{ 'APP.CONCIERGE.REPORTS_AVERAGE_LENGTH' | translate }}
                 </h3>
@@ -43,7 +59,22 @@ export class ParkingReportOverallComponent {
         initialValue: { start: Date.now(), end: Date.now() },
     });
 
-    public readonly total_count = computed(() => this._bookings().length || 0);
+    private readonly _booking_stats = computed(() =>
+        reportBookingStatusStats(this._bookings()),
+    );
+
+    public readonly total_count = computed(
+        () => this._booking_stats().total_count || 0,
+    );
+    public readonly active_count = computed(
+        () => this._booking_stats().active_count || 0,
+    );
+    public readonly cancelled_count = computed(
+        () => this._booking_stats().cancelled_count || 0,
+    );
+    public readonly deleted_count = computed(
+        () => this._booking_stats().deleted_count || 0,
+    );
     public readonly business_days = computed(() => {
         const { start, end } = this._options();
         return (
@@ -54,7 +85,7 @@ export class ParkingReportOverallComponent {
         );
     });
     public readonly avg_length = computed(() => {
-        const events: any = this._bookings();
+        const events: any = activeReportBookings(this._bookings());
         return formatDuration({
             minutes:
                 Math.floor(

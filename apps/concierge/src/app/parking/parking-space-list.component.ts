@@ -21,7 +21,7 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
             class="w-full"
         />
         <simple-table
-            class="block min-w-208 text-sm"
+            class="block min-w-220 text-sm"
             [data]="spaces()"
             [columns]="[
                 {
@@ -33,6 +33,11 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                     key: 'assigned_to',
                     name: 'Assigned',
                     content: assigned_template,
+                },
+                {
+                    key: 'features',
+                    name: 'COMMON.FEATURES' | translate,
+                    content: item_list_template,
                 },
                 { key: 'notes', name: 'FORM.NOTES' | translate },
                 {
@@ -122,6 +127,17 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                     }
                 </button>
             }
+        </ng-template>
+        <ng-template #item_list_template let-data="data">
+            <div class="flex flex-wrap p-2">
+                @for (item of data; track item) {
+                    <span
+                        class="bg-info text-info-content m-1 rounded-2xl px-2 py-1 font-mono text-xs"
+                    >
+                        {{ item }}
+                    </span>
+                }
+            </div>
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="mx-auto flex items-center space-x-2">
