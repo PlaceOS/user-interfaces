@@ -421,7 +421,7 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
                 permission.can_edit;
             if (!can_book) {
                 this.permission_error.set(
-                    "You don't have permission to book on behalf of that user, please select a user which has shared their calendar with Edit or Delegate permissions. Host reverted back to you.",
+                    `You don't have permission to book on behalf of the user "${checked_email}", please select a user which has shared their calendar with Edit or Delegate permissions. Host reverted back to you.`,
                 );
                 this.form()?.patchValue(
                     { organiser: currentUser(), user: currentUser() },
@@ -431,7 +431,7 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
         } catch (_) {
             if (this.form()?.value?.organiser?.email !== checked_email) return;
             this.permission_error.set(
-                "You don't have permission to book on behalf of that user, please select a user which has shared their calendar with Edit or Delegate permissions.",
+                `You don't have permission to book on behalf of the user "${checked_email}", please select a user which has shared their calendar with Edit or Delegate permissions.`,
             );
             this.form()?.patchValue(
                 { organiser: currentUser() },
