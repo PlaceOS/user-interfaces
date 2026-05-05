@@ -2,7 +2,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
 import { Booking, OrganisationService, SettingsService } from '@placeos/common';
 import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, of, throwError } from 'rxjs';
 
 import * as assets_mod from '@placeos/assets';
 import * as booking_mod from '@placeos/bookings';
@@ -438,6 +438,83 @@ describe('ParkingStateService', () => {
         expect(dialog_ref.componentInstance.loading.set).toHaveBeenCalledWith(
             false,
         );
+    });
+
+    it('should restore the previous assigned parking booking when reassignment fails', async () => {
+        const original_space = {
+            id: 'space-1',
+            name: 'Bay 1',
+            assigned_to: 'old.staff@example.com',
+            assigned_name: 'Old Staff',
+            zone_id: 'lvl-1',
+            zones: ['org-1', 'region-1', 'bld-1', 'lvl-1'],
+        } as any;
+        const dialog_ref = {
+            afterClosed: () =>
+                of({
+                    reason: 'done',
+                    metadata: {
+                        ...original_space,
+                        assigned_to: 'new.staff@example.com',
+                        assigned_name: 'New Staff',
+                    },
+                }),
+            componentInstance: {
+                event: of({ reason: 'done' }),
+                loading: { set: jest.fn() },
+            },
+            close: jest.fn(),
+        };
+        (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
+        (booking_mod.queryBookings as jest.Mock).mockReturnValue(
+            of([
+                {
+                    id: 'booking-1',
+                    asset_id: 'space-1',
+                },
+            ]),
+        );
+        (assets_mod.saveParkingSpace as jest.Mock)
+            .mockReturnValueOnce(of({ id: 'space-1', name: 'Bay 1' }))
+            .mockReturnValueOnce(of(original_space));
+        (booking_mod.saveBooking as jest.Mock)
+            .mockReturnValueOnce(throwError(() => ({ status: 409 })))
+            .mockReturnValueOnce(of({}));
+        jest.spyOn(UserPipe.prototype, 'transform').mockResolvedValue({
+            id: 'user-1',
+            name: 'Staff Name',
+        } as any);
+
+        await spectator.service.editSpace(original_space).catch(() => undefined);
+
+        expect(booking_mod.removeBooking).toHaveBeenCalledWith('booking-1');
+        expect(assets_mod.saveParkingSpace).toHaveBeenCalledTimes(2);
+        expect(assets_mod.saveParkingSpace).toHaveBeenNthCalledWith(
+            2,
+            expect.objectContaining({
+                id: 'space-1',
+                assigned_to: 'old.staff@example.com',
+            }),
+        );
+        expect(booking_mod.saveBooking).toHaveBeenCalledTimes(2);
+        expect(booking_mod.saveBooking).toHaveBeenNthCalledWith(
+            2,
+            expect.objectContaining({
+                user_email: 'old.staff@example.com',
+                asset_id: 'space-1',
+                asset_name: 'Bay 1',
+                extension_data: expect.objectContaining({
+                    is_assigned: true,
+                }),
+            }),
+        );
+        expect(common_mod.notifyError).toHaveBeenCalledWith(
+            'APP.CONCIERGE.PARKING_ASSIGN_SPACE_ERROR',
+        );
+        expect(dialog_ref.componentInstance.loading.set).toHaveBeenCalledWith(
+            false,
+        );
+        expect(dialog_ref.close).not.toHaveBeenCalled();
     });
 
     it('should split comma separated features when uploading parking spaces', async () => {

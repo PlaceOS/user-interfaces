@@ -576,13 +576,27 @@ export class ParkingStateService extends AsyncHandler {
                 throw error;
             }
         }
+        const original_space_data: Partial<ParkingSpace> = {
+            ...space,
+            zone_id: space.zone_id || zone_id,
+        };
         let recreate = false;
         if (
             space.assigned_to &&
             (space.assigned_to !== asset_data.assigned_to ||
                 space.id !== asset_data.id)
         ) {
-            await this._clearAssignedBooking(space);
+            try {
+                await this._clearAssignedBooking(space);
+            } catch (e) {
+                notifyError(
+                    i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_ERROR', {
+                        error: e,
+                    }),
+                );
+                ref.componentInstance.loading.set(false);
+                throw e;
+            }
             recreate = true;
         }
         const zones = unique([
@@ -594,51 +608,50 @@ export class ParkingStateService extends AsyncHandler {
         const saved = await saveParkingSpace({
             ...asset_data,
             zones,
-        }).toPromise();
+        })
+            .toPromise()
+            .catch((e) => {
+                notifyError(
+                    i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_ERROR', {
+                        error: e,
+                    }),
+                );
+                ref.componentInstance.loading.set(false);
+                throw e;
+            });
         if (
             (space.assigned_to !== asset_data.assigned_to || recreate) &&
             asset_data.assigned_to
         ) {
-            const users = await nextValueFrom(this.users);
-            const user = users.find((_) => _.email === asset_data.assigned_to);
-            const user_details = await USER_PIPE.transform(
-                asset_data.assigned_to,
-            );
-            const timezone = this._settings.get(
-                'app.bookings.use_building_timezone',
-            )
-                ? this._org.building?.timezone
-                : '';
-            const date = setTimeInTimezone(Date.now(), 1, 0, timezone);
             await saveBooking(
-                new Booking({
-                    user_id: user_details.id || asset_data.assigned_to,
-                    user_email: asset_data.assigned_to,
-                    user_name: user_details.name,
-                    booking_start: getUnixTime(date),
-                    booking_end: getUnixTime(addHours(date, 22)),
-                    type: 'parking',
-                    booking_type: 'parking',
-                    asset_id: saved.id,
-                    asset_name: saved.name,
-                    recurrence_type: 'daily',
-                    recurrence_days:
-                        RecurrenceDays.MONDAY |
-                        RecurrenceDays.TUESDAY |
-                        RecurrenceDays.WEDNESDAY |
-                        RecurrenceDays.THURSDAY |
-                        RecurrenceDays.FRIDAY,
+                await this._createAssignedParkingBooking(
+                    saved,
+                    asset_data.assigned_to,
                     zones,
-                    extension_data: {
-                        asset_name: saved.name,
-                        is_assigned: true,
-                        plate_number: user?.plate_number || '',
-                    },
-                }),
+                ),
             )
                 .toPromise()
-                .catch((e) => {
-                    ref.close();
+                .catch(async (e) => {
+                    if (space.id) {
+                        await saveParkingSpace(original_space_data).toPromise();
+                    } else if (saved.id) {
+                        await deleteParkingSpace(saved.id).toPromise();
+                    }
+                    if (recreate) {
+                        await this._restoreAssignedBooking(space).catch(
+                            (restore_err) =>
+                                console.error(
+                                    'Failed to restore assigned parking booking during rollback',
+                                    restore_err,
+                                ),
+                        );
+                    }
+                    notifyError(
+                        i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_ERROR', {
+                            error: e,
+                        }),
+                    );
+                    ref.componentInstance.loading.set(false);
                     throw e;
                 });
         }
@@ -1070,6 +1083,56 @@ export class ParkingStateService extends AsyncHandler {
                 await lastValueFrom(removeBookingApi(booking.id));
             }
         }
+    }
+
+    private async _restoreAssignedBooking(resource: ParkingSpace) {
+        if (!resource.assigned_to) return;
+        await saveBooking(
+            await this._createAssignedParkingBooking(
+                resource,
+                resource.assigned_to,
+                unique(resource.zones || []).filter((_) => _),
+            ),
+        ).toPromise();
+    }
+
+    private async _createAssignedParkingBooking(
+        resource: Partial<ParkingSpace>,
+        user_email: string,
+        zones: string[],
+    ) {
+        const users = await nextValueFrom(this.users);
+        const user = users.find((_) => _.email === user_email);
+        const user_details = await USER_PIPE.transform(user_email);
+        const timezone = this._settings.get('app.bookings.use_building_timezone')
+            ? this._org.building?.timezone
+            : '';
+        const date = setTimeInTimezone(Date.now(), 1, 0, timezone);
+        const asset_name = resource.name || resource.identifier || resource.id;
+        return new Booking({
+            user_id: user_details.id || user_email,
+            user_email,
+            user_name: user_details.name,
+            booking_start: getUnixTime(date),
+            booking_end: getUnixTime(addHours(date, 22)),
+            type: 'parking',
+            booking_type: 'parking',
+            asset_id: resource.id,
+            asset_name,
+            recurrence_type: 'daily',
+            recurrence_days:
+                RecurrenceDays.MONDAY |
+                RecurrenceDays.TUESDAY |
+                RecurrenceDays.WEDNESDAY |
+                RecurrenceDays.THURSDAY |
+                RecurrenceDays.FRIDAY,
+            zones,
+            extension_data: {
+                asset_name,
+                is_assigned: true,
+                plate_number: user?.plate_number || '',
+            },
+        });
     }
 
     private _loadFleetVehicles(building_id: string) {
