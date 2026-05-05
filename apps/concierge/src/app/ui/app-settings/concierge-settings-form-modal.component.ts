@@ -317,6 +317,17 @@ import { UploadButtonComponent } from './upload-button.component';
                             </mat-form-field>
                         </div>
                         <div>
+                            <label for="public-url-path">Public URL Path</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <input
+                                    matInput
+                                    name="public-url-path"
+                                    formControlName="public_url_path"
+                                    placeholder="/public"
+                                />
+                            </mat-form-field>
+                        </div>
+                        <div>
                             <label for="kiosk-url-path"
                                 >Map Kiosk URL Path</label
                             >
@@ -1749,6 +1760,7 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
         control_path: new FormControl(''),
         signage_path: new FormControl(''),
         workplace_url_path: new FormControl(''),
+        public_url_path: new FormControl(''),
         admin_group: new FormControl(''),
         events: new FormGroup({
             allow_all_day: new FormControl(false),
