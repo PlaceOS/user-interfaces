@@ -4,4 +4,5 @@ export const NAV_ITEMS = [
     { route: '/zones', icon: 'layers', label: 'Zones' },
     { route: '/schedules', icon: 'calendar_view_day', label: 'Schedules' },
     { route: '/displays', icon: 'display_settings', label: 'Displays' },
+    { route: '/groups', icon: 'groups', label: 'Groups' },
 ];

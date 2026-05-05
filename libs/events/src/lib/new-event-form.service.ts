@@ -857,8 +857,44 @@ export class EventFormService extends AsyncHandler {
             return true;
         } catch (e) {
             this.removeLoadingTag(Tags.PostBooking);
+            if (this._isPermissionError(e)) this._clearSavedHostChange();
             throw e;
         }
+    }
+
+    private _isPermissionError(error: any) {
+        const status = error?.status || error?.error?.status;
+        if (status === 403) return true;
+        const message = this._errorMessage(error).toLowerCase();
+        return /forbidden|permission|authori[sz]ed|not permitted/.test(message);
+    }
+
+    private _errorMessage(error: any) {
+        if (typeof error === 'string') return error;
+        if (error instanceof Error && error.message) return error.message;
+        if (typeof error?.error === 'string') return error.error;
+        if (typeof error?.message === 'string') return error.message;
+        if (typeof error?.error?.message === 'string') return error.error.message;
+        return '';
+    }
+
+    private _clearSavedHostChange() {
+        const user = currentUser();
+        if (!user) return;
+        const host_data = {
+            host: user.email,
+            organiser: user,
+            creator: user.email,
+            calendar: user.email,
+        };
+        this.form.patchValue(host_data, { emitEvent: false });
+        const saved_form = JSON.parse(
+            sessionStorage.getItem('PLACEOS.event_form') || '{}',
+        );
+        sessionStorage.setItem(
+            'PLACEOS.event_form',
+            JSON.stringify({ ...saved_form, ...host_data }),
+        );
     }
 
     private async _handlePayments() {

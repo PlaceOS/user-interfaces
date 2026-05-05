@@ -301,7 +301,7 @@ export function approveBooking(id: string) {
  */
 export function approveBookingInstance(id: string, start_time: number) {
     return post(
-        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/approve`,
+        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/approve/${start_time}`,
         '',
     ).pipe(map((item) => new Booking(item)));
 }
@@ -325,7 +325,7 @@ export function rejectBooking(id: string) {
  */
 export function rejectBookingInstance(id: string, start_time: number) {
     return post(
-        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/reject`,
+        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/reject/${start_time}`,
         '',
     ).pipe(map((item) => new Booking(item)));
 }

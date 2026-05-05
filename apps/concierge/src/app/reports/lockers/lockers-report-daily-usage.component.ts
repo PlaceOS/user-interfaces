@@ -9,6 +9,7 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { formatReportPercentage } from '../reports.utilities';
 import { LockersReportService } from './lockers-report.service';
 
 @Component({
@@ -60,10 +61,12 @@ import { LockersReportService } from './lockers-report.service';
                     {
                         key: 'cancelled_count',
                         name: 'Cancelled',
+                        content: booking_percent_template,
                     },
                     {
                         key: 'deleted_count',
                         name: 'Deleted',
+                        content: booking_percent_template,
                     },
                     {
                         key: 'booked_count',
@@ -81,6 +84,15 @@ import { LockersReportService } from './lockers-report.service';
             <ng-template #date_template let-row="row">
                 <div class="p-4">
                     {{ row.date | date: 'mediumDate' }}
+                </div>
+            </ng-template>
+            <ng-template
+                #booking_percent_template
+                let-data="data"
+                let-row="row"
+            >
+                <div class="p-4">
+                    {{ formatPercent(data, row.booked_count) }}
                 </div>
             </ng-template>
         </div>
@@ -128,7 +140,19 @@ export class LockersReportDailyUsageComponent {
     });
 
     public readonly download = async () => {
-        const data = this.daily_stats();
+        const data = this.daily_stats().map((booking) => ({
+            ...booking,
+            cancelled_count: formatReportPercentage(
+                booking.cancelled_count,
+                booking.booked_count,
+            ),
+            deleted_count: formatReportPercentage(
+                booking.deleted_count,
+                booking.booked_count,
+            ),
+        }));
         downloadFile('report-lockers-daily-usage.csv', jsonToCsv(data));
     };
+
+    public readonly formatPercent = formatReportPercentage;
 }

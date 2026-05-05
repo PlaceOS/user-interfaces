@@ -276,34 +276,99 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                     </button>
                 </div>
                 <mat-menu #menu="matMenu">
-                    <button
-                        mat-menu-item
-                        [disabled]="!canApproveBooking(row)"
-                        (click)="approve(row)"
-                    >
-                        <div class="flex items-center space-x-2">
-                            <icon class="text-2xl">event_available</icon>
-                            <div class="pr-2">
-                                {{
-                                    'APP.CONCIERGE.PARKING_APPROVE' | translate
-                                }}
+                    @if (isRecurringInstance(row)) {
+                        <button
+                            mat-menu-item
+                            [disabled]="!canApproveBooking(row)"
+                            (click)="approve(row)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <icon class="text-2xl">event_available</icon>
+                                <div class="pr-2">
+                                    {{
+                                        'APP.CONCIERGE.PARKING_APPROVE_INSTANCE'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
-                        </div>
-                    </button>
-                    <button
-                        mat-menu-item
-                        [disabled]="!canApproveBooking(row)"
-                        (click)="reject(row)"
-                    >
-                        <div class="flex items-center space-x-2">
-                            <icon class="text-2xl">event_busy</icon>
-                            <div class="pr-2">
-                                {{
-                                    'APP.CONCIERGE.PARKING_DECLINE' | translate
-                                }}
+                        </button>
+                        <button
+                            mat-menu-item
+                            [disabled]="!canApproveBooking(row)"
+                            (click)="approve(row, true)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <icon class="text-2xl">event_available</icon>
+                                <div class="pr-2">
+                                    {{
+                                        'APP.CONCIERGE.PARKING_APPROVE_SERIES'
+                                            | translate
+                                    }}
+                                </div>
                             </div>
-                        </div>
-                    </button>
+                        </button>
+                        <button
+                            mat-menu-item
+                            [disabled]="!canApproveBooking(row)"
+                            (click)="reject(row)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <icon class="text-2xl">event_busy</icon>
+                                <div class="pr-2">
+                                    {{
+                                        'APP.CONCIERGE.PARKING_DECLINE_INSTANCE'
+                                            | translate
+                                    }}
+                                </div>
+                            </div>
+                        </button>
+                        <button
+                            mat-menu-item
+                            [disabled]="!canApproveBooking(row)"
+                            (click)="reject(row, true)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <icon class="text-2xl">event_busy</icon>
+                                <div class="pr-2">
+                                    {{
+                                        'APP.CONCIERGE.PARKING_DECLINE_SERIES'
+                                            | translate
+                                    }}
+                                </div>
+                            </div>
+                        </button>
+                    } @else {
+                        <button
+                            mat-menu-item
+                            [disabled]="!canApproveBooking(row)"
+                            (click)="approve(row)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <icon class="text-2xl">event_available</icon>
+                                <div class="pr-2">
+                                    {{
+                                        'APP.CONCIERGE.PARKING_APPROVE'
+                                            | translate
+                                    }}
+                                </div>
+                            </div>
+                        </button>
+                        <button
+                            mat-menu-item
+                            [disabled]="!canApproveBooking(row)"
+                            (click)="reject(row)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <icon class="text-2xl">event_busy</icon>
+                                <div class="pr-2">
+                                    {{
+                                        'APP.CONCIERGE.PARKING_DECLINE'
+                                            | translate
+                                    }}
+                                </div>
+                            </div>
+                        </button>
+                    }
                 </mat-menu>
             </ng-template>
             <ng-template #action_template let-row="row">
@@ -422,8 +487,10 @@ export class ParkingBookingsListComponent
         }));
     });
 
-    public readonly reject = (e) => this._state.rejectBooking(e);
-    public readonly approve = (e) => this._state.approveBooking(e);
+    public readonly reject = (e, series = false) =>
+        this._state.rejectBooking(e, series);
+    public readonly approve = (e, series = false) =>
+        this._state.approveBooking(e, series);
     public readonly editReservation = (e) => this._state.editReservation(e);
     public readonly assignSpace = (e) => this._state.assignSpace(e);
     public readonly removeBooking = (e) => this._state.removeBooking(e);
@@ -488,6 +555,10 @@ export class ParkingBookingsListComponent
 
     public isAssignedBooking(booking: Booking) {
         return !!booking?.extension_data?.is_assigned;
+    }
+
+    public isRecurringInstance(booking: Booking) {
+        return !!booking?.instance;
     }
 
     public statusLabel(booking: Booking) {

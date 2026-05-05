@@ -49,7 +49,7 @@ export interface DeskInfoData {
             [yPosition]="'center'"
             [hover]="true"
             [delay]="3000"
-            class="pointer-events-auto relative z-20 h-full w-full"
+            class="pointer-events-auto relative z-20 hidden h-full w-full sm:block"
             [attr.id]="id()"
             [attr.map_id]="map_id()"
             (mouseenter)="updatePosition()"

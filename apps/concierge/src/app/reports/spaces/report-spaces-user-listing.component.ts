@@ -10,6 +10,7 @@ import {
 } from '@placeos/components';
 import { map } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
+import { cappedReportAttendeeCount } from '../reports.utilities';
 
 @Component({
     selector: 'report-spaces-user-listing',
@@ -108,6 +109,7 @@ export class ReportSpacesUserListingComponent {
                     capacity,
                     booking_count: 0,
                     attendees: 0,
+                    occupancy_attendees: 0,
                     avg_attendees: 0,
                     no_shows: 0,
                     occupancy: 0,
@@ -120,13 +122,22 @@ export class ReportSpacesUserListingComponent {
             }
             details.booking_count += 1;
             details.attendees += booking.attendees.length;
+            details.occupancy_attendees += cappedReportAttendeeCount(
+                booking,
+                capacity,
+            );
             details.total_time += booking.duration || 15;
         }
         for (const space of list) {
             space.avg_attendees =
                 Math.floor((space.attendees / space.booking_count) * 100) / 100;
             space.occupancy =
-                Math.floor((space.avg_attendees / space.capacity) * 100) / 100;
+                Math.floor(
+                    (space.occupancy_attendees /
+                        space.booking_count /
+                        space.capacity) *
+                        100,
+                ) / 100;
             space.total_time = formatDuration({
                 hours: Math.floor(space.total_time / 60),
                 minutes: space.total_time % 60,
@@ -143,6 +154,7 @@ export class ReportSpacesUserListingComponent {
             delete item.min_attendance;
             delete item.max_attendance;
             delete item.occupancy;
+            delete item.occupancy_attendees;
         }
         downloadFile('report-space-attendee-usage.csv', jsonToCsv(data));
     };

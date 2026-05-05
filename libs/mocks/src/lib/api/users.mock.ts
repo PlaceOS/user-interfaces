@@ -10,6 +10,23 @@ import { MOCK_EVENTS } from './events.data';
 
 export function registerMockUsers() {
     registerMockEndpoint({
+        path: '/api/engine/v2/users',
+        metadata: {},
+        method: 'GET',
+        callback: (request) => {
+            const search = (request.query_params.q || '').toLowerCase();
+            const limit = Number(request.query_params.limit || 100);
+            return MOCK_STAFF.filter(({ name, email }) => {
+                return (
+                    !search ||
+                    name.toLowerCase().includes(search) ||
+                    email.toLowerCase().includes(search)
+                );
+            }).slice(0, limit);
+        },
+    });
+
+    registerMockEndpoint({
         path: '/api/engine/v2/users/:id',
         metadata: {},
         method: 'GET',

@@ -13,6 +13,7 @@ import { differenceInDays } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { debounceTime, switchMap } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
+import { cappedReportAttendeeCount } from '../reports.utilities';
 
 @Component({
     selector: 'report-spaces-space-listing',
@@ -153,6 +154,7 @@ export class ReportSpacesSpaceListingComponent {
                                 min_attendance: 99,
                                 max_attendance: 0,
                                 attendees: 0,
+                                occupancy_attendees: 0,
                                 avg_attendees: 0,
                                 usage: 0,
                                 no_shows: 0,
@@ -180,6 +182,10 @@ export class ReportSpacesSpaceListingComponent {
                         );
                         details.usage += booking.duration;
                         details.attendees += booking.attendees.length;
+                        details.occupancy_attendees += cappedReportAttendeeCount(
+                            booking,
+                            space.capacity,
+                        );
                         has_attendance =
                             has_attendance ||
                             !!booking.extension_data.people_count;
@@ -207,7 +213,8 @@ export class ReportSpacesSpaceListingComponent {
                             : space.min_attendance;
                     space.occupancy = `${
                         Math.floor(
-                            (space.avg_attendees /
+                            (space.occupancy_attendees /
+                                space.booking_count /
                                 Math.max(1, space.capacity)) *
                                 1000,
                         ) / 10
@@ -235,6 +242,7 @@ export class ReportSpacesSpaceListingComponent {
             delete item.no_shows;
             delete item.min_attendance;
             delete item.max_attendance;
+            delete item.occupancy_attendees;
         }
         downloadFile('report-spaces-usage.csv', jsonToCsv(data));
     };

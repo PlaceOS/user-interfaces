@@ -12,6 +12,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { ReportsStateService } from '../reports-state.service';
+import { formatReportPercentage } from '../reports.utilities';
 
 @Component({
     selector: 'report-desks-overall-list',
@@ -57,8 +58,16 @@ import { ReportsStateService } from '../reports-state.service';
                                 'APP.CONCIERGE.REPORTS_TOTAL_REQUESTS'
                                 | translate,
                         },
-                        { key: 'cancelled', name: 'Cancelled' },
-                        { key: 'deleted', name: 'Deleted' },
+                        {
+                            key: 'cancelled',
+                            name: 'Cancelled',
+                            content: booking_percent_template,
+                        },
+                        {
+                            key: 'deleted',
+                            name: 'Deleted',
+                            content: booking_percent_template,
+                        },
                         {
                             key: 'utilisation',
                             name:
@@ -78,6 +87,15 @@ import { ReportsStateService } from '../reports-state.service';
                 </ng-template>
                 <ng-template #percent_template let-data="data">
                     <div class="p-4">{{ data || '0' }}%</div>
+                </ng-template>
+                <ng-template
+                    #booking_percent_template
+                    let-data="data"
+                    let-row="row"
+                >
+                    <div class="p-4">
+                        {{ formatPercent(data, row.count) }}
+                    </div>
                 </ng-template>
             </div>
         </div>
@@ -101,11 +119,14 @@ export class ReportDesksOverallListComponent {
     });
 
     public readonly download = async () => {
-        let data = this.day_list();
-        data = data.map((d) => ({
+        const data = this.day_list().map((d) => ({
             ...d,
             date: format(d.date, 'MMM d, y(EEE)'),
+            cancelled: formatReportPercentage(d.cancelled, d.count),
+            deleted: formatReportPercentage(d.deleted, d.count),
         }));
         downloadFile('desks-usage.csv', jsonToCsv(data));
     };
+
+    public readonly formatPercent = formatReportPercentage;
 }

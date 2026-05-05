@@ -1,3 +1,4 @@
+import { Clipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import {
     Component,
@@ -172,7 +173,11 @@ import {
                                 </div>
                             </div>
                         </button>
-                        <button mat-menu-item [disabled]="true">
+                        <button
+                            mat-menu-item
+                            [disabled]="!public_event_link()"
+                            (click)="copyPublicEventLink()"
+                        >
                             <div class="flex items-center space-x-2">
                                 <icon class="text-2xl">content_copy</icon>
                                 <div class="mr-2">
@@ -477,6 +482,7 @@ export class GroupEventDetailsModalComponent implements OnInit {
     }>(MAT_DIALOG_DATA, { optional: true });
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
+    private _clipboard = inject(Clipboard);
     private _dialog_ref = inject<MatDialogRef<GroupEventDetailsModalComponent>>(
         MatDialogRef,
         { optional: true },
@@ -550,10 +556,24 @@ export class GroupEventDetailsModalComponent implements OnInit {
     public readonly is_interested = computed(() => !!this.guest_details());
     public readonly is_going = computed(() => this.guest_details()?.checked_in);
     public readonly system_id = computed(() => this.space().id);
+    public readonly public_event_link = computed(() => {
+        const system_id = this.calendar_space().id;
+        const event_id = this.event()?.id;
+        if (!system_id || !event_id) return '';
+        const path = `${this.public_url_path() || '/public'}`.replace(
+            /\/$/,
+            '',
+        );
+        return `${window.location.origin}${path}/#/event/${encodeURIComponent(system_id)}/${encodeURIComponent(event_id)}`;
+    });
 
     public readonly group_event_calendar = settingSignal<string>(
         'group_events_calendar',
         '',
+    );
+    public readonly public_url_path = settingSignal<string>(
+        'public_url_path',
+        '/public',
     );
 
     private readonly _use_24_hour = settingSignal<boolean>(
@@ -617,7 +637,6 @@ export class GroupEventDetailsModalComponent implements OnInit {
 
     public async toggleInterest() {
         let user = this.guest_details();
-        console.log('System', this.event, this.calendar_space);
         const _user = new GuestUser(currentUser());
         if (this.is_interested() && user) {
             await lastValueFrom(
@@ -646,6 +665,14 @@ export class GroupEventDetailsModalComponent implements OnInit {
                 );
                 return e;
             });
+        }
+    }
+
+    public copyPublicEventLink() {
+        const link = this.public_event_link();
+        if (!link) return;
+        if (this._clipboard.copy(link)) {
+            notifyInfo('Copied public event link to clipboard.');
         }
     }
 

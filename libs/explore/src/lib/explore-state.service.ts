@@ -211,35 +211,38 @@ export class ExploreStateService extends AsyncHandler {
                 if (!has_level && level_list.length) {
                     this.setLevel(level_list[0].id);
                 }
-                if (this._settings.get('app.explore.disable_actions')) {
-                    this.setOptions({
-                        disable_actions: this._settings.get(
-                            'app.explore.disable_actions',
-                        ),
-                    });
-                }
-                if (this._settings.get('app.explore.disable_labels')) {
-                    this.setOptions({
-                        disable_labels: this._settings.get(
-                            'app.explore.disable_labels',
-                        ),
-                    });
-                }
-                if (this._settings.get('app.explore.disable_features')) {
-                    this.setOptions({
-                        disable_features: this._settings.get(
-                            'app.explore.disable_features',
-                        ),
-                    });
-                }
-                if (this._settings.get('app.explore.disable_styles')) {
-                    this.setOptions({
-                        disable_styles: this._settings.get(
-                            'app.explore.disable_styles',
-                        ),
-                    });
-                }
             });
+        this._org.active_building.subscribe((bld) => {
+            if (!bld) return;
+            if (this._settings.get('app.explore.disable_styles')) {
+                this.setOptions({
+                    disable_styles: this._settings.get(
+                        'app.explore.disable_styles',
+                    ),
+                });
+            }
+            if (this._settings.get('app.explore.disable_actions')) {
+                this.setOptions({
+                    disable_actions: this._settings.get(
+                        'app.explore.disable_actions',
+                    ),
+                });
+            }
+            if (this._settings.get('app.explore.disable_labels')) {
+                this.setOptions({
+                    disable_labels: this._settings.get(
+                        'app.explore.disable_labels',
+                    ),
+                });
+            }
+            if (this._settings.get('app.explore.disable_features')) {
+                this.setOptions({
+                    disable_features: this._settings.get(
+                        'app.explore.disable_features',
+                    ),
+                });
+            }
+        });
     }
 
     public setOptions(options: Partial<MapOptions>) {

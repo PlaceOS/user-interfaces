@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import {
     CalendarEvent,
+    currentUser,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
@@ -168,6 +169,47 @@ describe('EventFormService', () => {
 
         await expect(service.postForm(true)).resolves.toBeTruthy();
         expect(perform_booking_spy).toHaveBeenCalled();
+    });
+
+    it('should clear saved host changes after a permission error', async () => {
+        const current_user = currentUser();
+        const perform_booking_spy = jest
+            .spyOn(service as any, '_performBooking')
+            .mockRejectedValue({ status: 403, error: 'Forbidden' });
+
+        service.newForm();
+        service.form.patchValue({
+            host: 'unauthorised.user@example.com',
+            organiser: {
+                email: 'unauthorised.user@example.com',
+                name: 'Unauthorised User',
+            },
+            creator: 'unauthorised.user@example.com',
+            calendar: 'unauthorised.user@example.com',
+            title: 'Permission test',
+            date: new Date(2028, 5, 15, 10, 0, 0, 0).valueOf(),
+            duration: 60,
+            attendees: [],
+            resources: [],
+        });
+        sessionStorage.setItem(
+            'PLACEOS.event_form',
+            JSON.stringify(service.form.getRawValue()),
+        );
+
+        await expect(service.postForm(true)).rejects.toMatchObject({
+            status: 403,
+            error: 'Forbidden',
+        });
+
+        const saved_form = JSON.parse(
+            sessionStorage.getItem('PLACEOS.event_form'),
+        );
+        expect(perform_booking_spy).toHaveBeenCalled();
+        expect(saved_form.host).toBe(current_user.email);
+        expect(saved_form.organiser.email).toBe(current_user.email);
+        expect(saved_form.calendar).toBe(current_user.email);
+        expect(service.form.getRawValue().host).toBe(current_user.email);
     });
 
     it('should preserve the original start time for in-progress bookings', async () => {
