@@ -844,8 +844,9 @@ export class ParkingStateService extends AsyncHandler {
         if (success.state !== 'failed') this._change.next(Date.now());
     }
 
-    public async approveBooking(booking: Booking) {
+    public async approveBooking(booking: Booking, series = false) {
         if (
+            !series &&
             this._settings.get('app.parking.assign_space_on_approve') &&
             this.isRequest(booking)
         ) {
@@ -860,10 +861,10 @@ export class ParkingStateService extends AsyncHandler {
                 return;
             }
         }
-        const promise = (
-            booking.instance
-                ? approveBookingInstance(booking.id, booking.instance)
-                : approveBooking(booking.id)
+        const booking_id = series ? booking.parent_id || booking.id : booking.id;
+        const promise = (!series && booking.instance
+            ? approveBookingInstance(booking_id, booking.instance)
+            : approveBooking(booking_id)
         )
             .toPromise()
             .catch((_) => ({ state: 'failed', error: _ }));
@@ -878,11 +879,11 @@ export class ParkingStateService extends AsyncHandler {
         if (success.state !== 'failed') this._change.next(Date.now());
     }
 
-    public async rejectBooking(booking: Booking) {
-        const promise = (
-            booking.instance
-                ? rejectBookingInstance(booking.id, booking.instance)
-                : rejectBooking(booking.id)
+    public async rejectBooking(booking: Booking, series = false) {
+        const booking_id = series ? booking.parent_id || booking.id : booking.id;
+        const promise = (!series && booking.instance
+            ? rejectBookingInstance(booking_id, booking.instance)
+            : rejectBooking(booking_id)
         )
             .toPromise()
             .catch((_) => ({ state: 'failed', error: _ }));
