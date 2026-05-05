@@ -854,9 +854,11 @@ export class BookingFormService extends AsyncHandler {
                 if (typeof error === 'object' && error !== null) {
                     error.status = e.status;
                 } else {
+                    if (this._isPermissionError(e)) this._clearSavedHostChange();
                     throw { message: error, status: e.status };
                 }
             }
+            if (this._isPermissionError(error)) this._clearSavedHostChange();
             throw error;
         });
         if (value.assets?.length || booking.extension_data.assets?.length) {
@@ -1318,6 +1320,32 @@ export class BookingFormService extends AsyncHandler {
             return error.error.message;
         }
         return i18n('BOOKINGS.ERROR_GENERIC');
+    }
+
+    private _isPermissionError(error: any) {
+        const status = error?.status || error?.error?.status;
+        if (status === 403) return true;
+        const message = this._error_message(error).toLowerCase();
+        return /forbidden|permission|authori[sz]ed|not permitted/.test(message);
+    }
+
+    private _clearSavedHostChange() {
+        const user = currentUser();
+        if (!user) return;
+        const host_data = {
+            user,
+            user_id: user.id,
+            user_email: user.email,
+            user_name: user.name,
+        };
+        this.form.patchValue(host_data, { emitEvent: false });
+        const saved_form = JSON.parse(
+            sessionStorage.getItem('PLACEOS.booking_form') || '{}',
+        );
+        sessionStorage.setItem(
+            'PLACEOS.booking_form',
+            JSON.stringify({ ...saved_form, ...host_data }),
+        );
     }
 
     private _invalid_field_mappings(): Record<string, string> {

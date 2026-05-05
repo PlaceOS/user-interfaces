@@ -3,9 +3,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { NavigationEnd, Router } from '@angular/router';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { PaymentsService } from '@placeos/payments';
-import { BehaviorSubject, of, Subject } from 'rxjs';
+import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
 
-import { Booking, OrganisationService } from '@placeos/common';
+import { Booking, currentUser, OrganisationService } from '@placeos/common';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { BookingFormService } from '../lib/booking-form.service';
 import * as booking_utility_mod from '../lib/booking.utilities';
@@ -455,6 +455,48 @@ describe('BookingFormService', () => {
         expect(save_booking).toHaveBeenCalledTimes(1);
         expect((save_booking.mock.calls[0][0] as Booking).user_email).toBe(
             'other.user@example.com',
+        );
+    });
+
+    it('should clear saved host changes after a permission error', async () => {
+        const save_booking = booking_mod.saveBooking as jest.Mock;
+        const current_user = currentUser();
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        save_booking.mockReset();
+        save_booking.mockImplementation(() =>
+            throwError(() => ({ status: 403, error: 'Forbidden' })),
+        );
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                booking_type: 'desk',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'desk-1',
+            }),
+        );
+        spectator.service.form.patchValue({
+            user: {
+                email: 'unauthorised.user@example.com',
+                name: 'Unauthorised User',
+                id: 'unauthorised-user',
+            },
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+        });
+
+        await expect(spectator.service.postForm(true)).rejects.toMatchObject({
+            message: 'Forbidden',
+            status: 403,
+        });
+
+        const saved_form = JSON.parse(
+            sessionStorage.getItem('PLACEOS.booking_form'),
+        );
+        expect(saved_form.user_email).toBe(current_user.email);
+        expect(saved_form.user.email).toBe(current_user.email);
+        expect(spectator.service.form.getRawValue().user_email).toBe(
+            current_user.email,
         );
     });
 
