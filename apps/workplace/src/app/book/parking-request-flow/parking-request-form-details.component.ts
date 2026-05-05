@@ -1493,6 +1493,10 @@ export class ParkingRequestFormDetailsComponent
             }
             const raw_date = form.getRawValue().date;
             if (form.value.recurrence_end && raw_date) {
+                const recurrence_end =
+                    form.value.recurrence_end < 1e12
+                        ? form.value.recurrence_end * 1000
+                        : form.value.recurrence_end;
                 const reference = startOfDay(raw_date);
                 const ref_dow =
                     reference.getDay() === 0 ? 7 : reference.getDay();
@@ -1502,7 +1506,7 @@ export class ParkingRequestFormDetailsComponent
                     : 0;
                 const day_ms = 24 * 60 * 60 * 1000;
                 const diff_days = Math.floor(
-                    (startOfDay(form.value.recurrence_end).valueOf() -
+                    (startOfDay(recurrence_end).valueOf() -
                         reference.valueOf()) /
                         day_ms,
                 );
@@ -1754,7 +1758,7 @@ export class ParkingRequestFormDetailsComponent
         const dates = this._computeRecurrenceDates();
         if (!dates.length) return;
         form.patchValue({
-            recurrence_end: endOfDay(dates[dates.length - 1]).valueOf(),
+            recurrence_end: getUnixTime(endOfDay(dates[dates.length - 1])),
         });
     }
 
