@@ -97,7 +97,7 @@ export class AssetPurchaseOrderListComponent {
     public readonly purchase_orders = toSignal(
         combineLatest([this._state.options, this._state.purchase_orders]).pipe(
             map(([{ search }, list]) =>
-                list.filter(
+                (list || []).filter(
                     (_) =>
                         !search ||
                         (_ as any).purchase_order_number
@@ -106,7 +106,7 @@ export class AssetPurchaseOrderListComponent {
                         _.invoice_number
                             ?.toLowerCase()
                             .includes(search.toLowerCase()),
-                ),
+                )
             ),
         ),
         { initialValue: [] },

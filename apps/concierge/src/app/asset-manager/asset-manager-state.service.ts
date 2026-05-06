@@ -110,7 +110,7 @@ export class AssetManagerStateService extends AsyncHandler {
         this._change.pipe(
             switchMap(() => {
                 this._loading.next(true);
-                return queryAssetPurchaseOrders();
+                return queryAssetPurchaseOrders().pipe(map(_ => _.data));
             }),
             tap(() => this._loading.next(false)),
             shareReplay(1),
