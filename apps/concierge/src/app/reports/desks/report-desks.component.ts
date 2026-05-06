@@ -23,6 +23,7 @@ import { ReportDesksOverallListComponent } from './report-desks-overall-list.com
     selector: '[report-desks]',
     template: `
         <reports-options
+            resource_type="desks"
             (printing)="printing.set($event)"
             [loading]="!!loading()"
             [has_data]="!!total_count()"

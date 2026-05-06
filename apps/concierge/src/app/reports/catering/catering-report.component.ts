@@ -18,6 +18,7 @@ import { CateringReportOverallComponent } from './catering-report-overall.compon
     selector: 'catering-report',
     template: `
         <reports-options
+            resource_type="catering"
             (printing)="printing.set($event)"
             [loading]="!!loading()"
             [has_data]="has_data()"

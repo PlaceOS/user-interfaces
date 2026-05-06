@@ -24,6 +24,7 @@ import { ParkingReportService } from './parking-report.service';
     selector: '[parking-report]',
     template: `
         <reports-options
+            resource_type="parking"
             (printing)="printing.set($event)"
             [loading]="!!loading()"
             [has_data]="!!total_count()"

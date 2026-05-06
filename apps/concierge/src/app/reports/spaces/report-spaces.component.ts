@@ -25,6 +25,7 @@ import { ReportSpacesUserListingComponent } from './report-spaces-user-listing.c
     selector: '[report-spaces]',
     template: `
         <reports-options
+            resource_type="events"
             (printing)="printing.set($event)"
             [loading]="!!loading()"
             [has_data]="has_data()"
