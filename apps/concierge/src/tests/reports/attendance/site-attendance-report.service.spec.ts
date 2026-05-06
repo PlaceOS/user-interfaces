@@ -119,6 +119,9 @@ describe('SiteAttendanceReportService', () => {
         (asset_mod.queryParkingSpaces as jest.Mock).mockReturnValue(
             of([{ id: 'park-1' }, { id: 'park-2' }]),
         );
+        (asset_mod.queryLockerAssets as jest.Mock).mockReturnValue(
+            of([{ id: 'locker-a' }]),
+        );
         (ts_client_mod.showMetadata as jest.Mock).mockImplementation(
             (_zone: string, key: string) =>
                 of({
@@ -237,6 +240,7 @@ describe('SiteAttendanceReportService', () => {
         (event_mod.queryAllEvents as jest.Mock).mockReturnValue(of([]));
         (event_mod.requestSpacesForZone as jest.Mock).mockReturnValue(of([]));
         (asset_mod.queryParkingSpaces as jest.Mock).mockReturnValue(of([]));
+        (asset_mod.queryLockerAssets as jest.Mock).mockReturnValue(of([]));
         (ts_client_mod.showMetadata as jest.Mock).mockReturnValue(
             of({ details: [] }),
         );

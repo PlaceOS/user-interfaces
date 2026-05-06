@@ -4,12 +4,14 @@ import { OrganisationService, SettingsService } from '@placeos/common';
 import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, of } from 'rxjs';
 
+import * as assets_mod from '@placeos/assets';
 import * as booking_mod from '@placeos/bookings';
 import * as common_mod from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import * as ts_client_mod from '@placeos/ts-client';
 import { LockerStateService } from '../../app/lockers/locker-state.service';
 
+jest.mock('@placeos/assets');
 jest.mock('@placeos/bookings');
 jest.mock('@placeos/ts-client');
 jest.mock('@placeos/common', () => {
@@ -63,6 +65,16 @@ describe('LockerStateService', () => {
         (booking_mod.loadLockerBanks as jest.Mock).mockReturnValue(of([]));
         (booking_mod.loadLockers as jest.Mock).mockReturnValue(of([]));
         (booking_mod.saveBooking as jest.Mock).mockReturnValue(of({}));
+        (assets_mod.queryLockerAssetsForZones as jest.Mock).mockReturnValue(of([]));
+        (assets_mod.queryLockerBankAssetsForZones as jest.Mock).mockReturnValue(
+            of([]),
+        );
+        (assets_mod.saveLockerAsset as jest.Mock).mockReturnValue(
+            of({ id: 'locker-1' }),
+        );
+        (assets_mod.saveLockerBankAsset as jest.Mock).mockReturnValue(
+            of({ id: 'bank-1' }),
+        );
         (ts_client_mod.updateMetadata as jest.Mock).mockReturnValue(of({}));
         (common_mod.getTimezoneDifferenceInHours as jest.Mock).mockReturnValue(
             2,
