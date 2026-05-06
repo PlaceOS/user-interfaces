@@ -162,4 +162,24 @@ describe('BookingDetailsModalComponent', () => {
 
         expect(spectator.component.booking_status()).toBe('warning');
     });
+
+    it('should hide selected parking space when enabled', () => {
+        const settings = spectator.inject(SettingsService);
+        settings.get.mockImplementation((name: string) =>
+            name === 'app.parking.hide_selected_space' ? true : undefined,
+        );
+        spectator = createComponent();
+        (spectator.component as any).booking.set(
+            new Booking({
+                booking_type: 'parking',
+                type: 'parking',
+                asset_id: 'parking-1',
+                asset_name: 'Parking 1',
+            } as any),
+        );
+
+        expect(spectator.component.resource_details_label()).toBe(
+            'RESOURCE.PARKING',
+        );
+    });
 });

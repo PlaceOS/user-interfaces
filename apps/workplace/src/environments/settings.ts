@@ -244,6 +244,7 @@ const app = {
         ],
         hide_prefer_toggle: false,
         hide_custom_shift: false,
+        hide_selected_space: false,
     },
     analytics: {
         enabled: true,
