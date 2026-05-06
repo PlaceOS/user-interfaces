@@ -134,13 +134,13 @@ import { SignageService } from '../signage.service';
                                         auth
                                         [source]="item.thumbnail_url"
                                         [alt]="item.name + ' thumbnail'"
-                                        class="h-full w-full object-cover"
+                                        class="h-full w-full object-cover p-2 text-xs"
                                     />
                                 } @else {
                                     <div
                                         class="flex h-full w-full items-center justify-center"
                                     >
-                                        <icon class="text-2xl opacity-30">{{
+                                        <icon class="text-4xl opacity-30">{{
                                             item.media_type === 'video'
                                                 ? 'video_library'
                                                 : item.media_type === 'webpage'
