@@ -49,21 +49,37 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                             <div
                                 class="hover:bg-base-200 flex flex-col rounded-sm border p-2 text-xs"
                                 [class.border-success]="
-                                    booking.status === 'approved'
+                                    booking.status === 'approved' &&
+                                    !isAssignedBooking(booking) &&
+                                    !isDeletedBooking(booking)
+                                "
+                                [class.border-secondary]="
+                                    isAssignedBooking(booking)
+                                "
+                                [class.border-neutral]="
+                                    isDeletedBooking(booking)
                                 "
                                 [class.border-info]="
                                     booking.status === 'tentative' &&
-                                    isVisibleWaitlisted(booking)
+                                    isVisibleWaitlisted(booking) &&
+                                    !isAssignedBooking(booking) &&
+                                    !isDeletedBooking(booking)
                                 "
                                 [class.border-warning]="
                                     booking.status === 'tentative' &&
-                                    !isVisibleWaitlisted(booking)
+                                    !isVisibleWaitlisted(booking) &&
+                                    !isAssignedBooking(booking) &&
+                                    !isDeletedBooking(booking)
                                 "
                                 [class.border-error]="
-                                    booking.status === 'declined'
+                                    booking.status === 'declined' &&
+                                    !isAssignedBooking(booking) &&
+                                    !isDeletedBooking(booking)
                                 "
                                 [class.border-base-300]="
-                                    booking.status === 'ended'
+                                    booking.status === 'ended' &&
+                                    !isAssignedBooking(booking) &&
+                                    !isDeletedBooking(booking)
                                 "
                                 [class.opacity-50]="booking.status === 'ended'"
                             >
@@ -133,62 +149,82 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                                         matRipple
                                         class="h-6 flex-1 rounded-full border-none text-xs"
                                         [class.text-success-content]="
-                                            booking.status === 'approved'
+                                            booking.status === 'approved' &&
+                                            !isAssignedBooking(booking) &&
+                                            !isDeletedBooking(booking)
                                         "
                                         [class.bg-success]="
-                                            booking.status === 'approved'
+                                            booking.status === 'approved' &&
+                                            !isAssignedBooking(booking) &&
+                                            !isDeletedBooking(booking)
+                                        "
+                                        [class.text-secondary-content!]="
+                                            isAssignedBooking(booking)
+                                        "
+                                        [class.bg-secondary!]="
+                                            isAssignedBooking(booking)
+                                        "
+                                        [class.text-neutral-content!]="
+                                            isDeletedBooking(booking)
+                                        "
+                                        [class.bg-neutral!]="
+                                            isDeletedBooking(booking)
                                         "
                                         [class.text-error-content]="
-                                            booking.status === 'declined'
+                                            booking.status === 'declined' &&
+                                            !isAssignedBooking(booking) &&
+                                            !isDeletedBooking(booking)
                                         "
                                         [class.bg-error]="
-                                            booking.status === 'declined'
+                                            booking.status === 'declined' &&
+                                            !isAssignedBooking(booking) &&
+                                            !isDeletedBooking(booking)
                                         "
                                         [class.text-warning-content]="
                                             booking.status === 'tentative' &&
-                                            !isVisibleWaitlisted(booking)
+                                            !isVisibleWaitlisted(booking) &&
+                                            !isAssignedBooking(booking) &&
+                                            !isDeletedBooking(booking)
                                         "
                                         [class.bg-warning]="
                                             booking.status === 'tentative' &&
-                                            !isVisibleWaitlisted(booking)
+                                            !isVisibleWaitlisted(booking) &&
+                                            !isAssignedBooking(booking) &&
+                                            !isDeletedBooking(booking)
                                         "
                                         [class.text-info-content]="
                                             booking.status === 'tentative' &&
-                                            isVisibleWaitlisted(booking)
+                                            isVisibleWaitlisted(booking) &&
+                                            !isAssignedBooking(booking) &&
+                                            !isDeletedBooking(booking)
                                         "
                                         [class.bg-info]="
                                             booking.status === 'tentative' &&
-                                            isVisibleWaitlisted(booking)
+                                            isVisibleWaitlisted(booking) &&
+                                            !isAssignedBooking(booking) &&
+                                            !isDeletedBooking(booking)
                                         "
                                         [class.text-neutral-content]="
-                                            booking.status === 'ended'
+                                            booking.status === 'ended' &&
+                                            !isAssignedBooking(booking) &&
+                                            !isDeletedBooking(booking)
                                         "
                                         [class.bg-neutral]="
-                                            booking.status === 'ended'
+                                            booking.status === 'ended' &&
+                                            !isAssignedBooking(booking) &&
+                                            !isDeletedBooking(booking)
                                         "
                                         [class.opacity-30]="
-                                            isStatusActionDisabled(booking)
+                                            isStatusActionDisabled(booking) &&
+                                            !isAssignedBooking(booking) &&
+                                            !isDeletedBooking(booking)
                                         "
                                         [matMenuTriggerFor]="menu"
                                         [disabled]="
                                             isStatusActionDisabled(booking)
                                         "
                                     >
-                                        {{
-                                            (booking.status === 'ended'
-                                                ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
-                                                : booking.status === 'approved'
-                                                  ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
-                                                  : booking.status ===
-                                                      'declined'
-                                                    ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                                                    : isVisibleWaitlisted(
-                                                            booking
-                                                        )
-                                                      ? 'APP.CONCIERGE.PARKING_WAITLISTED'
-                                                      : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
-                                            ) | translate
-                                        }}
+                                        {{ statusLabel(booking) | translate }}
                                     </button>
                                     <mat-menu #menu="matMenu">
                                         <button
@@ -412,7 +448,10 @@ export class ParkingBookingsWeekViewComponent
     public readonly canApproveBooking = (e: Booking) =>
         this._state.canApproveBooking(e);
     public readonly isStatusActionDisabled = (e: Booking) =>
-        e?.status === 'ended' || !this.canApproveBooking(e);
+        e?.status === 'ended' ||
+        this.isAssignedBooking(e) ||
+        this.isDeletedBooking(e) ||
+        !this.canApproveBooking(e);
 
     public readonly can_edit = settingSignal('parking.allow_editing', true);
     public readonly can_delete = settingSignal('parking.allow_deleting', false);
@@ -431,6 +470,30 @@ export class ParkingBookingsWeekViewComponent
 
     public isVisibleWaitlisted(booking: Booking) {
         return this.show_waitlist && this.isWaitlisted(booking);
+    }
+
+    public isAssignedBooking(booking: Booking) {
+        return !!booking?.extension_data?.is_assigned;
+    }
+
+    public isDeletedBooking(booking: Booking) {
+        return !!booking?.deleted;
+    }
+
+    public statusLabel(booking: Booking) {
+        return this.isAssignedBooking(booking)
+            ? 'APP.CONCIERGE.BOOKING_STATUS_ASSIGNED'
+            : this.isDeletedBooking(booking)
+              ? 'APP.CONCIERGE.BOOKING_STATUS_DELETED'
+            : booking?.status === 'ended'
+              ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
+              : booking?.status === 'approved'
+                ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
+                : booking?.status === 'declined'
+                  ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
+                  : this.isVisibleWaitlisted(booking)
+                    ? 'APP.CONCIERGE.PARKING_WAITLISTED'
+                    : 'APP.CONCIERGE.BOOKING_STATUS_PENDING';
     }
 
     public isRequestFilter(filter_type?: string) {
