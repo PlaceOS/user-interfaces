@@ -126,7 +126,11 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                                 </div>
                                 @let bay_name =
                                     booking.asset_id | parkingSpace | async;
-                                @if (bay_name && !isRequest(booking)) {
+                                @if (
+                                    bay_name &&
+                                    !isRequest(booking) &&
+                                    !hide_bay_number_column()
+                                ) {
                                     <div class="mt-0.5 opacity-40">
                                         {{
                                             bay_name?.identifier ||
@@ -436,6 +440,10 @@ export class ParkingBookingsWeekViewComponent
             return grouped;
         },
     );
+    public readonly hide_bay_number_column = computed(() => {
+        const { request_filter } = this.options();
+        return this.hide_bay_number || this.isRequestFilter(request_filter);
+    });
 
     public readonly reject = (e: Booking) => this._state.rejectBooking(e);
     public readonly approve = (e: Booking) => this._state.approveBooking(e);
@@ -462,6 +470,10 @@ export class ParkingBookingsWeekViewComponent
 
     public get hide_assign_space() {
         return !!this._settings.get('app.parking.hide_assign_space');
+    }
+
+    public get hide_bay_number() {
+        return !!this._settings.get('app.parking.hide_bay_number');
     }
 
     public get show_waitlist() {
