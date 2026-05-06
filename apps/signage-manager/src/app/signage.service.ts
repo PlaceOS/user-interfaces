@@ -212,8 +212,42 @@ export class SignageService {
             this._groups_change,
         ]).pipe(
             switchMap(() =>
-                currentGroups({ subsystem: 'signage' }).pipe(
+                (this.is_sys_admin()
+                    ? queryGroups({
+                          limit: 1000,
+                          fields: [
+                              'id',
+                              'name',
+                              'description',
+                              'subsystems',
+                              'authority_id',
+                              'parent_id',
+                          ].join(','),
+                          subsystem: 'signage',
+                      } as any).pipe(
+                          map(({ data }) =>
+                              data
+                                  .filter((group) =>
+                                      group.subsystems?.includes('signage'),
+                                  )
+                                  .map(
+                                      (group) =>
+                                          ({
+                                              group,
+                                              permissions:
+                                                  SignageGroupPermission.Manage,
+                                          }) as PlaceCurrentGroup,
+                                  ),
+                          ),
+                      )
+                    : currentGroups({ subsystem: 'signage' })
+                ).pipe(
                     catchError(() => of([] as PlaceCurrentGroup[])),
+                    map((groups) =>
+                        groups.sort((a, b) =>
+                            a.group.name.localeCompare(b.group.name),
+                        ),
+                    ),
                     tap(() => this._signage_groups_loaded.set(true)),
                 ),
             ),

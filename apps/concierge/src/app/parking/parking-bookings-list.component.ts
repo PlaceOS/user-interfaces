@@ -220,46 +220,66 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                         matRipple
                         class="h-10 w-30 rounded-3xl border-none"
                         [class.text-success-content]="
-                            row?.status === 'approved' && !isAssignedBooking(row)
+                            row?.status === 'approved' &&
+                            !isAssignedBooking(row) &&
+                            !isDeletedBooking(row)
                         "
                         [class.bg-success]="
-                            row?.status === 'approved' && !isAssignedBooking(row)
+                            row?.status === 'approved' &&
+                            !isAssignedBooking(row) &&
+                            !isDeletedBooking(row)
                         "
                         [class.text-secondary-content!]="isAssignedBooking(row)"
                         [class.bg-secondary!]="isAssignedBooking(row)"
+                        [class.text-neutral-content!]="isDeletedBooking(row)"
+                        [class.bg-neutral!]="isDeletedBooking(row)"
                         [class.text-error-content]="
-                            row?.status === 'declined' && !isAssignedBooking(row)
+                            row?.status === 'declined' &&
+                            !isAssignedBooking(row) &&
+                            !isDeletedBooking(row)
                         "
                         [class.bg-error]="
-                            row?.status === 'declined' && !isAssignedBooking(row)
+                            row?.status === 'declined' &&
+                            !isAssignedBooking(row) &&
+                            !isDeletedBooking(row)
                         "
                         [class.text-neutral-content]="
-                            row?.status === 'ended' && !isAssignedBooking(row)
+                            row?.status === 'ended' &&
+                            !isAssignedBooking(row) &&
+                            !isDeletedBooking(row)
                         "
                         [class.bg-neutral]="
-                            row?.status === 'ended' && !isAssignedBooking(row)
+                            row?.status === 'ended' &&
+                            !isAssignedBooking(row) &&
+                            !isDeletedBooking(row)
                         "
                         [class.opacity-30]="
-                            isStatusActionDisabled(row) && !isAssignedBooking(row)
+                            isStatusActionDisabled(row) &&
+                            !isAssignedBooking(row) &&
+                            !isDeletedBooking(row)
                         "
                         [class.text-warning-content]="
                             row?.status === 'tentative' &&
                             !isAssignedBooking(row) &&
+                            !isDeletedBooking(row) &&
                             !isVisibleWaitlisted(row)
                         "
                         [class.bg-warning]="
                             row?.status === 'tentative' &&
                             !isAssignedBooking(row) &&
+                            !isDeletedBooking(row) &&
                             !isVisibleWaitlisted(row)
                         "
                         [class.text-info-content]="
                             row?.status === 'tentative' &&
                             !isAssignedBooking(row) &&
+                            !isDeletedBooking(row) &&
                             isVisibleWaitlisted(row)
                         "
                         [class.bg-info]="
                             row?.status === 'tentative' &&
                             !isAssignedBooking(row) &&
+                            !isDeletedBooking(row) &&
                             isVisibleWaitlisted(row)
                         "
                         [matMenuTriggerFor]="menu"
@@ -503,6 +523,7 @@ export class ParkingBookingsListComponent
     public readonly isStatusActionDisabled = (e: Booking) =>
         e?.status === 'ended' ||
         this.isAssignedBooking(e) ||
+        this.isDeletedBooking(e) ||
         !this.canApproveBooking(e);
     public readonly hide_bay_number_column = computed(() => {
         const { request_filter } = this.options();
@@ -557,6 +578,10 @@ export class ParkingBookingsListComponent
         return !!booking?.extension_data?.is_assigned;
     }
 
+    public isDeletedBooking(booking: Booking) {
+        return !!booking?.deleted;
+    }
+
     public isRecurringInstance(booking: Booking) {
         return !!booking?.instance;
     }
@@ -564,6 +589,8 @@ export class ParkingBookingsListComponent
     public statusLabel(booking: Booking) {
         return this.isAssignedBooking(booking)
             ? 'APP.CONCIERGE.BOOKING_STATUS_ASSIGNED'
+            : this.isDeletedBooking(booking)
+              ? 'APP.CONCIERGE.BOOKING_STATUS_DELETED'
             : booking?.status === 'ended'
               ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
               : booking?.status === 'approved'

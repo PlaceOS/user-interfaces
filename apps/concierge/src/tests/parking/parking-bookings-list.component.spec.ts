@@ -409,4 +409,49 @@ describe('ParkingBookingsListComponent', () => {
                 .some((icon) => icon.textContent?.includes('arrow_drop_down')),
         ).toBe(false);
     });
+
+    it('should show deleted bookings as deleted and disable status actions', () => {
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'bay-1',
+                status: 'approved',
+                deleted: true,
+                date: Date.now(),
+                date_end: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                extension_data: {},
+            } as Booking,
+        ];
+        spectator = createComponent();
+
+        const booking = {
+            asset_id: 'bay-1',
+            status: 'approved',
+            deleted: true,
+            extension_data: {},
+        } as Booking;
+        const status_button = spectator
+            .queryAll('button')
+            .find(
+                (button) =>
+                    button.classList.contains('w-30') &&
+                    button.classList.contains('rounded-3xl'),
+            );
+
+        expect(spectator.component.statusLabel(booking)).toBe(
+            'APP.CONCIERGE.BOOKING_STATUS_DELETED',
+        );
+        expect(spectator.component.isStatusActionDisabled(booking)).toBe(true);
+        expect(status_button).toBeDisabled();
+        expect(status_button).toHaveClass('bg-neutral!');
+        expect(status_button).toHaveClass('text-neutral-content!');
+        expect(status_button).not.toHaveClass('bg-success');
+        expect(status_button).not.toHaveClass('opacity-30');
+        expect(
+            spectator
+                .queryAll('icon')
+                .some((icon) => icon.textContent?.includes('arrow_drop_down')),
+        ).toBe(false);
+    });
 });

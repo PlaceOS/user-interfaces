@@ -15,6 +15,7 @@ import { MockProvider } from 'ng-mocks';
 
 describe('ExploreStateService', () => {
     let spectator: SpectatorService<ExploreStateService>;
+    const settings_overrides = new BehaviorSubject([]);
     const createService = createServiceFactory({
         service: ExploreStateService,
         providers: [
@@ -41,11 +42,17 @@ describe('ExploreStateService', () => {
                     { id: 'space-2', zones: ['bld-2', 'lvl-2'] },
                 ]),
             } as any),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, {
+                get: jest.fn(),
+                overrides$: settings_overrides,
+            }),
         ],
     });
 
-    beforeEach(() => (spectator = createService()));
+    beforeEach(() => {
+        settings_overrides.next([]);
+        spectator = createService();
+    });
 
     it('should create service', () => {
         expect(spectator.service).toBeTruthy();
@@ -119,5 +126,49 @@ describe('ExploreStateService', () => {
         spectator.service.setStyles('other', { zones1: {} });
         styles = await nextValueFrom(spectator.service.map_styles);
         expect(styles).toEqual({ ...DEFAULTS, space1: {}, zones1: {} });
+    });
+
+    it('should retain disabled styles after reset', async () => {
+        spectator.inject(SettingsService).get = jest.fn((name: string) =>
+            name === 'app.explore.disable_styles' ? 'parking' : undefined,
+        );
+        spectator.service.reset();
+        spectator.service.setStyles('parking', { parking1: {} });
+        spectator.service.setStyles('spaces', { space1: {} });
+
+        const styles = await nextValueFrom(spectator.service.map_styles);
+        expect(styles).toEqual({
+            '#zones': { display: 'none' },
+            '#Zones': { display: 'none' },
+            text: { display: 'none' },
+            space1: {},
+        });
+    });
+
+    it('should apply disabled styles when settings overrides change', async () => {
+        let disable_styles;
+        spectator.inject(SettingsService).get = jest.fn((name: string) =>
+            name === 'app.explore.disable_styles' ? disable_styles : undefined,
+        );
+        spectator.service.reset();
+        spectator.service.setStyles('parking', { parking1: {} });
+
+        let styles = await nextValueFrom(spectator.service.map_styles);
+        expect(styles).toEqual({
+            '#zones': { display: 'none' },
+            '#Zones': { display: 'none' },
+            text: { display: 'none' },
+            parking1: {},
+        });
+
+        disable_styles = 'parking';
+        settings_overrides.next([{ explore: { disable_styles } }]);
+
+        styles = await nextValueFrom(spectator.service.map_styles);
+        expect(styles).toEqual({
+            '#zones': { display: 'none' },
+            '#Zones': { display: 'none' },
+            text: { display: 'none' },
+        });
     });
 });
