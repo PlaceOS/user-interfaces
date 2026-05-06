@@ -1300,6 +1300,7 @@
             "BOOKING_STATUS_ENDED": "Ended",
             "BOOKING_STATUS_APPROVED": "Approved",
             "BOOKING_STATUS_ASSIGNED": "Assigned",
+            "BOOKING_STATUS_DELETED": "Deleted",
             "BOOKING_STATUS_DECLINED": "Declined",
             "BOOKING_STATUS_PENDING": "Pending",
             "SCHEDULE_EMPTY": "No bookings for the selected dates",

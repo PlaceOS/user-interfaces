@@ -1081,6 +1081,7 @@
             "BOOKING_STATUS_ENDED": "منتهي",
             "BOOKING_STATUS_APPROVED": "موافق عليه",
             "BOOKING_STATUS_ASSIGNED": "معين",
+            "BOOKING_STATUS_DELETED": "محذوف",
             "BOOKING_STATUS_DECLINED": "مرفوض",
             "BOOKING_STATUS_PENDING": "قيد الانتظار",
             "REGIONS_HEADER": "إدارة المناطق",

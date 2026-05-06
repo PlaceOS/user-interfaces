@@ -1081,6 +1081,7 @@
             "BOOKING_STATUS_ENDED": "已结束",
             "BOOKING_STATUS_APPROVED": "已批准",
             "BOOKING_STATUS_ASSIGNED": "已分配",
+            "BOOKING_STATUS_DELETED": "已删除",
             "BOOKING_STATUS_DECLINED": "已拒绝",
             "BOOKING_STATUS_PENDING": "待定",
             "REGIONS_HEADER": "区域管理",

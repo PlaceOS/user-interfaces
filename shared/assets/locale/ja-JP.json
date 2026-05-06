@@ -1081,6 +1081,7 @@
             "BOOKING_STATUS_ENDED": "終了",
             "BOOKING_STATUS_APPROVED": "承認済み",
             "BOOKING_STATUS_ASSIGNED": "割り当て済み",
+            "BOOKING_STATUS_DELETED": "削除済み",
             "BOOKING_STATUS_DECLINED": "拒否済み",
             "BOOKING_STATUS_PENDING": "保留中",
             "REGIONS_HEADER": "地域管理",
