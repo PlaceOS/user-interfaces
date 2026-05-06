@@ -1,9 +1,11 @@
 import { Component, computed, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { MatMenuModule } from '@angular/material/menu';
+import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent } from '@placeos/components';
+import { lastValueFrom } from 'rxjs';
 import { SignageService } from '../signage.service';
+import { GroupSelectModalComponent } from './group-select-modal.component';
 
 @Component({
     // Existing signage-manager components use feature selectors without the app prefix.
@@ -16,76 +18,23 @@ import { SignageService } from '../signage.service';
                 type="button"
                 matRipple
                 class="hover:bg-base-100/30 focus-visible:bg-base-100/30 relative flex h-18 w-18 flex-col items-center justify-center rounded-xl"
-                [matMenuTriggerFor]="group_menu"
                 [matTooltip]="'[Group] ' + selected_label()"
                 matTooltipPosition="right"
                 [attr.aria-label]="'Signage group: ' + selected_label()"
+                (click)="selectGroup()"
             >
                 <icon class="text-3xl">group</icon>
                 <div class="line-clamp-3 max-w-14 text-xs font-medium">
                     {{ selected_label() }}
                 </div>
             </button>
-            <mat-menu #group_menu="matMenu">
-                @if (is_sys_admin()) {
-                    <button
-                        type="button"
-                        mat-menu-item
-                        [class.bg-secondary]="!selected_group_id()"
-                        [attr.aria-current]="
-                            !selected_group_id() ? 'true' : null
-                        "
-                        (click)="setGroup('')"
-                    >
-                        <div
-                            class="flex items-center gap-2"
-                            [class.text-secondary-content]="
-                                !selected_group_id()
-                            "
-                        >
-                            <icon class="mr-2 text-2xl">public</icon>
-                            <span>All Groups</span>
-                        </div>
-                    </button>
-                }
-                @for (item of groups(); track item.group.id) {
-                    <button
-                        type="button"
-                        mat-menu-item
-                        [class.bg-secondary]="
-                            selected_group_id() === item.group.id
-                        "
-                        [attr.aria-current]="
-                            selected_group_id() === item.group.id
-                                ? 'true'
-                                : null
-                        "
-                        (click)="setGroup(item.group.id)"
-                    >
-                        <div
-                            class="flex items-center gap-2"
-                            [class.text-secondary-content]="
-                                selected_group_id() === item.group.id
-                            "
-                        >
-                            <icon class="mr-2 text-2xl">
-                                {{
-                                    selected_group_id() === item.group.id
-                                        ? 'check_circle'
-                                        : 'group'
-                                }}
-                            </icon>
-                            <span>{{ item.group.name }}</span>
-                        </div>
-                    </button>
-                }
-            </mat-menu>
         }
     `,
-    imports: [MatMenuModule, MatRippleModule, MatTooltipModule, IconComponent],
+    imports: [MatRippleModule, MatTooltipModule, IconComponent],
 })
 export class SignageGroupSelectorComponent {
     private readonly _service = inject(SignageService);
+    private readonly _dialog = inject(MatDialog);
 
     public readonly groups = this._service.signage_groups;
     public readonly selected_group = this._service.selected_group;
@@ -95,7 +44,18 @@ export class SignageGroupSelectorComponent {
         () => this.selected_group()?.group.name || 'All Groups',
     );
 
-    public setGroup(group_id: string) {
+    public async selectGroup() {
+        const ref = this._dialog.open(GroupSelectModalComponent, {
+            data: {
+                title: 'Select signage group',
+                groups: this.groups(),
+                selected_group_id: this.selected_group_id(),
+                show_all_groups: this.is_sys_admin(),
+            },
+            panelClass: 'mobile-fullscreen',
+        });
+        const group_id = await lastValueFrom(ref.afterClosed());
+        if (group_id === undefined) return;
         this._service.setSelectedGroup(group_id);
     }
 }
