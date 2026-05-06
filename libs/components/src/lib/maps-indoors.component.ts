@@ -91,6 +91,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
     private _services: MapsIndoorServices;
     private _floor_list: any[] = [];
     private _last_building: string;
+    private _styled_resources = new Map<string, string>();
 
     private readonly _container =
         viewChild<ElementRef<HTMLDivElement>>('map_container');
@@ -406,6 +407,11 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
     private async _updateMapStyling() {
         if (!this._services) return;
         const styles = this.metadata()?.styles || {};
+        for (const [style_id, resource_id] of this._styled_resources) {
+            if (styles[style_id]?.fill) continue;
+            this._services.mapsindoors.setDisplayRule(resource_id, null);
+            this._styled_resources.delete(style_id);
+        }
         for (const id in styles) {
             if (!styles[id].fill) continue;
             let resource = RESOURCE_MAP[id];
@@ -429,6 +435,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                 polygonFillColor: styles[id].fill,
             };
             this._services.mapsindoors.setDisplayRule(resource.id, value);
+            this._styled_resources.set(id, resource.id);
         }
     }
 

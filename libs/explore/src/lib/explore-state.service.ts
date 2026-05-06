@@ -14,6 +14,7 @@ import {
     filter,
     map,
     shareReplay,
+    startWith,
     switchMap,
 } from 'rxjs/operators';
 
@@ -164,19 +165,27 @@ export class ExploreStateService extends AsyncHandler {
     public readonly map_styles = combineLatest([
         this._styles,
         this._options,
+        this._settings.overrides$?.pipe(startWith([])) || of([]),
     ]).pipe(
         debounceTime(200),
         map(([styles, options]) => {
+            const disable = unique([
+                ...this._normaliseDisabledOption(options.disable),
+                ...this._normaliseDisabledSetting('app.explore.disable'),
+            ]);
+            const disable_styles = unique([
+                ...this._normaliseDisabledOption(options.disable_styles),
+                ...this._normaliseDisabledSetting(
+                    'app.explore.disable_styles',
+                ),
+            ]);
             let style_mappings = { text: { display: 'none' } };
             for (const key in styles) {
-                if (
-                    options.disable?.includes(key) ||
-                    options.disable_styles?.includes(key)
-                )
+                if (disable.includes(key) || disable_styles.includes(key))
                     continue;
                 style_mappings = { ...style_mappings, ...styles[key] };
             }
-            if (options.disable?.includes('zones')) {
+            if (disable.includes('zones')) {
                 style_mappings['#zones'] = { display: 'none' };
                 style_mappings['#Zones'] = { display: 'none' };
             }
@@ -214,47 +223,34 @@ export class ExploreStateService extends AsyncHandler {
             });
         this._org.active_building.subscribe((bld) => {
             if (!bld) return;
-            if (this._settings.get('app.explore.disable_styles')) {
-                this.setOptions({
-                    disable_styles: this._settings.get(
-                        'app.explore.disable_styles',
-                    ),
-                });
-            }
-            if (this._settings.get('app.explore.disable_actions')) {
-                this.setOptions({
-                    disable_actions: this._settings.get(
-                        'app.explore.disable_actions',
-                    ),
-                });
-            }
-            if (this._settings.get('app.explore.disable_labels')) {
-                this.setOptions({
-                    disable_labels: this._settings.get(
-                        'app.explore.disable_labels',
-                    ),
-                });
-            }
-            if (this._settings.get('app.explore.disable_features')) {
-                this.setOptions({
-                    disable_features: this._settings.get(
-                        'app.explore.disable_features',
-                    ),
-                });
-            }
+            this.setOptions({});
         });
     }
 
     public setOptions(options: Partial<MapOptions>) {
         const old_options = this._options.getValue();
         const disable = unique([
-            ...(options.disable || old_options.disable),
-            ...(this._settings.get('app.explore.disable') || []),
+            ...this._normaliseDisabledOption(
+                options.disable ?? old_options.disable,
+            ),
+            ...this._normaliseDisabledSetting('app.explore.disable'),
         ]);
         this._options.next({
             ...this._options.getValue(),
             ...options,
             disable,
+            disable_styles: this._normaliseDisabledOption(
+                options.disable_styles ?? old_options.disable_styles,
+            ),
+            disable_actions: this._normaliseDisabledOption(
+                options.disable_actions ?? old_options.disable_actions,
+            ),
+            disable_labels: this._normaliseDisabledOption(
+                options.disable_labels ?? old_options.disable_labels,
+            ),
+            disable_features: this._normaliseDisabledOption(
+                options.disable_features ?? old_options.disable_features,
+            ),
         });
     }
 
@@ -265,7 +261,11 @@ export class ExploreStateService extends AsyncHandler {
         this._actions.next({});
         this._options.next({
             is_public: false,
-            disable: ['zones', 'devices'],
+            disable: unique([
+                'zones',
+                'devices',
+                ...this._normaliseDisabledSetting('app.explore.disable'),
+            ]),
         });
         this.setPositions(1, { x: 0.5, y: 0.5 });
     }
@@ -341,5 +341,20 @@ export class ExploreStateService extends AsyncHandler {
             }
         }
         return false;
+    }
+
+    private _normaliseDisabledSetting(name: string): string[] {
+        return this._normaliseDisabledOption(this._settings.get(name));
+    }
+
+    private _normaliseDisabledOption(value: unknown): string[] {
+        if (value instanceof Array) return value.filter((_) => !!_);
+        if (typeof value === 'string') {
+            return value
+                .split(',')
+                .map((_) => _.trim())
+                .filter((_) => !!_);
+        }
+        return [];
     }
 }
