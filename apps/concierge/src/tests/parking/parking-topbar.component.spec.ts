@@ -2,14 +2,14 @@ import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { Router } from '@angular/router';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
-import { ParkingTopbarComponent } from '../../app/parking/parking-topbar.component';
 import { ParkingStateService } from '../../app/parking/parking-state.service';
+import { ParkingTopbarComponent } from '../../app/parking/parking-topbar.component';
 import { DateOptionsComponent } from '../../app/ui/date-options.component';
 import { SearchbarComponent } from '../../app/ui/searchbar.component';
 
@@ -106,6 +106,31 @@ describe('ParkingTopbarComponent', () => {
         );
     });
 
+    it('should only allow one selected level on the parking map', () => {
+        spectator = createComponent();
+        spectator.component.section.set('events');
+        spectator.component.view.set('map');
+        const router = spectator.inject(Router);
+        Object.defineProperty(router, 'url', {
+            value: '/parking/events/map',
+            configurable: true,
+        });
+        jest.spyOn(router, 'navigate').mockResolvedValue(true);
+
+        spectator.component.updateZones(['lvl-1', 'lvl-2']);
+
+        expect(spectator.component.zones()).toEqual(['lvl-1']);
+        expect(spectator.component.selected_zone()).toBe('lvl-1');
+        expect(
+            spectator.inject(ParkingStateService).setOptions,
+        ).toHaveBeenCalledWith({ zones: ['lvl-1'] });
+        expect(router.navigate).toHaveBeenCalledWith([], {
+            relativeTo: expect.anything(),
+            queryParams: { zone_ids: 'lvl-1' },
+            queryParamsHandling: 'merge',
+        });
+    });
+
     it('should clear selected levels when the booking list selector is hidden', () => {
         hide_level_selector_on_booking_list = true;
         spectator = createComponent();
@@ -121,9 +146,9 @@ describe('ParkingTopbarComponent', () => {
         spectator.component.updateZones(['lvl-1']);
 
         expect(spectator.component.zones()).toEqual([]);
-        expect(spectator.inject(ParkingStateService).setOptions).toHaveBeenCalledWith(
-            { zones: [] },
-        );
+        expect(
+            spectator.inject(ParkingStateService).setOptions,
+        ).toHaveBeenCalledWith({ zones: [] });
         expect(router.navigate).toHaveBeenCalledWith([], {
             relativeTo: expect.anything(),
             queryParams: { zone_ids: null },
@@ -141,9 +166,9 @@ describe('ParkingTopbarComponent', () => {
 
         (spectator.component as any)._updatePath();
 
-        expect(spectator.inject(ParkingStateService).setOptions).toHaveBeenCalledWith(
-            { search: '' },
-        );
+        expect(
+            spectator.inject(ParkingStateService).setOptions,
+        ).toHaveBeenCalledWith({ search: '' });
     });
 
     it('should clear search when switching parking list routes', () => {
@@ -157,8 +182,8 @@ describe('ParkingTopbarComponent', () => {
 
         (spectator.component as any)._updatePath();
 
-        expect(spectator.inject(ParkingStateService).setOptions).toHaveBeenCalledWith(
-            { search: '' },
-        );
+        expect(
+            spectator.inject(ParkingStateService).setOptions,
+        ).toHaveBeenCalledWith({ search: '' });
     });
 });

@@ -1,4 +1,11 @@
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
     ActivatedRoute,
@@ -162,36 +169,71 @@ import {
             }
             @if (!hide_level_selector_on_booking_list) {
                 <mat-form-field appearance="outline" class="no-subscript w-56">
-                    <mat-select
-                        [(ngModel)]="zones"
-                        (ngModelChange)="updateZones($event)"
-                        [placeholder]="
-                            (section() === 'manage'
-                                ? 'COMMON.LEVEL_SELECT'
-                                : 'COMMON.LEVEL_ALL'
-                            ) | translate
-                        "
-                        multiple
-                    >
-                        @for (level of levels(); track level) {
-                            <mat-option [value]="level.id">
-                                <div class="flex flex-col-reverse">
-                                    @if (use_region) {
-                                        <div class="text-xs opacity-30">
+                    @if (view() === 'map') {
+                        <mat-select
+                            [ngModel]="selected_zone()"
+                            (ngModelChange)="updateSingleZone($event)"
+                            [placeholder]="'COMMON.LEVEL_SELECT' | translate"
+                        >
+                            @for (level of levels(); track level) {
+                                <mat-option [value]="level.id">
+                                    <div class="flex flex-col-reverse">
+                                        @if (use_region) {
+                                            <div class="text-xs opacity-30">
+                                                {{
+                                                    (level.parent_id | building)
+                                                        ?.display_name
+                                                }}
+                                                <span class="opacity-0">
+                                                    -
+                                                </span>
+                                            </div>
+                                        }
+                                        <div>
                                             {{
-                                                (level.parent_id | building)
-                                                    ?.display_name
+                                                level.display_name || level.name
                                             }}
-                                            <span class="opacity-0"> - </span>
                                         </div>
-                                    }
-                                    <div>
-                                        {{ level.display_name || level.name }}
                                     </div>
-                                </div>
-                            </mat-option>
-                        }
-                    </mat-select>
+                                </mat-option>
+                            }
+                        </mat-select>
+                    } @else {
+                        <mat-select
+                            [(ngModel)]="zones"
+                            (ngModelChange)="updateZones($event)"
+                            [placeholder]="
+                                (section() === 'manage'
+                                    ? 'COMMON.LEVEL_SELECT'
+                                    : 'COMMON.LEVEL_ALL'
+                                ) | translate
+                            "
+                            multiple
+                        >
+                            @for (level of levels(); track level) {
+                                <mat-option [value]="level.id">
+                                    <div class="flex flex-col-reverse">
+                                        @if (use_region) {
+                                            <div class="text-xs opacity-30">
+                                                {{
+                                                    (level.parent_id | building)
+                                                        ?.display_name
+                                                }}
+                                                <span class="opacity-0">
+                                                    -
+                                                </span>
+                                            </div>
+                                        }
+                                        <div>
+                                            {{
+                                                level.display_name || level.name
+                                            }}
+                                        </div>
+                                    </div>
+                                </mat-option>
+                            }
+                        </mat-select>
+                    }
                 </mat-form-field>
             }
             <div class="w-px min-w-2 flex-1"></div>
@@ -355,6 +397,8 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     >('list');
     /** List of selected levels */
     public readonly zones = signal<string[]>([]);
+    /** Selected level for views that only support one level */
+    public readonly selected_zone = computed(() => this.zones()[0] || '');
     /** List of levels for the active building */
     public readonly all_levels = toSignal(this._state.levels, {
         initialValue: [],
@@ -366,7 +410,9 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     );
     /** List of levels to show for the current section */
     public readonly levels = computed(() =>
-        this.section() === 'manage' ? this.all_levels() : this.bookable_levels(),
+        this.section() === 'manage'
+            ? this.all_levels()
+            : this.bookable_levels(),
     );
     /** Options set for week view */
     public readonly options = toSignal(this._state.options, {
@@ -427,6 +473,8 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         if (!this._router.url.includes('parking')) return;
         if (this.hide_level_selector_on_booking_list) {
             zones = [];
+        } else if (this.section() === 'events' && this.view() === 'map') {
+            zones = zones.slice(0, 1);
         }
         // Manage section must always have a specific zone; snap empty
         // selections back to the first available level.
@@ -446,6 +494,10 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
             this._persistScopeId(),
             zones,
         );
+    };
+
+    public readonly updateSingleZone = (zone: string) => {
+        this.updateZones(zone ? [zone] : []);
     };
 
     public readonly setPeriod = (p: 'day' | 'week') => {
@@ -524,6 +576,14 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
             const zones = (params.get('zone_ids') || '')
                 .split(',')
                 .filter(Boolean);
+            if (
+                this.section() === 'events' &&
+                this.view() === 'map' &&
+                zones.length > 1
+            ) {
+                this.updateZones(zones);
+                return;
+            }
             this.zones.set(zones);
             if (!zones.length) return;
             const level = this._org.levelWithID(zones);
@@ -616,7 +676,10 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
                 ? 'list'
                 : (current_view as any),
         );
-        if (this._previous_route_key && this._previous_route_key !== route_key) {
+        if (
+            this._previous_route_key &&
+            this._previous_route_key !== route_key
+        ) {
             this.setSearch('');
         }
         this._previous_route_key = route_key;
