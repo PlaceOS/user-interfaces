@@ -1,6 +1,6 @@
 import { formatDate } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
-import { queryParkingSpaces } from '@placeos/assets';
+import { queryParkingSpacesForZones } from '@placeos/assets';
 import {
     Booking,
     downloadFile,
@@ -10,7 +10,7 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { format, isSameDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, forkJoin, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -83,11 +83,21 @@ export class ParkingReportService {
                     .map((_) => _.id);
             }
             if (!zones.length) return of([]);
-            return forkJoin(
-                zones.map((z) =>
-                    queryParkingSpaces(z).pipe(
-                        catchError(() => of([])),
-                        map((spaces) => [z, spaces.length] as [string, number]),
+            const scope_id = this._settings.get('app.use_region')
+                ? this._org.region?.id
+                : this._org.building?.id;
+            if (!scope_id) return of([]);
+            return queryParkingSpacesForZones([scope_id]).pipe(
+                catchError(() => of([])),
+                map((spaces) =>
+                    zones.map(
+                        (z) =>
+                            [
+                                z,
+                                spaces.filter((space) =>
+                                    space.zones?.includes(z),
+                                ).length,
+                            ] as [string, number],
                     ),
                 ),
             );
@@ -104,7 +114,7 @@ export class ParkingReportService {
 
     public setOptions(options: Partial<ReportOptions>) {
         this._options.next({ ...this._options.getValue(), ...options });
-        this._report.setOptions(options);
+        this._report.setOptions({ ...options, type: 'parking' });
     }
 
     public generateReport() {
