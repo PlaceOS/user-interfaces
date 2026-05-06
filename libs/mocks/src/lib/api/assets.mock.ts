@@ -249,7 +249,11 @@ export function registerMockAssets() {
                 );
             }
             if (zone_id) {
-                results = results.filter((a) => (a as any).zone_id === zone_id);
+                results = results.filter(
+                    (a) =>
+                        (a as any).zone_id === zone_id ||
+                        ((a as any).zones || []).includes(zone_id),
+                );
             }
             return results;
         },

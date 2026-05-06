@@ -219,6 +219,10 @@ export class BookingCardComponent {
         'parking.show_waitlist',
         true,
     );
+    public readonly hide_selected_parking_space = this._settings.signal(
+        'parking.hide_selected_space',
+        false,
+    );
 
     private readonly _is_visible_waitlisted = computed(() => {
         const booking = this.booking();
@@ -350,6 +354,12 @@ export class BookingCardComponent {
     public readonly resource_label = computed(() => {
         const booking = this.booking();
         if (!booking) return '';
+        if (
+            booking.booking_type === 'parking' &&
+            this.hide_selected_parking_space()
+        ) {
+            return i18n('RESOURCE.PARKING');
+        }
         if (booking.booking_type !== 'visitor') {
             return (
                 this.raw_description() || booking.asset_name || booking.asset_id

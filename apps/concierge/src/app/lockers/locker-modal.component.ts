@@ -19,7 +19,11 @@ import {
 } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -301,6 +305,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
         SettingsToggleComponent,
         MatTooltipModule,
         UserSearchFieldComponent,
+        MatDialogModule,
     ],
 })
 export class LockerModalComponent extends AsyncHandler implements OnInit {

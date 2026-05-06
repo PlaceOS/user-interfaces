@@ -16,7 +16,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { queryParkingSpacesForZones } from '@placeos/assets';
+import {
+    queryLockerAssetsForZones,
+    queryLockerBankAssetsForZones,
+    queryParkingSpacesForZones,
+} from '@placeos/assets';
 import {
     AsyncHandler,
     BuildingLevel,
@@ -316,43 +320,24 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
                     map((spaces) => this._zonesForResources(spaces)),
                 );
             case 'lockers':
-                return forkJoin(
-                    [...new Set(levels.map((level) => level.parent_id))].map(
-                        (building_id) =>
-                            forkJoin([
-                                showMetadata(building_id, 'locker_banks').pipe(
-                                    map((metadata) =>
-                                        metadata.details instanceof Array
-                                            ? metadata.details
-                                            : [],
-                                    ),
-                                ),
-                                showMetadata(building_id, 'lockers').pipe(
-                                    map((metadata) =>
-                                        metadata.details instanceof Array
-                                            ? metadata.details
-                                            : [],
-                                    ),
-                                ),
-                            ]),
-                    ),
-                ).pipe(
-                    map((list: [any[], any[]][]) => {
+                return forkJoin([
+                    queryLockerBankAssetsForZones([scope_id]),
+                    queryLockerAssetsForZones([scope_id]),
+                ]).pipe(
+                    map(([banks, lockers]) => {
                         const zones = new Set<string>();
-                        for (const [banks, lockers] of list) {
-                            const bookable_bank_ids = new Set(
-                                lockers
-                                    .filter((locker) => locker.bookable)
-                                    .map((locker) => locker.bank_id),
+                        const bookable_bank_ids = new Set(
+                            lockers
+                                .filter((locker) => locker.bookable !== false)
+                                .map((locker) => (locker as any).parent_id),
+                        );
+                        banks
+                            .filter((bank) => bookable_bank_ids.has(bank.id))
+                            .forEach((bank) =>
+                                (bank.zones || []).forEach((zone) =>
+                                    zones.add(zone),
+                                ),
                             );
-                            banks
-                                .filter((bank) => bookable_bank_ids.has(bank.id))
-                                .forEach((bank) =>
-                                    (bank.zones || []).forEach((zone) =>
-                                        zones.add(zone),
-                                    ),
-                                );
-                        }
                         return zones;
                     }),
                 );

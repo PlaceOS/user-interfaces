@@ -1,5 +1,6 @@
 import { formatDate } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
+import { queryLockerAssetsForZones } from '@placeos/assets';
 import {
     Booking,
     downloadFile,
@@ -8,9 +9,8 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { showMetadata } from '@placeos/ts-client';
 import { format, isSameDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, forkJoin, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -83,11 +83,21 @@ export class LockersReportService {
                     .map((_) => _.id);
             }
             if (!zones.length) return of([]);
-            return forkJoin(
-                zones.map((z) =>
-                    showMetadata(z, 'lockers-spaces').pipe(
-                        catchError(() => of({ details: [] })),
-                        map((m) => [z, m.details.length] as [string, number]),
+            const scope_id = this._settings.get('app.use_region')
+                ? this._org.region?.id
+                : this._org.building?.id;
+            if (!scope_id) return of([]);
+            return queryLockerAssetsForZones([scope_id]).pipe(
+                catchError(() => of([])),
+                map((lockers) =>
+                    zones.map(
+                        (z) =>
+                            [
+                                z,
+                                lockers.filter((locker) =>
+                                    locker.zones?.includes(z),
+                                ).length,
+                            ] as [string, number],
                     ),
                 ),
             );

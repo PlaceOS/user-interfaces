@@ -1,6 +1,10 @@
 import { formatDate } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
-import { queryParkingSpacesForZones } from '@placeos/assets';
+import {
+    queryLockerAssetsForZones,
+    queryLockerBankAssetsForZones,
+    queryParkingSpacesForZones,
+} from '@placeos/assets';
 import { queryAllBookings } from '@placeos/bookings';
 import {
     Booking,
@@ -324,20 +328,21 @@ export class ReportsStateService {
                     return of([zone_id, 0]);
                 }
                 return forkJoin([
-                    showMetadata(parent_id, 'locker_banks').pipe(
-                        catchError(() => of({ details: [] })),
+                    queryLockerBankAssetsForZones([parent_id]).pipe(
+                        catchError(() => of([])),
                     ),
-                    showMetadata(parent_id, 'lockers').pipe(
-                        catchError(() => of({ details: [] })),
+                    queryLockerAssetsForZones([parent_id]).pipe(
+                        catchError(() => of([])),
                     ),
                 ]).pipe(
-                    map(([banks_metadata, lockers_metadata]) => {
-                        const bank_ids = banks_metadata.details
+                    map(([banks, lockers]) => {
+                        const bank_ids = banks
                             .filter((bank) => bank.zones?.includes(zone_id))
                             .map((bank) => bank.id);
-                        const count = lockers_metadata.details.filter(
+                        const count = lockers.filter(
                             (locker) =>
-                                locker.bookable && bank_ids.includes(locker.bank_id),
+                                locker.bookable !== false &&
+                                bank_ids.includes((locker as any).parent_id),
                         ).length;
                         return [zone_id, count] as [string, number];
                     }),

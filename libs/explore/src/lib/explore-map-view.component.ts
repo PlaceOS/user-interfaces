@@ -88,20 +88,44 @@ function toOptionalSignal<T>(
         @if (show_legend() && legend().length) {
             <div
                 legend
-                class="border-base-200 bg-base-100 absolute bottom-2 left-2 rounded-sm border p-2"
+                class="border-base-300 bg-base-100 absolute bottom-2 left-2 rounded-lg border gap-2"
             >
-                <h3 class="mb-2 font-medium">
-                    {{ 'EXPLORE.LEGEND' | translate }}
-                </h3>
-                @for (pair of legend(); track pair) {
-                    <div class="flex items-center space-x-2">
-                        <div
-                            class="border-base-200 h-3 w-3 rounded-full border"
-                            [style.background-color]="pair[1]"
-                        ></div>
-                        <div class="text-sm">{{ pair[0] }}</div>
-                    </div>
+                @if (legend().length > 3) {
+                    <button
+                        type="button"
+                        class="flex w-full items-center justify-between space-x-4 text-left font-medium sm:hidden min-w-64 p-3"
+                        [attr.aria-expanded]="!legend_collapsed()"
+                        aria-controls="explore-map-legend-items"
+                        (click)="legend_collapsed.set(!legend_collapsed())"
+                    >
+                        <div>{{ 'EXPLORE.LEGEND' | translate }}</div>
+                        <div class="text-sm sm:hidden underline">
+                            {{ legend_collapsed() ? 'Show' : 'Hide' }}
+                        </div>
+                    </button>
+                    <h3 class="hidden sm:block font-medium p-3 min-w-64">
+                        {{ 'EXPLORE.LEGEND' | translate }}
+                    </h3>
+                } @else {
+                    <h3 class="font-medium p-3 min-w-64">
+                        {{ 'EXPLORE.LEGEND' | translate }}
+                    </h3>
                 }
+                <div
+                    id="explore-map-legend-items"
+                    class="space-y-1 sm:block px-4 pb-3"
+                    [class.hidden]="legend_collapsed() && legend().length > 3"
+                >
+                    @for (pair of legend(); track pair) {
+                        <div class="flex items-center space-x-2">
+                            <div
+                                class="border-base-200 h-3 w-3 rounded-full border"
+                                [style.background-color]="pair[1]"
+                            ></div>
+                            <div class="text-sm">{{ pair[0] }}</div>
+                        </div>
+                    }
+                </div>
             </div>
         }
         @if (locate()) {
@@ -188,6 +212,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
 
     public readonly locate = signal('');
     public readonly map_info = signal<Record<string, any>>({});
+    public readonly legend_collapsed = signal(true);
 
     public async toggleZones(enabled: boolean) {
         const options = this.options();

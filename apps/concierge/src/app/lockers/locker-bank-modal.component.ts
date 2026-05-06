@@ -68,11 +68,10 @@ import { map } from 'rxjs/operators';
                     <label for="name">{{ 'RESOURCE.LEVEL' | translate }}</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <mat-select
-                            [ngModel]="form.value.zones[0] || ''"
-                            (ngModelChange)="
-                                form.patchValue({ zones: [$event] })
+                            formControlName="level_id"
+                            (selectionChange)="
+                                form.patchValue({ zones: [$event.value] })
                             "
-                            [ngModelOptions]="{ standalone: true }"
                         >
                             @for (level of levels(); track level) {
                                 <mat-option [value]="level.id">
@@ -231,6 +230,18 @@ export class LockerBankModalComponent {
     public readonly render_fn = (v) => `${v}u`;
     /** List of separator characters for tags */
     public readonly separators: number[] = [ENTER, COMMA, SPACE];
+
+    public readonly form = new FormGroup({
+        id: new FormControl(''),
+        level_id: new FormControl('', [Validators.required]),
+        name: new FormControl('', [Validators.required]),
+        map_id: new FormControl('', [Validators.required]),
+        notes: new FormControl(''),
+        height: new FormControl(3),
+        zones: new FormControl([]),
+        tags: new FormControl([]),
+    });
+
     /** List of available locker levels for the current building */
     public readonly levels = toSignal(
         this._org.level_list.pipe(
@@ -248,14 +259,24 @@ export class LockerBankModalComponent {
                                 ?.display_name
                         } - ${lvl.display_name}`,
                     }));
-                    if (!this.form.value.zones?.length && list.length) {
-                        this.form.patchValue({ zones: [list[0].id] });
+                    if (!this.form.value.level_id && list.length) {
+                        this.form.patchValue({
+                            level_id: list[0].id,
+                            zones: [list[0].id],
+                        });
                     }
                     return list;
                 }
-                return _.filter(
+                const list = _.filter(
                     (lvl) => lvl.parent_id === this._org.building.id,
                 );
+                if (!this.form.value.level_id && list.length) {
+                    this.form.patchValue({
+                        level_id: list[0].id,
+                        zones: [list[0].id],
+                    });
+                }
+                return list;
             }),
         ),
         { initialValue: [] },
@@ -274,27 +295,22 @@ export class LockerBankModalComponent {
         return this._data?.id || '';
     }
 
-    public readonly form = new FormGroup({
-        id: new FormControl(''),
-        name: new FormControl('', [Validators.required]),
-        map_id: new FormControl('', [Validators.required]),
-        notes: new FormControl(''),
-        height: new FormControl(3),
-        zones: new FormControl([]),
-        tags: new FormControl([]),
-    });
-
     constructor() {
         const _data = this._data;
 
-        if (_data) this.form.patchValue(_data);
+        if (_data) {
+            this.form.patchValue({
+                ..._data,
+                level_id: _data.level_id || this._levelFromZones(_data.zones),
+            });
+        }
     }
 
     public postForm() {
         if (!this.form.valid) return;
         this.loading.set(true);
         const value = { ...this.form.getRawValue() };
-        const level = this._org.levelWithID(value.zones);
+        const level = this._org.levelWithID([value.level_id]);
         value.zones = unique(
             [
                 level.id,
@@ -305,5 +321,9 @@ export class LockerBankModalComponent {
         );
         this._dialog_ref.disableClose = true;
         this.event.emit({ reason: 'done', metadata: value });
+    }
+
+    private _levelFromZones(zones: string[] = []) {
+        return zones.find((zone) => this._org.levelWithID([zone])?.id) || '';
     }
 }

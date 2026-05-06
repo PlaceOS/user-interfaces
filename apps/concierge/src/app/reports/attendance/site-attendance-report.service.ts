@@ -1,6 +1,6 @@
 import { formatDate } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
-import { queryParkingSpaces } from '@placeos/assets';
+import { queryLockerAssets, queryParkingSpaces } from '@placeos/assets';
 import { queryAllBookings, queryBookings } from '@placeos/bookings';
 import {
     Booking,
@@ -305,9 +305,9 @@ export class SiteAttendanceReportService {
         if (!zones.length) return of(0);
         return forkJoin(
             zones.map((zone) =>
-                showMetadata(zone, 'lockers-spaces').pipe(
-                    catchError(() => of({ details: [] })),
-                    map((metadata) => metadata.details?.length || 0),
+                queryLockerAssets(zone).pipe(
+                    catchError(() => of([])),
+                    map((lockers) => lockers.length || 0),
                 ),
             ),
         ).pipe(

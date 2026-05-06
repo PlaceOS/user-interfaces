@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 @Component({
     imports: [RouterModule],
     selector: 'placeos-root',
-    template: `<router-outlet />`,
+    template: ` <router-outlet /> `,
     styles: [
         `
             :host {

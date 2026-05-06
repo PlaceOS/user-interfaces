@@ -193,8 +193,7 @@ export function canEditBooking(booking: Booking) {
                                     </div>
                                 }
                             } @else {
-                                {{ level()?.display_name || level()?.name }},
-                                {{ booking().asset_name || booking().asset_id }}
+                                {{ resource_details_label() }}
                             }
                         </div>
                     </div>
@@ -357,7 +356,7 @@ export function canEditBooking(booking: Booking) {
                         </div>
                     </div>
                 }
-                @if (level()?.map_id) {
+                @if (level()?.map_id && !hide_selected_parking_space()) {
                     <button
                         map
                         class="border-base-200 sm:bg-base-100 relative m-2 mt-4 h-64 w-[calc(100%-1rem)] min-w-1/3 grow-3 overflow-hidden rounded-sm border p-2 sm:my-2 sm:h-48 sm:w-[16rem]"
@@ -560,6 +559,15 @@ export class BookingDetailsModalComponent {
         'parking.show_waitlist',
         true,
     );
+    private readonly _hide_selected_parking_space = this._settings.signal(
+        'parking.hide_selected_space',
+        false,
+    );
+    public readonly hide_selected_parking_space = computed(
+        () =>
+            this.booking()?.booking_type === 'parking' &&
+            this._hide_selected_parking_space(),
+    );
     public readonly is_checked_in = computed(() => this.booking().checked_in);
     public readonly desk_height_enabled = computed(
         () =>
@@ -573,6 +581,15 @@ export class BookingDetailsModalComponent {
         const booking = this.booking();
         if (!booking) return '';
         return booking.title || booking.asset_name || booking.asset_id;
+    });
+    public readonly resource_details_label = computed(() => {
+        const level_name = this.level()?.display_name || this.level()?.name || '';
+        if (this.hide_selected_parking_space()) {
+            return level_name || i18n('RESOURCE.PARKING');
+        }
+        const resource_name =
+            this.booking()?.asset_name || this.booking()?.asset_id || '';
+        return [level_name, resource_name].filter((_) => !!_).join(', ');
     });
     public readonly visitor_display_name = computed(
         () => visitorDisplayNameFor(this.booking()) || 'Visitor',
