@@ -257,7 +257,8 @@ export class BookingFormService extends AsyncHandler {
             this._loading.next(i18n('BOOKINGS.LOADING_AVAILABILITY', { type })),
         ),
         switchMap(([options, resources, restrictions]) => {
-            let { all_day, date, duration, user } = this.form.getRawValue();
+            const { all_day, user } = this.form.getRawValue();
+            let { date, duration } = this.form.getRawValue();
             if (all_day) {
                 ({ date, duration } = this._allDayTimeRange(date));
             }
@@ -283,7 +284,7 @@ export class BookingFormService extends AsyncHandler {
                                 date,
                                 duration,
                                 resource: asset,
-                                host: user || currentUser(),
+                                host: this._bookingRulesHost(user),
                             },
                             restrictions[asset.zone?.id] ||
                                 restrictions[asset.zone?.parent_id] ||
@@ -1586,13 +1587,7 @@ export class BookingFormService extends AsyncHandler {
         duration: number,
         host: string,
     ) {
-        const current_user = currentUser();
-        const user =
-            current_user.email === host
-                ? current_user
-                : await lastValueFrom(showUser(host)).catch(() => ({
-                      email: host,
-                  }));
+        const user = await this._loadBookingRulesHost(host);
         if (!assets?.length) return true;
         const rules = await nextValueFrom(this.booking_rules);
         const resource_rules = assets
@@ -1619,6 +1614,23 @@ export class BookingFormService extends AsyncHandler {
             );
         }
         return true;
+    }
+
+    private _bookingRulesHost(user?: User) {
+        return this._settings.get('app.basic_user_search') === false
+            ? currentUser()
+            : user || currentUser();
+    }
+
+    private async _loadBookingRulesHost(host: string) {
+        const current_user = currentUser();
+        if (
+            this._settings.get('app.basic_user_search') === false ||
+            current_user.email === host
+        ) {
+            return current_user;
+        }
+        return lastValueFrom(showUser(host)).catch(() => ({ email: host }));
     }
 
     /**
