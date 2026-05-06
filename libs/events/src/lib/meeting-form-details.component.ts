@@ -423,23 +423,32 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
                 this.permission_error.set(
                     `You don't have permission to book on behalf of the user "${checked_email}", please select a user which has shared their calendar with Edit or Delegate permissions. Host reverted back to you.`,
                 );
-                this.form()?.patchValue(
-                    { organiser: currentUser(), user: currentUser() },
-                    { emitEvent: false },
-                );
+                this._resetHostToCurrentUser();
             }
         } catch (_) {
             if (this.form()?.value?.organiser?.email !== checked_email) return;
             this.permission_error.set(
                 `You don't have permission to book on behalf of the user "${checked_email}", please select a user which has shared their calendar with Edit or Delegate permissions.`,
             );
-            this.form()?.patchValue(
-                { organiser: currentUser() },
-                { emitEvent: false },
-            );
+            this._resetHostToCurrentUser();
         } finally {
             this.checking_permission.set(false);
         }
+    }
+
+    private _resetHostToCurrentUser() {
+        const user = currentUser();
+        this.form()?.patchValue(
+            {
+                host: user.email,
+                organiser: user,
+                user,
+                creator: user.email,
+                calendar: user.email,
+            },
+            { emitEvent: false },
+        );
+        this._event_form.storeForm();
     }
 
     public readonly max_duration = this._max_duration;

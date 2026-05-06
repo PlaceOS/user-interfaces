@@ -23,6 +23,7 @@ import { LockersReportService } from './lockers-report.service';
     selector: '[lockers-report]',
     template: `
         <reports-options
+            resource_type="lockers"
             (printing)="printing.set($event)"
             [loading]="!!loading()"
             [has_data]="!!total_count()"

@@ -24,6 +24,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
 describe('MeetingFormDetailsComponent', () => {
     let spectator: Spectator<MeetingFormDetailsComponent>;
     const settings_values: Record<string, any> = {};
+    const store_form = jest.fn();
     const lookup_setting = (key: string, fallback?) =>
         key in settings_values ? settings_values[key] : fallback;
     const createComponent = createRoutingFactory({
@@ -37,7 +38,10 @@ describe('MeetingFormDetailsComponent', () => {
                 ),
             }),
             MockProvider(OrganisationService, { building: { timezone: '' } }),
-            MockProvider(EventFormService, { is_multiday: false }),
+            MockProvider(EventFormService, {
+                is_multiday: false,
+                storeForm: store_form,
+            }),
         ],
         declarations: [
             mockComponent(DateFieldComponent),
@@ -60,17 +64,22 @@ describe('MeetingFormDetailsComponent', () => {
         spectator = createComponent();
         spectator.setInput({
             form: new FormGroup({
+                host: new FormControl('selected@example.com'),
                 title: new FormControl(),
                 date: new FormControl(),
                 date_end: new FormControl(),
                 duration: new FormControl(),
                 all_day: new FormControl(false),
-                organiser: new FormControl(),
+                organiser: new FormControl({ email: 'selected@example.com' }),
+                user: new FormControl({ email: 'selected@example.com' }),
+                creator: new FormControl('selected@example.com'),
+                calendar: new FormControl('selected@example.com'),
                 recurrence: new FormControl(),
                 update_master: new FormControl(false),
                 visibility: new FormControl('normal'),
             }),
         });
+        store_form.mockClear();
     });
 
     it('should create component', () =>
@@ -92,5 +101,16 @@ describe('MeetingFormDetailsComponent', () => {
         expect(spectator.component.max_duration()).toBe(480);
         settings_values['events.max_duration'] = 240;
         expect(spectator.component.max_duration()).toBe(240);
+    });
+
+    it('should persist host reset after invalid book-as selection', () => {
+        (spectator.component as any)._resetHostToCurrentUser();
+        expect(spectator.component.form().value.host).toBe(
+            '<empty>@dev.place.tech',
+        );
+        expect(spectator.component.form().value.organiser.email).toBe(
+            '<empty>@dev.place.tech',
+        );
+        expect(store_form).toHaveBeenCalledTimes(1);
     });
 });

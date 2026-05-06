@@ -112,7 +112,7 @@ describe('[Parking Assets]', () => {
         });
     });
 
-    it('should move legacy parking types into the shared category', async () => {
+    it('should ignore legacy parking categories when resolving parking types', async () => {
         const { ts_client, assets_fn, parking_assets } = await load_modules();
         ts_client.queryAssetCategories.mockReturnValue(
             response([
@@ -136,7 +136,7 @@ describe('[Parking Assets]', () => {
         );
         assets_fn.saveAssetType.mockReturnValue(
             of({
-                id: 'type-1',
+                id: 'type-new',
                 name: '_PARKING_SPACES_',
                 category_id: 'cat-new',
                 brand: 'PlaceOS',
@@ -145,16 +145,20 @@ describe('[Parking Assets]', () => {
 
         const type_id = await parking_assets.resolveParkingTypeId().toPromise();
 
-        expect(type_id).toBe('type-1');
+        expect(type_id).toBe('type-new');
+        expect(ts_client.queryAssetTypes).toHaveBeenCalledTimes(1);
+        expect(ts_client.queryAssetTypes).toHaveBeenCalledWith({
+            category_id: 'cat-new',
+            limit: 500,
+        });
         expect(assets_fn.saveAssetType).toHaveBeenCalledWith({
-            id: 'type-1',
             name: '_PARKING_SPACES_',
             brand: 'PlaceOS',
             category_id: 'cat-new',
         });
     });
 
-    it('should move legacy user types into the shared category', async () => {
+    it('should ignore legacy user categories when resolving parking user types', async () => {
         const { ts_client, assets_fn, parking_assets } = await load_modules();
         ts_client.queryAssetCategories.mockReturnValue(
             response([
@@ -178,7 +182,7 @@ describe('[Parking Assets]', () => {
         );
         assets_fn.saveAssetType.mockReturnValue(
             of({
-                id: 'type-2',
+                id: 'type-new',
                 name: '_PARKING_USERS_',
                 category_id: 'cat-new',
                 brand: 'PlaceOS',
@@ -188,9 +192,13 @@ describe('[Parking Assets]', () => {
         const type_id =
             await parking_assets.resolveParkingUserTypeId().toPromise();
 
-        expect(type_id).toBe('type-2');
+        expect(type_id).toBe('type-new');
+        expect(ts_client.queryAssetTypes).toHaveBeenCalledTimes(1);
+        expect(ts_client.queryAssetTypes).toHaveBeenCalledWith({
+            category_id: 'cat-new',
+            limit: 500,
+        });
         expect(assets_fn.saveAssetType).toHaveBeenCalledWith({
-            id: 'type-2',
             name: '_PARKING_USERS_',
             brand: 'PlaceOS',
             category_id: 'cat-new',

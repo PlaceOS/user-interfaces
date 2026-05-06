@@ -1,5 +1,6 @@
 import { formatDate } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
+import { queryParkingSpacesForZones } from '@placeos/assets';
 import { queryAllBookings } from '@placeos/bookings';
 import {
     Booking,
@@ -267,7 +268,10 @@ export class ReportsStateService {
                     ? this._org.levelsForRegion().map((_) => _.id)
                     : this._org.levelsForBuilding().map((_) => _.id);
             }
-            if (filters.type === 'events') {
+            if (
+                filters.type === 'events' ||
+                filters.type === 'catering'
+            ) {
                 return this.spaces.pipe(
                     map((_) =>
                         zones.map((z) => [
@@ -277,14 +281,25 @@ export class ReportsStateService {
                     ),
                 );
             }
+            if (filters.type === 'parking') {
+                const scope_id = this._settings.get('app.use_region')
+                    ? this._org.region?.id
+                    : this._org.building?.id;
+                if (!scope_id) return of([]);
+                return queryParkingSpacesForZones([scope_id]).pipe(
+                    map((spaces) =>
+                        zones.map((z) => [
+                            z,
+                            spaces.filter((space) => space.zones?.includes(z))
+                                .length,
+                        ]),
+                    ),
+                    catchError(() => of([])),
+                );
+            }
             if (!zones.length) return of([]);
             return forkJoin(
-                zones.map((z) =>
-                    showMetadata(z, 'desks').pipe(
-                        catchError(() => of({ details: [] })),
-                        map((m) => [z, m.details.length] as [string, number]),
-                    ),
-                ),
+                zones.map((z) => this._resourceCountForZone(z, filters.type)),
             );
         }),
         map((list: [string, number][]) => {
@@ -295,6 +310,51 @@ export class ReportsStateService {
         }),
         shareReplay(1),
     );
+
+    private _resourceCountForZone(
+        zone_id: string,
+        resource_type: ReportOptions['type'],
+    ): Observable<[string, number]> {
+        switch (resource_type) {
+            case 'lockers':
+                const parent_id = this._org.levels.find(
+                    (level) => level.id === zone_id,
+                )?.parent_id;
+                if (!parent_id) {
+                    return of([zone_id, 0]);
+                }
+                return forkJoin([
+                    showMetadata(parent_id, 'locker_banks').pipe(
+                        catchError(() => of({ details: [] })),
+                    ),
+                    showMetadata(parent_id, 'lockers').pipe(
+                        catchError(() => of({ details: [] })),
+                    ),
+                ]).pipe(
+                    map(([banks_metadata, lockers_metadata]) => {
+                        const bank_ids = banks_metadata.details
+                            .filter((bank) => bank.zones?.includes(zone_id))
+                            .map((bank) => bank.id);
+                        const count = lockers_metadata.details.filter(
+                            (locker) =>
+                                locker.bookable && bank_ids.includes(locker.bank_id),
+                        ).length;
+                        return [zone_id, count] as [string, number];
+                    }),
+                    catchError(() => of([zone_id, 0] as [string, number])),
+                );
+            case 'desks':
+                return showMetadata(zone_id, 'desks').pipe(
+                    catchError(() => of({ details: [] })),
+                    map(
+                        (metadata) =>
+                            [zone_id, metadata.details.length] as [string, number],
+                    ),
+                );
+            default:
+                return of([zone_id, 0]);
+        }
+    }
 
     public readonly stats: Observable<HashMap> = combineLatest([
         this.counts,
