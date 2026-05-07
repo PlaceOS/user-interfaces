@@ -271,7 +271,7 @@ export interface AppLocale {
                 <desk-height-presets></desk-height-presets>
             </ng-template>
 
-            @if (features().includes('parking')) {
+            @if (features().includes('parking-controls')) {
                 <div
                     customTooltip
                     [content]="parking_tooltip"
