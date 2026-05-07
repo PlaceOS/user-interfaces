@@ -48,7 +48,7 @@ export interface SpaceInfoData {
             [hover]="true"
             [attr.id]="space()?.map_id || space()?.id"
             (mouseenter)="updateOffset()"
-            class="pointer-events-auto relative hidden h-full w-full cursor-pointer sm:block"
+            class="pointer-events-auto relative h-full w-full cursor-pointer"
         ></div>
         <ng-template #space_tooltip>
             <div

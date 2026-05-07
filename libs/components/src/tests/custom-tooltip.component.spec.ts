@@ -134,6 +134,44 @@ describe('CustomTooltipComponent', () => {
         expect(spectator.directive.open).toHaveBeenCalled();
     }));
 
+    it('should open hover tooltips on pointer hover', fakeAsync(() => {
+        spectator = createDirective(
+            '<div customTooltip [content]="content" [hover]="true"></div>',
+            {
+                hostProps: {
+                    content: 'Test HTML',
+                },
+            },
+        );
+        jest.spyOn(spectator.directive, 'open');
+
+        spectator.dispatchFakeEvent(spectator.query('div'), 'pointerenter');
+        spectator.tick(200);
+
+        expect(spectator.directive.open).toHaveBeenCalled();
+    }));
+
+    it('should not open hover tooltips from touch pointers', fakeAsync(() => {
+        spectator = createDirective(
+            '<div customTooltip [content]="content" [hover]="true"></div>',
+            {
+                hostProps: {
+                    content: 'Test HTML',
+                },
+            },
+        );
+        jest.spyOn(spectator.directive, 'open');
+
+        const touch_event = new Event('pointerenter');
+        Object.defineProperty(touch_event, 'pointerType', { value: 'touch' });
+        spectator.query('div').dispatchEvent(touch_event);
+        spectator.dispatchMouseEvent(spectator.query('div'), 'click');
+        spectator.dispatchFakeEvent(spectator.query('div'), 'touchend');
+        spectator.tick(200);
+
+        expect(spectator.directive.open).not.toHaveBeenCalled();
+    }));
+
     it('should inject data into components', fakeAsync(() => {
         spectator = createDirective(
             `<div customTooltip [content]="content" [data]="data"></div>`,
