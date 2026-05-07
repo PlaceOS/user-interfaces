@@ -456,6 +456,7 @@
     },
     "BOOKINGS": {
         "ASSOCIATE": "Associate",
+        "BOOKED_FOR": "For {{ name }}",
         "EVENT": "Event",
         "PREVENT": "Prevent Bookings",
         "RESERVED": "Reserved",
@@ -859,6 +860,7 @@
             "WELCOME_MESSAGE": "Hello {{ name }},",
             "UPCOMING": "Your Bookings",
             "UPCOMING_VIEW": "View All",
+            "UPCOMING_MORE": "There are more bookings. Click here to view them.",
             "UPCOMING_EMPTY": "You have no upcoming bookings",
             "QUICK_LINKS_HEADER": "Make a reservation",
             "ONECLICK_LINKS_HEADER": "Quick Book",

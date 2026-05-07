@@ -54,6 +54,17 @@ import { ParkingService } from './parking.service';
                         <status-pill [status]="status()">{{
                             period()
                         }}</status-pill>
+                        @if (!for_current_user() && booked_for_label()) {
+                            <div
+                                booked-for
+                                class="text-base-content/70 flex min-w-0 items-center space-x-1 text-sm"
+                            >
+                                <icon class="text-lg">person</icon>
+                                <span class="truncate">
+                                    {{ 'BOOKINGS.BOOKED_FOR' | translate: { name: booked_for_label() } }}
+                                </span>
+                            </div>
+                        }
                         @if (booking().instance) {
                             <icon class="text-2xl" [matTooltip]="recurr_tooltip"
                                 >event_repeat</icon
@@ -223,6 +234,15 @@ export class BookingCardComponent {
             this.booking()?.user_email?.toLowerCase() ===
             currentUser()?.email?.toLowerCase(),
     );
+
+    public readonly booked_for_label = computed(() => {
+        const booking = this.booking();
+        if (!booking) return '';
+        return (
+            `${booking.user_name || ''}`.trim() ||
+            this._formatEmailName(`${booking.user_email || ''}`.trim())
+        );
+    });
 
     public readonly show_waitlist = this._settings.signal(
         'parking.show_waitlist',
