@@ -338,6 +338,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                         } @else {
                             <desk-flow-select-list
                                 [selected_items]="selected()"
+                                [promote_selected]="promote_selected()"
                                 (item_selected)="toggleDesk($event)"
                             />
                         }
@@ -608,6 +609,7 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
     );
     public readonly form = signal(this._booking_form.form);
     public readonly selected = signal<string[]>([]);
+    public readonly promote_selected = signal(false);
     public readonly view = signal<'map' | 'list'>('list');
     public readonly filters_open = signal(false);
 
@@ -639,6 +641,7 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
     public readonly loading = this._booking_form.loading;
 
     public readonly active = signal('');
+    private _manual_selection = false;
     private readonly bookable_resources = toSignal(this._booking_form.resources, {
         initialValue: [],
     });
@@ -650,6 +653,10 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
                 ({ id }) => id,
             );
             this.selected.set(selected_ids);
+            this.promote_selected.set(
+                !!selected_ids.length && !this._manual_selection,
+            );
+            this._manual_selection = false;
         });
     }
 
@@ -818,6 +825,7 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
 
     public toggleDesk(space: Space) {
         const resources = this.field('resources') || [];
+        this._manual_selection = true;
         if (this._settings.get('app.desks.allow_multiple')) {
             const new_resources = resources.find(({ id }) => id === space.id)
                 ? resources.filter(({ id }) => id !== space.id)

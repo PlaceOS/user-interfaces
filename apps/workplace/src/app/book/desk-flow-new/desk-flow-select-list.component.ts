@@ -4,6 +4,7 @@ import {
     computed,
     effect,
     inject,
+    input,
     model,
     output,
     signal,
@@ -218,6 +219,7 @@ export class DeskFlowSelectListComponent {
     private _settings = inject(SettingsService);
 
     public readonly selected_items = model<string[]>([]);
+    public readonly promote_selected = input(false);
     public readonly item_selected = output<Space>();
 
     public readonly loading = toSignal(this._booking_form.loading, {
@@ -236,12 +238,30 @@ export class DeskFlowSelectListComponent {
         },
     );
 
-    // Keep the active desk visible even if it falls outside the current
-    // availability result set while the form is loading or filters are updating.
+    private readonly _promote_on_list_change = signal(false);
+
+    // Keep the active desk visible and first even while availability results are
+    // loading or changing underneath the current selection.
     public readonly available_items = computed(() => {
         const available = this._available_items();
         const form = this.form_value();
         const resources = form.resources || [];
+
+        if (
+            resources.length > 0 &&
+            (this.promote_selected() || this._promote_on_list_change())
+        ) {
+            const selected_ids = resources.map((r) => r.id);
+            const selected_resources = resources.map(
+                (resource) =>
+                    available.find((item) => item.id === resource.id) || resource,
+            );
+            const remaining_resources = available.filter(
+                (item) => !selected_ids.includes(item.id),
+            );
+
+            return [...selected_resources, ...remaining_resources];
+        }
 
         if (resources.length > 0) {
             const existing_ids = available.map((r) => r.id);
@@ -270,21 +290,35 @@ export class DeskFlowSelectListComponent {
     ]);
 
     private _last_auto_page_key = '';
+    private _last_available_key = '';
+    private _last_selected_key = '';
 
     constructor() {
         effect(() => {
+            const available_key = this._available_items()
+                .map((item) => item.id)
+                .join('|');
+            const selected_key = this.selected_items().join('|');
+            const selected_changed = selected_key !== this._last_selected_key;
+            const available_changed = available_key !== this._last_available_key;
+
+            if (!selected_key || selected_changed) {
+                this._promote_on_list_change.set(false);
+            } else if (available_changed && this._last_available_key) {
+                this._promote_on_list_change.set(true);
+            }
+
+            this._last_available_key = available_key;
+            this._last_selected_key = selected_key;
+        });
+
+        effect(() => {
             const selected_id = this.selected_items()?.[0];
             if (!selected_id) return;
-            const available_items = this._available_items();
             const merged_items = this.available_items();
-            const item_index = available_items.findIndex(
+            const selected_index = merged_items.findIndex(
                 (item) => item.id === selected_id,
             );
-            const fallback_index = merged_items.findIndex(
-                (item) => item.id === selected_id,
-            );
-            const selected_index =
-                item_index >= 0 ? item_index : fallback_index;
             if (selected_index < 0) return;
             const target_page = Math.floor(selected_index / this.page_size());
             const page_key = `${selected_id}:${selected_index}:${this.page_size()}`;
