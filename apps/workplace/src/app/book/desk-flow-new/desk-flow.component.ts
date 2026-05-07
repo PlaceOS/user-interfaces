@@ -2,11 +2,16 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BookingFormService, findNearbyFeature } from '@placeos/bookings';
+import {
+    BookingAsset,
+    BookingFormService,
+    findNearbyFeature,
+} from '@placeos/bookings';
 import {
     AsyncHandler,
     currentUser,
     firstTruthyValueFrom,
+    flatten,
     getInvalidFields,
     i18n,
     nextValueFrom,
@@ -16,8 +21,9 @@ import {
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SpacePipe } from '@placeos/events';
+import { listChildMetadata } from '@placeos/ts-client';
 import { set } from 'date-fns';
-import { filter, firstValueFrom, map, of, timeout } from 'rxjs';
+import { catchError, filter, firstValueFrom, map, of, timeout } from 'rxjs';
 import { DeskFlowAutoAssignComponent } from './desk-flow-auto-assign.component';
 import { DeskFlowDetailsComponent } from './desk-flow-details.component';
 import { DeskFlowSelectComponent } from './desk-flow-select.component';
@@ -183,20 +189,13 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
                 await firstTruthyValueFrom(
                     this._booking_form.loading.pipe(map((_) => !_)),
                 );
-                const resource = await firstValueFrom(
-                    this._booking_form.resources.pipe(
-                        map((resources) =>
-                            resources.find((item) => item.id === asset_id),
-                        ),
-                        filter((resource) => !!resource),
-                        timeout({ first: 5000, with: () => of(null) }),
-                    ),
-                );
+                if (!asset_id) return;
+                const resource = await this._findDeskResource(asset_id);
                 if (!resource) return;
                 const building = resource.zone?.parent_id
                     ? this._org.find(resource.zone.parent_id)
                     : null;
-                if (building) {
+                if (building && building.id !== this._org.building?.id) {
                     this._org.building = building;
                 }
                 this._booking_form.setOptions({
@@ -210,6 +209,65 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
                 });
             }),
         );
+    }
+
+    private async _findDeskResource(
+        asset_id: string,
+    ): Promise<BookingAsset | null> {
+        const resource = await this._findDeskResourceFromStream(asset_id, 50);
+        if (resource) return resource;
+
+        const building_resource = await this._findDeskResourceFromBuildings(
+            asset_id,
+        );
+        return (
+            building_resource ||
+            (await this._findDeskResourceFromStream(asset_id, 5000))
+        );
+    }
+
+    private async _findDeskResourceFromStream(
+        asset_id: string,
+        wait_ms: number,
+    ): Promise<BookingAsset | null> {
+        return firstValueFrom(
+            this._booking_form.resources.pipe(
+                map((resources) =>
+                    resources.find((item) => item.id === asset_id),
+                ),
+                filter((resource) => !!resource),
+                timeout({ first: wait_ms, with: () => of(null) }),
+            ),
+        );
+    }
+
+    private async _findDeskResourceFromBuildings(
+        asset_id: string,
+    ): Promise<BookingAsset | null> {
+        for (const building of this._org.buildings || []) {
+            const resources = await firstValueFrom(
+                listChildMetadata(building.id, { name: 'desks' }).pipe(
+                    map((data) =>
+                        flatten<BookingAsset>(
+                            data.map((metadata) =>
+                                (metadata?.metadata?.desks?.details instanceof Array
+                                    ? metadata.metadata.desks.details
+                                    : []
+                                ).map((desk) => ({
+                                    ...desk,
+                                    id: desk.id || desk.map_id,
+                                    zone: metadata.zone,
+                                })),
+                            ),
+                        ),
+                    ),
+                    catchError(() => of([])),
+                ),
+            );
+            const resource = resources.find((item) => item.id === asset_id);
+            if (resource) return resource;
+        }
+        return null;
     }
 
     private async _initNearbyDeskBooking(space_id: string, event_date: number) {

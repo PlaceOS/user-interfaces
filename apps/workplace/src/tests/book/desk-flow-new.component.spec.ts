@@ -6,7 +6,12 @@ import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 import { signal } from '@angular/core';
+import { listChildMetadata } from '@placeos/ts-client';
 import { DeskFlowNewComponent } from '../../app/book/desk-flow-new/desk-flow.component';
+
+jest.mock('@placeos/ts-client', () => ({
+    listChildMetadata: jest.fn(),
+}));
 
 describe('DeskFlowNewComponent', () => {
     let spectator: Spectator<DeskFlowNewComponent>;
@@ -53,14 +58,19 @@ describe('DeskFlowNewComponent', () => {
                 }),
             } as any),
             MockProvider(OrganisationService, {
+                buildings: [
+                    { id: 'building-1' },
+                    { id: 'building-2' },
+                ],
                 find: jest.fn((id: string) =>
-                    id === 'building-1' ? { id: 'building-1' } : null,
+                    ['building-1', 'building-2'].includes(id) ? { id } : null,
                 ),
             } as any),
         ],
     });
 
     beforeEach(() => {
+        jest.mocked(listChildMetadata).mockReturnValue(of([]) as any);
         resources.next([desk_resource]);
         form?.patchValue({ booking_type: 'desk', resources: [], asset_id: '' });
     });
@@ -107,5 +117,65 @@ describe('DeskFlowNewComponent', () => {
 
         expect(form.getRawValue().asset_id).toBe('desk-123');
         expect(form.getRawValue().resources).toEqual([desk_resource]);
+    });
+
+    it('should update the active building when the query param desk is in another building', async () => {
+        const other_building_desk = {
+            id: 'desk-456',
+            name: 'Desk 456',
+        };
+        resources.next([]);
+        jest.mocked(listChildMetadata).mockImplementation(
+            (building_id: string) =>
+                of(
+                    building_id === 'building-2'
+                        ? [
+                              {
+                                  metadata: {
+                                      desks: { details: [other_building_desk] },
+                                  },
+                                  zone: {
+                                      id: 'level-2',
+                                      parent_id: 'building-2',
+                                  },
+                              },
+                          ]
+                        : [],
+                ) as any,
+        );
+
+        spectator = createComponent({
+            providers: [
+                MockProvider(ActivatedRoute, {
+                    paramMap: of({
+                        has: (key: string) => key === 'step',
+                        get: (key: string) => (key === 'step' ? 'form' : null),
+                    }),
+                    queryParamMap: of({
+                        has: (key: string) => key === 'asset_id',
+                        get: (key: string) =>
+                            key === 'asset_id' ? 'desk-456' : null,
+                    }),
+                } as any),
+            ],
+        });
+
+        await spectator.component.ngOnInit();
+        await new Promise((resolve) => setTimeout(resolve, 75));
+
+        expect(spectator.inject(OrganisationService).building).toEqual({
+            id: 'building-2',
+        });
+        expect(form.getRawValue()).toEqual({
+            booking_type: 'desk',
+            resources: [
+                {
+                    id: 'desk-456',
+                    name: 'Desk 456',
+                    zone: { id: 'level-2', parent_id: 'building-2' },
+                },
+            ],
+            asset_id: 'desk-456',
+        });
     });
 });
