@@ -415,7 +415,7 @@ const createMockLevel = (
         parent_id: building.id,
         description: `${levelName} of ${building.name} featuring ${features.join(', ')}`,
         tags: ['level', levelType, building.tags[1]].filter(Boolean),
-        map_id: `assets/maps/${building.id.replace('bld-', 'level_')}${levelCode}.svg`,
+        map_id: `assets/maps/level_${levelCode}.svg`,
         code: `${building.name.substring(0, 3).toUpperCase()}-${levelCode}`,
         type: levelType,
         count: predictableRandomInt(15, 5), // Number of spaces/rooms
