@@ -132,28 +132,30 @@ export class CustomTooltipComponent<T = any>
     });
 
     public ngOnInit(): void {
-        const open = () => this.open();
-        const hover_open = () => (this.hover() ? this.open() : '');
-        const hover_close = () => (this.hover() ? this.close() : '');
+        const open = () => (!this.hover() ? this.open() : '');
+        const hover_open = (event: MouseEvent | PointerEvent) =>
+            this._canOpenHoverTooltip(event) ? this.open() : '';
+        const hover_close = (event: MouseEvent | PointerEvent) =>
+            this._canOpenHoverTooltip(event) ? this.close() : '';
         this._element.nativeElement.addEventListener('click', open);
         this._element.nativeElement.addEventListener('touchend', open);
-        this._element.nativeElement.addEventListener('mouseenter', hover_open);
-        this._element.nativeElement.addEventListener('mouseleave', hover_close);
+        this._element.nativeElement.addEventListener('pointerenter', hover_open);
+        this._element.nativeElement.addEventListener('pointerleave', hover_close);
         this.subscription('click', () =>
             this._element.nativeElement.removeEventListener('click', open),
         );
         this.subscription('touchend', () =>
             this._element.nativeElement.removeEventListener('touchend', open),
         );
-        this.subscription('mouseenter', () =>
+        this.subscription('pointerenter', () =>
             this._element.nativeElement.removeEventListener(
-                'mouseenter',
+                'pointerenter',
                 hover_open,
             ),
         );
-        this.subscription('mouseleave', () =>
+        this.subscription('pointerleave', () =>
             this._element.nativeElement.removeEventListener(
-                'mouseleave',
+                'pointerleave',
                 hover_close,
             ),
         );
@@ -230,5 +232,10 @@ export class CustomTooltipComponent<T = any>
             this._overlay_ref.dispose();
             this._overlay_ref = null;
         }
+    }
+
+    private _canOpenHoverTooltip(event: MouseEvent | PointerEvent) {
+        if (!this.hover()) return false;
+        return !('pointerType' in event) || event.pointerType !== 'touch';
     }
 }

@@ -16,7 +16,7 @@ interface ParkingSpaceExtended extends ParkingSpace {
     selector: 'explore-parking-info',
     template: `
         <div
-            class="bg-base-300 absolute top-1/2 left-1/2 hidden rounded-lg rounded-tl-none! p-2 text-left shadow-sm sm:block"
+            class="bg-base-300 absolute top-1/2 left-1/2 rounded-lg rounded-tl-none! p-2 text-left shadow-sm"
             [class.bg-error!]="show_status_details() && status() === 'busy'"
             [class.text-error-content!]="
                 show_status_details() && status() === 'busy'
