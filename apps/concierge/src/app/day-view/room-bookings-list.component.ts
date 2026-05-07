@@ -158,15 +158,22 @@ import { EventsStateService } from './events-state.service';
                 <div class="px-4 py-2">
                     <div
                         class="bg-success text-success-content inline-flex rounded-full px-3 py-1 text-xs"
-                        [class.bg-error]="row.type === 'cancelled'"
-                        [class.text-error-content]="row.type === 'cancelled'"
-                        [class.bg-warning]="row.status === 'tentative'"
-                        [class.text-warning-content]="
+                        [class.bg-error!]="
+                            row.type === 'cancelled' ||
+                            row.status === 'declined'
+                        "
+                        [class.text-error-content!]="
+                            row.type === 'cancelled' ||
+                            row.status === 'declined'
+                        "
+                        [class.bg-warning!]="row.status === 'tentative'"
+                        [class.text-warning-content!]="
                             row.status === 'tentative'
                         "
                     >
                         {{
-                            (row.type === 'cancelled'
+                            (row.type === 'cancelled' ||
+                            row.status === 'declined'
                                 ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
                                 : row.status === 'tentative'
                                   ? 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
