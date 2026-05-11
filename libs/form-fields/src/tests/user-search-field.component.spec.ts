@@ -9,6 +9,7 @@ import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import { User } from '@placeos/common';
+import { showUser } from '@placeos/ts-client';
 import { generateMockUser } from '@placeos/users';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
@@ -155,6 +156,40 @@ describe('UserSearchFieldComponent', () => {
         spectator.detectChanges();
 
         expect(spectator.component.selected_user()).toEqual(user);
+    }));
+
+    it('should show the selected user after selecting a user', fakeAsync(() => {
+        const user = new User(generateMockUser());
+
+        spectator.component.setValue(user);
+        spectator.tick(111);
+        spectator.detectChanges();
+
+        expect(spectator.component.selected_user()).toEqual(user);
+    }));
+
+    it('should update the selected user when user details include a photo', fakeAsync(() => {
+        const user = new User({
+            id: 'user-1',
+            name: 'Photo User',
+            email: 'photo@example.com',
+        });
+        (showUser as jest.Mock).mockReturnValueOnce(
+            of({
+                id: 'user-1',
+                name: 'Photo User',
+                email: 'photo@example.com',
+                photo: 'photo.png',
+            }),
+        );
+        (spectator.component as any).use_basic_search.set(false);
+
+        spectator.component.setValue(user);
+        spectator.tick(111);
+        spectator.detectChanges();
+
+        expect(spectator.component.user().photo).toBe('photo.png');
+        expect(spectator.component.selected_user().photo).toBe('photo.png');
     }));
 
     it('should validate email addresses correctly', () => {

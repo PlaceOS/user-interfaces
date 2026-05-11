@@ -11,6 +11,7 @@ import { LandingUpcomingComponent } from '../../app/landing/landing-upcoming.com
 
 describe('LandingUpcomingComponent', () => {
     let spectator: SpectatorRouting<LandingUpcomingComponent>;
+    const upcoming_events = new BehaviorSubject<Booking[]>([]);
     const createComponent = createRoutingFactory({
         component: LandingUpcomingComponent,
         declarations: [
@@ -22,7 +23,7 @@ describe('LandingUpcomingComponent', () => {
             {
                 provide: LandingStateService,
                 useValue: {
-                    upcoming_events: new BehaviorSubject([]),
+                    upcoming_events,
                     refreshUpcomingEvents: jest.fn(),
                     pollUpcomingEvents: jest.fn(),
                     stopPollingUpcomingEvents: jest.fn(),
@@ -38,7 +39,10 @@ describe('LandingUpcomingComponent', () => {
         ],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        upcoming_events.next([]);
+        spectator = createComponent();
+    });
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
@@ -85,5 +89,22 @@ describe('LandingUpcomingComponent', () => {
         );
         expect(booking_form.form.patchValue).not.toHaveBeenCalled();
         jest.useRealTimers();
+    });
+
+    it('should show a prompt when the upcoming list is truncated', () => {
+        upcoming_events.next(
+            Array.from(
+                { length: 6 },
+                (_, index) =>
+                    new Booking({
+                        id: `booking-${index}`,
+                        booking_type: 'desk',
+                        type: 'desk',
+                    } as any),
+            ),
+        );
+        spectator.detectChanges();
+
+        expect('[name="upcoming-more-bookings"]').toExist();
     });
 });

@@ -104,6 +104,22 @@ describe('BookingCardComponent', () => {
         expect(spectator.component.resource_label()).toBe('Visitor One');
     });
 
+    it('should show who an associated booking is for', () => {
+        spectator.setInput({
+            booking: new Booking({
+                booking_type: 'desk',
+                type: 'desk',
+                title: 'Desk booking',
+                user_email: 'james.mcmillan@example.com',
+                user_name: 'James McMillan',
+            } as any),
+        });
+        spectator.detectChanges();
+
+        expect('[booked-for]').toExist();
+        expect(spectator.component.booked_for_label()).toBe('James McMillan');
+    });
+
     it('should show waitlisted status for current week parking requests when enabled', () => {
         spectator.setInput({
             booking: new Booking({

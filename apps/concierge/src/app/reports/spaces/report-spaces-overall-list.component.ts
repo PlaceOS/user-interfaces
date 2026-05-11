@@ -11,8 +11,34 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { ReportsStateService } from '../reports-state.service';
 import { formatReportPercentage } from '../reports.utilities';
+
+const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Approved',
+        description: 'Bookings on the day where the booking is approved.',
+    },
+    {
+        label: 'Total requests',
+        description:
+            'All room bookings on the day, including active, cancelled, and deleted events.',
+    },
+    {
+        label: 'Cancelled / Deleted',
+        description:
+            'Displayed as count and percentage of total requests for that day.',
+    },
+    {
+        label: 'Utilisation',
+        description:
+            'Active room bookings divided by the greater of active bookings or available room count for that day.',
+    },
+];
 
 @Component({
     selector: 'report-spaces-overall-list',
@@ -38,6 +64,11 @@ import { formatReportPercentage } from '../reports.utilities';
                             <icon>download</icon>
                         </button>
                     }
+                    <placeos-report-metric-guide
+                        title="Table column calculations"
+                        [items]="table_metric_guide"
+                        [inline]="true"
+                    />
                 </div>
                 <simple-table
                     class="block w-full text-sm"
@@ -106,12 +137,14 @@ import { formatReportPercentage } from '../reports.utilities';
         SimpleTableComponent,
         MatRippleModule,
         MatTooltipModule,
+        ReportMetricGuideComponent,
     ],
 })
 export class ReportSpacesOverallListComponent {
     private _state = inject(ReportsStateService);
 
     public readonly print = input(false);
+    public readonly table_metric_guide = TABLE_METRIC_GUIDE;
 
     public readonly day_list = toSignal(this._state.day_list, {
         initialValue: [],

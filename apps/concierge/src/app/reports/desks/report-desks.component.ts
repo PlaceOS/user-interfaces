@@ -15,9 +15,41 @@ import {
 } from '@placeos/components';
 import { ReportsOptionsComponent } from '../reports-options.component';
 import { ReportsStateService } from '../reports-state.service';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { ReportDesksChartsComponent } from './report-desks-charts.component';
 import { ReportDesksLevelListComponent } from './report-desks-level-list.component';
 import { ReportDesksOverallListComponent } from './report-desks-overall-list.component';
+
+const METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Total bookings',
+        description:
+            'All desk bookings returned for the selected dates and zones, including active, cancelled, and deleted records.',
+    },
+    {
+        label: 'Active',
+        description:
+            'Bookings that are not deleted and do not have a cancelled status.',
+    },
+    {
+        label: 'Cancelled / Deleted',
+        description:
+            'Cancelled counts non-deleted bookings with cancelled status. Deleted counts bookings flagged as deleted.',
+    },
+    {
+        label: 'Utilisation',
+        description:
+            'Active booking count divided by the number of available desks across the selected levels and business-day period.',
+    },
+    {
+        label: 'Daily utilisation',
+        description:
+            'For each day, active desk usage is compared with available desk capacity for the selected levels.',
+    },
+];
 
 @Component({
     selector: '[report-desks]',
@@ -44,6 +76,7 @@ import { ReportDesksOverallListComponent } from './report-desks-overall-list.com
             </div>
             @if (!loading()) {
                 @if (total_count()) {
+                    <placeos-report-metric-guide [items]="metric_guide" />
                     <div
                         class="border-base-200 bg-base-100 m-4 flex items-center justify-center space-x-2 rounded-sm border p-4"
                     >
@@ -123,6 +156,7 @@ import { ReportDesksOverallListComponent } from './report-desks-overall-list.com
         TranslatePipe,
         MatProgressSpinnerModule,
         ReportsOptionsComponent,
+        ReportMetricGuideComponent,
         ReportDesksChartsComponent,
         ReportDesksLevelListComponent,
         ReportDesksOverallListComponent,
@@ -155,6 +189,7 @@ export class ReportDesksComponent extends AsyncHandler {
     });
 
     public readonly printing = signal(false);
+    public readonly metric_guide = METRIC_GUIDE;
     public readonly total_count = computed(
         () => this._stats().total_count || this._stats().count || 0,
     );

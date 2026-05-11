@@ -11,8 +11,38 @@ import {
 } from '@placeos/components';
 import { format } from 'date-fns';
 import { DurationPipe } from 'libs/components/src/lib/duration.pipe';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { reportBookingStatus } from '../reports.utilities';
 import { ParkingReportService } from './parking-report.service';
+
+const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Parking space',
+        description:
+            'Uses asset name, extension asset name, description, then asset ID as fallback.',
+    },
+    {
+        label: 'Duration',
+        description:
+            'Shows all day when the booking is marked all day or duration is greater than 12 hours; otherwise formats booking minutes.',
+    },
+    {
+        label: 'Reserved for',
+        description: 'Booking user name, falling back to user email.',
+    },
+    {
+        label: 'Checked in',
+        description: 'True when the booking checked-in flag is set.',
+    },
+    {
+        label: 'Status',
+        description:
+            'Deleted bookings show Deleted; otherwise the booking status is shown, defaulting to tentative.',
+    },
+];
 
 @Component({
     selector: 'parking-report-list',
@@ -38,6 +68,11 @@ import { ParkingReportService } from './parking-report.service';
                         <icon>download</icon>
                     </button>
                 }
+                <placeos-report-metric-guide
+                    title="Table column calculations"
+                    [items]="table_metric_guide"
+                    [inline]="true"
+                />
             </div>
             <simple-table
                 class="block w-full text-sm"
@@ -101,6 +136,7 @@ import { ParkingReportService } from './parking-report.service';
         IconComponent,
         MatRippleModule,
         MatTooltipModule,
+        ReportMetricGuideComponent,
     ],
 })
 export class ParkingReportListComponent {
@@ -110,6 +146,7 @@ export class ParkingReportListComponent {
     });
 
     public readonly print = input(false);
+    public readonly table_metric_guide = TABLE_METRIC_GUIDE;
 
     public readonly parking_bookings = computed(() => {
         const list = [];

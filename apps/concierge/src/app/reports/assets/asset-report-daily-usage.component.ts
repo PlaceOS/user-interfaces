@@ -10,8 +10,39 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { format } from 'date-fns';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { formatReportPercentage } from '../reports.utilities';
 import { AssetsReportService } from './assets-report.service';
+
+const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Booking count',
+        description:
+            'All asset request bookings for the product on the day, including active, cancelled, and deleted records.',
+    },
+    {
+        label: 'Active',
+        description:
+            'Active asset request bookings for the product on the day.',
+    },
+    {
+        label: 'Cancelled / Deleted',
+        description:
+            'Displayed as count and percentage of total product bookings for that day.',
+    },
+    {
+        label: 'Total booked',
+        description:
+            'Number of booked asset IDs from active requests that belong to the product.',
+    },
+    {
+        label: 'Assets available',
+        description: 'Total assets configured for the product.',
+    },
+];
 
 @Component({
     selector: 'asset-report-daily-usage',
@@ -35,6 +66,11 @@ import { AssetsReportService } from './assets-report.service';
                         <icon>download</icon>
                     </button>
                 }
+                <placeos-report-metric-guide
+                    title="Table column calculations"
+                    [items]="table_metric_guide"
+                    [inline]="true"
+                />
             </div>
             <simple-table
                 class="block w-full text-sm"
@@ -107,12 +143,14 @@ import { AssetsReportService } from './assets-report.service';
         IconComponent,
         MatRippleModule,
         MatTooltipModule,
+        ReportMetricGuideComponent,
     ],
 })
 export class AssetReportDailyUsageComponent {
     private _state = inject(AssetsReportService);
 
     public readonly print = input(false);
+    public readonly table_metric_guide = TABLE_METRIC_GUIDE;
     private readonly _daily_stats = toSignal(this._state.daily_stats$, {
         initialValue: {},
     });

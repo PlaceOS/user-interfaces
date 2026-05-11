@@ -11,8 +11,43 @@ import {
 } from '@placeos/components';
 import { format } from 'date-fns';
 import { DurationPipe } from 'libs/components/src/lib/duration.pipe';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { reportBookingStatus } from '../reports.utilities';
 import { LockersReportService } from './lockers-report.service';
+
+const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Locker',
+        description:
+            'Uses asset name, extension asset name, description, then asset ID as fallback.',
+    },
+    {
+        label: 'Duration',
+        description:
+            'Shows all day when the booking is marked all day or duration is greater than 12 hours; otherwise formats booking minutes.',
+    },
+    {
+        label: 'Type',
+        description:
+            'First tag from extension data, falling back to the first booking tag.',
+    },
+    {
+        label: 'Booked for',
+        description: 'Booking user name, falling back to user email.',
+    },
+    {
+        label: 'Checked in',
+        description: 'True when the booking checked-in flag is set.',
+    },
+    {
+        label: 'Status',
+        description:
+            'Deleted bookings show Deleted; otherwise the booking status is shown, defaulting to tentative.',
+    },
+];
 
 @Component({
     selector: 'lockers-report-list',
@@ -38,6 +73,11 @@ import { LockersReportService } from './lockers-report.service';
                         <icon>download</icon>
                     </button>
                 }
+                <placeos-report-metric-guide
+                    title="Table column calculations"
+                    [items]="table_metric_guide"
+                    [inline]="true"
+                />
             </div>
             <simple-table
                 class="block w-full text-sm"
@@ -105,6 +145,7 @@ import { LockersReportService } from './lockers-report.service';
         MatRippleModule,
         MatTooltipModule,
         IconComponent,
+        ReportMetricGuideComponent,
     ],
 })
 export class LockersReportListComponent {
@@ -114,6 +155,7 @@ export class LockersReportListComponent {
     });
 
     public readonly print = input(false);
+    public readonly table_metric_guide = TABLE_METRIC_GUIDE;
 
     public readonly lockers_bookings = computed(() => {
         const list = [];

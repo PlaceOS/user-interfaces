@@ -9,8 +9,35 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { map } from 'rxjs/operators';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { ReportsStateService } from '../reports-state.service';
 import { cappedReportAttendeeCount } from '../reports.utilities';
+
+const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Bookings',
+        description:
+            'Number of room bookings where the host attendee matches the booking host or host override.',
+    },
+    {
+        label: 'Average booking invites',
+        description:
+            'Total invited attendees across hosted bookings divided by hosted booking count.',
+    },
+    {
+        label: 'Total time',
+        description:
+            'Sum of hosted booking durations, using 15 minutes when a booking duration is missing.',
+    },
+    {
+        label: 'No-shows',
+        description:
+            'Hosted bookings with a recorded maximum people count of zero.',
+    },
+];
 
 @Component({
     selector: 'report-spaces-user-listing',
@@ -34,6 +61,11 @@ import { cappedReportAttendeeCount } from '../reports.utilities';
                         <icon>download</icon>
                     </button>
                 }
+                <placeos-report-metric-guide
+                    title="Table column calculations"
+                    [items]="table_metric_guide"
+                    [inline]="true"
+                />
             </div>
             <simple-table
                 class="block w-full text-sm"
@@ -74,12 +106,14 @@ import { cappedReportAttendeeCount } from '../reports.utilities';
         IconComponent,
         MatRippleModule,
         MatTooltipModule,
+        ReportMetricGuideComponent,
     ],
 })
 export class ReportSpacesUserListingComponent {
     private _reports = inject(ReportsStateService);
 
     public readonly print = input(false);
+    public readonly table_metric_guide = TABLE_METRIC_GUIDE;
     private readonly _stats = toSignal(
         this._reports.stats.pipe(map((stats) => stats || { events: [] })),
         { initialValue: { events: [] } },

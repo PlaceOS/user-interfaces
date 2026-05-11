@@ -4,7 +4,34 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CateringOption, OrganisationService } from '@placeos/common';
 import { SimpleTableComponent, TranslatePipe } from '@placeos/components';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { CateringReportStateService } from './catering-report-state.service';
+
+const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Options',
+        description:
+            'Number of configured options on the catering item; hover shows option names.',
+    },
+    {
+        label: 'Quantity',
+        description:
+            'Combined item quantity across all non-cancelled catering orders.',
+    },
+    {
+        label: 'Item price',
+        description:
+            'Unit price converted from cents and displayed in the organisation currency.',
+    },
+    {
+        label: 'Total cost',
+        description:
+            'Item total cost converted from cents and displayed in the organisation currency.',
+    },
+];
 
 @Component({
     selector: 'catering-report-items',
@@ -21,6 +48,11 @@ import { CateringReportStateService } from './catering-report-state.service';
                             | translate
                     }}
                 </h2>
+                <placeos-report-metric-guide
+                    title="Table column calculations"
+                    [items]="table_metric_guide"
+                    [inline]="true"
+                />
             </div>
             <simple-table
                 class="block w-full text-sm"
@@ -85,6 +117,7 @@ import { CateringReportStateService } from './catering-report-state.service';
         SimpleTableComponent,
         TranslatePipe,
         MatTooltipModule,
+        ReportMetricGuideComponent,
     ],
 })
 export class CateringReportItemsComponent {
@@ -92,6 +125,7 @@ export class CateringReportItemsComponent {
     private _org = inject(OrganisationService);
 
     public readonly print = input(false);
+    public readonly table_metric_guide = TABLE_METRIC_GUIDE;
     public readonly items = toSignal(this._report.catering_items, {
         initialValue: [],
     });

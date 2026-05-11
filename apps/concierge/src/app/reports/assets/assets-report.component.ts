@@ -13,6 +13,10 @@ import {
 } from '@placeos/components';
 import { debounceTime, map } from 'rxjs/operators';
 
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { ReportsOptionsComponent } from '../reports-options.component';
 import { AssetReportDailyUsageComponent } from './asset-report-daily-usage.component';
 import { AssetReportExpiredItemsComponent } from './asset-report-expired-items.component';
@@ -20,6 +24,39 @@ import { AssetReportOverallComponent } from './asset-report-overall.component';
 import { AssetReportProductUsageComponent } from './asset-report-product-usage.component';
 import { AssetReportUsersComponent } from './asset-report-users.component';
 import { AssetsReportService } from './assets-report.service';
+
+const METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Business days',
+        description:
+            'Number of business days in the selected reporting range.',
+    },
+    {
+        label: 'Total bookings',
+        description:
+            'All asset request bookings returned for the selected dates and zones, including active, cancelled, and deleted records.',
+    },
+    {
+        label: 'Active / Cancelled / Deleted',
+        description:
+            'Active excludes deleted and cancelled bookings. Cancelled uses non-deleted bookings with cancelled status. Deleted uses bookings flagged as deleted.',
+    },
+    {
+        label: 'Average length',
+        description:
+            'Average duration of linked events for the active asset requests.',
+    },
+    {
+        label: 'Total and unique booked items',
+        description:
+            'Total booked items sums asset IDs on active requests. Unique items counts product groups that contain at least one booked asset.',
+    },
+    {
+        label: 'Expired items',
+        description:
+            'Purchase orders with expected service end dates before the selected report start date.',
+    },
+];
 
 @Component({
     selector: '[report-assets]',
@@ -45,6 +82,7 @@ import { AssetsReportService } from './assets-report.service';
             </div>
             @if (!loading()) {
                 @if (total_count()) {
+                    <placeos-report-metric-guide [items]="metric_guide" />
                     <asset-report-overall></asset-report-overall>
                     <asset-report-daily-usage
                         [print]="printing()"
@@ -91,6 +129,7 @@ import { AssetsReportService } from './assets-report.service';
         MatProgressSpinnerModule,
         AuthenticatedImageDirective,
         ReportsOptionsComponent,
+        ReportMetricGuideComponent,
         AssetReportDailyUsageComponent,
         AssetReportExpiredItemsComponent,
         AssetReportOverallComponent,
@@ -105,6 +144,7 @@ export class AssetsReportComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
 
     public readonly printing = signal(false);
+    public readonly metric_guide = METRIC_GUIDE;
     private readonly _stats = toSignal(this._state.stats$, {
         initialValue: {} as any,
     });

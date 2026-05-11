@@ -14,6 +14,10 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { debounceTime } from 'rxjs/operators';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { ReportsOptionsComponent } from '../reports-options.component';
 import {
     EMPTY_REPORT,
@@ -43,6 +47,82 @@ const CARD_DETAILS = {
     },
 };
 
+const METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Total site attendance',
+        description:
+            'Sum of attendance across enabled booking types in the selected period. Room attendance uses recorded people count; other resources count active bookings.',
+    },
+    {
+        label: 'Total bookings',
+        description:
+            'All active bookings and events included in the enabled attendance resource types for the selected dates and zones.',
+    },
+    {
+        label: 'Active types',
+        description:
+            'Number of enabled resource types with at least one booking in the report.',
+    },
+    {
+        label: 'Unique people',
+        description:
+            'Distinct hosts, booking owners, and visitors found across included bookings, matched by available user identifier.',
+    },
+    {
+        label: 'Daily average',
+        description:
+            'Attendance for the resource type divided by the number of business days in the selected range.',
+    },
+    {
+        label: 'Resources used',
+        description:
+            'Unique booked rooms, desks, parking spaces, lockers, or visitor bookings compared with known resource count where available.',
+    },
+];
+
+const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Rooms',
+        description:
+            'Room bookings where the person appears as host or attendee.',
+    },
+    {
+        label: 'Desks',
+        description:
+            'Desk bookings where the person appears as booking owner or attendee.',
+    },
+    {
+        label: 'Parking',
+        description:
+            'Parking bookings where the person appears as booking owner or attendee.',
+    },
+    {
+        label: 'Lockers',
+        description:
+            'Locker bookings where the person appears as booking owner or attendee.',
+    },
+    {
+        label: 'Visitors',
+        description:
+            'Visitor bookings where the person appears as booking owner or attendee.',
+    },
+    {
+        label: 'Total bookings',
+        description:
+            'Sum of that person\'s counted room, desk, parking, locker, and visitor bookings in the report.',
+    },
+    {
+        label: 'Host rows',
+        description:
+            'Hosts are grouped by host, organiser, booking user, or booked-by identifier depending on booking type.',
+    },
+    {
+        label: 'Attendee rows',
+        description:
+            'Attendees are grouped from booking attendee lists; room hosts are excluded from attendee rows.',
+    },
+];
+
 @Component({
     selector: '[site-attendance-report]',
     template: `
@@ -70,6 +150,7 @@ const CARD_DETAILS = {
             </div>
             @if (!loading()) {
                 @if (has_data()) {
+                    <placeos-report-metric-guide [items]="metric_guide" />
                     <div
                         class="grid grid-cols-1 gap-4 px-4 pb-4 md:grid-cols-2 xl:grid-cols-5"
                     >
@@ -265,14 +346,21 @@ const CARD_DETAILS = {
                         <div
                             class="border-base-200 bg-base-100 overflow-hidden rounded-sm border shadow-sm"
                         >
-                            <h3
-                                class="border-base-200 border-b p-4 text-lg font-semibold"
+                            <div
+                                class="border-base-200 flex items-center justify-between border-b px-4"
                             >
-                                {{
-                                    'APP.CONCIERGE.REPORTS_HOSTS_HEADER'
-                                        | translate
-                                }}
-                            </h3>
+                                <h3 class="py-4 text-lg font-semibold">
+                                    {{
+                                        'APP.CONCIERGE.REPORTS_HOSTS_HEADER'
+                                            | translate
+                                    }}
+                                </h3>
+                                <placeos-report-metric-guide
+                                    title="Table column calculations"
+                                    [items]="people_table_metric_guide()"
+                                    [inline]="true"
+                                />
+                            </div>
                             <simple-table
                                 class="block w-full text-sm"
                                 [data]="report().hosts"
@@ -328,11 +416,18 @@ const CARD_DETAILS = {
                         <div
                             class="border-base-200 bg-base-100 overflow-hidden rounded-sm border shadow-sm"
                         >
-                            <h3
-                                class="border-base-200 border-b p-4 text-lg font-semibold"
+                            <div
+                                class="border-base-200 flex items-center justify-between border-b px-4"
                             >
-                                {{ 'CALENDAR_EVENT.ATTENDEES' | translate }}
-                            </h3>
+                                <h3 class="py-4 text-lg font-semibold">
+                                    {{ 'CALENDAR_EVENT.ATTENDEES' | translate }}
+                                </h3>
+                                <placeos-report-metric-guide
+                                    title="Table column calculations"
+                                    [items]="people_table_metric_guide()"
+                                    [inline]="true"
+                                />
+                            </div>
                             <simple-table
                                 class="block w-full text-sm"
                                 [data]="report().attendees"
@@ -452,6 +547,7 @@ const CARD_DETAILS = {
         SimpleTableComponent,
         MatProgressSpinnerModule,
         TranslatePipe,
+        ReportMetricGuideComponent,
     ],
 })
 export class SiteAttendanceReportComponent extends AsyncHandler {
@@ -474,6 +570,17 @@ export class SiteAttendanceReportComponent extends AsyncHandler {
     });
 
     public readonly details = CARD_DETAILS;
+    public readonly metric_guide = METRIC_GUIDE;
+    public readonly people_table_metric_guide = computed(() =>
+        PEOPLE_TABLE_METRIC_GUIDE.filter((item) => {
+            if (item.label === 'Rooms') return this.hasResource('events');
+            if (item.label === 'Desks') return this.hasResource('desks');
+            if (item.label === 'Parking') return this.hasResource('parking');
+            if (item.label === 'Lockers') return this.hasResource('lockers');
+            if (item.label === 'Visitors') return this.hasResource('visitors');
+            return true;
+        }),
+    );
     public readonly printing = signal(false);
     public readonly report = computed(() => this._report());
     public readonly loading = computed(() => this._loading());

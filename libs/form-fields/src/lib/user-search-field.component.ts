@@ -300,6 +300,7 @@ export class UserSearchFieldComponent
         this._onChange ? this._onChange(value) : null;
         this._onTouch ? this._onTouch(value) : null;
         this.user.set(value);
+        this.search_term.set(value as any);
         if (
             typeof new_value !== 'string' &&
             !this.use_basic_search() &&
@@ -314,6 +315,7 @@ export class UserSearchFieldComponent
                     });
                     this._onChange ? this._onChange(updated) : null;
                     this.user.set(updated);
+                    this.search_term.set(updated as any);
                 })
                 .catch(() => value);
         }

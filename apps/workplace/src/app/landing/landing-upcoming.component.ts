@@ -54,9 +54,10 @@ import { LandingStateService } from './landing-state.service';
                 </a>
             </div>
             <div class="space-y-4 px-4">
-                @if ((upcoming_events | async)?.length) {
+                @let events = upcoming_events | async;
+                @if (events?.length) {
                     @for (
-                        event of upcoming_events | async | slice: 0 : 5;
+                        event of events | slice: 0 : 5;
                         track event.id || $index
                     ) {
                         @switch (type(event)) {
@@ -78,6 +79,15 @@ import { LandingStateService } from './landing-state.service';
                                 ></booking-card>
                             }
                         }
+                    }
+                    @if (events.length > 5) {
+                        <a
+                            name="upcoming-more-bookings"
+                            class="border-base-300 bg-base-100 text-base-content/70 hover:bg-base-200 block rounded-xl border border-dashed p-4 text-center text-sm transition-colors"
+                            [routerLink]="['/your-bookings']"
+                        >
+                            {{ 'APP.WORKPLACE.UPCOMING_MORE' | translate }}
+                        </a>
                     }
                 } @else {
                     <div

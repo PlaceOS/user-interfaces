@@ -15,11 +15,43 @@ import {
 } from '@placeos/components';
 import { ReportsOptionsComponent } from '../reports-options.component';
 import { ReportsStateService } from '../reports-state.service';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { ReportSpacesChartsComponent } from './report-spaces-charts.component';
 import { ReportSpacesOverallListComponent } from './report-spaces-overall-list.component';
 import { ReportSpacesOverallComponent } from './report-spaces-overall.component';
 import { ReportSpacesSpaceListingComponent } from './report-spaces-space-listing.component';
 import { ReportSpacesUserListingComponent } from './report-spaces-user-listing.component';
+
+const METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Business days',
+        description:
+            'Number of business days in the selected reporting range.',
+    },
+    {
+        label: 'Total bookings',
+        description:
+            'All room bookings returned for the selected dates and zones, including active, cancelled, and deleted records.',
+    },
+    {
+        label: 'Active / Cancelled / Deleted',
+        description:
+            'Active excludes deleted and cancelled events. Cancelled uses events with cancelled type. Deleted uses events flagged as deleted.',
+    },
+    {
+        label: 'Average length',
+        description:
+            'Sum of active booking durations divided by the number of active bookings.',
+    },
+    {
+        label: 'Attendance and no-shows',
+        description:
+            'Attendance uses the maximum recorded people count on each booking. No-shows are bookings with no recorded people count.',
+    },
+];
 
 @Component({
     selector: '[report-spaces]',
@@ -46,6 +78,7 @@ import { ReportSpacesUserListingComponent } from './report-spaces-user-listing.c
             </div>
             @if (!loading()) {
                 @if (total_count()) {
+                    <placeos-report-metric-guide [items]="metric_guide" />
                     <report-spaces-overall></report-spaces-overall>
                     <report-spaces-charts
                         [print]="printing()"
@@ -91,6 +124,7 @@ import { ReportSpacesUserListingComponent } from './report-spaces-user-listing.c
         MatProgressSpinnerModule,
         TranslatePipe,
         ReportsOptionsComponent,
+        ReportMetricGuideComponent,
         AuthenticatedImageDirective,
         ReportSpacesChartsComponent,
         ReportSpacesOverallComponent,
@@ -106,6 +140,7 @@ export class ReportSpacesComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
 
     public readonly printing = signal(false);
+    public readonly metric_guide = METRIC_GUIDE;
     public readonly total_count = toSignal(
         this._state.stats.pipe(map((i) => i.total_count || i.count || 0)),
         { initialValue: 0 },

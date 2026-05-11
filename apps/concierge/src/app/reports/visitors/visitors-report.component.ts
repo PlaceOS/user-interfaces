@@ -12,11 +12,43 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { debounceTime, map } from 'rxjs/operators';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { ReportsOptionsComponent } from '../reports-options.component';
 import { VisitorReportDailyUsageComponent } from './visitor-report-daily-usage.component';
 import { VisitorReportListComponent } from './visitor-report-list.component';
 import { VisitorReportOverallComponent } from './visitor-report-overall.component';
 import { VisitorsReportService } from './visitors-report.service';
+
+const METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Business days',
+        description:
+            'Number of business days in the selected reporting range.',
+    },
+    {
+        label: 'Total visitors',
+        description:
+            'Visitor bookings returned for the selected dates and zones.',
+    },
+    {
+        label: 'Average length',
+        description:
+            'Sum of visitor booking durations divided by the number of visitor bookings.',
+    },
+    {
+        label: 'Daily unique visitors',
+        description:
+            'For each day, unique visitors are counted by asset ID and hosts are counted by user email.',
+    },
+    {
+        label: 'Booking count',
+        description:
+            'Total visitor bookings recorded for each day in the report.',
+    },
+];
 
 @Component({
     selector: '[visitors-report]',
@@ -44,6 +76,7 @@ import { VisitorsReportService } from './visitors-report.service';
             </div>
             @if (!loading()) {
                 @if (total_count()) {
+                    <placeos-report-metric-guide [items]="metric_guide" />
                     <visitor-report-overall></visitor-report-overall>
                     <visitor-report-daily-usage
                         [print]="printing()"
@@ -79,6 +112,7 @@ import { VisitorsReportService } from './visitors-report.service';
     ],
     imports: [
         ReportsOptionsComponent,
+        ReportMetricGuideComponent,
         AuthenticatedImageDirective,
         MatProgressSpinnerModule,
         VisitorReportOverallComponent,
@@ -94,6 +128,7 @@ export class VisitorsReportComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
 
     public readonly printing = signal(false);
+    public readonly metric_guide = METRIC_GUIDE;
     public readonly total_count = toSignal(
         this._state.bookings$.pipe(map((i) => i.length || 0)),
         { initialValue: 0 },

@@ -10,7 +10,26 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { map } from 'rxjs/operators';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { VisitorsReportService } from './visitors-report.service';
+
+const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Unique visitors',
+        description: 'Number of distinct visitor asset IDs booked on the day.',
+    },
+    {
+        label: 'Hosts',
+        description: 'Number of distinct booking user emails on the day.',
+    },
+    {
+        label: 'Booking count',
+        description: 'Total visitor bookings recorded for the day.',
+    },
+];
 
 @Component({
     selector: 'visitor-report-daily-usage',
@@ -34,6 +53,11 @@ import { VisitorsReportService } from './visitors-report.service';
                         <icon>download</icon>
                     </button>
                 }
+                <placeos-report-metric-guide
+                    title="Table column calculations"
+                    [items]="table_metric_guide"
+                    [inline]="true"
+                />
             </div>
             <simple-table
                 class="block w-full text-sm"
@@ -82,12 +106,14 @@ import { VisitorsReportService } from './visitors-report.service';
         IconComponent,
         MatTooltipModule,
         MatRippleModule,
+        ReportMetricGuideComponent,
     ],
 })
 export class VisitorReportDailyUsageComponent {
     private _state = inject(VisitorsReportService);
 
     public readonly print = input<boolean>(false);
+    public readonly table_metric_guide = TABLE_METRIC_GUIDE;
 
     public readonly daily_stats = toSignal(
         this._state.daily_stats$.pipe(

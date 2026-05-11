@@ -9,8 +9,37 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { formatReportPercentage } from '../reports.utilities';
 import { ParkingReportService } from './parking-report.service';
+
+const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Unique',
+        description: 'Number of distinct parking asset IDs booked on the day.',
+    },
+    {
+        label: 'Host count',
+        description: 'Number of distinct booking user emails on the day.',
+    },
+    {
+        label: 'Active',
+        description:
+            'Bookings on the day that are not deleted and not cancelled.',
+    },
+    {
+        label: 'Cancelled / Deleted',
+        description:
+            'Displayed as count and percentage of total bookings for that day.',
+    },
+    {
+        label: 'Booking count',
+        description: 'Total parking bookings recorded for the day.',
+    },
+];
 
 @Component({
     selector: 'parking-report-daily-usage',
@@ -34,6 +63,11 @@ import { ParkingReportService } from './parking-report.service';
                         <icon>download</icon>
                     </button>
                 }
+                <placeos-report-metric-guide
+                    title="Table column calculations"
+                    [items]="table_metric_guide"
+                    [inline]="true"
+                />
             </div>
             <simple-table
                 class="block w-full text-sm"
@@ -105,6 +139,7 @@ import { ParkingReportService } from './parking-report.service';
         IconComponent,
         MatRippleModule,
         MatTooltipModule,
+        ReportMetricGuideComponent,
     ],
 })
 export class ParkingReportDailyUsageComponent {
@@ -114,6 +149,7 @@ export class ParkingReportDailyUsageComponent {
     });
 
     public readonly print = input<boolean>(false);
+    public readonly table_metric_guide = TABLE_METRIC_GUIDE;
 
     public readonly daily_stats = computed(() => {
         const days = this._daily_stats();
