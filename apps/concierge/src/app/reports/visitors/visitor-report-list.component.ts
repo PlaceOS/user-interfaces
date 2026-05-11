@@ -15,7 +15,37 @@ import {
 } from '@placeos/components';
 import { format } from 'date-fns';
 import { map } from 'rxjs/operators';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { VisitorsReportService } from './visitors-report.service';
+
+const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Name',
+        description:
+            'Uses asset name, extension asset name, description, then asset ID as fallback.',
+    },
+    {
+        label: 'Host',
+        description: 'Booking user name, falling back to user email.',
+    },
+    {
+        label: 'Checked in',
+        description: 'True when the visitor booking checked-in flag is set.',
+    },
+    {
+        label: 'Self registered',
+        description:
+            'True when the visitor booking extension data marks the visitor as self registered.',
+    },
+    {
+        label: 'International',
+        description:
+            'Shown only when international visitors are enabled, using the booking extension international flag.',
+    },
+];
 
 @Component({
     selector: 'visitor-report-list',
@@ -41,6 +71,11 @@ import { VisitorsReportService } from './visitors-report.service';
                         <icon>download</icon>
                     </button>
                 }
+                <placeos-report-metric-guide
+                    title="Table column calculations"
+                    [items]="table_metric_guide"
+                    [inline]="true"
+                />
             </div>
             <simple-table
                 class="block w-full text-sm"
@@ -89,6 +124,7 @@ import { VisitorsReportService } from './visitors-report.service';
         TranslatePipe,
         IconComponent,
         MatTooltipModule,
+        ReportMetricGuideComponent,
     ],
 })
 export class VisitorReportListComponent {
@@ -98,6 +134,14 @@ export class VisitorReportListComponent {
     public readonly print = input(false);
     public get allow_international() {
         return !!this._settings.get('app.visitors.allow_international');
+    }
+
+    public get table_metric_guide() {
+        return this.allow_international
+            ? TABLE_METRIC_GUIDE
+            : TABLE_METRIC_GUIDE.filter(
+                  (item) => item.label !== 'International',
+              );
     }
 
     public readonly visitor_bookings = toSignal(

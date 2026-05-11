@@ -9,7 +9,28 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { CateringReportStateService } from './catering-report-state.service';
+
+const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Time',
+        description:
+            'Order delivery time from the catering order deliver-at timestamp.',
+    },
+    {
+        label: 'Items',
+        description: 'Item count recorded on the catering order.',
+    },
+    {
+        label: 'Total cost',
+        description:
+            'Order total cost converted from cents and displayed in the organisation currency.',
+    },
+];
 
 @Component({
     selector: 'catering-report-orders',
@@ -37,6 +58,11 @@ import { CateringReportStateService } from './catering-report-state.service';
                 >
                     <icon>download</icon>
                 </button>
+                <placeos-report-metric-guide
+                    title="Table column calculations"
+                    [items]="table_metric_guide"
+                    [inline]="true"
+                />
             </div>
             <simple-table
                 class="block w-full text-sm"
@@ -85,6 +111,7 @@ import { CateringReportStateService } from './catering-report-state.service';
         MatTooltipModule,
         MatRippleModule,
         IconComponent,
+        ReportMetricGuideComponent,
     ],
 })
 export class CateringReportOrdersComponent {
@@ -93,6 +120,7 @@ export class CateringReportOrdersComponent {
     private _settings = inject(SettingsService);
 
     public readonly print = input(false);
+    public readonly table_metric_guide = TABLE_METRIC_GUIDE;
     public readonly orders = toSignal(this._report.catering_orders, {
         initialValue: [],
     });

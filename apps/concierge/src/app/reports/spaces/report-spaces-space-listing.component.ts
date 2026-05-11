@@ -12,8 +12,49 @@ import { SpacePipe } from '@placeos/events';
 import { differenceInDays } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { debounceTime, switchMap } from 'rxjs/operators';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { ReportsStateService } from '../reports-state.service';
 import { cappedReportAttendeeCount } from '../reports.utilities';
+
+const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Capacity',
+        description:
+            'Room capacity from the resolved space details. Empty capacity is shown when the value is less than one.',
+    },
+    {
+        label: 'Bookings',
+        description: 'Number of active bookings associated with the room.',
+    },
+    {
+        label: 'Utilisation',
+        description:
+            'Booked room time divided by an 8-hour day across the selected date range.',
+    },
+    {
+        label: 'Average booking invites',
+        description:
+            'Total invited attendees divided by booking count for the room.',
+    },
+    {
+        label: 'No-shows',
+        description:
+            'Bookings for the room with a recorded maximum people count of zero.',
+    },
+    {
+        label: 'Min / Max attendance',
+        description:
+            'Smallest and largest recorded maximum people count for the room.',
+    },
+    {
+        label: 'Occupancy',
+        description:
+            'Capped attendee count divided by booking count and room capacity.',
+    },
+];
 
 @Component({
     selector: 'report-spaces-space-listing',
@@ -37,6 +78,11 @@ import { cappedReportAttendeeCount } from '../reports.utilities';
                         <icon>download</icon>
                     </button>
                 }
+                <placeos-report-metric-guide
+                    title="Table column calculations"
+                    [items]="table_metric_guide()"
+                    [inline]="true"
+                />
             </div>
             <simple-table
                 class="block w-full text-sm"
@@ -109,6 +155,7 @@ import { cappedReportAttendeeCount } from '../reports.utilities';
         IconComponent,
         MatRippleModule,
         MatTooltipModule,
+        ReportMetricGuideComponent,
     ],
 })
 export class ReportSpacesSpaceListingComponent {
@@ -232,6 +279,15 @@ export class ReportSpacesSpaceListingComponent {
 
     public readonly has_attendance = computed(
         () => !!this.space_list().find(({ attendance }) => attendance !== '?'),
+    );
+    public readonly table_metric_guide = computed(() =>
+        this.has_attendance()
+            ? TABLE_METRIC_GUIDE
+            : TABLE_METRIC_GUIDE.filter(
+                  (item) =>
+                      item.label !== 'No-shows' &&
+                      item.label !== 'Min / Max attendance',
+              ),
     );
 
     public readonly download = async () => {

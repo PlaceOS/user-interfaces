@@ -8,11 +8,43 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { debounceTime, map } from 'rxjs/operators';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { ReportsOptionsComponent } from '../reports-options.component';
 import { ReportsStateService } from '../reports-state.service';
 import { CateringReportItemsComponent } from './catering-report-items.component';
 import { CateringReportOrdersComponent } from './catering-report-orders.component';
 import { CateringReportOverallComponent } from './catering-report-overall.component';
+
+const METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Orders',
+        description:
+            'Catering orders delivered within the selected date range, excluding orders with cancelled status.',
+    },
+    {
+        label: 'Unique items',
+        description:
+            'Number of distinct catering item IDs after combining matching items across all orders.',
+    },
+    {
+        label: 'Items',
+        description:
+            'Sum of item counts across every non-cancelled order in the report.',
+    },
+    {
+        label: 'Total cost',
+        description:
+            'Sum of total cost for all non-cancelled orders, displayed in the organisation currency.',
+    },
+    {
+        label: 'Average order cost',
+        description:
+            'Total cost divided by the number of non-cancelled orders.',
+    },
+];
 
 @Component({
     selector: 'catering-report',
@@ -43,6 +75,7 @@ import { CateringReportOverallComponent } from './catering-report-overall.compon
             </div>
             @if (!loading()) {
                 @if (total_count()) {
+                    <placeos-report-metric-guide [items]="metric_guide" />
                     <catering-report-overall></catering-report-overall>
                     <catering-report-orders
                         [print]="printing()"
@@ -82,6 +115,7 @@ import { CateringReportOverallComponent } from './catering-report-overall.compon
         TranslatePipe,
         MatProgressSpinnerModule,
         ReportsOptionsComponent,
+        ReportMetricGuideComponent,
         CateringReportItemsComponent,
         CateringReportOrdersComponent,
         CateringReportOverallComponent,
@@ -95,6 +129,7 @@ export class CateringReportComponent {
     private _org = inject(OrganisationService);
 
     public readonly printing = signal(false);
+    public readonly metric_guide = METRIC_GUIDE;
     private readonly _query_params = toSignal(this._route.queryParamMap, {
         initialValue: this._route.snapshot.queryParamMap,
     });

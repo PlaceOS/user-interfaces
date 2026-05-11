@@ -14,11 +14,43 @@ import {
 import { debounceTime } from 'rxjs/operators';
 
 import { ReportsOptionsComponent } from '../reports-options.component';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { ParkingReportChartsComponent } from './parking-report-charts.component';
 import { ParkingReportDailyUsageComponent } from './parking-report-daily-usage.component';
 import { ParkingReportListComponent } from './parking-report-list.component';
 import { ParkingReportOverallComponent } from './parking-report-overall.component';
 import { ParkingReportService } from './parking-report.service';
+
+const METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Business days',
+        description:
+            'Number of business days in the selected reporting range.',
+    },
+    {
+        label: 'Total reservations',
+        description:
+            'All parking bookings returned for the selected dates and zones, including active, cancelled, and deleted records.',
+    },
+    {
+        label: 'Active / Cancelled / Deleted',
+        description:
+            'Active excludes deleted and cancelled bookings. Cancelled uses non-deleted bookings with cancelled status. Deleted uses bookings flagged as deleted.',
+    },
+    {
+        label: 'Average length',
+        description:
+            'Sum of active reservation durations divided by the number of active reservations.',
+    },
+    {
+        label: 'Daily usage',
+        description:
+            'Counts unique parking spaces, unique hosts, active reservations, cancellations, deletions, and total reservations for each day.',
+    },
+];
 
 @Component({
     selector: '[parking-report]',
@@ -45,6 +77,7 @@ import { ParkingReportService } from './parking-report.service';
             </div>
             @if (!loading()) {
                 @if (total_count()) {
+                    <placeos-report-metric-guide [items]="metric_guide" />
                     <parking-report-overall></parking-report-overall>
                     <parking-report-charts></parking-report-charts>
                     <parking-report-daily-usage
@@ -85,6 +118,7 @@ import { ParkingReportService } from './parking-report.service';
         MatProgressSpinnerModule,
         TranslatePipe,
         AuthenticatedImageDirective,
+        ReportMetricGuideComponent,
         ParkingReportOverallComponent,
         ParkingReportDailyUsageComponent,
         ParkingReportChartsComponent,
@@ -111,6 +145,7 @@ export class ParkingReportComponent extends AsyncHandler {
     });
 
     public readonly printing = signal(false);
+    public readonly metric_guide = METRIC_GUIDE;
     public readonly total_count = computed(() => this._bookings().length || 0);
     public readonly loading = computed(() => this._loading());
 

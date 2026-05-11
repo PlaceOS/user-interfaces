@@ -15,7 +15,32 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { ReportsStateService } from '../reports-state.service';
+
+const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Average desks',
+        description:
+            'Desk bookings on the level divided by the number of days in the selected period.',
+    },
+    {
+        label: 'Approved',
+        description: 'Bookings on the level where the booking is approved.',
+    },
+    {
+        label: 'Total requests',
+        description: 'Total desk bookings on the level for the selected period.',
+    },
+    {
+        label: 'Utilisation',
+        description:
+            'Bookings on the level divided by available desk count multiplied by days in the selected period.',
+    },
+];
 
 @Component({
     selector: 'report-desks-levels-list',
@@ -44,6 +69,11 @@ import { ReportsStateService } from '../reports-state.service';
                             <icon>download</icon>
                         </button>
                     }
+                    <placeos-report-metric-guide
+                        title="Table column calculations"
+                        [items]="table_metric_guide"
+                        [inline]="true"
+                    />
                 </div>
                 <simple-table
                     class="block w-full text-sm"
@@ -90,6 +120,7 @@ import { ReportsStateService } from '../reports-state.service';
         IconComponent,
         MatRippleModule,
         MatTooltipModule,
+        ReportMetricGuideComponent,
     ],
 })
 export class ReportDesksLevelListComponent {
@@ -98,6 +129,7 @@ export class ReportDesksLevelListComponent {
     private _settings = inject(SettingsService);
 
     public readonly print = input(false);
+    public readonly table_metric_guide = TABLE_METRIC_GUIDE;
 
     private readonly _options = toSignal(this._state.options, {
         initialValue: {

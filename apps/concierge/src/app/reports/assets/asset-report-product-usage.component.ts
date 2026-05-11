@@ -8,7 +8,28 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { AssetsReportService } from './assets-report.service';
+
+const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Bookings',
+        description:
+            'Active asset request bookings that include at least one asset from the product.',
+    },
+    {
+        label: 'Assets booked',
+        description:
+            'Number of booked asset IDs across active requests that belong to the product.',
+    },
+    {
+        label: 'Assets available',
+        description: 'Total assets configured for the product.',
+    },
+];
 
 @Component({
     selector: 'asset-report-product-usage',
@@ -35,6 +56,11 @@ import { AssetsReportService } from './assets-report.service';
                         <icon>download</icon>
                     </button>
                 }
+                <placeos-report-metric-guide
+                    title="Table column calculations"
+                    [items]="table_metric_guide"
+                    [inline]="true"
+                />
             </div>
             <simple-table
                 class="block w-full text-sm"
@@ -71,12 +97,14 @@ import { AssetsReportService } from './assets-report.service';
         IconComponent,
         MatRippleModule,
         MatTooltipModule,
+        ReportMetricGuideComponent,
     ],
 })
 export class AssetReportProductUsageComponent {
     private _state = inject(AssetsReportService);
 
     public readonly print = input(false);
+    public readonly table_metric_guide = TABLE_METRIC_GUIDE;
     private readonly _stats = toSignal(this._state.stats$, {
         initialValue: {
             events: [],

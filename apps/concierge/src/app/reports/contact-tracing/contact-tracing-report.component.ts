@@ -14,8 +14,57 @@ import {
 } from '@placeos/components';
 import { UserPipe } from '@placeos/users';
 import { debounceTime, map } from 'rxjs/operators';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { ContactTracingOptionsComponent } from './contact-tracing-options.component';
 import { ContactTracingStateService } from './contact-tracing-state.service';
+
+const METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Contact events',
+        description:
+            'Close contacts returned by the ContactTracing module for the selected user and date range.',
+    },
+    {
+        label: 'Time of contact',
+        description:
+            'The contact timestamp returned by the module, displayed in the configured date and time format.',
+    },
+    {
+        label: 'Person / Close contact',
+        description:
+            'The selected user is shown as the person. The close contact is resolved from the returned username when possible, falling back to the identifier.',
+    },
+    {
+        label: 'Duration',
+        description:
+            'The module duration is converted from seconds to whole minutes and displayed as hours and minutes.',
+    },
+];
+
+const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Time of contact',
+        description:
+            'Contact time returned by the ContactTracing module, converted from seconds to local milliseconds for display.',
+    },
+    {
+        label: 'Person',
+        description: 'The selected report user.',
+    },
+    {
+        label: 'Close contact',
+        description:
+            'Contact username resolved through the user pipe when possible, falling back to the returned identifier or MAC address.',
+    },
+    {
+        label: 'Duration',
+        description:
+            'Contact duration converted to whole minutes, then displayed as hours and minutes.',
+    },
+];
 
 @Component({
     selector: 'app-contact-tracing-report',
@@ -43,6 +92,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
             </div>
             @if (!loading()) {
                 @if (has_user()) {
+                    <placeos-report-metric-guide [items]="metric_guide" />
                     <div
                         class="border-base-200 mx-auto my-2 w-5xl max-w-[calc(100%-2rem)] rounded-lg border"
                     >
@@ -52,6 +102,11 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                             <h2 class="py-2 text-xl font-medium">
                                 Contact Events
                             </h2>
+                            <placeos-report-metric-guide
+                                title="Table column calculations"
+                                [items]="table_metric_guide"
+                                [inline]="true"
+                            />
                         </div>
                         <simple-table
                             class="block w-full text-sm"
@@ -146,6 +201,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
         SimpleTableComponent,
         AuthenticatedImageDirective,
         TranslatePipe,
+        ReportMetricGuideComponent,
     ],
 })
 export class ContactTracingReportComponent {
@@ -154,6 +210,8 @@ export class ContactTracingReportComponent {
     private _org = inject(OrganisationService);
 
     public readonly printing = signal(false);
+    public readonly metric_guide = METRIC_GUIDE;
+    public readonly table_metric_guide = TABLE_METRIC_GUIDE;
 
     public readonly loading = toSignal(this._state.loading, {
         initialValue: '',
