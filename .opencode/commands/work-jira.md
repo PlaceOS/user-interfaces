@@ -190,7 +190,8 @@ After confirmation:
 2. Stage only files relevant to this issue by explicit path. Do not use `git add .` or `git add -A`.
 3. Commit with a concise conventional commit message that includes the Jira issue key where appropriate.
 4. If the user chose source-branch commit or `--commit-behavior source` was provided, cherry-pick the issue commit onto the recorded source branch from the source worktree and verify the final build commit hash.
-5. If the user explicitly confirms a push, push the selected branch to the remote.
+5. If the issue commit was cherry-picked successfully onto the source branch, remove the dedicated issue worktree with `git worktree remove <issue-worktree-path>` only after verifying it has no uncommitted changes.
+6. If the user explicitly confirms a push, push the selected branch to the remote.
 
 Never include secrets or unrelated user work.
 
@@ -223,5 +224,6 @@ If the transition status is invalid, list the failure and ask the user which Jir
 - Do not revert or overwrite unrelated changes.
 - Do not use destructive git commands.
 - Do not stage secrets or broad unreviewed changes.
+- Do not remove a worktree that has uncommitted changes.
 - Keep the Jira issue as the source of truth, but ask when requirements are ambiguous enough to affect behavior.
 - If implementation reveals the issue is too large, propose a smaller vertical slice and ask before splitting scope.
