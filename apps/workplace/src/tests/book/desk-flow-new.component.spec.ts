@@ -31,6 +31,7 @@ describe('DeskFlowNewComponent', () => {
             MockProvider(BookingFormService, {
                 setView: jest.fn(),
                 setOptions: jest.fn(),
+                newForm: jest.fn(),
                 postForm: jest.fn(),
                 postFormForGroup: jest.fn(),
                 view: signal('form'),
@@ -101,6 +102,15 @@ describe('DeskFlowNewComponent', () => {
             ],
             asset_id: 'desk-123',
         });
+    });
+
+    it('should initialise new desk bookings through the booking form service', async () => {
+        spectator = createComponent();
+        await spectator.component.ngOnInit();
+
+        expect(spectator.inject(BookingFormService).newForm).toHaveBeenCalledWith(
+            'desk',
+        );
     });
 
     it('should wait for the selected desk to load from the resources stream', async () => {

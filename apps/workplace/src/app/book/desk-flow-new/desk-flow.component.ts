@@ -153,11 +153,9 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
     public readonly is_edit_mode = computed(() => !!this.form_value()?.id);
 
     public ngOnInit() {
-        const { booking_type } = this._booking_form.form.getRawValue();
-        if (booking_type !== 'desk') {
-            this._booking_form.form.patchValue({ booking_type: 'desk' });
-            this._booking_form.setOptions({ type: 'desk' });
-        }
+        const { id, booking_type } = this._booking_form.form.getRawValue();
+        if (!id || booking_type !== 'desk') this._booking_form.newForm('desk');
+        this._booking_form.form.patchValue({ booking_type: 'desk' });
         if (!this._booking_form.form.value.id)
             this._booking_form.form.patchValue({ title: 'Booking' });
         this.subscription(
