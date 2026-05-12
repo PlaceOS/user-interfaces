@@ -3,6 +3,7 @@
 .playwright-mcp
 .worktrees/*
 !.worktrees/.gitkeep
+config/testers*
 
 # compiled output
 /dist
