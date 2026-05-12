@@ -13,6 +13,8 @@ You are the orchestrator for implementing one Jira work item using the Atlassian
 - Repository root: !`git rev-parse --show-toplevel`
 - Current branch: !`git branch --show-current`
 - Current worktree: !`git rev-parse --show-toplevel`
+- Worktree directory: !`printf '%s/.worktrees' "$(git rev-parse --show-toplevel)"`
+- Tester config: !`test -f "$(git rev-parse --show-toplevel)/config/testers" && sed -n '1,20p' "$(git rev-parse --show-toplevel)/config/testers" || true`
 - Git status: !`git status --short`
 - Raw arguments: $ARGUMENTS
 - First positional argument: $1
@@ -91,11 +93,14 @@ acli jira workitem transition --key <ISSUE-KEY> --status '<status>' --yes
 
 Record the source branch and source worktree path before creating the issue worktree. Do not switch branches in the source worktree.
 
-Create or reuse a dedicated git worktree for the issue. Prefer a worktree path and branch based on the issue key and short summary, for example:
+Create or reuse a dedicated git worktree for the issue under the repository's `.worktrees/` directory. Prefer a worktree path and branch based on the issue key and short summary, for example:
 
 ```bash
-git worktree add ../<repo-name>-<issue-key-lowercase>-short-summary -b <fix|feat>/<issue-key-lowercase>-short-summary <source-branch>
+mkdir -p .worktrees
+git worktree add .worktrees/<issue-key-lowercase>-short-summary -b <fix|feat>/<issue-key-lowercase>-short-summary <source-branch>
 ```
+
+Always create the `.worktrees/` directory from the repository root if it does not already exist. Do not create issue worktrees beside or outside the repository root.
 
 If the worktree or branch already exists, inspect it and continue there only when it clearly belongs to the same Jira issue. Otherwise ask the user before reusing it.
 
@@ -216,6 +221,18 @@ Move the issue to the review/testing state:
 ```bash
 acli jira workitem transition --key <ISSUE-KEY> --status '<review-status>' --yes
 ```
+
+If `<review-status>` is `Testing` case-insensitively, assign the Jira work item to a tester from `config/testers` immediately after the successful transition:
+
+1. Read the first non-empty, non-comment line from `<repo-root>/config/testers`.
+2. If the line is in `Name <email@example.com>` format, use the email inside angle brackets as the assignee. Otherwise use the whole line as the assignee value.
+3. Assign the issue with:
+
+```bash
+acli jira workitem assign --key <ISSUE-KEY> --assignee '<tester-email-or-account-id>' --yes
+```
+
+If `config/testers` is missing or contains no usable tester, skip tester assignment silently and continue. Do not ask the user for a tester and do not guess one.
 
 If the transition status is invalid, list the failure and ask the user which Jira status to use. Do not guess repeatedly.
 
