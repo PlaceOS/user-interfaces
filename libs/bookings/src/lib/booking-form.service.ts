@@ -246,6 +246,16 @@ export class BookingFormService extends AsyncHandler {
         merge(this.form.get('user').valueChanges, timer(1000)),
         merge(this.form.get('date').valueChanges, timer(1000)),
         merge(this.form.get('duration').valueChanges, timer(1000)),
+        merge(this.form.get('all_day').valueChanges, timer(1000)),
+        merge(this.form.get('recurrence_type').valueChanges, timer(1000)),
+        merge(this.form.get('recurrence_days').valueChanges, timer(1000)),
+        merge(
+            this.form.get('recurrence_nth_of_month').valueChanges,
+            timer(1000),
+        ),
+        merge(this.form.get('recurrence_interval').valueChanges, timer(1000)),
+        merge(this.form.get('recurrence_end').valueChanges, timer(1000)),
+        merge(this.form.get('recurrence_instances').valueChanges, timer(1000)),
     ]).pipe(
         filter(
             () =>
@@ -262,17 +272,24 @@ export class BookingFormService extends AsyncHandler {
             if (all_day) {
                 ({ date, duration } = this._allDayTimeRange(date));
             }
-            return bookedResourceList({
-                period_start: getUnixTime(date),
-                period_end: getUnixTime(addMinutes(date, duration)),
-                type: options.type,
-                zones:
-                    options.zone_id ||
-                    (this._settings.get('app.use_region')
-                        ? this._org.region?.id
-                        : this._org.building?.id) ||
-                    this._org.organisation.id,
-            }).pipe(
+            const zones =
+                options.zone_id ||
+                (this._settings.get('app.use_region')
+                    ? this._org.region?.id
+                    : this._org.building?.id) ||
+                this._org.organisation.id;
+            const booked_resources =
+                options.type === 'desk' &&
+                this.form.getRawValue().recurrence_type &&
+                this.form.getRawValue().recurrence_type !== 'none'
+                    ? this._recurringBookedResourceList(resources, zones)
+                    : bookedResourceList({
+                          period_start: getUnixTime(date),
+                          period_end: getUnixTime(addMinutes(date, duration)),
+                          type: options.type,
+                          zones,
+                      });
+            return booked_resources.pipe(
                 map((booked_ids) => {
                     this._resource_use = {};
                     for (const id of booked_ids) {
@@ -1707,6 +1724,23 @@ export class BookingFormService extends AsyncHandler {
         }
 
         return true;
+    }
+
+    private _recurringBookedResourceList(
+        resources: BookingAsset[],
+        zones: string,
+    ): Observable<string[]> {
+        const value = this.form.getRawValue();
+        const booking = new Booking({
+            ...value,
+            booking_type: 'desk',
+            zones: [zones],
+            asset_ids: resources.map((_) => _.id),
+        });
+        return findBookingClashes(booking).pipe(
+            map((ids) => ids as string[]),
+            catchError(() => of([])),
+        );
     }
 
     public loadParkingResources(): Observable<BookingAsset[]> {

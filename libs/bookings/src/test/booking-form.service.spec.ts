@@ -3,7 +3,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { NavigationEnd, Router } from '@angular/router';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { PaymentsService } from '@placeos/payments';
-import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, of, Subject, throwError } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 import { Booking, currentUser, OrganisationService } from '@placeos/common';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
@@ -125,6 +126,72 @@ describe('BookingFormService', () => {
     it.todo('should list asset features');
 
     it.todo('should list available assets');
+
+    it('should exclude desks that clash with any recurring instance', async () => {
+        jest.useFakeTimers();
+        try {
+            (ts_client as any).listChildMetadata = jest.fn(() =>
+                of([
+                    {
+                        metadata: {
+                            desks: {
+                                details: [
+                                    {
+                                        id: 'desk-1',
+                                        name: 'Desk 1',
+                                        features: [],
+                                    },
+                                    {
+                                        id: 'desk-2',
+                                        name: 'Desk 2',
+                                        features: [],
+                                    },
+                                ],
+                            },
+                        },
+                        zone: { id: 'lvl-1', parent_id: 'bld-1' },
+                    },
+                ]),
+            );
+            (ts_client as any).showMetadata = jest.fn(() =>
+                of({ id: 'bld-1', details: [] }),
+            );
+            (booking_mod as any).bookedResourceList = jest.fn(() => of([]));
+            (booking_mod as any).findBookingClashes = jest.fn(() =>
+                of(['desk-2']),
+            );
+            spectator.service.setOptions({ type: 'desk' });
+            spectator.service.form.patchValue({
+                date: new Date(2028, 5, 15, 15, 0, 0).valueOf(),
+                duration: 60,
+                recurrence_type: 'daily',
+                recurrence_interval: 1,
+                recurrence_end: Math.floor(
+                    new Date(2028, 5, 18, 23, 59, 59).valueOf() / 1000,
+                ),
+            });
+
+            const available = firstValueFrom(
+                spectator.service.available_resources.pipe(
+                    filter((_) => !!_.length),
+                ),
+            );
+            await jest.advanceTimersByTimeAsync(2000);
+
+            await expect(available).resolves.toEqual([
+                expect.objectContaining({ id: 'desk-1' }),
+            ]);
+            expect(booking_mod.findBookingClashes).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    asset_ids: ['desk-1', 'desk-2'],
+                    recurrence_type: 'daily',
+                }),
+            );
+            expect(booking_mod.bookedResourceList).not.toHaveBeenCalled();
+        } finally {
+            jest.useRealTimers();
+        }
+    });
 
     it.todo('should allow filtering of available assets');
 
