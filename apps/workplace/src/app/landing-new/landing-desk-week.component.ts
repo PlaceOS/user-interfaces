@@ -180,7 +180,7 @@ type WeekdayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                                         </div>
                                     </button>
                                 }
-                            } @else if (!day.is_past && !day.is_weekend) {
+                            } @else if (!day.is_past) {
                                 <button
                                     btn
                                     matRipple
@@ -379,6 +379,20 @@ type WeekdayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                                             </div>
                                         </button>
                                     }
+                                } @else if (!day.is_past) {
+                                    <button
+                                        btn
+                                        matRipple
+                                        class="inverse border-base-300 h-full w-full gap-2 border-2 border-dashed px-0"
+                                        (click)="bookDesk(day.date)"
+                                    >
+                                        <icon class="text-xl opacity-60"
+                                            >add_circle_outline</icon
+                                        >
+                                        <span class="pr-2 text-xs opacity-60">{{
+                                            'COMMON.BOOK_DESK' | translate
+                                        }}</span>
+                                    </button>
                                 } @else {
                                     <div
                                         class="flex h-full w-full flex-col items-center justify-center"
