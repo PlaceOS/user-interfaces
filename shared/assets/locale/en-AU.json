@@ -1135,7 +1135,7 @@
             "PARKING_REQUEST_EDIT_HEADER": "Edit Parking Request",
             "PARKING_REQUEST_CONFIRM_TITLE": "Confirm Parking Request",
             "PARKING_REQUEST_SUCCESS_HEADER": "Parking request submitted",
-            "PARKING_REQUEST_SUCCESS_MSG": "Your parking request has been submitted for {{ date }} at {{ time }}. The concierge team will assign a space and notify you.",
+            "PARKING_REQUEST_SUCCESS_MSG": "Your parking request has been submitted for {{ date }} at {{ time }}. You will be notified by email if your request is successful.",
             "DESK_ASSIGNED": "You are already assigned a desk \"{{ name }}\"",
             "DESK_CONFIRM_TITLE": "Confirm Desk Booking",
             "DESK_WEEK_TITLE": "My Desk Bookings",
