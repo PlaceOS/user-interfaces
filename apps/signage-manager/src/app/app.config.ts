@@ -9,6 +9,7 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { LocaleService } from '@placeos/common';
 import { UnauthorisedComponent } from '@placeos/components';
 import { environment } from '../environments/environment';
+import { signageAccessGuard } from './signage-access.guard';
 
 const APP_ROUTES: Routes = [
     {
@@ -16,70 +17,75 @@ const APP_ROUTES: Routes = [
         component: UnauthorisedComponent,
     },
     {
-        path: 'media',
-        loadComponent: () =>
-            import('./media/media.component').then(
-                (m) => m.MediaSectionComponent,
-            ),
+        path: '',
+        canActivateChild: [signageAccessGuard],
+        children: [
+            {
+                path: 'media',
+                loadComponent: () =>
+                    import('./media/media.component').then(
+                        (m) => m.MediaSectionComponent,
+                    ),
+            },
+            {
+                path: 'playlists/:id',
+                loadComponent: () =>
+                    import('./playlists/playlists.component').then(
+                        (m) => m.PlaylistsSectionComponent,
+                    ),
+            },
+            {
+                path: 'playlists',
+                loadComponent: () =>
+                    import('./playlists/playlists.component').then(
+                        (m) => m.PlaylistsSectionComponent,
+                    ),
+            },
+            {
+                path: 'schedules',
+                loadComponent: () =>
+                    import('./schedules/schedules.component').then(
+                        (m) => m.SchedulesSectionComponent,
+                    ),
+            },
+            {
+                path: 'displays/:id',
+                loadComponent: () =>
+                    import('./displays/displays.component').then(
+                        (m) => m.DisplaysSectionComponent,
+                    ),
+            },
+            {
+                path: 'displays',
+                loadComponent: () =>
+                    import('./displays/displays.component').then(
+                        (m) => m.DisplaysSectionComponent,
+                    ),
+            },
+            {
+                path: 'groups',
+                loadComponent: () =>
+                    import('./groups/groups.component').then(
+                        (m) => m.GroupsSectionComponent,
+                    ),
+            },
+            {
+                path: 'zones/:id',
+                loadComponent: () =>
+                    import('./zones/zones.component').then(
+                        (m) => m.ZonesSectionComponent,
+                    ),
+            },
+            {
+                path: 'zones',
+                loadComponent: () =>
+                    import('./zones/zones.component').then(
+                        (m) => m.ZonesSectionComponent,
+                    ),
+            },
+            { path: '**', redirectTo: 'media' },
+        ],
     },
-    {
-        path: 'playlists/:id',
-        loadComponent: () =>
-            import('./playlists/playlists.component').then(
-                (m) => m.PlaylistsSectionComponent,
-            ),
-    },
-    {
-        path: 'playlists',
-        loadComponent: () =>
-            import('./playlists/playlists.component').then(
-                (m) => m.PlaylistsSectionComponent,
-            ),
-    },
-    {
-        path: 'schedules',
-        loadComponent: () =>
-            import('./schedules/schedules.component').then(
-                (m) => m.SchedulesSectionComponent,
-            ),
-    },
-    {
-        path: 'displays/:id',
-        loadComponent: () =>
-            import('./displays/displays.component').then(
-                (m) => m.DisplaysSectionComponent,
-            ),
-    },
-    {
-        path: 'displays',
-        loadComponent: () =>
-            import('./displays/displays.component').then(
-                (m) => m.DisplaysSectionComponent,
-            ),
-    },
-    {
-        path: 'groups',
-        loadComponent: () =>
-            import('./groups/groups.component').then(
-                (m) => m.GroupsSectionComponent,
-            ),
-    },
-    {
-        path: 'zones/:id',
-        loadComponent: () =>
-            import('./zones/zones.component').then(
-                (m) => m.ZonesSectionComponent,
-            ),
-    },
-    {
-        path: 'zones',
-        loadComponent: () =>
-            import('./zones/zones.component').then(
-                (m) => m.ZonesSectionComponent,
-            ),
-    },
-
-    { path: '**', redirectTo: 'media' },
 ];
 
 export const APP_CONFIG: ApplicationConfig = {

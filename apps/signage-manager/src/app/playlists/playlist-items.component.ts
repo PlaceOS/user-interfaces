@@ -99,7 +99,7 @@ import { SignageService } from '../signage.service';
                     role="list"
                     (cdkDropListDropped)="onDrop($event)"
                 >
-                    @for (item of items(); track item.id) {
+                    @for (item of items(); track item.id + '-' + $index) {
                         <div
                             cdkDrag
                             role="button"
@@ -223,7 +223,7 @@ import { SignageService } from '../signage.service';
                                     <button
                                         type="button"
                                         mat-menu-item
-                                        (click)="removeItem(item)"
+                                        (click)="removeItem(item, $index)"
                                     >
                                         <div
                                             class="flex items-center space-x-2"
@@ -335,10 +335,14 @@ export class PlaylistItemsComponent {
         if (playlist) this._service.sharePlaylist(playlist);
     }
 
-    public async removeItem(item: SignageMedia) {
+    public async removeItem(item: SignageMedia, item_index: number) {
         const playlist = this.selected_playlist();
         if (!playlist?.id || !item?.id) return;
-        await this._service.removeMediaFromPlaylist(playlist.id, item.id);
+        await this._service.removeMediaFromPlaylist(
+            playlist.id,
+            item.id,
+            item_index,
+        );
         if (this.selected_item()?.id === item.id) {
             this._service.selected_playlist_item.set(null);
         }

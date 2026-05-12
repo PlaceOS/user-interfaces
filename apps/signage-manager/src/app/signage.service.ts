@@ -199,6 +199,9 @@ export class SignageService {
         initialValue: currentUser(),
     });
     private readonly _signage_groups_loaded = signal(false);
+    public readonly signage_groups_loaded = computed(() =>
+        this._signage_groups_loaded(),
+    );
     public readonly selected_group_id = signal(loadSelectedGroupId());
     public readonly signage_groups = toSignal(
         combineLatest([
@@ -811,6 +814,7 @@ export class SignageService {
     public async removeMediaFromPlaylist(
         playlist_id: string,
         media_id: string,
+        item_index?: number,
     ) {
         if (
             !this._requirePermission(
@@ -822,11 +826,19 @@ export class SignageService {
         const media_list = await lastValueFrom(
             listSignagePlaylistMedia(playlist_id),
         );
-        const new_items = (media_list.items || []).filter(
-            (id) => id !== media_id,
-        );
+        const new_items = [...(media_list.items || [])];
+        if (
+            typeof item_index === 'number' &&
+            new_items[item_index] === media_id
+        ) {
+            new_items.splice(item_index, 1);
+        } else {
+            const index = new_items.indexOf(media_id);
+            if (index < 0) return;
+            new_items.splice(index, 1);
+        }
         await lastValueFrom(updateSignagePlaylistMedia(playlist_id, new_items));
-        this.setPlaylistApprovalStatus(playlist_id, false);
+        this._setPlaylistMediaState(playlist_id, new_items, false);
         notifySuccess('Item removed from playlist');
         this._playlist_change.next(Date.now());
         this.changed();
@@ -841,7 +853,7 @@ export class SignageService {
         )
             return;
         await lastValueFrom(updateSignagePlaylistMedia(playlist_id, items));
-        this.setPlaylistApprovalStatus(playlist_id, false);
+        this._setPlaylistMediaState(playlist_id, items, false);
         this._playlist_change.next(Date.now());
     }
 
@@ -1180,8 +1192,9 @@ export class SignageService {
         )
             return;
         await lastValueFrom(updateSignagePlaylistMedia(playlist_id, list));
-        this.setPlaylistApprovalStatus(playlist_id, false);
+        this._setPlaylistMediaState(playlist_id, list, false);
         notifySuccess('Playlist updated');
+        this._playlist_change.next(Date.now());
         this.changed();
     }
 
@@ -1197,8 +1210,17 @@ export class SignageService {
             listSignagePlaylistMedia(playlist_id),
         );
         if (media_list.items?.includes(media_id)) {
-            notifyError('Media already exists in this playlist.');
-            return;
+            const result = await openConfirmModal(
+                {
+                    title: 'Add duplicate media?',
+                    content:
+                        'This media is already in the playlist. Add another copy?',
+                    icon: { content: 'playlist_add' },
+                },
+                this._dialog,
+            );
+            if (result.reason !== 'done') return;
+            result.close();
         }
         const new_items = [...(media_list.items || []), media_id];
         await this.updatePlaylistMedia(playlist_id, new_items);
@@ -1274,6 +1296,23 @@ export class SignageService {
             updated_at:
                 current_state?.updated_at || playlist?.updated_at || Date.now(),
             approved,
+        });
+    }
+
+    private _setPlaylistMediaState(
+        playlist_id: string,
+        media_ids: string[],
+        approved?: boolean,
+    ) {
+        const playlist =
+            this._playlists().find((item) => item.id === playlist_id) ||
+            this.selected_playlist();
+        const current_state = this._playlist_meta_state()[playlist_id];
+        this._setPlaylistMeta(playlist_id, {
+            media_ids: media_ids.slice(0, 3),
+            updated_at:
+                current_state?.updated_at || playlist?.updated_at || Date.now(),
+            approved: approved ?? current_state?.approved,
         });
     }
 

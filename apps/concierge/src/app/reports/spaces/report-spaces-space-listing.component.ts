@@ -2,7 +2,13 @@ import { Component, computed, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { downloadFile, jsonToCsv, Space, unique } from '@placeos/common';
+import {
+    downloadFile,
+    jsonToCsv,
+    SettingsService,
+    Space,
+    unique,
+} from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
@@ -17,7 +23,11 @@ import {
     ReportMetricGuideItem,
 } from '../report-metric-guide.component';
 import { ReportsStateService } from '../reports-state.service';
-import { cappedReportAttendeeCount } from '../reports.utilities';
+import {
+    cappedReportAttendeeCount,
+    reportBookableMinutes,
+    reportBookingDuration,
+} from '../reports.utilities';
 
 const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
     {
@@ -30,9 +40,9 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
         description: 'Number of active bookings associated with the room.',
     },
     {
-        label: 'Utilisation',
+        label: 'Booked time utilisation',
         description:
-            'Booked room time divided by an 8-hour day across the selected date range.',
+            'Booked room time divided by configured bookable hours across the selected date range. All-day bookings count as one full bookable day.',
     },
     {
         label: 'Average booking invites',
@@ -100,7 +110,9 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                     },
                     {
                         key: 'utilisation',
-                        name: 'APP.CONCIERGE.REPORTS_UTILISATION' | translate,
+                        name:
+                            'APP.CONCIERGE.REPORTS_BOOKED_TIME_UTILISATION'
+                            | translate,
                     },
                     {
                         key: 'avg_attendees',
@@ -160,6 +172,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
 })
 export class ReportSpacesSpaceListingComponent {
     private _reports = inject(ReportsStateService);
+    private _settings = inject(SettingsService);
 
     public readonly print = input(false);
 
@@ -171,6 +184,10 @@ export class ReportSpacesSpaceListingComponent {
             switchMap(async ([stats, { start, end }]) => {
                 const list = [];
                 let has_attendance = false;
+                const bookable_minutes = reportBookableMinutes(
+                    this._settings.get('app.events.bookable_hours') ||
+                        this._settings.get('app.bookings.bookable_hours'),
+                );
                 for (const booking of stats.events) {
                     const space_list: Space[] = unique(
                         booking.resources,
@@ -227,12 +244,13 @@ export class ReportSpacesSpaceListingComponent {
                             details.max_attendance,
                             booking.extension_data?.people_count?.max ?? 0,
                         );
-                        details.usage += booking.duration;
-                        details.attendees += booking.attendees.length;
-                        details.occupancy_attendees += cappedReportAttendeeCount(
+                        details.usage += reportBookingDuration(
                             booking,
-                            space.capacity,
+                            bookable_minutes,
                         );
+                        details.attendees += booking.attendees.length;
+                        details.occupancy_attendees +=
+                            cappedReportAttendeeCount(booking, space.capacity);
                         has_attendance =
                             has_attendance ||
                             !!booking.extension_data.people_count;
@@ -252,7 +270,7 @@ export class ReportSpacesSpaceListingComponent {
                             (space.attendance / space.booking_count) * 100,
                         ) / 100;
                     space.utilisation = `${Math.floor(
-                        (space.usage / 60 / 8 / period_in_days) * 100,
+                        (space.usage / bookable_minutes / period_in_days) * 100,
                     )}%`;
                     space.min_attendance =
                         space.min_attendance === 99

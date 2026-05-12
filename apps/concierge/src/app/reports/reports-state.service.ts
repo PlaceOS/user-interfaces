@@ -7,6 +7,7 @@ import {
 } from '@placeos/assets';
 import { queryAllBookings } from '@placeos/bookings';
 import {
+    BookableHoursRange,
     Booking,
     CalendarEvent,
     downloadFile,
@@ -58,6 +59,7 @@ import {
     activeReportEvents,
     generateReportForBookings,
     generateReportForDeskBookings,
+    reportBookableMinutes,
     reportBookingStatusStats,
     reportEventStatusStats,
 } from './reports.utilities';
@@ -134,6 +136,18 @@ export class ReportsStateService {
                     : format(setDay(new Date(), _), 'eeee')?.toLowerCase(),
             )
             .filter((_) => !!_);
+    }
+
+    private get _event_bookable_hours(): BookableHoursRange | null {
+        return (
+            this._settings.get('app.events.bookable_hours') ||
+            this._settings.get('app.bookings.bookable_hours') ||
+            null
+        );
+    }
+
+    private get _event_bookable_minutes() {
+        return reportBookableMinutes(this._event_bookable_hours);
     }
 
     private _bookings_list = this._generate.pipe(
@@ -272,10 +286,7 @@ export class ReportsStateService {
                     ? this._org.levelsForRegion().map((_) => _.id)
                     : this._org.levelsForBuilding().map((_) => _.id);
             }
-            if (
-                filters.type === 'events' ||
-                filters.type === 'catering'
-            ) {
+            if (filters.type === 'events' || filters.type === 'catering') {
                 return this.spaces.pipe(
                     map((_) =>
                         zones.map((z) => [
@@ -353,7 +364,10 @@ export class ReportsStateService {
                     catchError(() => of({ details: [] })),
                     map(
                         (metadata) =>
-                            [zone_id, metadata.details.length] as [string, number],
+                            [zone_id, metadata.details.length] as [
+                                string,
+                                number,
+                            ],
                     ),
                 );
             default:
@@ -372,7 +386,8 @@ export class ReportsStateService {
                 return {
                     ...generateReportForBookings(
                         activeReportEvents(events),
-                        this.duration * 8,
+                        (this.duration * this._event_bookable_minutes) / 60,
+                        this._event_bookable_minutes,
                         counts,
                     ),
                     ...reportEventStatusStats(events),

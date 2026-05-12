@@ -7,7 +7,7 @@ import { IconComponent } from '@placeos/components';
 import { lastValueFrom } from 'rxjs';
 import { SignageService } from '../signage.service';
 import { GroupSelectModalComponent } from './group-select-modal.component';
-import { NAV_ITEMS } from './nav-items';
+import { filterManageNavItems } from './nav-items';
 
 @Component({
     selector: 'nav-footer',
@@ -19,7 +19,7 @@ import { NAV_ITEMS } from './nav-items';
             <div
                 class="mx-auto flex max-w-screen-sm items-center justify-around gap-1"
             >
-                @for (item of primary_nav_items; track item.route) {
+                @for (item of primary_nav_items(); track item.route) {
                     <a
                         #route_active="routerLinkActive"
                         class="hover:bg-base-100/30 focus-visible:bg-base-100/30 relative flex h-14 min-w-0 flex-1 flex-col items-center justify-center rounded-lg px-1 text-xs"
@@ -50,7 +50,7 @@ import { NAV_ITEMS } from './nav-items';
                     <div class="truncate font-medium">More</div>
                 </button>
                 <mat-menu #more_menu="matMenu">
-                    @for (item of more_nav_items; track item.route) {
+                    @for (item of more_nav_items(); track item.route) {
                         <a mat-menu-item [routerLink]="item.route">
                             <div class="flex items-center gap-2">
                                 <icon class="mr-2 text-2xl">{{
@@ -109,11 +109,20 @@ export class NavFooterComponent {
     private readonly _service = inject(SignageService);
     private readonly _dialog = inject(MatDialog);
 
-    public readonly primary_nav_items = NAV_ITEMS.filter(
-        (item) => !['/schedules', '/groups'].includes(item.route),
+    private readonly can_manage_groups = computed(
+        () =>
+            this._service.can_manage_all_groups() ||
+            !!this._service.manageable_signage_groups().length,
     );
-    public readonly more_nav_items = NAV_ITEMS.filter((item) =>
-        ['/schedules', '/groups'].includes(item.route),
+    public readonly primary_nav_items = computed(() =>
+        filterManageNavItems(this.can_manage_groups()).filter(
+            (item) => !['/schedules', '/groups'].includes(item.route),
+        ),
+    );
+    public readonly more_nav_items = computed(() =>
+        filterManageNavItems(this.can_manage_groups()).filter((item) =>
+            ['/schedules', '/groups'].includes(item.route),
+        ),
     );
     public readonly groups = this._service.signage_groups;
     public readonly selected_group_id = this._service.selected_group_id;

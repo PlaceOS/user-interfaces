@@ -1,11 +1,12 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { SettingsService } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
 } from '@placeos/components';
-import { NAV_ITEMS } from './nav-items';
+import { SignageService } from '../signage.service';
+import { filterManageNavItems } from './nav-items';
 import { SignageGroupSelectorComponent } from './signage-group-selector.component';
 
 @Component({
@@ -31,7 +32,7 @@ import { SignageGroupSelectorComponent } from './signage-group-selector.componen
                 }
             </div>
             <div class="flex flex-1 flex-col gap-4 p-2">
-                @for (item of nav_items; track item.route) {
+                @for (item of nav_items(); track item.route) {
                     <a
                         #route_active="routerLinkActive"
                         class="hover:bg-base-100/30 focus-visible:bg-base-100/30 relative flex h-18 w-18 flex-col items-center justify-center rounded-xl"
@@ -79,8 +80,14 @@ import { SignageGroupSelectorComponent } from './signage-group-selector.componen
 })
 export class NavSidebarComponent {
     private readonly _settings = inject(SettingsService);
+    private readonly _service = inject(SignageService);
 
-    public readonly nav_items = NAV_ITEMS;
+    public readonly nav_items = computed(() =>
+        filterManageNavItems(
+            this._service.can_manage_all_groups() ||
+                !!this._service.manageable_signage_groups().length,
+        ),
+    );
 
     public get logo_src(): string {
         const logo = this._settings.get<string | { src?: string }>(

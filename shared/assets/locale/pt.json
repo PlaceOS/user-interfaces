@@ -1847,6 +1847,7 @@
             "REPORTS_TOTAL_REQUESTS": "Total de Solicitações",
             "REPORTS_TOTAL_BOOKED": "Total Reservado",
             "REPORTS_UTILISATION": "Utilização",
+            "REPORTS_BOOKED_TIME_UTILISATION": "Booked Time Utilisation",
             "REPORTS_OCCUPANCY": "Taxa de Ocupação %",
             "REPORTS_AVG_BOOKING_INVITES": "Média de Convidados por Reserva",
             "REPORTS_AVG_DESKS": "Média de Mesas Utilizadas",

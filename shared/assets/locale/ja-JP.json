@@ -1847,6 +1847,7 @@
             "REPORTS_TOTAL_REQUESTS": "総リクエスト数",
             "REPORTS_TOTAL_BOOKED": "総予約数",
             "REPORTS_UTILISATION": "利用率",
+            "REPORTS_BOOKED_TIME_UTILISATION": "Booked Time Utilisation",
             "REPORTS_OCCUPANCY": "占有率 %",
             "REPORTS_AVG_BOOKING_INVITES": "予約あたりの平均招待数",
             "REPORTS_AVG_DESKS": "平均使用デスク数",

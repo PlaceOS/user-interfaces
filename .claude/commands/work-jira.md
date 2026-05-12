@@ -194,7 +194,7 @@ After confirmation:
 
 1. Inspect `git status`, `git diff`, and recent commit messages.
 2. Stage only files relevant to this issue by explicit path. Do not use `git add .` or `git add -A`.
-3. Commit with a concise conventional commit message that includes the Jira issue key where appropriate.
+3. Commit with a concise conventional commit message. Include the Jira issue key only when it begins with `PPT-` or `PROJ-`.
 4. If the user chose source-branch commit or `--commit-behavior source` was provided, cherry-pick the issue commit onto the recorded source branch from the source worktree and verify the final build commit hash.
 5. If the issue commit was cherry-picked successfully onto the source branch, remove the dedicated issue worktree with `git worktree remove <issue-worktree-path>` only after verifying it has no uncommitted changes.
 6. If the user explicitly confirms a push, push the selected branch to the remote.

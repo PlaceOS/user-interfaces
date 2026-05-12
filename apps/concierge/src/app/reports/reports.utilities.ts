@@ -1,4 +1,9 @@
-import { Booking, CalendarEvent, HashMap } from '@placeos/common';
+import {
+    BookableHoursRange,
+    Booking,
+    CalendarEvent,
+    HashMap,
+} from '@placeos/common';
 
 export function isActiveReportBooking(booking: Booking): boolean {
     return !booking.deleted && booking.status !== 'cancelled';
@@ -47,6 +52,38 @@ export function cappedReportAttendeeCount(
     return capacity > 0 ? Math.min(attendee_count, capacity) : attendee_count;
 }
 
+export function reportBookableMinutes(
+    bookable_hours?: BookableHoursRange | null,
+): number {
+    if (!bookable_hours) return 8 * 60;
+    const start = Number(bookable_hours.start);
+    const end = Number(bookable_hours.end);
+    if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) {
+        return 8 * 60;
+    }
+    return (end - start) * 60;
+}
+
+export function reportBookingDuration(
+    event: CalendarEvent,
+    bookable_minutes = 8 * 60,
+): number {
+    return event.all_day || event.duration >= 24 * 60
+        ? bookable_minutes
+        : event.duration;
+}
+
+export function totalReportBookingDuration(
+    bookings: CalendarEvent[],
+    bookable_minutes = 8 * 60,
+): number {
+    return bookings.reduce(
+        (total, booking) =>
+            total + reportBookingDuration(booking, bookable_minutes),
+        0,
+    );
+}
+
 export function reportEventStatusStats(events: CalendarEvent[]) {
     const deleted_count = events.filter((event) => event.deleted).length;
     const cancelled_count = events.filter(
@@ -83,6 +120,7 @@ export function generateReportForDeskBookings(
 export function generateReportForBookings(
     bookings: CalendarEvent[],
     util_period = 8,
+    bookable_minutes = 8 * 60,
     counts: HashMap<number> = {},
 ) {
     util_period = Math.max(1, util_period);
@@ -97,11 +135,12 @@ export function generateReportForBookings(
     );
     const utilisation =
         Math.floor(
-            (bookings.reduce((c, i) => c + i.duration, 0) /
+            (totalReportBookingDuration(bookings, bookable_minutes) /
                 (util_period * 60)) *
                 100,
         ) / 100;
-    const occupancy = Math.floor((occupancy_users / total_capacity) * 100) / 100;
+    const occupancy =
+        Math.floor((occupancy_users / total_capacity) * 100) / 100;
     const total = Object.keys(counts).reduce((c, i) => c + (counts[i] || 0), 0);
     return {
         count: bookings.length,

@@ -1875,6 +1875,7 @@
             "REPORTS_TOTAL_REQUESTS": "Total Requests",
             "REPORTS_TOTAL_BOOKED": "Total Booked",
             "REPORTS_UTILISATION": "Utilisation",
+            "REPORTS_BOOKED_TIME_UTILISATION": "Booked Time Utilisation",
             "REPORTS_OCCUPANCY": "Occupancy %",
             "REPORTS_ACTIVE_TYPES": "Active Booking Types",
             "REPORTS_UNIQUE_PEOPLE": "Unique People",

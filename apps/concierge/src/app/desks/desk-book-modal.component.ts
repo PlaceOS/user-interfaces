@@ -57,6 +57,7 @@ export class DeskBookModalComponent implements OnInit {
     }
 
     public ngOnInit() {
+        this._booking_form.newForm('desk');
         if (!this.form.value.id) {
             this.form.patchValue({
                 duration:

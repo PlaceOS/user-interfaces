@@ -1847,6 +1847,7 @@
             "REPORTS_TOTAL_REQUESTS": "Richieste totali",
             "REPORTS_TOTAL_BOOKED": "Totale prenotato",
             "REPORTS_UTILISATION": "Utilizzo",
+            "REPORTS_BOOKED_TIME_UTILISATION": "Booked Time Utilisation",
             "REPORTS_OCCUPANCY": "Occupazione %",
             "REPORTS_AVG_BOOKING_INVITES": "Inviti medi per prenotazione",
             "REPORTS_AVG_DESKS": "Scrivanie medie usate",

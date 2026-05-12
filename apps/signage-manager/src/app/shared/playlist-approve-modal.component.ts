@@ -7,7 +7,7 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { notifySuccess } from '@placeos/common';
+import { notifyError, notifySuccess } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
@@ -283,30 +283,43 @@ export class PlaylistApproveModalComponent implements OnInit {
         if (!previous_version?.items) return;
         this.loading.set('Undoing changes...');
         this._dialog_ref.disableClose = true;
-        await lastValueFrom(
-            updateSignagePlaylistMedia(
+        try {
+            await lastValueFrom(
+                updateSignagePlaylistMedia(
+                    this._data.playlist.id,
+                    previous_version.items,
+                ),
+            );
+            this._service.setPlaylistApprovalStatus(
                 this._data.playlist.id,
-                previous_version.items,
-            ),
-        );
-        this._service.setPlaylistApprovalStatus(this._data.playlist.id, false);
-        this.loading.set('');
-        this._dialog_ref.disableClose = false;
-        notifySuccess('Playlist reverted to previous version');
-        this._dialog_ref.close(true);
-        this._service.changed();
+                false,
+            );
+            notifySuccess('Playlist reverted to previous version');
+            this._dialog_ref.close(true);
+            this._service.changed();
+        } catch (e) {
+            notifyError('Error reverting playlist changes');
+        } finally {
+            this.loading.set('');
+            this._dialog_ref.disableClose = false;
+        }
     }
 
     public async approve() {
         this.loading.set('Approving playlist...');
         this._dialog_ref.disableClose = true;
-        await lastValueFrom(approveSignagePlaylist(this._data.playlist.id));
-        this._service.setPlaylistApprovalStatus(this._data.playlist.id, true);
-        this.loading.set('');
-        this._dialog_ref.disableClose = false;
-        notifySuccess('Playlist approved');
-        this._dialog_ref.close(true);
-        this._service.changed();
+        try {
+            await lastValueFrom(approveSignagePlaylist(this._data.playlist.id));
+            this._service.setPlaylistApprovalStatus(this._data.playlist.id, true);
+            notifySuccess('Playlist approved');
+            this._dialog_ref.close(true);
+            this._service.changed();
+        } catch (e) {
+            notifyError('Error approving playlist');
+        } finally {
+            this.loading.set('');
+            this._dialog_ref.disableClose = false;
+        }
     }
 
     public previewItem(item: SignageMedia) {

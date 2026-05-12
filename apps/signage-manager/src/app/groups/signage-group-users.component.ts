@@ -63,11 +63,17 @@ import { SignageGroupUserSelectModalComponent } from './signage-group-user-selec
                                 <div
                                     class="text-base-content/70 mt-1 truncate text-xs"
                                 >
-                                    {{
+                                    @let labels =
                                         permissionLabels(row.permissions).join(
                                             ', '
-                                        ) || 'No permissions'
-                                    }}
+                                        ) || '';
+                                    @if (labels) {
+                                        {{ labels }}
+                                    } @else {
+                                        <span class="italic"
+                                            >Default permissions</span
+                                        >
+                                    }
                                 </div>
                             </div>
                             <button
