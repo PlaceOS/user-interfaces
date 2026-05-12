@@ -1843,6 +1843,7 @@
             "REPORTS_TOTAL_REQUESTS": "إجمالي الطلبات",
             "REPORTS_TOTAL_BOOKED": "إجمالي المحجوز",
             "REPORTS_UTILISATION": "الاستخدام",
+            "REPORTS_BOOKED_TIME_UTILISATION": "Booked Time Utilisation",
             "REPORTS_OCCUPANCY": "الإشغال %",
             "REPORTS_AVG_BOOKING_INVITES": "متوسط الدعوات لكل حجز",
             "REPORTS_AVG_DESKS": "متوسط المكاتب المستخدمة",

@@ -1843,6 +1843,7 @@
             "REPORTS_TOTAL_REQUESTS": "总请求数",
             "REPORTS_TOTAL_BOOKED": "总预订数",
             "REPORTS_UTILISATION": "利用率",
+            "REPORTS_BOOKED_TIME_UTILISATION": "Booked Time Utilisation",
             "REPORTS_OCCUPANCY": "占用率 %",
             "REPORTS_AVG_BOOKING_INVITES": "每次预订平均邀请数",
             "REPORTS_AVG_DESKS": "平均使用工位数",
