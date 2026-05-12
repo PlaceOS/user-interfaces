@@ -7,6 +7,7 @@ import {
     registerPublicEvent,
     setStorage,
     setToken,
+    token,
 } from '@placeos/ts-client';
 import { lastValueFrom } from 'rxjs';
 import { isSystemEvent } from './public-event.helpers';
@@ -59,6 +60,8 @@ const GUEST_STORAGE_KEY = 'PLACEOS.public.guest';
 
 @Injectable({ providedIn: 'root' })
 export class PublicEventsService {
+    private _guest_remembered = !!this._rememberedGuestDetails();
+
     public readonly authority = signal<PlaceAuthority | null>(null);
     public readonly loading = signal('');
     public readonly error = signal('');
@@ -133,6 +136,7 @@ export class PublicEventsService {
             setStorage(remember ? 'local' : 'session');
             setToken(token, Date.now() + 2 * 60 * 60 * 1000);
             this._storeGuestDetails(details, remember);
+            this._guest_remembered = remember;
             this.guest.set(details);
         } catch (err) {
             this.error.set(this._message(err));
@@ -144,6 +148,7 @@ export class PublicEventsService {
 
     public async loadEvents(system_id: string) {
         this.error.set('');
+        await this._ensureGuestAccess(system_id);
         this.loading.set('Loading public events...');
         try {
             const events = await lastValueFrom(
@@ -165,6 +170,7 @@ export class PublicEventsService {
         const guest = this.guest();
         if (!guest) throw new Error('Guest details are required.');
         this.error.set('');
+        await this._ensureGuestAccess(system_id);
         this.loading.set('Registering for event...');
         try {
             return await lastValueFrom(
@@ -220,6 +226,13 @@ export class PublicEventsService {
 
     private _message(err: unknown) {
         return err instanceof Error ? err.message : `${err}`;
+    }
+
+    private async _ensureGuestAccess(system_id: string) {
+        if (token(false)) return;
+        const guest = this.guest();
+        if (!guest) throw new Error('Guest details are required.');
+        await this.requestGuestAccess(system_id, guest, this._guest_remembered);
     }
 
     private _configMap(value: unknown): Record<string, unknown> {
