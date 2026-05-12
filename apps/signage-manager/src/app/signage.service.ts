@@ -814,6 +814,7 @@ export class SignageService {
     public async removeMediaFromPlaylist(
         playlist_id: string,
         media_id: string,
+        item_index?: number,
     ) {
         if (
             !this._requirePermission(
@@ -825,9 +826,17 @@ export class SignageService {
         const media_list = await lastValueFrom(
             listSignagePlaylistMedia(playlist_id),
         );
-        const new_items = (media_list.items || []).filter(
-            (id) => id !== media_id,
-        );
+        const new_items = [...(media_list.items || [])];
+        if (
+            typeof item_index === 'number' &&
+            new_items[item_index] === media_id
+        ) {
+            new_items.splice(item_index, 1);
+        } else {
+            const index = new_items.indexOf(media_id);
+            if (index < 0) return;
+            new_items.splice(index, 1);
+        }
         await lastValueFrom(updateSignagePlaylistMedia(playlist_id, new_items));
         this.setPlaylistApprovalStatus(playlist_id, false);
         notifySuccess('Item removed from playlist');
@@ -1185,6 +1194,7 @@ export class SignageService {
         await lastValueFrom(updateSignagePlaylistMedia(playlist_id, list));
         this.setPlaylistApprovalStatus(playlist_id, false);
         notifySuccess('Playlist updated');
+        this._playlist_change.next(Date.now());
         this.changed();
     }
 
@@ -1200,8 +1210,17 @@ export class SignageService {
             listSignagePlaylistMedia(playlist_id),
         );
         if (media_list.items?.includes(media_id)) {
-            notifyError('Media already exists in this playlist.');
-            return;
+            const result = await openConfirmModal(
+                {
+                    title: 'Add duplicate media?',
+                    content:
+                        'This media is already in the playlist. Add another copy?',
+                    icon: { content: 'playlist_add' },
+                },
+                this._dialog,
+            );
+            if (result.reason !== 'done') return;
+            result.close();
         }
         const new_items = [...(media_list.items || []), media_id];
         await this.updatePlaylistMedia(playlist_id, new_items);
