@@ -60,11 +60,17 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
                                 <div
                                     class="text-base-content/70 mt-1 truncate text-xs"
                                 >
-                                    {{
+                                    @let labels =
                                         permissionLabels(row.permissions).join(
                                             ', '
-                                        ) || 'No permissions'
-                                    }}
+                                        ) || '';
+                                    @if (labels) {
+                                        {{ labels }}
+                                    } @else {
+                                        <span class="italic"
+                                            >Default permissions</span
+                                        >
+                                    }
                                     @if (row.deny) {
                                         <span class="text-error">
                                             · Denied</span
