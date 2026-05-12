@@ -838,7 +838,7 @@ export class SignageService {
             new_items.splice(index, 1);
         }
         await lastValueFrom(updateSignagePlaylistMedia(playlist_id, new_items));
-        this.setPlaylistApprovalStatus(playlist_id, false);
+        this._setPlaylistMediaState(playlist_id, new_items, false);
         notifySuccess('Item removed from playlist');
         this._playlist_change.next(Date.now());
         this.changed();
@@ -853,7 +853,7 @@ export class SignageService {
         )
             return;
         await lastValueFrom(updateSignagePlaylistMedia(playlist_id, items));
-        this.setPlaylistApprovalStatus(playlist_id, false);
+        this._setPlaylistMediaState(playlist_id, items, false);
         this._playlist_change.next(Date.now());
     }
 
@@ -1192,7 +1192,7 @@ export class SignageService {
         )
             return;
         await lastValueFrom(updateSignagePlaylistMedia(playlist_id, list));
-        this.setPlaylistApprovalStatus(playlist_id, false);
+        this._setPlaylistMediaState(playlist_id, list, false);
         notifySuccess('Playlist updated');
         this._playlist_change.next(Date.now());
         this.changed();
@@ -1296,6 +1296,23 @@ export class SignageService {
             updated_at:
                 current_state?.updated_at || playlist?.updated_at || Date.now(),
             approved,
+        });
+    }
+
+    private _setPlaylistMediaState(
+        playlist_id: string,
+        media_ids: string[],
+        approved?: boolean,
+    ) {
+        const playlist =
+            this._playlists().find((item) => item.id === playlist_id) ||
+            this.selected_playlist();
+        const current_state = this._playlist_meta_state()[playlist_id];
+        this._setPlaylistMeta(playlist_id, {
+            media_ids: media_ids.slice(0, 3),
+            updated_at:
+                current_state?.updated_at || playlist?.updated_at || Date.now(),
+            approved: approved ?? current_state?.approved,
         });
     }
 
