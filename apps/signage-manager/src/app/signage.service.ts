@@ -199,6 +199,9 @@ export class SignageService {
         initialValue: currentUser(),
     });
     private readonly _signage_groups_loaded = signal(false);
+    public readonly signage_groups_loaded = computed(() =>
+        this._signage_groups_loaded(),
+    );
     public readonly selected_group_id = signal(loadSelectedGroupId());
     public readonly signage_groups = toSignal(
         combineLatest([
