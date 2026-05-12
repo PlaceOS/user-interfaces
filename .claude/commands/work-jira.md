@@ -29,7 +29,7 @@ Parse `$ARGUMENTS` as:
 
 Commit behavior values:
 
-- `ask`: stop after verification and ask the user whether to commit back to the source branch or commit to the working branch/worktree.
+- `ask`: stop after verification and ask the user whether to commit back to the source branch or commit to the working branch/worktree. For small, low-risk changes, auto-select the source-branch cherry-pick strategy and ask only for commit confirmation.
 - `source`: after explicit commit confirmation, commit the relevant issue changes in the issue worktree, then cherry-pick that commit onto the recorded source branch from the source worktree when safe.
 - `worktree`: after explicit commit confirmation, commit the relevant issue changes on the issue worktree branch and leave the source branch unchanged.
 
@@ -168,7 +168,11 @@ Before committing or pushing, stop and present:
 - Tests/builds/Playwright checks run and results
 - Any risks, assumptions, or skipped checks
 
-If `--commit-behavior ask` was used or no commit behavior was provided, ask the user which commit destination to use:
+If `--commit-behavior ask` was used or no commit behavior was provided, auto-select the source-branch cherry-pick strategy for small, low-risk changes, then ask only for commit confirmation.
+
+Treat a change as small and low-risk when it is narrowly scoped to the Jira issue, touches only a small number of files, has no broad refactors, has no schema/config/dependency changes, and verification has passed or has only clearly documented non-blocking gaps.
+
+If the change is not small and low-risk, ask the user which commit destination to use:
 
 1. Commit back to the source branch: commit the relevant issue changes in the issue worktree, then cherry-pick that commit onto the recorded source branch from the source worktree only if it is safe to do so. If the source worktree has conflicting or blocking local changes, stop and ask before proceeding.
 2. Commit to the working branch/worktree: commit the relevant issue changes on the issue worktree branch and leave the source branch unchanged.
@@ -186,8 +190,9 @@ After confirmation:
 1. Inspect `git status`, `git diff`, and recent commit messages.
 2. Stage only files relevant to this issue by explicit path. Do not use `git add .` or `git add -A`.
 3. Commit with a concise conventional commit message that includes the Jira issue key where appropriate.
-4. If the user chose source-branch commit or `--commit-behavior source` was provided, cherry-pick the issue commit onto the recorded source branch from the source worktree and verify the resulting commit hash.
-5. If the user explicitly confirms a push, push the selected branch to the remote.
+4. If the user chose source-branch commit or `--commit-behavior source` was provided, cherry-pick the issue commit onto the recorded source branch from the source worktree and verify the final build commit hash.
+5. If the issue commit was cherry-picked successfully onto the source branch, remove the dedicated issue worktree with `git worktree remove <issue-worktree-path>` only after verifying it has no uncommitted changes.
+6. If the user explicitly confirms a push, push the selected branch to the remote.
 
 Never include secrets or unrelated user work.
 
@@ -196,8 +201,9 @@ Never include secrets or unrelated user work.
 After the selected commit path is complete, comment on the Jira work item with only:
 
 - Summary of changes
-- Branch/worktree name used for the work
-- Commit hash or hashes produced
+- Final build commit hash
+
+Do not include branch names, worktree names, source branch details, working branch details, or intermediate commit hashes in the Jira comment.
 
 Use a temporary body file if needed to avoid shell quoting issues:
 
@@ -219,5 +225,6 @@ If the transition status is invalid, list the failure and ask the user which Jir
 - Do not revert or overwrite unrelated changes.
 - Do not use destructive git commands.
 - Do not stage secrets or broad unreviewed changes.
+- Do not remove a worktree that has uncommitted changes.
 - Keep the Jira issue as the source of truth, but ask when requirements are ambiguous enough to affect behavior.
 - If implementation reveals the issue is too large, propose a smaller vertical slice and ask before splitting scope.
