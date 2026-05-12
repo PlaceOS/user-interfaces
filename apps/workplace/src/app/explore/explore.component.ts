@@ -25,7 +25,8 @@ import { EventPinComponent } from './event-pin.component';
                 <explore-map-view></explore-map-view>
                 @if (next_event()) {
                     <div
-                        class="border-base-300 bg-base-100 absolute top-2 right-2 flex items-center space-x-2 rounded-full border p-1"
+                        name="upcoming-booking-map-pill"
+                        class="border-base-300 bg-base-100 absolute top-20 right-2 left-2 flex items-center space-x-2 rounded-full border p-1 sm:top-2 sm:left-auto"
                     >
                         <div class="max-w-[40vw] flex-1 px-4 leading-tight">
                             <div class="truncate">{{ next_event().title }}</div>
