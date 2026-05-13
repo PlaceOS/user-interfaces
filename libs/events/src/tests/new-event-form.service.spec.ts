@@ -7,11 +7,17 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject, of, Subject } from 'rxjs';
 
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 
+import * as events_fn from '../lib/events.fn';
 import { EventFormService } from '../lib/new-event-form.service';
+
+jest.mock('../lib/events.fn', () => ({
+    ...jest.requireActual('../lib/events.fn'),
+    findEventClashes: jest.fn(),
+}));
 
 describe('EventFormService', () => {
     let service: EventFormService;
@@ -65,6 +71,7 @@ describe('EventFormService', () => {
         });
 
         service = TestBed.inject(EventFormService);
+        jest.mocked(events_fn.findEventClashes).mockReset();
     });
 
     afterEach(() => {
@@ -317,5 +324,40 @@ describe('EventFormService', () => {
         } finally {
             jest.useRealTimers();
         }
+    });
+
+    it('should block recurring room bookings that clash by default', async () => {
+        const date = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
+        jest.mocked(events_fn.findEventClashes).mockReturnValue(
+            of([
+                {
+                    asset_id: 'space-1',
+                    booking_start: Math.floor(date / 1000) + 24 * 60 * 60,
+                    booking_end:
+                        Math.floor(date / 1000) + 24 * 60 * 60 + 60 * 60,
+                },
+            ]) as any,
+        );
+
+        await expect(
+            (service as any)._checkRecurringClashes(
+                {
+                    id: 'event-1',
+                    date,
+                    duration: 60,
+                    recurring: true,
+                    resources: [
+                        {
+                            id: 'space-1',
+                            email: 'space-1@example.com',
+                            name: 'Boardroom',
+                            zones: ['bld-1'],
+                        },
+                    ] as any,
+                } as any,
+            ),
+        ).rejects.toBeTruthy();
+        expect(events_fn.findEventClashes).toHaveBeenCalled();
+        expect(TestBed.inject(MatDialog).open).not.toHaveBeenCalled();
     });
 });
