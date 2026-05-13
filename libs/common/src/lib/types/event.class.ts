@@ -388,6 +388,9 @@ export class CalendarEvent {
             /&lt;&lt;&lt;.*&gt;&gt;&gt;/g,
             '',
         );
+        this.is_system_event = (data.body || this.body).includes(
+            'main_event_id',
+        );
         this.private = !!data.private;
         this.all_day = !!data.all_day || custom_all_day;
         this.timezone =
@@ -475,7 +478,6 @@ export class CalendarEvent {
             this.system = { id: data.system_id } as any;
         }
         this.old_system = data.old_system || data.system;
-        this.is_system_event = this.body.includes('main_event_id');
         this.attachments = data.attachments || [];
         this.extension_data = data.extension_data || {};
         this.deleted = !!(data as any).deleted;

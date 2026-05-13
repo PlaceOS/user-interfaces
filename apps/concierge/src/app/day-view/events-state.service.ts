@@ -134,37 +134,36 @@ export class EventsStateService extends AsyncHandler {
     public readonly period = this._period.asObservable();
 
     /** List of levels with bookable room resources */
-    public readonly levels: Observable<BuildingLevel[]> =
-        (this._org.active_levels || of([] as BuildingLevel[])).pipe(
-            switchMap((levels) => {
-                if (!levels.length) {
-                    return of(
-                        [] as { level: BuildingLevel; has_bookable: boolean }[],
-                    );
-                }
-                return forkJoin(
-                    levels.map((level) =>
-                        requestSpacesForZone(level.id).pipe(
-                            map((spaces) => ({
-                                level,
-                                has_bookable: spaces.some(
-                                    (space) => space.bookable,
-                                ),
-                            })),
-                            catchError(() =>
-                                of({ level, has_bookable: false }),
-                            ),
-                        ),
-                    ),
+    public readonly levels: Observable<BuildingLevel[]> = (
+        this._org.active_levels || of([] as BuildingLevel[])
+    ).pipe(
+        switchMap((levels) => {
+            if (!levels.length) {
+                return of(
+                    [] as { level: BuildingLevel; has_bookable: boolean }[],
                 );
-            }),
-            map((levels) =>
-                levels
-                    .filter((item) => item.has_bookable)
-                    .map((item) => item.level),
-            ),
-            shareReplay(1),
-        );
+            }
+            return forkJoin(
+                levels.map((level) =>
+                    requestSpacesForZone(level.id).pipe(
+                        map((spaces) => ({
+                            level,
+                            has_bookable: spaces.some(
+                                (space) => space.bookable,
+                            ),
+                        })),
+                        catchError(() => of({ level, has_bookable: false })),
+                    ),
+                ),
+            );
+        }),
+        map((levels) =>
+            levels
+                .filter((item) => item.has_bookable)
+                .map((item) => item.level),
+        ),
+        shareReplay(1),
+    );
 
     public readonly spaces: Observable<Space[]> = combineLatest([
         this._zones,
@@ -288,24 +287,43 @@ export class EventsStateService extends AsyncHandler {
         this._date,
         this._period,
         this._zones,
+        this._options,
     ]).pipe(
-        map(([events, removed, added, filters, date, period, zones]: any) => {
-            let event_list = [...events];
-            event_list.filter(
-                (_) =>
-                    !removed.find(
-                        (e) => _.id === e.id || _.ical_uid === e.ical_uid,
-                    ),
-            );
-            event_list = event_list.concat(added);
-            const { start, end } = periodFor(
-                period,
+        map(
+            ([
+                events,
+                removed,
+                added,
+                filters,
                 date,
-                this.tz_offset,
-                this._week_start,
-            );
-            return this.filterEvents(event_list, start, end, filters, zones);
-        }),
+                period,
+                zones,
+                options,
+            ]: any) => {
+                let event_list = [...events];
+                event_list.filter(
+                    (_) =>
+                        !removed.find(
+                            (e) => _.id === e.id || _.ical_uid === e.ical_uid,
+                        ),
+                );
+                event_list = event_list.concat(added);
+                const { start, end } = periodFor(
+                    period,
+                    date,
+                    this.tz_offset,
+                    this._week_start,
+                );
+                return this.filterEvents(
+                    event_list,
+                    start,
+                    end,
+                    filters,
+                    zones,
+                    options,
+                );
+            },
+        ),
         shareReplay(1),
     );
 
@@ -472,6 +490,7 @@ export class EventsStateService extends AsyncHandler {
         end: Date,
         filters: BookingFilters,
         zones: string[] = [],
+        options: BookingUIOptions = {},
     ) {
         return events.filter((bkn) => {
             const intersects = timePeriodsIntersect(
@@ -500,7 +519,15 @@ export class EventsStateService extends AsyncHandler {
                 !(filters.hide_type as any).find(
                     (item) => item.id === type || item === type,
                 );
-            return intersects && has_space && in_zones && show;
+            const show_setup_breakdown =
+                options.show_overflow || !bkn.is_system_event;
+            return (
+                intersects &&
+                has_space &&
+                in_zones &&
+                show &&
+                show_setup_breakdown
+            );
         });
     }
 
