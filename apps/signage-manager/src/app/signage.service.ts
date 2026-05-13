@@ -203,6 +203,9 @@ export class SignageService {
         this._signage_groups_loaded(),
     );
     public readonly selected_group_id = signal(loadSelectedGroupId());
+    public readonly signage_group_tree_expanded = signal<
+        Record<string, boolean>
+    >({});
     public readonly signage_groups = toSignal(
         combineLatest([
             current_user.pipe(
@@ -528,14 +531,32 @@ export class SignageService {
         shareReplay(1),
     );
 
+    public readonly root_zones = combineLatest([
+        combineLatest([this._org.initialised, this._change]).pipe(
+            filter(([initialised]) => !!initialised),
+            debounceTime(300),
+            switchMap(() =>
+                queryZones({
+                    parent_id: 'root',
+                    limit: 2500,
+                    include_children_count: true,
+                } as any).pipe(catchError(() => of({ data: [] }))),
+            ),
+            map((result: any) => result.data || []),
+            startWith([]),
+        ),
+        this._zone_overrides$,
+    ]).pipe(
+        map(([zones, overrides]) => this._mergeItems(zones, overrides)),
+        shareReplay(1),
+    );
+
     public zoneChildren(parent_id: string) {
-        return queryZones(
-            this._groupQueryParams({
-                parent_id,
-                limit: 2500,
-                include_children_count: true,
-            }),
-        ).pipe(map(({ data }) => data || []));
+        return queryZones({
+            parent_id,
+            limit: 2500,
+            include_children_count: true,
+        } as any).pipe(map(({ data }) => data || []));
     }
 
     public readonly plugins = combineLatest([
@@ -566,6 +587,10 @@ export class SignageService {
 
     public readonly selected_zone = signal<any>(null);
     public readonly zone_search_term = signal('');
+    public readonly zone_tree_expanded = signal<Record<string, boolean>>({});
+    public readonly zone_tree_children_cache = signal<
+        Record<string, PlaceZone[]>
+    >({});
 
     public readonly selected_display = signal<any>(null);
     public readonly display_search_term = signal('');

@@ -1,3 +1,4 @@
+import { CdkTreeModule } from '@angular/cdk/tree';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -9,7 +10,7 @@ import { SignageService } from '../signage.service';
 
 interface GroupListRow {
     group: PlaceGroup;
-    depth: number;
+    level: number;
 }
 
 @Component({
@@ -35,35 +36,19 @@ interface GroupListRow {
                 </mat-form-field>
             </header>
             <section class="min-h-0 flex-1 overflow-auto">
-                @for (row of visible_group_rows(); track row.group.id) {
-                    <div
-                        class="border-base-300 flex items-start border-b"
-                        [style.paddingLeft.rem]="row.depth * 1.25"
+                @if (visible_group_rows().length) {
+                    <cdk-tree
+                        class="group-tree"
+                        [dataSource]="visible_group_rows()"
+                        [levelAccessor]="levelAccessor"
+                        [trackBy]="trackByRow"
                     >
-                        <button
-                            type="button"
-                            class="hover:bg-base-content/10 mt-3 ml-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors"
-                            [class.invisible]="!childCount(row.group)"
-                            [attr.aria-label]="
-                                (isExpanded(row.group)
-                                    ? 'Collapse group '
-                                    : 'Expand group ') +
-                                (row.group.name || row.group.id)
-                            "
-                            (click)="toggleGroup(row.group, $event)"
-                        >
-                            <icon class="text-xl">
-                                {{
-                                    isExpanded(row.group)
-                                        ? 'expand_more'
-                                        : 'chevron_right'
-                                }}
-                            </icon>
-                        </button>
-                        <button
-                            type="button"
-                            matRipple
-                            class="flex min-w-0 flex-1 items-center gap-3 px-2 py-3 text-left transition-colors"
+                        <cdk-tree-node
+                            *cdkTreeNodeDef="let row"
+                            cdkTreeNodePadding
+                            [cdkTreeNodePadding]="row.level"
+                            [cdkTreeNodePaddingIndent]="8"
+                            class="border-base-300 bg-base-200/30 relative flex min-h-0 items-center gap-2 border-b pr-2"
                             [class.bg-primary]="
                                 row.group.id === selected_group()?.id
                             "
@@ -73,28 +58,64 @@ interface GroupListRow {
                             [class.hover:bg-base-200]="
                                 row.group.id !== selected_group()?.id
                             "
-                            (click)="selectGroup(row.group)"
                         >
-                            <icon class="shrink-0 text-2xl">group</icon>
-                            <div class="min-w-0 flex-1">
-                                <div class="flex items-center gap-2">
-                                    <div
-                                        class="min-w-0 flex-1 truncate font-medium"
-                                    >
-                                        {{ row.group.name || 'Unnamed group' }}
-                                    </div>
-                                    @if (childCount(row.group)) {
-                                        <span
-                                            class="bg-base-200/70 text-base-content rounded-full px-2 py-0.5 text-xs"
+                            <div
+                                class="bg-base-content absolute inset-y-1 left-1 rounded-sm"
+                                [style.width]="0.25 * row.level + 'rem'"
+                                [style.opacity]="0.1 * row.level"
+                            ></div>
+                            @if (childCount(row.group) > 0) {
+                                <button
+                                    type="button"
+                                    class="hover:bg-base-content/20 ml-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors"
+                                    [attr.aria-label]="
+                                        (isExpanded(row.group)
+                                            ? 'Collapse group '
+                                            : 'Expand group ') +
+                                        (row.group.name || row.group.id)
+                                    "
+                                    (click)="toggleGroup(row.group, $event)"
+                                >
+                                    <icon class="text-xl">
+                                        {{
+                                            isExpanded(row.group)
+                                                ? 'expand_more'
+                                                : 'chevron_right'
+                                        }}
+                                    </icon>
+                                </button>
+                            } @else {
+                                <div class="min-w-8"></div>
+                            }
+                            <button
+                                type="button"
+                                matRipple
+                                class="flex min-w-0 flex-1 items-center gap-3 rounded-md py-3 text-left transition-colors"
+                                (click)="selectGroup(row.group)"
+                            >
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-2">
+                                        <div
+                                            class="min-w-0 flex-1 truncate font-medium"
                                         >
-                                            {{ childCount(row.group) }}
-                                        </span>
-                                    }
+                                            {{
+                                                row.group.name ||
+                                                    'Unnamed group'
+                                            }}
+                                        </div>
+                                        @if (childCount(row.group)) {
+                                            <span
+                                                class="bg-base-200/70 rounded-full px-2 py-0.5 text-xs"
+                                            >
+                                                {{ childCount(row.group) }}
+                                            </span>
+                                        }
+                                    </div>
                                 </div>
-                            </div>
-                        </button>
-                    </div>
-                } @empty {
+                            </button>
+                        </cdk-tree-node>
+                    </cdk-tree>
+                } @else {
                     <div class="p-6 text-center opacity-60">
                         No manageable signage groups
                     </div>
@@ -109,6 +130,10 @@ interface GroupListRow {
                     display: none !important;
                 }
             }
+
+            .group-tree {
+                background: transparent;
+            }
         `,
     ],
     imports: [
@@ -116,6 +141,7 @@ interface GroupListRow {
         MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
+        CdkTreeModule,
         IconComponent,
     ],
 })
@@ -125,7 +151,9 @@ export class SignageGroupListComponent {
     public readonly groups = this._service.manageable_signage_groups;
     public readonly selected_group = this._service.managed_group;
     public readonly search = signal('');
-    public readonly expanded_groups = signal<Record<string, boolean>>({});
+    public readonly expanded_groups = this._service.signage_group_tree_expanded;
+    public readonly levelAccessor = (row: GroupListRow) => row.level;
+    public readonly trackByRow = (_: number, row: GroupListRow) => row.group.id;
     public readonly child_lookup = computed(() => {
         const lookup: Record<string, PlaceGroup[]> = {};
         for (const group of this.groups()) {
@@ -149,7 +177,7 @@ export class SignageGroupListComponent {
                         group.description.toLowerCase().includes(search) ||
                         group.id.toLowerCase().includes(search),
                 )
-                .map((group) => ({ group, depth: 0 }));
+                .map((group) => ({ group, level: 0 }));
         }
         const group_ids = new Set(groups.map((group) => group.id));
         const roots = groups
@@ -158,11 +186,11 @@ export class SignageGroupListComponent {
             )
             .sort((a, b) => a.name.localeCompare(b.name));
         const rows: GroupListRow[] = [];
-        const addRows = (items: PlaceGroup[], depth: number) => {
+        const addRows = (items: PlaceGroup[], level: number) => {
             for (const group of items) {
-                rows.push({ group, depth });
+                rows.push({ group, level });
                 if (!this.isExpanded(group)) continue;
-                addRows(this.child_lookup()[group.id] || [], depth + 1);
+                addRows(this.child_lookup()[group.id] || [], level + 1);
             }
         };
         addRows(roots, 0);

@@ -1,3 +1,4 @@
+import { CdkTreeModule } from '@angular/cdk/tree';
 import {
     Component,
     computed,
@@ -6,18 +7,16 @@ import {
     signal,
     untracked,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatTreeModule } from '@angular/material/tree';
 import { RouterLink } from '@angular/router';
 import { OrganisationService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { PlaceZone } from '@placeos/ts-client';
 import { lastValueFrom } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { SignageService } from '../signage.service';
 
 interface ZoneTreeNode {
@@ -25,6 +24,10 @@ interface ZoneTreeNode {
     children: ZoneTreeNode[];
     children_loaded: boolean;
     children_loading: boolean;
+}
+
+interface FlatZoneTreeNode extends ZoneTreeNode {
+    level: number;
 }
 
 @Component({
@@ -108,18 +111,18 @@ interface ZoneTreeNode {
                     </div>
                 }
             } @else if (tree_nodes().length) {
-                <mat-tree
+                <cdk-tree
                     class="zone-tree"
-                    [dataSource]="tree_nodes()"
-                    [childrenAccessor]="children_accessor"
-                    [expansionKey]="expansionKey"
+                    [dataSource]="flat_tree_nodes()"
+                    [levelAccessor]="levelAccessor"
                     [trackBy]="trackByNode"
                 >
-                    <mat-tree-node
-                        *matTreeNodeDef="let node; when: is_leaf"
-                        matTreeNodePadding
-                        [matTreeNodePaddingIndent]="24"
-                        class="border-base-300 bg-base-200/30 min-h-0 border-y pr-2"
+                    <cdk-tree-node
+                        *cdkTreeNodeDef="let node"
+                        cdkTreeNodePadding
+                        [cdkTreeNodePadding]="node.level"
+                        [cdkTreeNodePaddingIndent]="8"
+                        class="border-base-300 bg-base-200/30 relative flex min-h-0 items-center gap-2 border-b pr-2"
                         [class.bg-primary]="selected()?.id === node.zone.id"
                         [class.text-primary-content]="
                             selected()?.id === node.zone.id
@@ -128,7 +131,37 @@ interface ZoneTreeNode {
                             selected()?.id !== node.zone.id
                         "
                     >
-                        <span class="w-8 shrink-0"></span>
+                        <div
+                            class="bg-base-content absolute inset-y-1 left-1 rounded-sm"
+                            [style.width]="0.25 * node.level + 'rem'"
+                            [style.opacity]="0.1 * node.level"
+                        ></div>
+                        @if (childCount(node) > 0) {
+                            <button
+                                type="button"
+                                class="hover:bg-base-content/20 ml-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors"
+                                [attr.aria-label]="
+                                    (isExpanded(node)
+                                        ? 'Collapse zone '
+                                        : 'Expand zone ') +
+                                    (node.zone.display_name || node.zone.name)
+                                "
+                                (click)="
+                                    onExpandedChange(node, !isExpanded(node));
+                                    $event.stopPropagation()
+                                "
+                            >
+                                <icon class="text-xl">
+                                    {{
+                                        isExpanded(node)
+                                            ? 'expand_more'
+                                            : 'chevron_right'
+                                    }}
+                                </icon>
+                            </button>
+                        } @else {
+                            <div class="min-w-8"></div>
+                        }
                         <a
                             matRipple
                             class="flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-md py-3 text-left no-underline transition-colors"
@@ -141,12 +174,29 @@ interface ZoneTreeNode {
                             (click)="selectZone(node.zone)"
                         >
                             <div class="min-w-0 flex-1">
-                                <div class="truncate font-medium">
-                                    {{
-                                        node.zone.display_name || node.zone.name
-                                    }}
+                                <div class="flex items-center gap-2">
+                                    <div
+                                        class="min-w-0 flex-1 truncate font-medium"
+                                    >
+                                        {{
+                                            node.zone.display_name ||
+                                                node.zone.name
+                                        }}
+                                    </div>
+                                    @if (childCount(node) > 0) {
+                                        <span
+                                            class="bg-base-200/70 rounded-full px-2 py-0.5 text-xs"
+                                        >
+                                            {{ childCount(node) }}
+                                        </span>
+                                    }
+                                    @if (node.children_loading) {
+                                        <icon class="animate-spin text-lg"
+                                            >autorenew</icon
+                                        >
+                                    }
                                 </div>
-                                @if (node.zone.children_count) {
+                                @if (node.zone.description) {
                                     <div
                                         class="mt-0.5 truncate text-xs"
                                         [class.opacity-70]="
@@ -156,112 +206,13 @@ interface ZoneTreeNode {
                                             selected()?.id === node.zone.id
                                         "
                                     >
-                                        {{ node.zone.children_count }}
+                                        {{ node.zone.description }}
                                     </div>
                                 }
                             </div>
                         </a>
-                    </mat-tree-node>
-
-                    <mat-nested-tree-node
-                        *matTreeNodeDef="let node; when: has_child"
-                        [isExpandable]="true"
-                        [isExpanded]="isExpanded(node)"
-                        (expandedChange)="onExpandedChange(node, $event)"
-                        class="border-base-300 block border-b"
-                    >
-                        <div
-                            matTreeNodePadding
-                            [matTreeNodePaddingIndent]="24"
-                            class="mat-tree-node gap-1 pr-2"
-                            [class.bg-primary]="selected()?.id === node.zone.id"
-                            [class.text-primary-content]="
-                                selected()?.id === node.zone.id
-                            "
-                            [class.hover:bg-base-200]="
-                                selected()?.id !== node.zone.id
-                            "
-                        >
-                            <button
-                                type="button"
-                                matTreeNodeToggle
-                                class="hover:bg-base-content/20 ml-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors"
-                                [attr.aria-label]="
-                                    (isExpanded(node)
-                                        ? 'Collapse zone '
-                                        : 'Expand zone ') +
-                                    (node.zone.display_name || node.zone.name)
-                                "
-                            >
-                                <icon class="text-xl">
-                                    {{
-                                        isExpanded(node)
-                                            ? 'expand_more'
-                                            : 'chevron_right'
-                                    }}
-                                </icon>
-                            </button>
-                            <a
-                                matRipple
-                                class="flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-md py-3 text-left no-underline transition-colors"
-                                [routerLink]="['/zones', node.zone.id]"
-                                queryParamsHandling="merge"
-                                [attr.aria-label]="
-                                    'Open zone ' +
-                                    (node.zone.display_name || node.zone.name)
-                                "
-                                (click)="selectZone(node.zone)"
-                            >
-                                <div class="min-w-0 flex-1">
-                                    <div class="flex items-center gap-2">
-                                        <div
-                                            class="min-w-0 flex-1 truncate font-medium"
-                                        >
-                                            {{
-                                                node.zone.display_name ||
-                                                    node.zone.name
-                                            }}
-                                        </div>
-                                        <span
-                                            class="bg-base-200/70 rounded-full px-2 py-0.5 text-xs"
-                                        >
-                                            {{ childCount(node) }}
-                                        </span>
-                                    </div>
-                                    @if (node.zone.description) {
-                                        <div
-                                            class="mt-0.5 truncate text-xs"
-                                            [class.opacity-70]="
-                                                selected()?.id !== node.zone.id
-                                            "
-                                            [class.opacity-90]="
-                                                selected()?.id === node.zone.id
-                                            "
-                                        >
-                                            {{ node.zone.description }}
-                                        </div>
-                                    }
-                                </div>
-                            </a>
-                        </div>
-                        <div [class.hidden]="!isExpanded(node)" role="group">
-                            @if (node.children_loading) {
-                                <div
-                                    class="text-base-content/70 flex items-center gap-2 px-4 py-3"
-                                    matTreeNodePadding
-                                    [matTreeNodePaddingIndent]="24"
-                                >
-                                    <span class="w-8 shrink-0"></span>
-                                    <icon class="animate-spin text-lg"
-                                        >autorenew</icon
-                                    >
-                                    <span class="text-sm">Loading...</span>
-                                </div>
-                            }
-                            <ng-container matTreeNodeOutlet />
-                        </div>
-                    </mat-nested-tree-node>
-                </mat-tree>
+                    </cdk-tree-node>
+                </cdk-tree>
             } @else {
                 <div
                     class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
@@ -291,7 +242,7 @@ interface ZoneTreeNode {
         MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
-        MatTreeModule,
+        CdkTreeModule,
         IconComponent,
     ],
 })
@@ -305,6 +256,10 @@ export class ZoneListComponent {
     private readonly _all_zones = toSignal(this._service.all_zones, {
         initialValue: [] as PlaceZone[],
     });
+    private readonly _root_zones = toSignal(this._service.root_zones, {
+        initialValue: [] as PlaceZone[],
+    });
+    private readonly _children_cache = this._service.zone_tree_children_cache;
 
     public readonly search = this._service.zone_search_term;
     public readonly zones = this._service.filtered_zones;
@@ -313,27 +268,16 @@ export class ZoneListComponent {
         () => !!this.search().trim(),
     );
     public readonly tree_nodes = signal<ZoneTreeNode[]>([]);
-    public readonly expanded_zones = signal<Record<string, boolean>>({});
-    public readonly node_children_lookup = computed(() => {
-        const lookup: Record<string, ZoneTreeNode[]> = {};
-        this.mapNodeChildren(this.tree_nodes(), lookup);
-        return lookup;
+    public readonly expanded_zones = this._service.zone_tree_expanded;
+    public readonly flat_tree_nodes = computed(() => {
+        const nodes: FlatZoneTreeNode[] = [];
+        for (const node of this.tree_nodes()) {
+            this.flattenNode(node, 0, nodes);
+        }
+        return nodes;
     });
-
-    private readonly _node_children_lookup$ = toObservable(
-        this.node_children_lookup,
-    );
-
-    public readonly children_accessor = (node: ZoneTreeNode) =>
-        this._node_children_lookup$.pipe(
-            map((lookup) => lookup[node.zone.id] || []),
-        );
-    public readonly has_child = (_: number, node: ZoneTreeNode) =>
-        this.childCount(node) > 0;
-    public readonly is_leaf = (_: number, node: ZoneTreeNode) =>
-        !this.childCount(node);
-    public readonly expansionKey = (node: ZoneTreeNode) => node.zone.id;
-    public readonly trackByNode = (_: number, node: ZoneTreeNode) =>
+    public readonly levelAccessor = (node: FlatZoneTreeNode) => node.level;
+    public readonly trackByNode = (_: number, node: FlatZoneTreeNode) =>
         node.zone.id;
 
     public readonly child_count_lookup = computed(() => {
@@ -356,18 +300,19 @@ export class ZoneListComponent {
 
     constructor() {
         effect(() => {
-            this._all_zones();
+            const root_zones = this._root_zones();
             if (!this._org_initialised()) return;
-            const org_zone =
-                this.findZone(this._org.organisation.id) ||
-                (this._org.organisation as unknown as PlaceZone);
-            if (!org_zone?.id) return;
-            const existing_root = untracked(() => this.tree_nodes()[0]);
-            if (existing_root?.zone.id === org_zone.id) {
-                this.tree_nodes.set([this.syncNode(existing_root)]);
-                return;
-            }
-            this.tree_nodes.set([this.createNode(org_zone)]);
+            const existing_roots = untracked(() => this.tree_nodes());
+            this.tree_nodes.set(
+                root_zones.map((zone) => {
+                    const existing = existing_roots.find(
+                        (node) => node.zone.id === zone.id,
+                    );
+                    return existing
+                        ? this.syncNode(existing)
+                        : this.createNode(zone);
+                }),
+            );
         });
 
         effect(() => {
@@ -389,7 +334,13 @@ export class ZoneListComponent {
             ...state,
             [node.zone.id]: expanded,
         }));
-        if (!expanded || node.children_loaded || node.children_loading) return;
+        if (
+            !expanded ||
+            this.hasLoadedChildren(node) ||
+            node.children_loading
+        ) {
+            return;
+        }
         this.tree_nodes.update((nodes) =>
             this.updateNode(nodes, node.zone.id, (item) => ({
                 ...item,
@@ -426,18 +377,44 @@ export class ZoneListComponent {
     }
 
     private createNode(zone: PlaceZone): ZoneTreeNode {
+        const cached_children = this.cachedChildren(zone.id);
+        const has_cached_children = this.hasUsableCachedChildren(
+            zone.id,
+            cached_children,
+        );
         return {
             zone,
-            children: [],
-            children_loaded: false,
+            children: has_cached_children
+                ? cached_children.map((child_zone) =>
+                      this.createNode(child_zone),
+                  )
+                : [],
+            children_loaded: has_cached_children,
             children_loading: false,
         };
     }
 
     private async loadChildren(zone_id: string) {
+        const cached_children = this.cachedChildren(zone_id);
+        if (this.hasUsableCachedChildren(zone_id, cached_children)) {
+            this.applyLoadedChildren(zone_id, cached_children);
+            return;
+        }
         const children = await lastValueFrom(
             this._service.zoneChildren(zone_id),
         ).catch(() => this.children_lookup()[zone_id] || []);
+        this.cacheChildren(zone_id, children);
+        this.applyLoadedChildren(zone_id, children);
+    }
+
+    private cacheChildren(zone_id: string, children: PlaceZone[]) {
+        this._children_cache.update((cache) => ({
+            ...cache,
+            [zone_id]: children,
+        }));
+    }
+
+    private applyLoadedChildren(zone_id: string, children: PlaceZone[]) {
         this.tree_nodes.update((nodes) =>
             this.updateNode(nodes, zone_id, (item) => ({
                 ...item,
@@ -457,23 +434,21 @@ export class ZoneListComponent {
 
     private syncNode(node: ZoneTreeNode): ZoneTreeNode {
         const zone = this.findZone(node.zone.id) || node.zone;
-        if (!node.children_loaded) {
+        const cached_children = this.cachedChildren(node.zone.id);
+        if (!node.children_loaded && !cached_children) {
             return { ...node, zone };
         }
         const existing_children = node.children;
         const zone_children =
+            cached_children ||
             this.children_lookup()[node.zone.id] ||
             existing_children.map(({ zone }) => zone);
-        const children = zone_children.map(
-            (child_zone) => {
-                const child = existing_children.find(
-                    ({ zone }) => zone.id === child_zone.id,
-                );
-                return child
-                    ? this.syncNode(child)
-                    : this.createNode(child_zone);
-            },
-        );
+        const children = zone_children.map((child_zone) => {
+            const child = existing_children.find(
+                ({ zone }) => zone.id === child_zone.id,
+            );
+            return child ? this.syncNode(child) : this.createNode(child_zone);
+        });
         return { ...node, zone, children };
     }
 
@@ -482,20 +457,19 @@ export class ZoneListComponent {
     }
 
     private getZonePath(zone_id: string) {
-        const root_id =
-            this.tree_nodes()[0]?.zone.id || this._org.organisation?.id || '';
-        if (!zone_id || !root_id) return [];
-        if (zone_id === root_id) return [root_id];
+        const root_ids = new Set(this.tree_nodes().map(({ zone }) => zone.id));
+        if (!zone_id || !root_ids.size) return [];
+        if (root_ids.has(zone_id)) return [zone_id];
         const zone_path = [zone_id];
         let current_zone = this.findZone(zone_id);
         while (current_zone?.parent_id) {
             zone_path.unshift(current_zone.parent_id);
-            if (current_zone.parent_id === root_id) {
+            if (root_ids.has(current_zone.parent_id)) {
                 return zone_path;
             }
             current_zone = this.findZone(current_zone.parent_id);
         }
-        return zone_path[0] === root_id ? zone_path : [];
+        return root_ids.has(zone_path[0]) ? zone_path : [];
     }
 
     private getExpansionPath(zone_id: string) {
@@ -544,15 +518,26 @@ export class ZoneListComponent {
             : zone_or_node.id;
     }
 
-    private mapNodeChildren(
-        nodes: ZoneTreeNode[],
-        lookup: Record<string, ZoneTreeNode[]>,
-    ) {
-        for (const node of nodes) {
-            lookup[node.zone.id] = node.children;
-            if (!node.children.length) continue;
-            this.mapNodeChildren(node.children, lookup);
-        }
+    private cachedChildren(zone_id: string) {
+        const cache = this._children_cache();
+        return zone_id in cache ? cache[zone_id] : null;
+    }
+
+    private hasUsableCachedChildren(
+        zone_id: string,
+        cached_children: PlaceZone[] | null,
+    ): cached_children is PlaceZone[] {
+        return (
+            !!cached_children &&
+            (cached_children.length > 0 || this.childCount(zone_id) === 0)
+        );
+    }
+
+    private hasLoadedChildren(node: ZoneTreeNode) {
+        return (
+            node.children_loaded &&
+            (node.children.length > 0 || this.childCount(node.zone.id) === 0)
+        );
     }
 
     private findTreeNode(
@@ -587,5 +572,17 @@ export class ZoneListComponent {
                 children: this.updateNode(node.children, zone_id, callback),
             };
         });
+    }
+
+    private flattenNode(
+        node: ZoneTreeNode,
+        level: number,
+        flat_nodes: FlatZoneTreeNode[],
+    ) {
+        flat_nodes.push({ ...node, level });
+        if (!this.isExpanded(node)) return;
+        for (const child of node.children) {
+            this.flattenNode(child, level + 1, flat_nodes);
+        }
     }
 }
