@@ -276,7 +276,7 @@ export class AutoAssignedDeskModalComponent
             form.patchValue({
                 date: booking_date,
                 duration: booking_duration,
-                all_day: false,
+                all_day: true,
             });
 
             // Get available resources (desks)
