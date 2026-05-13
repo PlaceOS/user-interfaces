@@ -19,6 +19,7 @@ import {
 } from '@placeos/components';
 import { ParkingBookingsWeekViewComponent } from './parking-bookings-week-view.component';
 import { ParkingOptions, ParkingStateService } from './parking-state.service';
+import { isParkingAllDayBooking } from './parking.utilities';
 
 @Component({
     selector: 'parking-bookings-list',
@@ -104,7 +105,7 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
             <ng-template #date_template let-row="row">
                 <div class="px-4 py-2">
                     {{
-                        row.all_day || row.duration > 12 * 60
+                        isAllDayBooking(row)
                             ? ('COMMON.ALL_DAY' | translate)
                             : (row.date | date: time_format : timezone) +
                               ' - ' +
@@ -588,6 +589,10 @@ export class ParkingBookingsListComponent
 
     public isRecurringInstance(booking: Booking) {
         return !!booking?.instance;
+    }
+
+    public isAllDayBooking(booking: Booking) {
+        return isParkingAllDayBooking(booking, this.timezone);
     }
 
     public statusLabel(booking: Booking) {
