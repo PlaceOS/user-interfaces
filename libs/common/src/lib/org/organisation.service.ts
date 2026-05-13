@@ -1,16 +1,15 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-    PlaceMetadata,
     PlaceZone,
     authority,
+    bulkMetadata,
     getModule,
     isMock,
     onlineState,
     queryZones,
-    showMetadata,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, lastValueFrom, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -31,6 +30,10 @@ import {
     Organisation,
     Region,
 } from '../types/org.classes';
+
+const ZONE_CACHE_PREFIX = 'PLACEOS.org.zones';
+type ZoneQueryParams = Parameters<typeof queryZones>[0];
+type MetadataMap = Record<string, Record<string, any>>;
 
 @Injectable({
     providedIn: 'root',
@@ -495,10 +498,10 @@ export class OrganisationService {
      * Load organisation data for application
      */
     public async loadOrganisation(): Promise<void> {
-        const org_list = await mapLastValueFrom(
-            queryZones({ tags: 'org', include_children_count: true }),
-            (i) => i.data,
-        );
+        const org_list = await this._queryZones({
+            tags: 'org',
+            include_children_count: true,
+        });
         console.log('Orgs:', org_list);
         if (org_list.length) {
             const auth = authority();
@@ -508,13 +511,11 @@ export class OrganisationService {
                 ) || org_list[0];
 
             const load_metadata = !this._service.get('dont_load_metadata');
-            const bindings: Record<string, any> = (
-                await lastValueFrom(
-                    load_metadata
-                        ? showMetadata(org.id, 'bindings')
-                        : of({ details: {} }),
-                )
-            )?.details;
+            const bindings = load_metadata
+                ? (await this._bulkMetadataDetails('bindings', [org.id]))[
+                      org.id
+                  ]
+                : {};
             this._organisation = new Organisation({ ...org, bindings });
         } else {
             log('ORG', 'Unable to find organisation');
@@ -526,16 +527,13 @@ export class OrganisationService {
      * Load region data for the organisation
      */
     public async loadRegions(): Promise<void> {
-        const list = await lastValueFrom(
-            queryZones({
+        const list = (
+            await this._queryZones({
                 tags: 'region',
                 parent_id: this._organisation?.id || '',
                 limit: 500,
-            } as any).pipe(
-                map((i) => i.data.map((_) => new Region(_))),
-                catchError(() => of([])),
-            ),
-        );
+            }).catch(() => [])
+        ).map((_) => new Region(_));
         this._regions.next(list);
         this.regions_signal.set(list);
     }
@@ -543,15 +541,17 @@ export class OrganisationService {
     public async loadRegionData(region: Region): Promise<void> {
         if (this._loaded_data[region.id]) return;
         const load_metadata = !this._service.get('dont_load_metadata');
-        const settings_request = load_metadata
-            ? showMetadata(region.id, this.app_key)
-            : of(new PlaceMetadata());
-        const bindings_request = load_metadata
-            ? showMetadata(region.id, 'bindings')
-            : of(new PlaceMetadata());
         const [settings, bindings, buildings]: any = await Promise.all([
-            mapLastValueFrom(settings_request, (_) => _?.details),
-            mapLastValueFrom(bindings_request, (_) => _?.details),
+            load_metadata
+                ? this._bulkMetadataDetails(this.app_key, [region.id]).then(
+                      (_) => _[region.id],
+                  )
+                : {},
+            load_metadata
+                ? this._bulkMetadataDetails('bindings', [region.id]).then(
+                      (_) => _[region.id],
+                  )
+                : {},
             this.loadBuildings(region.id),
         ]);
         this._buildings.next(
@@ -568,13 +568,13 @@ export class OrganisationService {
     public async loadBuildings(
         parent_id: string = this._organisation?.id,
     ): Promise<Building[]> {
-        const building_list = await lastValueFrom(
-            queryZones({
+        const building_list = (
+            await this._queryZones({
                 tags: 'building',
                 parent_id,
                 limit: 500,
-            } as any).pipe(map((i) => i.data.map((_) => new Building(_)))),
-        );
+            })
+        ).map((_) => new Building(_));
         return building_list;
     }
 
@@ -582,23 +582,14 @@ export class OrganisationService {
         if (!bld || this._loaded_data[bld.id]) return;
         const [settings, bindings, booking_rules, driver_settings]: any =
             await Promise.all([
-                lastValueFrom(
-                    showMetadata(bld.id, this.app_key).pipe(
-                        map((_) => _?.details),
-                        catchError(() => of({})),
-                    ),
+                this._bulkMetadataDetails(this.app_key, [bld.id]).then(
+                    (_) => _[bld.id],
                 ),
-                lastValueFrom(
-                    showMetadata(bld.id, 'bindings').pipe(
-                        map((_) => _?.details),
-                        catchError(() => of({})),
-                    ),
+                this._bulkMetadataDetails('bindings', [bld.id]).then(
+                    (_) => _[bld.id],
                 ),
-                lastValueFrom(
-                    showMetadata(bld.id, 'booking_rules').pipe(
-                        map((_) => _?.details),
-                        catchError(() => of({})),
-                    ),
+                this._bulkMetadataDetails('booking_rules', [bld.id]).then(
+                    (_) => _[bld.id],
                 ),
                 // lastValueFrom(
                 //     (this.app_key.includes('concierge')
@@ -636,13 +627,10 @@ export class OrganisationService {
      * Load levels data for the buildings
      */
     public async loadLevels(): Promise<void> {
-        let level_list = await lastValueFrom(
-            queryZones({
-                tags: 'level',
-                authority_id: authority().id,
-                limit: 2500,
-            } as any).pipe(map((i) => i.data)),
-        );
+        let level_list = await this._queryZones({
+            tags: 'level',
+            limit: 2500,
+        });
         level_list = level_list.filter((_) => _.parent_id);
         if (!level_list?.length) {
             this._router.navigate(['/misconfigured']);
@@ -657,20 +645,13 @@ export class OrganisationService {
 
     public async loadSettings() {
         if (!this._organisation) return;
+        const org_id = this._organisation?.id;
         const app_settings = (
-            await lastValueFrom(
-                showMetadata(this._organisation?.id, this.app_key).pipe(
-                    catchError(() => of({} as PlaceMetadata)),
-                ),
-            )
-        )?.details;
+            await this._bulkMetadataDetails(this.app_key, [org_id])
+        )[org_id];
         const global_settings = (
-            await lastValueFrom(
-                showMetadata(this._organisation?.id, 'settings').pipe(
-                    catchError(() => of({} as PlaceMetadata)),
-                ),
-            )
-        )?.details;
+            await this._bulkMetadataDetails('settings', [org_id])
+        )[org_id];
         this._settings = [global_settings, app_settings];
         this._service.overrides = [...this._settings];
         await this._initialiseActiveBuilding();
@@ -793,5 +774,68 @@ export class OrganisationService {
                 ]),
             300,
         );
+    }
+
+    private async _bulkMetadataDetails(
+        name: string,
+        ids: string[],
+    ): Promise<MetadataMap> {
+        const parent_ids = ids.filter(Boolean).join(',');
+        if (!parent_ids) return {};
+        return mapLastValueFrom(
+            bulkMetadata(name, { parent_ids }).pipe(catchError(() => of({}))),
+            (metadata) =>
+                ids.reduce((map, id) => {
+                    map[id] = metadata[id]?.details || {};
+                    return map;
+                }, {} as MetadataMap),
+        );
+    }
+
+    private async _queryZones(params: ZoneQueryParams): Promise<PlaceZone[]> {
+        const cache_key = this._zoneCacheKey(params);
+        const cached_zones = this._getCachedZones(cache_key);
+        if (cached_zones) return cached_zones;
+        const zones = await mapLastValueFrom(
+            queryZones({ ...params, authority_id: authority().id } as any),
+            (i) => i.data || [],
+        );
+        this._setCachedZones(cache_key, zones);
+        return zones;
+    }
+
+    private _zoneCacheKey(params: ZoneQueryParams): string {
+        const auth = authority();
+        const sorted_params = Object.keys(params)
+            .sort()
+            .reduce(
+                (cache_params, key) => {
+                    cache_params[key] = (params as Record<string, unknown>)[
+                        key
+                    ];
+                    return cache_params;
+                },
+                {} as Record<string, unknown>,
+            );
+        return `${ZONE_CACHE_PREFIX}.${auth?.id || 'default'}.${JSON.stringify(
+            sorted_params,
+        )}`;
+    }
+
+    private _getCachedZones(cache_key: string): PlaceZone[] | null {
+        try {
+            return JSON.parse(sessionStorage.getItem(cache_key) || 'null');
+        } catch {
+            sessionStorage.removeItem(cache_key);
+            return null;
+        }
+    }
+
+    private _setCachedZones(cache_key: string, zones: PlaceZone[]) {
+        try {
+            sessionStorage.setItem(cache_key, JSON.stringify(zones));
+        } catch {
+            // Ignore storage quota and privacy-mode failures.
+        }
     }
 }

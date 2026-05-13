@@ -21,7 +21,9 @@ describe('OrganisationService', () => {
     });
 
     beforeEach(() => {
+        sessionStorage.clear();
         (ts_client as any).onlineState = jest.fn(() => of(true));
+        (ts_client as any).authority = jest.fn(() => ({ id: 'auth-1' }));
         spectator = createService();
     });
 
@@ -75,10 +77,42 @@ describe('OrganisationService', () => {
         } as any);
 
         expect(
-            spectator.service.levelsForRegion(spectator.service.regions[0]).map(
-                ({ id }) => id,
-            ),
+            spectator.service
+                .levelsForRegion(spectator.service.regions[0])
+                .map(({ id }) => id),
         ).toEqual(['lvl-a2', 'lvl-b1', 'lvl-b2-display', 'lvl-b2']);
+    });
+
+    it('should cache zone data for the browser session', async () => {
+        (ts_client as any).queryZones = jest.fn(() =>
+            of({ data: [{ id: 'bld-1', tags: ['building'] }] }),
+        );
+
+        const first_list = await spectator.service.loadBuildings('org-1');
+        const second_list = await spectator.service.loadBuildings('org-1');
+
+        expect(ts_client.queryZones).toHaveBeenCalledTimes(1);
+        expect(first_list.map(({ id }) => id)).toEqual(['bld-1']);
+        expect(second_list.map(({ id }) => id)).toEqual(['bld-1']);
+    });
+
+    it('should load building metadata in bulk', async () => {
+        (ts_client as any).bulkMetadata = jest.fn((name) =>
+            of({ bld_1: { details: { name } } }),
+        );
+
+        await spectator.service.loadBuildingData({ id: 'bld_1' } as any);
+
+        expect(ts_client.bulkMetadata).toHaveBeenCalledWith('workplace_app', {
+            parent_ids: 'bld_1',
+        });
+        expect(ts_client.bulkMetadata).toHaveBeenCalledWith('bindings', {
+            parent_ids: 'bld_1',
+        });
+        expect(ts_client.bulkMetadata).toHaveBeenCalledWith('booking_rules', {
+            parent_ids: 'bld_1',
+        });
+        expect(ts_client.showMetadata).not.toHaveBeenCalled();
     });
 
     /// TODO: fix
