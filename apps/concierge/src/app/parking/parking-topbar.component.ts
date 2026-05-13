@@ -127,6 +127,19 @@ import {
                 </button>
             }
             @if (section() === 'events' && !disable_reservations) {
+                @if (can_view_requests) {
+                    <button
+                        btn
+                        matRipple
+                        class="w-44 space-x-2"
+                        (click)="newRequest()"
+                    >
+                        <div class="pl-2">
+                            {{ 'APP.CONCIERGE.PARKING_REQUEST_ADD' | translate }}
+                        </div>
+                        <icon>playlist_add</icon>
+                    </button>
+                } @else {
                 <button
                     btn
                     matRipple
@@ -138,6 +151,7 @@ import {
                     </div>
                     <icon>add</icon>
                 </button>
+                }
             }
         </div>
         <div class="bg-base-100 mb-2 flex h-14 items-center px-8">
@@ -663,6 +677,11 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
             date: date || Date.now(),
             allow_time_changes: true,
         });
+    }
+
+    public async newRequest() {
+        const { date } = this.options();
+        this._state.requestParking(date || Date.now());
     }
 
     private _updatePath() {
