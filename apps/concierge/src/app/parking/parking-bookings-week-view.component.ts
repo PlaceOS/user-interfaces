@@ -32,7 +32,7 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                         class="border-base-200 bg-base-100 flex h-14 flex-col items-center justify-center border-b px-2 text-center"
                     >
                         <div class="text-sm font-medium">
-                            {{ day | date: 'EEE, MMM d' }}
+                            {{ day | date: 'EEE, MMM d' : timezone }}
                         </div>
                         <div
                             class="text-info text-xs"
@@ -118,10 +118,14 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                                         booking.duration > 12 * 60
                                             ? ('COMMON.ALL_DAY' | translate)
                                             : (booking.date
-                                                  | date: time_format) +
+                                                  | date
+                                                      : time_format
+                                                      : timezone) +
                                               ' - ' +
                                               (booking.date_end
-                                                  | date: time_format)
+                                                  | date
+                                                      : time_format
+                                                      : timezone)
                                     }}
                                 </div>
                                 @let bay_name =
@@ -428,10 +432,12 @@ export class ParkingBookingsWeekViewComponent
                         const booking_date = this._date_pipe.transform(
                             b.date,
                             'yyyy-MM-dd',
+                            this.timezone,
                         );
                         const day_date = this._date_pipe.transform(
                             day,
                             'yyyy-MM-dd',
+                            this.timezone,
                         );
                         return booking_date === day_date;
                     })
@@ -466,6 +472,10 @@ export class ParkingBookingsWeekViewComponent
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public get timezone() {
+        return this._state.timezone;
     }
 
     public get hide_assign_space() {

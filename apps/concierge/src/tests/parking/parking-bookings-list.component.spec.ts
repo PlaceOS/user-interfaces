@@ -16,6 +16,7 @@ describe('ParkingBookingsListComponent', () => {
     let hide_bay_number = false;
     let hide_assign_space = false;
     let show_waitlist = true;
+    let timezone = 'Australia/Perth';
     let request_filter: 'all' | 'bookings' | 'requests' | 'waitlist' = 'all';
 
     const createComponent = createComponentFactory({
@@ -53,6 +54,9 @@ describe('ParkingBookingsListComponent', () => {
                     (booking: Booking) => booking.id === 'waitlisted',
                 ),
                 canApproveBooking: jest.fn(() => can_approve),
+                get timezone() {
+                    return timezone;
+                },
             } as any),
             MockProvider(SettingsService, {
                 get: jest.fn((name: string) =>
@@ -79,6 +83,7 @@ describe('ParkingBookingsListComponent', () => {
         hide_bay_number = false;
         hide_assign_space = false;
         show_waitlist = true;
+        timezone = 'Australia/Perth';
         request_filter = 'all';
         settingSignal('parking.allow_editing', true).set(true);
         settingSignal('parking.allow_deleting', false).set(false);
@@ -130,6 +135,13 @@ describe('ParkingBookingsListComponent', () => {
         expect(
             table?.active_columns().map((column) => column.key),
         ).not.toContain('booking_type');
+    });
+
+    it('should expose the parking display timezone', () => {
+        timezone = 'Australia/Perth';
+        spectator = createComponent();
+
+        expect(spectator.component.timezone).toBe('Australia/Perth');
     });
 
     it('should hide the bay number column when viewing requests', () => {

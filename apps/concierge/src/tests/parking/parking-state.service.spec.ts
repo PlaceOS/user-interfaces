@@ -116,6 +116,27 @@ describe('ParkingStateService', () => {
         jest.useRealTimers();
     });
 
+    it('should apply parking timezone setting to booking listing requests', async () => {
+        jest.useFakeTimers();
+        settings_map['app.bookings.use_building_timezone'] = false;
+        settings_map['app.parking.use_building_timezone'] = true;
+        const date = new Date('2026-06-15T12:00:00').valueOf();
+        const subscription = spectator.service.bookings.subscribe();
+
+        spectator.service.setOptions({ date });
+        await jest.advanceTimersByTimeAsync(1100);
+
+        expect(booking_mod.queryBookings).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+                period_start: getUnixTime(addMinutes(startOfDay(date), 120)),
+                period_end: getUnixTime(addMinutes(endOfDay(date), 120)),
+            }),
+        );
+
+        subscription.unsubscribe();
+        jest.useRealTimers();
+    });
+
     it('should use the building timezone for assigned parking bookings', async () => {
         const mock_now = new Date('2026-06-15T12:00:00Z').valueOf();
         const assigned_start = common_mod.setTimeInTimezone(

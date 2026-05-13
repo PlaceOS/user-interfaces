@@ -133,10 +133,15 @@ export class ParkingStateService extends AsyncHandler {
     });
     private _loading = new BehaviorSubject<string[]>([]);
 
-    public get tz_offset() {
-        const tz = this._settings.get('app.bookings.use_building_timezone')
-            ? this._org.building.timezone
+    public get timezone() {
+        return this._settings.get('app.bookings.use_building_timezone') ||
+            this._settings.get('app.parking.use_building_timezone')
+            ? this._org.building?.timezone
             : '';
+    }
+
+    public get tz_offset() {
+        const tz = this.timezone;
         const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
         return !tz ? 0 : getTimezoneDifferenceInHours(current_tz, tz);
     }
@@ -1104,9 +1109,7 @@ export class ParkingStateService extends AsyncHandler {
         const users = await nextValueFrom(this.users);
         const user = users.find((_) => _.email === user_email);
         const user_details = await USER_PIPE.transform(user_email);
-        const timezone = this._settings.get('app.bookings.use_building_timezone')
-            ? this._org.building?.timezone
-            : '';
+        const timezone = this.timezone;
         const date = setTimeInTimezone(Date.now(), 1, 0, timezone);
         const asset_name = resource.name || resource.identifier || resource.id;
         return new Booking({
