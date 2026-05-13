@@ -113,6 +113,15 @@ interface PlaylistMetaState {
 
 const PLAYLIST_META_SESSION_KEY = 'PlaceOS.SIGNAGE:playlist-meta-cache:v1';
 const SIGNAGE_GROUP_STORAGE_KEY = 'PlaceOS.SIGNAGE:selected-group:v1';
+const SIGNAGE_GROUP_FIELDS = [
+    'id',
+    'name',
+    'description',
+    'subsystems',
+    'authority_id',
+    'parent_id',
+    'children_count',
+].join(',');
 
 const enum SignageGroupPermission {
     Read = 1 << 0,
@@ -198,6 +207,11 @@ export class SignageService {
     private readonly _current_user = toSignal(current_user, {
         initialValue: currentUser(),
     });
+    private readonly _active_user$ = current_user.pipe(
+        filter(
+            (user) => !!user?.email && user.email !== '<empty>@dev.place.tech',
+        ),
+    );
     private readonly _signage_groups_loaded = signal(false);
     public readonly signage_groups_loaded = computed(() =>
         this._signage_groups_loaded(),
@@ -207,43 +221,19 @@ export class SignageService {
         Record<string, boolean>
     >({});
     public readonly signage_groups = toSignal(
-        combineLatest([
-            current_user.pipe(
-                filter(
-                    (user) =>
-                        !!user?.email &&
-                        user.email !== '<empty>@dev.place.tech',
-                ),
-            ),
-            this._groups_change,
-        ]).pipe(
+        combineLatest([this._active_user$, this._groups_change]).pipe(
             switchMap(() =>
                 (this.is_sys_admin()
-                    ? queryGroups({
-                          limit: 1000,
-                          fields: [
-                              'id',
-                              'name',
-                              'description',
-                              'subsystems',
-                              'authority_id',
-                              'parent_id',
-                          ].join(','),
-                          subsystem: 'signage',
-                      } as any).pipe(
-                          map(({ data }) =>
-                              data
-                                  .filter((group) =>
-                                      group.subsystems?.includes('signage'),
-                                  )
-                                  .map(
-                                      (group) =>
-                                          ({
-                                              group,
-                                              permissions:
-                                                  SignageGroupPermission.Manage,
-                                          }) as PlaceCurrentGroup,
-                                  ),
+                    ? this._queryManageableGroups().pipe(
+                          map((groups) =>
+                              groups.map(
+                                  (group) =>
+                                      ({
+                                          group,
+                                          permissions:
+                                              SignageGroupPermission.Manage,
+                                      }) as PlaceCurrentGroup,
+                              ),
                           ),
                       )
                     : currentGroups({ subsystem: 'signage' })
@@ -286,54 +276,40 @@ export class SignageService {
         () => this.is_sys_admin() || this.is_support(),
     );
     public readonly manageable_signage_groups = toSignal(
-        combineLatest([
-            current_user.pipe(
-                filter(
-                    (user) =>
-                        !!user?.email &&
-                        user.email !== '<empty>@dev.place.tech',
-                ),
-            ),
-            this._groups_change,
-        ]).pipe(
+        combineLatest([this._active_user$, this._groups_change]).pipe(
             switchMap(() =>
                 this.can_manage_all_groups()
-                    ? queryGroups({
-                          limit: 1000,
-                          fields: [
-                              'id',
-                              'name',
-                              'description',
-                              'subsystems',
-                              'authority_id',
-                              'parent_id',
-                          ].join(','),
-                          subsystem: 'signage',
-                      } as any).pipe(
-                          map(({ data }) =>
-                              data.filter((group) =>
-                                  group.subsystems?.includes('signage'),
-                              ),
-                          ),
-                      )
-                    : currentGroups({ subsystem: 'signage' }).pipe(
-                          map((groups) =>
-                              groups
-                                  .filter(
-                                      (item) =>
-                                          !!(
-                                              item.permissions &
-                                              SignageGroupPermission.Manage
-                                          ),
-                                  )
-                                  .map((item) => item.group),
-                          ),
+                    ? this._queryManageableGroups()
+                    : this._currentManageableGroups(),
+            ),
+            catchError(() => of([] as PlaceGroup[])),
+            map((groups) => this._sortGroups(groups)),
+        ),
+        { initialValue: [] as PlaceGroup[] },
+    );
+    public readonly root_manageable_signage_groups = toSignal(
+        combineLatest([this._active_user$, this._groups_change]).pipe(
+            switchMap(() =>
+                this.can_manage_all_groups()
+                    ? this._queryManageableGroups({
+                          parent_id: 'root',
+                          include_children_count: true,
+                      })
+                    : this._currentManageableGroups().pipe(
+                          map((groups) => {
+                              const group_ids = new Set(
+                                  groups.map((group) => group.id),
+                              );
+                              return groups.filter(
+                                  (group) =>
+                                      !group.parent_id ||
+                                      !group_ids.has(group.parent_id),
+                              );
+                          }),
                       ),
             ),
             catchError(() => of([] as PlaceGroup[])),
-            map((groups) =>
-                groups.sort((a, b) => a.name.localeCompare(b.name)),
-            ),
+            map((groups) => this._sortGroups(groups)),
         ),
         { initialValue: [] as PlaceGroup[] },
     );
@@ -343,6 +319,59 @@ export class SignageService {
             (group) => group.id === group_id,
         );
     });
+
+    public groupChildren(parent_id: string) {
+        if (!this.can_manage_all_groups()) {
+            return of(
+                this._sortGroups(
+                    this.manageable_signage_groups().filter(
+                        (group) => group.parent_id === parent_id,
+                    ),
+                ),
+            );
+        }
+        return this._queryManageableGroups({
+            parent_id,
+            include_children_count: true,
+        });
+    }
+
+    private _queryManageableGroups(params: Record<string, any> = {}) {
+        return queryGroups({
+            limit: 1000,
+            fields: SIGNAGE_GROUP_FIELDS,
+            subsystem: 'signage',
+            ...params,
+        } as any).pipe(
+            map(({ data }) =>
+                this._sortGroups(
+                    (data || []).filter((group) =>
+                        group.subsystems?.includes('signage'),
+                    ),
+                ),
+            ),
+        );
+    }
+
+    private _currentManageableGroups() {
+        return currentGroups({ subsystem: 'signage' }).pipe(
+            map((groups) =>
+                groups
+                    .filter(
+                        (item) =>
+                            !!(
+                                item.permissions & SignageGroupPermission.Manage
+                            ),
+                    )
+                    .map((item) => item.group),
+            ),
+        );
+    }
+
+    private _sortGroups<T extends PlaceGroup>(groups: T[]) {
+        return [...groups].sort((a, b) => a.name.localeCompare(b.name));
+    }
+
     public readonly managed_group_users = combineLatest([
         this.managed_group_id$,
         this._groups_change,
