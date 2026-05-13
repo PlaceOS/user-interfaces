@@ -456,19 +456,34 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                             </h4>
                             <a-user-search-field
                                 formControlName="user"
-                                [guests]="host_book_as() !== 'internals'"
-                                [guests_only]="host_book_as() === 'externals'"
+                                [guests]="
+                                    allow_any_host() ||
+                                    can_book_for_anyone() &&
+                                        host_book_as() !== 'internals'
+                                "
+                                [guests_only]="
+                                    !allow_any_host() &&
+                                    can_book_for_anyone() &&
+                                        host_book_as() === 'externals'
+                                "
                                 [disable_search]="
-                                    host_book_as() === 'externals'
+                                    !allow_any_host() &&
+                                    can_book_for_anyone() &&
+                                        host_book_as() === 'externals'
                                 "
                                 [allow_externals]="
-                                    host_book_as() !== 'internals'
+                                    allow_any_host() ||
+                                    can_book_for_anyone() &&
+                                        host_book_as() !== 'internals'
                                 "
                             ></a-user-search-field>
                         </div>
                     }
                 </div>
-                @if (form().value.request_type === 'special') {
+                @if (
+                    form().value.request_type === 'special' &&
+                    show_special_needs()
+                ) {
                     <!-- P2 SPECIAL NEEDS DETAILS -->
                     <div
                         class="gradient border-base-content text-warning flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
@@ -1280,6 +1295,8 @@ export class ParkingRequestFormDetailsComponent
 
     public readonly form = input<FormGroup>(undefined);
     public readonly show_special_needs = input<boolean>(true);
+    public readonly force_show_host_select = input<boolean>(false);
+    public readonly force_allow_any_host = input<boolean>(false);
     public readonly building = this._org.active_building;
     public readonly building_list = this._org.active_buildings;
     public readonly available_space_count = signal<number | null>(null);
@@ -1447,7 +1464,12 @@ export class ParkingRequestFormDetailsComponent
             : null;
     });
     public readonly show_host_select = computed(
-        () => this.can_book_for_anyone() && !!this.host_book_as(),
+        () =>
+            !!this.force_show_host_select() ||
+            (this.can_book_for_anyone() && !!this.host_book_as()),
+    );
+    public readonly allow_any_host = computed(
+        () => !!this.force_allow_any_host() && !!this.can_book_for_anyone(),
     );
     public readonly approver_group_options = computed(() =>
         this._normaliseOptions(this.approver_groups_setting()),
@@ -2245,7 +2267,14 @@ export class ParkingRequestFormDetailsComponent
     private _syncRequestTypeUser(form: FormGroup) {
         const current_user = currentUser();
         const selected_user = form.getRawValue().user;
+        if (this.allow_any_host()) return;
         if (!this.can_book_for_anyone() || !this.host_book_as()) {
+            if (this.force_show_host_select()) {
+                if (selected_user?.is_external) {
+                    form.patchValue({ user: current_user || null });
+                }
+                return;
+            }
             if (current_user && selected_user?.email !== current_user.email) {
                 form.patchValue({ user: current_user });
             }

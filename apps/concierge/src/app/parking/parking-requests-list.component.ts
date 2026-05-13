@@ -20,6 +20,7 @@ import {
     ParkingRequestFilter,
     ParkingStateService,
 } from './parking-state.service';
+import { isParkingAllDayBooking } from './parking.utilities';
 
 @Component({
     selector: 'parking-requests-list',
@@ -100,7 +101,7 @@ import {
             <ng-template #date_template let-row="row">
                 <div class="px-4 py-2">
                     {{
-                        row.all_day || row.duration > 12 * 60
+                        isAllDayBooking(row)
                             ? ('COMMON.ALL_DAY' | translate)
                             : (row.date | date: time_format : timezone) +
                               ' - ' +
@@ -505,6 +506,10 @@ export class ParkingRequestsListComponent
 
     public isVisibleWaitlisted(booking: Booking): boolean {
         return this.show_waitlist && this.isWaitlisted(booking);
+    }
+
+    public isAllDayBooking(booking: Booking) {
+        return isParkingAllDayBooking(booking, this.timezone);
     }
 
     public ngOnInit() {

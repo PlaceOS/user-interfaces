@@ -53,13 +53,29 @@ describe('RoomBookingsListComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should hide setup and breakdown system events', () => {
+    it('should include setup and breakdown events provided by state', () => {
         filtered.next([
             new CalendarEvent({ id: 'booking', title: 'Booking' }),
             new CalendarEvent({
                 id: 'setup',
                 title: 'Setup',
                 body: 'main_event_id=booking',
+            }),
+        ]);
+
+        expect(spectator.component.bookings().map((event) => event.id)).toEqual([
+            'booking',
+            'setup',
+        ]);
+    });
+
+    it('should hide group events', () => {
+        filtered.next([
+            new CalendarEvent({ id: 'booking', title: 'Booking' }),
+            new CalendarEvent({
+                id: 'group-event',
+                title: 'Group Event',
+                extension_data: { shared_event: true },
             }),
         ]);
 

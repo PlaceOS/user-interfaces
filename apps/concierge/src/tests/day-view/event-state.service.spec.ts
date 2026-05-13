@@ -20,6 +20,7 @@ import { MockProvider } from 'ng-mocks';
 
 import {
     Building,
+    CalendarEvent,
     nextValueFrom,
     OrganisationService,
     Region,
@@ -117,6 +118,37 @@ describe('EventsStateService', () => {
         await timer(305).toPromise();
         events = await nextValueFrom(spectator.service.filtered);
         // expect(events).toHaveLength(1);
+    });
+
+    it('should hide setup and breakdown events unless overflow is enabled', () => {
+        const booking = new CalendarEvent({
+            id: 'booking',
+            date: Date.now(),
+            duration: 60,
+            resources: [],
+        });
+        const setup = new CalendarEvent({
+            id: 'setup',
+            body: 'main_event_id=booking',
+            date: Date.now(),
+            duration: 30,
+            resources: [],
+        });
+        const start = new Date(Date.now() - 60 * 60 * 1000);
+        const end = new Date(Date.now() + 2 * 60 * 60 * 1000);
+
+        expect(
+            (spectator.service as any)
+                .filterEvents([booking, setup], start, end, {}, [], {})
+                .map((event) => event.id),
+        ).toEqual(['booking']);
+        expect(
+            (spectator.service as any)
+                .filterEvents([booking, setup], start, end, {}, [], {
+                    show_overflow: true,
+                })
+                .map((event) => event.id),
+        ).toEqual(['booking', 'setup']);
     });
 
     it('should load building events when no levels are selected', async () => {

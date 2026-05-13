@@ -81,6 +81,7 @@ import {
 import { ParkingAssignSpaceModalComponent } from './parking-assign-space-modal.component';
 import { ParkingBookingModalComponent } from './parking-booking-modal.component';
 import { ParkingFleetModalComponent } from './parking-fleet-modal.component';
+import { ParkingRequestModalComponent } from './parking-request-modal.component';
 import { ParkingSpaceModalComponent } from './parking-space-modal.component';
 import { ParkingUserModalComponent } from './parking-user-modal.component';
 
@@ -830,6 +831,20 @@ export class ParkingStateService extends AsyncHandler {
             ref.afterClosed().subscribe((id) => {
                 resolve(id);
                 this._poll.next(Date.now());
+            });
+        });
+    }
+
+    public requestParking(date?: number) {
+        return new Promise<string>(async (resolve) => {
+            const ref = this._dialog.open(ParkingRequestModalComponent, {
+                data: { date },
+            });
+            ref.afterClosed().subscribe((id) => {
+                resolve(id);
+                if (!id) return;
+                this._poll.next(Date.now());
+                this._change.next(Date.now());
             });
         });
     }

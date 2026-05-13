@@ -15,6 +15,7 @@ import {
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { addDays, isSameDay, startOfWeek } from 'date-fns';
 import { ParkingOptions, ParkingStateService } from './parking-state.service';
+import { isParkingAllDayBooking } from './parking.utilities';
 
 @Component({
     selector: 'parking-bookings-week-view',
@@ -114,8 +115,7 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                                 </div>
                                 <div class="mt-1 opacity-60">
                                     {{
-                                        booking.all_day ||
-                                        booking.duration > 12 * 60
+                                        isAllDayBooking(booking)
                                             ? ('COMMON.ALL_DAY' | translate)
                                             : (booking.date
                                                   | date
@@ -500,6 +500,10 @@ export class ParkingBookingsWeekViewComponent
 
     public isDeletedBooking(booking: Booking) {
         return !!booking?.deleted;
+    }
+
+    public isAllDayBooking(booking: Booking) {
+        return isParkingAllDayBooking(booking, this.timezone);
     }
 
     public statusLabel(booking: Booking) {

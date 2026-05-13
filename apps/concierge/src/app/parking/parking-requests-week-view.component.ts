@@ -13,6 +13,7 @@ import {
     ParkingRequestFilter,
     ParkingStateService,
 } from './parking-state.service';
+import { isParkingAllDayBooking } from './parking.utilities';
 
 @Component({
     selector: 'parking-requests-week-view',
@@ -96,8 +97,7 @@ import {
                                 </div>
                                 <div class="mt-1 opacity-60">
                                     {{
-                                        booking.all_day ||
-                                        booking.duration > 12 * 60
+                                        isAllDayBooking(booking)
                                             ? ('COMMON.ALL_DAY' | translate)
                                             : (booking.date
                                                   | date
@@ -442,6 +442,10 @@ export class ParkingRequestsWeekViewComponent
 
     public isVisibleWaitlisted(booking: Booking): boolean {
         return this.show_waitlist && this.isWaitlisted(booking);
+    }
+
+    public isAllDayBooking(booking: Booking) {
+        return isParkingAllDayBooking(booking, this.timezone);
     }
 
     public isToday(date: number) {
