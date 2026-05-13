@@ -11,6 +11,7 @@ describe('ParkingRequestsListComponent', () => {
     let spectator: Spectator<ParkingRequestsListComponent>;
     let bookings: Booking[] = [];
     let show_waitlist = true;
+    let timezone = 'Australia/Perth';
     let request_filter: 'all' | 'pending' | 'waitlist' = 'all';
 
     const createComponent = createComponentFactory({
@@ -36,6 +37,9 @@ describe('ParkingRequestsListComponent', () => {
                 editReservation: jest.fn(),
                 assignSpace: jest.fn(),
                 canApproveBooking: jest.fn(() => true),
+                get timezone() {
+                    return timezone;
+                },
                 week_start: 1,
             } as any),
             MockProvider(SettingsService, {
@@ -51,7 +55,15 @@ describe('ParkingRequestsListComponent', () => {
     beforeEach(() => {
         bookings = [];
         show_waitlist = true;
+        timezone = 'Australia/Perth';
         request_filter = 'all';
+    });
+
+    it('should expose the parking display timezone', () => {
+        timezone = 'Australia/Perth';
+        spectator = createComponent();
+
+        expect(spectator.component.timezone).toBe('Australia/Perth');
     });
 
     it('should hide waitlisted status when waitlist display is disabled', () => {

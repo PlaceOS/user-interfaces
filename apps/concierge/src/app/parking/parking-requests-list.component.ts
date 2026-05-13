@@ -102,9 +102,9 @@ import {
                     {{
                         row.all_day || row.duration > 12 * 60
                             ? ('COMMON.ALL_DAY' | translate)
-                            : (row.date | date: time_format) +
+                            : (row.date | date: time_format : timezone) +
                               ' - ' +
-                              (row.date_end | date: time_format)
+                              (row.date_end | date: time_format : timezone)
                     }}
                 </div>
             </ng-template>
@@ -155,7 +155,7 @@ import {
                                     : {
                                           time:
                                               (row.checked_out_at * 1000
-                                              | date: time_format),
+                                               | date: time_format : timezone),
                                       }
                         "
                         matTooltipPosition="right"
@@ -473,6 +473,10 @@ export class ParkingRequestsListComponent
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public get timezone() {
+        return this._state.timezone;
     }
 
     public get hide_assign_space() {
