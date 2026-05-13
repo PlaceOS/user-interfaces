@@ -59,6 +59,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                 @if (!print()) {
                     <button
                         icon
+                        default
                         matRipple
                         [matTooltip]="
                             'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate

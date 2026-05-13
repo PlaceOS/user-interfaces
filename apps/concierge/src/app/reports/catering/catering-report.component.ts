@@ -75,7 +75,10 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
             </div>
             @if (!loading()) {
                 @if (total_count()) {
-                    <placeos-report-metric-guide [items]="metric_guide" />
+                    <placeos-report-metric-guide
+                        [absolute]="true"
+                        [items]="metric_guide"
+                    />
                     <catering-report-overall></catering-report-overall>
                     <catering-report-orders
                         [print]="printing()"

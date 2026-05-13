@@ -42,6 +42,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
             <div class="flex-1"></div>
             <button
                 icon
+                default
                 matRipple
                 matTooltip="Download Report"
                 class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"

@@ -13,11 +13,11 @@ import {
 } from '@placeos/components';
 import { debounceTime } from 'rxjs/operators';
 
-import { ReportsOptionsComponent } from '../reports-options.component';
 import {
     ReportMetricGuideComponent,
     ReportMetricGuideItem,
 } from '../report-metric-guide.component';
+import { ReportsOptionsComponent } from '../reports-options.component';
 import { ParkingReportChartsComponent } from './parking-report-charts.component';
 import { ParkingReportDailyUsageComponent } from './parking-report-daily-usage.component';
 import { ParkingReportListComponent } from './parking-report-list.component';
@@ -27,8 +27,7 @@ import { ParkingReportService } from './parking-report.service';
 const METRIC_GUIDE: ReportMetricGuideItem[] = [
     {
         label: 'Business days',
-        description:
-            'Number of business days in the selected reporting range.',
+        description: 'Number of business days in the selected reporting range.',
     },
     {
         label: 'Total reservations',
@@ -77,7 +76,10 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
             </div>
             @if (!loading()) {
                 @if (total_count()) {
-                    <placeos-report-metric-guide [items]="metric_guide" />
+                    <placeos-report-metric-guide
+                        [absolute]="true"
+                        [items]="metric_guide"
+                    />
                     <parking-report-overall></parking-report-overall>
                     <parking-report-charts></parking-report-charts>
                     <parking-report-daily-usage

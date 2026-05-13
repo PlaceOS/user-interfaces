@@ -92,7 +92,10 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
             </div>
             @if (!loading()) {
                 @if (has_user()) {
-                    <placeos-report-metric-guide [items]="metric_guide" />
+                    <placeos-report-metric-guide
+                        [absolute]="true"
+                        [items]="metric_guide"
+                    />
                     <div
                         class="border-base-200 mx-auto my-2 w-5xl max-w-[calc(100%-2rem)] rounded-lg border"
                     >

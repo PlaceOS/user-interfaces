@@ -13,12 +13,12 @@ import {
     AuthenticatedImageDirective,
     TranslatePipe,
 } from '@placeos/components';
-import { ReportsOptionsComponent } from '../reports-options.component';
-import { ReportsStateService } from '../reports-state.service';
 import {
     ReportMetricGuideComponent,
     ReportMetricGuideItem,
 } from '../report-metric-guide.component';
+import { ReportsOptionsComponent } from '../reports-options.component';
+import { ReportsStateService } from '../reports-state.service';
 import { ReportDesksChartsComponent } from './report-desks-charts.component';
 import { ReportDesksLevelListComponent } from './report-desks-level-list.component';
 import { ReportDesksOverallListComponent } from './report-desks-overall-list.component';
@@ -76,7 +76,10 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
             </div>
             @if (!loading()) {
                 @if (total_count()) {
-                    <placeos-report-metric-guide [items]="metric_guide" />
+                    <placeos-report-metric-guide
+                        [absolute]="true"
+                        [items]="metric_guide"
+                    />
                     <div
                         class="border-base-200 bg-base-100 m-4 flex items-center justify-center space-x-2 rounded-sm border p-4"
                     >

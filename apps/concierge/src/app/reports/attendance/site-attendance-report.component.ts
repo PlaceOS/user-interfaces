@@ -51,7 +51,7 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
     {
         label: 'Total site attendance',
         description:
-            'Sum of attendance across enabled booking types in the selected period. Room attendance uses recorded people count; other resources count active bookings.',
+            'Sum of unique people per day across enabled booking types in the selected period. Group events and room resource identifiers are excluded.',
     },
     {
         label: 'Total bookings',
@@ -66,7 +66,7 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
     {
         label: 'Unique people',
         description:
-            'Distinct hosts, booking owners, and visitors found across included bookings, matched by available user identifier.',
+            'Distinct room hosts, booking owners, and visitors found across included bookings, matched by available user identifier. Room resource identifiers are ignored.',
     },
     {
         label: 'Daily average',
@@ -84,7 +84,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
     {
         label: 'Rooms',
         description:
-            'Room bookings where the person appears as host or attendee.',
+            'Room bookings where the person appears as host or attendee. Room resource identifiers are ignored.',
     },
     {
         label: 'Desks',
@@ -109,17 +109,17 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
     {
         label: 'Total bookings',
         description:
-            'Sum of that person\'s counted room, desk, parking, locker, and visitor bookings in the report.',
+            "Sum of that person's counted room, desk, parking, locker, and visitor bookings in the report.",
     },
     {
         label: 'Host rows',
         description:
-            'Hosts are grouped by host, organiser, booking user, or booked-by identifier depending on booking type.',
+            'Hosts are grouped by host, organiser, booking user, or booked-by identifier depending on booking type. Room resources are ignored.',
     },
     {
         label: 'Attendee rows',
         description:
-            'Attendees are grouped from booking attendee lists; room hosts are excluded from attendee rows.',
+            'Attendees are grouped from booking attendee lists; room hosts and room resources are excluded from attendee rows.',
     },
 ];
 
@@ -150,7 +150,10 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
             </div>
             @if (!loading()) {
                 @if (has_data()) {
-                    <placeos-report-metric-guide [items]="metric_guide" />
+                    <placeos-report-metric-guide
+                        [absolute]="true"
+                        [items]="metric_guide"
+                    />
                     <div
                         class="grid grid-cols-1 gap-4 px-4 pb-4 md:grid-cols-2 xl:grid-cols-5"
                     >

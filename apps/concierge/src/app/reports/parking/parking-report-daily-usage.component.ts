@@ -54,6 +54,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                 @if (!print()) {
                     <button
                         icon
+                        default
                         matRipple
                         [matTooltip]="
                             'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
@@ -160,10 +161,12 @@ export class ParkingReportDailyUsageComponent {
                 booking_count: unique(days[date].bookings, 'asset_id').length,
                 host_count: unique(days[date].bookings, 'user_email').length,
                 active_count: days[date].bookings.filter(
-                    (booking) => !booking.deleted && booking.status !== 'cancelled',
+                    (booking) =>
+                        !booking.deleted && booking.status !== 'cancelled',
                 ).length,
                 cancelled_count: days[date].bookings.filter(
-                    (booking) => !booking.deleted && booking.status === 'cancelled',
+                    (booking) =>
+                        !booking.deleted && booking.status === 'cancelled',
                 ).length,
                 deleted_count: days[date].bookings.filter(
                     (booking) => booking.deleted,

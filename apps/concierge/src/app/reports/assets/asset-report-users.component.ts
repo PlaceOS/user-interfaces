@@ -28,7 +28,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
     {
         label: 'Asset types',
         description:
-            'Distinct product names matched from the user\'s booked asset IDs.',
+            "Distinct product names matched from the user's booked asset IDs.",
     },
 ];
 
@@ -45,6 +45,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                 @if (!print()) {
                     <button
                         icon
+                        default
                         matRipple
                         [matTooltip]="
                             'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate

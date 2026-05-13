@@ -12,11 +12,11 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { debounceTime } from 'rxjs/operators';
-import { ReportsOptionsComponent } from '../reports-options.component';
 import {
     ReportMetricGuideComponent,
     ReportMetricGuideItem,
 } from '../report-metric-guide.component';
+import { ReportsOptionsComponent } from '../reports-options.component';
 import { LockersReportChartsComponent } from './lockers-report-charts.component';
 import { LockersReportDailyUsageComponent } from './lockers-report-daily-usage.component';
 import { LockersReportListComponent } from './lockers-report-list.component';
@@ -26,8 +26,7 @@ import { LockersReportService } from './lockers-report.service';
 const METRIC_GUIDE: ReportMetricGuideItem[] = [
     {
         label: 'Business days',
-        description:
-            'Number of business days in the selected reporting range.',
+        description: 'Number of business days in the selected reporting range.',
     },
     {
         label: 'Total bookings',
@@ -76,7 +75,10 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
             </div>
             @if (!loading()) {
                 @if (total_count()) {
-                    <placeos-report-metric-guide [items]="metric_guide" />
+                    <placeos-report-metric-guide
+                        [absolute]="true"
+                        [items]="metric_guide"
+                    />
                     <lockers-report-overall></lockers-report-overall>
                     <lockers-report-charts></lockers-report-charts>
                     <lockers-report-daily-usage
