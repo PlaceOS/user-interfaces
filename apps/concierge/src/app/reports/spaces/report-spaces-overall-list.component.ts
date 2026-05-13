@@ -92,7 +92,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                         },
                         {
                             key: 'cancelled',
-                            name: 'Cancelled',
+                            name: 'Declined',
                             content: booking_percent_template,
                         },
                         {
