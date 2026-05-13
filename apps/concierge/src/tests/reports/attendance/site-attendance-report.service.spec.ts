@@ -371,6 +371,14 @@ describe('SiteAttendanceReportService', () => {
                 },
                 {
                     host: 'same.user@example.com',
+                    date: day_1,
+                    duration: 60,
+                    attendees: [{ email: 'attendee@example.com' }],
+                    extension_data: {},
+                    system: { id: 'room-2' },
+                },
+                {
+                    host: 'same.user@example.com',
                     date: day_2,
                     duration: 60,
                     attendees: [{ email: 'attendee@example.com' }],
@@ -390,7 +398,7 @@ describe('SiteAttendanceReportService', () => {
         expect(report.unique_people).toBe(3);
         expect(report.total_attendance).toBe(5);
         expect(report.cards.find((card) => card.id === 'events')).toEqual(
-            expect.objectContaining({ attendance: 4, daily_average: 2 }),
+            expect.objectContaining({ attendance: 4, daily_average: 3 }),
         );
     });
 
