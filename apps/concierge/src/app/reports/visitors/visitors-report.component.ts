@@ -25,8 +25,7 @@ import { VisitorsReportService } from './visitors-report.service';
 const METRIC_GUIDE: ReportMetricGuideItem[] = [
     {
         label: 'Business days',
-        description:
-            'Number of business days in the selected reporting range.',
+        description: 'Number of business days in the selected reporting range.',
     },
     {
         label: 'Total visitors',
@@ -76,7 +75,10 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
             </div>
             @if (!loading()) {
                 @if (total_count()) {
-                    <placeos-report-metric-guide [items]="metric_guide" />
+                    <placeos-report-metric-guide
+                        [absolute]="true"
+                        [items]="metric_guide"
+                    />
                     <visitor-report-overall></visitor-report-overall>
                     <visitor-report-daily-usage
                         [print]="printing()"

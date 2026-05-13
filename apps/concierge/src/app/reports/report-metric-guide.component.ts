@@ -12,20 +12,25 @@ export interface ReportMetricGuideItem {
     template: `
         <div
             class="text-right print:hidden"
+            [class.absolute]="absolute()"
+            [class.top-24]="absolute()"
+            [class.right-0]="absolute()"
             [class.px-4]="!inline()"
             [class.py-2]="!inline()"
             [class.ml-2]="inline()"
         >
             <button
+                icon
+                default
                 type="button"
                 customTooltip
                 [content]="metric_guide_tooltip"
                 [xPosition]="'end'"
                 [yPosition]="'bottom'"
                 [matTooltip]="title()"
-                matTooltipPosition="above"
-                class="bg-base-100 text-base-content border-base-200 hover:bg-base-200 inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border shadow-sm"
+                matTooltipPosition="left"
                 [attr.aria-label]="title()"
+                [class.-mr-2]="absolute()"
             >
                 <icon class="text-xl">info</icon>
             </button>
@@ -39,7 +44,9 @@ export interface ReportMetricGuideItem {
                     @for (item of items(); track item.label) {
                         <div>
                             <div class="font-medium">{{ item.label }}</div>
-                            <p class="mt-1 opacity-70">{{ item.description }}</p>
+                            <p class="mt-1 opacity-70">
+                                {{ item.description }}
+                            </p>
                         </div>
                     }
                 </div>
@@ -51,5 +58,6 @@ export interface ReportMetricGuideItem {
 export class ReportMetricGuideComponent {
     public readonly inline = input(false);
     public readonly title = input('How metrics are calculated');
+    public readonly absolute = input(false);
     public readonly items = input<ReportMetricGuideItem[]>([]);
 }

@@ -33,7 +33,8 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
     },
     {
         label: 'Total requests',
-        description: 'Total desk bookings on the level for the selected period.',
+        description:
+            'Total desk bookings on the level for the selected period.',
     },
     {
         label: 'Utilisation',
@@ -59,6 +60,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                     @if (!print()) {
                         <button
                             icon
+                            default
                             matRipple
                             [matTooltip]="
                                 'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE'

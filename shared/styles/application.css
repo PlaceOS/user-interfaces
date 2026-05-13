@@ -875,6 +875,23 @@ a[icon] {
         font-size: 1.5em;
     }
 
+    &[default] {
+        background: var(--base-100);
+        border: 1px solid var(--base-200);
+        border-radius: 0.5rem;
+        &:hover {
+            background: var(--base-200);
+            border-color: var(--base-300);
+            --tw-shadow:
+                0 4px 6px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1)),
+                0 2px 4px -2px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+            box-shadow:
+                var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+                var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
+                var(--tw-shadow);
+        }
+    }
+
     &[disabled] {
         opacity: 0.35;
     }

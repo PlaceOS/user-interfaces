@@ -13,12 +13,12 @@ import {
     AuthenticatedImageDirective,
     TranslatePipe,
 } from '@placeos/components';
-import { ReportsOptionsComponent } from '../reports-options.component';
-import { ReportsStateService } from '../reports-state.service';
 import {
     ReportMetricGuideComponent,
     ReportMetricGuideItem,
 } from '../report-metric-guide.component';
+import { ReportsOptionsComponent } from '../reports-options.component';
+import { ReportsStateService } from '../reports-state.service';
 import { ReportSpacesChartsComponent } from './report-spaces-charts.component';
 import { ReportSpacesOverallListComponent } from './report-spaces-overall-list.component';
 import { ReportSpacesOverallComponent } from './report-spaces-overall.component';
@@ -28,8 +28,7 @@ import { ReportSpacesUserListingComponent } from './report-spaces-user-listing.c
 const METRIC_GUIDE: ReportMetricGuideItem[] = [
     {
         label: 'Business days',
-        description:
-            'Number of business days in the selected reporting range.',
+        description: 'Number of business days in the selected reporting range.',
     },
     {
         label: 'Total bookings',
@@ -78,7 +77,10 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
             </div>
             @if (!loading()) {
                 @if (total_count()) {
-                    <placeos-report-metric-guide [items]="metric_guide" />
+                    <placeos-report-metric-guide
+                        [absolute]="true"
+                        [items]="metric_guide"
+                    />
                     <report-spaces-overall></report-spaces-overall>
                     <report-spaces-charts
                         [print]="printing()"

@@ -49,6 +49,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                 </h2>
                 <button
                     icon
+                    default
                     matRipple
                     (click)="download()"
                     class="print:hidden"
