@@ -37,6 +37,7 @@ const app = {
     custom_reports,
     desks: { can_book_for_others: true, max_assigned_count: 0 },
     bookings: { can_book_for_others: true, use_building_timezone: false },
+    reports: { attendance_include_weekends: false },
     parking: {
         show_waitlist: false,
         disable_styles: false,

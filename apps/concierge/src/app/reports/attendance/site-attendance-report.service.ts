@@ -1,7 +1,7 @@
 import { formatDate } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
 import { queryLockerAssets, queryParkingSpaces } from '@placeos/assets';
-import { queryAllBookings, queryBookings } from '@placeos/bookings';
+import { queryAllBookings } from '@placeos/bookings';
 import {
     Booking,
     CalendarEvent,
@@ -17,6 +17,7 @@ import { queryAllEvents, requestSpacesForZone } from '@placeos/events';
 import { showMetadata } from '@placeos/ts-client';
 import {
     differenceInBusinessDays,
+    differenceInCalendarDays,
     endOfDay,
     format,
     getUnixTime,
@@ -186,10 +187,11 @@ export class SiteAttendanceReportService {
                   }).pipe(catchError(() => of([])))
                 : of([]),
             visitors: enabled.visitors
-                ? queryBookings({
+                ? queryAllBookings({
                       ...bookings_query,
                       type: 'visitor',
                       zones: booking_zones,
+                      limit: 1000,
                   }).pipe(catchError(() => of([])))
                 : of([]),
             room_count: enabled.events ? this.getRoomCount(space_zones) : of(0),
@@ -397,11 +399,17 @@ export class SiteAttendanceReportService {
     }
 
     private getBusinessDays(start: number, end: number) {
-        return (
-            differenceInBusinessDays(
-                endOfDay(end).valueOf() + 1,
-                startOfDay(start),
-            ) || 1
+        if (!this._settings.get('app.reports.attendance_include_weekends')) {
+            return (
+                differenceInBusinessDays(
+                    endOfDay(end).valueOf() + 1,
+                    startOfDay(start),
+                ) || 1
+            );
+        }
+        return Math.max(
+            1,
+            differenceInCalendarDays(endOfDay(end), startOfDay(start)) + 1,
         );
     }
 
@@ -630,10 +638,6 @@ export class SiteAttendanceReportService {
         business_days: number,
     ): SiteAttendanceCard {
         const attendance = this.getDailyEventAttendance(bookings);
-        const average_attendance = bookings.reduce(
-            (count, booking) => count + this.getEventAttendance(booking),
-            0,
-        );
         const tracked_bookings = bookings.filter(
             (booking) => this.getPeopleCount(booking) !== undefined,
         );
@@ -654,9 +658,7 @@ export class SiteAttendanceReportService {
             id: 'events',
             bookings: bookings.length,
             attendance,
-            daily_average: this.toFixed(
-                average_attendance / Math.max(1, business_days),
-            ),
+            daily_average: this.toFixed(attendance / Math.max(1, business_days)),
             average_length: this.getAverageLength(bookings),
             unique_people: new Set([
                 ...this.getEventPeople(bookings),
@@ -682,11 +684,6 @@ export class SiteAttendanceReportService {
         business_days: number,
     ): SiteAttendanceCard {
         const attendance = this.getDailyBookingAttendance(bookings);
-        const average_attendance = bookings.reduce(
-            (count, booking) =>
-                count + this.getBookingAttendancePeople(booking).length,
-            0,
-        );
         const resources_used = new Set(
             bookings
                 .map((booking) => booking.asset_id)
@@ -699,9 +696,7 @@ export class SiteAttendanceReportService {
             id,
             bookings: bookings.length,
             attendance,
-            daily_average: this.toFixed(
-                average_attendance / Math.max(1, business_days),
-            ),
+            daily_average: this.toFixed(attendance / Math.max(1, business_days)),
             average_length: this.getAverageLength(bookings),
             unique_people: new Set(this.getBookingPeople(bookings)).size,
             resource_summary: resource_count
@@ -720,11 +715,6 @@ export class SiteAttendanceReportService {
         business_days: number,
     ): SiteAttendanceCard {
         const attendance = this.getDailyVisitorAttendance(bookings);
-        const average_attendance = bookings.reduce(
-            (count, booking) =>
-                count + this.getVisitorAttendancePeople(booking).length,
-            0,
-        );
         const checked_in = bookings.filter(
             (booking) => booking.checked_in,
         ).length;
@@ -732,9 +722,7 @@ export class SiteAttendanceReportService {
             id: 'visitors',
             bookings: bookings.length,
             attendance,
-            daily_average: this.toFixed(
-                average_attendance / Math.max(1, business_days),
-            ),
+            daily_average: this.toFixed(attendance / Math.max(1, business_days)),
             average_length: this.getAverageLength(bookings),
             unique_people: new Set(this.getVisitorPeople(bookings)).size,
             resource_summary: '-',
@@ -786,14 +774,6 @@ export class SiteAttendanceReportService {
 
     private getPeopleCount(booking: CalendarEvent) {
         return (booking.extension_data as any)?.people_count;
-    }
-
-    private getEventAttendance(booking: CalendarEvent) {
-        const attendance = this.getPeopleCount(booking)?.max;
-        if (typeof attendance === 'number') return attendance;
-        return this.getEventAttendancePeople(booking).filter(
-            (person) => !!person.id,
-        ).length;
     }
 
     private getEventPeople(bookings: CalendarEvent[]) {
