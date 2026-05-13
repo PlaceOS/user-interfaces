@@ -148,6 +148,10 @@ export class SiteAttendanceReportService {
             period_start: getUnixTime(start),
             period_end: getUnixTime(end),
         };
+        const bookings_query = {
+            ...query,
+            include_checked_out: true,
+        };
         this._loading.next(true);
         forkJoin({
             events: enabled.events
@@ -159,7 +163,7 @@ export class SiteAttendanceReportService {
                 : of([]),
             desks: enabled.desks
                 ? queryAllBookings({
-                      ...query,
+                      ...bookings_query,
                       zones: booking_zones,
                       type: 'desk',
                       limit: 1000,
@@ -167,7 +171,7 @@ export class SiteAttendanceReportService {
                 : of([]),
             parking: enabled.parking
                 ? queryAllBookings({
-                      ...query,
+                      ...bookings_query,
                       zones: booking_zones,
                       type: 'parking',
                       limit: 1000,
@@ -175,7 +179,7 @@ export class SiteAttendanceReportService {
                 : of([]),
             lockers: enabled.lockers
                 ? queryAllBookings({
-                      ...query,
+                      ...bookings_query,
                       zones: booking_zones,
                       type: 'locker',
                       limit: 1000,
@@ -183,7 +187,7 @@ export class SiteAttendanceReportService {
                 : of([]),
             visitors: enabled.visitors
                 ? queryBookings({
-                      ...query,
+                      ...bookings_query,
                       type: 'visitor',
                       zones: booking_zones,
                   }).pipe(catchError(() => of([])))
@@ -364,10 +368,7 @@ export class SiteAttendanceReportService {
         const unique_people = this.getUniquePeople(report_result);
         return {
             business_days,
-            total_attendance: cards.reduce(
-                (count, card) => count + card.attendance,
-                0,
-            ),
+            total_attendance: this.getDailyUniqueAttendance(report_result),
             total_bookings: cards.reduce(
                 (count, card) => count + card.bookings,
                 0,
@@ -465,6 +466,48 @@ export class SiteAttendanceReportService {
             ...this.getBookingPeople(result.lockers || []),
             ...this.getVisitorPeople(result.visitors || []),
         ]).size;
+    }
+
+    private getDailyUniqueAttendance(result: AttendanceReportResult) {
+        const daily_people = new Map<string, Set<string>>();
+        const addPerson = (date: number, id: string) => {
+            if (!date || !id) return;
+            const day = format(date, 'yyyy-MM-dd');
+            const people = daily_people.get(day) || new Set<string>();
+            people.add(id.toLowerCase());
+            daily_people.set(day, people);
+        };
+
+        for (const booking of result.events || []) {
+            for (const person of this.getEventAttendancePeople(booking)) {
+                addPerson(booking.date, person.id);
+            }
+        }
+        for (const booking of result.desks || []) {
+            for (const person of this.getBookingAttendancePeople(booking)) {
+                addPerson(booking.date, person.id);
+            }
+        }
+        for (const booking of result.parking || []) {
+            for (const person of this.getBookingAttendancePeople(booking)) {
+                addPerson(booking.date, person.id);
+            }
+        }
+        for (const booking of result.lockers || []) {
+            for (const person of this.getBookingAttendancePeople(booking)) {
+                addPerson(booking.date, person.id);
+            }
+        }
+        for (const booking of result.visitors || []) {
+            for (const person of this.getVisitorAttendancePeople(booking)) {
+                addPerson(booking.date, person.id);
+            }
+        }
+
+        return [...daily_people.values()].reduce(
+            (total, people) => total + people.size,
+            0,
+        );
     }
 
     private buildHostRows(result: AttendanceReportResult) {
@@ -692,7 +735,9 @@ export class SiteAttendanceReportService {
     private getEventAttendance(booking: CalendarEvent) {
         const attendance = this.getPeopleCount(booking)?.max;
         if (typeof attendance === 'number') return attendance;
-        return this.getEventAttendees(booking).length;
+        return this.getEventAttendancePeople(booking).filter(
+            (person) => !!person.id,
+        ).length;
     }
 
     private getPeopleCount(booking: CalendarEvent) {
@@ -710,6 +755,21 @@ export class SiteAttendanceReportService {
             .flatMap((booking) => this.getEventAttendees(booking))
             .map((person) => person.id)
             .filter((value) => !!value);
+    }
+
+    private getEventAttendancePeople(booking: CalendarEvent) {
+        return [this.getEventPerson(booking), ...this.getEventAttendees(booking)];
+    }
+
+    private getBookingAttendancePeople(booking: Booking) {
+        return [
+            this.getBookingPerson(booking),
+            ...this.getBookingAttendees(booking),
+        ];
+    }
+
+    private getVisitorAttendancePeople(booking: Booking) {
+        return [this.getBookingPerson(booking), this.getVisitorPerson(booking)];
     }
 
     private getBookingPeople(bookings: Booking[]) {

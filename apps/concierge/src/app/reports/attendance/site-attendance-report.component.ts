@@ -51,7 +51,7 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
     {
         label: 'Total site attendance',
         description:
-            'Sum of attendance across enabled booking types in the selected period. Room attendance uses recorded people count; group events are excluded; other resources count active bookings.',
+            'Sum of unique people per day across enabled booking types in the selected period. Group events and room resource identifiers are excluded.',
     },
     {
         label: 'Total bookings',
@@ -109,7 +109,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
     {
         label: 'Total bookings',
         description:
-            'Sum of that person\'s counted room, desk, parking, locker, and visitor bookings in the report.',
+            "Sum of that person's counted room, desk, parking, locker, and visitor bookings in the report.",
     },
     {
         label: 'Host rows',

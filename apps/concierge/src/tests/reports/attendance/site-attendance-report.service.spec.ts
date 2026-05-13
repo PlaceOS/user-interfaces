@@ -20,6 +20,8 @@ jest.mock('@placeos/ts-client');
 describe('SiteAttendanceReportService', () => {
     let spectator: SpectatorService<SiteAttendanceReportService>;
     let features: string[];
+    const day_1 = new Date('2026-04-06T12:00:00').valueOf();
+    const day_2 = new Date('2026-04-07T12:00:00').valueOf();
     const createService = createServiceFactory({
         service: SiteAttendanceReportService,
         providers: [
@@ -57,6 +59,7 @@ describe('SiteAttendanceReportService', () => {
                         {
                             asset_id: 'desk-1',
                             user_email: 'desk.user@example.com',
+                            date: day_1,
                             duration: 480,
                             checked_in: true,
                         },
@@ -67,6 +70,7 @@ describe('SiteAttendanceReportService', () => {
                         {
                             asset_id: 'parking-1',
                             user_email: 'parking.user@example.com',
+                            date: day_1,
                             duration: 480,
                             checked_in: false,
                         },
@@ -77,6 +81,7 @@ describe('SiteAttendanceReportService', () => {
                         {
                             asset_id: 'locker-1',
                             user_email: 'locker.user@example.com',
+                            date: day_1,
                             duration: 1440,
                             checked_in: true,
                         },
@@ -91,6 +96,7 @@ describe('SiteAttendanceReportService', () => {
                     asset_id: 'visitor-1@example.com',
                     user_email: 'visitor.host@example.com',
                     extension_data: {},
+                    date: day_1,
                     duration: 60,
                     checked_in: true,
                 },
@@ -100,6 +106,7 @@ describe('SiteAttendanceReportService', () => {
             of([
                 {
                     host: 'host-1@example.com',
+                    date: day_1,
                     duration: 60,
                     attendees: [
                         { email: 'a' },
@@ -112,6 +119,7 @@ describe('SiteAttendanceReportService', () => {
                 },
                 {
                     host: 'host-2@example.com',
+                    date: day_1,
                     duration: 30,
                     attendees: [],
                     extension_data: { people_count: { max: 0 } },
@@ -121,6 +129,7 @@ describe('SiteAttendanceReportService', () => {
                 {
                     calendar: 'group-events@example.com',
                     host: 'group.host@example.com',
+                    date: day_1,
                     duration: 120,
                     attendees: [{ email: 'group.attendee@example.com' }],
                     extension_data: {
@@ -180,9 +189,20 @@ describe('SiteAttendanceReportService', () => {
             expect.objectContaining({ zone_ids: 'building-1', limit: 1000 }),
         );
         expect(booking_mod.queryAllBookings).toHaveBeenCalledWith(
-            expect.objectContaining({ zones: 'building-1', type: 'desk' }),
+            expect.objectContaining({
+                zones: 'building-1',
+                type: 'desk',
+                include_checked_out: true,
+            }),
         );
-        expect(report.total_attendance).toBe(8);
+        expect(booking_mod.queryBookings).toHaveBeenCalledWith(
+            expect.objectContaining({
+                zones: 'building-1',
+                type: 'visitor',
+                include_checked_out: true,
+            }),
+        );
+        expect(report.total_attendance).toBe(9);
         expect(report.total_bookings).toBe(6);
         expect(report.active_types).toBe(5);
         expect(report.unique_people).toBe(8);
@@ -305,9 +325,73 @@ describe('SiteAttendanceReportService', () => {
         );
         expect(booking_mod.queryAllBookings).toHaveBeenCalledTimes(1);
         expect(booking_mod.queryAllBookings).toHaveBeenCalledWith(
-            expect.objectContaining({ type: 'desk' }),
+            expect.objectContaining({
+                type: 'desk',
+                include_checked_out: true,
+            }),
         );
         expect(report.cards.map((card) => card.id)).toEqual(['desks']);
+    });
+
+    it('should sum unique site attendance per day', async () => {
+        features = ['spaces', 'desks'];
+        spectator = createService();
+        (booking_mod.queryAllBookings as jest.Mock).mockReturnValue(
+            of([
+                {
+                    asset_id: 'desk-1',
+                    user_email: 'same.user@example.com',
+                    date: day_1,
+                    duration: 480,
+                },
+                {
+                    asset_id: 'desk-2',
+                    user_email: 'same.user@example.com',
+                    date: day_2,
+                    duration: 480,
+                },
+                {
+                    asset_id: 'desk-3',
+                    user_email: 'desk.owner@example.com',
+                    date: day_1,
+                    duration: 480,
+                    attendees: [{ email: 'attendee@example.com' }],
+                },
+            ]),
+        );
+        (event_mod.queryAllEvents as jest.Mock).mockReturnValue(
+            of([
+                {
+                    host: 'same.user@example.com',
+                    date: day_1,
+                    duration: 60,
+                    attendees: [{ email: 'attendee@example.com' }],
+                    extension_data: {},
+                    system: { id: 'room-1' },
+                },
+                {
+                    host: 'same.user@example.com',
+                    date: day_2,
+                    duration: 60,
+                    attendees: [{ email: 'attendee@example.com' }],
+                    extension_data: {},
+                    system: { id: 'room-1' },
+                },
+            ]),
+        );
+        spectator.service.setOptions({ start: day_1, end: day_2 });
+
+        const report_promise = firstValueFrom(
+            spectator.service.report$.pipe(skip(1), take(1)),
+        );
+        spectator.service.generateReport();
+        const report = await report_promise;
+
+        expect(report.unique_people).toBe(3);
+        expect(report.total_attendance).toBe(5);
+        expect(report.cards.find((card) => card.id === 'events')).toEqual(
+            expect.objectContaining({ attendance: 4, daily_average: 2 }),
+        );
     });
 
     it('should export report data', () => {
