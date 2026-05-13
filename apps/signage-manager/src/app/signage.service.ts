@@ -513,7 +513,10 @@ export class SignageService {
             filter((group_id) => this.is_sys_admin() || !!group_id),
             switchMap((group_id) =>
                 queryZones(
-                    this._groupQueryParams({ limit: 2500 }, group_id),
+                    this._groupQueryParams(
+                        { limit: 2500, include_children_count: true },
+                        group_id,
+                    ),
                 ).pipe(catchError(() => of({ data: [] }))),
             ),
             map((result: any) => result.data || []),
@@ -524,6 +527,16 @@ export class SignageService {
         map(([zones, overrides]) => this._mergeItems(zones, overrides)),
         shareReplay(1),
     );
+
+    public zoneChildren(parent_id: string) {
+        return queryZones(
+            this._groupQueryParams({
+                parent_id,
+                limit: 2500,
+                include_children_count: true,
+            }),
+        ).pipe(map(({ data }) => data || []));
+    }
 
     public readonly plugins = combineLatest([
         this._org.active_building,

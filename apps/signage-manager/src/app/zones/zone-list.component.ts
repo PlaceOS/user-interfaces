@@ -16,6 +16,7 @@ import { RouterLink } from '@angular/router';
 import { OrganisationService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { PlaceZone } from '@placeos/ts-client';
+import { lastValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { SignageService } from '../signage.service';
 
@@ -433,8 +434,10 @@ export class ZoneListComponent {
         };
     }
 
-    private loadChildren(zone_id: string) {
-        const children = this.children_lookup()[zone_id] || [];
+    private async loadChildren(zone_id: string) {
+        const children = await lastValueFrom(
+            this._service.zoneChildren(zone_id),
+        ).catch(() => this.children_lookup()[zone_id] || []);
         this.tree_nodes.update((nodes) =>
             this.updateNode(nodes, zone_id, (item) => ({
                 ...item,
@@ -458,7 +461,10 @@ export class ZoneListComponent {
             return { ...node, zone };
         }
         const existing_children = node.children;
-        const children = (this.children_lookup()[node.zone.id] || []).map(
+        const zone_children =
+            this.children_lookup()[node.zone.id] ||
+            existing_children.map(({ zone }) => zone);
+        const children = zone_children.map(
             (child_zone) => {
                 const child = existing_children.find(
                     ({ zone }) => zone.id === child_zone.id,
