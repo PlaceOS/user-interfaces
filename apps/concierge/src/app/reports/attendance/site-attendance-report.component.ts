@@ -51,7 +51,7 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
     {
         label: 'Total site attendance',
         description:
-            'Sum of attendance across enabled booking types in the selected period. Room attendance uses recorded people count; other resources count active bookings.',
+            'Sum of attendance across enabled booking types in the selected period. Room attendance uses recorded people count; group events are excluded; other resources count active bookings.',
     },
     {
         label: 'Total bookings',
@@ -66,7 +66,7 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
     {
         label: 'Unique people',
         description:
-            'Distinct hosts, booking owners, and visitors found across included bookings, matched by available user identifier.',
+            'Distinct room hosts, booking owners, and visitors found across included bookings, matched by available user identifier. Room resource identifiers are ignored.',
     },
     {
         label: 'Daily average',
@@ -84,7 +84,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
     {
         label: 'Rooms',
         description:
-            'Room bookings where the person appears as host or attendee.',
+            'Room bookings where the person appears as host or attendee. Room resource identifiers are ignored.',
     },
     {
         label: 'Desks',
@@ -114,12 +114,12 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
     {
         label: 'Host rows',
         description:
-            'Hosts are grouped by host, organiser, booking user, or booked-by identifier depending on booking type.',
+            'Hosts are grouped by host, organiser, booking user, or booked-by identifier depending on booking type. Room resources are ignored.',
     },
     {
         label: 'Attendee rows',
         description:
-            'Attendees are grouped from booking attendee lists; room hosts are excluded from attendee rows.',
+            'Attendees are grouped from booking attendee lists; room hosts and room resources are excluded from attendee rows.',
     },
 ];
 

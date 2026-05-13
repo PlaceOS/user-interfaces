@@ -27,6 +27,9 @@ describe('SiteAttendanceReportService', () => {
                 get: jest.fn((name: string) => {
                     if (name === 'app.use_region') return false;
                     if (name === 'app.features') return features;
+                    if (name === 'app.group_events_calendar') {
+                        return 'group-events@example.com';
+                    }
                     return undefined;
                 }),
             } as any),
@@ -98,9 +101,13 @@ describe('SiteAttendanceReportService', () => {
                 {
                     host: 'host-1@example.com',
                     duration: 60,
-                    attendees: [{ email: 'a' }, { email: 'b' }],
+                    attendees: [
+                        { email: 'a' },
+                        { email: 'b' },
+                        { email: 'room-1@example.com' },
+                    ],
                     extension_data: { people_count: { max: 4 } },
-                    system: { id: 'room-1' },
+                    system: { id: 'room-1', email: 'room-1@example.com' },
                     location: 'Room 1',
                 },
                 {
@@ -110,6 +117,18 @@ describe('SiteAttendanceReportService', () => {
                     extension_data: { people_count: { max: 0 } },
                     system: { id: 'room-2' },
                     location: 'Room 2',
+                },
+                {
+                    calendar: 'group-events@example.com',
+                    host: 'group.host@example.com',
+                    duration: 120,
+                    attendees: [{ email: 'group.attendee@example.com' }],
+                    extension_data: {
+                        people_count: { max: 99 },
+                        shared_event: true,
+                    },
+                    system: { id: 'room-3' },
+                    location: 'Room 3',
                 },
             ]),
         );
@@ -166,11 +185,12 @@ describe('SiteAttendanceReportService', () => {
         expect(report.total_attendance).toBe(8);
         expect(report.total_bookings).toBe(6);
         expect(report.active_types).toBe(5);
-        expect(report.unique_people).toBe(6);
+        expect(report.unique_people).toBe(8);
         expect(report.cards.find((card) => card.id === 'events')).toEqual(
             expect.objectContaining({
                 attendance: 4,
                 bookings: 2,
+                unique_people: 4,
                 resource_summary: '2 / 3',
                 status_count: 1,
                 status_rate: 50,

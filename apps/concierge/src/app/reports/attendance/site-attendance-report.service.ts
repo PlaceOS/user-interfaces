@@ -33,7 +33,7 @@ export interface ReportOptions {
 }
 
 export interface SiteAttendanceCard {
-    id: 'events' | 'desks' | 'parking' | 'lockers' | 'visitors';
+    id: SiteAttendanceResource;
     bookings: number;
     attendance: number;
     daily_average: number;
@@ -65,6 +65,41 @@ export interface SiteAttendanceReport {
     cards: SiteAttendanceCard[];
     hosts: SiteAttendancePersonRow[];
     attendees: SiteAttendancePersonRow[];
+}
+
+type SiteAttendanceResource =
+    | 'events'
+    | 'desks'
+    | 'parking'
+    | 'lockers'
+    | 'visitors';
+
+type BookingResource = Exclude<SiteAttendanceResource, 'events' | 'visitors'>;
+
+interface SiteAttendancePerson {
+    id: string;
+    name: string;
+}
+
+interface EnabledAttendanceResources {
+    events: boolean;
+    desks: boolean;
+    parking: boolean;
+    lockers: boolean;
+    visitors: boolean;
+}
+
+interface AttendanceReportResult {
+    events: CalendarEvent[];
+    desks: Booking[];
+    parking: Booking[];
+    lockers: Booking[];
+    visitors: Booking[];
+    room_count: number;
+    desk_count: number;
+    parking_count: number;
+    locker_count: number;
+    enabled: EnabledAttendanceResources;
 }
 
 export const EMPTY_REPORT: SiteAttendanceReport = {
@@ -243,7 +278,7 @@ export class SiteAttendanceReportService {
         ].filter((zone) => !!zone);
     }
 
-    private getEnabledResources() {
+    private getEnabledResources(): EnabledAttendanceResources {
         const features = this._settings.get('app.features') || [];
         return {
             events: features.includes('spaces'),
@@ -316,71 +351,17 @@ export class SiteAttendanceReportService {
     }
 
     private buildReport(
-        result: {
-            events: CalendarEvent[];
-            desks: Booking[];
-            parking: Booking[];
-            lockers: Booking[];
-            visitors: Booking[];
-            room_count: number;
-            desk_count: number;
-            parking_count: number;
-            locker_count: number;
-            enabled: ReturnType<
-                SiteAttendanceReportService['getEnabledResources']
-            >;
-        },
+        result: AttendanceReportResult,
         start: number,
         end: number,
     ): SiteAttendanceReport {
-        const business_days =
-            differenceInBusinessDays(
-                endOfDay(end).valueOf() + 1,
-                startOfDay(start),
-            ) || 1;
-        const cards: SiteAttendanceCard[] = [
-            result.enabled.events
-                ? this.buildEventCard(
-                      result.events || [],
-                      result.room_count || 0,
-                      business_days,
-                  )
-                : null,
-            result.enabled.desks
-                ? this.buildBookingCard(
-                      'desks',
-                      result.desks || [],
-                      result.desk_count || 0,
-                      business_days,
-                  )
-                : null,
-            result.enabled.parking
-                ? this.buildBookingCard(
-                      'parking',
-                      result.parking || [],
-                      result.parking_count || 0,
-                      business_days,
-                  )
-                : null,
-            result.enabled.lockers
-                ? this.buildBookingCard(
-                      'lockers',
-                      result.lockers || [],
-                      result.locker_count || 0,
-                      business_days,
-                  )
-                : null,
-            result.enabled.visitors
-                ? this.buildVisitorCard(result.visitors || [], business_days)
-                : null,
-        ].filter((card): card is SiteAttendanceCard => !!card);
-        const unique_people = new Set<string>([
-            ...this.getEventPeople(result.events || []),
-            ...this.getBookingPeople(result.desks || []),
-            ...this.getBookingPeople(result.parking || []),
-            ...this.getBookingPeople(result.lockers || []),
-            ...this.getVisitorPeople(result.visitors || []),
-        ]).size;
+        const report_result = {
+            ...result,
+            events: this.getReportEvents(result.events || []),
+        };
+        const business_days = this.getBusinessDays(start, end);
+        const cards = this.buildCards(report_result, business_days);
+        const unique_people = this.getUniquePeople(report_result);
         return {
             business_days,
             total_attendance: cards.reduce(
@@ -394,112 +375,198 @@ export class SiteAttendanceReportService {
             active_types: cards.filter((card) => card.bookings > 0).length,
             unique_people,
             cards,
-            hosts: this.buildHostRows(result),
-            attendees: this.buildAttendeeRows(result),
+            hosts: this.buildHostRows(report_result),
+            attendees: this.buildAttendeeRows(report_result),
         };
     }
 
-    private buildHostRows(result: {
-        events: CalendarEvent[];
-        desks: Booking[];
-        parking: Booking[];
-        lockers: Booking[];
-        visitors: Booking[];
-    }) {
-        const rows = new Map<string, SiteAttendancePersonRow>();
-        const addBooking = (
-            person: { id: string; name: string },
-            type: 'events' | 'desks' | 'parking' | 'lockers' | 'visitors',
-        ) => {
-            if (!person.id) return;
-            const id = person.id.toLowerCase();
-            const row = rows.get(id) || {
-                id,
-                name: person.name || person.id,
-                events: 0,
-                desks: 0,
-                parking: 0,
-                lockers: 0,
-                visitors: 0,
-                total: 0,
-            };
-            row[type] += 1;
-            row.total += 1;
-            rows.set(id, row);
-        };
+    private getReportEvents(events: CalendarEvent[]) {
+        return events.filter((event) => !this.isGroupEvent(event));
+    }
 
-        for (const booking of result.events || []) {
-            addBooking(this.getEventPerson(booking), 'events');
-        }
-        for (const booking of result.desks || []) {
-            addBooking(this.getBookingPerson(booking), 'desks');
-        }
-        for (const booking of result.parking || []) {
-            addBooking(this.getBookingPerson(booking), 'parking');
-        }
-        for (const booking of result.lockers || []) {
-            addBooking(this.getBookingPerson(booking), 'lockers');
-        }
-        for (const booking of result.visitors || []) {
-            addBooking(this.getBookingPerson(booking), 'visitors');
-        }
-        return [...rows.values()].sort(
-            (a, b) => b.total - a.total || a.name.localeCompare(b.name),
+    private isGroupEvent(event: CalendarEvent) {
+        const group_events_calendar = this._settings.get(
+            'app.group_events_calendar',
+        );
+        return (
+            !!event.extension_data?.shared_event ||
+            (!!group_events_calendar &&
+                event.calendar === group_events_calendar)
         );
     }
 
-    private buildAttendeeRows(result: {
-        events: CalendarEvent[];
-        desks: Booking[];
-        parking: Booking[];
-        lockers: Booking[];
-        visitors: Booking[];
-    }) {
+    private getBusinessDays(start: number, end: number) {
+        return (
+            differenceInBusinessDays(
+                endOfDay(end).valueOf() + 1,
+                startOfDay(start),
+            ) || 1
+        );
+    }
+
+    private buildCards(
+        result: AttendanceReportResult,
+        business_days: number,
+    ): SiteAttendanceCard[] {
+        const cards: SiteAttendanceCard[] = [];
+        if (result.enabled.events) {
+            cards.push(
+                this.buildEventCard(
+                    result.events || [],
+                    result.room_count || 0,
+                    business_days,
+                ),
+            );
+        }
+        if (result.enabled.desks) {
+            cards.push(
+                this.buildBookingCard(
+                    'desks',
+                    result.desks || [],
+                    result.desk_count || 0,
+                    business_days,
+                ),
+            );
+        }
+        if (result.enabled.parking) {
+            cards.push(
+                this.buildBookingCard(
+                    'parking',
+                    result.parking || [],
+                    result.parking_count || 0,
+                    business_days,
+                ),
+            );
+        }
+        if (result.enabled.lockers) {
+            cards.push(
+                this.buildBookingCard(
+                    'lockers',
+                    result.lockers || [],
+                    result.locker_count || 0,
+                    business_days,
+                ),
+            );
+        }
+        if (result.enabled.visitors) {
+            cards.push(
+                this.buildVisitorCard(result.visitors || [], business_days),
+            );
+        }
+        return cards;
+    }
+
+    private getUniquePeople(result: AttendanceReportResult) {
+        return new Set<string>([
+            ...this.getEventPeople(result.events || []),
+            ...this.getEventAttendeePeople(result.events || []),
+            ...this.getBookingPeople(result.desks || []),
+            ...this.getBookingPeople(result.parking || []),
+            ...this.getBookingPeople(result.lockers || []),
+            ...this.getVisitorPeople(result.visitors || []),
+        ]).size;
+    }
+
+    private buildHostRows(result: AttendanceReportResult) {
         const rows = new Map<string, SiteAttendancePersonRow>();
-        const addBooking = (
-            person: { id: string; name: string },
-            type: 'events' | 'desks' | 'parking' | 'lockers' | 'visitors',
-        ) => {
-            if (!person.id) return;
-            const id = person.id.toLowerCase();
-            const row = rows.get(id) || {
-                id,
-                name: person.name || person.id,
-                events: 0,
-                desks: 0,
-                parking: 0,
-                lockers: 0,
-                visitors: 0,
-                total: 0,
-            };
-            row[type] += 1;
-            row.total += 1;
-            rows.set(id, row);
-        };
+
+        for (const booking of result.events || []) {
+            this.addPersonBooking(rows, this.getEventPerson(booking), 'events');
+        }
+        for (const booking of result.desks || []) {
+            this.addPersonBooking(
+                rows,
+                this.getBookingPerson(booking),
+                'desks',
+            );
+        }
+        for (const booking of result.parking || []) {
+            this.addPersonBooking(
+                rows,
+                this.getBookingPerson(booking),
+                'parking',
+            );
+        }
+        for (const booking of result.lockers || []) {
+            this.addPersonBooking(
+                rows,
+                this.getBookingPerson(booking),
+                'lockers',
+            );
+        }
+        for (const booking of result.visitors || []) {
+            this.addPersonBooking(
+                rows,
+                this.getBookingPerson(booking),
+                'visitors',
+            );
+        }
+        return this.sortPersonRows(rows);
+    }
+
+    private buildAttendeeRows(result: AttendanceReportResult) {
+        const rows = new Map<string, SiteAttendancePersonRow>();
 
         for (const booking of result.events || []) {
             for (const attendee of this.getEventAttendees(booking)) {
-                addBooking(attendee, 'events');
+                this.addPersonBooking(rows, attendee, 'events');
             }
         }
         for (const booking of result.desks || []) {
             for (const attendee of this.getBookingAttendees(booking)) {
-                addBooking(attendee, 'desks');
+                this.addPersonBooking(rows, attendee, 'desks');
             }
         }
         for (const booking of result.parking || []) {
             for (const attendee of this.getBookingAttendees(booking)) {
-                addBooking(attendee, 'parking');
+                this.addPersonBooking(rows, attendee, 'parking');
             }
         }
         for (const booking of result.lockers || []) {
             for (const attendee of this.getBookingAttendees(booking)) {
-                addBooking(attendee, 'lockers');
+                this.addPersonBooking(rows, attendee, 'lockers');
             }
         }
         for (const booking of result.visitors || []) {
-            addBooking(this.getVisitorPerson(booking), 'visitors');
+            this.addPersonBooking(
+                rows,
+                this.getVisitorPerson(booking),
+                'visitors',
+            );
         }
+        return this.sortPersonRows(rows);
+    }
+
+    private addPersonBooking(
+        rows: Map<string, SiteAttendancePersonRow>,
+        person: SiteAttendancePerson,
+        type: SiteAttendanceResource,
+    ) {
+        if (!person.id) return;
+        const id = person.id.toLowerCase();
+        const row = rows.get(id) || this.createPersonRow(person, id);
+        row[type] += 1;
+        row.total += 1;
+        rows.set(id, row);
+    }
+
+    private createPersonRow(
+        person: SiteAttendancePerson,
+        id: string,
+    ): SiteAttendancePersonRow {
+        return {
+            id,
+            name: person.name || person.id,
+            events: 0,
+            desks: 0,
+            parking: 0,
+            lockers: 0,
+            visitors: 0,
+            total: 0,
+        };
+    }
+
+    private sortPersonRows(rows: Map<string, SiteAttendancePersonRow>) {
         return [...rows.values()].sort(
             (a, b) => b.total - a.total || a.name.localeCompare(b.name),
         );
@@ -538,7 +605,10 @@ export class SiteAttendanceReportService {
                 attendance / Math.max(1, business_days),
             ),
             average_length: this.getAverageLength(bookings),
-            unique_people: new Set(this.getEventPeople(bookings)).size,
+            unique_people: new Set([
+                ...this.getEventPeople(bookings),
+                ...this.getEventAttendeePeople(bookings),
+            ]).size,
             resource_summary: resource_count
                 ? `${resources_used} / ${resource_count}`
                 : `${resources_used}`,
@@ -553,7 +623,7 @@ export class SiteAttendanceReportService {
     }
 
     private buildBookingCard(
-        id: 'desks' | 'parking' | 'lockers',
+        id: BookingResource,
         bookings: Booking[],
         resource_count: number,
         business_days: number,
@@ -622,7 +692,7 @@ export class SiteAttendanceReportService {
     private getEventAttendance(booking: CalendarEvent) {
         const attendance = this.getPeopleCount(booking)?.max;
         if (typeof attendance === 'number') return attendance;
-        return booking.attendees?.length || 0;
+        return this.getEventAttendees(booking).length;
     }
 
     private getPeopleCount(booking: CalendarEvent) {
@@ -635,6 +705,13 @@ export class SiteAttendanceReportService {
             .filter((value) => !!value);
     }
 
+    private getEventAttendeePeople(bookings: CalendarEvent[]) {
+        return bookings
+            .flatMap((booking) => this.getEventAttendees(booking))
+            .map((person) => person.id)
+            .filter((value) => !!value);
+    }
+
     private getBookingPeople(bookings: Booking[]) {
         return bookings
             .map((booking) => this.getBookingPerson(booking).id)
@@ -643,12 +720,17 @@ export class SiteAttendanceReportService {
 
     private getEventPerson(booking: CalendarEvent) {
         const id = booking.host || booking.organiser?.email || '';
-        return { id, name: booking.organiser?.name || id };
+        return this.isRoomResource(booking, id)
+            ? { id: '', name: '' }
+            : { id, name: booking.organiser?.name || id };
     }
 
     private getBookingPerson(booking: Booking) {
         const id =
-            booking.user_email || booking.booked_by_email || booking.user_id || '';
+            booking.user_email ||
+            booking.booked_by_email ||
+            booking.user_id ||
+            '';
         return { id, name: booking.user_name || booking.booked_by_name || id };
     }
 
@@ -657,7 +739,10 @@ export class SiteAttendanceReportService {
         return (booking.attendees || [])
             .map((user) => this.getUserPerson(user))
             .filter(
-                (person) => person.id && person.id.toLowerCase() !== host_id,
+                (person) =>
+                    person.id &&
+                    person.id.toLowerCase() !== host_id &&
+                    !this.isRoomResource(booking, person.id),
             );
     }
 
@@ -667,7 +752,24 @@ export class SiteAttendanceReportService {
             .filter((person) => !!person.id);
     }
 
-    private getUserPerson(user: { email?: string; id?: string; name?: string }) {
+    private isRoomResource(booking: CalendarEvent, id = '') {
+        const value = id.toLowerCase();
+        if (!value) return false;
+        return this.getRoomResourceIds(booking).includes(value);
+    }
+
+    private getRoomResourceIds(booking: CalendarEvent) {
+        return [booking.system, ...(booking.resources || [])]
+            .flatMap((resource) => [resource?.id, resource?.email])
+            .filter((value) => !!value)
+            .map((value) => value.toLowerCase());
+    }
+
+    private getUserPerson(user: {
+        email?: string;
+        id?: string;
+        name?: string;
+    }) {
         const id = user.email || user.id || user.name || '';
         return { id, name: user.name || id };
     }
@@ -681,7 +783,10 @@ export class SiteAttendanceReportService {
             '';
         return {
             id,
-            name: booking.asset_name || booking.extension_data?.visitor_name || id,
+            name:
+                booking.asset_name ||
+                booking.extension_data?.visitor_name ||
+                id,
         };
     }
 
