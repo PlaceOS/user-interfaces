@@ -442,6 +442,7 @@ export class CalendarEvent {
         if (data.recurring) {
             this.recurrence = {
                 start:
+                    data.recurrence?.start ||
                     this.event_start * 1000 ||
                     new Date(
                         (data.recurrence as any).range_start * 1000,
@@ -604,7 +605,7 @@ export class CalendarEvent {
         if (this.recurring) {
             obj.recurrence = parseRecurrence({
                 ...this.recurrence,
-                start: this.date,
+                start: this.recurrence.start || this.date,
             });
             delete obj.recurrence.start;
             delete obj.recurrence.end;

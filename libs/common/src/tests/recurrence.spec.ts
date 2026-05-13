@@ -1,7 +1,11 @@
 import { format } from 'date-fns';
 
-import { WeekOfMonth } from '../lib/recurrence';
-import { formatRecurrence } from '../lib/recurrence';
+import {
+    formatRecurrence,
+    fromEventRecurrence,
+    toEventRecurrence,
+    WeekOfMonth,
+} from '../lib/recurrence';
 
 describe('formatRecurrence', () => {
     const selected_date = new Date(2026, 2, 31).valueOf();
@@ -71,6 +75,39 @@ describe('formatRecurrence', () => {
                 end_type: 'never',
             }),
         ).toBe('Every 2 months on the Last Tuesday');
+    });
+
+    it('should recover monthly recurrence week and weekday from event recurrence start', () => {
+        const recurrence = fromEventRecurrence({
+            pattern: 'month_day',
+            interval: 1,
+            days_of_week: [3],
+            start: new Date(2026, 4, 13, 9).valueOf(),
+            end: new Date(2026, 10, 30).valueOf(),
+        });
+
+        expect(formatRecurrence(recurrence, new Date(2026, 4, 12).valueOf()))
+            .toBe('Every 1 month on the Second Wednesday until 30 Nov 2026');
+    });
+
+    it('should anchor monthly event recurrence to the selected week and weekday', () => {
+        const booking_date = new Date(2026, 4, 12, 9).valueOf();
+        const raw = toEventRecurrence(
+            {
+                _custom: true,
+                type: 'monthly',
+                interval: 1,
+                weekdays: new Set([3 as any]),
+                week: WeekOfMonth.Second as any,
+                monthly_type: 'day_of_week',
+                end_type: 'never',
+            },
+            booking_date,
+        );
+
+        expect(raw.pattern).toBe('month_day');
+        expect(raw.days_of_week).toEqual([3]);
+        expect(raw.start).toBe(new Date(2026, 4, 13, 9).valueOf());
     });
 
     it('should format monthly recurrence by selected day of month', () => {
