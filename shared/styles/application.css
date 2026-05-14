@@ -166,6 +166,10 @@ body {
     color: var(--base-content);
 }
 
+body.has-environment-bar {
+    padding-block: 0.5rem;
+}
+
 * {
     user-select: none;
     font-family: var(--font);

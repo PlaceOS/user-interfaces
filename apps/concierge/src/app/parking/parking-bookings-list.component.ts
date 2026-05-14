@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    OnInit,
+    TemplateRef,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
@@ -15,11 +21,39 @@ import {
 import {
     IconComponent,
     SimpleTableComponent,
+    TableColumn,
     TranslatePipe,
 } from '@placeos/components';
 import { ParkingBookingsWeekViewComponent } from './parking-bookings-week-view.component';
 import { ParkingOptions, ParkingStateService } from './parking-state.service';
 import { isParkingAllDayBooking } from './parking.utilities';
+
+interface ParkingBookingExtensionColumn {
+    field: string;
+    name?: string;
+    display_name?: string;
+    size?: string;
+}
+
+interface ParkingBookingColumnTemplates {
+    state_template: TemplateRef<any>;
+    type_template: TemplateRef<any>;
+    date_template: TemplateRef<any>;
+    bay_template: TemplateRef<any>;
+    person_template: TemplateRef<any>;
+    host_template: TemplateRef<any>;
+    plate_template: TemplateRef<any>;
+    status_template: TemplateRef<any>;
+    action_template: TemplateRef<any>;
+    status_busy_label: string;
+    type_label: string;
+    time_label: string;
+    bay_number_label: string;
+    reserved_for_label: string;
+    reserved_by_label: string;
+    plate_number_label: string;
+    status_label: string;
+}
 
 @Component({
     selector: 'parking-bookings-list',
@@ -34,65 +68,31 @@ import { isParkingAllDayBooking } from './parking.utilities';
             <simple-table
                 class="block min-w-304 text-sm"
                 [data]="filtered_events()"
-                [columns]="[
-                    {
-                        key: 'state',
-                        name: 'COMMON.STATUS_BUSY' | translate,
-                        content: state_template,
-                        size: '4.75rem',
-                        sortable: false,
-                    },
-                    {
-                        key: 'booking_type',
-                        name: 'COMMON.TYPE' | translate,
-                        content: type_template,
-                        size: '5.5rem',
-                        sort_fn: bookingTypeSort,
-                        show: show_request_types,
-                    },
-                    {
-                        key: 'date',
-                        name: 'FORM.TIME' | translate,
-                        content: date_template,
-                    },
-                    {
-                        key: 'asset_id',
-                        name: 'APP.CONCIERGE.PARKING_BAY_NUMBER' | translate,
-                        content: bay_template,
-                        show: !hide_bay_number_column(),
-                    },
-                    {
-                        key: 'user_name',
-                        name: 'APP.CONCIERGE.PARKING_RESERVED_FOR' | translate,
-                        content: person_template,
-                    },
-                    {
-                        key: 'booked_by_name',
-                        name: 'APP.CONCIERGE.PARKING_RESERVED_BY' | translate,
-                        content: host_template,
-                    },
-                    {
-                        key: 'plate_number',
-                        name: 'EXPLORE.PARKING_PLATE_NUMBER' | translate,
-                        content: plate_template,
-                        size: '10rem',
-                        sortable: false,
-                    },
-                    {
-                        key: 'status',
-                        name: 'COMMON.STATUS' | translate,
-                        content: status_template,
-                        size: '9.5rem',
-                    },
-                    {
-                        key: 'actions',
-                        name: ' ',
-                        content: action_template,
-                        size: '6.5rem',
-                        sortable: false,
-                        show: show_action_column(),
-                    },
-                ]"
+                [columns]="
+                    bookingColumns({
+                        state_template,
+                        type_template,
+                        date_template,
+                        bay_template,
+                        person_template,
+                        host_template,
+                        plate_template,
+                        status_template,
+                        action_template,
+                        status_busy_label: 'COMMON.STATUS_BUSY' | translate,
+                        type_label: 'COMMON.TYPE' | translate,
+                        time_label: 'FORM.TIME' | translate,
+                        bay_number_label:
+                            'APP.CONCIERGE.PARKING_BAY_NUMBER' | translate,
+                        reserved_for_label:
+                            'APP.CONCIERGE.PARKING_RESERVED_FOR' | translate,
+                        reserved_by_label:
+                            'APP.CONCIERGE.PARKING_RESERVED_BY' | translate,
+                        plate_number_label:
+                            'EXPLORE.PARKING_PLATE_NUMBER' | translate,
+                        status_label: 'COMMON.STATUS' | translate,
+                    })
+                "
                 [filter]="options().search"
                 [sortable]="true"
                 [empty_message]="
@@ -143,7 +143,7 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                     : {
                                           time:
                                               (row.checked_out_at * 1000
-                                               | date: time_format : timezone),
+                                              | date: time_format : timezone),
                                       }
                         "
                         matTooltipPosition="right"
@@ -505,6 +505,7 @@ export class ParkingBookingsListComponent
         return this._state.filterEventSearch(list, search).map((booking) => ({
             ...booking,
             booking_type: this.bookingTypeSortValue(booking),
+            ...this.customExtensionColumnValues(booking),
         }));
     });
 
@@ -532,7 +533,10 @@ export class ParkingBookingsListComponent
     });
     public readonly show_action_column = computed(() => {
         const { search, request_filter } = this.options();
-        const list = this._state.filterEventList(this.bookings(), request_filter);
+        const list = this._state.filterEventList(
+            this.bookings(),
+            request_filter,
+        );
         return this._state
             .filterEventSearch(list, search)
             .some((booking) => this.hasVisibleActions(booking));
@@ -551,6 +555,15 @@ export class ParkingBookingsListComponent
 
     public get hide_assign_space() {
         return !!this._settings.get('app.parking.hide_assign_space');
+    }
+
+    public get custom_extension_columns(): ParkingBookingExtensionColumn[] {
+        const columns = this._settings.get(
+            'app.parking.custom_booking_columns',
+        );
+        return Array.isArray(columns)
+            ? columns.filter((column) => !!column?.field)
+            : [];
     }
 
     public get show_waitlist() {
@@ -600,15 +613,15 @@ export class ParkingBookingsListComponent
             ? 'APP.CONCIERGE.BOOKING_STATUS_ASSIGNED'
             : this.isDeletedBooking(booking)
               ? 'APP.CONCIERGE.BOOKING_STATUS_DELETED'
-            : booking?.status === 'ended'
-              ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
-              : booking?.status === 'approved'
-                ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
-                : booking?.status === 'declined'
-                  ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                  : this.isVisibleWaitlisted(booking)
-                    ? 'APP.CONCIERGE.PARKING_WAITLISTED'
-                    : 'APP.CONCIERGE.BOOKING_STATUS_PENDING';
+              : booking?.status === 'ended'
+                ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
+                : booking?.status === 'approved'
+                  ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
+                  : booking?.status === 'declined'
+                    ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
+                    : this.isVisibleWaitlisted(booking)
+                      ? 'APP.CONCIERGE.PARKING_WAITLISTED'
+                      : 'APP.CONCIERGE.BOOKING_STATUS_PENDING';
     }
 
     public hasVisibleActions(booking: Booking) {
@@ -617,6 +630,75 @@ export class ParkingBookingsListComponent
             this.can_edit() ||
             this.can_delete()
         );
+    }
+
+    public bookingColumns(
+        templates: ParkingBookingColumnTemplates,
+    ): TableColumn[] {
+        return [
+            {
+                key: 'state',
+                name: templates.status_busy_label,
+                content: templates.state_template,
+                size: '4.75rem',
+                sortable: false,
+            },
+            {
+                key: 'booking_type',
+                name: templates.type_label,
+                content: templates.type_template,
+                size: '5.5rem',
+                sort_fn: this.bookingTypeSort,
+                show: this.show_request_types,
+            },
+            {
+                key: 'date',
+                name: templates.time_label,
+                content: templates.date_template,
+            },
+            {
+                key: 'asset_id',
+                name: templates.bay_number_label,
+                content: templates.bay_template,
+                show: !this.hide_bay_number_column(),
+            },
+            {
+                key: 'user_name',
+                name: templates.reserved_for_label,
+                content: templates.person_template,
+            },
+            {
+                key: 'booked_by_name',
+                name: templates.reserved_by_label,
+                content: templates.host_template,
+            },
+            {
+                key: 'plate_number',
+                name: templates.plate_number_label,
+                content: templates.plate_template,
+                size: '10rem',
+                sortable: false,
+            },
+            ...this.custom_extension_columns.map((column) => ({
+                key: this.customExtensionColumnKey(column.field),
+                name: column.display_name || column.name || column.field,
+                size: column.size,
+            })),
+            {
+                key: 'status',
+                name: templates.status_label,
+                content: templates.status_template,
+                size: '9.5rem',
+            },
+            {
+                key: 'actions',
+                name: ' ',
+                content: templates.action_template,
+                size: '6.5rem',
+                sortable: false,
+                show: this.show_action_column(),
+            },
+        ];
     }
 
     public bookingType(booking: Booking) {
@@ -661,5 +743,35 @@ export class ParkingBookingsListComponent
 
     public ngOnInit() {
         this.subscription('poll', this._state.startPolling());
+    }
+
+    private customExtensionColumnKey(field: string) {
+        return `extension_data.${field}`;
+    }
+
+    private customExtensionColumnValues(booking: Booking) {
+        const values: Record<string, unknown> = {};
+        for (const column of this.custom_extension_columns) {
+            values[this.customExtensionColumnKey(column.field)] =
+                this.formatExtensionValue(
+                    this.extensionFieldValue(booking, column.field),
+                );
+        }
+        return values;
+    }
+
+    private extensionFieldValue(booking: Booking, field: string) {
+        return field
+            .split('.')
+            .filter(Boolean)
+            .reduce((value, key) => value?.[key], booking?.extension_data);
+    }
+
+    private formatExtensionValue(value: unknown) {
+        return Array.isArray(value)
+            ? value.join(', ')
+            : value && typeof value === 'object'
+              ? JSON.stringify(value)
+              : value;
     }
 }

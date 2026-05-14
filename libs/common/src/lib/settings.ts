@@ -39,6 +39,8 @@ export interface ApplicationSettings {
     logo_light?: ApplicationIcon;
     /** Generalised settings for the application */
     general: GeneralAppSettings;
+    /** Colour for thin environment identifier bars shown at the top and bottom of the app */
+    environment_bar?: string;
 }
 
 export interface GeneralAppSettings {}

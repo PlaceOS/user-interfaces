@@ -14,6 +14,10 @@
             "type": "boolean",
             "description": "Whether the version in user controls links to the changelog modal"
         },
+        "environment_bar": {
+            "type": "string",
+            "description": "CSS colour for thin environment identifier bars shown at the top and bottom of the app. Leave unset to hide the bars."
+        },
         "general": {
             "type": "object",
             "description": "General settings associated with the app",

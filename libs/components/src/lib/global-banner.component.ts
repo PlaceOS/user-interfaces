@@ -1,4 +1,11 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import {
     firstTruthyValueFrom,
     OrganisationService,
@@ -16,6 +23,18 @@ export interface BannerDetails {
 @Component({
     selector: 'global-banner',
     template: `
+        @if (environment_bar(); as bar_color) {
+            <div
+                aria-hidden="true"
+                class="environment-bar top-0 print:hidden"
+                [style.background-color]="bar_color"
+            ></div>
+            <div
+                aria-hidden="true"
+                class="environment-bar bottom-0 print:hidden"
+                [style.background-color]="bar_color"
+            ></div>
+        }
         @if (!has_been_closed() && banner()) {
             <div
                 class="flex w-full items-center space-x-4 p-4 print:hidden"
@@ -43,6 +62,15 @@ export interface BannerDetails {
                 display: block;
                 width: 100%;
             }
+
+            .environment-bar {
+                height: 0.5rem;
+                left: 0;
+                pointer-events: none;
+                position: fixed;
+                width: 100%;
+                z-index: 10000;
+            }
         `,
     ],
     imports: [IconComponent],
@@ -53,6 +81,13 @@ export class GlobalBannerComponent implements OnInit {
     private _change = signal(0);
     public readonly is_setup = signal(false);
     public readonly banner = settingSignal<BannerDetails>('banner');
+    public readonly environment_bar = settingSignal<string>('environment_bar');
+    private readonly _environment_bar_padding = effect(() => {
+        document.body.classList.toggle(
+            'has-environment-bar',
+            !!this.environment_bar(),
+        );
+    });
     public readonly has_been_closed = computed(() => {
         if (!this.is_setup()) return true;
         this._change();
