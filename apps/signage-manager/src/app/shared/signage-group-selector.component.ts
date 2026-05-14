@@ -12,28 +12,32 @@ import { GroupSelectModalComponent } from './group-select-modal.component';
     selector: 'signage-group-selector',
     template: `
         @if (is_sys_admin() || groups().length) {
-            <button
-                icon
-                type="button"
-                matRipple
+            <div
                 customTooltip
                 [content]="group_hierarchy_tooltip"
                 [hover]="true"
                 [backdrop]="false"
+                [xOffset]="96"
                 xPosition="start"
                 yPosition="center"
-                class="hover:bg-base-100/30 focus-visible:bg-base-100/30 relative flex h-18 w-18 flex-col items-center justify-center rounded-xl"
-                [attr.aria-label]="'Signage group: ' + selected_label()"
-                (click)="selectGroup()"
             >
-                <icon class="text-3xl">group</icon>
-                <div class="line-clamp-3 max-w-14 text-xs font-medium">
-                    {{ selected_label() }}
-                </div>
-            </button>
+                <button
+                    icon
+                    type="button"
+                    matRipple
+                    class="hover:bg-base-100/30 focus-visible:bg-base-100/30 relative flex h-18 w-18 flex-col items-center justify-center rounded-xl"
+                    [attr.aria-label]="'Signage group: ' + selected_label()"
+                    (click)="selectGroup()"
+                >
+                    <icon class="text-3xl">group</icon>
+                    <div class="line-clamp-3 max-w-14 text-xs font-medium">
+                        {{ selected_label() }}
+                    </div>
+                </button>
+            </div>
             <ng-template #group_hierarchy_tooltip>
                 <div
-                    class="border-base-300 bg-base-100 text-base-content my-2 ml-24 w-72 rounded-xl border p-3 text-left shadow-xl"
+                    class="border-base-300 bg-base-100 text-base-content my-2 w-72 rounded-xl border p-3 text-left shadow-xl"
                 >
                     @if (selected_hierarchy().length) {
                         <ol class="m-0 space-y-1 p-0">
