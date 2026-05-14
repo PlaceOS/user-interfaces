@@ -954,6 +954,12 @@ export class BookingFormService extends AsyncHandler {
                                       value.asset_name || value.asset_id || '',
                               }
                             : {}),
+                        ...(value.booking_type === 'parking'
+                            ? {
+                                  requires_manual_approval:
+                                      !!value.requires_manual_approval,
+                              }
+                            : {}),
                         ...(group_members.length
                             ? {
                                   group_members,

@@ -92,6 +92,8 @@ interface ParkingRequestTypeConfig {
     groups?: string[];
     approver_groups?: string[];
     book_as?: ParkingRequestBookAs;
+    show_notes?: boolean;
+    requires_manual_approval?: boolean;
     forced_time?: ParkingRequestTimeWindow;
 }
 
@@ -103,6 +105,8 @@ interface ParkingRequestType {
     groups?: string[];
     approver_groups?: string[];
     book_as?: ParkingRequestBookAs;
+    show_notes?: boolean;
+    requires_manual_approval?: boolean;
     forced_time?: ParkingRequestTimeWindow;
 }
 
@@ -458,25 +462,39 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                 formControlName="user"
                                 [guests]="
                                     allow_any_host() ||
-                                    can_book_for_anyone() &&
-                                        host_book_as() !== 'internals'
+                                    (can_book_for_anyone() &&
+                                        host_book_as() !== 'internals')
                                 "
                                 [guests_only]="
                                     !allow_any_host() &&
                                     can_book_for_anyone() &&
-                                        host_book_as() === 'externals'
+                                    host_book_as() === 'externals'
                                 "
                                 [disable_search]="
                                     !allow_any_host() &&
                                     can_book_for_anyone() &&
-                                        host_book_as() === 'externals'
+                                    host_book_as() === 'externals'
                                 "
                                 [allow_externals]="
                                     allow_any_host() ||
-                                    can_book_for_anyone() &&
-                                        host_book_as() !== 'internals'
+                                    (can_book_for_anyone() &&
+                                        host_book_as() !== 'internals')
                                 "
                             ></a-user-search-field>
+                        </div>
+                    }
+                    @if (show_notes()) {
+                        <div class="border-base-300 space-y-3 border-t pt-3">
+                            <label class="text-sm font-medium">
+                                {{ 'FORM.NOTES' | translate }}
+                            </label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <textarea
+                                    matInput
+                                    formControlName="notes"
+                                    rows="3"
+                                ></textarea>
+                            </mat-form-field>
                         </div>
                     }
                 </div>
@@ -1291,6 +1309,18 @@ export class ParkingRequestFormDetailsComponent
             if (this.forced_request_time()) return;
             this._applyPreferredShift();
         });
+        effect(() => {
+            const form = this.form();
+            if (!form) return;
+            const requires_manual_approval =
+                !!this.selected_request_type()?.requires_manual_approval;
+            if (
+                form.getRawValue().requires_manual_approval ===
+                requires_manual_approval
+            )
+                return;
+            form.patchValue({ requires_manual_approval });
+        });
     }
 
     public readonly form = input<FormGroup>(undefined);
@@ -1454,6 +1484,9 @@ export class ParkingRequestFormDetailsComponent
     );
     public readonly forced_request_time = computed(
         () => this.selected_request_type()?.forced_time || null,
+    );
+    public readonly show_notes = computed(
+        () => !!this.selected_request_type()?.show_notes,
     );
     public readonly host_book_as = computed<ParkingRequestBookAs | null>(() => {
         const book_as = this.selected_request_type()?.book_as;
@@ -2120,6 +2153,8 @@ export class ParkingRequestFormDetailsComponent
                         type.book_as === 'both'
                             ? type.book_as
                             : undefined,
+                    show_notes: !!type.show_notes,
+                    requires_manual_approval: !!type.requires_manual_approval,
                     forced_time,
                 };
             })

@@ -180,6 +180,9 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         request_type: new FormControl(
             booking.extension_data.request_type || 'standard',
         ),
+        requires_manual_approval: new FormControl(
+            booking.extension_data.requires_manual_approval ?? false,
+        ),
         space_restrictions: new FormControl(
             booking.extension_data.space_restrictions ?? false,
         ),
