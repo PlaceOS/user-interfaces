@@ -336,6 +336,7 @@ export class PanelStateService extends AsyncHandler {
             () => this._dialog.closeAll(),
             2 * 60 * 1000,
         );
+        this._dialog.closeAll();
         const details = await openBookingModal(
             {
                 ...this._settings.getValue(),

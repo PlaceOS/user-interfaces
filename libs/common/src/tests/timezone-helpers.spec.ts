@@ -1,6 +1,7 @@
 import { fromZonedTime } from 'date-fns-tz';
 import {
     endOfDayInTimezone,
+    getTimezoneOffsetInMinutes,
     startOfDayInTimezone,
 } from '../lib/timezone-helpers';
 import { Booking } from '../lib/types/booking.class';
@@ -45,5 +46,31 @@ describe('timezone all-day helpers', () => {
         expect(event.date_end).toBe(day_end);
         expect(json.event_start).toBe(Math.floor(day_start / 1000));
         expect(json.event_end).toBe(Math.floor((day_end + 1) / 1000));
+    });
+});
+
+describe('timezone offset helpers', () => {
+    const original_date_time_format = Intl.DateTimeFormat;
+
+    afterEach(() => {
+        Intl.DateTimeFormat = original_date_time_format;
+    });
+
+    it('should fallback when shortOffset is not supported', () => {
+        Intl.DateTimeFormat = function (locales, options) {
+            if (options?.timeZoneName === 'shortOffset') {
+                throw new RangeError(
+                    'Value shortOffset out of range for Intl.DateTimeFormat options property timeZoneName',
+                );
+            }
+            return new original_date_time_format(locales, options);
+        } as typeof Intl.DateTimeFormat;
+
+        expect(
+            getTimezoneOffsetInMinutes(
+                'Australia/Sydney',
+                new Date('2026-01-15T00:00:00Z'),
+            ),
+        ).toBe(11 * 60);
     });
 });
