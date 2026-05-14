@@ -31,13 +31,12 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
     },
     {
         label: 'Active',
-        description:
-            'Bookings that are not deleted and do not have a cancelled status.',
+        description: 'Bookings that are not deleted and are not declined.',
     },
     {
-        label: 'Cancelled / Deleted',
+        label: 'Declined / Deleted',
         description:
-            'Cancelled counts non-deleted bookings with cancelled status. Deleted counts bookings flagged as deleted.',
+            'Declined counts non-deleted bookings with cancelled state or rejected status. Deleted counts bookings flagged as deleted.',
     },
     {
         label: 'Utilisation',
@@ -97,7 +96,7 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
                             <p>{{ active_count() || 0 }}</p>
                         </div>
                         <div class="flex flex-1 flex-col items-center">
-                            <h3>Cancelled</h3>
+                            <h3>Declined</h3>
                             <p>{{ cancelled_count() || 0 }}</p>
                         </div>
                         <div class="flex flex-1 flex-col items-center">

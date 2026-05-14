@@ -29,7 +29,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
             'All room bookings on the day, including active, cancelled, and deleted events.',
     },
     {
-        label: 'Cancelled / Deleted',
+        label: 'Declined / Deleted',
         description:
             'Displayed as count and percentage of total requests for that day.',
     },

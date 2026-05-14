@@ -6,7 +6,7 @@ import {
 } from '@placeos/common';
 
 export function isActiveReportBooking(booking: Booking): boolean {
-    return !booking.deleted && booking.status !== 'cancelled';
+    return !booking.deleted && !isDeclinedReportBooking(booking);
 }
 
 export function activeReportBookings<T extends Booking>(bookings: T[]): T[] {
@@ -16,7 +16,7 @@ export function activeReportBookings<T extends Booking>(bookings: T[]): T[] {
 export function reportBookingStatusStats(bookings: Booking[]) {
     const deleted_count = bookings.filter((booking) => booking.deleted).length;
     const cancelled_count = bookings.filter(
-        (booking) => !booking.deleted && booking.status === 'cancelled',
+        (booking) => !booking.deleted && isDeclinedReportBooking(booking),
     ).length;
     return {
         active_count: bookings.length - cancelled_count - deleted_count,
@@ -37,7 +37,7 @@ export function formatReportPercentage(value = 0, total = 0): string {
 }
 
 export function isActiveReportEvent(event: CalendarEvent): boolean {
-    return !event.deleted && event.type !== 'cancelled';
+    return !event.deleted && !isDeclinedReportEvent(event);
 }
 
 export function activeReportEvents<T extends CalendarEvent>(events: T[]): T[] {
@@ -87,7 +87,7 @@ export function totalReportBookingDuration(
 export function reportEventStatusStats(events: CalendarEvent[]) {
     const deleted_count = events.filter((event) => event.deleted).length;
     const cancelled_count = events.filter(
-        (event) => !event.deleted && event.type === 'cancelled',
+        (event) => !event.deleted && isDeclinedReportEvent(event),
     ).length;
     return {
         active_count: events.length - cancelled_count - deleted_count,
@@ -96,6 +96,28 @@ export function reportEventStatusStats(events: CalendarEvent[]) {
         inactive_count: cancelled_count + deleted_count,
         total_count: events.length,
     };
+}
+
+export function isDeclinedReportBooking(booking: Booking): boolean {
+    const state = (booking as any).state;
+    return (
+        booking.rejected === true ||
+        booking.status === 'cancelled' ||
+        booking.status === 'declined' ||
+        state === 'cancelled'
+    );
+}
+
+export function isDeclinedReportEvent(event: CalendarEvent): boolean {
+    const state = (event as any).state;
+    const status = (event as any).status;
+    return (
+        (event as any).rejected === true ||
+        event.type === 'cancelled' ||
+        status === 'cancelled' ||
+        status === 'declined' ||
+        state === 'cancelled'
+    );
 }
 
 export function generateReportForDeskBookings(

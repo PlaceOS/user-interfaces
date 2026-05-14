@@ -1,7 +1,11 @@
 import {
+    activeReportBookings,
+    activeReportEvents,
     generateReportForBookings,
     reportBookableMinutes,
     reportBookingDuration,
+    reportBookingStatusStats,
+    reportEventStatusStats,
 } from 'apps/concierge/src/app/reports/reports.utilities';
 
 describe('report utilities', () => {
@@ -70,6 +74,46 @@ describe('report utilities', () => {
             );
 
             expect(report.utilisation).toBe(1);
+        });
+    });
+
+    describe('reportBookingStatusStats', () => {
+        it('should count cancelled state and rejected desk bookings as declined', () => {
+            const bookings = [
+                { status: 'approved' },
+                { state: 'cancelled' },
+                { rejected: true },
+                { status: 'approved', deleted: true },
+            ] as any[];
+
+            expect(reportBookingStatusStats(bookings)).toEqual({
+                active_count: 1,
+                cancelled_count: 2,
+                deleted_count: 1,
+                inactive_count: 3,
+                total_count: 4,
+            });
+            expect(activeReportBookings(bookings)).toEqual([bookings[0]]);
+        });
+    });
+
+    describe('reportEventStatusStats', () => {
+        it('should count cancelled state and rejected room events as declined', () => {
+            const events = [
+                { status: 'approved', type: 'event' },
+                { state: 'cancelled', type: 'event' },
+                { rejected: true, type: 'event' },
+                { status: 'approved', type: 'event', deleted: true },
+            ] as any[];
+
+            expect(reportEventStatusStats(events)).toEqual({
+                active_count: 1,
+                cancelled_count: 2,
+                deleted_count: 1,
+                inactive_count: 3,
+                total_count: 4,
+            });
+            expect(activeReportEvents(events)).toEqual([events[0]]);
         });
     });
 });
