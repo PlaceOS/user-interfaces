@@ -44,6 +44,14 @@ const DAYS_OF_WEEK = [
     'friday',
     'saturday',
 ];
+
+function weekOfMonth(date: number) {
+    const day = new Date(date).getDate();
+    const week = Math.floor(day / 7) + (day % 7 ? 1 : 0);
+    if ((week === 4 && day >= 25) || week === 5) return -1;
+    return week;
+}
+
 export interface FileDetails {
     /** Name of the file */
     name: string;
@@ -231,6 +239,9 @@ export function parseRecurrence(data: RecurrenceDetails) {
             data.days_of_week?.map((_) =>
                 typeof _ === 'number' ? DAYS_OF_WEEK[_] : _,
             ) || [],
+        nth_of_month:
+            data.nth_of_month ??
+            (data.pattern === 'month_day' ? weekOfMonth(start) : undefined),
     };
 }
 
@@ -459,6 +470,7 @@ export class CalendarEvent {
                     data.recurrence.days_of_week?.map((_) =>
                         typeof _ === 'number' ? _ : DAYS_OF_WEEK.indexOf(_),
                     ) || [],
+                nth_of_month: data.recurrence.nth_of_month,
             };
         } else {
             this.recurrence = {} as any;
