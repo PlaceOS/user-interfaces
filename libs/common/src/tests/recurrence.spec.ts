@@ -131,6 +131,24 @@ describe('formatRecurrence', () => {
         expect(raw.start).toBe(new Date(2026, 4, 13, 9).valueOf());
     });
 
+    it('should preserve the selected event recurrence end date', () => {
+        const booking_date = new Date(2026, 5, 2, 9).valueOf();
+        const end_date = new Date(2026, 5, 30, 23, 59, 59, 999).valueOf();
+        const raw = toEventRecurrence(
+            {
+                _custom: true,
+                type: 'weekly',
+                interval: 1,
+                weekdays: new Set([2 as any]),
+                end_type: 'date',
+                end_date,
+            },
+            booking_date,
+        );
+
+        expect(raw.end).toBe(end_date);
+    });
+
     it('should format monthly recurrence by selected day of month', () => {
         expect(
             formatRecurrence(

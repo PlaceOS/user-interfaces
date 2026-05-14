@@ -219,12 +219,12 @@ export function toEventRecurrence(
         details.days_of_week = [];
     }
     if (
-        r.end_type !== 'instances' &&
+        r.end_type === 'never' &&
         (r.type === 'monthly' || r.type === 'yearly')
     ) {
         details.end = endOfMonth(end).valueOf();
     }
-    if (r.end_type !== 'instances' && r.type === 'weekly') {
+    if (r.end_type === 'never' && r.type === 'weekly') {
         details.end = endOfWeek(end).valueOf();
     }
     return details;
