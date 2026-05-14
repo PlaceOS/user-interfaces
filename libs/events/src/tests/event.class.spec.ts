@@ -199,6 +199,29 @@ describe('CalendarEvent', () => {
         expect(json.extension_data.all_day_date).toBe('2028-06-15');
     });
 
+    it('should serialise recurring events from the recurrence start', () => {
+        const recurrence_start = new Date(2026, 4, 13, 9).valueOf();
+        event = new CalendarEvent({
+            date: new Date(2026, 4, 12, 9).valueOf(),
+            date_end: new Date(2026, 4, 12, 10).valueOf(),
+            recurring: true,
+            recurrence: {
+                start: recurrence_start,
+                end: new Date(2026, 10, 30).valueOf(),
+                interval: 1,
+                pattern: 'month_day',
+                days_of_week: [3],
+            },
+        });
+
+        const json = event.toJSON();
+
+        expect(json.recurrence.range_start).toBe(
+            getUnixTime(startOfDay(recurrence_start)),
+        );
+        expect(json.recurrence.days_of_week).toEqual(['wednesday']);
+    });
+
     it('should clear custom all-day metadata when updating an existing event', () => {
         event = new CalendarEvent({
             id: 'event-1',

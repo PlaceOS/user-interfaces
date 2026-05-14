@@ -1,8 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { IconComponent } from '@placeos/components';
+import { CustomTooltipComponent, IconComponent } from '@placeos/components';
 import { lastValueFrom } from 'rxjs';
 import { SignageService } from '../signage.service';
 import { GroupSelectModalComponent } from './group-select-modal.component';
@@ -17,9 +16,13 @@ import { GroupSelectModalComponent } from './group-select-modal.component';
                 icon
                 type="button"
                 matRipple
+                customTooltip
+                [content]="group_hierarchy_tooltip"
+                [hover]="true"
+                [backdrop]="false"
+                xPosition="start"
+                yPosition="center"
                 class="hover:bg-base-100/30 focus-visible:bg-base-100/30 relative flex h-18 w-18 flex-col items-center justify-center rounded-xl"
-                [matTooltip]="'[Group] ' + selected_label()"
-                matTooltipPosition="right"
                 [attr.aria-label]="'Signage group: ' + selected_label()"
                 (click)="selectGroup()"
             >
@@ -28,9 +31,63 @@ import { GroupSelectModalComponent } from './group-select-modal.component';
                     {{ selected_label() }}
                 </div>
             </button>
+            <ng-template #group_hierarchy_tooltip>
+                <div
+                    class="border-base-300 bg-base-100 text-base-content my-2 ml-24 w-72 rounded-xl border p-3 text-left shadow-xl"
+                >
+                    @if (selected_hierarchy().length) {
+                        <ol class="m-0 space-y-1 p-0">
+                            @for (
+                                group of selected_hierarchy();
+                                track group.id;
+                                let last = $last
+                            ) {
+                                <li
+                                    class="relative flex w-full items-center gap-2"
+                                >
+                                    <div
+                                        class="relative z-10 h-3 w-3 shrink-0 rounded-full border"
+                                        [class.border-primary]="last"
+                                        [class.bg-primary]="last"
+                                        [class.border-base-300]="!last"
+                                        [class.bg-base-100]="!last"
+                                    >
+                                        @if (!last) {
+                                            <div
+                                                class="bg-base-300 absolute top-3.5 left-1/2 h-1.5 w-0.5 -translate-x-1/2 rounded"
+                                            ></div>
+                                        }
+                                    </div>
+                                    <div
+                                        class="flex min-w-0 flex-1 items-center justify-between gap-2 rounded-md px-1"
+                                    >
+                                        <div
+                                            class="flex-1 truncate text-sm"
+                                            [class.font-semibold]="last"
+                                        >
+                                            {{ group.name }}
+                                        </div>
+                                        @if (last) {
+                                            <div
+                                                class="text-base-content/60 text-xs"
+                                            >
+                                                Active
+                                            </div>
+                                        }
+                                    </div>
+                                </li>
+                            }
+                        </ol>
+                    } @else {
+                        <div class="bg-base-200 rounded-lg px-3 py-2 text-sm">
+                            All signage groups are active.
+                        </div>
+                    }
+                </div>
+            </ng-template>
         }
     `,
-    imports: [MatRippleModule, MatTooltipModule, IconComponent],
+    imports: [MatRippleModule, CustomTooltipComponent, IconComponent],
 })
 export class SignageGroupSelectorComponent {
     private readonly _service = inject(SignageService);
@@ -43,6 +100,22 @@ export class SignageGroupSelectorComponent {
     public readonly selected_label = computed(
         () => this.selected_group()?.group.name || 'All Groups',
     );
+    public readonly selected_hierarchy = computed(() => {
+        const selected_group = this.selected_group();
+        if (!selected_group) return [];
+        const groups = new Map(
+            this.groups().map((item) => [item.group.id, item.group]),
+        );
+        const hierarchy: (typeof selected_group.group)[] = [];
+        const seen = new Set<string>();
+        let group = selected_group.group;
+        while (group?.id && !seen.has(group.id)) {
+            hierarchy.unshift(group);
+            seen.add(group.id);
+            group = group.parent_id ? groups.get(group.parent_id) : undefined;
+        }
+        return hierarchy;
+    });
 
     public async selectGroup() {
         const ref = this._dialog.open(GroupSelectModalComponent, {

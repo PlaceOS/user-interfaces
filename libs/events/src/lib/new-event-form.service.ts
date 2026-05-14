@@ -1009,7 +1009,7 @@ export class EventFormService extends AsyncHandler {
 
         const allow_clashes =
             this._settings.get('app.events.allow_recurring_instance_clashes') ??
-            true;
+            false;
 
         if (!allow_clashes) {
             throw i18n('CALENDAR_EVENT.RECURRING_CLASHES_NOT_ALLOWED', {

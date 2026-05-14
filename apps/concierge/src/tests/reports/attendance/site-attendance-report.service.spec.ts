@@ -20,6 +20,7 @@ jest.mock('@placeos/ts-client');
 describe('SiteAttendanceReportService', () => {
     let spectator: SpectatorService<SiteAttendanceReportService>;
     let features: string[];
+    let attendance_include_weekends: boolean;
     const day_1 = new Date('2026-04-06T12:00:00').valueOf();
     const day_2 = new Date('2026-04-07T12:00:00').valueOf();
     const createService = createServiceFactory({
@@ -31,6 +32,9 @@ describe('SiteAttendanceReportService', () => {
                     if (name === 'app.features') return features;
                     if (name === 'app.group_events_calendar') {
                         return 'group-events@example.com';
+                    }
+                    if (name === 'app.reports.attendance_include_weekends') {
+                        return attendance_include_weekends;
                     }
                     return undefined;
                 }),
@@ -52,6 +56,7 @@ describe('SiteAttendanceReportService', () => {
 
     beforeEach(() => {
         features = ['spaces', 'desks', 'parking', 'lockers', 'visitors'];
+        attendance_include_weekends = false;
         (booking_mod.queryAllBookings as jest.Mock).mockImplementation(
             ({ type }) => {
                 if (type === 'desk') {
@@ -87,20 +92,20 @@ describe('SiteAttendanceReportService', () => {
                         },
                     ]);
                 }
+                if (type === 'visitor') {
+                    return of([
+                        {
+                            asset_id: 'visitor-1@example.com',
+                            user_email: 'visitor.host@example.com',
+                            extension_data: {},
+                            date: day_1,
+                            duration: 60,
+                            checked_in: true,
+                        },
+                    ]);
+                }
                 return of([]);
             },
-        );
-        (booking_mod.queryBookings as jest.Mock).mockReturnValue(
-            of([
-                {
-                    asset_id: 'visitor-1@example.com',
-                    user_email: 'visitor.host@example.com',
-                    extension_data: {},
-                    date: day_1,
-                    duration: 60,
-                    checked_in: true,
-                },
-            ]),
         );
         (event_mod.queryAllEvents as jest.Mock).mockReturnValue(
             of([
@@ -195,11 +200,12 @@ describe('SiteAttendanceReportService', () => {
                 include_checked_out: true,
             }),
         );
-        expect(booking_mod.queryBookings).toHaveBeenCalledWith(
+        expect(booking_mod.queryAllBookings).toHaveBeenCalledWith(
             expect.objectContaining({
                 zones: 'building-1',
                 type: 'visitor',
                 include_checked_out: true,
+                limit: 1000,
             }),
         );
         expect(report.total_attendance).toBe(9);
@@ -276,7 +282,6 @@ describe('SiteAttendanceReportService', () => {
 
     it('should notify when no bookings are found', async () => {
         (booking_mod.queryAllBookings as jest.Mock).mockReturnValue(of([]));
-        (booking_mod.queryBookings as jest.Mock).mockReturnValue(of([]));
         (event_mod.queryAllEvents as jest.Mock).mockReturnValue(of([]));
         (event_mod.requestSpacesForZone as jest.Mock).mockReturnValue(of([]));
         (asset_mod.queryParkingSpaces as jest.Mock).mockReturnValue(of([]));
@@ -309,7 +314,9 @@ describe('SiteAttendanceReportService', () => {
         const report = await report_promise;
 
         expect(event_mod.queryAllEvents).not.toHaveBeenCalled();
-        expect(booking_mod.queryBookings).not.toHaveBeenCalled();
+        expect(booking_mod.queryAllBookings).not.toHaveBeenCalledWith(
+            expect.objectContaining({ type: 'visitor' }),
+        );
         expect(asset_mod.queryParkingSpaces).not.toHaveBeenCalled();
         expect(ts_client_mod.showMetadata).toHaveBeenCalledWith(
             'level-1',
@@ -398,7 +405,78 @@ describe('SiteAttendanceReportService', () => {
         expect(report.unique_people).toBe(3);
         expect(report.total_attendance).toBe(5);
         expect(report.cards.find((card) => card.id === 'events')).toEqual(
-            expect.objectContaining({ attendance: 4, daily_average: 3 }),
+            expect.objectContaining({ attendance: 4, daily_average: 2 }),
+        );
+    });
+
+    it('should exclude weekends from business days by default', async () => {
+        features = ['desks'];
+        spectator = createService();
+        const saturday = new Date('2026-04-11T12:00:00').valueOf();
+        const sunday = new Date('2026-04-12T12:00:00').valueOf();
+        (booking_mod.queryAllBookings as jest.Mock).mockReturnValue(
+            of([
+                {
+                    asset_id: 'desk-1',
+                    user_email: 'saturday.user@example.com',
+                    date: saturday,
+                    duration: 480,
+                },
+                {
+                    asset_id: 'desk-2',
+                    user_email: 'sunday.user@example.com',
+                    date: sunday,
+                    duration: 480,
+                },
+            ]),
+        );
+        spectator.service.setOptions({ start: saturday, end: sunday });
+
+        const report_promise = firstValueFrom(
+            spectator.service.report$.pipe(skip(1), take(1)),
+        );
+        spectator.service.generateReport();
+        const report = await report_promise;
+
+        expect(report.business_days).toBe(1);
+        expect(report.cards.find((card) => card.id === 'desks')).toEqual(
+            expect.objectContaining({ attendance: 2, daily_average: 2 }),
+        );
+    });
+
+    it('should include weekends in business days when enabled', async () => {
+        features = ['desks'];
+        attendance_include_weekends = true;
+        spectator = createService();
+        const saturday = new Date('2026-04-11T12:00:00').valueOf();
+        const sunday = new Date('2026-04-12T12:00:00').valueOf();
+        (booking_mod.queryAllBookings as jest.Mock).mockReturnValue(
+            of([
+                {
+                    asset_id: 'desk-1',
+                    user_email: 'saturday.user@example.com',
+                    date: saturday,
+                    duration: 480,
+                },
+                {
+                    asset_id: 'desk-2',
+                    user_email: 'sunday.user@example.com',
+                    date: sunday,
+                    duration: 480,
+                },
+            ]),
+        );
+        spectator.service.setOptions({ start: saturday, end: sunday });
+
+        const report_promise = firstValueFrom(
+            spectator.service.report$.pipe(skip(1), take(1)),
+        );
+        spectator.service.generateReport();
+        const report = await report_promise;
+
+        expect(report.business_days).toBe(2);
+        expect(report.cards.find((card) => card.id === 'desks')).toEqual(
+            expect.objectContaining({ attendance: 2, daily_average: 1 }),
         );
     });
 

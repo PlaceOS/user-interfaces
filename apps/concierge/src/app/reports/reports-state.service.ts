@@ -59,6 +59,7 @@ import {
     activeReportEvents,
     generateReportForBookings,
     generateReportForDeskBookings,
+    isDeclinedReportEvent,
     reportBookableMinutes,
     reportBookingStatusStats,
     reportEventStatusStats,
@@ -463,8 +464,7 @@ export class ReportsStateService {
                     cancelled: all_events.filter(
                         (event) =>
                             !event.deleted &&
-                            ((event as CalendarEvent).type === 'cancelled' ||
-                                event.status === 'cancelled'),
+                            isDeclinedReportEvent(event as CalendarEvent),
                     ).length,
                     deleted: all_events.filter((event) => event.deleted).length,
                     count: all_events.length,

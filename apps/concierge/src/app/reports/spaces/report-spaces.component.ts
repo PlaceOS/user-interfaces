@@ -36,9 +36,9 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
             'All room bookings returned for the selected dates and zones, including active, cancelled, and deleted records.',
     },
     {
-        label: 'Active / Cancelled / Deleted',
+        label: 'Active / Declined / Deleted',
         description:
-            'Active excludes deleted and cancelled events. Cancelled uses events with cancelled type. Deleted uses events flagged as deleted.',
+            'Active excludes deleted and declined events. Declined uses events with cancelled state/type or rejected status. Deleted uses events flagged as deleted.',
     },
     {
         label: 'Average length',

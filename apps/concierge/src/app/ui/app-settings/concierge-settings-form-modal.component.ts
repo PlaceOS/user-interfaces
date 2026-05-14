@@ -464,6 +464,24 @@ import { UploadButtonComponent } from './upload-button.component';
                         ></settings-toggle>
                     </div>
                 </section>
+                @if (form.value.features.includes('attendance-report')) {
+                    <section
+                        reports
+                        id="feature-reports"
+                        class="border-base-300 relative rounded-sm border px-2 pt-4 pb-2"
+                        formGroupName="reports"
+                    >
+                        <h3
+                            class="bg-base-100 absolute top-0 left-4 -translate-y-1/2 rounded-sm px-2 py-1 font-medium"
+                        >
+                            Reports
+                        </h3>
+                        <settings-toggle
+                            name="Include weekends in site attendance averages"
+                            formControlName="attendance_include_weekends"
+                        ></settings-toggle>
+                    </section>
+                }
                 @if (form.value.features.includes('spaces')) {
                     <section
                         spaces
@@ -1821,6 +1839,9 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
             use_building_timezone: new FormControl(false),
             available_period: new FormControl(14),
             max_duration: new FormControl(480),
+        }),
+        reports: new FormGroup({
+            attendance_include_weekends: new FormControl(false),
         }),
         parking: new FormGroup({
             allow_all_day: new FormControl(true),

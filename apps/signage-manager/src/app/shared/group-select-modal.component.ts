@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { IconComponent } from '@placeos/components';
@@ -33,6 +33,49 @@ export interface GroupSelectModalData {
         <main
             class="h-[65vh] max-w-lg min-w-lg space-y-2 overflow-auto px-4 pt-2 pb-4 text-center max-md:h-auto max-md:max-w-none max-md:min-w-0 max-md:flex-1"
         >
+            @if (!data.selected_group_id && data.show_all_groups) {
+                <nav
+                    aria-label="Active group hierarchy"
+                    class="border-base-300 bg-base-200/60 flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm"
+                >
+                    <icon class="text-base-content/60 text-xl">public</icon>
+                    <span class="font-medium">All Groups</span>
+                </nav>
+            } @else if (selected_hierarchy().length) {
+                <nav
+                    aria-label="Active group hierarchy"
+                    class="border-base-300 bg-base-200/60 flex w-full items-center gap-1 overflow-x-auto rounded-lg border px-3 py-2 text-left text-sm"
+                >
+                    <icon class="text-base-content/60 mr-1 text-xl">
+                        account_tree
+                    </icon>
+                    @for (
+                        group of selected_hierarchy();
+                        track group.id;
+                        let last = $last
+                    ) {
+                        @if (!last) {
+                            <button
+                                type="button"
+                                class="hover:bg-base-300 shrink-0 rounded px-2 py-1"
+                                [mat-dialog-close]="group.id"
+                            >
+                                {{ group.name }}
+                            </button>
+                            <icon class="text-base-content/40 text-lg">
+                                chevron_right
+                            </icon>
+                        } @else {
+                            <span
+                                class="bg-primary/15 text-primary shrink-0 rounded px-2 py-1 font-medium"
+                                aria-current="page"
+                            >
+                                {{ group.name }}
+                            </span>
+                        }
+                    }
+                </nav>
+            }
             @if (data.show_all_groups) {
                 <button
                     type="button"
@@ -41,10 +84,14 @@ export interface GroupSelectModalData {
                     [class.bg-secondary]="!data.selected_group_id"
                     [class.text-secondary-content]="!data.selected_group_id"
                     [mat-dialog-close]="''"
-                    [attr.aria-current]="!data.selected_group_id ? 'true' : null"
+                    [attr.aria-current]="
+                        !data.selected_group_id ? 'true' : null
+                    "
                 >
                     <icon class="shrink-0 text-2xl">
-                        {{ !data.selected_group_id ? 'check_circle' : 'public' }}
+                        {{
+                            !data.selected_group_id ? 'check_circle' : 'public'
+                        }}
                     </icon>
                     <div class="min-w-0 flex-1">
                         <div class="truncate">All Groups</div>
@@ -56,7 +103,9 @@ export interface GroupSelectModalData {
                     type="button"
                     matRipple
                     class="border-base-300 hover:bg-base-200 z-0 flex h-16 w-full items-center space-x-2 rounded-sm border p-2 text-left"
-                    [class.bg-secondary]="data.selected_group_id === item.group.id"
+                    [class.bg-secondary]="
+                        data.selected_group_id === item.group.id
+                    "
                     [class.text-secondary-content]="
                         data.selected_group_id === item.group.id
                     "
@@ -95,4 +144,20 @@ export interface GroupSelectModalData {
 })
 export class GroupSelectModalComponent {
     public readonly data = inject<GroupSelectModalData>(MAT_DIALOG_DATA);
+    public readonly selected_hierarchy = computed(() => {
+        const selected_group_id = this.data.selected_group_id;
+        if (!selected_group_id) return [];
+        const groups = new Map(
+            this.data.groups.map((item) => [item.group.id, item.group]),
+        );
+        const hierarchy: PlaceCurrentGroup['group'][] = [];
+        const seen = new Set<string>();
+        let group = groups.get(selected_group_id);
+        while (group?.id && !seen.has(group.id)) {
+            hierarchy.unshift(group);
+            seen.add(group.id);
+            group = group.parent_id ? groups.get(group.parent_id) : undefined;
+        }
+        return hierarchy;
+    });
 }

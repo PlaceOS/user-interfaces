@@ -71,7 +71,7 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
     {
         label: 'Daily average',
         description:
-            'Attendance for the resource type divided by the number of business days in the selected range.',
+            'Attendance for the resource type divided by business days. Weekends are excluded by default unless the site attendance weekend setting is enabled.',
     },
     {
         label: 'Resources used',
@@ -524,21 +524,36 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
             }
 
             @media print {
+                @page {
+                    size: landscape;
+                    margin: 12mm;
+                }
+
                 :host {
                     height: auto !important;
+                    color: #111827;
                 }
 
                 .attendance-cards {
-                    display: block;
+                    display: grid;
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                    gap: 0.75rem;
+                    padding-bottom: 1rem !important;
                 }
 
                 .attendance-card {
                     page-break-inside: avoid;
                     break-inside: avoid-page;
+                    box-shadow: none !important;
                 }
 
                 .attendance-card + .attendance-card {
-                    margin-top: 1rem;
+                    margin-top: 0;
+                }
+
+                simple-table {
+                    page-break-inside: avoid;
+                    break-inside: avoid-page;
                 }
             }
         `,

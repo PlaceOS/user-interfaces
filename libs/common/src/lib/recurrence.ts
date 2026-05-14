@@ -71,6 +71,46 @@ export const NO_RECURR: Recurrence = {
     interval: 1,
 };
 
+function weekOfMonth(date: number): WeekIndex {
+    const date_obj = new Date(date);
+    const day = date_obj.getDate();
+    const week = Math.floor(day / 7) + (day % 7 ? 1 : 0);
+    if ((week === 4 && day >= 25) || week === 5) return -1;
+    return week as WeekIndex;
+}
+
+function monthlyWeekdayStart(
+    date: number,
+    week: WeekIndex,
+    day_of_week: DayIndex,
+): number {
+    const date_obj = new Date(date);
+    const year = date_obj.getFullYear();
+    const month = date_obj.getMonth();
+    let day_of_month: number;
+
+    if (week < 0) {
+        const last_day = new Date(year, month + 1, 0);
+        day_of_month =
+            last_day.getDate() -
+            ((last_day.getDay() - day_of_week + 7) % 7) +
+            (week + 1) * 7;
+    } else {
+        const first_day = new Date(year, month, 1);
+        day_of_month =
+            1 +
+            ((day_of_week - first_day.getDay() + 7) % 7) +
+            (week - 1) * 7;
+    }
+
+    const recurrence_date = new Date(date);
+    recurrence_date.setDate(day_of_month);
+    if (recurrence_date.getMonth() !== month) {
+        recurrence_date.setDate(day_of_month - 7);
+    }
+    return recurrence_date.valueOf();
+}
+
 export interface BookingRecurrence {
     /** Type of recurrence instance */
     recurrence_type: 'none' | 'daily' | 'weekly' | 'monthly';
@@ -120,8 +160,7 @@ export function fromEventRecurrence(r: RecurrenceDetails): Recurrence {
         if (r.days_of_week?.length) {
             recurr.weekdays = new Set(r.days_of_week as DayIndex[]);
         }
-        // Note: Week of month is not directly mapped from RecurrenceDetails
-        // This would need to be calculated based on the first occurrence
+        if (r.start) recurr.week = weekOfMonth(r.start);
     }
 
     return recurr;
@@ -141,8 +180,18 @@ export function toEventRecurrence(
             end: date,
         };
     }
-    const date_obj = new Date(date);
-    let end = addMonths(date, 6).valueOf();
+    const monthly_day =
+        r.type === 'monthly' &&
+        r.monthly_type === 'day_of_week' &&
+        r.weekdays?.size
+            ? Array.from(r.weekdays).sort((a, b) => a - b)[0]
+            : undefined;
+    const recurrence_start =
+        monthly_day !== undefined && r.week
+            ? monthlyWeekdayStart(date, r.week, monthly_day)
+            : date;
+    const date_obj = new Date(recurrence_start);
+    let end = addMonths(recurrence_start, 6).valueOf();
     if (r.end_type === 'date' && r.end_date) {
         end = r.end_date;
     } else if (r.end_type === 'instances') {
@@ -150,10 +199,10 @@ export function toEventRecurrence(
         end =
             startOfDay(
                 r.type === 'daily'
-                    ? addDays(date, end_step)
+                    ? addDays(recurrence_start, end_step)
                     : r.type === 'weekly'
-                      ? addWeeks(date, end_step)
-                      : addMonths(date, end_step),
+                      ? addWeeks(recurrence_start, end_step)
+                      : addMonths(recurrence_start, end_step),
             ).valueOf() - 1;
     }
     const details: RecurrenceDetails = {
@@ -162,7 +211,7 @@ export function toEventRecurrence(
         pattern: r.type,
         interval: r.interval,
         days_of_week: [date_obj.getDay()],
-        start: date,
+        start: recurrence_start,
         end,
     };
     if (r.end_type === 'instances' && r.end_instances) {
