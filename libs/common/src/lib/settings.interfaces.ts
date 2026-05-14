@@ -55,6 +55,8 @@ export interface ApplicationSettings {
     analytics: AnalyticsSettings;
     /** Settings for Schedule page */
     schedule: any;
+    /** Colour for thin environment identifier bars shown at the top and bottom of the app */
+    environment_bar?: string;
 }
 
 export interface GeneralAppSettings {
