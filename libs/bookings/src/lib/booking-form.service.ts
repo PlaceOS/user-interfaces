@@ -180,6 +180,7 @@ export class BookingFormService extends AsyncHandler {
     private _favourites: Record<BookingType, WritableSignal<string[]>> = {
         ' ': settingSignal('favorites', [], true),
         room: settingSignal(SETTING_KEYS.FAVORITE_ROOMS, [], true),
+        group: signal([]),
         desk: settingSignal(SETTING_KEYS.FAVORITE_DESKS, [], true),
         locker: settingSignal(SETTING_KEYS.FAVORITE_LOCKERS, [], true),
         parking: settingSignal(SETTING_KEYS.FAVORITE_PARKING_SPACES, [], true),
@@ -359,7 +360,9 @@ export class BookingFormService extends AsyncHandler {
                         ? this._recurringBookedResourceList(resources, zones)
                         : bookedResourceList({
                               period_start: getUnixTime(date),
-                              period_end: getUnixTime(addMinutes(date, duration)),
+                              period_end: getUnixTime(
+                                  addMinutes(date, duration),
+                              ),
                               type: options.type,
                               zones,
                           });
@@ -531,9 +534,7 @@ export class BookingFormService extends AsyncHandler {
                     booking instanceof NavigationEnd &&
                     !url.includes('book') &&
                     !BOOKING_TYPES.find((_) => url.includes(_)) &&
-                    !PERSISTED_BOOKING_CONTEXT_URLS.find((_) =>
-                        url.includes(_),
-                    )
+                    !PERSISTED_BOOKING_CONTEXT_URLS.find((_) => url.includes(_))
                 ) {
                     this.clearForm();
                 }
@@ -981,7 +982,8 @@ export class BookingFormService extends AsyncHandler {
                 if (typeof error === 'object' && error !== null) {
                     error.status = e.status;
                 } else {
-                    if (this._isPermissionError(e)) this._clearSavedHostChange();
+                    if (this._isPermissionError(e))
+                        this._clearSavedHostChange();
                     throw { message: error, status: e.status };
                 }
             }
@@ -1727,9 +1729,7 @@ export class BookingFormService extends AsyncHandler {
     ) {
         if (type !== 'desk') return true;
         if (!this.setting('prevent_self_booking_if_assigned_desk')) return true;
-        if (
-            user_email?.toLowerCase() !== currentUser()?.email?.toLowerCase()
-        ) {
+        if (user_email?.toLowerCase() !== currentUser()?.email?.toLowerCase()) {
             return true;
         }
         if (await nextValueFrom(this._has_assigned_desk)) {
