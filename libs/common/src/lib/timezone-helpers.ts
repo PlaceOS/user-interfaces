@@ -66,7 +66,15 @@ export function getTimezoneOffsetInMinutes(timeZone, date = new Date()) {
         hour12: false,
         timeZoneName: 'shortOffset',
     };
-    const formatter = new Intl.DateTimeFormat([], options);
+    let formatter: Intl.DateTimeFormat;
+    try {
+        formatter = new Intl.DateTimeFormat([], options);
+    } catch (e) {
+        if (e instanceof RangeError) {
+            return getTimezoneOffset(timeZone, date) / 60 / 1000;
+        }
+        throw e;
+    }
     const parts = formatter.formatToParts(date);
 
     // Find the timeZoneName part which contains the GMT offset
@@ -74,7 +82,7 @@ export function getTimezoneOffsetInMinutes(timeZone, date = new Date()) {
     const tzOffsetString = tzOffsetPart ? tzOffsetPart.value : 'GMT';
 
     // Match the offset from the string (e.g., "GMT+0530")
-    const offsetMatch = tzOffsetString.match(/GMT([+-])(\d{1,2})(\d{2})?/);
+    const offsetMatch = tzOffsetString.match(/GMT([+-])(\d{1,2})(?::?(\d{2}))?/);
     if (!offsetMatch) {
         return 0; // If no match, assume UTC (offset 0)
     }
