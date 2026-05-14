@@ -90,6 +90,10 @@ export class CustomTooltipComponent<T = any>
     public readonly hover = input(false);
     /** Delay time in milliseconds to close after hover */
     public readonly delay = input(0);
+    /** Horizontal offset of the rendered overlay */
+    public readonly x_offset = input(0, { alias: 'xOffset' });
+    /** Vertical offset of the rendered overlay */
+    public readonly y_offset = input(0, { alias: 'yOffset' });
     /** Type of content to render */
     public readonly type = computed(() =>
         this.content() instanceof TemplateRef
@@ -139,8 +143,14 @@ export class CustomTooltipComponent<T = any>
             this._canOpenHoverTooltip(event) ? this.close() : '';
         this._element.nativeElement.addEventListener('click', open);
         this._element.nativeElement.addEventListener('touchend', open);
-        this._element.nativeElement.addEventListener('pointerenter', hover_open);
-        this._element.nativeElement.addEventListener('pointerleave', hover_close);
+        this._element.nativeElement.addEventListener(
+            'pointerenter',
+            hover_open,
+        );
+        this._element.nativeElement.addEventListener(
+            'pointerleave',
+            hover_close,
+        );
         this.subscription('click', () =>
             this._element.nativeElement.removeEventListener('click', open),
         );
@@ -164,7 +174,11 @@ export class CustomTooltipComponent<T = any>
     public ngOnChanges(changes: SimpleChanges): void {
         if (
             this._overlay_ref &&
-            (changes.x_pos || changes.y_pos || changes.content)
+            (changes.x_pos ||
+                changes.y_pos ||
+                changes.x_offset ||
+                changes.y_offset ||
+                changes.content)
         ) {
             this.open();
         }
@@ -198,6 +212,8 @@ export class CustomTooltipComponent<T = any>
                     positionStrategy: this._overlay
                         .position()
                         .flexibleConnectedTo(this._element)
+                        .withDefaultOffsetX(this.x_offset())
+                        .withDefaultOffsetY(this.y_offset())
                         .withPositions([
                             {
                                 originX: this.x_pos() || default_x,

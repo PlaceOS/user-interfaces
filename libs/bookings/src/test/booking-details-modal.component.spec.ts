@@ -22,6 +22,9 @@ import * as bookings_fn from '../lib/bookings.fn';
 describe('BookingDetailsModalComponent', () => {
     let spectator: Spectator<BookingDetailsModalComponent>;
     const refresh_fn = jest.fn();
+    const edit_fn = jest.fn();
+    const remove_fn = jest.fn();
+    const end_fn = jest.fn();
     const createComponent = createComponentFactory({
         component: BookingDetailsModalComponent,
         providers: [
@@ -36,9 +39,9 @@ describe('BookingDetailsModalComponent', () => {
                     duration: 60,
                     status: 'approved',
                 } as any),
-                edit_fn: jest.fn(),
-                remove_fn: jest.fn(),
-                end_fn: jest.fn(),
+                edit_fn,
+                remove_fn,
+                end_fn,
                 refresh_fn,
             }),
             MockProvider(OrganisationService, {
@@ -181,5 +184,110 @@ describe('BookingDetailsModalComponent', () => {
         expect(spectator.component.resource_details_label()).toBe(
             'RESOURCE.PARKING',
         );
+    });
+
+    it('should show group details from the linked group parent booking', () => {
+        (spectator.component as any).booking.set(
+            new Booking({
+                booking_type: 'desk',
+                type: 'desk',
+                parent_id: 'booking-group',
+                linked_parent_booking: {
+                    id: 'booking-group',
+                    asset_id: 'group-1',
+                    asset_name: 'Group Booking',
+                    user_id: 'user-1',
+                    user_name: 'User One',
+                    description: 'Group Booking',
+                    booking_type: 'group',
+                    date: Date.now(),
+                    duration: 60,
+                    status: 'approved',
+                    extension_data: {
+                        group: 'group-ref',
+                        group_resource_type: 'desk',
+                        group_members: [
+                            { email: 'one@example.com', name: 'One' },
+                            { email: 'two@example.com', name: 'Two' },
+                        ],
+                    },
+                },
+            } as any),
+        );
+        spectator.detectChanges();
+
+        expect(spectator.component.group_details()).toEqual({
+            name: 'group-ref',
+            resource_type: 'desk',
+            size: 2,
+        });
+        expect(spectator.element.textContent).toContain('Group Booking');
+    });
+
+    it('should allow the group host to delete the linked group parent', () => {
+        (spectator.component as any).booking.set(
+            new Booking({
+                booking_type: 'desk',
+                type: 'desk',
+                parent_id: 'booking-group',
+                user_email: '<empty>@dev.place.tech',
+                linked_parent_booking: {
+                    id: 'booking-group',
+                    asset_id: 'group-1',
+                    asset_name: 'Group Booking',
+                    user_id: 'current-user',
+                    user_name: '<empty>',
+                    user_email: '<empty>@dev.place.tech',
+                    description: 'Group Booking',
+                    booking_type: 'group',
+                    date: Date.now(),
+                    duration: 60,
+                    status: 'approved',
+                    extension_data: {
+                        group_resource_type: 'desk',
+                        group_members: [
+                            { email: '<empty>@dev.place.tech', name: '<empty>' },
+                            { email: 'two@example.com', name: 'Two' },
+                        ],
+                    },
+                },
+            } as any),
+        );
+
+        expect(spectator.component.can_manage_group()).toBe(true);
+        spectator.component.remove(spectator.component.group_parent_booking());
+
+        expect(remove_fn).toHaveBeenCalledWith(
+            expect.objectContaining({
+                id: 'booking-group',
+                booking_type: 'group',
+            }),
+        );
+    });
+
+    it('should hide group parent actions for non-host users', () => {
+        (spectator.component as any).booking.set(
+            new Booking({
+                booking_type: 'desk',
+                type: 'desk',
+                parent_id: 'booking-group',
+                user_email: '<empty>@dev.place.tech',
+                linked_parent_booking: {
+                    id: 'booking-group',
+                    asset_id: 'group-1',
+                    asset_name: 'Group Booking',
+                    user_id: 'other-user',
+                    user_name: 'Other User',
+                    user_email: 'other.user@example.com',
+                    description: 'Group Booking',
+                    booking_type: 'group',
+                    date: Date.now(),
+                    duration: 60,
+                    status: 'approved',
+                },
+            } as any),
+        );
+
+        expect(spectator.component.can_manage_group()).toBe(false);
     });
 });

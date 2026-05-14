@@ -126,6 +126,11 @@ export interface BookingAsset {
     homebase?: string;
 }
 
+type GroupContainerForm = Partial<Booking> & {
+    user?: User;
+    extension_data?: Record<string, unknown>;
+};
+
 @Injectable({
     providedIn: 'root',
 })
@@ -1151,8 +1156,18 @@ export class BookingFormService extends AsyncHandler {
         });
         let user_booking: Booking = null;
         const booking_ids: string[] = [];
-        let id = '';
+        let parent_id = '';
         try {
+            if (available.some((_) => _)) {
+                const group_booking = await this.createGroupContainerBooking(
+                    form,
+                    group_name,
+                    group_members,
+                    type,
+                );
+                parent_id = group_booking.id;
+                if (parent_id) booking_ids.push(parent_id);
+            }
             for (let i = 0; i < group_members.length; i++) {
                 if (!available[i]) continue;
                 const user = group_members[i];
@@ -1171,7 +1186,7 @@ export class BookingFormService extends AsyncHandler {
                 this.form.patchValue({
                     ...form,
                     assets,
-                    parent_id: id,
+                    parent_id,
                     user: user as any,
                     user_email: user.email,
                     user_id: user.id,
@@ -1186,7 +1201,6 @@ export class BookingFormService extends AsyncHandler {
                     throw `${user.name || user.email}: ${this._error_message(error)}`;
                 });
                 if (bkn?.id) booking_ids.push(bkn.id);
-                if (bkn.id && !id) id = bkn.id;
                 if (
                     bkn.user_email?.toLowerCase() ===
                     currentUser().email?.toLowerCase()
@@ -1243,6 +1257,14 @@ export class BookingFormService extends AsyncHandler {
         let parent_id = '';
         let first_booking: Booking = null;
         try {
+            const group_booking = await this.createGroupContainerBooking(
+                form,
+                group_name,
+                members,
+                'visitor',
+            );
+            parent_id = group_booking.id;
+            if (parent_id) booking_ids.push(parent_id);
             for (const visitor of members) {
                 if (!visitor.email) continue;
                 const visitor_name = visitor.name || visitor.email;
@@ -1277,10 +1299,7 @@ export class BookingFormService extends AsyncHandler {
                     throw `${visitor.name || visitor.email}: ${this._error_message(error)}`;
                 });
                 if (bkn?.id) booking_ids.push(bkn.id);
-                if (bkn?.id && !parent_id) {
-                    parent_id = bkn.id;
-                    first_booking = bkn;
-                }
+                if (bkn?.id && !first_booking) first_booking = bkn;
             }
         } catch (error) {
             if (rollback_on_group_error && booking_ids.length) {
@@ -1342,6 +1361,9 @@ export class BookingFormService extends AsyncHandler {
             form.group ||
             `${currentUser().email}[${format(Date.now(), 'yyyy-MM-dd')}]`;
         const is_visitor = type === 'visitor';
+        const has_group_container_parent =
+            !!form.parent_id &&
+            !existing_siblings.some((s) => s.id === form.parent_id);
         const sibling_map: Record<string, Booking> = {};
         for (const s of existing_siblings) {
             const key = is_visitor ? s.asset_id : s.user_email;
@@ -1372,6 +1394,15 @@ export class BookingFormService extends AsyncHandler {
                     ...base_form.zones,
                 ].filter((_) => _),
             );
+            if (has_group_container_parent) {
+                await this.saveGroupContainerBooking(
+                    form,
+                    group_name,
+                    members,
+                    type,
+                    parent_id,
+                );
+            }
             for (let index = 0; index < members.length; index++) {
                 const member = members[index];
                 if (!member.email) continue;
@@ -1430,6 +1461,67 @@ export class BookingFormService extends AsyncHandler {
         this.form?.patchValue({ booking_type: type });
         this.setView('success');
         return first_result;
+    }
+
+    private async createGroupContainerBooking(
+        form: GroupContainerForm,
+        group_name: string,
+        members: User[],
+        resource_type: BookingType,
+    ) {
+        return this.saveGroupContainerBooking(
+            form,
+            group_name,
+            members,
+            resource_type,
+        );
+    }
+
+    private async saveGroupContainerBooking(
+        form: GroupContainerForm,
+        group_name: string,
+        members: User[],
+        resource_type: BookingType,
+        id = '',
+    ) {
+        const group_members = this.mapGroupMembers(resource_type, members);
+        const zones = unique(
+            [
+                ...(form.zones || []),
+                this._org.organisation.id,
+                this._org.region?.id,
+            ].filter((_) => _),
+        );
+        return lastValueFrom(
+            saveBooking(
+                new Booking({
+                    ...form,
+                    id,
+                    parent_id: '',
+                    asset_id: group_name,
+                    asset_name: 'Group Booking',
+                    booking_type: 'group',
+                    type: 'group',
+                    description: form.title || 'Group Booking',
+                    title: form.title || 'Group Booking',
+                    user_name: form.user?.name || form.user_name,
+                    user_email: form.user?.email || form.user_email,
+                    user_id: form.user?.id || form.user_id,
+                    approved:
+                        this._settings.get('app.bookings.no_approval') === true,
+                    zones,
+                    extension_data: {
+                        ...(form.extension_data || {}),
+                        group: group_name,
+                        group_members,
+                        group_resource_type: resource_type,
+                    },
+                }),
+            ),
+        ).catch((error) => {
+            this._loading.next('');
+            throw error;
+        });
     }
 
     private _error_message(error: any) {

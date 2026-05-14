@@ -18,6 +18,7 @@ import { User } from './user.class';
 
 export type BookingType =
     | 'desk'
+    | 'group'
     | 'parking'
     | 'locker'
     | 'room'

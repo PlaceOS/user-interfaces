@@ -231,6 +231,33 @@ export function canEditBooking(booking: Booking) {
                         </div>
                     }
                 </div>
+                @if (group_details(); as group) {
+                    <div
+                        class="border-base-200 sm:bg-base-100 mt-4 min-w-1/3 grow-3 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
+                    >
+                        <h3 class="mx-3 py-2 text-lg font-medium">
+                            Group Booking
+                        </h3>
+                        <div class="flex flex-col space-y-2 px-3 text-sm">
+                            <div class="flex items-center space-x-2">
+                                <icon matTooltip="Group Size">groups</icon>
+                                <div>{{ group.size }} people</div>
+                            </div>
+                            @if (group.resource_type) {
+                                <div class="flex items-center space-x-2">
+                                    <icon matTooltip="Resource Type">category</icon>
+                                    <div>{{ group.resource_type }}</div>
+                                </div>
+                            }
+                            @if (group.name) {
+                                <div class="flex items-center space-x-2">
+                                    <icon matTooltip="Group Reference">tag</icon>
+                                    <div class="break-all">{{ group.name }}</div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
                 @if (has_assets()) {
                     <div
                         class="border-base-200 sm:bg-base-100 mt-4 min-w-1/3 grow-3 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
@@ -416,6 +443,14 @@ export function canEditBooking(booking: Booking) {
                     <div>{{ 'BOOKINGS.ACTION_DELETE' | translate }}</div>
                 </div>
             </button>
+            @if (can_manage_group()) {
+                <button mat-menu-item (click)="remove(group_parent_booking(), false)">
+                    <div class="flex items-center space-x-2 text-base">
+                        <icon class="text-error">delete</icon>
+                        <div>Delete group</div>
+                    </div>
+                </button>
+            }
             @if (booking().instance && allow_series_delete()) {
                 <button mat-menu-item (click)="remove(booking(), true)">
                     <div class="flex items-center space-x-2 text-base">
@@ -612,6 +647,49 @@ export class BookingDetailsModalComponent {
         return display_name.toLowerCase() === asset_id.toLowerCase()
             ? ''
             : asset_id;
+    });
+    public readonly group_parent_booking = computed(() => {
+        const booking = this.booking();
+        if (booking.booking_type === 'group') return booking;
+        const parent = booking.linked_parent_booking;
+        if (parent?.booking_type !== 'group') return null;
+        return new Booking({
+            ...parent,
+            booking_type: 'group',
+            type: 'group',
+            date: parent.date || booking.date,
+            duration: parent.duration || booking.duration,
+            user_email: (parent as any).user_email || booking.user_email,
+            booked_by_email:
+                (parent as any).booked_by_email || booking.booked_by_email,
+        } as any);
+    });
+    public readonly can_manage_group = computed(() => {
+        const group_booking = this.group_parent_booking();
+        if (!group_booking) return false;
+        const current_email = this.current_user()?.email?.toLowerCase();
+        const host_emails = [
+            group_booking.user_email,
+            group_booking.booked_by_email,
+        ].map((_) => _?.toLowerCase());
+        return !!current_email && host_emails.includes(current_email);
+    });
+    public readonly group_details = computed(() => {
+        const booking = this.booking();
+        const group_booking = this.group_parent_booking();
+        const extension_data =
+            group_booking?.extension_data || booking.extension_data || {};
+        const group_members = extension_data.group_members || [];
+        const linked_children = (booking.linked_bookings || []).filter(
+            (_) => _.parent_id === group_booking?.id,
+        );
+        const size = group_members.length || linked_children.length;
+        if (!group_booking && !size) return null;
+        return {
+            name: extension_data.group || booking.group,
+            resource_type: extension_data.group_resource_type || '',
+            size,
+        };
     });
 
     public readonly is_in_progress = computed(() => {

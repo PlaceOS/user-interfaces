@@ -38,9 +38,9 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                             @if (can_update()) {
                                 <button
                                     icon
+                                    default
                                     type="button"
                                     matRipple
-                                    class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                     matTooltip="Add playlist"
                                     (click)="addPlaylist()"
                                     aria-label="Add playlist to zone"
@@ -176,9 +176,9 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                         @if (can_update()) {
                                             <button
                                                 icon
+                                                default
                                                 type="button"
                                                 matRipple
-                                                class="border-base-200 hover:bg-base-200 hover:border-base-300 mr-1 rounded-lg border hover:shadow-md"
                                                 matTooltip="Remove playlist"
                                                 (click)="
                                                     removePlaylist(
@@ -233,9 +233,9 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                             @if (can_update()) {
                                 <button
                                     icon
+                                    default
                                     type="button"
                                     matRipple
-                                    class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                     matTooltip="Add display"
                                     (click)="addDisplay()"
                                     aria-label="Add display to zone"

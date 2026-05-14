@@ -5,6 +5,7 @@ export type HashMap<T = any> = Record<string, T>;
 
 export interface LinkedBooking {
     id: string;
+    parent_id?: string;
     asset_id: string;
     asset_ids?: string[];
     asset_name: string;
