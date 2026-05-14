@@ -1,6 +1,6 @@
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { addDays, endOfDay } from 'date-fns';
+import { addDays, addWeeks, endOfDay } from 'date-fns';
 
 import { RecurrenceModalComponent } from '../lib/recurrence-modal.component';
 
@@ -45,6 +45,19 @@ describe('RecurrenceModalComponent', () => {
 
         expect(spectator.component.confirmValue().end_date).toBe(
             default_end_date,
+        );
+    });
+
+    it('should set weekly instance end_date to the final occurrence date', () => {
+        spectator.component.form.patchValue({
+            type: 'weekly',
+            interval: 1,
+            end_type: 'instances',
+            end_instances: 7,
+        });
+
+        expect(spectator.component.confirmValue().end_date).toBe(
+            endOfDay(addWeeks(booking_date, 6)).valueOf(),
         );
     });
 });

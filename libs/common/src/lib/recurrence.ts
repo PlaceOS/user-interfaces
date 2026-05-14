@@ -8,7 +8,6 @@ import {
     endOfWeek,
     format,
     getUnixTime,
-    startOfDay,
 } from 'date-fns';
 import { RecurrenceDetails } from './formatting';
 
@@ -98,9 +97,7 @@ function monthlyWeekdayStart(
     } else {
         const first_day = new Date(year, month, 1);
         day_of_month =
-            1 +
-            ((day_of_week - first_day.getDay() + 7) % 7) +
-            (week - 1) * 7;
+            1 + ((day_of_week - first_day.getDay() + 7) % 7) + (week - 1) * 7;
     }
 
     const recurrence_date = new Date(date);
@@ -195,15 +192,13 @@ export function toEventRecurrence(
     if (r.end_type === 'date' && r.end_date) {
         end = r.end_date;
     } else if (r.end_type === 'instances') {
-        const end_step = r.interval * r.end_instances;
+        const end_step = r.interval * Math.max((r.end_instances || 1) - 1, 0);
         end =
-            startOfDay(
-                r.type === 'daily'
-                    ? addDays(recurrence_start, end_step)
-                    : r.type === 'weekly'
-                      ? addWeeks(recurrence_start, end_step)
-                      : addMonths(recurrence_start, end_step),
-            ).valueOf() - 1;
+            r.type === 'daily'
+                ? endOfDay(addDays(recurrence_start, end_step)).valueOf()
+                : r.type === 'weekly'
+                  ? endOfDay(addWeeks(recurrence_start, end_step)).valueOf()
+                  : endOfDay(addMonths(recurrence_start, end_step)).valueOf();
     }
     const details: RecurrenceDetails = {
         _pattern: r._custom ? 'custom_display' : r.type,
@@ -223,10 +218,15 @@ export function toEventRecurrence(
     } else if (r.type === 'monthly') {
         details.days_of_week = [];
     }
-    if (r.type === 'monthly' || r.type === 'yearly') {
+    if (
+        r.end_type === 'never' &&
+        (r.type === 'monthly' || r.type === 'yearly')
+    ) {
         details.end = endOfMonth(end).valueOf();
     }
-    if (r.type === 'weekly') details.end = endOfWeek(end).valueOf();
+    if (r.end_type === 'never' && r.type === 'weekly') {
+        details.end = endOfWeek(end).valueOf();
+    }
     return details;
 }
 
@@ -323,10 +323,10 @@ export function toBookingRecurrence(
             r.type === 'daily'
                 ? endOfDay(addDays(date, end_step))
                 : r.type === 'weekly'
-                  ? endOfWeek(addWeeks(date, end_step))
+                  ? endOfDay(addWeeks(date, end_step))
                   : r.type === 'monthly'
-                    ? endOfMonth(addMonths(date, end_step))
-                    : addYears(date, 1),
+                    ? endOfDay(addMonths(date, end_step))
+                    : endOfDay(addYears(date, end_step)),
         );
     }
 
@@ -452,12 +452,9 @@ export function formatRecurrence(
             result = `Every ${safe_interval} ${plural(safe_interval, 'day')}`;
             break;
         case 'weekly': {
-            const days =
-                validWeekdays(weekdays).length
-                    ? formatList(
-                          validWeekdays(weekdays).map((d) => dayNames[d]),
-                      )
-                    : dayNames[selected_day];
+            const days = validWeekdays(weekdays).length
+                ? formatList(validWeekdays(weekdays).map((d) => dayNames[d]))
+                : dayNames[selected_day];
             result = `Every ${safe_interval} ${plural(safe_interval, 'week')}${
                 days ? ' on ' + days : ''
             }`;
@@ -467,13 +464,11 @@ export function formatRecurrence(
             const recurrence_days = validWeekdays(weekdays);
             const week_value = week || selectedWeek();
             if (monthly_type === 'day_of_week') {
-                const days =
-                    recurrence_days.length
-                        ? formatList(
-                              recurrence_days.map((d) => dayNames[d]),
-                          )
-                        : dayNames[selected_day];
-                const week_name = weekNames[week_value] || weekNames[selectedWeek()];
+                const days = recurrence_days.length
+                    ? formatList(recurrence_days.map((d) => dayNames[d]))
+                    : dayNames[selected_day];
+                const week_name =
+                    weekNames[week_value] || weekNames[selectedWeek()];
                 result = `Every ${safe_interval} ${plural(safe_interval, 'month')} on the ${week_name}${days ? ' ' + days : ''}`;
             } else if (monthly_type === 'day_of_month') {
                 result = `Every ${safe_interval} ${plural(safe_interval, 'month')} on day ${selected_day_of_month}`;

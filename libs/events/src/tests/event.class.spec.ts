@@ -1,6 +1,13 @@
 import { CalendarEvent, setDefaultCreator, Space, User } from '@placeos/common';
 import { setInternalUserDomain } from '@placeos/users';
-import { add, getUnixTime, startOfDay, startOfHour, sub } from 'date-fns';
+import {
+    add,
+    endOfDay,
+    getUnixTime,
+    startOfDay,
+    startOfHour,
+    sub,
+} from 'date-fns';
 
 describe('CalendarEvent', () => {
     let event: CalendarEvent;
@@ -220,6 +227,28 @@ describe('CalendarEvent', () => {
             getUnixTime(startOfDay(recurrence_start)),
         );
         expect(json.recurrence.days_of_week).toEqual(['wednesday']);
+    });
+
+    it('should serialise recurring events until the selected end date', () => {
+        const recurrence_end = new Date(2026, 5, 30, 23, 59, 59, 999).valueOf();
+        event = new CalendarEvent({
+            date: new Date(2026, 5, 2, 9).valueOf(),
+            date_end: new Date(2026, 5, 2, 10).valueOf(),
+            recurring: true,
+            recurrence: {
+                start: new Date(2026, 5, 2, 9).valueOf(),
+                end: recurrence_end,
+                interval: 1,
+                pattern: 'weekly',
+                days_of_week: [2],
+            },
+        });
+
+        const json = event.toJSON();
+
+        expect(json.recurrence.range_end).toBe(
+            getUnixTime(endOfDay(recurrence_end)),
+        );
     });
 
     it('should clear custom all-day metadata when updating an existing event', () => {
