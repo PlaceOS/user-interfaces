@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { addWeeks, endOfDay, format } from 'date-fns';
 
 import {
     formatRecurrence,
@@ -49,6 +49,26 @@ describe('formatRecurrence', () => {
         );
     });
 
+    it('should serialise weekly instances with the final occurrence date', () => {
+        const booking_date = new Date(2026, 4, 12).valueOf();
+        const raw = toEventRecurrence(
+            {
+                _custom: true,
+                type: 'weekly',
+                interval: 1,
+                weekdays: new Set([2 as any]),
+                end_type: 'instances',
+                end_instances: 7,
+            },
+            booking_date,
+        );
+
+        expect(raw.end).toBe(endOfDay(addWeeks(booking_date, 6)).valueOf());
+        expect(formatRecurrence(fromEventRecurrence(raw), booking_date)).toBe(
+            'Every 1 week on Tuesday ends after 7 instances (23 Jun 2026)',
+        );
+    });
+
     it('should fall back to the selected weekday for weekly recurrence', () => {
         expect(
             formatRecurrence(
@@ -86,8 +106,9 @@ describe('formatRecurrence', () => {
             end: new Date(2026, 10, 30).valueOf(),
         });
 
-        expect(formatRecurrence(recurrence, new Date(2026, 4, 12).valueOf()))
-            .toBe('Every 1 month on the Second Wednesday until 30 Nov 2026');
+        expect(
+            formatRecurrence(recurrence, new Date(2026, 4, 12).valueOf()),
+        ).toBe('Every 1 month on the Second Wednesday until 30 Nov 2026');
     });
 
     it('should anchor monthly event recurrence to the selected week and weekday', () => {

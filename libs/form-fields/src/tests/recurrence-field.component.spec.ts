@@ -9,15 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import {
-    addDays,
-    addMonths,
-    addWeeks,
-    endOfDay,
-    endOfMonth,
-    endOfWeek,
-    getUnixTime,
-} from 'date-fns';
+import { addDays, addMonths, addWeeks, endOfDay, getUnixTime } from 'date-fns';
 import { MockModule, MockProvider } from 'ng-mocks';
 
 import { BookingRecurrence, NO_RECURR } from '@placeos/common';
@@ -239,14 +231,14 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 weekdays: new Set([1 as any]),
                 end_type: 'instances',
                 end_instances: 4,
-                end_date: endOfWeek(addWeeks(jan8, 3)).valueOf(),
+                end_date: endOfDay(addWeeks(jan8, 3)).valueOf(),
             });
 
             const jan22 = new Date(2024, 0, 22).valueOf();
             setDate(jan22);
 
             expect(spectator.component.value().end_date).toBe(
-                endOfWeek(addWeeks(jan22, 3)).valueOf(),
+                endOfDay(addWeeks(jan22, 3)).valueOf(),
             );
         });
 
@@ -281,14 +273,14 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 week: 0 as any,
                 end_type: 'instances',
                 end_instances: 3,
-                end_date: endOfMonth(addMonths(jan8, 2)).valueOf(),
+                end_date: endOfDay(addMonths(jan8, 2)).valueOf(),
             });
 
             const mar15 = new Date(2024, 2, 15).valueOf();
             setDate(mar15);
 
             expect(spectator.component.value().end_date).toBe(
-                endOfMonth(addMonths(mar15, 2)).valueOf(),
+                endOfDay(addMonths(mar15, 2)).valueOf(),
             );
         });
     });
@@ -385,7 +377,33 @@ describe('RecurrenceFieldComponent – date change regression', () => {
             ) as BookingRecurrence;
 
             expect(raw.recurrence_end).toBe(
-                getUnixTime(endOfWeek(addWeeks(form_date, 2))),
+                getUnixTime(endOfDay(addWeeks(form_date, 2))),
+            );
+        });
+
+        it('weekly booking instances end on the final occurrence date', () => {
+            const form_date = new Date(2026, 4, 12).valueOf();
+            setDate(form_date);
+            spectator.setInput('type', 'booking');
+
+            spectator.component.setValue({
+                _custom: true,
+                type: 'weekly',
+                interval: 1,
+                weekdays: new Set([2 as any]),
+                end_type: 'instances',
+                end_instances: 7,
+            });
+
+            const raw = spectator.component.toRaw(
+                spectator.component.value(),
+            ) as BookingRecurrence;
+
+            expect(raw.recurrence_end).toBe(
+                getUnixTime(endOfDay(addWeeks(form_date, 6))),
+            );
+            expect(spectator.component.formatted_value()).toContain(
+                '23 Jun 2026',
             );
         });
 
@@ -465,7 +483,7 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 weekdays: new Set([1 as any]),
                 end_type: 'instances',
                 end_instances: 4,
-                end_date: endOfWeek(addWeeks(jan8, 3)).valueOf(),
+                end_date: endOfDay(addWeeks(jan8, 3)).valueOf(),
             });
 
             expect(spectator.component.formatted_value()).toContain(
@@ -488,7 +506,7 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 '4 instances',
             );
             expect(spectator.component.value().end_date).toBe(
-                endOfWeek(addWeeks(feb5, 3)).valueOf(),
+                endOfDay(addWeeks(feb5, 3)).valueOf(),
             );
         });
 
@@ -505,7 +523,7 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 weekdays: new Set([1 as any]),
                 end_type: 'instances',
                 end_instances: 4,
-                end_date: endOfWeek(addWeeks(jan8, 3)).valueOf(),
+                end_date: endOfDay(addWeeks(jan8, 3)).valueOf(),
             });
 
             // Change date without flushing effects
@@ -531,7 +549,7 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 weekdays: new Set([1 as any]),
                 end_type: 'instances',
                 end_instances: 5,
-                end_date: endOfWeek(addWeeks(jan8, 4)).valueOf(),
+                end_date: endOfDay(addWeeks(jan8, 4)).valueOf(),
             });
 
             // Change to Thursday
@@ -565,7 +583,7 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 weekdays: new Set([1 as any]),
                 end_type: 'instances',
                 end_instances: 4,
-                end_date: endOfWeek(addWeeks(jan8, 3)).valueOf(),
+                end_date: endOfDay(addWeeks(jan8, 3)).valueOf(),
             });
             spectator.component.recurr_type.set('custom_display');
             spectator.component.prev_type.set('custom_display');
@@ -588,7 +606,7 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 weekdays: new Set([1 as any]),
                 end_type: 'instances',
                 end_instances: 5,
-                end_date: endOfWeek(addWeeks(jan8, 4)).valueOf(),
+                end_date: endOfDay(addWeeks(jan8, 4)).valueOf(),
             });
 
             spectator.component.writeValue({
@@ -597,7 +615,7 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 recurrence_days: 1 << 1,
                 recurrence_interval: 1,
                 recurrence_instances: 2,
-                recurrence_end: getUnixTime(endOfWeek(addWeeks(jan8, 1))),
+                recurrence_end: getUnixTime(endOfDay(addWeeks(jan8, 1))),
             });
 
             spectator.component.writeValue(
@@ -622,7 +640,7 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 weekdays: new Set([1 as any]),
                 end_type: 'instances',
                 end_instances: 4,
-                end_date: endOfWeek(addWeeks(jan8, 3)).valueOf(),
+                end_date: endOfDay(addWeeks(jan8, 3)).valueOf(),
             });
 
             const custom_value = spectator.component.toRaw(

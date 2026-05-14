@@ -29,15 +29,7 @@ import {
     toBookingRecurrence,
     toEventRecurrence,
 } from '@placeos/common';
-import {
-    addDays,
-    addMonths,
-    addWeeks,
-    addYears,
-    endOfDay,
-    endOfMonth,
-    endOfWeek,
-} from 'date-fns';
+import { addDays, addMonths, addWeeks, addYears, endOfDay } from 'date-fns';
 
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -196,10 +188,13 @@ export class RecurrenceFieldComponent implements ControlValueAccessor, OnInit {
         const val = this.value();
         if (!val) return '';
         if (val.end_type === 'instances' && val.end_instances) {
-            return formatRecurrence({
-                ...val,
-                end_date: this._computeEndDate(val, this.date()),
-            }, this.date());
+            return formatRecurrence(
+                {
+                    ...val,
+                    end_date: this._computeEndDate(val, this.date()),
+                },
+                this.date(),
+            );
         }
         return formatRecurrence(val, this.date());
     });
@@ -414,9 +409,9 @@ export class RecurrenceFieldComponent implements ControlValueAccessor, OnInit {
             return endOfDay(addDays(date, end_step)).valueOf();
         }
         if (recurrence.type === 'weekly') {
-            return endOfWeek(addWeeks(date, end_step)).valueOf();
+            return endOfDay(addWeeks(date, end_step)).valueOf();
         }
-        return endOfMonth(addMonths(date, end_step)).valueOf();
+        return endOfDay(addMonths(date, end_step)).valueOf();
     }
 
     /**
