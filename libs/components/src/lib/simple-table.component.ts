@@ -118,7 +118,7 @@ export interface TableColumn {
                 }
                 @for (
                     column of active_columns();
-                    track column;
+                    track column.key;
                     let j = $index
                 ) {
                     <div

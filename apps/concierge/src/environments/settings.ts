@@ -47,6 +47,7 @@ const app = {
         allow_deleting: false,
         assign_space_on_approve: false,
         max_assigned_count: 0,
+        custom_booking_columns: [],
     },
     events: {
         allow_setup_breakdown: false,

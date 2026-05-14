@@ -16,6 +16,7 @@ describe('ParkingBookingsListComponent', () => {
     let hide_bay_number = false;
     let hide_assign_space = false;
     let show_waitlist = true;
+    let custom_booking_columns: any[] = [];
     let timezone = 'Australia/Perth';
     let request_filter: 'all' | 'bookings' | 'requests' | 'waitlist' = 'all';
 
@@ -67,10 +68,14 @@ describe('ParkingBookingsListComponent', () => {
                           : name === 'app.parking.hide_bay_number'
                             ? hide_bay_number
                             : name === 'app.parking.hide_assign_space'
-                               ? hide_assign_space
-                               : false,
+                              ? hide_assign_space
+                              : name === 'app.parking.custom_booking_columns'
+                                ? custom_booking_columns
+                                : false,
                 ),
-                signal: jest.fn((_: string, initial: boolean) => signal(initial)),
+                signal: jest.fn((_: string, initial: boolean) =>
+                    signal(initial),
+                ),
                 time_format: 'h:mm a',
             }),
         ],
@@ -83,6 +88,7 @@ describe('ParkingBookingsListComponent', () => {
         hide_bay_number = false;
         hide_assign_space = false;
         show_waitlist = true;
+        custom_booking_columns = [];
         timezone = 'Australia/Perth';
         request_filter = 'all';
         settingSignal('parking.allow_editing', true).set(true);
@@ -142,6 +148,40 @@ describe('ParkingBookingsListComponent', () => {
         spectator = createComponent();
 
         expect(spectator.component.timezone).toBe('Australia/Perth');
+    });
+
+    it('should add custom extension data columns', () => {
+        custom_booking_columns = [
+            { field: 'cost_code', name: 'Cost Code' },
+            { field: 'vehicle.colour', display_name: 'Vehicle Colour' },
+        ];
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'bay-1',
+                status: 'approved',
+                date: Date.now(),
+                date_end: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                extension_data: {
+                    cost_code: 'CC-123',
+                    vehicle: { colour: 'Blue' },
+                },
+            } as Booking,
+        ];
+        spectator = createComponent();
+
+        const table = spectator.query(SimpleTableComponent);
+        expect(table?.active_columns().map((column) => column.key)).toContain(
+            'extension_data.cost_code',
+        );
+        expect(table?.active_columns().map((column) => column.name)).toContain(
+            'Vehicle Colour',
+        );
+        expect(spectator.component.filtered_events()[0]).toMatchObject({
+            'extension_data.cost_code': 'CC-123',
+            'extension_data.vehicle.colour': 'Blue',
+        });
     });
 
     it('should hide the bay number column when viewing requests', () => {
