@@ -161,31 +161,36 @@ import { DesksStateService } from './desks-state.service';
                         matRipple
                         class="bg-warning text-warning-content h-10 w-30 rounded-3xl border-none"
                         [class.text-success-content!]="
-                            row?.status === 'approved'
+                            row?.status === 'approved' && !isDeletedBooking(row)
                         "
-                        [class.bg-success!]="row?.status === 'approved'"
-                        [class.text-error-content!]="row?.status === 'declined'"
-                        [class.bg-error!]="row?.status === 'declined'"
-                        [class.text-neutral-content!]="row?.status === 'ended'"
-                        [class.bg-neutral!]="row?.status === 'ended'"
-                        [class.opacity-30]="row?.status === 'ended'"
+                        [class.bg-success!]="
+                            row?.status === 'approved' && !isDeletedBooking(row)
+                        "
+                        [class.text-error-content!]="
+                            row?.status === 'declined' || isDeletedBooking(row)
+                        "
+                        [class.bg-error!]="
+                            row?.status === 'declined' || isDeletedBooking(row)
+                        "
+                        [class.text-neutral-content!]="
+                            row?.status === 'ended' && !isDeletedBooking(row)
+                        "
+                        [class.bg-neutral!]="
+                            row?.status === 'ended' && !isDeletedBooking(row)
+                        "
+                        [class.opacity-30]="
+                            row?.status === 'ended' && !isDeletedBooking(row)
+                        "
                         [matMenuTriggerFor]="menu"
-                        [disabled]="row?.status === 'ended'"
+                        [disabled]="isStatusActionDisabled(row)"
                     >
                         <div class="flex items-center space-x-2 pr-2 pl-4">
                             <div class="flex-1 text-left">
-                                {{
-                                    (row?.status === 'ended'
-                                        ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
-                                        : row?.status === 'approved'
-                                          ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
-                                          : row?.status === 'declined'
-                                            ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                                            : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
-                                    ) | translate
-                                }}
+                                {{ statusLabel(row) | translate }}
                             </div>
-                            <icon class="text-2xl"> arrow_drop_down </icon>
+                            @if (!isStatusActionDisabled(row)) {
+                                <icon class="text-2xl"> arrow_drop_down </icon>
+                            }
                         </div>
                     </button>
                 </div>
@@ -380,6 +385,26 @@ export class DeskBookingsComponent {
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public isDeletedBooking(booking) {
+        return !!booking?.deleted;
+    }
+
+    public isStatusActionDisabled(booking) {
+        return booking?.status === 'ended' || this.isDeletedBooking(booking);
+    }
+
+    public statusLabel(booking) {
+        return this.isDeletedBooking(booking)
+            ? 'APP.CONCIERGE.BOOKING_STATUS_DELETED'
+            : booking?.status === 'ended'
+              ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
+              : booking?.status === 'approved'
+                ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
+                : booking?.status === 'declined'
+                  ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
+                  : 'APP.CONCIERGE.BOOKING_STATUS_PENDING';
     }
 
     private async runMethod(name: string, fn: () => Promise<void>) {
