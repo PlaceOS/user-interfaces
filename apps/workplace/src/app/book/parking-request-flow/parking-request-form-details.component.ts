@@ -80,6 +80,7 @@ interface ParkingRequestTypeConfig {
     approver_groups?: string[];
     book_as?: ParkingRequestBookAs;
     show_notes?: boolean;
+    requires_manual_approval?: boolean;
     forced_time?: ParkingRequestTimeWindow;
 }
 
@@ -92,6 +93,7 @@ interface ParkingRequestType {
     approver_groups?: string[];
     book_as?: ParkingRequestBookAs;
     show_notes?: boolean;
+    requires_manual_approval?: boolean;
     forced_time?: ParkingRequestTimeWindow;
 }
 
@@ -1144,6 +1146,18 @@ export class ParkingRequestFormDetailsComponent
             if (this.forced_request_time()) return;
             this._applyPreferredShift();
         });
+        effect(() => {
+            const form = this.form();
+            if (!form) return;
+            const requires_manual_approval =
+                !!this.selected_request_type()?.requires_manual_approval;
+            if (
+                form.getRawValue().requires_manual_approval ===
+                requires_manual_approval
+            )
+                return;
+            form.patchValue({ requires_manual_approval });
+        });
     }
 
     public readonly form = input<FormGroup>(undefined);
@@ -1904,6 +1918,7 @@ export class ParkingRequestFormDetailsComponent
                             ? type.book_as
                             : undefined,
                     show_notes: !!type.show_notes,
+                    requires_manual_approval: !!type.requires_manual_approval,
                     forced_time,
                 };
             })

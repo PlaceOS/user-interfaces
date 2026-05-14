@@ -322,6 +322,29 @@ describe('ParkingStateService', () => {
         ).toEqual([pending_request]);
     });
 
+    it('should include manual approval bookings in pending approval filtering', () => {
+        settings_map['app.parking.show_requests'] = true;
+        const booking = {
+            id: 'booking-1',
+            asset_id: 'space-1',
+            status: 'tentative',
+            extension_data: { requires_manual_approval: true },
+        } as any;
+        const regular_booking = {
+            id: 'booking-2',
+            asset_id: 'space-2',
+            status: 'tentative',
+            extension_data: {},
+        } as any;
+
+        expect(
+            spectator.service.filterEventList(
+                [booking, regular_booking],
+                'manual',
+            ),
+        ).toEqual([booking]);
+    });
+
     it('should assign a space before approving requests when enabled', async () => {
         settings_map['app.parking.assign_space_on_approve'] = true;
         organisation_service.levels = [

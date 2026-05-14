@@ -357,7 +357,8 @@ export class ParkingStateService extends AsyncHandler {
 
     public isManualRequest(booking: Booking) {
         return (
-            this.isRequest(booking) && !!booking.extension_data?.approver_group
+            !!booking.extension_data?.requires_manual_approval ||
+            (this.isRequest(booking) && !!booking.extension_data?.approver_group)
         );
     }
 
