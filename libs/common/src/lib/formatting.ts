@@ -5,6 +5,8 @@ export interface RecurrenceDetails {
     end: number;
     /** Days of the week (or month) on which the event should be repeated */
     days_of_week: number[];
+    /** Week of the month to recur on */
+    nth_of_month?: number;
     _pattern?:
         | 'none'
         | 'daily'

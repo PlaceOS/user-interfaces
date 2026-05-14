@@ -128,7 +128,23 @@ describe('formatRecurrence', () => {
 
         expect(raw.pattern).toBe('month_day');
         expect(raw.days_of_week).toEqual([3]);
+        expect(raw.nth_of_month).toBe(WeekOfMonth.Second);
         expect(raw.start).toBe(new Date(2026, 4, 13, 9).valueOf());
+    });
+
+    it('should prefer the monthly recurrence week from event metadata', () => {
+        const recurrence = fromEventRecurrence({
+            pattern: 'month_day',
+            interval: 1,
+            days_of_week: [3],
+            nth_of_month: WeekOfMonth.Second,
+            start: new Date(2026, 4, 27, 9).valueOf(),
+            end: new Date(2026, 10, 30).valueOf(),
+        });
+
+        expect(formatRecurrence(recurrence)).toBe(
+            'Every 1 month on the Second Wednesday until 30 Nov 2026',
+        );
     });
 
     it('should preserve the selected event recurrence end date', () => {
