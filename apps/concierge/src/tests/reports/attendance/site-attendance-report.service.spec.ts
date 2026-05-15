@@ -302,6 +302,134 @@ describe('SiteAttendanceReportService', () => {
         );
     });
 
+    it('should exclude system events from site attendance', async () => {
+        features = ['spaces'];
+        spectator = createService();
+        (event_mod.queryAllEvents as jest.Mock).mockReturnValue(
+            of([
+                {
+                    host: 'host@example.com',
+                    date: day_1,
+                    duration: 60,
+                    attendees: [{ email: 'attendee@example.com' }],
+                    extension_data: { people_count: { max: 2 } },
+                    system: { id: 'room-1' },
+                },
+                {
+                    host: 'setup@example.com',
+                    date: day_1,
+                    duration: 30,
+                    attendees: [{ email: 'setup.attendee@example.com' }],
+                    extension_data: { people_count: { max: 2 } },
+                    is_system_event: true,
+                    system: { id: 'room-1' },
+                    title: 'Setup',
+                },
+            ]),
+        );
+
+        const report_promise = firstValueFrom(
+            spectator.service.report$.pipe(skip(1), take(1)),
+        );
+        spectator.service.generateReport();
+        const report = await report_promise;
+
+        expect(report.total_attendance).toBe(2);
+        expect(report.total_bookings).toBe(1);
+        expect(report.unique_people).toBe(2);
+        expect(report.hosts).toEqual([
+            expect.objectContaining({ id: 'host@example.com' }),
+        ]);
+        expect(report.attendees).toEqual([
+            expect.objectContaining({ id: 'attendee@example.com' }),
+        ]);
+        expect(report.cards.find((card) => card.id === 'events')).toEqual(
+            expect.objectContaining({ attendance: 2, bookings: 1 }),
+        );
+    });
+
+    it('should exclude rejected bookings and events from site attendance', async () => {
+        features = ['spaces', 'desks'];
+        spectator = createService();
+        (booking_mod.queryAllBookings as jest.Mock).mockReturnValue(
+            of([
+                {
+                    asset_id: 'desk-1',
+                    user_email: 'desk.user@example.com',
+                    date: day_1,
+                    duration: 480,
+                },
+                {
+                    asset_id: 'desk-2',
+                    user_email: 'rejected.desk@example.com',
+                    date: day_1,
+                    duration: 480,
+                    rejected: true,
+                },
+                {
+                    asset_id: 'desk-3',
+                    user_email: 'cancelled.desk@example.com',
+                    date: day_1,
+                    duration: 480,
+                    status: 'cancelled',
+                },
+            ]),
+        );
+        (event_mod.queryAllEvents as jest.Mock).mockReturnValue(
+            of([
+                {
+                    host: 'host@example.com',
+                    date: day_1,
+                    duration: 60,
+                    attendees: [{ email: 'attendee@example.com' }],
+                    extension_data: { people_count: { max: 2 } },
+                    system: { id: 'room-1' },
+                },
+                {
+                    host: 'rejected.host@example.com',
+                    date: day_1,
+                    duration: 60,
+                    attendees: [{ email: 'rejected.attendee@example.com' }],
+                    extension_data: { people_count: { max: 2 } },
+                    rejected: true,
+                    system: { id: 'room-2' },
+                },
+                {
+                    host: 'cancelled.host@example.com',
+                    date: day_1,
+                    duration: 60,
+                    attendees: [{ email: 'cancelled.attendee@example.com' }],
+                    extension_data: { people_count: { max: 2 } },
+                    status: 'cancelled',
+                    system: { id: 'room-3' },
+                },
+            ]),
+        );
+
+        const report_promise = firstValueFrom(
+            spectator.service.report$.pipe(skip(1), take(1)),
+        );
+        spectator.service.generateReport();
+        const report = await report_promise;
+
+        expect(report.total_attendance).toBe(3);
+        expect(report.total_bookings).toBe(2);
+        expect(report.unique_people).toBe(3);
+        expect(report.cards.find((card) => card.id === 'events')).toEqual(
+            expect.objectContaining({ attendance: 2, bookings: 1 }),
+        );
+        expect(report.cards.find((card) => card.id === 'desks')).toEqual(
+            expect.objectContaining({ attendance: 1, bookings: 1 }),
+        );
+        expect(report.hosts.map((host) => host.id)).toEqual([
+            'desk.user@example.com',
+            'host@example.com',
+        ]);
+        expect(report.attendees.map((attendee) => attendee.id)).toEqual([
+            'attendee@example.com',
+        ]);
+    });
+
     it('should only request enabled resource bookings', async () => {
         features = ['desks'];
         spectator = createService();
