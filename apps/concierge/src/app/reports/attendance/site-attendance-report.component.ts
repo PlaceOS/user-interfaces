@@ -348,10 +348,10 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
 
                     <div class="px-4 pb-8">
                         <div
-                            class="border-base-200 bg-base-100 overflow-hidden rounded-sm border shadow-sm"
+                            class="attendance-table-block border-base-200 bg-base-100 overflow-hidden rounded-sm border shadow-sm"
                         >
                             <div
-                                class="border-base-200 flex items-center justify-between border-b px-4"
+                                class="attendance-table-header border-base-200 flex items-center justify-between border-b px-4"
                             >
                                 <h3 class="py-4 text-lg font-semibold">
                                     {{
@@ -418,10 +418,10 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
 
                     <div class="px-4 pb-8">
                         <div
-                            class="border-base-200 bg-base-100 overflow-hidden rounded-sm border shadow-sm"
+                            class="attendance-table-block border-base-200 bg-base-100 overflow-hidden rounded-sm border shadow-sm"
                         >
                             <div
-                                class="border-base-200 flex items-center justify-between border-b px-4"
+                                class="attendance-table-header border-base-200 flex items-center justify-between border-b px-4"
                             >
                                 <h3 class="py-4 text-lg font-semibold">
                                     {{ 'CALENDAR_EVENT.ATTENDEES' | translate }}
@@ -552,7 +552,20 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                     margin-top: 0;
                 }
 
+                .attendance-table-block {
+                    break-inside: auto;
+                    page-break-inside: auto;
+                    box-shadow: none !important;
+                }
+
+                .attendance-table-header {
+                    break-after: avoid-page;
+                    page-break-after: avoid;
+                }
+
                 simple-table {
+                    break-before: avoid-page;
+                    page-break-before: avoid;
                     page-break-inside: avoid;
                     break-inside: avoid-page;
                 }
