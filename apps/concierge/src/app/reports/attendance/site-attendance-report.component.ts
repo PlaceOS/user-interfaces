@@ -553,8 +553,8 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                 }
 
                 .attendance-table-block {
-                    break-inside: auto;
-                    page-break-inside: auto;
+                    break-inside: avoid-page;
+                    page-break-inside: avoid;
                     box-shadow: none !important;
                 }
 
