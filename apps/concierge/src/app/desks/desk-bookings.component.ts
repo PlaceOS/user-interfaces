@@ -206,7 +206,13 @@ import { DesksStateService } from './desks-state.service';
                                     ) | translate
                                 }}
                             </div>
-                            @if (!(row?.status === 'ended' || row.deleted)) {
+                            @if (
+                                !(
+                                    row?.status === 'ended' ||
+                                    row?.has_ended ||
+                                    row.deleted
+                                )
+                            ) {
                                 <icon class="text-2xl"> arrow_drop_down </icon>
                             }
                         </div>
