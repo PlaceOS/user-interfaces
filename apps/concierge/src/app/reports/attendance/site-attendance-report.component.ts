@@ -130,6 +130,7 @@ const PEOPLE_TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
             (printing)="printing.set($event)"
             [loading]="loading()"
             [has_data]="has_data()"
+            [hide_level_selector]="true"
             (download)="downloadReport()"
             (generate)="generateReport()"
         />

@@ -51,33 +51,35 @@ const resource_level_cache = new Map<string, Observable<Set<string>>>();
         <div
             class="border-base-200 bg-base-100 z-20 flex h-20 w-full items-center space-x-2 border-b p-4 print:hidden"
         >
-            <mat-form-field appearance="outline" class="no-subscript w-60">
-                <mat-select
-                    [ngModel]="zones()"
-                    (ngModelChange)="setZones($event)"
-                    [placeholder]="'COMMON.LEVEL_ALL' | translate"
-                    multiple
-                >
-                    @for (level of levels(); track level.id) {
-                        <mat-option [value]="level.id">
-                            <div class="flex flex-col-reverse">
-                                @if (use_region) {
-                                    <div class="text-xs opacity-30">
-                                        {{
-                                            (level.parent_id | building)
-                                                ?.display_name
-                                        }}
-                                        <span class="opacity-0"> - </span>
+            @if (!hide_level_selector()) {
+                <mat-form-field appearance="outline" class="no-subscript w-60">
+                    <mat-select
+                        [ngModel]="zones()"
+                        (ngModelChange)="setZones($event)"
+                        [placeholder]="'COMMON.LEVEL_ALL' | translate"
+                        multiple
+                    >
+                        @for (level of levels(); track level.id) {
+                            <mat-option [value]="level.id">
+                                <div class="flex flex-col-reverse">
+                                    @if (use_region) {
+                                        <div class="text-xs opacity-30">
+                                            {{
+                                                (level.parent_id | building)
+                                                    ?.display_name
+                                            }}
+                                            <span class="opacity-0"> - </span>
+                                        </div>
+                                    }
+                                    <div>
+                                        {{ level.display_name || level.name }}
                                     </div>
-                                }
-                                <div>
-                                    {{ level.display_name || level.name }}
                                 </div>
-                            </div>
-                        </mat-option>
-                    }
-                </mat-select>
-            </mat-form-field>
+                            </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+            }
             <date-range-field [week_start]="week_start" [from]="0">
                 <input
                     #startDate
@@ -168,6 +170,7 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
     public readonly loading = input<boolean>(false);
     public readonly has_data = input<boolean>(false);
     public readonly resource_type = input<ReportResourceType>();
+    public readonly hide_level_selector = input<boolean>(false);
 
     public readonly printing = output<boolean>();
     public readonly generate = output<void>();
