@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import {
@@ -28,8 +29,8 @@ import {
     isSameMonth,
     isSameYear,
     parse,
-    startOfWeek,
     startOfMinute,
+    startOfWeek,
     subDays,
 } from 'date-fns';
 
@@ -99,18 +100,20 @@ type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
             </button>
         }
         @if (!is_new()) {
-            <button
-                icon
-                matRipple
-                class="border-base-200 relative rounded-sm border"
-                customTooltip
-                [content]="calendar_picker"
-                yPosition="top"
-                [class.pointer-events-none]="disabled()"
-                [class.opacity-30]="disabled()"
-            >
-                <icon>today</icon>
-            </button>
+            <div matTooltip="Pick Date">
+                <button
+                    icon
+                    default
+                    matRipple
+                    customTooltip
+                    [content]="calendar_picker"
+                    yPosition="top"
+                    [class.pointer-events-none]="disabled()"
+                    [class.opacity-30]="disabled()"
+                >
+                    <icon>today</icon>
+                </button>
+            </div>
         }
         <ng-template #calendar_picker>
             <div class="bg-base-100 relative w-76 rounded-sm px-2 py-4">
@@ -143,6 +146,7 @@ type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
         CustomTooltipComponent,
         DateCalendarComponent,
         IconComponent,
+        MatTooltipModule,
     ],
 })
 export class DateOptionsComponent

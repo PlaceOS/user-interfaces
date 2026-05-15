@@ -91,7 +91,7 @@ import { LockerFilters, LockerStateService } from './locker-state.service';
                 </button>
             }
         </div>
-        <div class="bg-base-100 mb-2 flex h-14 items-center px-8">
+        <div class="bg-base-100 mb-2 flex h-14 items-center gap-2 px-8">
             <mat-form-field appearance="outline" class="no-subscript w-56">
                 <mat-select
                     [ngModel]="zones()"
@@ -128,8 +128,9 @@ import { LockerFilters, LockerStateService } from './locker-state.service';
             @if (path() !== 'events' && path() !== 'map') {
                 <button
                     icon
+                    default
+                    error
                     matRipple
-                    class="border-error text-error mr-2 h-12 w-12 rounded-sm border"
                     (click)="releaseAllLockers()"
                     [matTooltip]="
                         'APP.CONCIERGE.LOCKERS_RELEASE_ALL' | translate
@@ -141,8 +142,8 @@ import { LockerFilters, LockerStateService } from './locker-state.service';
             @if (path() !== 'events' && path() !== 'map') {
                 <button
                     icon
+                    default
                     matRipple
-                    class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                     (click)="manageRestrictions()"
                     [matTooltip]="
                         'APP.CONCIERGE.LOCKERS_BOOKING_RULES' | translate

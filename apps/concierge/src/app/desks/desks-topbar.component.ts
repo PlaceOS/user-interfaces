@@ -69,8 +69,8 @@ import { DesksStateService } from './desks-state.service';
             @if (manage()) {
                 <button
                     icon
+                    default
                     matRipple
-                    class="bg-primary mx-2 rounded-sm text-white"
                     (click)="newDesk()"
                     [matTooltip]="'APP.CONCIERGE.DESKS_NEW' | translate"
                 >
@@ -80,8 +80,8 @@ import { DesksStateService } from './desks-state.service';
             @if (manage()) {
                 <button
                     icon
+                    default
                     matRipple
-                    class="bg-primary relative rounded-sm text-white"
                     [matTooltip]="'APP.CONCIERGE.DESKS_LIST_UPLOAD' | translate"
                 >
                     <icon>cloud_upload</icon>
@@ -95,8 +95,8 @@ import { DesksStateService } from './desks-state.service';
             @if (manage()) {
                 <button
                     icon
+                    default
                     matRipple
-                    class="bg-primary mx-2 rounded-sm text-white"
                     (click)="downloadTemplate()"
                     [matTooltip]="
                         'APP.CONCIERGE.DESKS_LIST_DOWNLOAD' | translate
@@ -108,8 +108,8 @@ import { DesksStateService } from './desks-state.service';
             @if (manage()) {
                 <button
                     icon
+                    default
                     matRipple
-                    class="bg-primary mx-2 rounded-sm text-white"
                     (click)="manageRestrictions()"
                     [matTooltip]="
                         'APP.CONCIERGE.DESKS_BOOKING_RULES' | translate

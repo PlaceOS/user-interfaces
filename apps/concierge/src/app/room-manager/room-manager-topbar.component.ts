@@ -69,10 +69,9 @@ import {
             </mat-form-field>
             <div class="w-2 flex-1"></div>
             <button
-                btn
                 icon
+                default
                 matRipple
-                class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                 (click)="manageRestrictions()"
                 [matTooltip]="'APP.CONCIERGE.ROOMS_BOOKING_RULES' | translate"
             >

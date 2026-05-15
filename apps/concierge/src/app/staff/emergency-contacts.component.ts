@@ -96,8 +96,8 @@ export { EmergencyContact } from './emergency-contacts.service';
                         <div class="flex items-center space-x-2">
                             <button
                                 icon
+                                default
                                 matRipple
-                                class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                                 [matTooltip]="
                                     'APP.CONCIERGE.CONTACTS_ROLES_MANAGE'
                                         | translate
