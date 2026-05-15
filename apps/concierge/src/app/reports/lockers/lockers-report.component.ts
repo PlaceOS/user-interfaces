@@ -31,12 +31,12 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
     {
         label: 'Total bookings',
         description:
-            'All locker bookings returned for the selected dates and zones, including active, cancelled, and deleted records.',
+            'All locker bookings returned for the selected dates and zones, including active, rejected, and cancelled records.',
     },
     {
-        label: 'Active / Cancelled / Deleted',
+        label: 'Active / Rejected / Cancelled',
         description:
-            'Active excludes deleted and cancelled bookings. Cancelled uses non-deleted bookings with cancelled status. Deleted uses bookings flagged as deleted.',
+            'Active excludes cancelled and rejected bookings. Rejected uses bookings with cancelled or rejected status. Cancelled uses bookings flagged as cancelled.',
     },
     {
         label: 'Average length',

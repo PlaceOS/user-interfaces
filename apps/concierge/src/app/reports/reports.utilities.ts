@@ -28,7 +28,10 @@ export function reportBookingStatusStats(bookings: Booking[]) {
 }
 
 export function reportBookingStatus(booking: Booking): string {
-    return booking.deleted ? 'Deleted' : booking.status || 'tentative';
+    if (booking.deleted) return 'Cancelled';
+    if (isDeclinedReportBooking(booking)) return 'Rejected';
+    if (booking.status === 'approved') return 'Approved';
+    return booking.status || 'tentative';
 }
 
 export function formatReportPercentage(value = 0, total = 0): string {

@@ -40,7 +40,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
     {
         label: 'Status',
         description:
-            'Deleted bookings show Deleted; otherwise the booking status is shown, defaulting to tentative.',
+            'Cancelled bookings show Cancelled; rejected bookings show Rejected; otherwise the booking status is shown, defaulting to tentative.',
     },
 ];
 
