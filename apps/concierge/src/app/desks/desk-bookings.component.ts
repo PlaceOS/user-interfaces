@@ -174,18 +174,29 @@ import { DesksStateService } from './desks-state.service';
                         [class.bg-error!]="
                             row?.status === 'declined' && !row.deleted
                         "
-                        [class.text-neutral-content!]="row?.status === 'ended'"
-                        [class.bg-neutral!]="row?.status === 'ended'"
-                        [class.opacity-30]="row?.status === 'ended'"
+                        [class.text-neutral-content!]="
+                            row?.status === 'ended' || row?.has_ended
+                        "
+                        [class.bg-neutral!]="
+                            row?.status === 'ended' || row?.has_ended
+                        "
+                        [class.opacity-30]="
+                            row?.status === 'ended' || row?.has_ended
+                        "
                         [matMenuTriggerFor]="menu"
-                        [disabled]="row?.status === 'ended' || row.deleted"
+                        [disabled]="
+                            row?.status === 'ended' ||
+                            row?.has_ended ||
+                            row.deleted
+                        "
                     >
                         <div class="flex items-center space-x-2 pr-2 pl-4">
                             <div class="flex-1 text-left">
                                 {{
                                     (row.deleted
                                         ? 'APP.CONCIERGE.BOOKING_STATUS_DELETED'
-                                        : row?.status === 'ended'
+                                        : row?.status === 'ended' ||
+                                            row?.has_ended
                                           ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
                                           : row?.status === 'approved'
                                             ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'

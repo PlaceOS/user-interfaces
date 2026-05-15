@@ -181,6 +181,10 @@ export class Booking {
         return this.all_day || this.duration >= 12 * 60;
     }
 
+    public get has_ended() {
+        return this.checked_out_at > 0 || isAfter(Date.now(), this.date_end);
+    }
+
     _valid_asset_cache = [];
     _valid_cache_expiry = 0;
 
@@ -328,10 +332,11 @@ export class Booking {
         this.status =
             this.deleted || data.status === 'cancelled'
                 ? 'cancelled'
-                : this.checked_out_at > 0 || isAfter(Date.now(), this.date_end)
-                  ? 'ended'
-                  : this.rejected || data.status === 'declined'
-                    ? 'declined'
+                : this.rejected || data.status === 'declined'
+                  ? 'declined'
+                  : this.checked_out_at > 0 ||
+                      isAfter(Date.now(), this.date_end)
+                    ? 'ended'
                     : this.approved || data.status === 'approved'
                       ? 'approved'
                       : 'tentative';
