@@ -135,22 +135,24 @@ import {
                         (click)="newRequest()"
                     >
                         <div class="pl-2">
-                            {{ 'APP.CONCIERGE.PARKING_REQUEST_ADD' | translate }}
+                            {{
+                                'APP.CONCIERGE.PARKING_REQUEST_ADD' | translate
+                            }}
                         </div>
                         <icon>playlist_add</icon>
                     </button>
                 } @else {
-                <button
-                    btn
-                    matRipple
-                    class="w-48 space-x-2"
-                    (click)="newReservation()"
-                >
-                    <div class="pl-2">
-                        {{ 'APP.CONCIERGE.PARKING_ADD' | translate }}
-                    </div>
-                    <icon>add</icon>
-                </button>
+                    <button
+                        btn
+                        matRipple
+                        class="w-48 space-x-2"
+                        (click)="newReservation()"
+                    >
+                        <div class="pl-2">
+                            {{ 'APP.CONCIERGE.PARKING_ADD' | translate }}
+                        </div>
+                        <icon>add</icon>
+                    </button>
                 }
             }
         </div>
@@ -256,8 +258,8 @@ import {
                     @if (view() === 'spaces') {
                         <button
                             icon
+                            default
                             matRipple
-                            class="bg-secondary text-secondary-content relative h-12 w-12 rounded-sm"
                             [matTooltip]="
                                 'APP.CONCIERGE.PARKING_CSV_UPLOAD' | translate
                             "
@@ -274,8 +276,8 @@ import {
                         </button>
                         <button
                             icon
+                            default
                             matRipple
-                            class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                             (click)="downloadSpacesCSV()"
                             [matTooltip]="
                                 'APP.CONCIERGE.PARKING_CSV_DOWNLOAD' | translate
@@ -286,8 +288,8 @@ import {
                     }
                     <button
                         icon
+                        default
                         matRipple
-                        class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                         (click)="manageRestrictions()"
                         [matTooltip]="
                             'APP.CONCIERGE.PARKING_BOOKING_RULES' | translate

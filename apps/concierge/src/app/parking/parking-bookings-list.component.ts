@@ -443,7 +443,9 @@ interface ParkingBookingColumnTemplates {
                                 row.state === 'in_progress' ||
                                 row.status === 'ended'
                             "
-                            [matTooltip]="'COMMON.DELETE' | translate"
+                            [matTooltip]="
+                                'APP.CONCIERGE.BOOKING_REMOVE_TITLE' | translate
+                            "
                             (click)="removeBooking(row)"
                         >
                             <icon class="text-2xl">delete</icon>

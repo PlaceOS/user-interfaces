@@ -25,11 +25,11 @@ import { ReportsStateService } from '../reports-state.service';
                 <p>{{ active_count() || 0 }}</p>
             </div>
             <div class="flex flex-1 flex-col items-center">
-                <h3>Declined</h3>
+                <h3>Rejected</h3>
                 <p>{{ cancelled_count() || 0 }}</p>
             </div>
             <div class="flex flex-1 flex-col items-center">
-                <h3>Deleted</h3>
+                <h3>Cancelled</h3>
                 <p>{{ deleted_count() || 0 }}</p>
             </div>
             <div class="flex flex-1 flex-col items-center">

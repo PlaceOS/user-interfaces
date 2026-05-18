@@ -893,11 +893,13 @@ a[icon] {
 
     &[default] {
         background: var(--base-100);
-        border: 1px solid var(--base-200);
+        border: 1px solid var(--base-300);
         border-radius: 0.5rem;
+        color: var(--base-content);
+
         &:hover {
             background: var(--base-200);
-            border-color: var(--base-300);
+            border-color: var(--base-400);
             --tw-shadow:
                 0 4px 6px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1)),
                 0 2px 4px -2px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
@@ -905,6 +907,13 @@ a[icon] {
                 var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
                 var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
                 var(--tw-shadow);
+        }
+
+        &[error] {
+            --base-200: var(--error-light);
+            --base-300: var(--error);
+            --base-400: var(--error);
+            --base-content: var(--error);
         }
     }
 

@@ -195,37 +195,34 @@ import { DesksStateService } from './desks-state.service';
                             (dateChange)="setDate($event)"
                         ></date-options>
                         <button
-                            btn
                             icon
+                            default
                             matRipple
                             [matTooltip]="'COMMON.REFRESH' | translate"
-                            class="border-base-200 rounded-sm border"
                             (click)="refresh()"
                             [disabled]="loading()"
                         >
                             <icon>refresh</icon>
                         </button>
                         <button
-                            btn
                             icon
+                            default
                             matRipple
                             [matTooltip]="
                                 'APP.CONCIERGE.REJECT_ALL' | translate
                             "
-                            class="border-base-200 rounded-sm border"
                             (click)="rejectAll()"
                             [disabled]="loading()"
                         >
                             <icon>event_busy</icon>
                         </button>
                         <button
-                            btn
                             icon
+                            default
                             matRipple
                             [matTooltip]="
                                 'APP.CONCIERGE.DOWNLOAD_USER_LIST' | translate
                             "
-                            class="border-base-200 rounded-sm border"
                             [disabled]="downloading()"
                             (click)="downloadCsv()"
                         >
@@ -238,10 +235,9 @@ import { DesksStateService } from './desks-state.service';
                     }
                     @if (path() === 'manage') {
                         <button
-                            btn
                             icon
+                            default
                             matRipple
-                            class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                             [matTooltip]="
                                 'APP.CONCIERGE.DESKS_VIEW_QR_CODE_LIST'
                                     | translate
@@ -251,10 +247,9 @@ import { DesksStateService } from './desks-state.service';
                             <icon>qr_code</icon>
                         </button>
                         <button
-                            btn
                             icon
+                            default
                             matRipple
-                            class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                             [matTooltip]="
                                 'APP.CONCIERGE.DESKS_LIST_UPLOAD' | translate
                             "
@@ -267,10 +262,9 @@ import { DesksStateService } from './desks-state.service';
                             />
                         </button>
                         <button
-                            btn
                             icon
+                            default
                             matRipple
-                            class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                             (click)="downloadTemplate()"
                             [matTooltip]="
                                 'APP.CONCIERGE.DESKS_LIST_DOWNLOAD' | translate
@@ -280,8 +274,8 @@ import { DesksStateService } from './desks-state.service';
                         </button>
                         <button
                             icon
+                            default
                             matRipple
-                            class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                             (click)="manageRestrictions()"
                             [matTooltip]="
                                 'APP.CONCIERGE.DESKS_BOOKING_RULES' | translate

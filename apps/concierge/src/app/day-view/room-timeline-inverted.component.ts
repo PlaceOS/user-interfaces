@@ -496,24 +496,24 @@ Host:  ${event.organiser?.name || event.host}`;
     public async remove(item: CalendarEvent, space_id: string) {
         const time = `${format(item.date, 'dd MMM yyyy ' + this.time_format)}`;
         const resource_name = item.space?.display_name;
-        const content = `Delete the booking for ${resource_name} at ${time}`;
+        const content = `Cancel the booking for ${resource_name} at ${time}`;
         const resp = await openConfirmModal(
-            { title: `Delete booking`, content, icon: { content: 'delete' } },
+            { title: `Cancel booking`, content, icon: { content: 'delete' } },
             this._dialog,
         );
         if (resp.reason !== 'done') return;
-        resp.loading('Requesting booking deletion...');
+        resp.loading('Requesting booking cancellation...');
         await declineEvent(item.id, {
             calendar: item.calendar || item.mailbox || item.host,
             system_id: space_id,
         })
             .toPromise()
             .catch((e) => {
-                notifyError(`Unable to delete booking. ${e}`);
+                notifyError(`Unable to cancel booking. ${e}`);
                 resp.close();
                 throw e;
             });
-        notifySuccess('Successfully deleted booking.');
+        notifySuccess('Successfully cancelled booking.');
         this._dialog.closeAll();
     }
 

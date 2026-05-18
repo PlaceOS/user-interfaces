@@ -335,11 +335,14 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                                 booking.status === 'ended'
                                             "
                                             [matTooltip]="
-                                                'COMMON.DELETE' | translate
+                                                'APP.CONCIERGE.BOOKING_REMOVE_TITLE'
+                                                    | translate
                                             "
                                             (click)="removeBooking(booking)"
                                         >
-                                            <icon class="text-base">delete</icon>
+                                            <icon class="text-base"
+                                                >delete</icon
+                                            >
                                         </button>
                                     }
                                 </div>
@@ -456,7 +459,8 @@ export class ParkingBookingsWeekViewComponent
     public readonly editReservation = (e: Booking) =>
         this._state.editReservation(e);
     public readonly assignSpace = (e: Booking) => this._state.assignSpace(e);
-    public readonly removeBooking = (e: Booking) => this._state.removeBooking(e);
+    public readonly removeBooking = (e: Booking) =>
+        this._state.removeBooking(e);
     public readonly isRequest = (e: Booking) => this._state.isRequest(e);
     public readonly isWaitlisted = (e: Booking) => this._state.isWaitlisted(e);
     public readonly canApproveBooking = (e: Booking) =>
@@ -511,15 +515,15 @@ export class ParkingBookingsWeekViewComponent
             ? 'APP.CONCIERGE.BOOKING_STATUS_ASSIGNED'
             : this.isDeletedBooking(booking)
               ? 'APP.CONCIERGE.BOOKING_STATUS_DELETED'
-            : booking?.status === 'ended'
-              ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
-              : booking?.status === 'approved'
-                ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
-                : booking?.status === 'declined'
-                  ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                  : this.isVisibleWaitlisted(booking)
-                    ? 'APP.CONCIERGE.PARKING_WAITLISTED'
-                    : 'APP.CONCIERGE.BOOKING_STATUS_PENDING';
+              : booking?.status === 'ended'
+                ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
+                : booking?.status === 'approved'
+                  ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
+                  : booking?.status === 'declined'
+                    ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
+                    : this.isVisibleWaitlisted(booking)
+                      ? 'APP.CONCIERGE.PARKING_WAITLISTED'
+                      : 'APP.CONCIERGE.BOOKING_STATUS_PENDING';
     }
 
     public isRequestFilter(filter_type?: string) {

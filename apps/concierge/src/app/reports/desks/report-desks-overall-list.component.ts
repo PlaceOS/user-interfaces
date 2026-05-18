@@ -26,10 +26,10 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
     {
         label: 'Total requests',
         description:
-            'All desk bookings on the day, including active, cancelled, and deleted bookings.',
+            'All desk bookings on the day, including active, rejected, and cancelled bookings.',
     },
     {
-        label: 'Declined / Deleted',
+        label: 'Rejected / Cancelled',
         description:
             'Displayed as count and percentage of total requests for that day.',
     },
@@ -92,12 +92,12 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                         },
                         {
                             key: 'cancelled',
-                            name: 'Declined',
+                            name: 'Rejected',
                             content: booking_percent_template,
                         },
                         {
                             key: 'deleted',
-                            name: 'Deleted',
+                            name: 'Cancelled',
                             content: booking_percent_template,
                         },
                         {

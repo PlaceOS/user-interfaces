@@ -21,7 +21,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
     {
         label: 'Booking count',
         description:
-            'All asset request bookings for the product on the day, including active, cancelled, and deleted records.',
+            'All asset request bookings for the product on the day, including active, rejected, and cancelled records.',
     },
     {
         label: 'Active',
@@ -29,7 +29,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
             'Active asset request bookings for the product on the day.',
     },
     {
-        label: 'Cancelled / Deleted',
+        label: 'Rejected / Cancelled',
         description:
             'Displayed as count and percentage of total product bookings for that day.',
     },
@@ -95,12 +95,12 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                     },
                     {
                         key: 'cancelled_count',
-                        name: 'Cancelled',
+                        name: 'Rejected',
                         content: booking_percent_template,
                     },
                     {
                         key: 'deleted_count',
-                        name: 'Deleted',
+                        name: 'Cancelled',
                         content: booking_percent_template,
                     },
                     {

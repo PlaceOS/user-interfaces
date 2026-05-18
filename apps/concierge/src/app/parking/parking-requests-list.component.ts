@@ -156,7 +156,7 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                     : {
                                           time:
                                               (row.checked_out_at * 1000
-                                               | date: time_format : timezone),
+                                              | date: time_format : timezone),
                                       }
                         "
                         matTooltipPosition="right"
@@ -244,10 +244,17 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                             : isVisibleWaitlisted(row)
                                               ? 'APP.CONCIERGE.PARKING_WAITLISTED'
                                               : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
-                                     ) | translate
+                                    ) | translate
                                 }}
                             </div>
-                            <icon class="text-2xl">arrow_drop_down</icon>
+                            @if (
+                                !(
+                                    row?.status === 'ended' ||
+                                    !canApproveBooking(row)
+                                )
+                            ) {
+                                <icon class="text-2xl">arrow_drop_down</icon>
+                            }
                         </div>
                     </button>
                 </div>

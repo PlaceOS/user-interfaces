@@ -27,16 +27,16 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
     {
         label: 'Total bookings',
         description:
-            'All desk bookings returned for the selected dates and zones, including active, cancelled, and deleted records.',
+            'All desk bookings returned for the selected dates and zones, including active, rejected, and cancelled records.',
     },
     {
         label: 'Active',
-        description: 'Bookings that are not deleted and are not declined.',
+        description: 'Bookings that are not cancelled and are not rejected.',
     },
     {
-        label: 'Declined / Deleted',
+        label: 'Rejected / Cancelled',
         description:
-            'Declined counts non-deleted bookings with cancelled state or rejected status. Deleted counts bookings flagged as deleted.',
+            'Rejected counts bookings with cancelled state or rejected status. Cancelled counts bookings flagged as cancelled.',
     },
     {
         label: 'Utilisation',
@@ -96,11 +96,11 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
                             <p>{{ active_count() || 0 }}</p>
                         </div>
                         <div class="flex flex-1 flex-col items-center">
-                            <h3>Declined</h3>
+                            <h3>Rejected</h3>
                             <p>{{ cancelled_count() || 0 }}</p>
                         </div>
                         <div class="flex flex-1 flex-col items-center">
-                            <h3>Deleted</h3>
+                            <h3>Cancelled</h3>
                             <p>{{ deleted_count() || 0 }}</p>
                         </div>
                         <div class="flex flex-1 flex-col items-center">

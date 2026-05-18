@@ -297,19 +297,29 @@ type HistoryPeriod = 'week' | 'month' | '3_months' | '12_months';
                 <div class="px-4 py-2">
                     <div
                         class="bg-success text-success-content inline-flex rounded-full px-3 py-1 text-xs"
-                        [class.bg-error]="row.status === 'declined'"
-                        [class.text-error-content]="row.status === 'declined'"
-                        [class.bg-warning]="row.status === 'tentative'"
+                        [class.bg-error]="
+                            row.status === 'declined' && !row.deleted
+                        "
+                        [class.text-error-content]="
+                            row.status === 'declined' && !row.deleted
+                        "
+                        [class.bg-neutral]="row.deleted"
+                        [class.text-neutral-content]="row.deleted"
+                        [class.bg-warning]="
+                            row.status === 'tentative' && !row.deleted
+                        "
                         [class.text-warning-content]="
-                            row.status === 'tentative'
+                            row.status === 'tentative' && !row.deleted
                         "
                     >
                         {{
-                            (row.status === 'declined'
-                                ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                                : row.status === 'tentative'
-                                  ? 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
-                                  : 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
+                            (row.deleted
+                                ? 'APP.CONCIERGE.BOOKING_STATUS_DELETED'
+                                : row.status === 'declined'
+                                  ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
+                                  : row.status === 'tentative'
+                                    ? 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
+                                    : 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
                             ) | translate
                         }}
                     </div>

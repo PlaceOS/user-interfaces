@@ -43,10 +43,11 @@ import { SignageStateService } from './signage-state.service';
             </mat-form-field>
             <button
                 icon
+                default
                 matRipple
                 customTooltip
                 [content]="add_link_template"
-                class="border-base-300 absolute top-3 right-14 h-9! max-h-9 w-9! max-w-9 min-w-0 border"
+                class="absolute top-2.5 right-14"
                 [matTooltip]="'APP.CONCIERGE.SIGNAGE_MEDIA_LINK' | translate"
                 matTooltipPosition="left"
             >
@@ -76,8 +77,9 @@ import { SignageStateService } from './signage-state.service';
             </ng-template>
             <button
                 icon
+                default
                 matRipple
-                class="border-base-300 absolute top-3 right-3 h-9! max-h-9 w-9! max-w-9 min-w-0 border"
+                class="absolute top-2.5 right-3"
                 [matTooltip]="'APP.CONCIERGE.SIGNAGE_MEDIA_UPLOAD' | translate"
                 matTooltipPosition="left"
             >

@@ -31,7 +31,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
             'Bookings on the day that are not deleted and not cancelled.',
     },
     {
-        label: 'Cancelled / Deleted',
+        label: 'Rejected / Cancelled',
         description:
             'Displayed as count and percentage of total bookings for that day.',
     },
@@ -95,12 +95,12 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                     },
                     {
                         key: 'cancelled_count',
-                        name: 'Cancelled',
+                        name: 'Rejected',
                         content: booking_percent_template,
                     },
                     {
                         key: 'deleted_count',
-                        name: 'Deleted',
+                        name: 'Cancelled',
                         content: booking_percent_template,
                     },
                     {

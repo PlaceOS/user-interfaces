@@ -28,11 +28,11 @@ import { AssetsReportService } from './assets-report.service';
                 <p class="text-2xl">{{ active_count() || 0 }}</p>
             </div>
             <div class="flex flex-1 flex-col items-center">
-                <h3 class="text-sm">Cancelled</h3>
+                <h3 class="text-sm">Rejected</h3>
                 <p class="text-2xl">{{ cancelled_count() || 0 }}</p>
             </div>
             <div class="flex flex-1 flex-col items-center">
-                <h3 class="text-sm">Deleted</h3>
+                <h3 class="text-sm">Cancelled</h3>
                 <p class="text-2xl">{{ deleted_count() || 0 }}</p>
             </div>
             <div class="flex flex-1 flex-col items-center">

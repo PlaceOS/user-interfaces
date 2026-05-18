@@ -159,25 +159,33 @@ import { EventsStateService } from './events-state.service';
                     <div
                         class="bg-success text-success-content inline-flex rounded-full px-3 py-1 text-xs"
                         [class.bg-error!]="
-                            row.type === 'cancelled' ||
-                            row.status === 'declined'
+                            !row.deleted &&
+                            (row.type === 'cancelled' ||
+                                row.status === 'declined')
                         "
                         [class.text-error-content!]="
-                            row.type === 'cancelled' ||
-                            row.status === 'declined'
+                            !row.deleted &&
+                            (row.type === 'cancelled' ||
+                                row.status === 'declined')
                         "
-                        [class.bg-warning!]="row.status === 'tentative'"
+                        [class.bg-neutral!]="row.deleted"
+                        [class.text-neutral-content!]="row.deleted"
+                        [class.bg-warning!]="
+                            row.status === 'tentative' && !row.deleted
+                        "
                         [class.text-warning-content!]="
-                            row.status === 'tentative'
+                            row.status === 'tentative' && !row.deleted
                         "
                     >
                         {{
-                            (row.type === 'cancelled' ||
-                            row.status === 'declined'
-                                ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                                : row.status === 'tentative'
-                                  ? 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
-                                  : 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
+                            (row.deleted
+                                ? 'APP.CONCIERGE.BOOKING_STATUS_DELETED'
+                                : row.type === 'cancelled' ||
+                                    row.status === 'declined'
+                                  ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
+                                  : row.status === 'tentative'
+                                    ? 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
+                                    : 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
                             ) | translate
                         }}
                     </div>
@@ -319,7 +327,7 @@ export class RoomBookingsListComponent {
     });
     public readonly bookings = computed(() =>
         [...this.events()]
-            .filter((event) => !event.is_system_event)
+            .filter((event) => !event.extension_data?.shared_event)
             .sort((a, b) => a.date - b.date)
             .map((event) => ({
                 ...event,

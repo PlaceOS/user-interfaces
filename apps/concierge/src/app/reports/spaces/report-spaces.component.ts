@@ -33,12 +33,12 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
     {
         label: 'Total bookings',
         description:
-            'All room bookings returned for the selected dates and zones, including active, cancelled, and deleted records.',
+            'All room bookings returned for the selected dates and zones, including active, rejected, and cancelled records.',
     },
     {
-        label: 'Active / Declined / Deleted',
+        label: 'Active / Rejected / Cancelled',
         description:
-            'Active excludes deleted and declined events. Declined uses events with cancelled state/type or rejected status. Deleted uses events flagged as deleted.',
+            'Active excludes cancelled and rejected events. Rejected uses events with cancelled state/type or rejected status. Cancelled uses events flagged as cancelled.',
     },
     {
         label: 'Average length',

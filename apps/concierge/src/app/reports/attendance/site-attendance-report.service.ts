@@ -27,6 +27,8 @@ import {
 import { BehaviorSubject, forkJoin, of } from 'rxjs';
 import { catchError, finalize, map, skip, takeUntil } from 'rxjs/operators';
 
+import { activeReportBookings, activeReportEvents } from '../reports.utilities';
+
 export interface ReportOptions {
     zones?: string[];
     start?: number;
@@ -364,6 +366,10 @@ export class SiteAttendanceReportService {
         const report_result = {
             ...result,
             events: this.getReportEvents(result.events || []),
+            desks: activeReportBookings(result.desks || []),
+            parking: activeReportBookings(result.parking || []),
+            lockers: activeReportBookings(result.lockers || []),
+            visitors: activeReportBookings(result.visitors || []),
         };
         const business_days = this.getBusinessDays(start, end);
         const cards = this.buildCards(report_result, business_days);
@@ -384,7 +390,9 @@ export class SiteAttendanceReportService {
     }
 
     private getReportEvents(events: CalendarEvent[]) {
-        return events.filter((event) => !this.isGroupEvent(event));
+        return activeReportEvents(events).filter(
+            (event) => !event.is_system_event && !this.isGroupEvent(event),
+        );
     }
 
     private isGroupEvent(event: CalendarEvent) {

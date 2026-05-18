@@ -161,31 +161,60 @@ import { DesksStateService } from './desks-state.service';
                         matRipple
                         class="bg-warning text-warning-content h-10 w-30 rounded-3xl border-none"
                         [class.text-success-content!]="
-                            row?.status === 'approved'
+                            row?.status === 'approved' && !row.deleted
                         "
-                        [class.bg-success!]="row?.status === 'approved'"
-                        [class.text-error-content!]="row?.status === 'declined'"
-                        [class.bg-error!]="row?.status === 'declined'"
-                        [class.text-neutral-content!]="row?.status === 'ended'"
-                        [class.bg-neutral!]="row?.status === 'ended'"
-                        [class.opacity-30]="row?.status === 'ended'"
+                        [class.bg-success!]="
+                            row?.status === 'approved' && !row.deleted
+                        "
+                        [class.text-neutral-content!]="row.deleted"
+                        [class.bg-neutral!]="row.deleted"
+                        [class.text-error-content!]="
+                            row?.status === 'declined' && !row.deleted
+                        "
+                        [class.bg-error!]="
+                            row?.status === 'declined' && !row.deleted
+                        "
+                        [class.text-neutral-content!]="
+                            row?.status === 'ended' || row?.has_ended
+                        "
+                        [class.bg-neutral!]="
+                            row?.status === 'ended' || row?.has_ended
+                        "
+                        [class.opacity-30]="
+                            row?.status === 'ended' || row?.has_ended
+                        "
                         [matMenuTriggerFor]="menu"
-                        [disabled]="row?.status === 'ended'"
+                        [disabled]="
+                            row?.status === 'ended' ||
+                            row?.has_ended ||
+                            row.deleted
+                        "
                     >
                         <div class="flex items-center space-x-2 pr-2 pl-4">
                             <div class="flex-1 text-left">
                                 {{
-                                    (row?.status === 'ended'
-                                        ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
-                                        : row?.status === 'approved'
-                                          ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
-                                          : row?.status === 'declined'
-                                            ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                                            : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
+                                    (row.deleted
+                                        ? 'APP.CONCIERGE.BOOKING_STATUS_DELETED'
+                                        : row?.status === 'ended' ||
+                                            row?.has_ended
+                                          ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
+                                          : row?.status === 'approved'
+                                            ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
+                                            : row?.status === 'declined'
+                                              ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
+                                              : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
                                     ) | translate
                                 }}
                             </div>
-                            <icon class="text-2xl"> arrow_drop_down </icon>
+                            @if (
+                                !(
+                                    row?.status === 'ended' ||
+                                    row?.has_ended ||
+                                    row.deleted
+                                )
+                            ) {
+                                <icon class="text-2xl"> arrow_drop_down </icon>
+                            }
                         </div>
                     </button>
                 </div>

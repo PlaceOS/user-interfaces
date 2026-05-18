@@ -60,4 +60,18 @@ describe('RecurrenceModalComponent', () => {
             endOfDay(addWeeks(booking_date, 6)).valueOf(),
         );
     });
+
+    it('should count instances from the first matching recurrence date', () => {
+        spectator.component.form.patchValue({
+            type: 'weekly',
+            interval: 1,
+            weekdays: new Set([4 as any]),
+            end_type: 'instances',
+            end_instances: 3,
+        });
+
+        expect(spectator.component.confirmValue().end_date).toBe(
+            endOfDay(addWeeks(new Date(2026, 3, 2).valueOf(), 2)).valueOf(),
+        );
+    });
 });
