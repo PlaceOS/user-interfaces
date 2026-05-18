@@ -86,6 +86,7 @@ import {
     validateSignageMediaDimensions,
     validateSignageMediaFile,
 } from './signage-media-upload.util';
+import { playlistMediaItems } from './signage-playlist.util';
 
 function dataURLtoFile(data_url: string, filename: string) {
     const [prefix, data] = data_url.split(',');
@@ -712,23 +713,9 @@ export class SignageService {
             }
             this.playlist_media_loading.set(true);
             return listSignagePlaylistMedia(playlist.id).pipe(
-                switchMap((result) => {
-                    const item_ids = result.items || [];
-                    if (!item_ids.length) {
-                        this.playlist_media_loading.set(false);
-                        return of([]);
-                    }
-                    return this.media.pipe(
-                        map((all_media) =>
-                            item_ids
-                                .map((id) => all_media.find((m) => m.id === id))
-                                .filter(Boolean),
-                        ),
-                        map((items) => {
-                            this.playlist_media_loading.set(false);
-                            return items;
-                        }),
-                    );
+                map((result) => {
+                    this.playlist_media_loading.set(false);
+                    return playlistMediaItems(result);
                 }),
                 catchError(() => {
                     this.playlist_media_loading.set(false);
