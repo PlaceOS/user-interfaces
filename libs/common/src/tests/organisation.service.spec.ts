@@ -96,6 +96,67 @@ describe('OrganisationService', () => {
         expect(second_list.map(({ id }) => id)).toEqual(['bld-1']);
     });
 
+    it('should expire cached zone data using the authority config', async () => {
+        (ts_client as any).authority = jest.fn(() => ({
+            id: 'auth-1',
+            config: { metadata_cache_duration: 0 },
+        }));
+        (ts_client as any).queryZones = jest.fn(() =>
+            of({ data: [{ id: 'bld-1', tags: ['building'] }] }),
+        );
+
+        await spectator.service.loadBuildings('org-1');
+        await spectator.service.loadBuildings('org-1');
+
+        expect(ts_client.queryZones).toHaveBeenCalledTimes(2);
+    });
+
+    it('should invalidate cached zone data when metadata cache id changes', async () => {
+        let metadata_cache_id = 'cache-1';
+        (ts_client as any).authority = jest.fn(() => ({
+            id: 'auth-1',
+            config: { metadata_cache_id },
+        }));
+        (ts_client as any).queryZones = jest.fn(() =>
+            of({ data: [{ id: 'bld-1', tags: ['building'] }] }),
+        );
+
+        await spectator.service.loadBuildings('org-1');
+        await spectator.service.loadBuildings('org-1');
+        metadata_cache_id = 'cache-2';
+        await spectator.service.loadBuildings('org-1');
+
+        expect(ts_client.queryZones).toHaveBeenCalledTimes(2);
+    });
+
+    it('should cache bulk metadata for the browser session', async () => {
+        (ts_client as any).bulkMetadata = jest.fn((name) =>
+            of({ bld_1: { details: { name } } }),
+        );
+
+        await spectator.service.loadBuildingData({ id: 'bld_1' } as any);
+        (spectator.service as any)._loaded_data.length = 0;
+        await spectator.service.loadBuildingData({ id: 'bld_1' } as any);
+
+        expect(ts_client.bulkMetadata).toHaveBeenCalledTimes(3);
+    });
+
+    it('should clear org caches when reloading metadata', async () => {
+        (ts_client as any).queryZones = jest.fn(() =>
+            of({ data: [{ id: 'bld-1', tags: ['building'] }] }),
+        );
+        jest.spyOn(spectator.service as any, 'load').mockResolvedValue(
+            undefined,
+        );
+
+        await spectator.service.loadBuildings('org-1');
+        await spectator.service.loadBuildings('org-1');
+        await spectator.service.reloadMetadata();
+        await spectator.service.loadBuildings('org-1');
+
+        expect(ts_client.queryZones).toHaveBeenCalledTimes(2);
+    });
+
     it('should load building metadata in bulk', async () => {
         (ts_client as any).bulkMetadata = jest.fn((name) =>
             of({ bld_1: { details: { name } } }),

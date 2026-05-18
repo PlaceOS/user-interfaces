@@ -31,9 +31,17 @@ import {
     Region,
 } from '../types/org.classes';
 
-const ZONE_CACHE_PREFIX = 'PLACEOS.org.zones';
+const ORG_CACHE_PREFIX = 'PLACEOS.org';
+const ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
+const METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
+const DEFAULT_CACHE_DURATION = 60 * 60 * 1000;
 type ZoneQueryParams = Parameters<typeof queryZones>[0];
 type MetadataMap = Record<string, Record<string, any>>;
+interface SessionCacheItem<T> {
+    expires_at: number;
+    metadata_cache_id: string;
+    data: T;
+}
 
 @Injectable({
     providedIn: 'root',
@@ -370,6 +378,13 @@ export class OrganisationService {
                 zone.id,
             );
         }
+    }
+
+    /** Clear cached org data and reload it from PlaceOS. Exposed via window.app.org in debug mode. */
+    public async reloadMetadata(): Promise<void> {
+        this._clearSessionCache();
+        this._loaded_data.length = 0;
+        await this.load();
     }
 
     private async init(tries = 0) {
@@ -782,7 +797,10 @@ export class OrganisationService {
     ): Promise<MetadataMap> {
         const parent_ids = ids.filter(Boolean).join(',');
         if (!parent_ids) return {};
-        return mapLastValueFrom(
+        const cache_key = this._metadataCacheKey(name, ids);
+        const cached_metadata = this._getCachedItem<MetadataMap>(cache_key);
+        if (cached_metadata) return cached_metadata;
+        const metadata_details = await mapLastValueFrom(
             bulkMetadata(name, { parent_ids }).pipe(catchError(() => of({}))),
             (metadata) =>
                 ids.reduce((map, id) => {
@@ -790,18 +808,26 @@ export class OrganisationService {
                     return map;
                 }, {} as MetadataMap),
         );
+        this._setCachedItem(cache_key, metadata_details);
+        return metadata_details;
     }
 
     private async _queryZones(params: ZoneQueryParams): Promise<PlaceZone[]> {
         const cache_key = this._zoneCacheKey(params);
-        const cached_zones = this._getCachedZones(cache_key);
+        const cached_zones = this._getCachedItem<PlaceZone[]>(cache_key);
         if (cached_zones) return cached_zones;
         const zones = await mapLastValueFrom(
             queryZones({ ...params, authority_id: authority().id } as any),
             (i) => i.data || [],
         );
-        this._setCachedZones(cache_key, zones);
+        this._setCachedItem(cache_key, zones);
         return zones;
+    }
+
+    private _metadataCacheKey(name: string, ids: string[]): string {
+        const auth = authority();
+        const parent_ids = ids.filter(Boolean).sort().join(',');
+        return `${METADATA_CACHE_PREFIX}.${auth?.id || 'default'}.${name}.${parent_ids}`;
     }
 
     private _zoneCacheKey(params: ZoneQueryParams): string {
@@ -822,20 +848,56 @@ export class OrganisationService {
         )}`;
     }
 
-    private _getCachedZones(cache_key: string): PlaceZone[] | null {
+    private _getCachedItem<T>(cache_key: string): T | null {
         try {
-            return JSON.parse(sessionStorage.getItem(cache_key) || 'null');
+            const cached_item = JSON.parse(
+                sessionStorage.getItem(cache_key) || 'null',
+            ) as SessionCacheItem<T> | null;
+            if (!cached_item) return null;
+            if (cached_item.metadata_cache_id !== this._metadataCacheID()) {
+                sessionStorage.removeItem(cache_key);
+                return null;
+            }
+            if (cached_item.expires_at > Date.now()) return cached_item.data;
+            sessionStorage.removeItem(cache_key);
+            return null;
         } catch {
             sessionStorage.removeItem(cache_key);
             return null;
         }
     }
 
-    private _setCachedZones(cache_key: string, zones: PlaceZone[]) {
+    private _setCachedItem<T>(cache_key: string, data: T) {
         try {
-            sessionStorage.setItem(cache_key, JSON.stringify(zones));
+            const cached_item: SessionCacheItem<T> = {
+                expires_at: Date.now() + this._cacheDuration(),
+                metadata_cache_id: this._metadataCacheID(),
+                data,
+            };
+            sessionStorage.setItem(cache_key, JSON.stringify(cached_item));
         } catch {
             // Ignore storage quota and privacy-mode failures.
+        }
+    }
+
+    private _cacheDuration(): number {
+        const config = authority()?.config || {};
+        const duration =
+            config['metadata_cache_duration'] ?? config['metadata_cache_ttl'];
+        return typeof duration === 'number'
+            ? duration * 1000
+            : DEFAULT_CACHE_DURATION;
+    }
+
+    private _metadataCacheID(): string {
+        return `${authority()?.config?.['metadata_cache_id'] || ''}`;
+    }
+
+    private _clearSessionCache() {
+        for (let i = sessionStorage.length - 1; i >= 0; i--) {
+            const key = sessionStorage.key(i);
+            if (key?.startsWith(ORG_CACHE_PREFIX))
+                sessionStorage.removeItem(key);
         }
     }
 }
