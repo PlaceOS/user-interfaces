@@ -565,11 +565,13 @@ export class SignageService {
         combineLatest([this._org.initialised, this._change]).pipe(
             filter(([initialised]) => !!initialised),
             debounceTime(300),
-            switchMap(() =>
+            switchMap(() => this._api_group_id$),
+            filter((group_id) => this.is_sys_admin() || !!group_id),
+            switchMap((group_id) =>
                 queryZones({
-                    parent_id: 'root',
                     limit: 2500,
                     include_children_count: true,
+                    ...(group_id ? { group_id } : { parent_id: 'root' }),
                 } as any).pipe(catchError(() => of({ data: [] }))),
             ),
             map((result: any) => result.data || []),
