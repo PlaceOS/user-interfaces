@@ -59,6 +59,7 @@ import {
     activeReportEvents,
     generateReportForBookings,
     generateReportForDeskBookings,
+    reportBookedTimeUtilisationPercent,
     isDeclinedReportEvent,
     reportBookableMinutes,
     reportBookingStatusStats,
@@ -445,7 +446,7 @@ export class ReportsStateService {
                         ),
                     ) || [];
                 const usage =
-                    options.type === 'desks'
+                    options.type === 'events'
                         ? unique(events, 'system_id').length
                         : unique(events, 'asset_id').length;
                 dates.push({
@@ -468,10 +469,10 @@ export class ReportsStateService {
                     ).length,
                     deleted: all_events.filter((event) => event.deleted).length,
                     count: all_events.length,
-                    utilisation: (
-                        (events.length /
-                            Math.max(events.length || 1, stats.total)) *
-                        100
+                    utilisation: reportBookedTimeUtilisationPercent(
+                        events as CalendarEvent[],
+                        stats.total,
+                        this._event_bookable_minutes,
                     ).toFixed(1),
                 });
                 date = addDays(date, 1);

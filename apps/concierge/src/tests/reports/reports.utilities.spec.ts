@@ -2,6 +2,7 @@ import {
     activeReportBookings,
     activeReportEvents,
     generateReportForBookings,
+    reportBookedTimeUtilisationPercent,
     reportBookableMinutes,
     reportBookingDuration,
     reportBookingStatusStats,
@@ -74,6 +75,31 @@ describe('report utilities', () => {
             );
 
             expect(report.utilisation).toBe(1);
+        });
+    });
+
+    describe('reportBookedTimeUtilisationPercent', () => {
+        it('should calculate booked time against room availability', () => {
+            expect(
+                reportBookedTimeUtilisationPercent(
+                    [
+                        { duration: 60 } as any,
+                        { duration: 120 } as any,
+                    ],
+                    3,
+                    480,
+                ),
+            ).toBe(12.5);
+        });
+
+        it('should cap all day bookings at one full bookable day', () => {
+            expect(
+                reportBookedTimeUtilisationPercent(
+                    [{ all_day: true, duration: 24 * 60 } as any],
+                    2,
+                    600,
+                ),
+            ).toBe(50);
         });
     });
 

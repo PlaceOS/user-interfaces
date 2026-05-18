@@ -36,7 +36,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
     {
         label: 'Utilisation',
         description:
-            'Active room bookings divided by the greater of active bookings or available room count for that day.',
+            'Booked room time divided by available room time for that day.',
     },
 ];
 
