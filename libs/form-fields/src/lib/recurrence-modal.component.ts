@@ -10,10 +10,11 @@ import {
     DayIndex,
     MonthlyType,
     Recurrence,
+    recurrenceEndDate,
     RecurrEndType,
     RecurrType,
 } from '@placeos/common';
-import { addDays, addMonths, addWeeks, endOfDay, startOfWeek } from 'date-fns';
+import { addDays, endOfDay, startOfWeek } from 'date-fns';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { CompactCounterComponent } from './compact-counter.component';
 import { DateFieldComponent } from './date-field.component';
@@ -285,14 +286,7 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
         value.end_date = value.end_date || this._defaultEndDate();
 
         if (value.end_type === 'instances' && value.end_instances) {
-            const end_step =
-                value.interval * Math.max(value.end_instances - 1, 0);
-            value.end_date =
-                value.type === 'daily'
-                    ? endOfDay(addDays(this.date, end_step)).valueOf()
-                    : value.type === 'weekly'
-                      ? endOfDay(addWeeks(this.date, end_step)).valueOf()
-                      : endOfDay(addMonths(this.date, end_step)).valueOf();
+            value.end_date = recurrenceEndDate(value, this.date);
         }
 
         if (value.end_type !== 'instances') {

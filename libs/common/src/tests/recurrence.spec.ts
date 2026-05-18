@@ -3,6 +3,7 @@ import { addWeeks, endOfDay, format } from 'date-fns';
 import {
     formatRecurrence,
     fromEventRecurrence,
+    toBookingRecurrence,
     toEventRecurrence,
     WeekOfMonth,
 } from '../lib/recurrence';
@@ -66,6 +67,47 @@ describe('formatRecurrence', () => {
         expect(raw.end).toBe(endOfDay(addWeeks(booking_date, 6)).valueOf());
         expect(formatRecurrence(fromEventRecurrence(raw), booking_date)).toBe(
             'Every 1 week on Tuesday ends after 7 instances (23 Jun 2026)',
+        );
+    });
+
+    it('should count booking instances from the first matching recurrence date', () => {
+        const booking_date = new Date(2026, 4, 12).valueOf();
+        const first_instance = new Date(2026, 4, 14).valueOf();
+        const raw = toBookingRecurrence(
+            {
+                _custom: true,
+                type: 'weekly',
+                interval: 1,
+                weekdays: new Set([4 as any]),
+                end_type: 'instances',
+                end_instances: 3,
+            },
+            booking_date,
+        );
+
+        expect(raw.recurrence_end).toBe(
+            Math.floor(endOfDay(addWeeks(first_instance, 2)).valueOf() / 1000),
+        );
+    });
+
+    it('should count multi-day weekly instances individually', () => {
+        const booking_date = new Date(2026, 4, 12).valueOf();
+        const raw = toBookingRecurrence(
+            {
+                _custom: true,
+                type: 'weekly',
+                interval: 1,
+                weekdays: new Set([2, 4] as any[]),
+                end_type: 'instances',
+                end_instances: 3,
+            },
+            booking_date,
+        );
+
+        expect(raw.recurrence_end).toBe(
+            Math.floor(
+                endOfDay(new Date(2026, 4, 19).valueOf()).valueOf() / 1000,
+            ),
         );
     });
 

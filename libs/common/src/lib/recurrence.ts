@@ -70,6 +70,8 @@ export const NO_RECURR: Recurrence = {
     interval: 1,
 };
 
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
 function weekOfMonth(date: number): WeekIndex {
     const date_obj = new Date(date);
     const day = date_obj.getDate();
@@ -106,6 +108,140 @@ function monthlyWeekdayStart(
         recurrence_date.setDate(day_of_month - 7);
     }
     return recurrence_date.valueOf();
+}
+
+function startOfWeekMs(date: number): number {
+    const date_obj = new Date(date);
+    date_obj.setDate(date_obj.getDate() - date_obj.getDay());
+    date_obj.setHours(0, 0, 0, 0);
+    return date_obj.valueOf();
+}
+
+function validWeekdays(days?: Set<DayIndex>): DayIndex[] {
+    if (!days?.size) return [];
+    return Array.from(days)
+        .filter((day) => day >= 0 && day < 7)
+        .sort((a, b) => a - b);
+}
+
+function isWeeklyInstance(
+    date: number,
+    start_date: number,
+    interval: number,
+    weekdays?: Set<DayIndex>,
+): boolean {
+    const day = new Date(date).getDay() as DayIndex;
+    const days = validWeekdays(weekdays);
+    if (days.length && !days.includes(day)) return false;
+    const weeks = Math.floor(
+        (startOfWeekMs(date) - startOfWeekMs(start_date)) / WEEK_MS,
+    );
+    return weeks >= 0 && weeks % Math.max(interval, 1) === 0;
+}
+
+export function firstRecurrenceInstance(
+    recurrence: Recurrence,
+    date: number = Date.now(),
+): number {
+    if (recurrence.type === 'weekly') {
+        for (
+            let offset = 0;
+            offset < 7 * Math.max(recurrence.interval, 1);
+            offset++
+        ) {
+            const candidate = addDays(date, offset).valueOf();
+            if (
+                isWeeklyInstance(
+                    candidate,
+                    date,
+                    recurrence.interval,
+                    recurrence.weekdays,
+                )
+            ) {
+                return candidate;
+            }
+        }
+    }
+    if (
+        recurrence.type === 'monthly' &&
+        recurrence.monthly_type === 'day_of_week' &&
+        recurrence.weekdays?.size
+    ) {
+        const day = validWeekdays(recurrence.weekdays)[0];
+        const week = recurrence.week || weekOfMonth(date);
+        for (
+            let offset = 0;
+            offset <= Math.max(recurrence.interval, 1);
+            offset++
+        ) {
+            const candidate = monthlyWeekdayStart(
+                addMonths(date, offset).valueOf(),
+                week,
+                day,
+            );
+            if (candidate >= date) return candidate;
+        }
+    }
+    return date;
+}
+
+export function recurrenceEndDate(
+    recurrence: Recurrence,
+    date: number = Date.now(),
+): number {
+    const instances = Math.max((recurrence.end_instances || 1) - 1, 0);
+    const interval = Math.max(recurrence.interval, 1);
+    const first_instance = firstRecurrenceInstance(recurrence, date);
+    if (recurrence.type === 'daily') {
+        return endOfDay(
+            addDays(first_instance, interval * instances),
+        ).valueOf();
+    }
+    if (recurrence.type === 'weekly') {
+        const days = validWeekdays(recurrence.weekdays);
+        if (days.length > 1) {
+            let count = 0;
+            let candidate = first_instance;
+            while (count < instances) {
+                candidate = addDays(candidate, 1).valueOf();
+                if (
+                    isWeeklyInstance(
+                        candidate,
+                        date,
+                        interval,
+                        recurrence.weekdays,
+                    )
+                ) {
+                    count++;
+                }
+            }
+            return endOfDay(candidate).valueOf();
+        }
+        return endOfDay(
+            addWeeks(first_instance, interval * instances),
+        ).valueOf();
+    }
+    if (
+        recurrence.type === 'monthly' &&
+        recurrence.monthly_type === 'day_of_week' &&
+        recurrence.weekdays?.size
+    ) {
+        const day = validWeekdays(recurrence.weekdays)[0];
+        const week = recurrence.week || weekOfMonth(date);
+        return endOfDay(
+            monthlyWeekdayStart(
+                addMonths(first_instance, interval * instances).valueOf(),
+                week,
+                day,
+            ),
+        ).valueOf();
+    }
+    if (recurrence.type === 'yearly') {
+        return endOfDay(
+            addYears(first_instance, interval * instances),
+        ).valueOf();
+    }
+    return endOfDay(addMonths(first_instance, interval * instances)).valueOf();
 }
 
 export interface BookingRecurrence {
@@ -187,22 +323,13 @@ export function toEventRecurrence(
         r.weekdays?.size
             ? Array.from(r.weekdays).sort((a, b) => a - b)[0]
             : undefined;
-    const recurrence_start =
-        monthly_day !== undefined && r.week
-            ? monthlyWeekdayStart(date, r.week, monthly_day)
-            : date;
+    const recurrence_start = firstRecurrenceInstance(r, date);
     const date_obj = new Date(recurrence_start);
     let end = addMonths(recurrence_start, 6).valueOf();
     if (r.end_type === 'date' && r.end_date) {
         end = r.end_date;
     } else if (r.end_type === 'instances') {
-        const end_step = r.interval * Math.max((r.end_instances || 1) - 1, 0);
-        end =
-            r.type === 'daily'
-                ? endOfDay(addDays(recurrence_start, end_step)).valueOf()
-                : r.type === 'weekly'
-                  ? endOfDay(addWeeks(recurrence_start, end_step)).valueOf()
-                  : endOfDay(addMonths(recurrence_start, end_step)).valueOf();
+        end = recurrenceEndDate(r, date);
     }
     const details: RecurrenceDetails = {
         _pattern: r._custom ? 'custom_display' : r.type,
@@ -325,16 +452,7 @@ export function toBookingRecurrence(
         booking.recurrence_end = getUnixTime(r.end_date); // Convert from milliseconds to seconds
     } else if (r.end_type === 'instances') {
         booking.recurrence_instances = r.end_instances;
-        const end_step = r.interval * Math.max((r.end_instances || 1) - 1, 0);
-        booking.recurrence_end = getUnixTime(
-            r.type === 'daily'
-                ? endOfDay(addDays(date, end_step))
-                : r.type === 'weekly'
-                  ? endOfDay(addWeeks(date, end_step))
-                  : r.type === 'monthly'
-                    ? endOfDay(addMonths(date, end_step))
-                    : endOfDay(addYears(date, end_step)),
-        );
+        booking.recurrence_end = getUnixTime(recurrenceEndDate(r, date));
     }
 
     if (r.type === 'daily') {

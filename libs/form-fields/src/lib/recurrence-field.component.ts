@@ -26,10 +26,11 @@ import {
     fromEventRecurrence,
     NO_RECURR,
     Recurrence,
+    recurrenceEndDate,
     toBookingRecurrence,
     toEventRecurrence,
 } from '@placeos/common';
-import { addDays, addMonths, addWeeks, addYears, endOfDay } from 'date-fns';
+import { addDays, addYears, endOfDay } from 'date-fns';
 
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -191,7 +192,7 @@ export class RecurrenceFieldComponent implements ControlValueAccessor, OnInit {
             return formatRecurrence(
                 {
                     ...val,
-                    end_date: this._computeEndDate(val, this.date()),
+                    end_date: recurrenceEndDate(val, this.date()),
                 },
                 this.date(),
             );
@@ -382,7 +383,7 @@ export class RecurrenceFieldComponent implements ControlValueAccessor, OnInit {
             updated.week = week as any;
         }
         if (current.end_type === 'instances' && current.end_instances) {
-            updated.end_date = this._computeEndDate(current, date_value);
+            updated.end_date = recurrenceEndDate(current, date_value);
         } else if (
             current.end_type === 'date' &&
             current.end_date &&
@@ -398,20 +399,6 @@ export class RecurrenceFieldComponent implements ControlValueAccessor, OnInit {
         if (Object.keys(updated).length) {
             this.setValue({ ...current, ...updated });
         }
-    }
-
-    /** Compute the concrete end date for an instance-based recurrence. */
-    private _computeEndDate(recurrence: Recurrence, date: number): number {
-        const end_step =
-            recurrence.interval *
-            Math.max((recurrence.end_instances || 1) - 1, 0);
-        if (recurrence.type === 'daily') {
-            return endOfDay(addDays(date, end_step)).valueOf();
-        }
-        if (recurrence.type === 'weekly') {
-            return endOfDay(addWeeks(date, end_step)).valueOf();
-        }
-        return endOfDay(addMonths(date, end_step)).valueOf();
     }
 
     /**
