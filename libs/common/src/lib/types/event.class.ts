@@ -179,7 +179,10 @@ export function eventStatus(
     if (details.resources?.length) {
         if (
             details.resources.every(
-                (i) => i.response_status === 'accepted' || details.approved,
+                (i) =>
+                    i.response_status === 'accepted' ||
+                    i.response_status === 'confirmed' ||
+                    details.approved,
             )
         ) {
             return 'approved';
@@ -483,7 +486,10 @@ export class CalendarEvent {
             )
         ) {
             this.resources.push(
-                new Space({ ...(system as any), response_status: data.status }),
+                new Space({
+                    ...(system as any),
+                    response_status: data.status || 'needsAction',
+                }),
             );
         }
         this.system = system || (this.resources[0] as any) || null;

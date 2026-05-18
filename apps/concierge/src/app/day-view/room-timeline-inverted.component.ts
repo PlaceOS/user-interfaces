@@ -118,7 +118,7 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
             </div>
             <div
                 room-headers
-                class="border-base-300 bg-base-100 sticky left-0 z-40 overflow-visible border-r"
+                class="border-base-300 bg-base-100 sticky left-0 z-20 overflow-visible border-r"
                 [style.height]="spaces().length * row_height + 'rem'"
             >
                 @for (space of spaces(); track space; let i = $index) {
