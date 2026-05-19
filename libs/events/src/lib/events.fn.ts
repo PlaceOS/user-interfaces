@@ -2,7 +2,9 @@ import {
     BookingClash,
     CalendarEvent,
     GuestUser,
+    setting,
     toQueryString,
+    VERSION,
 } from '@placeos/common';
 import { del, get, patch, post, put, query } from '@placeos/ts-client';
 import { addMinutes, getUnixTime } from 'date-fns';
@@ -68,6 +70,29 @@ export interface CalendarEventShowParams {
 }
 
 const EVENTS_ENDPOINT = `/api/staff/v1/events`;
+
+const APP_VERSION = VERSION.raw || VERSION.version || VERSION.hash;
+
+function appName() {
+    return (
+        setting<string>('app.name') ||
+        setting<string>('app.short_name') ||
+        'PlaceOS'
+    );
+}
+
+function withAppVersion<T extends { extension_data?: Record<string, any> }>(
+    data: T,
+): T {
+    return {
+        ...data,
+        extension_data: {
+            ...(data.extension_data || {}),
+            app_name: appName(),
+            app_version: APP_VERSION,
+        },
+    };
+}
 
 /**
  * List events
@@ -135,9 +160,10 @@ export function showEvent(id: string, q: CalendarEventShowParams = {}) {
  * @param data New calendar event fields
  */
 export function createEvent(data: Partial<CalendarEvent>) {
-    return post(`${EVENTS_ENDPOINT}`, new CalendarEvent(data).toJSON()).pipe(
-        map((item) => new CalendarEvent(item)),
-    );
+    return post(
+        `${EVENTS_ENDPOINT}`,
+        new CalendarEvent(withAppVersion(data)).toJSON(),
+    ).pipe(map((item) => new CalendarEvent(item)));
 }
 
 /**
@@ -158,7 +184,7 @@ export function updateEvent(
         `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${
             query ? '?' + query : ''
         }`,
-        new CalendarEvent(data).toJSON(),
+        new CalendarEvent(withAppVersion(data)).toJSON(),
     ).pipe(map((item) => new CalendarEvent(item)));
 }
 
