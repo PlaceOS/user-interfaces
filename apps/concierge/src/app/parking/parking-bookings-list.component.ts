@@ -19,6 +19,7 @@ import {
     SettingsService,
 } from '@placeos/common';
 import {
+    CustomTooltipComponent,
     IconComponent,
     SimpleTableComponent,
     TableColumn,
@@ -43,6 +44,7 @@ interface ParkingBookingColumnTemplates {
     person_template: TemplateRef<any>;
     host_template: TemplateRef<any>;
     plate_template: TemplateRef<any>;
+    notes_template: TemplateRef<any>;
     status_template: TemplateRef<any>;
     action_template: TemplateRef<any>;
     status_busy_label: string;
@@ -52,6 +54,7 @@ interface ParkingBookingColumnTemplates {
     reserved_for_label: string;
     reserved_by_label: string;
     plate_number_label: string;
+    notes_label: string;
     status_label: string;
 }
 
@@ -77,6 +80,7 @@ interface ParkingBookingColumnTemplates {
                         person_template,
                         host_template,
                         plate_template,
+                        notes_template,
                         status_template,
                         action_template,
                         status_busy_label: 'COMMON.STATUS_BUSY' | translate,
@@ -90,6 +94,7 @@ interface ParkingBookingColumnTemplates {
                             'APP.CONCIERGE.PARKING_RESERVED_BY' | translate,
                         plate_number_label:
                             'EXPLORE.PARKING_PLATE_NUMBER' | translate,
+                        notes_label: 'FORM.NOTES' | translate,
                         status_label: 'COMMON.STATUS' | translate,
                     })
                 "
@@ -193,6 +198,39 @@ interface ParkingBookingColumnTemplates {
                             {{ 'COMMON.EMPTY' | translate }}
                         </span>
                     }
+                </div>
+            </ng-template>
+            <ng-template #notes_template let-row="row">
+                <div class="flex justify-center px-4 py-2">
+                    @if (row.notes) {
+                        <span
+                            class="text-base-content/70 bg-base-200 border-base-300 flex h-8 w-8 items-center justify-center rounded-full border"
+                            customTooltip
+                            tabindex="0"
+                            [content]="notes_tooltip"
+                            [data]="{ notes: row.notes }"
+                            [hover]="true"
+                            [backdrop]="false"
+                            [xPosition]="'center'"
+                            [yPosition]="'top'"
+                            [attr.aria-label]="
+                                ('FORM.NOTES' | translate) + ': ' + row.notes
+                            "
+                        >
+                            <icon class="text-xl">sticky_note_2</icon>
+                        </span>
+                    } @else {
+                        <span class="opacity-30">
+                            {{ 'COMMON.EMPTY' | translate }}
+                        </span>
+                    }
+                </div>
+            </ng-template>
+            <ng-template #notes_tooltip let-notes="notes">
+                <div
+                    class="border-base-300 bg-base-100 text-base-content my-2 max-w-96 rounded-lg border px-4 py-3 text-left text-sm leading-snug whitespace-pre-wrap shadow-xl"
+                >
+                    {{ notes }}
                 </div>
             </ng-template>
             <ng-template #type_template let-row="row">
@@ -461,6 +499,7 @@ interface ParkingBookingColumnTemplates {
         TranslatePipe,
         MatRippleModule,
         IconComponent,
+        CustomTooltipComponent,
         MatMenuModule,
         MatTooltipModule,
         ParkingBookingsWeekViewComponent,
@@ -504,6 +543,7 @@ export class ParkingBookingsListComponent
         return this._state.filterEventSearch(list, search).map((booking) => ({
             ...booking,
             booking_type: this.bookingTypeSortValue(booking),
+            notes: booking.extension_data?.notes || '',
             ...this.customExtensionColumnValues(booking),
         }));
     });
@@ -547,6 +587,16 @@ export class ParkingBookingsListComponent
         return this._state
             .filterEventSearch(list, search)
             .some((booking) => this.action_count(booking) > 0);
+    });
+    public readonly show_notes_column = computed(() => {
+        const { search, request_filter } = this.options();
+        const list = this._state.filterEventList(
+            this.bookings(),
+            request_filter,
+        );
+        return this._state
+            .filterEventSearch(list, search)
+            .some((booking) => !!booking.extension_data?.notes);
     });
 
     public readonly can_edit = settingSignal('parking.allow_editing', true);
@@ -681,6 +731,14 @@ export class ParkingBookingsListComponent
                 content: templates.plate_template,
                 size: '10rem',
                 sortable: false,
+            },
+            {
+                key: 'notes',
+                name: templates.notes_label,
+                content: templates.notes_template,
+                size: '5rem',
+                sortable: false,
+                show: this.show_notes_column(),
             },
             ...this.custom_extension_columns.map((column) => ({
                 key: this.customExtensionColumnKey(column.field),
