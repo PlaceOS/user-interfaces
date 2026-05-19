@@ -1,4 +1,11 @@
-import { Component, inject, model, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    model,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import {
@@ -7,11 +14,88 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import type { TopMenuEmbedItem } from './top-menu.component';
+
+interface FooterMenuItem {
+    id: string;
+    name: string;
+    icon: string;
+    route: string[];
+}
+
+const FEATURE_MENU_ITEMS: FooterMenuItem[] = [
+    {
+        id: 'spaces',
+        name: 'APP.WORKPLACE.MENU_ROOMS',
+        icon: 'meeting_room',
+        route: ['/book', 'meeting'],
+    },
+    {
+        id: 'desks',
+        name: 'APP.WORKPLACE.MENU_DESKS',
+        icon: 'desk',
+        route: ['/book', 'desk'],
+    },
+    {
+        id: 'parking',
+        name: 'APP.WORKPLACE.MENU_PARKING',
+        icon: 'directions_car',
+        route: ['/book', 'parking'],
+    },
+    {
+        id: 'parking-requests',
+        name: 'APP.WORKPLACE.MENU_PARKING_REQUESTS',
+        icon: 'local_parking',
+        route: ['/book', 'parking-request'],
+    },
+    {
+        id: 'visitor-invite',
+        name: 'APP.WORKPLACE.MENU_VISITORS',
+        icon: 'person_add',
+        route: ['/book', 'visitor'],
+    },
+    {
+        id: 'schedule',
+        name: 'APP.WORKPLACE.MENU_SCHEDULE',
+        icon: 'today',
+        route: ['/your-bookings'],
+    },
+    {
+        id: 'group-events',
+        name: 'APP.WORKPLACE.MENU_EVENTS',
+        icon: 'local_activity',
+        route: ['/group-events'],
+    },
+    {
+        id: 'lockers',
+        name: 'APP.WORKPLACE.MENU_LOCKERS',
+        icon: 'lock',
+        route: ['/book', 'locker'],
+    },
+    {
+        id: 'control',
+        name: 'APP.WORKPLACE.MENU_CONTROL',
+        icon: 'remote_gen',
+        route: ['/control'],
+    },
+    {
+        id: 'deals-n-offers',
+        name: 'APP.WORKPLACE.MENU_DEALS',
+        icon: 'confirmation_number',
+        route: ['/deals-n-offers'],
+    },
+    {
+        id: 'team-schedule',
+        name: 'APP.WORKPLACE.MENU_TEAM_SCHEDULE',
+        icon: 'groups',
+        route: ['/team-schedule'],
+    },
+];
 
 @Component({
     selector: 'footer-menu',
     template: `
-        @if (show_book_items() && features().length > 1) {
+        @if (show_book_items() && footer_item_count() > 1) {
             <div
                 class="border-base-100 fixed inset-0 bottom-16 z-30 border-t"
                 [attr.dark]="dark_mode()"
@@ -20,182 +104,52 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                 <div
                     class="border-base-100 bg-base-100 absolute inset-x-0 bottom-0 grid max-h-[60vh] grid-cols-2 gap-4 overflow-y-auto rounded-t-xl border-t p-4"
                 >
-                    @if (features().includes('spaces')) {
+                    @for (item of menu_items(); track item.id) {
                         <a
-                            name="footer-nav-meeting"
                             matRipple
-                            [routerLink]="['/book', 'meeting']"
+                            [name]="'footer-nav-' + item.id"
+                            [routerLink]="item.route"
                             routerLinkActive="active"
-                            class="bg-base-200 flex flex-col items-center justify-center gap-2 rounded-xl p-4"
+                            class="bg-base-100 border-base-300 hover:bg-base-200 flex h-32 w-full flex-col items-center justify-center gap-2 rounded-2xl border p-2 shadow-lg"
                         >
-                            <icon class="text-secondary text-6xl"
-                                >meeting_room</icon
+                            <icon class="text-4xl" filled>{{ item.icon }}</icon>
+                            <icon
+                                outline
+                                class="text-base-400 text-4xl"
+                                className="material-symbols-outlined"
+                                >{{ item.icon }}</icon
                             >
-                            <div>
-                                {{ 'APP.WORKPLACE.MENU_ROOMS' | translate }}
+                            <div class="text-center text-sm">
+                                {{ item.name | translate }}
                             </div>
                         </a>
                     }
-                    @if (features().includes('desks')) {
+                    @for (item of menu_embeds(); track item.id) {
                         <a
                             matRipple
-                            name="footer-nav-desks"
-                            [routerLink]="['/book', 'desk']"
+                            [name]="'footer-nav-embed-' + item.id"
+                            [routerLink]="['/embedded', item.id]"
                             routerLinkActive="active"
-                            class="bg-base-200 flex flex-col items-center justify-center gap-2 rounded-xl p-4"
+                            class="bg-base-100 border-base-300 hover:bg-base-200 flex h-32 w-full flex-col items-center justify-center gap-2 rounded-2xl border p-2 shadow-lg"
                         >
-                            <icon class="text-secondary text-6xl">desk</icon>
-                            <div>
-                                {{ 'APP.WORKPLACE.MENU_DESKS' | translate }}
-                            </div>
-                        </a>
-                    }
-                    @if (features().includes('parking')) {
-                        <a
-                            matRipple
-                            name="footer-nav-parking"
-                            [routerLink]="['/book', 'parking']"
-                            routerLinkActive="active"
-                            class="bg-base-200 flex flex-col items-center justify-center gap-2 rounded-xl p-4"
-                        >
-                            <icon class="text-secondary text-6xl"
-                                >directions_car</icon
+                            <icon class="text-4xl" filled>{{
+                                item.icon || 'open_in_browser'
+                            }}</icon>
+                            <icon
+                                outline
+                                class="text-base-400 text-4xl"
+                                className="material-symbols-outlined"
+                                >{{ item.icon || 'open_in_browser' }}</icon
                             >
-                            <div>
-                                {{ 'APP.WORKPLACE.MENU_PARKING' | translate }}
-                            </div>
-                        </a>
-                    }
-                    @if (features().includes('parking-requests')) {
-                        <a
-                            matRipple
-                            name="footer-nav-parking-requests"
-                            [routerLink]="['/book', 'parking-request']"
-                            routerLinkActive="active"
-                            class="bg-base-200 flex flex-col items-center justify-center gap-2 rounded-xl p-4"
-                        >
-                            <icon class="text-secondary text-6xl"
-                                >local_parking</icon
-                            >
-                            <div>
-                                {{
-                                    'APP.WORKPLACE.MENU_PARKING_REQUESTS'
-                                        | translate
-                                }}
-                            </div>
-                        </a>
-                    }
-                    @if (features().includes('visitor-invite')) {
-                        <a
-                            matRipple
-                            name="footer-nav-visitor-invite"
-                            [routerLink]="['/book', 'visitor']"
-                            routerLinkActive="active"
-                            class="bg-base-200 flex flex-col items-center justify-center gap-2 rounded-xl p-4"
-                        >
-                            <icon class="text-secondary text-6xl">person</icon>
-                            <div>
-                                {{ 'APP.WORKPLACE.MENU_VISITORS' | translate }}
-                            </div>
-                        </a>
-                    }
-                    @if (features().includes('schedule')) {
-                        <a
-                            matRipple
-                            name="footer-nav-my-day"
-                            [routerLink]="['/your-bookings']"
-                            routerLinkActive="active"
-                            class="bg-base-200 flex flex-col items-center justify-center gap-2 rounded-xl p-4"
-                        >
-                            <icon class="text-secondary text-6xl">event</icon>
-                            <div>
-                                {{ 'APP.WORKPLACE.MENU_SCHEDULE' | translate }}
-                            </div>
-                        </a>
-                    }
-                    @if (features().includes('group-events')) {
-                        <a
-                            matRipple
-                            name="footer-nav-group-events"
-                            [routerLink]="['/group-events']"
-                            routerLinkActive="active"
-                            class="bg-base-200 flex flex-col items-center justify-center gap-2 rounded-xl p-4"
-                        >
-                            <icon class="text-secondary text-6xl"
-                                >local_activity</icon
-                            >
-                            <div>
-                                {{ 'APP.WORKPLACE.MENU_EVENTS' | translate }}
-                            </div>
-                        </a>
-                    }
-                    @if (features().includes('lockers')) {
-                        <a
-                            matRipple
-                            name="footer-nav-lockers"
-                            [routerLink]="['/book', 'locker']"
-                            routerLinkActive="active"
-                            class="bg-base-200 flex flex-col items-center justify-center gap-2 rounded-xl p-4"
-                        >
-                            <icon class="text-secondary text-6xl">lock</icon>
-                            <div>
-                                {{ 'APP.WORKPLACE.MENU_LOCKERS' | translate }}
-                            </div>
-                        </a>
-                    }
-                    @if (features().includes('control')) {
-                        <a
-                            matRipple
-                            name="footer-nav-control"
-                            [routerLink]="['/control']"
-                            routerLinkActive="active"
-                            class="bg-base-200 flex flex-col items-center justify-center gap-2 rounded-xl p-4"
-                        >
-                            <icon class="text-secondary text-6xl"
-                                >remote_gen</icon
-                            >
-                            <div>
-                                {{ 'APP.WORKPLACE.MENU_CONTROL' | translate }}
-                            </div>
-                        </a>
-                    }
-                    @if (features().includes('deals-n-offers')) {
-                        <a
-                            matRipple
-                            name="footer-nav-deals"
-                            [routerLink]="['/deals-n-offers']"
-                            routerLinkActive="active"
-                            class="bg-base-200 flex flex-col items-center justify-center gap-2 rounded-xl p-4"
-                        >
-                            <icon class="text-secondary text-6xl"
-                                >confirmation_number</icon
-                            >
-                            <div>
-                                {{ 'APP.WORKPLACE.MENU_DEALS' | translate }}
-                            </div>
-                        </a>
-                    }
-                    @if (features().includes('team-schedule')) {
-                        <a
-                            matRipple
-                            name="footer-nav-team-schedule"
-                            [routerLink]="['/team-schedule']"
-                            routerLinkActive="active"
-                            class="bg-base-200 flex flex-col items-center justify-center gap-2 rounded-xl p-4"
-                        >
-                            <icon class="text-secondary text-6xl">groups</icon>
-                            <div>
-                                {{
-                                    'APP.WORKPLACE.MENU_TEAM_SCHEDULE'
-                                        | translate
-                                }}
+                            <div class="text-center text-sm">
+                                {{ item.name | translate }}
                             </div>
                         </a>
                     }
                 </div>
             </div>
         }
-        @if (features().length > 1) {
+        @if (footer_item_count() > 1) {
             <div
                 class="border-base-200 bg-base-100 relative z-60 flex h-16 w-full items-center justify-center gap-3 border-t px-2 shadow-sm sm:hidden"
                 [attr.dark]="dark_mode()"
@@ -273,6 +227,11 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
             a.active [outline] {
                 display: none;
             }
+
+            a.active {
+                background: var(--brand-200) !important;
+                color: #fff !important;
+            }
         `,
     ],
     imports: [TranslatePipe, IconComponent, RouterModule, MatRippleModule],
@@ -286,6 +245,14 @@ export class FooterMenuComponent extends AsyncHandler implements OnInit {
     public readonly dark_mode = signal(false);
     public readonly features = signal<string[]>([]);
     public readonly default_page = signal<string>('/landing');
+    public readonly menu_embeds = signal<TopMenuEmbedItem[]>([]);
+    public readonly menu_items = computed(() => {
+        const features = this.features();
+        return FEATURE_MENU_ITEMS.filter((item) => features.includes(item.id));
+    });
+    public readonly footer_item_count = computed(
+        () => this.features().length + this.menu_embeds().length,
+    );
 
     public ngOnInit() {
         this.subscription(
@@ -296,6 +263,11 @@ export class FooterMenuComponent extends AsyncHandler implements OnInit {
                         this._settings.theme === 'dark',
                 );
                 this.features.set(this._settings.get('app.features') || []);
+                this.menu_embeds.set(
+                    (this._settings.get('app.menu_embeds') || []).filter(
+                        (item) => item?.id && item?.name && item?.url,
+                    ),
+                );
                 this.default_page.set(
                     this._settings.get('app.default_route') || '/landing',
                 );

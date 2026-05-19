@@ -7,6 +7,7 @@ import {
     RedirectComponent,
     UnauthorisedComponent,
 } from '@placeos/components';
+import { EmbeddedUrlComponent } from './components/embedded-url.component';
 
 const routes: Routes = [
     { path: '-', component: RedirectComponent },
@@ -100,6 +101,12 @@ const routes: Routes = [
             import('./team-schedule/team-schedule.component').then(
                 (m) => m.TeamScheduleComponent,
             ),
+    },
+    {
+        path: 'embedded/:id',
+        title: 'Embedded Page',
+        canActivate: [AuthorisedUserGuard],
+        component: EmbeddedUrlComponent,
     },
     { path: '**', redirectTo: '-', pathMatch: 'full' },
 ];
