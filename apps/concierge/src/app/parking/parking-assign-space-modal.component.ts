@@ -1,5 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    ElementRef,
+    inject,
+    OnInit,
+    QueryList,
+    signal,
+    ViewChildren,
+} from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -138,9 +147,11 @@ export function mapLocationFromClick(e: any, map_info: BoundsMap = {}) {
                     @if (available_spaces().length) {
                         @for (space of available_spaces(); track space.id) {
                             <button
+                                #space_list_item
                                 btn
                                 matRipple
                                 class="clear hover:bg-base-200 flex w-full items-center rounded-sm text-left"
+                                [attr.data-space-id]="space.id"
                                 [class.bg-primary!]="
                                     space.id === selected_space()?.id
                                 "
@@ -217,6 +228,8 @@ export class ParkingAssignSpaceModalComponent
     private _data = inject<{ booking: Booking }>(MAT_DIALOG_DATA);
     private _dialog_ref = inject(MatDialogRef);
     private _org = inject(OrganisationService);
+    @ViewChildren('space_list_item')
+    private _space_list_items: QueryList<ElementRef<HTMLElement>>;
 
     public levels: BuildingLevel[] = [];
     public focus = '';
@@ -418,8 +431,29 @@ export class ParkingAssignSpaceModalComponent
             );
             if (space) {
                 this.selectSpace(space);
+                this._scrollSelectedSpaceIntoView();
             }
         });
+    }
+
+    private _scrollSelectedSpaceIntoView() {
+        const selected_id = this.selected_space()?.id;
+        if (!selected_id) return;
+        this.timeout(
+            'scroll_selected_space',
+            () => {
+                const item = this._space_list_items?.find(
+                    ({ nativeElement }) =>
+                        nativeElement.dataset.spaceId === selected_id,
+                );
+                item?.nativeElement.scrollIntoView({
+                    block: 'nearest',
+                    inline: 'nearest',
+                    behavior: 'smooth',
+                });
+            },
+            0,
+        );
     }
 
     private _refreshStyles() {
