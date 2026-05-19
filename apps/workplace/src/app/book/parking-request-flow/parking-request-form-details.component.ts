@@ -498,6 +498,18 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                             class="border-base-300 bg-base-200 rounded-lg border px-4 py-3"
                         >
                             {{ 'BOOKINGS.PARKING_SHIFT_ALL_DAY' | translate }}
+                            @if (show_all_day_shift_window()) {
+                                :
+                                {{
+                                    shiftTime(all_day_shift_window().start_time)
+                                        | date: time_format
+                                }}
+                                -
+                                {{
+                                    shiftTime(all_day_shift_window().end_time)
+                                        | date: time_format
+                                }}
+                            }
                         </div>
                     } @else {
                         <div class="space-y-3">
@@ -1277,6 +1289,21 @@ export class ParkingRequestFormDetailsComponent
     public readonly has_preset_shifts = computed(
         () => this.shift_options().length > 0,
     );
+    public readonly all_day_shift_window = computed(() => {
+        const [first_option] = this._normaliseShiftOptions(
+            this.shift_options_setting(),
+        );
+        return (
+            first_option || {
+                start_time: ALL_DAY_START_MINS,
+                end_time: ALL_DAY_END_MINS,
+            }
+        );
+    });
+    public readonly show_all_day_shift_window = computed(
+        () =>
+            this._normaliseShiftOptions(this.shift_options_setting()).length > 0,
+    );
     public readonly allow_custom_shift = computed(
         () => !this.hide_custom_shift(),
     );
@@ -1645,10 +1672,11 @@ export class ParkingRequestFormDetailsComponent
      */
     private _applyShift(type: string) {
         if (type === ALL_DAY_SHIFT_ID) {
+            const { start_time, end_time } = this.all_day_shift_window();
             this.shift_type.set(ALL_DAY_SHIFT_ID);
-            this.start_time_mins.set(ALL_DAY_START_MINS);
-            this.end_time_mins.set(ALL_DAY_END_MINS);
-            this._updateFormTimes(ALL_DAY_START_MINS, ALL_DAY_END_MINS);
+            this.start_time_mins.set(start_time);
+            this.end_time_mins.set(end_time);
+            this._updateFormTimes(start_time, end_time);
             return;
         }
         if (type === CUSTOM_SHIFT_ID) {

@@ -3,6 +3,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { ParkingService } from '@placeos/bookings';
 import {
     OrganisationService,
+    currentUser,
     SettingsService,
     setupFormTimeSync,
 } from '@placeos/common';
@@ -55,6 +56,10 @@ describe('ParkingRequestFormDetailsComponent', () => {
     });
 
     beforeEach(() => {
+        (currentUser as jest.Mock).mockReturnValue({
+            email: 'me@test.com',
+            groups: [],
+        });
         // Pin "now" to a moment before the form's default date so that the
         // shift-applies-to-form helpers don't roll the booking forward into
         // tomorrow on tests that don't care about that behaviour.
@@ -423,6 +428,62 @@ describe('ParkingRequestFormDetailsComponent', () => {
         expect(spectator.component.show_custom_time_inputs()).toBe(false);
         expect(spectator.component.form().getRawValue().date).toBe(base_day);
         expect(spectator.component.form().getRawValue().duration).toBe(1440);
+    });
+
+    it('should show all-day using the first restricted shift window when the user cannot see presets', async () => {
+        const base_day = new Date('2026-04-08T00:00:00.000Z').valueOf();
+        spectator.component.shift_options_setting.set([
+            {
+                id: 'day_worker',
+                name: 'Day Worker',
+                start_time: 420,
+                end_time: 1020,
+                groups: ['HIO PlaceOS P1 Parking'],
+            },
+        ]);
+        spectator.component.hide_custom_shift.set(true);
+
+        await spectator.component.ngOnInit();
+        spectator.detectChanges();
+
+        expect(spectator.component.is_all_day_forced()).toBe(true);
+        expect(spectator.component.shift_type()).toBe('all_day');
+        expect(spectator.component.show_shift_select()).toBe(false);
+        expect(spectator.component.form().getRawValue().date).toBe(
+            base_day + 420 * 60 * 1000,
+        );
+        expect(spectator.component.form().getRawValue().duration).toBe(600);
+    });
+
+    it('should show restricted shift presets for users in the configured group', async () => {
+        (currentUser as jest.Mock).mockReturnValue({
+            email: 'me@test.com',
+            groups: ['HIO PlaceOS P1 Parking'],
+        });
+        spectator.component.shift_options_setting.set([
+            {
+                id: 'day_worker',
+                name: 'Day Worker',
+                start_time: 420,
+                end_time: 1020,
+                groups: ['HIO PlaceOS P1 Parking'],
+            },
+            {
+                id: 'night_shift',
+                name: 'Night Shift',
+                start_time: 1050,
+                end_time: 390,
+                groups: ['HIO PlaceOS P1 Parking'],
+            },
+        ]);
+        spectator.component.hide_custom_shift.set(true);
+
+        await spectator.component.ngOnInit();
+
+        expect(spectator.component.is_all_day_forced()).toBe(false);
+        expect(spectator.component.shift_options().length).toBe(2);
+        expect(spectator.component.show_shift_select()).toBe(true);
+        expect(spectator.component.shift_type()).toBe('day_worker');
     });
 
     it('should clear the plate number when the selected host changes away from the current user', async () => {
