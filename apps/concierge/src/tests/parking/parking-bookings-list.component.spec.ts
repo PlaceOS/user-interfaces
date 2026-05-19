@@ -205,6 +205,29 @@ describe('ParkingBookingsListComponent', () => {
         ).not.toContain('asset_id');
     });
 
+    it('should show parking request notes when bookings include notes', () => {
+        bookings = [
+            {
+                id: 'request-1',
+                asset_id: 'unallocated-1',
+                status: 'approved',
+                date: Date.now(),
+                date_end: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                extension_data: { notes: 'After hours access required' },
+            } as Booking,
+        ];
+        spectator = createComponent();
+
+        const table = spectator.query(SimpleTableComponent);
+        expect(table?.active_columns().map((column) => column.key)).toContain(
+            'notes',
+        );
+        expect(spectator.component.filtered_events()[0]).toMatchObject({
+            notes: 'After hours access required',
+        });
+    });
+
     it('should hide the assign space action when the setting is enabled', () => {
         hide_assign_space = true;
         bookings = [

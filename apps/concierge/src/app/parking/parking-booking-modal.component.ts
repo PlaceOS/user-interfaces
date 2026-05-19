@@ -171,6 +171,18 @@ import { addDays, endOfDay } from 'date-fns';
                         'BOOKINGS.PARKING_PLATE_NUMBER_REQUIRED' | translate
                     }}</mat-error>
                 </mat-form-field>
+                @if (form.value.notes) {
+                    <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
+                    <mat-form-field appearance="outline" class="w-full">
+                        <textarea
+                            matInput
+                            name="notes"
+                            formControlName="notes"
+                            rows="3"
+                            [placeholder]="'FORM.NOTES' | translate"
+                        ></textarea>
+                    </mat-form-field>
+                }
             </form>
         </fullscreen-modal-shell>
     `,
