@@ -479,38 +479,19 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                         {{ 'BOOKINGS.PARKING_SHIFT_SELECTION' | translate }}
                     </h3>
                     @if (forced_request_time(); as forced_time) {
-                        <div class="grid gap-4 sm:grid-cols-2">
-                            <div>
-                                <label class="mb-1 block text-sm font-medium">
-                                    {{
-                                        'BOOKINGS.PARKING_START_TIME'
-                                            | translate
-                                    }}
-                                </label>
-                                <div
-                                    class="border-base-300 bg-base-200 rounded-lg border px-4 py-3"
-                                >
-                                    {{
-                                        shiftTime(forced_time.start_time)
-                                            | date: time_format
-                                    }}
-                                </div>
-                            </div>
-                            <div>
-                                <label class="mb-1 block text-sm font-medium">
-                                    {{
-                                        'BOOKINGS.PARKING_END_TIME' | translate
-                                    }}
-                                </label>
-                                <div
-                                    class="border-base-300 bg-base-200 rounded-lg border px-4 py-3"
-                                >
-                                    {{
-                                        shiftTime(forced_time.end_time)
-                                            | date: time_format
-                                    }}
-                                </div>
-                            </div>
+                        <div
+                            class="border-base-300 bg-base-200 rounded-lg border px-4 py-3"
+                        >
+                            {{ selected_request_type()?.name | translate }}:
+                            {{
+                                shiftTime(forced_time.start_time)
+                                    | date: time_format
+                            }}
+                            -
+                            {{
+                                shiftTime(forced_time.end_time)
+                                    | date: time_format
+                            }}
                         </div>
                     } @else if (is_all_day_forced()) {
                         <div
@@ -1307,6 +1288,7 @@ export class ParkingRequestFormDetailsComponent
         () => !this.has_preset_shifts() && !this.allow_custom_shift(),
     );
     public readonly show_shift_select = computed(() => {
+        if (this.forced_request_time()) return false;
         if (this.is_all_day_forced()) return false;
         const preset_count = this.shift_options().length;
         const custom_count = this.allow_custom_shift() ? 1 : 0;
@@ -1314,6 +1296,7 @@ export class ParkingRequestFormDetailsComponent
     });
     public readonly show_custom_time_inputs = computed(
         () =>
+            !this.forced_request_time() &&
             this.shift_type() === CUSTOM_SHIFT_ID && this.allow_custom_shift(),
     );
     public readonly vehicle_type_options = computed(() =>
@@ -1501,7 +1484,7 @@ export class ParkingRequestFormDetailsComponent
         if (form.value.request_type) {
             this.selected_request_type_id.set(form.value.request_type);
         }
-        this._syncRequestTypeTime(form);
+        this._syncRequestTypeTime();
         this._syncRequestTypeUser(form);
         this._syncPrefilledPlateNumber(form);
         this._syncPlateNumberUser(form);
@@ -1610,7 +1593,7 @@ export class ParkingRequestFormDetailsComponent
         const form = this.form();
         if (!form) return;
         form.patchValue({ request_type: type_id });
-        this._syncRequestTypeTime(form);
+        this._syncRequestTypeTime();
         this._syncRequestTypeUser(form);
         const options = this.filtered_approver_group_options();
         if (options.length && !this.is_auto_approved()) {
@@ -1670,7 +1653,7 @@ export class ParkingRequestFormDetailsComponent
         }
         if (type === CUSTOM_SHIFT_ID) {
             this.shift_type.set(CUSTOM_SHIFT_ID);
-            const { start_time, end_time } = this._normaliseCustomShift(
+            const { start_time, end_time } = this._normaliseShiftTime(
                 this.custom_start_time_mins(),
                 this.custom_end_time_mins(),
             );
@@ -1700,7 +1683,7 @@ export class ParkingRequestFormDetailsComponent
     }
 
     private _applyCustomShift(start_mins: number, end_mins: number) {
-        const { start_time, end_time } = this._normaliseCustomShift(
+        const { start_time, end_time } = this._normaliseShiftTime(
             start_mins,
             end_mins,
         );
@@ -1769,7 +1752,11 @@ export class ParkingRequestFormDetailsComponent
         const tz = this.timezone;
         const day = startOfDayInTimezone(raw_date, tz);
         let new_date = day + start_mins * 60 * 1000;
-        const duration = Math.max(end_mins - start_mins, 30);
+        const raw_duration =
+            end_mins > start_mins
+                ? end_mins - start_mins
+                : end_mins + 1440 - start_mins;
+        const duration = Math.max(raw_duration, 30);
         // If the chosen shift would end in the past on this day, roll
         // forward by whole days until the window ends in the future, so the
         // `endInFuture` validator on `duration` passes. Only applied to new
@@ -1862,10 +1849,11 @@ export class ParkingRequestFormDetailsComponent
         };
     }
 
-    private _normaliseCustomShift(start_mins: number, end_mins: number) {
-        const start_time = Math.max(0, Math.min(start_mins, 1410));
-        const end_time = Math.min(Math.max(end_mins, start_time + 30), 1439);
-        return { start_time, end_time };
+    private _normaliseShiftTime(start_mins: number, end_mins: number) {
+        return {
+            start_time: Math.max(0, Math.min(start_mins, 1439)),
+            end_time: Math.max(0, Math.min(end_mins, 1439)),
+        };
     }
 
     private _normaliseShiftOptions(
@@ -1883,8 +1871,7 @@ export class ParkingRequestFormDetailsComponent
             .map((option) => ({
                 id: option.id,
                 name: option.name || option.id,
-                start_time: option.start_time,
-                end_time: option.end_time,
+                ...this._normaliseShiftTime(option.start_time, option.end_time),
                 groups: option.groups?.filter((group) => !!group),
             }));
     }
@@ -1910,7 +1897,7 @@ export class ParkingRequestFormDetailsComponent
                 const forced_time =
                     typeof type.forced_time?.start_time === 'number' &&
                     typeof type.forced_time?.end_time === 'number'
-                        ? this._normaliseCustomShift(
+                        ? this._normaliseShiftTime(
                               type.forced_time.start_time,
                               type.forced_time.end_time,
                           )
@@ -1957,9 +1944,9 @@ export class ParkingRequestFormDetailsComponent
             const duration = form.value.duration || DEFAULT_DAY_DURATION_MINS;
             this.start_time_mins.set(start);
             this.end_time_mins.set(start + duration);
-            const { start_time, end_time } = this._normaliseCustomShift(
+            const { start_time, end_time } = this._normaliseShiftTime(
                 start,
-                start + duration,
+                (start + duration) % 1440,
             );
             this.custom_start_time_mins.set(start_time);
             this.custom_end_time_mins.set(end_time);
@@ -1990,7 +1977,7 @@ export class ParkingRequestFormDetailsComponent
             const matching_preset = this.shift_options().find(
                 (_) =>
                     _.start_time === this.start_time_mins() &&
-                    _.end_time === this.end_time_mins(),
+                    _.end_time === this.end_time_mins() % 1440,
             );
             this._applyShift((matching_preset || this.shift_options()[0]).id);
             return;
@@ -1999,7 +1986,7 @@ export class ParkingRequestFormDetailsComponent
         this._applyShift(CUSTOM_SHIFT_ID);
     }
 
-    private _syncRequestTypeTime(form: FormGroup) {
+    private _syncRequestTypeTime() {
         const forced_time = this.forced_request_time();
         if (forced_time) {
             if (!this._saved_shift_state) {
@@ -2038,7 +2025,7 @@ export class ParkingRequestFormDetailsComponent
             this.shift_options().find(
                 (_) =>
                     _.start_time === shift.start_time &&
-                    _.end_time === shift.end_time,
+                    _.end_time === shift.end_time % 1440,
             );
         if (preset) {
             this._applyShift(preset.id);
@@ -2049,7 +2036,7 @@ export class ParkingRequestFormDetailsComponent
             this._applyShift(this.shift_options()[0].id);
             return;
         }
-        const { start_time, end_time } = this._normaliseCustomShift(
+        const { start_time, end_time } = this._normaliseShiftTime(
             shift.start_time,
             shift.end_time,
         );

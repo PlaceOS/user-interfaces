@@ -102,6 +102,14 @@ describe('ParkingRequestFormDetailsComponent', () => {
                     end_time: 660,
                 },
             },
+            {
+                id: 'forced_overnight',
+                name: 'Out of Hours',
+                forced_time: {
+                    start_time: 1021,
+                    end_time: 419,
+                },
+            },
         ]);
         spectator.component.hide_custom_shift.set(false);
     });
@@ -334,6 +342,42 @@ describe('ParkingRequestFormDetailsComponent', () => {
         expect(spectator.component.form().controls.duration.valid).toBe(true);
     });
 
+    it('should apply preset shift times that cross midnight', () => {
+        const base_day = new Date('2026-04-08T00:00:00.000Z').valueOf();
+        spectator.component.shift_options_setting.set([
+            {
+                id: 'overnight',
+                name: 'Overnight',
+                start_time: 1021,
+                end_time: 419,
+            },
+        ]);
+
+        spectator.component.setShiftType('overnight');
+
+        expect(spectator.component.shift_type()).toBe('overnight');
+        expect(spectator.component.form().getRawValue().date).toBe(
+            base_day + 1021 * 60 * 1000,
+        );
+        expect(spectator.component.form().getRawValue().duration).toBe(838);
+    });
+
+    it('should apply custom shift times that cross midnight', () => {
+        const base_day = new Date('2026-04-08T00:00:00.000Z').valueOf();
+
+        spectator.component.setShiftType('custom');
+        spectator.component.setStartTime(1021);
+        spectator.component.setEndTime(419);
+
+        expect(spectator.component.shift_type()).toBe('custom');
+        expect(spectator.component.start_time_mins()).toBe(1021);
+        expect(spectator.component.end_time_mins()).toBe(419);
+        expect(spectator.component.form().getRawValue().date).toBe(
+            base_day + 1021 * 60 * 1000,
+        );
+        expect(spectator.component.form().getRawValue().duration).toBe(838);
+    });
+
     it('should force the first preset shift when custom is hidden and no preset matches', async () => {
         const base_day = new Date('2026-04-08T00:00:00.000Z').valueOf();
         // Seed form with times that do not match any configured preset.
@@ -468,5 +512,23 @@ describe('ParkingRequestFormDetailsComponent', () => {
             base_day + 780 * 60 * 1000,
         );
         expect(spectator.component.form().getRawValue().duration).toBe(240);
+    });
+
+    it('should apply forced request times that cross midnight', () => {
+        const base_day = new Date('2026-04-08T00:00:00.000Z').valueOf();
+
+        spectator.component.setRequestType('forced_overnight');
+
+        expect(spectator.component.forced_request_time()).toEqual({
+            start_time: 1021,
+            end_time: 419,
+        });
+        expect(spectator.component.shift_type()).toBe('custom');
+        expect(spectator.component.show_shift_select()).toBe(false);
+        expect(spectator.component.show_custom_time_inputs()).toBe(false);
+        expect(spectator.component.form().getRawValue().date).toBe(
+            base_day + 1021 * 60 * 1000,
+        );
+        expect(spectator.component.form().getRawValue().duration).toBe(838);
     });
 });
