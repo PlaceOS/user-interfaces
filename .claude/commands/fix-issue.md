@@ -131,7 +131,7 @@ Prefer tests closest to the changed behavior:
 
 - Unit tests for services, pipes, utility functions, and component behavior
 - Existing Jest/Spectator patterns for Angular tests
-- Playwright tests for user-visible flows when there is already an e2e surface for the affected app
+- Manual playwright tests for user-visible flows with mocks when there is already an e2e surface for the affected app
 
 If a behavior change cannot reasonably be automated, explain why and describe the manual verification performed.
 
@@ -196,7 +196,7 @@ After confirmation:
 2. Stage only files relevant to this issue by explicit path. Do not use `git add .` or `git add -A`.
 3. Commit with a concise conventional commit message. Include the Jira issue key only when it begins with `PPT-` or `PROJ-`.
 4. If the user chose source-branch commit or `--commit-behavior source` was provided, cherry-pick the issue commit onto the recorded source branch from the source worktree and verify the final build commit hash.
-5. If the issue commit was cherry-picked successfully onto the source branch, remove the dedicated issue worktree with `git worktree remove <issue-worktree-path>` only after verifying it has no uncommitted changes.
+5. If the issue commit was cherry-picked successfully onto the source branch, remove the dedicated issue worktree and branch with `git worktree remove <issue-worktree-path>` only after verifying it has no uncommitted changes.
 6. If the user explicitly confirms a push, push the selected branch to the remote.
 
 Never include secrets or unrelated user work.

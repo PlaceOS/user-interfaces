@@ -299,7 +299,7 @@ import {
                     </button>
                 </div>
             }
-            @if (section() === 'events') {
+            @if (section() === 'events' && !hide_availability_counter) {
                 <div
                     class="border-base-300 mr-2 flex items-center space-x-2 rounded-md border py-1 pr-1 pl-3 text-sm"
                     matTooltip="Parking Spaces Occupied"
@@ -545,6 +545,10 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
                 'app.parking.hide_level_selector_on_booking_list',
             )
         );
+    }
+
+    public get hide_availability_counter() {
+        return !!this._settings.get('app.parking.hide_availability_counter');
     }
 
     public get can_view_requests() {
