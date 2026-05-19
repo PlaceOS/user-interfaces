@@ -10,8 +10,10 @@ import {
     CalendarEvent,
     flatten,
     GuestUser,
+    setting,
     toQueryString,
     unique,
+    VERSION,
 } from '@placeos/common';
 
 import { addMinutes, getUnixTime } from 'date-fns';
@@ -50,6 +52,29 @@ export interface BookingsQueryParams {
 }
 
 const BOOKINGS_ENDPOINT = `/api/staff/v1/bookings`;
+
+const APP_VERSION = VERSION.raw || VERSION.version || VERSION.hash;
+
+function appName() {
+    return (
+        setting<string>('app.name') ||
+        setting<string>('app.short_name') ||
+        'PlaceOS'
+    );
+}
+
+function withAppVersion<T extends { extension_data?: Record<string, any> }>(
+    data: T,
+): T {
+    return {
+        ...data,
+        extension_data: {
+            ...(data.extension_data || {}),
+            app_name: appName(),
+            app_version: APP_VERSION,
+        },
+    };
+}
 
 /**
  * Get a single page of bookings
@@ -170,9 +195,10 @@ export function createBooking(
     q?: { event_id?: string; ical_uid?: string },
 ) {
     const query = toQueryString(q);
-    return post(`${BOOKINGS_ENDPOINT}${query ? '?' + query : ''}`, data).pipe(
-        map((item) => new Booking(item)),
-    );
+    return post(
+        `${BOOKINGS_ENDPOINT}${query ? '?' + query : ''}`,
+        withAppVersion(data),
+    ).pipe(map((item) => new Booking(item)));
 }
 
 /**
@@ -188,7 +214,7 @@ export function updateBooking(
 ) {
     return (method === 'patch' ? patch : put)(
         `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`,
-        data,
+        withAppVersion(data),
     ).pipe(map((item) => new Booking(item)));
 }
 
@@ -222,7 +248,7 @@ export function updateBookingInstance(
 ) {
     return (method === 'patch' ? patch : put)(
         `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`,
-        data,
+        withAppVersion(data),
     ).pipe(map((item) => new Booking(item)));
 }
 
