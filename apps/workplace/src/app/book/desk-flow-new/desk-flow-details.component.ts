@@ -148,7 +148,11 @@ type FormType = 'single' | 'group' | 'other';
                 >
                     <div class="relative flex-1">
                         <label for="date">{{ 'FORM.DATE' | translate }}</label>
-                        <date-field name="date" formControlName="date" />
+                        <date-field
+                            name="date"
+                            formControlName="date"
+                            [to]="end_date()"
+                        />
                         @if (allow_all_day()) {
                             <mat-checkbox
                                 [ngModel]="form_value().all_day"

@@ -35,6 +35,7 @@ import {
     DurationFieldComponent,
     TimeFieldComponent,
 } from '@placeos/form-fields';
+import { addDays, endOfDay } from 'date-fns';
 import { combineLatest, map, pairwise } from 'rxjs';
 import { DeskFlowSelectListComponent } from './desk-flow-select-list.component';
 import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
@@ -170,7 +171,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                             </mat-form-field>
                         }
                         <label for="date">{{ 'FORM.DATE' | translate }}</label>
-                        <date-field formControlName="date" />
+                        <date-field formControlName="date" [to]="end_date()" />
                         <settings-toggle
                             class="mb-2"
                             formControlName="all_day"
@@ -444,7 +445,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                         </mat-form-field>
                     }
                     <label for="date">{{ 'FORM.DATE' | translate }}</label>
-                    <date-field formControlName="date" />
+                    <date-field formControlName="date" [to]="end_date()" />
                     <settings-toggle class="mb-2" formControlName="all_day">{{
                         'COMMON.ALL_DAY' | translate
                     }}</settings-toggle>
@@ -577,6 +578,13 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
 
     public readonly use_24hr = settingSignal('use_24_hour_time', false);
     public readonly use_region = settingSignal('use_region', false);
+    public readonly available_days = settingSignal(
+        'desks.available_period',
+        90,
+    );
+    public readonly end_date = computed(() =>
+        endOfDay(addDays(Date.now(), this.available_days())).valueOf(),
+    );
     public readonly duration_step = computed(
         () =>
             settingSignal('desks.duration_step')() ||

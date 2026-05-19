@@ -3,6 +3,8 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { SpacesService } from '@placeos/events';
+import { DateFieldComponent } from '@placeos/form-fields';
+import { addDays, endOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 import { DeskFlowSelectComponent } from '../../app/book/desk-flow-new/desk-flow-select.component';
@@ -21,6 +23,7 @@ describe('DeskFlowSelectComponent', () => {
                 options: of({ type: 'desk' }),
                 loading: of(''),
                 resources: of([]),
+                available_resources: of([]),
                 setOptions: jest.fn(),
                 form: (() => {
                     form = new FormGroup({
@@ -39,6 +42,7 @@ describe('DeskFlowSelectComponent', () => {
                     return active_building.asObservable();
                 })(),
                 active_buildings: of([{ id: 'bld-1' }, { id: 'bld-2' }]),
+                buildings: [{ id: 'bld-1' }, { id: 'bld-2' }],
                 active_region: of(null),
                 region_list: of([]),
                 levelsForBuilding: jest.fn(() => []),
@@ -69,5 +73,21 @@ describe('DeskFlowSelectComponent', () => {
         expect(form.getRawValue().resources).toEqual([]);
         expect(form.getRawValue().asset_id).toBe('');
         expect(spectator.component.selected()).toEqual([]);
+    });
+
+    it('should limit date selection to the configured available period', () => {
+        spectator.component.available_days.set(14);
+        spectator.detectChanges();
+
+        const end_date = spectator.component.end_date();
+        const date_fields = spectator.queryAll(DateFieldComponent);
+
+        expect(end_date).toBe(
+            endOfDay(addDays(Date.now(), 14)).valueOf(),
+        );
+        expect(date_fields.length).toBe(2);
+        expect(date_fields.every((field) => field.to_date() === end_date)).toBe(
+            true,
+        );
     });
 });
