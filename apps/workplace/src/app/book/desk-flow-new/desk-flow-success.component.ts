@@ -13,6 +13,7 @@ import {
     fromBookingRecurrence,
     OrganisationService,
     SettingsService,
+    unique,
 } from '@placeos/common';
 import {
     BuildingPipe,
@@ -41,38 +42,39 @@ import { forkJoin, lastValueFrom } from 'rxjs';
             <main
                 class="flex flex-1 flex-col items-center justify-center space-y-2 p-8"
             >
-                @if (!is_group) {
+                @if (!is_group()) {
                     <h2 class="text-center text-2xl font-medium">
                         {{
                             'BOOKINGS.ITEM_BOOKED'
                                 | translate
                                     : {
                                           name:
-                                              last_event.asset_name ||
-                                              last_event.asset_id,
+                                              last_event().asset_name ||
+                                              last_event().asset_id,
                                       }
                         }}
                     </h2>
                 }
                 <img src="assets/icons/success.svg" />
-                @if (last_event) {
+                @if (last_event()) {
                     <p class="max-w-160 text-center">
                         @let details =
                             {
                                 date:
-                                    last_event?.date || 0 | date: 'mediumDate',
+                                    last_event()?.date || 0
+                                    | date: 'mediumDate',
                                 time:
-                                    (last_event?.date || 0
+                                    (last_event()?.date || 0
                                         | date: time_format) +
                                     ' - ' +
-                                    (last_event.date +
-                                        last_event.duration * 60 * 1000
+                                    (last_event().date +
+                                        last_event().duration * 60 * 1000
                                         | date: time_format),
                                 size: group_size,
                                 location: location(),
                             };
-                        @if (is_group) {
-                            @if (last_event?.all_day) {
+                        @if (is_group()) {
+                            @if (last_event()?.all_day) {
                                 {{
                                     'BOOKINGS.DESK_SUCCESS_GROUP_ALLDAY'
                                         | translate: details
@@ -84,7 +86,7 @@ import { forkJoin, lastValueFrom } from 'rxjs';
                                 }}
                             }
                         } @else {
-                            @if (last_event?.all_day) {
+                            @if (last_event()?.all_day) {
                                 {{
                                     'BOOKINGS.DESK_SUCCESS_LONE_ALLDAY'
                                         | translate: details
@@ -99,22 +101,22 @@ import { forkJoin, lastValueFrom } from 'rxjs';
                     </p>
                 }
                 @if (
-                    last_event.recurrence_type &&
-                    last_event.recurrence_type !== 'none'
+                    last_event().recurrence_type &&
+                    last_event().recurrence_type !== 'none'
                 ) {
                     <div
                         class="bg-base-200 flex items-center space-x-2 rounded-lg px-4 py-2"
                     >
                         <icon class="text-xl">update</icon>
-                        <div class="text-sm">{{ formatted_recurrence }}</div>
+                        <div class="text-sm">{{ formatted_recurrence() }}</div>
                     </div>
                 }
-                @if (show_booked_for) {
-                    <p class="text-sm">Booked for {{ booked_for_name }}</p>
+                @if (show_booked_for()) {
+                    <p class="text-sm">Booked for {{ booked_for_name() }}</p>
                 }
                 @if (is_group && group_bookings().length > 0) {
                     <div
-                        class="border-base-300 bg-base-100 mt-4 w-full max-w-[32rem] rounded-lg border p-4"
+                        class="border-base-300 bg-base-100 mt-4 w-full max-w-lg rounded-lg border p-4"
                     >
                         <h3
                             class="mb-3 flex items-center space-x-2 font-medium"
@@ -161,13 +163,13 @@ import { forkJoin, lastValueFrom } from 'rxjs';
                         </div>
                     </div>
                 }
-                @if (last_event?.extension_data?.assets?.length) {
+                @if (last_event()?.extension_data?.assets?.length) {
                     <p assets>
                         {{
                             'BOOKINGS.ASSETS_BOOKED'
                                 | translate
                                     : {
-                                          count: last_event?.extension_data
+                                          count: last_event()?.extension_data
                                               ?.assets?.length,
                                       }
                         }}
@@ -267,59 +269,62 @@ export class NewDeskFlowSuccessComponent implements OnInit {
     public readonly ical_link = signal('');
     public readonly group_bookings = signal<Booking[]>([]);
     public readonly location = computed(() => {
-        return `${this.building().display_name || this.level().name}, ${this.level().display_name || this.level().name}`;
+        return `${this.building()?.display_name || this.level()?.name}, ${this.level()?.display_name || this.level()?.name}`;
     });
 
-    public get is_group() {
-        const members = this.last_event?.extension_data?.group_members as any[];
-        return members?.length > 1;
-    }
+    public readonly last_event = signal<Booking>(null);
+    public readonly group_members = computed(() => {
+        return unique(
+            this.last_event()?.extension_data?.group_members || [],
+            'email',
+        );
+    });
 
-    public get group_size() {
-        const members = this.last_event?.extension_data?.group_members as any[];
+    public readonly is_group = computed(() => this.group_members().length > 1);
+
+    public readonly group_size = computed(() => {
+        const members = this.group_members();
         return members?.length || this.group_bookings().length || 1;
-    }
+    });
 
-    public get last_event() {
-        return this._state.last_success;
-    }
+    public readonly booked_for_name = computed(() => {
+        return (
+            this.last_event()?.user_name || this.last_event()?.user_email || ''
+        );
+    });
 
-    public get show_links() {
-        return this._settings.get('app.desks.show_calendar_links');
-    }
-
-    public get booked_for_name() {
-        return this.last_event?.user_name || this.last_event?.user_email || '';
-    }
-
-    public get show_booked_for() {
-        if (!this.booked_for_name) return false;
+    public readonly show_booked_for = computed(() => {
+        if (!this.booked_for_name()) return false;
         const current_email = currentUser()?.email?.toLowerCase() || '';
         const booked_for_email =
-            this.last_event?.user_email?.toLowerCase() || '';
+            this.last_event()?.user_email?.toLowerCase() || '';
         if (!booked_for_email || !current_email) return false;
         return booked_for_email !== current_email;
-    }
+    });
+
+    public readonly formatted_recurrence = computed(() => {
+        const event = this.last_event();
+        const recurrence = fromBookingRecurrence(event);
+        if (!recurrence.type || recurrence.type == 'none') return '';
+        return formatRecurrence(recurrence);
+    });
 
     public readonly viewCalendarLinks = () =>
         this._state.openBookingLinkModal();
 
+    public get show_links() {
+        return this._settings.get('app.desks.show_calendar_links');
+    }
     public get time_format() {
         return this._settings.time_format;
     }
 
-    public get formatted_recurrence() {
-        const event = this.last_event;
-        const recurrence = fromBookingRecurrence(event);
-        if (!recurrence.type || recurrence.type == 'none') return '';
-        return formatRecurrence(recurrence);
-    }
-
     public async ngOnInit() {
         await firstTruthyValueFrom(this._org.initialised);
+        this.last_event.set(this._state.last_success);
         const event: any = {
             ...this.last_event,
-            location: `${this.location()}, ${this.last_event.asset_name || ''}`,
+            location: `${this.location()}, ${this.last_event().asset_name || ''}`,
         };
         this.outlook_link.set(generateMicrosoftCalendarLink(event));
         this.google_link.set(generateGoogleCalendarLink(event));
@@ -345,7 +350,9 @@ export class NewDeskFlowSuccessComponent implements OnInit {
             const bookings = await lastValueFrom(
                 forkJoin(booking_ids.map((id) => showBooking(id))),
             );
-            this.group_bookings.set(bookings);
+            this.group_bookings.set(
+                bookings.filter((_) => _.booking_type !== 'group'),
+            );
         } catch (e) {
             console.error('Failed to load group bookings', e);
         }
