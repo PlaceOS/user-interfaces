@@ -33,12 +33,15 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
+import { Rect } from '@placeos/svg-viewer/dist/types';
 import { PlaceAsset } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { ExploreParkingInfoComponent } from 'libs/explore/src/lib/explore-parking-info.component';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 import { of } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
+
+type BoundsMap = Record<string, Rect>;
 
 export function bookingZonesForLevel(
     org: Pick<OrganisationService, 'organisation' | 'region'>,
@@ -50,6 +53,25 @@ export function bookingZonesForLevel(
         level?.parent_id,
         level?.id,
     ]).filter((_) => _);
+}
+
+export function mapLocationFromClick(e: any, map_info: BoundsMap = {}) {
+    const id = e?.properties?.externalId || e?.properties?.roomId || e?.id;
+    if (id) return id;
+    if (typeof e?.x !== 'number' || typeof e?.y !== 'number') return '';
+    const short_list: [string, number][] = [];
+    for (const [location, bbox] of Object.entries(map_info)) {
+        if (
+            bbox.x <= e.x &&
+            e.x <= bbox.x + bbox.w &&
+            bbox.y <= e.y &&
+            e.y <= bbox.y + bbox.h
+        ) {
+            short_list.push([location, bbox.h * bbox.w]);
+        }
+    }
+    short_list.sort((a, b) => a[1] - b[1]);
+    return short_list[0]?.[0] || '';
 }
 
 @Component({
@@ -76,6 +98,7 @@ export function bookingZonesForLevel(
                     [actions]="map_actions"
                     [options]="{ controls: true }"
                     [focus]="focus"
+                    (mapInfo)="setMapInfo($any($event))"
                 ></interactive-map>
             </div>
             <div
@@ -200,6 +223,7 @@ export class ParkingAssignSpaceModalComponent
     public readonly selected_space = signal<PlaceAsset | null>(null);
     public readonly loading = signal(false);
     public readonly selected_level = signal<BuildingLevel | null>(null);
+    public readonly map_info = signal<BoundsMap>({});
 
     public readonly map_url = computed(
         () => this.selected_level()?.map_id || '',
@@ -212,6 +236,8 @@ export class ParkingAssignSpaceModalComponent
             callback: (_e: any, p: any) => this._onMapClick(p || _e),
         },
     ];
+
+    public readonly setMapInfo = (info: BoundsMap) => this.map_info.set(info);
 
     private readonly _all_spaces = toSignal(
         toObservable(this.selected_level).pipe(
@@ -395,8 +421,7 @@ export class ParkingAssignSpaceModalComponent
 
     private _onMapClick(e: any) {
         this.timeout('map_click', async () => {
-            const id =
-                e?.properties?.externalId || e?.properties?.roomId || e?.id;
+            const id = mapLocationFromClick(e, this.map_info());
             if (!id) return;
             const space = this.available_spaces().find(
                 (s) => s.id === id || s.map_id === id,

@@ -87,6 +87,22 @@ export function totalReportBookingDuration(
     );
 }
 
+export function reportBookedTimeUtilisationPercent(
+    bookings: CalendarEvent[],
+    total_spaces = 0,
+    bookable_minutes = 8 * 60,
+): number {
+    const available_minutes = total_spaces * bookable_minutes;
+    if (available_minutes <= 0) return 0;
+    return (
+        Math.floor(
+            (totalReportBookingDuration(bookings, bookable_minutes) /
+                available_minutes) *
+                1000,
+        ) / 10
+    );
+}
+
 export function reportEventStatusStats(events: CalendarEvent[]) {
     const deleted_count = events.filter((event) => event.deleted).length;
     const cancelled_count = events.filter(

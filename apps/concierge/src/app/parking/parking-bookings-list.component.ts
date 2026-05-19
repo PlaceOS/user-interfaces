@@ -396,25 +396,22 @@ interface ParkingBookingColumnTemplates {
                 <div
                     class="flex w-full items-center justify-end space-x-2 px-2"
                 >
-                    @if (isRequest(row)) {
-                        @if (!hide_assign_space) {
-                            <button
-                                icon
-                                matRipple
-                                [disabled]="
-                                    row.checked_in ||
-                                    row.state === 'in_progress' ||
-                                    row.status === 'ended'
-                                "
-                                [matTooltip]="
-                                    'APP.CONCIERGE.PARKING_ASSIGN_SPACE'
-                                        | translate
-                                "
-                                (click)="assignSpace(row)"
-                            >
-                                <icon class="text-2xl">add_location</icon>
-                            </button>
-                        }
+                    @if (isRequest(row) && !hide_assign_space) {
+                        <button
+                            icon
+                            matRipple
+                            [disabled]="
+                                row.checked_in ||
+                                row.state === 'in_progress' ||
+                                row.status === 'ended'
+                            "
+                            [matTooltip]="
+                                'APP.CONCIERGE.PARKING_ASSIGN_SPACE' | translate
+                            "
+                            (click)="assignSpace(row)"
+                        >
+                            <icon class="text-2xl">add_location</icon>
+                        </button>
                     }
                     @if (can_edit()) {
                         <button
@@ -511,6 +508,14 @@ export class ParkingBookingsListComponent
         }));
     });
 
+    public action_count(row) {
+        let count = 0;
+        if (this.isRequest(row) && !this.hide_assign_space) count += 1;
+        if (this.can_edit()) count += 1;
+        if (this.can_delete()) count += 1;
+        return count;
+    }
+
     public readonly reject = (e, series = false) =>
         this._state.rejectBooking(e, series);
     public readonly approve = (e, series = false) =>
@@ -541,7 +546,7 @@ export class ParkingBookingsListComponent
         );
         return this._state
             .filterEventSearch(list, search)
-            .some((booking) => this.hasVisibleActions(booking));
+            .some((booking) => this.action_count(booking) > 0);
     });
 
     public readonly can_edit = settingSignal('parking.allow_editing', true);
@@ -626,17 +631,13 @@ export class ParkingBookingsListComponent
                       : 'APP.CONCIERGE.BOOKING_STATUS_PENDING';
     }
 
-    public hasVisibleActions(booking: Booking) {
-        return (
-            (this.isRequest(booking) && !this.hide_assign_space) ||
-            this.can_edit() ||
-            this.can_delete()
-        );
-    }
-
     public bookingColumns(
         templates: ParkingBookingColumnTemplates,
     ): TableColumn[] {
+        let max_count = 0;
+        for (const bkn of this.bookings()) {
+            max_count = Math.max(max_count, this.action_count(bkn));
+        }
         return [
             {
                 key: 'state',
@@ -696,7 +697,7 @@ export class ParkingBookingsListComponent
                 key: 'actions',
                 name: ' ',
                 content: templates.action_template,
-                size: '6.5rem',
+                size: 3.5 + (max_count - 1) * 3 + 'rem',
                 sortable: false,
                 show: this.show_action_column(),
             },

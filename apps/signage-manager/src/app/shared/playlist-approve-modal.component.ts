@@ -21,7 +21,6 @@ import {
 } from '@placeos/ts-client';
 import {
     BehaviorSubject,
-    combineLatest,
     filter,
     firstValueFrom,
     lastValueFrom,
@@ -31,6 +30,7 @@ import {
     tap,
 } from 'rxjs';
 import { SignageService } from '../signage.service';
+import { playlistMediaItems } from '../signage-playlist.util';
 
 interface PlaylistApproveModalData {
     playlist: SignagePlaylist;
@@ -257,16 +257,9 @@ export class PlaylistApproveModalComponent implements OnInit {
         shareReplay(1),
     );
 
-    public readonly playlist_media = combineLatest([
-        this.playlist_versions,
-        this._service.media,
-    ]).pipe(
-        map(([playlists, media]) =>
-            playlists.map((playlist) =>
-                (playlist.items || [])
-                    .map((id) => media.find((item) => item?.id === id))
-                    .filter((item): item is SignageMedia => !!item),
-            ),
+    public readonly playlist_media = this.playlist_versions.pipe(
+        map((playlists) =>
+            playlists.map((playlist) => playlistMediaItems(playlist)),
         ),
         tap(() => this.loading.set('')),
         shareReplay(1),
