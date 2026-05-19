@@ -791,7 +791,8 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                             }
                                         </div>
                                         @if (
-                                            (building | async)?.id === bld.id
+                                            (building | async)?.id === bld.id &&
+                                            !hide_availability_counter()
                                         ) {
                                             <div
                                                 class="border-base-300 flex shrink-0 items-center space-x-2 rounded-md border py-1 pr-1 pl-3 text-sm"
@@ -897,43 +898,51 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                     </div>
                                 }
                             </div>
-                            <div
-                                class="border-base-300 mr-2 flex shrink-0 items-center space-x-2 rounded-md border py-1 pr-1 pl-3 text-sm"
-                            >
-                                @if (availability_loading()) {
-                                    <div class="text-sm font-medium opacity-60">
-                                        Checking...
-                                    </div>
-                                } @else if (available_space_count() !== null) {
-                                    @let percent = usage_ratio();
-                                    <div class="flex items-center">
-                                        {{ spaces_in_use_count() }} of
-                                        {{ total_space_count() }}
-                                        <icon class="ml-1! text-lg"
-                                            >car_lock</icon
+                            @if (!hide_availability_counter()) {
+                                <div
+                                    class="border-base-300 mr-2 flex shrink-0 items-center space-x-2 rounded-md border py-1 pr-1 pl-3 text-sm"
+                                >
+                                    @if (availability_loading()) {
+                                        <div
+                                            class="text-sm font-medium opacity-60"
                                         >
-                                    </div>
-                                    <div
-                                        class="rounded-sm px-2 py-1 font-mono text-xs"
-                                        [class.bg-error]="percent === 1"
-                                        [class.text-error-content]="
-                                            percent === 1
-                                        "
-                                        [class.bg-warning]="
-                                            percent > 0.5 && percent < 1
-                                        "
-                                        [class.text-warning-content]="
-                                            percent > 0.5 && percent < 1
-                                        "
-                                        [class.bg-success]="percent < 0.5"
-                                        [class.text-success-content]="
-                                            percent < 0.5
-                                        "
-                                    >
-                                        {{ percent * 100 | number: '2.0-0' }}%
-                                    </div>
-                                }
-                            </div>
+                                            Checking...
+                                        </div>
+                                    } @else if (
+                                        available_space_count() !== null
+                                    ) {
+                                        @let percent = usage_ratio();
+                                        <div class="flex items-center">
+                                            {{ spaces_in_use_count() }} of
+                                            {{ total_space_count() }}
+                                            <icon class="ml-1! text-lg"
+                                                >car_lock</icon
+                                            >
+                                        </div>
+                                        <div
+                                            class="rounded-sm px-2 py-1 font-mono text-xs"
+                                            [class.bg-error]="percent === 1"
+                                            [class.text-error-content]="
+                                                percent === 1
+                                            "
+                                            [class.bg-warning]="
+                                                percent > 0.5 && percent < 1
+                                            "
+                                            [class.text-warning-content]="
+                                                percent > 0.5 && percent < 1
+                                            "
+                                            [class.bg-success]="percent < 0.5"
+                                            [class.text-success-content]="
+                                                percent < 0.5
+                                            "
+                                        >
+                                            {{
+                                                percent * 100 | number: '2.0-0'
+                                            }}%
+                                        </div>
+                                    }
+                                </div>
+                            }
                         </div>
                     </div>
                 }
@@ -1229,6 +1238,10 @@ export class ParkingRequestFormDetailsComponent
     >('parking.vehicle_types', DEFAULT_VEHICLE_TYPE_OPTIONS);
     public readonly hide_prefer_toggle = settingSignal<boolean>(
         'parking.hide_prefer_toggle',
+        false,
+    );
+    public readonly hide_availability_counter = settingSignal<boolean>(
+        'parking.hide_availability_counter',
         false,
     );
     public readonly auto_approved_groups_setting = settingSignal<string[]>(

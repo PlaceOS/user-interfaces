@@ -215,6 +215,10 @@
                     "type": "boolean",
                     "description": "Whether to hide selected parking space names in booking cards and booking detail modals."
                 },
+                "hide_availability_counter": {
+                    "type": "boolean",
+                    "description": "Whether to hide the parking availability counter shown next to the selected location or level."
+                },
                 "show_status_details": {
                     "type": "boolean",
                     "description": "Whether the explore parking tooltip should show availability status details such as status text, assigned users, and plate numbers."
