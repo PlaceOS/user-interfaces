@@ -16,7 +16,7 @@ import { ControlStateService } from '../control-state.service';
                 binding
                 [(model)]="channel_list"
                 [sys]="system_id"
-                mod="System"
+                [mod]="mod()"
                 bind="channel_details"
             ></i>
             <i
