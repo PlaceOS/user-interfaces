@@ -18,6 +18,11 @@
             "type": "string",
             "description": "CSS colour for thin environment identifier bars shown at the top and bottom of the app. Leave unset to hide the bars."
         },
+        "menu_embeds": {
+            "type": "array",
+            "description": "Additional menu items that open third-party URLs embedded in the app.",
+            "items": { "$ref": "#/$defs/menu_embed" }
+        },
         "general": {
             "type": "object",
             "description": "General settings associated with the app",
@@ -308,6 +313,28 @@
                 "background": {
                     "type": "string",
                     "description": "URL of the background image to associate with the link"
+                }
+            }
+        },
+        "menu_embed": {
+            "type": "object",
+            "required": ["id", "name", "url"],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Unique URL-safe identifier for the menu item."
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Display name for the menu item."
+                },
+                "url": {
+                    "type": "string",
+                    "description": "Third-party URL to embed in an iframe."
+                },
+                "icon": {
+                    "type": "string",
+                    "description": "Material Symbols icon name to show in the top menu. Defaults to `open_in_browser`."
                 }
             }
         },

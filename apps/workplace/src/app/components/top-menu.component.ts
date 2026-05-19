@@ -21,6 +21,21 @@ import {
 import { IconComponent } from '@placeos/components';
 import { filter, map } from 'rxjs/operators';
 
+export interface TopMenuEmbedItem {
+    id: string;
+    name: string;
+    url: string;
+    icon?: string;
+}
+
+interface TopMenuRoute {
+    id: string;
+    route: string;
+    icon: string;
+    name: string;
+    embed?: boolean;
+}
+
 @Component({
     selector: 'top-menu',
     template: `
@@ -33,40 +48,38 @@ import { filter, map } from 'rxjs/operators';
                 (window:resize)="checkMenu()"
                 class="text-base-content flex h-full w-full min-w-full items-center justify-center overflow-hidden"
             >
-                @for (route of routes(); track route) {
-                    @if (features().includes(route.id) || route.id === 'home') {
-                        <a
-                            matRipple
-                            [name]="'nav-' + route.id"
-                            class="relative flex items-center justify-center space-x-2 px-8"
-                            [routerLink]="[route.route]"
-                            routerLinkActive="text-secondary active"
-                            [matTooltip]="route.name"
-                            matTooltipPosition="below"
+                @for (route of visible_routes(); track route.id) {
+                    <a
+                        matRipple
+                        [name]="'nav-' + route.id"
+                        class="relative flex items-center justify-center space-x-2 px-8"
+                        [routerLink]="route.route"
+                        routerLinkActive="text-secondary active"
+                        [matTooltip]="route.name"
+                        matTooltipPosition="below"
+                    >
+                        <icon
+                            filled
+                            class="text-xl"
+                            [class.mx-auto]="hide_text()"
+                            >{{ route.icon }}</icon
                         >
-                            <icon
-                                filled
-                                class="text-xl"
-                                [class.mx-auto]="hide_text()"
-                                >{{ route.icon }}</icon
-                            >
-                            <icon
-                                outline
-                                className="material-symbols-outlined"
-                                [class.mx-auto]="hide_text()"
-                                class="m-0! text-xl"
-                            >
-                                {{ route.icon }}
-                            </icon>
-                            @if (!hide_text()) {
-                                <span class="truncate">{{ route.name }}</span>
-                            }
-                            <div
-                                bar
-                                class="bg-secondary absolute inset-x-0 bottom-0 h-0.5"
-                            ></div>
-                        </a>
-                    }
+                        <icon
+                            outline
+                            className="material-symbols-outlined"
+                            [class.mx-auto]="hide_text()"
+                            class="m-0! text-xl"
+                        >
+                            {{ route.icon }}
+                        </icon>
+                        @if (!hide_text()) {
+                            <span class="truncate">{{ route.name }}</span>
+                        }
+                        <div
+                            bar
+                            class="bg-secondary absolute inset-x-0 bottom-0 h-0.5"
+                        ></div>
+                    </a>
                 }
             </div>
         }
@@ -80,26 +93,24 @@ import { filter, map } from 'rxjs/operators';
             </div>
         }
         <mat-menu #menu="matMenu">
-            @for (route of routes(); track route) {
-                @if (features().includes(route.id) || route.id === 'home') {
-                    <a
-                        mat-menu-item
-                        [routerLink]="route.route"
-                        routerLinkActive="text-secondary active"
-                    >
-                        <div class="flex items-center space-x-2">
-                            <icon filled class="text-xl">{{ route.icon }}</icon>
-                            <icon
-                                outline
-                                className="material-symbols-outlined"
-                                class="text-xl"
-                            >
-                                {{ route.icon }}
-                            </icon>
-                            <div class="truncate pr-4">{{ route.name }}</div>
-                        </div>
-                    </a>
-                }
+            @for (route of visible_routes(); track route.id) {
+                <a
+                    mat-menu-item
+                    [routerLink]="route.route"
+                    routerLinkActive="text-secondary active"
+                >
+                    <div class="flex items-center space-x-2">
+                        <icon filled class="text-xl">{{ route.icon }}</icon>
+                        <icon
+                            outline
+                            className="material-symbols-outlined"
+                            class="text-xl"
+                        >
+                            {{ route.icon }}
+                        </icon>
+                        <div class="truncate pr-4">{{ route.name }}</div>
+                    </div>
+                </a>
             }
         </mat-menu>
     `,
@@ -167,6 +178,10 @@ export class TopMenuComponent {
         '/landing',
     );
     public readonly new_features = settingSignal('app.new_features', false);
+    public readonly menu_embeds = settingSignal<TopMenuEmbedItem[]>(
+        'menu_embeds',
+        [],
+    );
 
     public readonly is_admin = computed(() => {
         const groups = this.user().groups;
@@ -209,7 +224,7 @@ export class TopMenuComponent {
         return '';
     });
 
-    public readonly routes = computed(() => [
+    public readonly routes = computed<TopMenuRoute[]>(() => [
         {
             id: 'home',
             route: this.default_page(),
@@ -282,7 +297,26 @@ export class TopMenuComponent {
             icon: 'confirmation_number',
             name: i18n('APP.WORKPLACE.MENU_DEALS'),
         },
+        ...this.menu_embeds()
+            .filter((item) => item?.id && item?.name && item?.url)
+            .map((item) => ({
+                id: `embed-${item.id}`,
+                route: `/embedded/${encodeURIComponent(item.id)}`,
+                icon: item.icon || 'open_in_browser',
+                name: item.name,
+                embed: true,
+            })),
     ]);
+
+    public readonly visible_routes = computed(() => {
+        const features = this.features();
+        return this.routes().filter(
+            (route) =>
+                route.embed ||
+                route.id === 'home' ||
+                features.includes(route.id),
+        );
+    });
 
     private _check_menu_timer: ReturnType<typeof setTimeout> | null = null;
 
@@ -291,6 +325,7 @@ export class TopMenuComponent {
 
         effect(() => {
             this.building();
+            this.visible_routes();
             this._checkRoute();
         });
 
