@@ -62,6 +62,10 @@ export class DeskBookModalComponent implements OnInit {
             this.form.patchValue({
                 duration:
                     this._settings.get('app.desks.default_duration') || 60,
+                all_day: !!(
+                    this._settings.get('app.desks.all_day_default') ??
+                    this._settings.get('app.bookings.all_day_default')
+                ),
             });
         }
     }

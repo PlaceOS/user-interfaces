@@ -9,8 +9,9 @@ import { DeskBookModalComponent } from '../../app/desks/desk-book-modal.componen
 
 describe('DeskBookModalComponent', () => {
     let spectator: Spectator<DeskBookModalComponent>;
+    let settings: Record<string, unknown>;
     const form = generateBookingForm();
-    const newForm = jest.fn(() => form.patchValue({ all_day: true }));
+    const newForm = jest.fn();
     const createComponent = createComponentFactory({
         component: DeskBookModalComponent,
         shallow: true,
@@ -23,21 +24,37 @@ describe('DeskBookModalComponent', () => {
             }),
             MockProvider(MatDialogRef, { close: jest.fn() }),
             MockProvider(SettingsService, {
-                get: jest.fn((key: string) =>
-                    key === 'app.desks.default_duration' ? 60 : undefined,
-                ),
+                get: jest.fn((key: string) => settings[key]),
             }),
         ],
     });
 
     beforeEach(() => {
+        settings = { 'app.desks.default_duration': 60 };
         form.reset();
         newForm.mockClear();
-        spectator = createComponent();
     });
 
-    it('should initialise a desk booking form so booking defaults apply', () => {
+    it('should initialise a desk booking form', () => {
+        spectator = createComponent();
+
         expect(newForm).toHaveBeenCalledWith('desk');
+        expect(spectator.component.form.value.duration).toBe(60);
+    });
+
+    it('should apply the desk all day default setting', () => {
+        settings['app.desks.all_day_default'] = true;
+
+        spectator = createComponent();
+
+        expect(spectator.component.form.value.all_day).toBe(true);
+    });
+
+    it('should fall back to the booking all day default setting', () => {
+        settings['app.bookings.all_day_default'] = true;
+
+        spectator = createComponent();
+
         expect(spectator.component.form.value.all_day).toBe(true);
     });
 });
