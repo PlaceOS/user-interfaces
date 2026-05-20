@@ -108,4 +108,39 @@ describe('NewDeskFlowSuccessComponent', () => {
         // always false for desk group bookings before the fix.
         expect(spectator.component.is_group()).toBe(true);
     });
+
+    it('should include failed group members in the group booking list', () => {
+        spectator.component.group_bookings.set([
+            new Booking({
+                id: 'booking-1',
+                user_email: 'member.one@example.com',
+                user_name: 'Member One',
+                asset_id: 'desk-1',
+                asset_name: 'Desk 1',
+            }),
+        ]);
+        spectator.component.group_failures.set([
+            {
+                email: 'member.two@example.com',
+                name: 'Member Two',
+                asset_id: 'desk-2',
+                asset_name: 'Desk 2',
+                error: 'Save failed',
+            },
+        ]);
+
+        expect(spectator.component.group_booking_items()).toEqual([
+            expect.objectContaining({
+                email: 'member.one@example.com',
+                asset_name: 'Desk 1',
+                failed: false,
+            }),
+            expect.objectContaining({
+                email: 'member.two@example.com',
+                asset_name: 'Desk 2',
+                failed: true,
+                error: 'Save failed',
+            }),
+        ]);
+    });
 });
