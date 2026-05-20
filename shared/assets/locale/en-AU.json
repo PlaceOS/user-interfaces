@@ -719,7 +719,7 @@
         "PARKING_ALLOCATION_INFO": "Allocation of parking spaces for the following week will occur the <strong>Friday afternoon prior</strong>. Requests received after allocation has occurred will automatically be <strong>waitlisted</strong> until a suitable space becomes available.",
         "PARKING_ADVANCE_DAYS": "You can book up to <strong>{{ days }} days</strong> in advance.",
         "PARKING_APPROVAL_GROUP": "Approval depends on your <strong>priority group</strong>.",
-        "PARKING_MANUAL_APPROVAL": "<strong>P2 & After-hours</strong> requests require manual approval.",
+        "PARKING_MANUAL_APPROVAL": "Requests require manual approval.",
         "PARKING_AFTER_HOURS_WARNING": "Your After-hours request requires approval before confirmation.",
         "PARKING_CANCEL": "Cancel",
         "VISITOR_INVITE_TITLE": "Invite Visitor",
