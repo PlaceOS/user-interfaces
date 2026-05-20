@@ -7,6 +7,7 @@ import {
     SettingsService,
     setupFormTimeSync,
 } from '@placeos/common';
+import { endOfDay, startOfDay } from 'date-fns';
 import { endInFuture } from 'libs/events/src/lib/validators';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
@@ -310,6 +311,62 @@ describe('ParkingRequestFormDetailsComponent', () => {
             base_day + 780 * 60 * 1000,
         );
         expect(spectator.component.form().getRawValue().duration).toBe(240);
+    });
+
+    it('should not create multi-day parking dates past the booking limit', async () => {
+        setNow(new Date('2026-05-20T07:00:00.000Z').valueOf());
+        spectator = createComponent();
+        const form = new FormGroup({
+            id: new FormControl(''),
+            date: new FormControl(
+                new Date('2026-06-03T08:00:00.000Z').valueOf(),
+            ),
+            date_end: new FormControl(
+                new Date('2026-06-03T12:00:00.000Z').valueOf(),
+            ),
+            duration: new FormControl(240),
+            all_day: new FormControl(false),
+            recurrence_type: new FormControl('daily'),
+            recurrence_days: new FormControl(62),
+            recurrence_interval: new FormControl(1),
+            recurrence_end: new FormControl(null),
+            request_type: new FormControl('standard'),
+            user: new FormControl(null),
+            prefer_booked_location_first: new FormControl(false),
+            vehicle_type: new FormControl('car'),
+            plate_number: new FormControl('ABC123'),
+            approver_group: new FormControl(''),
+        });
+        spectator.component.shift_options_setting.set([
+            {
+                id: 'morning',
+                name: 'Morning',
+                start_time: 480,
+                end_time: 720,
+            },
+            {
+                id: 'afternoon',
+                name: 'Afternoon',
+                start_time: 780,
+                end_time: 1020,
+            },
+        ]);
+        spectator.component.request_types_setting.set([
+            { id: 'standard', name: 'Standard' },
+        ]);
+        spectator.component.hide_custom_shift.set(false);
+        spectator.setInput('form', form);
+        await spectator.component.ngOnInit();
+
+        spectator.component.setNumWeeks(2);
+
+        const expected_date = startOfDay(
+            new Date('2026-06-03T08:00:00.000Z'),
+        );
+        expect(spectator.component.weekdays).toEqual([expected_date.valueOf()]);
+        expect(form.getRawValue().recurrence_end).toBe(
+            Math.floor(endOfDay(expected_date).valueOf() / 1000),
+        );
     });
 
     it('should roll forward to the next day when the selected shift has already ended', () => {
