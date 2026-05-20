@@ -195,7 +195,7 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
     public readonly week = this._data.iom ?? 1;
     public readonly available_days = this._data.available_days;
     public readonly end_date = endOfDay(
-        addDays(this.date, this.available_days),
+        addDays(Date.now(), this.available_days),
     ).valueOf();
     public readonly month_instance =
         this.week === -1
@@ -287,6 +287,14 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
 
         if (value.end_type === 'instances' && value.end_instances) {
             value.end_date = recurrenceEndDate(value, this.date);
+            while (
+                value.end_instances > 1 &&
+                value.end_date > this.end_date
+            ) {
+                value.end_instances--;
+                value.end_date = recurrenceEndDate(value, this.date);
+            }
+            value.end_date = Math.min(value.end_date, this.end_date);
         }
 
         if (value.end_type !== 'instances') {
@@ -322,6 +330,6 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
     }
 
     private _defaultEndDate() {
-        return endOfDay(addDays(this.date, this.available_days)).valueOf();
+        return this.end_date;
     }
 }

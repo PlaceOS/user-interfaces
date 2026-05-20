@@ -9,7 +9,7 @@ describe('RecurrenceModalComponent', () => {
     const booking_date = new Date(2026, 2, 31).valueOf();
     const available_days = 30;
     const default_end_date = endOfDay(
-        addDays(booking_date, available_days),
+        addDays(Date.now(), available_days),
     ).valueOf();
 
     const createComponent = createComponentFactory({
@@ -73,5 +73,19 @@ describe('RecurrenceModalComponent', () => {
         expect(spectator.component.confirmValue().end_date).toBe(
             endOfDay(addWeeks(new Date(2026, 3, 2).valueOf(), 2)).valueOf(),
         );
+    });
+
+    it('should clamp instance ends to the allowed booking window', () => {
+        spectator.component.form.patchValue({
+            type: 'weekly',
+            interval: 1,
+            end_type: 'instances',
+            end_instances: 53,
+        });
+
+        const value = spectator.component.confirmValue();
+
+        expect(value.end_date).toBeLessThanOrEqual(default_end_date);
+        expect(value.end_instances).toBeLessThan(53);
     });
 });

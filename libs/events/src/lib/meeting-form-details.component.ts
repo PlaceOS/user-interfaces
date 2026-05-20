@@ -248,6 +248,8 @@ const ALLOWED_CALENDAR_ROLES = [
                             name="recurrence"
                             type="event"
                             [date]="form().getRawValue().date"
+                            [available_days]="allowed_future_days()"
+                            (first_instance)="onFirstInstanceChange($event)"
                             formControlName="recurrence"
                         ></recurrence-field>
                         @if (form().value.id) {
@@ -484,6 +486,7 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
         endOfDay(addDays(Date.now(), this._allowed_future_days())).valueOf(),
     );
     public readonly use_24hr = this._use_24hr;
+    public readonly allowed_future_days = this._allowed_future_days;
     public readonly bookable_hours = this._bookable_hours;
     public readonly min_duration = this._min_duration;
     public readonly custom_duration_options = this._custom_duration_options;
@@ -501,6 +504,10 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
             minutes: diff % 60,
         })})`;
     };
+
+    public onFirstInstanceChange(date: number) {
+        this.form().patchValue({ date });
+    }
 
     public readonly visibility_options = [
         { value: 'normal', label: 'NORMAL' },

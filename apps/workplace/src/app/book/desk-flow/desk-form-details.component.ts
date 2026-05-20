@@ -202,6 +202,7 @@ const MINUTES_IN_DAY = 24 * 60;
                                 [date]="form().getRawValue().date"
                                 [ngModel]="form().value"
                                 (ngModelChange)="onRecurrenceChange($event)"
+                                (first_instance)="onFirstInstanceChange($event)"
                                 [ngModelOptions]="{ standalone: true }"
                                 [available_days]="available_days()"
                             ></recurrence-field>
@@ -507,5 +508,9 @@ export class NewDeskFormDetailsComponent
 
     public onRecurrenceChange(recurrence: BookingRecurrence) {
         this.form().patchValue(recurrence);
+    }
+
+    public onFirstInstanceChange(date: number) {
+        this.form().patchValue({ date });
     }
 }
