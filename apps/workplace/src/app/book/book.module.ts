@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { Route, RouterModule } from '@angular/router';
+import { CanDeactivateFn, Route, RouterModule } from '@angular/router';
 
 import { BookComponent } from './book.component';
 import { CodeFlowErrorComponent } from './code-flow-error.component';
@@ -11,6 +11,10 @@ import { MeetingFlowNewComponent } from './meeting-flow-new/meeting-flow.compone
 import { NewParkingFlowComponent } from './parking-flow.component';
 import { ParkingRequestFlowComponent } from './parking-request-flow.component';
 import { VisitorFlowNewComponent } from './visitor-flow-new/visitor-flow.component';
+
+const canDeactivateVisitorFlow: CanDeactivateFn<VisitorFlowNewComponent> = (
+    component,
+) => component.canDeactivate();
 
 const ROUTES: Route[] = [
     {
@@ -62,6 +66,7 @@ const ROUTES: Route[] = [
                 path: 'visitor/:step',
                 component: VisitorFlowNewComponent,
                 title: 'Visitor Booking',
+                canDeactivate: [canDeactivateVisitorFlow],
             },
             { path: 'locker', redirectTo: 'locker/form' },
             {

@@ -1,6 +1,7 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
@@ -13,7 +14,11 @@ import {
     SettingsService,
     User,
 } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    openConfirmModal,
+    TranslatePipe,
+} from '@placeos/components';
 import { VisitorFlowDetailsComponent } from './visitor-flow-details.component';
 import { VisitorFlowInvitesComponent } from './visitor-flow-invites.component';
 import { VisitorFlowRecentComponent } from './visitor-flow-recent.component';
@@ -129,6 +134,7 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
+    private _dialog = inject(MatDialog);
     private _existing_siblings: Booking[] = [];
 
     public readonly view = this._booking_form.view;
@@ -248,6 +254,25 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
         } finally {
             this.loading.set(false);
         }
+    }
+
+    public async canDeactivate() {
+        const value = this._booking_form.form.getRawValue();
+        if (!value.id || !this._booking_form.form.dirty) return true;
+        const result = await openConfirmModal(
+            {
+                title: 'Unsaved changes',
+                content:
+                    'You have unsaved visitor invite changes. Discard these changes and leave this form?',
+                confirm_text: 'Discard changes',
+                icon: { content: 'warning' },
+            },
+            this._dialog,
+        );
+        if (result.reason !== 'done') return false;
+        result.close();
+        this._booking_form.clearForm();
+        return true;
     }
 
     private _saveRecentVisitors(is_multiple: boolean) {
