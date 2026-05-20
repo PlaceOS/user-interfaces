@@ -332,6 +332,10 @@
                     "type": "string",
                     "description": "Third-party URL to embed in an iframe."
                 },
+                "external": {
+                    "type": "boolean",
+                    "description": "Open the URL as an external link instead of embedding it in the app."
+                },
                 "icon": {
                     "type": "string",
                     "description": "Material Symbols icon name to show in the top menu. Defaults to `open_in_browser`."
