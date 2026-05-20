@@ -136,7 +136,7 @@ import { DateFieldComponent } from './date-field.component';
                             formControlName="end_instances"
                             [render_fn]="instance_fn"
                             [min]="1"
-                            [max]="53"
+                            [max]="maxInstances()"
                         ></compact-counter>
                     </div>
                 </mat-radio-group>
@@ -241,6 +241,10 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
                 this._onMonthlyTypeChange(type),
             ),
         );
+        this.subscription(
+            'instance_limit',
+            this.form.valueChanges.subscribe(() => this._clampEndInstances()),
+        );
         this.form.patchValue({ ...this._data.value, _custom: true });
         if (!this.form.value.type || this.form.value.type === 'none') {
             this.form.patchValue({ type: 'daily' });
@@ -269,6 +273,7 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
         if (this.available_days < 14) {
             this.form.controls.type.disable();
         }
+        this._clampEndInstances();
     }
 
     public hasDate(idx: DayIndex) {
@@ -309,6 +314,20 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
         return value;
     }
 
+    public maxInstances(): number {
+        const value = this.form.getRawValue() as Recurrence;
+        let max_instances = 1;
+        for (let count = 1; count <= 53; count++) {
+            const end_date = recurrenceEndDate(
+                { ...value, end_instances: count },
+                this.date,
+            );
+            if (end_date > this.end_date) break;
+            max_instances = count;
+        }
+        return max_instances;
+    }
+
     private _onEndTypeChange(type: RecurrEndType) {
         type !== 'date'
             ? this.form.controls.end_date.disable()
@@ -327,6 +346,16 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
             set.add(new Date(this.date).getDay() as any);
             this.form.patchValue({ week: this.week, weekdays: set });
         }
+    }
+
+    private _clampEndInstances() {
+        if (this.form.getRawValue().end_type !== 'instances') return;
+        const max_instances = this.maxInstances();
+        if (this.form.controls.end_instances.value <= max_instances) return;
+        this.form.patchValue(
+            { end_instances: max_instances },
+            { emitEvent: false },
+        );
     }
 
     private _defaultEndDate() {

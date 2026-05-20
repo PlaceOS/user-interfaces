@@ -1,5 +1,6 @@
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { recurrenceEndDate } from '@placeos/common';
 import { addDays, addWeeks, endOfDay } from 'date-fns';
 
 import { RecurrenceModalComponent } from '../lib/recurrence-modal.component';
@@ -87,5 +88,39 @@ describe('RecurrenceModalComponent', () => {
 
         expect(value.end_date).toBeLessThanOrEqual(default_end_date);
         expect(value.end_instances).toBeLessThan(53);
+    });
+
+    it('should limit instance count to the available booking window', () => {
+        spectator.component.form.patchValue({
+            type: 'weekly',
+            interval: 4,
+            end_type: 'instances',
+        });
+
+        const max_instances = spectator.component.maxInstances();
+
+        expect(max_instances).toBeLessThan(53);
+        expect(
+            recurrenceEndDate(
+                {
+                    ...spectator.component.form.getRawValue(),
+                    end_instances: max_instances,
+                },
+                booking_date,
+            ),
+        ).toBeLessThanOrEqual(default_end_date);
+    });
+
+    it('should clamp instance count when recurrence settings reduce the limit', () => {
+        spectator.component.form.patchValue({
+            type: 'weekly',
+            interval: 4,
+            end_type: 'instances',
+            end_instances: 53,
+        });
+
+        expect(spectator.component.form.controls.end_instances.value).toBe(
+            spectator.component.maxInstances(),
+        );
     });
 });
