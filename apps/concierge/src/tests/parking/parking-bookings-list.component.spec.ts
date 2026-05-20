@@ -95,7 +95,7 @@ describe('ParkingBookingsListComponent', () => {
         settingSignal('parking.allow_deleting', false).set(false);
     });
 
-    it('should show the booking type column when requests are enabled', () => {
+    it('should show the vehicle type column when requests are enabled', () => {
         show_requests = true;
         bookings = [
             {
@@ -112,7 +112,7 @@ describe('ParkingBookingsListComponent', () => {
         const table = spectator.query(SimpleTableComponent);
         expect(table?.active_columns().map((column) => column.key)).toEqual([
             'state',
-            'booking_type',
+            'vehicle_type',
             'date',
             'asset_id',
             'user_name',
@@ -123,7 +123,7 @@ describe('ParkingBookingsListComponent', () => {
         ]);
     });
 
-    it('should hide the booking type column when requests are disabled', () => {
+    it('should hide the vehicle type column when requests are disabled', () => {
         show_requests = false;
         bookings = [
             {
@@ -140,7 +140,7 @@ describe('ParkingBookingsListComponent', () => {
         const table = spectator.query(SimpleTableComponent);
         expect(
             table?.active_columns().map((column) => column.key),
-        ).not.toContain('booking_type');
+        ).not.toContain('vehicle_type');
     });
 
     it('should expose the parking display timezone', () => {
@@ -298,85 +298,46 @@ describe('ParkingBookingsListComponent', () => {
         ).toBe(true);
     });
 
-    it('should map bookings to the expected type labels', () => {
+    it('should map bookings to the expected vehicle type labels', () => {
         spectator = createComponent();
 
         expect(
-            spectator.component.bookingTypeLabel({ asset_id: 'bay-1' } as any),
-        ).toBe('APP.CONCIERGE.PARKING_BOOKING_TYPE_BOOKED');
+            spectator.component.vehicleTypeLabel({ asset_id: 'bay-1' } as any),
+        ).toBe('BOOKINGS.PARKING_VEHICLE_CAR');
         expect(
-            spectator.component.bookingTypeLabel({
-                asset_id: 'unallocated-1',
-                status: 'approved',
+            spectator.component.vehicleTypeLabel({
+                extension_data: { vehicle_type: 'truck' },
             } as any),
-        ).toBe('APP.CONCIERGE.PARKING_BOOKING_TYPE_REQUEST');
-        expect(
-            spectator.component.bookingTypeLabel({
-                asset_id: 'unallocated-1',
-                status: 'tentative',
-            } as any),
-        ).toBe('APP.CONCIERGE.PARKING_BOOKING_TYPE_PENDING_MANUAL');
-        expect(
-            spectator.component.bookingTypeLabel({
-                asset_id: 'unallocated-1',
-                status: 'approved',
-                extension_data: { approver_group: 'parking-team' },
-            } as any),
-        ).toBe('APP.CONCIERGE.PARKING_BOOKING_TYPE_PENDING_MANUAL');
-        expect(
-            spectator.component.bookingTypeLabel({
-                id: 'waitlisted',
-                asset_id: 'unallocated-1',
-                status: 'tentative',
-            } as any),
-        ).toBe('APP.CONCIERGE.PARKING_BOOKING_TYPE_WAITLISTED');
+        ).toBe('BOOKINGS.PARKING_VEHICLE_TRUCK');
     });
 
-    it('should map bookings to the expected type icons', () => {
+    it('should map bookings to the expected vehicle type icons', () => {
         spectator = createComponent();
 
         expect(
-            spectator.component.bookingTypeIcon({ asset_id: 'bay-1' } as any),
-        ).toBe('event_available');
+            spectator.component.vehicleTypeIcon({ asset_id: 'bay-1' } as any),
+        ).toBe('directions_car');
         expect(
-            spectator.component.bookingTypeIcon({
-                asset_id: 'unallocated-1',
-                status: 'approved',
+            spectator.component.vehicleTypeIcon({
+                extension_data: { vehicle_type: 'bike' },
             } as any),
-        ).toBe('outbox');
+        ).toBe('pedal_bike');
         expect(
-            spectator.component.bookingTypeIcon({
-                asset_id: 'unallocated-1',
-                status: 'tentative',
+            spectator.component.vehicleTypeIcon({
+                extension_data: { vehicle_type: 'van' },
             } as any),
-        ).toBe('pending_actions');
+        ).toBe('airport_shuttle');
         expect(
-            spectator.component.bookingTypeIcon({
-                id: 'waitlisted',
-                asset_id: 'unallocated-1',
-                status: 'tentative',
+            spectator.component.vehicleTypeIcon({
+                extension_data: { vehicle_type: 'other' },
             } as any),
-        ).toBe('hourglass_top');
+        ).toBe('category');
     });
 
-    it('should hide waitlisted booking indicators when the setting is disabled', () => {
+    it('should hide waitlisted state when the setting is disabled', () => {
         show_waitlist = false;
         spectator = createComponent();
 
-        expect(
-            spectator.component.bookingTypeLabel({
-                id: 'waitlisted',
-                asset_id: 'unallocated-1',
-                status: 'tentative',
-            } as any),
-        ).toBe('APP.CONCIERGE.PARKING_BOOKING_TYPE_PENDING_MANUAL');
-        expect(
-            spectator.component.bookingTypeIcon({
-                id: 'waitlisted',
-                asset_id: 'unallocated-1',
-                status: 'tentative',
-            } as any),
-        ).toBe('pending_actions');
         expect(
             spectator.component.isVisibleWaitlisted({
                 id: 'waitlisted',
@@ -386,33 +347,18 @@ describe('ParkingBookingsListComponent', () => {
         ).toBe(false);
     });
 
-    it('should map bookings to sortable type values', () => {
+    it('should map bookings to sortable vehicle type values', () => {
+        bookings = [
+            {
+                asset_id: 'bay-1',
+                extension_data: { vehicle_type: 'truck' },
+            } as Booking,
+        ];
         spectator = createComponent();
 
-        expect(
-            spectator.component.bookingTypeSortValue({
-                asset_id: 'unallocated-1',
-                status: 'approved',
-            } as any),
-        ).toBe(0);
-        expect(
-            spectator.component.bookingTypeSortValue({
-                asset_id: 'unallocated-1',
-                status: 'tentative',
-            } as any),
-        ).toBe(1);
-        expect(
-            spectator.component.bookingTypeSortValue({
-                id: 'waitlisted',
-                asset_id: 'unallocated-1',
-                status: 'tentative',
-            } as any),
-        ).toBe(2);
-        expect(
-            spectator.component.bookingTypeSortValue({
-                asset_id: 'bay-1',
-            } as any),
-        ).toBe(3);
+        expect(spectator.component.filtered_events()[0]).toMatchObject({
+            vehicle_type: 'truck',
+        });
     });
 
     it('should show the status action as disabled when the user cannot approve the booking', () => {

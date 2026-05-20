@@ -84,7 +84,7 @@ interface ParkingBookingColumnTemplates {
                         status_template,
                         action_template,
                         status_busy_label: 'COMMON.STATUS_BUSY' | translate,
-                        type_label: 'COMMON.TYPE' | translate,
+                        type_label: 'BOOKINGS.PARKING_VEHICLE_TYPE' | translate,
                         time_label: 'FORM.TIME' | translate,
                         bay_number_label:
                             'APP.CONCIERGE.PARKING_BAY_NUMBER' | translate,
@@ -234,22 +234,13 @@ interface ParkingBookingColumnTemplates {
                 </div>
             </ng-template>
             <ng-template #type_template let-row="row">
-                @let type = bookingType(row);
-                <div class="flex justify-center px-4 py-2">
+                <div class="flex justify-center px-4 py-2 mx-auto">
                     <div
-                        class="inline-flex h-8 w-8 items-center justify-center rounded"
-                        [class.bg-success]="type === 'booked'"
-                        [class.text-success-content]="type === 'booked'"
-                        [class.bg-base-300]="type === 'request'"
-                        [class.text-base-content]="type === 'request'"
-                        [class.bg-warning]="type === 'pending_manual'"
-                        [class.text-warning-content]="type === 'pending_manual'"
-                        [class.bg-info]="type === 'waitlisted'"
-                        [class.text-info-content]="type === 'waitlisted'"
-                        [matTooltip]="bookingTypeLabel(row) | translate"
+                        class="bg-base-300 text-base-content inline-flex h-8 w-8 items-center justify-center rounded"
+                        [matTooltip]="vehicleTypeLabel(row) | translate"
                         matTooltipPosition="right"
                     >
-                        <icon class="text-2xl">{{ bookingTypeIcon(row) }}</icon>
+                        <icon class="text-2xl">{{ vehicleTypeIcon(row) }}</icon>
                     </div>
                 </div>
             </ng-template>
@@ -542,7 +533,7 @@ export class ParkingBookingsListComponent
         );
         return this._state.filterEventSearch(list, search).map((booking) => ({
             ...booking,
-            booking_type: this.bookingTypeSortValue(booking),
+            vehicle_type: this.vehicleType(booking),
             notes: booking.extension_data?.notes || '',
             ...this.customExtensionColumnValues(booking),
         }));
@@ -566,7 +557,6 @@ export class ParkingBookingsListComponent
     public readonly isRequest = (e) => this._state.isRequest(e);
     public readonly isManualRequest = (e) => this._state.isManualRequest(e);
     public readonly isWaitlisted = (e) => this._state.isWaitlisted(e);
-    public readonly bookingTypeSort = (a: number, b: number) => a - b;
     public readonly canApproveBooking = (e: Booking) =>
         this._state.canApproveBooking(e);
     public readonly isStatusActionDisabled = (e: Booking) =>
@@ -600,12 +590,16 @@ export class ParkingBookingsListComponent
     });
 
     public readonly can_edit = settingSignal('parking.allow_editing', true);
-    public readonly can_edit_allocated = settingSignal('parking.allow_editing_allocated');
+    public readonly can_edit_allocated = settingSignal(
+        'parking.allow_editing_allocated',
+    );
     public readonly can_delete = settingSignal('parking.allow_deleting', false);
 
     public canEdit(bkn: Booking) {
         const allocated = !bkn.asset_id.includes('unalloc');
-        return allocated ? this.can_edit_allocated() ?? this.can_edit() : this.can_edit()
+        return allocated
+            ? (this.can_edit_allocated() ?? this.can_edit())
+            : this.can_edit();
     }
 
     public get show_request_types() {
@@ -703,11 +697,10 @@ export class ParkingBookingsListComponent
                 sortable: false,
             },
             {
-                key: 'booking_type',
+                key: 'vehicle_type',
                 name: templates.type_label,
                 content: templates.type_template,
                 size: '5.5rem',
-                sort_fn: this.bookingTypeSort,
                 show: this.show_request_types,
             },
             {
@@ -768,44 +761,22 @@ export class ParkingBookingsListComponent
         ];
     }
 
-    public bookingType(booking: Booking) {
-        if (!this.isRequest(booking)) {
-            return 'booked';
-        }
-        if (this.isVisibleWaitlisted(booking)) {
-            return 'waitlisted';
-        }
-        if (this.isManualRequest(booking) || booking.status === 'tentative') {
-            return 'pending_manual';
-        }
-        return 'request';
+    public vehicleType(booking: Booking) {
+        return booking?.extension_data?.vehicle_type || 'car';
     }
 
-    public bookingTypeSortValue(booking: Booking) {
-        return {
-            request: 0,
-            pending_manual: 1,
-            waitlisted: 2,
-            booked: 3,
-        }[this.bookingType(booking)];
+    public vehicleTypeLabel(booking: Booking) {
+        return `BOOKINGS.PARKING_VEHICLE_${this.vehicleType(booking).toUpperCase()}`;
     }
 
-    public bookingTypeLabel(booking: Booking) {
-        return {
-            booked: 'APP.CONCIERGE.PARKING_BOOKING_TYPE_BOOKED',
-            request: 'APP.CONCIERGE.PARKING_BOOKING_TYPE_REQUEST',
-            pending_manual: 'APP.CONCIERGE.PARKING_BOOKING_TYPE_PENDING_MANUAL',
-            waitlisted: 'APP.CONCIERGE.PARKING_BOOKING_TYPE_WAITLISTED',
-        }[this.bookingType(booking)];
-    }
-
-    public bookingTypeIcon(booking: Booking) {
-        return {
-            booked: 'event_available',
-            request: 'outbox',
-            pending_manual: 'pending_actions',
-            waitlisted: 'hourglass_top',
-        }[this.bookingType(booking)];
+    public vehicleTypeIcon(booking: Booking) {
+        const icons = {
+            bike: 'pedal_bike',
+            car: 'directions_car',
+            truck: 'local_shipping',
+            van: 'airport_shuttle',
+        };
+        return icons[this.vehicleType(booking)] || 'category';
     }
 
     public ngOnInit() {
