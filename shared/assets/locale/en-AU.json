@@ -574,6 +574,7 @@
         "GROUP_SOME_HAVE_BOOKINGS": "Some members of your group already have a desk booking. [{{ members }}]",
         "GROUP_MAP_UNAVAILABLE": "Unable to locate a map for the selected resource.",
         "GROUP_INSUFFICIENT_RESOURCES": "Only {{ available }} nearby resources are available for {{ members }} group members.",
+        "GROUP_INSUFFICIENT_RESOURCES_1": "Only {{ available }} nearby resources is available for {{ members }} group members.",
         "GROUP_MEMBER_NO_RESOURCE": "No nearby resource is available.",
         "ERROR_GENERIC": "Failed to complete booking request.",
         "NO_USER": "No user was selected to book for.",
