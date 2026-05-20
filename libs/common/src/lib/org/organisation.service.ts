@@ -34,7 +34,7 @@ import {
 const ORG_CACHE_PREFIX = 'PLACEOS.org';
 const ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
 const METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
-const DEFAULT_CACHE_DURATION = 60 * 60 * 1000;
+const DEFAULT_CACHE_DURATION = 10 * 60 * 1000;
 type ZoneQueryParams = Parameters<typeof queryZones>[0];
 type MetadataMap = Record<string, Record<string, any>>;
 interface SessionCacheItem<T> {
