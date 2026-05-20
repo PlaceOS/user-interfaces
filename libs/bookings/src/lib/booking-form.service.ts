@@ -980,7 +980,7 @@ export class BookingFormService extends AsyncHandler {
                     },
                     approved: this.setting('no_approval') === true,
                     zones,
-                }),
+                }).toJSON(),
                 q,
             ),
         ).catch((e) => {
@@ -1583,7 +1583,7 @@ export class BookingFormService extends AsyncHandler {
                         group_members,
                         group_resource_type: resource_type,
                     },
-                }),
+                }).toJSON(),
             ),
         ).catch((error) => {
             this._loading.next('');
