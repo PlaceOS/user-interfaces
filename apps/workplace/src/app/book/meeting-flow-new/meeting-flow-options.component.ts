@@ -465,6 +465,11 @@ export class MeetingFlowOptionsComponent {
             : '';
     }
 
+    public readonly allow_daily_allday_recurrence = settingSignal(
+        'events.allow_daily_allday_recurrence',
+        false,
+    );
+
     public get formatted_recurrence() {
         const value = this.form_value();
         return formatRecurrence(
@@ -512,6 +517,13 @@ export class MeetingFlowOptionsComponent {
         const space = value.resources[0];
         if (!value.host) {
             this._event_form.form.patchValue({ host: currentUser()?.email });
+        }
+        if (
+            !this.allow_daily_allday_recurrence() &&
+            value.all_day &&
+            value.recurrence?.pattern === 'daily'
+        ) {
+            return notifyError(i18n('CALENDAR_EVENT.DAILY_RECURR_ERROR'));
         }
         if (!space) {
             const result = await openConfirmModal(

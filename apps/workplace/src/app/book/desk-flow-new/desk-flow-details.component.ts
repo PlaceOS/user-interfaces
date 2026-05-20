@@ -208,9 +208,15 @@ type FormType = 'single' | 'group' | 'other';
                             [date]="form_value().date"
                             [ngModel]="form.value"
                             (ngModelChange)="onRecurrenceChange($event)"
+                            (first_instance)="onFirstInstanceChange($event)"
                             [ngModelOptions]="{ standalone: true }"
                             [available_days]="available_days()"
                         ></recurrence-field>
+                        @if (form.value.id) {
+                            <mat-checkbox formControlName="update_master">
+                                {{ 'FORM.UPDATE_FUTURE' | translate }}
+                            </mat-checkbox>
+                        }
                     </div>
                 }
                 @if (can_book_lockers()) {
@@ -397,6 +403,10 @@ export class DeskFlowDetailsComponent {
 
     public onRecurrenceChange(recurrence: any) {
         this.form.patchValue(recurrence);
+    }
+
+    public onFirstInstanceChange(date: number) {
+        this.form.patchValue({ date });
     }
 
     public findAvailableTime() {

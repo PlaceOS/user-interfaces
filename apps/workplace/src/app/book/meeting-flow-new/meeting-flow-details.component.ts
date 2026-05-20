@@ -117,6 +117,8 @@ import { map } from 'rxjs/operators';
                                 name="recurrence"
                                 type="event"
                                 [date]="form().getRawValue().date"
+                                [available_days]="available_days()"
+                                (first_instance)="onFirstInstanceChange($event)"
                                 formControlName="recurrence"
                             ></recurrence-field>
                             @if (form().value.id) {
@@ -294,6 +296,14 @@ export class MeetingFlowDetailsComponent {
         'events.custom_duration_options',
         [],
     );
+    public readonly available_days = settingSignal(
+        'events.available_period',
+        180,
+    );
+    public readonly recurrence_enabled = settingSignal(
+        'events.allow_recurrence',
+        false,
+    );
 
     public readonly bookable_hours = settingSignal<
         { start: number; end: number } | undefined
@@ -317,9 +327,12 @@ export class MeetingFlowDetailsComponent {
 
     public readonly allow_recurrence = computed(
         () =>
-            settingSignal('events.allow_recurrence') &&
-            this.form_value().duration <= 24 * 60,
+            this.recurrence_enabled() && this.form_value().duration <= 24 * 60,
     );
+
+    public onFirstInstanceChange(date: number) {
+        this.form().patchValue({ date });
+    }
 
     public searchRooms() {
         if (!this.has_title()) {
