@@ -15,7 +15,7 @@ import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CateringItem, DialogEvent, randomInt } from '@placeos/common';
+import { CateringItem, DialogEvent } from '@placeos/common';
 
 import { OrganisationService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -474,7 +474,6 @@ export class CateringItemModalComponent {
             metadata: {
                 item: new CateringItem({
                     ...this.item,
-                    id: this.item.id || `item-${randomInt(9999_9999)}`,
                     ...this.form.value,
                 }),
             },

@@ -1,11 +1,8 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import {
-    listChildMetadata,
-    PlaceZoneMetadata,
-    setToken,
-} from '@placeos/ts-client';
+import { queryCateringItems } from '@placeos/assets';
+import { setToken } from '@placeos/ts-client';
 import { lastValueFrom, of } from 'rxjs';
 import {
     catchError,
@@ -156,24 +153,8 @@ export class CheckinPreferencesComponent
     private readonly _menu = toObservable(this.bld_id).pipe(
         filter((_) => !!_),
         switchMap((bld) =>
-            listChildMetadata(bld, {
-                name: 'catering',
-                include_parent: true,
-            }).pipe(
-                catchError(() => of([] as PlaceZoneMetadata[])),
-                map((list) => {
-                    const details = [];
-                    for (const zone of list) {
-                        if (zone.keys.includes('catering')) {
-                            const catering = zone.metadata.catering;
-                            if (catering.details instanceof Array) {
-                                details.push(...catering.details);
-                            }
-                        }
-                    }
-                    return details;
-                }),
-                map((menu) => menu.map((i) => new CateringItem(i))),
+            queryCateringItems(bld).pipe(
+                catchError(() => of([] as CateringItem[])),
             ),
         ),
         map((menu) =>

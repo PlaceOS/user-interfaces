@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { queryCateringItems } from '@placeos/assets';
 import {
     CateringItem,
     OrganisationService,
@@ -84,13 +85,8 @@ export class CateringOrderStateService {
         filter(([_, bld]) => !!bld),
         switchMap(([{ zone }, bld]) => {
             this._loading.next('[MENU]');
-            return showMetadata(zone || bld.id, 'catering').pipe(
-                map((d) =>
-                    (d.details instanceof Array ? d.details : []).map(
-                        (_) => new CateringItem(_),
-                    ),
-                ),
-                catchError((_) => []),
+            return queryCateringItems(zone || bld.id).pipe(
+                catchError((_) => of([] as CateringItem[])),
             );
         }),
         tap((items) => {
