@@ -2011,7 +2011,7 @@ export class BookingFormService extends AsyncHandler {
             throw i18n('BOOKINGS.GROUP_INSUFFICIENT_RESOURCES', {
                 available,
                 members: group_members.length,
-            });
+            }, available);
         }
         return final_resources;
     }
