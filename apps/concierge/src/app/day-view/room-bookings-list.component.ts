@@ -5,7 +5,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { SettingsService, i18n } from '@placeos/common';
+import { SettingsService, i18n, settingSignal } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
@@ -218,19 +218,21 @@ import { EventsStateService } from './events-state.service';
                                     </div>
                                 </button>
                             }
-                            <button mat-menu-item (click)="cancel(row)">
-                                <div class="flex items-center space-x-2">
-                                    <icon class="text-error text-2xl"
-                                        >delete</icon
-                                    >
-                                    <div>
-                                        {{
-                                            'CALENDAR_EVENT.ACTION_DELETE'
-                                                | translate
-                                        }}
+                            @if (can_delete()) {
+                                <button mat-menu-item (click)="cancel(row)">
+                                    <div class="flex items-center space-x-2">
+                                        <icon class="text-error text-2xl"
+                                            >delete</icon
+                                        >
+                                        <div>
+                                            {{
+                                                'CALENDAR_EVENT.ACTION_DELETE'
+                                                    | translate
+                                            }}
+                                        </div>
                                     </div>
-                                </div>
-                            </button>
+                                </button>
+                            }
                             @if (is_concierge) {
                                 <button mat-menu-item (click)="print(row)">
                                     <div class="flex items-center space-x-2">
@@ -310,6 +312,7 @@ export class RoomBookingsListComponent {
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
 
+    public readonly can_delete = settingSignal('events.allow_deleting', false);
     public readonly events = toSignal(this._state.filtered, {
         initialValue: [],
     });
