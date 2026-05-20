@@ -1072,20 +1072,8 @@ export class BookingFormService extends AsyncHandler {
                     user: user as any,
                     user_email: user.email,
                     user_id: user.id,
-                    asset_id: asset?.id,
-                    asset_name: asset.name || asset.id,
-                    description: asset.name || asset.id,
-                    map_id: asset?.map_id || asset?.id,
+                    ...this._resourceFormData(asset),
                     group: group_name,
-                    zones: (asset.zone
-                        ? unique([
-                              this._org.organisation.id,
-                              this._org.region?.id,
-                              asset?.zone?.parent_id,
-                              asset?.zone?.id,
-                          ])
-                        : [this._org.organisation.id, this._org.region?.id]
-                    ).filter((_) => _),
                 });
                 const bkn = await this.postForm(true, false).catch((error) => {
                     throw `${user.name || user.email}: ${this._error_message(error)}`;
@@ -1333,24 +1321,7 @@ export class BookingFormService extends AsyncHandler {
                         user_email: member.email,
                         user_id: member.id,
                         ...(asset
-                            ? {
-                                  asset_id: asset.id,
-                                  asset_name: asset.name || asset.id,
-                                  description: asset.name || asset.id,
-                                  map_id: asset.map_id || asset.id,
-                                  zones: (asset.zone
-                                      ? unique([
-                                            this._org.organisation.id,
-                                            this._org.region?.id,
-                                            asset.zone?.parent_id,
-                                            asset.zone?.id,
-                                        ])
-                                      : [
-                                            this._org.organisation.id,
-                                            this._org.region?.id,
-                                        ]
-                                  ).filter((_) => _),
-                              }
+                            ? this._resourceFormData(asset)
                             : {}),
                     });
                 }
@@ -1364,6 +1335,26 @@ export class BookingFormService extends AsyncHandler {
         this.form?.patchValue({ booking_type: type });
         this.setView('success');
         return first_result;
+    }
+
+    private _resourceFormData(asset: BookingAsset) {
+        return {
+            resources: asset ? [asset] : [],
+            booking_asset: asset || null,
+            asset_id: asset?.id,
+            asset_name: asset?.name || asset?.id,
+            description: asset?.name || asset?.id,
+            map_id: asset?.map_id || asset?.id,
+            zones: (asset?.zone
+                ? unique([
+                      this._org.organisation.id,
+                      this._org.region?.id,
+                      asset.zone?.parent_id,
+                      asset.zone?.id,
+                  ])
+                : [this._org.organisation.id, this._org.region?.id]
+            ).filter((_) => _),
+        };
     }
 
     private async createGroupContainerBooking(

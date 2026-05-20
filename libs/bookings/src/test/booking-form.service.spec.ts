@@ -692,6 +692,86 @@ describe('BookingFormService', () => {
         expect(new Set(saved_desks).size).toBe(saved_desks.length);
     });
 
+    it('should keep child group booking resources aligned with the booked desk', async () => {
+        const desk_list = [
+            {
+                id: 'desk-1',
+                map_id: 'map-1',
+                name: 'Desk 1',
+                zone: { id: 'lvl-1', parent_id: 'bld-1' },
+                features: [],
+            },
+            {
+                id: 'desk-2',
+                map_id: 'map-2',
+                name: 'Desk 2',
+                zone: { id: 'lvl-1', parent_id: 'bld-1' },
+                features: [],
+            },
+        ] as any[];
+        (spectator.service as any).resources = of(desk_list);
+        (spectator.service as any).available_resources = of(desk_list);
+        jest.spyOn(booking_utility_mod, 'findNearbyFeature').mockResolvedValue(
+            'map-2',
+        );
+        jest.spyOn(
+            spectator.service as any,
+            '_checkResourceAvailable',
+        ).mockResolvedValue(true);
+        const saved_forms: { asset_id: string; resource_id: string }[] = [];
+        jest.spyOn(spectator.service, 'postForm').mockImplementation(
+            async () => {
+                const value = spectator.service.form.getRawValue();
+                saved_forms.push({
+                    asset_id: value.asset_id,
+                    resource_id: value.resources?.[0]?.id,
+                });
+                return new Booking({
+                    id: `booking-${saved_forms.length}`,
+                    user_email: value.user_email,
+                    asset_id: value.asset_id,
+                });
+            },
+        );
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                booking_type: 'desk',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'desk-1',
+                extension_data: { map_id: 'map-1' },
+            }),
+        );
+        spectator.service.form.patchValue({
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            map_id: 'map-1',
+            resources: [desk_list[0]],
+        });
+        spectator.service.setOptions({
+            type: 'desk',
+            group: true,
+            members: [
+                {
+                    email: '<empty>@dev.place.tech',
+                    name: '<empty>',
+                } as any,
+                {
+                    email: 'member.one@example.com',
+                    name: 'Member One',
+                } as any,
+            ],
+        });
+
+        await spectator.service.postFormForGroup();
+
+        expect(saved_forms).toEqual([
+            { asset_id: 'desk-1', resource_id: 'desk-1' },
+            { asset_id: 'desk-2', resource_id: 'desk-2' },
+        ]);
+    });
+
     it('should create a group container parent before desk group booking children', async () => {
         const save_booking = booking_mod.saveBooking as jest.Mock;
         const desk_list = [
