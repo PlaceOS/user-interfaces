@@ -44,6 +44,7 @@ export class AppComponent implements OnInit {
         setMocks(mocksInit);
         await this._placeos.init();
         if (this._placeos.has_uploads) this._uploads.init();
+
         setDefaultCreator(currentUser());
     }
 }
