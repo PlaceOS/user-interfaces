@@ -1,26 +1,23 @@
 import {
     Component,
     computed,
-    DestroyRef,
     effect,
     forwardRef,
     inject,
     input,
-    OnInit,
+    output,
     signal,
     untracked,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
-    ControlContainer,
     ControlValueAccessor,
-    FormGroup,
     FormsModule,
     NG_VALUE_ACCESSOR,
 } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import {
     BookingRecurrence,
+    firstRecurrenceInstance,
     formatRecurrence,
     fromBookingRecurrence,
     fromEventRecurrence,
@@ -30,7 +27,7 @@ import {
     toBookingRecurrence,
     toEventRecurrence,
 } from '@placeos/common';
-import { addDays, addYears, endOfDay } from 'date-fns';
+import { addDays, addYears, endOfDay, startOfDay } from 'date-fns';
 
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -157,14 +154,13 @@ import { RecurrenceModalComponent } from './recurrence-modal.component';
         FormsModule,
     ],
 })
-export class RecurrenceFieldComponent implements ControlValueAccessor, OnInit {
+export class RecurrenceFieldComponent implements ControlValueAccessor {
     private _dialog = inject(MatDialog);
-    private _destroyRef = inject(DestroyRef);
-    private _controlContainer = inject(ControlContainer, { optional: true });
 
     public readonly type = input<'event' | 'booking'>('booking');
     public readonly date = input(Date.now());
     public readonly available_days = input(180);
+    public readonly first_instance = output<number>();
 
     public readonly prev_type = signal('none');
     public readonly recurr_type = signal('none');
@@ -208,18 +204,6 @@ export class RecurrenceFieldComponent implements ControlValueAccessor, OnInit {
         });
     }
 
-    public ngOnInit(): void {
-        const parent_form = this._controlContainer?.control as FormGroup;
-        const date_ctrl = parent_form?.get('date');
-        if (date_ctrl) {
-            date_ctrl.valueChanges
-                .pipe(takeUntilDestroyed(this._destroyRef))
-                .subscribe((date_value: number) => {
-                    if (date_value) this._onDateChange(date_value);
-                });
-        }
-    }
-
     public toRaw(data: Recurrence) {
         return this.type() === 'event'
             ? toEventRecurrence(data, this.date())
@@ -234,10 +218,12 @@ export class RecurrenceFieldComponent implements ControlValueAccessor, OnInit {
 
     /** Update the form field value. */
     public setValue(new_value: Recurrence): void {
+        new_value = this._clampValueEnd(new_value);
         this.value.set(new_value);
         this._custom_cache.set(
             new_value?._custom ? { ...new_value } : undefined,
         );
+        this._emitFirstInstance(new_value);
         if (this._onChange) this._onChange(this.toRaw(new_value));
     }
 
@@ -285,7 +271,7 @@ export class RecurrenceFieldComponent implements ControlValueAccessor, OnInit {
     public setSimple(pattern: string) {
         const day_of_week = new Date(this.date()).getDay();
         const end_date = endOfDay(
-            addDays(this.date(), this.available_days()),
+            addDays(Date.now(), this.available_days()),
         ).valueOf();
         if (pattern === 'none') {
             this.setValue(NO_RECURR);
@@ -392,13 +378,52 @@ export class RecurrenceFieldComponent implements ControlValueAccessor, OnInit {
             // the entire end day is before the new booking date.
             current.end_date < date_value
         ) {
-            updated.end_date = endOfDay(
-                addDays(date_value, this.available_days()),
-            ).valueOf();
+            updated.end_date = this._allowedEndDate();
         }
         if (Object.keys(updated).length) {
             this.setValue({ ...current, ...updated });
         }
+    }
+
+    private _emitFirstInstance(value: Recurrence): void {
+        if (!value || value.type === 'none') return;
+        const date_value = this.date();
+        if (!date_value) return;
+        const first_instance = firstRecurrenceInstance(value, date_value);
+        if (
+            startOfDay(first_instance).valueOf() ===
+            startOfDay(date_value).valueOf()
+        ) {
+            return;
+        }
+        this.first_instance.emit(first_instance);
+    }
+
+    private _clampValueEnd(value: Recurrence): Recurrence {
+        if (!value || value.type === 'none') return value;
+        const max_end_date = this._allowedEndDate();
+        if (value.end_type === 'date' && value.end_date > max_end_date) {
+            return { ...value, end_date: max_end_date };
+        }
+        if (value.end_type !== 'instances' || !value.end_instances) {
+            return value;
+        }
+        const updated = { ...value };
+        while (
+            updated.end_instances > 1 &&
+            recurrenceEndDate(updated, this.date()) > max_end_date
+        ) {
+            updated.end_instances--;
+        }
+        updated.end_date = Math.min(
+            recurrenceEndDate(updated, this.date()),
+            max_end_date,
+        );
+        return updated;
+    }
+
+    private _allowedEndDate(): number {
+        return endOfDay(addDays(Date.now(), this.available_days())).valueOf();
     }
 
     /**
