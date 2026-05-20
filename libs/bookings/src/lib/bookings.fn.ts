@@ -286,7 +286,7 @@ export const saveBooking = (
                   data,
               )
             : updateBooking(id, data)
-        : createBooking(cleanObject(data, ['', null, undefined]), q);
+        : createBooking(cleanObject(data, ['', null, undefined]) || {}, q);
 };
 
 /**

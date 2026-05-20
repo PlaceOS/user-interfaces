@@ -49,8 +49,8 @@ import { forkJoin, lastValueFrom } from 'rxjs';
                                 | translate
                                     : {
                                           name:
-                                              last_event().asset_name ||
-                                              last_event().asset_id,
+                                              last_event()?.asset_name ||
+                                              last_event()?.asset_id,
                                       }
                         }}
                     </h2>
@@ -70,7 +70,7 @@ import { forkJoin, lastValueFrom } from 'rxjs';
                                     (last_event().date +
                                         last_event().duration * 60 * 1000
                                         | date: time_format),
-                                size: group_size,
+                                size: group_size(),
                                 location: location(),
                             };
                         @if (is_group()) {
@@ -101,8 +101,8 @@ import { forkJoin, lastValueFrom } from 'rxjs';
                     </p>
                 }
                 @if (
-                    last_event().recurrence_type &&
-                    last_event().recurrence_type !== 'none'
+                    last_event()?.recurrence_type &&
+                    last_event()?.recurrence_type !== 'none'
                 ) {
                     <div
                         class="bg-base-200 flex items-center space-x-2 rounded-lg px-4 py-2"
@@ -114,7 +114,7 @@ import { forkJoin, lastValueFrom } from 'rxjs';
                 @if (show_booked_for()) {
                     <p class="text-sm">Booked for {{ booked_for_name() }}</p>
                 }
-                @if (is_group && group_bookings().length > 0) {
+                @if (is_group() && group_bookings().length > 0) {
                     <div
                         class="border-base-300 bg-base-100 mt-4 w-full max-w-lg rounded-lg border p-4"
                     >
@@ -323,8 +323,8 @@ export class NewDeskFlowSuccessComponent implements OnInit {
         await firstTruthyValueFrom(this._org.initialised);
         this.last_event.set(this._state.last_success);
         const event: any = {
-            ...this.last_event,
-            location: `${this.location()}, ${this.last_event().asset_name || ''}`,
+            ...this.last_event(),
+            location: `${this.location()}, ${this.last_event()?.asset_name || ''}`,
         };
         this.outlook_link.set(generateMicrosoftCalendarLink(event));
         this.google_link.set(generateGoogleCalendarLink(event));
@@ -335,7 +335,7 @@ export class NewDeskFlowSuccessComponent implements OnInit {
 
         // Load group bookings if this is a group booking
         setTimeout(async () => {
-            if (this.is_group) await this._loadGroupBookings();
+            if (this.is_group()) await this._loadGroupBookings();
         }, 100);
     }
 
