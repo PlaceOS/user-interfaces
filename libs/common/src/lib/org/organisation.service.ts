@@ -429,6 +429,7 @@ export class OrganisationService {
         if (window.debug) {
             if (!window.app) window.app = {};
             window.app.org = this;
+            (window as any).org = this;
         }
         this._initialised.next(true);
     }

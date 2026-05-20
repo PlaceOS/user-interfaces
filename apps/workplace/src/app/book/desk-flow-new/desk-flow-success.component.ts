@@ -2,7 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
-import { BookingFormService, showBooking } from '@placeos/bookings';
+import {
+    BookingFormService,
+    GroupBookingFailure,
+    showBooking,
+} from '@placeos/bookings';
 import {
     Booking,
     Building,
@@ -31,6 +35,15 @@ import {
 } from '@placeos/events';
 import { UserPipe } from '@placeos/users';
 import { forkJoin, lastValueFrom } from 'rxjs';
+
+interface GroupBookingListItem {
+    id: string;
+    name: string;
+    email: string;
+    asset_name: string;
+    failed: boolean;
+    error?: string;
+}
 
 @Component({
     selector: 'desk-flow-success',
@@ -114,7 +127,7 @@ import { forkJoin, lastValueFrom } from 'rxjs';
                 @if (show_booked_for()) {
                     <p class="text-sm">Booked for {{ booked_for_name() }}</p>
                 }
-                @if (is_group() && group_bookings().length > 0) {
+                @if (is_group() && group_booking_items().length > 0) {
                     <div
                         class="border-base-300 bg-base-100 mt-4 w-full max-w-lg rounded-lg border p-4"
                     >
@@ -128,36 +141,44 @@ import { forkJoin, lastValueFrom } from 'rxjs';
                         </h3>
                         <div class="flex flex-col space-y-2">
                             @for (
-                                booking of group_bookings();
-                                track booking.id
+                                item of group_booking_items();
+                                track item.id
                             ) {
                                 <div
                                     class="bg-base-200/50 border-base-200 flex items-center space-x-3 rounded border p-2"
+                                    [class.border-error]="item.failed"
                                 >
                                     <a-user-avatar
                                         [user]="
-                                            (booking.user_email
-                                                | user
-                                                | async) ||
+                                            (item.email | user | async) ||
                                             $any({
-                                                name: booking.user_name,
-                                                email: booking.user_email,
+                                                name: item.name,
+                                                email: item.email,
                                             })
                                         "
                                     />
                                     <div class="flex flex-1 flex-col">
                                         <span class="font-medium">{{
-                                            booking.user_name ||
-                                                booking.user_email
+                                            item.name || item.email
                                         }}</span>
-                                        <span class="text-sm opacity-60">{{
-                                            booking.asset_name ||
-                                                booking.asset_id
-                                        }}</span>
+                                        <span class="text-sm opacity-60">
+                                            {{ item.asset_name }}
+                                        </span>
+                                        @if (item.failed) {
+                                            <span class="text-error text-xs">
+                                                {{ item.error }}
+                                            </span>
+                                        }
                                     </div>
-                                    <icon class="text-success text-2xl"
-                                        >check_circle</icon
-                                    >
+                                    @if (item.failed) {
+                                        <icon class="text-error text-2xl">
+                                            error
+                                        </icon>
+                                    } @else {
+                                        <icon class="text-success text-2xl">
+                                            check_circle
+                                        </icon>
+                                    }
                                 </div>
                             }
                         </div>
@@ -268,6 +289,7 @@ export class NewDeskFlowSuccessComponent implements OnInit {
     public readonly google_link = signal('');
     public readonly ical_link = signal('');
     public readonly group_bookings = signal<Booking[]>([]);
+    public readonly group_failures = signal<GroupBookingFailure[]>([]);
     public readonly location = computed(() => {
         return `${this.building()?.display_name || this.level()?.name}, ${this.level()?.display_name || this.level()?.name}`;
     });
@@ -286,6 +308,33 @@ export class NewDeskFlowSuccessComponent implements OnInit {
         const members = this.group_members();
         return members?.length || this.group_bookings().length || 1;
     });
+
+    public readonly group_booking_items = computed<GroupBookingListItem[]>(
+        () => {
+            const items = this.group_bookings().map((booking) => ({
+                id: booking.id,
+                name: booking.user_name || booking.user_email,
+                email: booking.user_email,
+                asset_name: booking.asset_name || booking.asset_id,
+                failed: false,
+            }));
+            const booked_emails = new Set(items.map((_) => _.email));
+            const failed = this.group_failures()
+                .filter((_) => !booked_emails.has(_.email))
+                .map((failure) => ({
+                    id: `failed-${failure.email}`,
+                    name: failure.name || failure.email,
+                    email: failure.email,
+                    asset_name:
+                        failure.asset_name ||
+                        failure.asset_id ||
+                        'No desk assigned',
+                    failed: true,
+                    error: failure.error,
+                }));
+            return [...items, ...failed];
+        },
+    );
 
     public readonly booked_for_name = computed(() => {
         return (
@@ -344,6 +393,10 @@ export class NewDeskFlowSuccessComponent implements OnInit {
             'PLACEOS.last_group_booking_ids',
         );
         const booking_ids: string[] = stored_ids ? JSON.parse(stored_ids) : [];
+        const stored_errors = localStorage.getItem(
+            'PLACEOS.last_group_booking_errors',
+        );
+        this.group_failures.set(stored_errors ? JSON.parse(stored_errors) : []);
         if (booking_ids.length <= 1) return;
 
         try {

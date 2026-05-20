@@ -876,6 +876,131 @@ describe('BookingFormService', () => {
         expect(child_parent_ids).toEqual(['booking-group', 'booking-group']);
     });
 
+    it('should complete desk group bookings with child errors when rollback is disabled', async () => {
+        const get = spectator.inject(SettingsService).get as jest.Mock;
+        const save_booking = booking_mod.saveBooking as jest.Mock;
+        const remove_booking = booking_mod.removeBooking as jest.Mock;
+        const desk_list = [
+            {
+                id: 'desk-1',
+                map_id: 'map-1',
+                name: 'Desk 1',
+                zone: { id: 'lvl-1', parent_id: 'bld-1' },
+                features: [],
+            },
+            {
+                id: 'desk-2',
+                map_id: 'map-2',
+                name: 'Desk 2',
+                zone: { id: 'lvl-1', parent_id: 'bld-1' },
+                features: [],
+            },
+            {
+                id: 'desk-3',
+                map_id: 'map-3',
+                name: 'Desk 3',
+                zone: { id: 'lvl-1', parent_id: 'bld-1' },
+                features: [],
+            },
+        ] as any[];
+        get.mockImplementation((key: string) => {
+            if (key === 'app.desks.rollback_group_bookings') return false;
+            return undefined;
+        });
+        save_booking.mockReset();
+        save_booking.mockImplementation((booking: Booking) =>
+            of(new Booking({ ...booking, id: 'booking-group' })),
+        );
+        remove_booking.mockReset();
+        remove_booking.mockImplementation(() => of({}));
+        (spectator.service as any).resources = of(desk_list);
+        (spectator.service as any).available_resources = of(desk_list);
+        jest.spyOn(booking_utility_mod, 'findNearbyFeature')
+            .mockResolvedValueOnce('map-2')
+            .mockResolvedValueOnce('map-3');
+        jest.spyOn(
+            spectator.service as any,
+            '_checkResourceAvailable',
+        ).mockResolvedValue(true);
+        const saved_users: string[] = [];
+        jest.spyOn(spectator.service, 'postForm').mockImplementation(
+            async () => {
+                const value = spectator.service.form.getRawValue();
+                saved_users.push(value.user_email);
+                if (value.user_email === 'member.one@example.com') {
+                    throw new Error('Save failed');
+                }
+                return new Booking({
+                    id: `booking-child-${saved_users.length}`,
+                    parent_id: value.parent_id,
+                    user_email: value.user_email,
+                    asset_id: value.asset_id,
+                });
+            },
+        );
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                booking_type: 'desk',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'desk-1',
+                extension_data: { map_id: 'map-1' },
+            }),
+        );
+        spectator.service.form.patchValue({
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            map_id: 'map-1',
+        });
+        spectator.service.setOptions({
+            type: 'desk',
+            group: true,
+            members: [
+                {
+                    email: '<empty>@dev.place.tech',
+                    name: '<empty>',
+                } as any,
+                {
+                    email: 'member.one@example.com',
+                    name: 'Member One',
+                } as any,
+                {
+                    email: 'member.two@example.com',
+                    name: 'Member Two',
+                } as any,
+            ],
+        });
+
+        await expect(spectator.service.postFormForGroup()).resolves.toEqual(
+            expect.objectContaining({ user_email: '<empty>@dev.place.tech' }),
+        );
+
+        expect(saved_users).toEqual([
+            '<empty>@dev.place.tech',
+            'member.one@example.com',
+            'member.two@example.com',
+        ]);
+        expect(remove_booking).not.toHaveBeenCalled();
+        expect(spectator.service.view()).toBe('success');
+        expect(
+            JSON.parse(localStorage.getItem('PLACEOS.last_group_booking_ids')),
+        ).toEqual(['booking-group', 'booking-child-1', 'booking-child-3']);
+        expect(
+            JSON.parse(
+                localStorage.getItem('PLACEOS.last_group_booking_errors'),
+            ),
+        ).toEqual([
+            {
+                email: 'member.one@example.com',
+                name: 'Member One',
+                asset_id: 'desk-2',
+                asset_name: 'Desk 2',
+                error: 'Save failed',
+            },
+        ]);
+    });
+
     it('should use desk id as asset_name when group member desks have no name', async () => {
         const desk_list = [
             {

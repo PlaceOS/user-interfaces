@@ -131,6 +131,14 @@ type GroupContainerForm = Partial<Booking> & {
     extension_data?: Record<string, unknown>;
 };
 
+export interface GroupBookingFailure {
+    email: string;
+    name: string;
+    asset_id?: string;
+    asset_name?: string;
+    error: string;
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -1113,6 +1121,7 @@ export class BookingFormService extends AsyncHandler {
         if (!group) throw i18n('BOOKINGS.GROUP_NOT_SET');
         const rollback_on_group_error =
             this.setting('rollback_group_bookings') === true;
+        localStorage.removeItem('PLACEOS.last_group_booking_errors');
         const member_list = members || [];
         const extra_members = member_list.filter(
             (_) => _.email !== currentUser().email,
@@ -1128,13 +1137,20 @@ export class BookingFormService extends AsyncHandler {
             form,
         );
         const unavailable_errors: string[] = [];
+        const booking_failures: GroupBookingFailure[] = [];
         const available = await Promise.all(
             group_members.map(async (member, idx) => {
                 const resource = resources[idx];
                 if (!resource) {
+                    const message = i18n('BOOKINGS.GROUP_MEMBER_NO_RESOURCE');
                     unavailable_errors.push(
-                        `${member.name || member.email}: ${i18n('BOOKINGS.GROUP_MEMBER_NO_RESOURCE')}`,
+                        `${member.name || member.email}: ${message}`,
                     );
+                    booking_failures.push({
+                        email: member.email,
+                        name: member.name || member.email,
+                        error: message,
+                    });
                     return false;
                 }
                 try {
@@ -1147,9 +1163,17 @@ export class BookingFormService extends AsyncHandler {
                         type,
                     );
                 } catch (error) {
+                    const message = this._error_message(error);
                     unavailable_errors.push(
-                        `${member.name || member.email}: ${this._error_message(error)}`,
+                        `${member.name || member.email}: ${message}`,
                     );
+                    booking_failures.push({
+                        email: member.email,
+                        name: member.name || member.email,
+                        asset_id: resource.id,
+                        asset_name: resource.name || resource.id,
+                        error: message,
+                    });
                     return false;
                 }
             }),
@@ -1164,6 +1188,7 @@ export class BookingFormService extends AsyncHandler {
         });
         let user_booking: Booking = null;
         const booking_ids: string[] = [];
+        const booking_errors: string[] = [];
         let parent_id = '';
         try {
             if (available.some((_) => _)) {
@@ -1203,11 +1228,22 @@ export class BookingFormService extends AsyncHandler {
                     zones,
                 });
                 const bkn = await this.postForm(true, false).catch((error) => {
-                    throw `${user.name || user.email}: ${this._error_message(error)}`;
+                    const message = this._error_message(error);
+                    const error_message = `${user.name || user.email}: ${message}`;
+                    if (rollback_on_group_error) throw error_message;
+                    booking_errors.push(error_message);
+                    booking_failures.push({
+                        email: user.email,
+                        name: user.name || user.email,
+                        asset_id: asset.id,
+                        asset_name: asset.name || asset.id,
+                        error: message,
+                    });
+                    return null;
                 });
                 if (bkn?.id) booking_ids.push(bkn.id);
                 if (
-                    bkn.user_email?.toLowerCase() ===
+                    bkn?.user_email?.toLowerCase() ===
                     currentUser().email?.toLowerCase()
                 )
                     user_booking = bkn;
@@ -1221,6 +1257,9 @@ export class BookingFormService extends AsyncHandler {
                     throw unavailable_error;
                 }
                 notifyWarn(unavailable_error);
+            }
+            if (booking_errors.length) {
+                notifyWarn(booking_errors.join('\n'));
             }
         } catch (error) {
             if (rollback_on_group_error && booking_ids.length) {
@@ -1239,6 +1278,12 @@ export class BookingFormService extends AsyncHandler {
             localStorage.setItem(
                 'PLACEOS.last_group_booking_ids',
                 JSON.stringify(booking_ids),
+            );
+        }
+        if (booking_failures.length) {
+            localStorage.setItem(
+                'PLACEOS.last_group_booking_errors',
+                JSON.stringify(booking_failures),
             );
         }
         this.clearForm();
@@ -1449,9 +1494,7 @@ export class BookingFormService extends AsyncHandler {
                         user: member as any,
                         user_email: member.email,
                         user_id: member.id,
-                        ...(asset
-                            ? this._resourceFormData(asset)
-                            : {}),
+                        ...(asset ? this._resourceFormData(asset) : {}),
                     });
                 }
                 this.form.controls.zones.setValue(zones);
@@ -2128,10 +2171,14 @@ export class BookingFormService extends AsyncHandler {
             return next_resource || null;
         });
         if (final_resources.some((_) => !_)) {
-            throw i18n('BOOKINGS.GROUP_INSUFFICIENT_RESOURCES', {
+            throw i18n(
+                'BOOKINGS.GROUP_INSUFFICIENT_RESOURCES',
+                {
+                    available,
+                    members: group_members.length,
+                },
                 available,
-                members: group_members.length,
-            }, available);
+            );
         }
         return final_resources;
     }
