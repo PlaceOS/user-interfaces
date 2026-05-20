@@ -322,6 +322,35 @@ describe('ParkingStateService', () => {
         ).toEqual([pending_request]);
     });
 
+    it('should hide approved manual requests from pending approval filtering', () => {
+        settings_map['app.parking.show_requests'] = true;
+        const pending_request = {
+            id: 'request-1',
+            asset_id: 'unallocated-1',
+            status: 'tentative',
+            extension_data: { approver_group: 'parking-team' },
+        } as any;
+        const approved_request = {
+            id: 'request-2',
+            asset_id: 'unallocated-2',
+            status: 'approved',
+            extension_data: { approver_group: 'parking-team' },
+        } as any;
+        const allocated_request = {
+            id: 'request-3',
+            asset_id: 'space-1',
+            status: 'approved',
+            extension_data: { requires_manual_approval: true },
+        } as any;
+
+        expect(
+            spectator.service.filterEventList(
+                [pending_request, approved_request, allocated_request],
+                'manual',
+            ),
+        ).toEqual([pending_request]);
+    });
+
     it('should include manual approval bookings in pending approval filtering', () => {
         settings_map['app.parking.show_requests'] = true;
         const booking = {
