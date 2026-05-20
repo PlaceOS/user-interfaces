@@ -2078,6 +2078,7 @@ export class ParkingRequestFormDetailsComponent
         if (!form) return [];
         const raw_date = form.getRawValue()?.date || Date.now();
         const reference = startOfDay(raw_date);
+        const latest_date = this.end_date();
         const ref_dow = reference.getDay() === 0 ? 7 : reference.getDay();
         const selected = [...this.selected_days()].sort((a, b) => a - b);
         const weeks = Math.max(1, this.num_weeks());
@@ -2088,7 +2089,9 @@ export class ParkingRequestFormDetailsComponent
                 dates.push(addDays(reference, offset + w * 7).valueOf());
             }
         }
-        return dates.sort((a, b) => a - b);
+        return dates
+            .filter((date) => date <= latest_date)
+            .sort((a, b) => a - b);
     }
 
     private _defaultCustomShift() {
