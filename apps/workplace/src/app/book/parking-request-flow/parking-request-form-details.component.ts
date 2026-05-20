@@ -1075,7 +1075,6 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                 ) {
                                     <settings-toggle
                                         [name]="option.name | translate"
-                                        [toggle]="true"
                                         [ngModel]="
                                             isExtraRestrictionSelected(
                                                 option.id
