@@ -881,7 +881,7 @@ export class BookingFormService extends AsyncHandler {
                     zones: unique([...zones, ...(value.zones || [])]).filter(
                         (_) => _,
                     ),
-                }),
+                }).toJSON(),
                 q,
             ),
         ).catch((e) => {
@@ -1454,7 +1454,7 @@ export class BookingFormService extends AsyncHandler {
                         group_members,
                         group_resource_type: resource_type,
                     },
-                }),
+                }).toJSON(),
             ),
         ).catch((error) => {
             this._loading.next('');
