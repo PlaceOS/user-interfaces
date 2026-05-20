@@ -790,7 +790,7 @@ export class ParkingStateService extends AsyncHandler {
         this._removeFleetVehicleFromList(vehicle.id);
     }
 
-    public editReservation(
+    public async editReservation(
         reservation?: Booking,
         {
             parent_id,
@@ -810,12 +810,24 @@ export class ParkingStateService extends AsyncHandler {
             external_user?: boolean;
         } = {},
     ) {
-        return new Promise<string>(async (resolve) => {
-            const levels = await nextValueFrom(this.levels);
-            const spaces = await nextValueFrom(this.spaces);
-            if (!space && reservation?.asset_id) {
-                space = spaces.find((_) => _.id === reservation.asset_id);
-            }
+        if (reservation?.asset_id?.startsWith('unallocated')) {
+            return new Promise<string>((resolve) => {
+                const ref = this._dialog.open(ParkingRequestModalComponent, {
+                    data: { booking: reservation, date },
+                });
+                ref.afterClosed().subscribe((id) => {
+                    resolve(id);
+                    this._poll.next(Date.now());
+                    if (id) this._change.next(Date.now());
+                });
+            });
+        }
+        const levels = await nextValueFrom(this.levels);
+        const spaces = await nextValueFrom(this.spaces);
+        if (!space && reservation?.asset_id) {
+            space = spaces.find((_) => _.id === reservation.asset_id);
+        }
+        return new Promise<string>((resolve) => {
             const ref = this._dialog.open(ParkingBookingModalComponent, {
                 data: {
                     parent_id,
@@ -837,7 +849,7 @@ export class ParkingStateService extends AsyncHandler {
     }
 
     public requestParking(date?: number) {
-        return new Promise<string>(async (resolve) => {
+        return new Promise<string>((resolve) => {
             const ref = this._dialog.open(ParkingRequestModalComponent, {
                 data: { date },
             });
