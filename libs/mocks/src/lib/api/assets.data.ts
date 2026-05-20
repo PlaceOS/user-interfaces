@@ -49,9 +49,27 @@ export const MOCK_CATEGORIES = [
         description: 'Parking spaces',
         hidden: true,
     },
+    {
+        id: '_catering_category_',
+        name: '_CATERING_',
+        description: 'Catering menu items',
+        hidden: true,
+    },
 ];
 
 export const MOCK_PRODUCTS = [
+    {
+        id: '_catering_standalone_type_',
+        name: 'CATERING:_STANDALONE_',
+        category_id: '_catering_category_',
+        brand: 'PlaceOS',
+    },
+    {
+        id: '_catering_acme_type_',
+        name: 'CATERING:Acme Catering',
+        category_id: '_catering_category_',
+        brand: 'PlaceOS',
+    },
     // Technology
     {
         id: '1',
@@ -419,7 +437,7 @@ const generateMaintenanceSchedule = (assetId: string) => {
     };
 };
 
-export const MOCK_ASSETS = Array(150)
+export const MOCK_ASSETS: any[] = Array(150)
     .fill(null)
     .map((_, i) => {
         const product = MOCK_PRODUCTS[i % MOCK_PRODUCTS.length];
@@ -496,6 +514,47 @@ export const MOCK_ASSETS = Array(150)
             },
         };
     });
+
+MOCK_ASSETS.push(
+    {
+        id: 'catering-coffee',
+        name: 'Coffee Service',
+        identifier: 'Coffee Service',
+        asset_type_id: '_catering_standalone_type_',
+        zone_id: 'bld-01',
+        images: [],
+        other_data: {
+            category: 'Beverages',
+            description: 'Freshly brewed coffee for meetings',
+            unit_price: 350,
+            quantity: 0,
+            options: [],
+            tags: ['Drink', 'Beverage'],
+            accept_points: false,
+            discount_cap: 0,
+            hide_for_zones: [],
+        },
+    },
+    {
+        id: 'catering-sandwiches',
+        name: 'Sandwich Platter',
+        identifier: 'Sandwich Platter',
+        asset_type_id: '_catering_acme_type_',
+        zone_id: 'bld-01',
+        images: [],
+        other_data: {
+            category: 'Food',
+            description: 'Assorted sandwich platter',
+            unit_price: 1200,
+            quantity: 0,
+            options: [],
+            tags: ['Lunch'],
+            accept_points: false,
+            discount_cap: 0,
+            hide_for_zones: [],
+        },
+    },
+);
 
 export const MOCK_PURCHASE_ORDERS = Array(30)
     .fill(null)
