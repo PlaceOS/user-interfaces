@@ -27,6 +27,37 @@ import {
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { lastValueFrom } from 'rxjs';
 
+const FULL_DAY_START_MINUTES = 0;
+const FULL_DAY_END_MINUTES = 23 * 60 + 59;
+
+function minutesToTime(value: number) {
+    const safe_value = Math.max(
+        FULL_DAY_START_MINUTES,
+        Math.min(FULL_DAY_END_MINUTES, value || 0),
+    );
+    const hours = Math.floor(safe_value / 60)
+        .toString()
+        .padStart(2, '0');
+    const minutes = (safe_value % 60).toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+}
+
+function timeToMinutes(value: string) {
+    const [hours, minutes] = (value || '').split(':').map((_) => +_ || 0);
+    return Math.max(
+        FULL_DAY_START_MINUTES,
+        Math.min(FULL_DAY_END_MINUTES, hours * 60 + minutes),
+    );
+}
+
+function parsePlayHours(value: string | null | undefined) {
+    const [start, end] = (value || '').split('-');
+    return {
+        start: start ? timeToMinutes(start) : FULL_DAY_START_MINUTES,
+        end: end ? timeToMinutes(end) : FULL_DAY_END_MINUTES,
+    };
+}
+
 export interface PlaylistEditModalData {
     playlist: SignagePlaylist;
     onAdd?: (data: Partial<SignagePlaylist>) => Promise<SignagePlaylist>;
@@ -111,6 +142,43 @@ export interface PlaylistEditModalData {
                                 {{
                                     form.value.default_duration / 1000
                                         | mediaDuration
+                                }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pt-2 pb-4">
+                    <div class="border-base-300 relative rounded-sm border">
+                        <label
+                            for="play-hours"
+                            class="bg-base-100 absolute top-0 left-2 m-0 flex w-auto min-w-0 -translate-y-1/2 items-center space-x-2 px-2"
+                        >
+                            <div>Play Hours</div>
+                        </label>
+                        <div class="flex items-center px-2 pt-2">
+                            <mat-slider
+                                class="flex-1"
+                                min="0"
+                                max="1439"
+                                step="1"
+                                [displayWith]="formatPlayHour"
+                            >
+                                <input
+                                    name="play-hours-start"
+                                    matSliderStartThumb
+                                    formControlName="play_hours_start"
+                                />
+                                <input
+                                    name="play-hours-end"
+                                    matSliderEndThumb
+                                    formControlName="play_hours_end"
+                                />
+                            </mat-slider>
+                            <div class="w-28 px-2 text-right font-mono text-xs">
+                                {{
+                                    formatPlayHour(form.value.play_hours_start)
+                                }}-{{
+                                    formatPlayHour(form.value.play_hours_end)
                                 }}
                             </div>
                         </div>
@@ -269,13 +337,18 @@ export class PlaylistEditModalComponent {
         ),
         orientation: new FormControl('unspecified'),
         default_duration: new FormControl(15000),
+        play_hours_start: new FormControl(FULL_DAY_START_MINUTES),
+        play_hours_end: new FormControl(FULL_DAY_END_MINUTES),
         valid_from: new FormControl(0),
         valid_until: new FormControl(0),
     });
 
     constructor() {
+        const play_hours = parsePlayHours(this.playlist.play_hours);
         this.form.patchValue({
             ...this.playlist,
+            play_hours_start: play_hours.start,
+            play_hours_end: play_hours.end,
             valid_from: this.playlist.valid_from
                 ? this.playlist.valid_from * 1000
                 : 0,
@@ -287,6 +360,9 @@ export class PlaylistEditModalComponent {
             this.form.patchValue({ orientation: 'unspecified' });
     }
 
+    public readonly formatPlayHour = (value: number | null | undefined) =>
+        minutesToTime(value || 0);
+
     public async savePlaylist() {
         this.form.markAllAsTouched();
         this.form.updateValueAndValidity();
@@ -295,6 +371,17 @@ export class PlaylistEditModalComponent {
         this._dialog_ref.disableClose = true;
         const form_value = this.form.getRawValue();
         const data: any = { ...form_value };
+        delete data.play_hours_start;
+        delete data.play_hours_end;
+        const play_hours_start =
+            form_value.play_hours_start ?? FULL_DAY_START_MINUTES;
+        const play_hours_end =
+            form_value.play_hours_end ?? FULL_DAY_END_MINUTES;
+        data.play_hours =
+            play_hours_start === FULL_DAY_START_MINUTES &&
+            play_hours_end === FULL_DAY_END_MINUTES
+                ? null
+                : `${minutesToTime(play_hours_start)}-${minutesToTime(play_hours_end)}`;
         if (data.valid_from) {
             data.valid_from = getUnixTime(startOfDay(data.valid_from));
         } else delete data.valid_from;
