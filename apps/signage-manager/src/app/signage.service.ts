@@ -431,9 +431,7 @@ export class SignageService {
         this._hasGroupPermission(SignageGroupPermission.Approve),
     );
     public readonly can_share = computed(() =>
-        this.is_sys_admin() && !this.selected_group()
-            ? false
-            : this._hasGroupPermission(SignageGroupPermission.Share),
+        this._hasGroupPermission(SignageGroupPermission.Share),
     );
     public readonly is_admin = computed(() =>
         this._hasGroupPermission(SignageGroupPermission.Manage),
