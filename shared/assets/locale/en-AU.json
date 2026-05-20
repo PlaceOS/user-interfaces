@@ -1637,6 +1637,7 @@
             "PARKING_NEW": "New Reservation",
             "PARKING_REQUEST_ADD": "Add Request",
             "PARKING_REQUEST_NEW": "New Parking Request",
+            "PARKING_REQUEST_EDIT": "Edit Request",
             "PARKING_REQUEST_SAVE": "Successfully submitted parking request.",
             "PARKING_EDIT": "Edit Reservation",
             "PARKING_SPACE": "Parking Space",

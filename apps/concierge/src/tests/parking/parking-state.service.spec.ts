@@ -11,6 +11,8 @@ import * as component_mod from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
 import { UserPipe } from '@placeos/users';
 import { ParkingStateService } from '../../app/parking/parking-state.service';
+import { ParkingBookingModalComponent } from '../../app/parking/parking-booking-modal.component';
+import { ParkingRequestModalComponent } from '../../app/parking/parking-request-modal.component';
 
 jest.mock('@placeos/assets');
 jest.mock('@placeos/bookings');
@@ -179,6 +181,57 @@ describe('ParkingStateService', () => {
                 booking_end: getUnixTime(
                     assigned_start + 22 * 60 * 60 * 1000,
                 ),
+            }),
+        );
+    });
+
+    it('should edit unallocated parking requests with the request form modal', async () => {
+        const dialog_ref = {
+            afterClosed: () => of('request-1'),
+        };
+        (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
+
+        const result = await spectator.service.editReservation({
+            id: 'request-1',
+            asset_id: 'unallocated-request-1',
+        } as Booking);
+
+        expect(result).toBe('request-1');
+        expect(spectator.inject(MatDialog).open).toHaveBeenCalledWith(
+            ParkingRequestModalComponent,
+            {
+                data: {
+                    booking: expect.objectContaining({ id: 'request-1' }),
+                    date: undefined,
+                },
+            },
+        );
+    });
+
+    it('should keep assigned parking reservations on the booking modal', async () => {
+        organisation_service.levels = [
+            { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
+        ];
+        (assets_mod.queryParkingSpacesForZones as jest.Mock).mockReturnValue(
+            of([{ id: 'space-1' }]),
+        );
+        const dialog_ref = {
+            afterClosed: () => of('booking-1'),
+        };
+        (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
+
+        const result = await spectator.service.editReservation({
+            id: 'booking-1',
+            asset_id: 'space-1',
+        } as Booking);
+
+        expect(result).toBe('booking-1');
+        expect(spectator.inject(MatDialog).open).toHaveBeenCalledWith(
+            ParkingBookingModalComponent,
+            expect.objectContaining({
+                data: expect.objectContaining({
+                    booking: expect.objectContaining({ id: 'booking-1' }),
+                }),
             }),
         );
     });
