@@ -145,7 +145,7 @@ type VisitorFormType = 'single' | 'group';
                         </mat-checkbox>
                     }
                 </div>
-                @if (!form_value().all_day) {
+                @if (!is_all_day()) {
                     <div
                         class="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2"
                     >
@@ -277,16 +277,6 @@ export class VisitorFlowDetailsComponent implements OnInit {
         initialValue: this.form.value,
     });
     public readonly is_edit = computed(() => !!this.form_value()?.id);
-    public readonly is_edit_in_progress = computed(() => {
-        if (!this.is_edit()) return false;
-        const booking_date = Number(this.form_value()?.date || 0);
-        if (!booking_date) return false;
-        const duration = Number(this.form_value()?.duration || 0);
-        const end_date = this.form_value()?.all_day
-            ? addHours(booking_date, 24).valueOf()
-            : addMinutes(booking_date, duration).valueOf();
-        return Date.now() >= booking_date && Date.now() < end_date;
-    });
     public readonly selected_building_id = computed(() => {
         return this._resolveSelectedBuildingId(this.form_value()?.zones || []);
     });
@@ -314,6 +304,19 @@ export class VisitorFlowDetailsComponent implements OnInit {
         'visitors.allow_all_day',
         false,
     );
+    public readonly is_all_day = computed(
+        () => this.allow_all_day() && !!this.form_value()?.all_day,
+    );
+    public readonly is_edit_in_progress = computed(() => {
+        if (!this.is_edit()) return false;
+        const booking_date = Number(this.form_value()?.date || 0);
+        if (!booking_date) return false;
+        const duration = Number(this.form_value()?.duration || 0);
+        const end_date = this.is_all_day()
+            ? addHours(booking_date, 24).valueOf()
+            : addMinutes(booking_date, duration).valueOf();
+        return Date.now() >= booking_date && Date.now() < end_date;
+    });
 
     public readonly can_book_for_others = computed(() => {
         return (
@@ -345,6 +348,9 @@ export class VisitorFlowDetailsComponent implements OnInit {
 
     public ngOnInit() {
         const value = this.form.getRawValue();
+        if (value.all_day && !this.allow_all_day()) {
+            this.form.patchValue({ all_day: false });
+        }
         const has_assets = Array.isArray(value.assets) && value.assets.length;
         const is_group =
             !!value.asset_id &&

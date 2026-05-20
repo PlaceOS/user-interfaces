@@ -119,6 +119,18 @@ describe('VisitorFlowDetailsComponent', () => {
         expect(form.get('duration')?.disabled).toBe(false);
     });
 
+    it('should show time fields and clear all day when all day is not allowed', () => {
+        form.patchValue({ all_day: true });
+
+        spectator.component.ngOnInit();
+        spectator.detectChanges();
+
+        expect(spectator.component.is_all_day()).toBe(false);
+        expect(form.getRawValue().all_day).toBe(false);
+        expect(spectator.query('time-field')).toExist();
+        expect(spectator.query('duration-field')).toExist();
+    });
+
     it('should resolve the selected building from a level zone when editing', () => {
         form.patchValue({
             id: 'visitor-booking-3',
