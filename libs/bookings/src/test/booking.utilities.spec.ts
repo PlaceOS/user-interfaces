@@ -1,6 +1,9 @@
 import { FormGroup } from '@angular/forms';
-import { Booking } from '@placeos/common';
-import { generateBookingForm } from '../lib/booking.utilities';
+import { Booking, CalendarEvent, WeekOfMonth } from '@placeos/common';
+import {
+    generateBookingForm,
+    newBookingFromCalendarEvent,
+} from '../lib/booking.utilities';
 
 describe('Booking Utilities', () => {
     describe('generateBookingForm', () => {
@@ -39,6 +42,31 @@ describe('Booking Utilities', () => {
             form.patchValue({ date: future_date });
 
             expect(form.controls.duration.errors).toBeNull();
+        });
+    });
+
+    describe('newBookingFromCalendarEvent', () => {
+        it('should serialise monthly nth-weekday recurrence for room bookings', () => {
+            const booking = newBookingFromCalendarEvent(
+                new CalendarEvent({
+                    date: new Date(2026, 4, 15, 9).valueOf(),
+                    date_end: new Date(2026, 4, 15, 10).valueOf(),
+                    recurring: true,
+                    recurrence: {
+                        start: new Date(2026, 4, 15, 9).valueOf(),
+                        end: new Date(2026, 10, 30).valueOf(),
+                        interval: 1,
+                        pattern: 'month_day',
+                        days_of_week: [5],
+                        nth_of_month: WeekOfMonth.Third,
+                    },
+                }),
+            );
+
+            expect(booking.recurrence_type).toBe('monthly');
+            expect(booking.recurrence_days).toBe(1 << 5);
+            expect(booking.recurrence_nth_of_month).toBe(WeekOfMonth.Third);
+            expect(booking.recurrence_interval).toBe(1);
         });
     });
 });

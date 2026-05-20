@@ -8,8 +8,10 @@ import {
     CalendarEvent,
     current_user,
     currentUser,
+    fromEventRecurrence,
     OrganisationService,
     setupFormTimeSync,
+    toBookingRecurrence,
 } from '@placeos/common';
 import {
     createViewer,
@@ -318,13 +320,20 @@ export async function findNearbyFeature(
 }
 
 export function newBookingFromCalendarEvent(event: CalendarEvent) {
+    const date = event.date || event.event_start * 1000;
+    const recurrence = event.recurrence?.pattern
+        ? toBookingRecurrence(fromEventRecurrence(event.recurrence), date)
+        : {};
     return new Booking({
         id: event.id,
         user_email: event.host,
-        asset_id: event.system?.id,
+        date,
+        duration: event.duration,
+        asset_id: event.system?.id || (event as any).system_id,
         asset_name: event.system?.display_name || event.system?.name,
         booking_type: 'room',
         approved: event.status === 'approved',
+        ...recurrence,
         extension_data: {
             ...event,
         },
