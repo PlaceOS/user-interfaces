@@ -99,13 +99,13 @@ describe('NewDeskFlowSuccessComponent', () => {
         // empty for desk bookings, so group_size incorrectly returns 1.
         // After the fix it should read extension_data.group_members.length
         // and return 3.
-        expect(spectator.component.group_size).toBe(3);
+        expect(spectator.component.group_size()).toBe(3);
     });
 
     it('should consider the booking a group booking when extension_data has group_members', () => {
         // The buggy code derives is_group from group_size > 1, but because
         // group_size reads from the wrong field (attendees), is_group is
         // always false for desk group bookings before the fix.
-        expect(spectator.component.is_group).toBe(true);
+        expect(spectator.component.is_group()).toBe(true);
     });
 });

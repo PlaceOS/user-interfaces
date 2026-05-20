@@ -1,4 +1,12 @@
-import { del, get, patch, post, put, query } from '@placeos/ts-client';
+import {
+    cleanObject,
+    del,
+    get,
+    patch,
+    post,
+    put,
+    query,
+} from '@placeos/ts-client';
 import { lastValueFrom, Observable, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 
@@ -278,7 +286,7 @@ export const saveBooking = (
                   data,
               )
             : updateBooking(id, data)
-        : createBooking(data, q);
+        : createBooking(cleanObject(data, ['', null, undefined]) || {}, q);
 };
 
 /**

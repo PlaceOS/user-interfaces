@@ -125,26 +125,50 @@ const FEATURE_MENU_ITEMS: FooterMenuItem[] = [
                         </a>
                     }
                     @for (item of menu_embeds(); track item.id) {
-                        <a
-                            matRipple
-                            [name]="'footer-nav-embed-' + item.id"
-                            [routerLink]="['/embedded', item.id]"
-                            routerLinkActive="active"
-                            class="bg-base-100 border-base-300 hover:bg-base-200 flex h-32 w-full flex-col items-center justify-center gap-2 rounded-2xl border p-2 shadow-lg"
-                        >
-                            <icon class="text-4xl" filled>{{
-                                item.icon || 'open_in_browser'
-                            }}</icon>
-                            <icon
-                                outline
-                                class="text-base-400 text-4xl"
-                                className="material-symbols-outlined"
-                                >{{ item.icon || 'open_in_browser' }}</icon
+                        @if (item.external) {
+                            <a
+                                matRipple
+                                [name]="'footer-nav-embed-' + item.id"
+                                [href]="item.url"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="bg-base-100 border-base-300 hover:bg-base-200 flex h-32 w-full flex-col items-center justify-center gap-2 rounded-2xl border p-2 shadow-lg"
                             >
-                            <div class="text-center text-sm">
-                                {{ item.name | translate }}
-                            </div>
-                        </a>
+                                <icon class="text-4xl" filled>{{
+                                    item.icon || 'open_in_browser'
+                                }}</icon>
+                                <icon
+                                    outline
+                                    class="text-base-400 text-4xl"
+                                    className="material-symbols-outlined"
+                                    >{{ item.icon || 'open_in_browser' }}</icon
+                                >
+                                <div class="text-center text-sm">
+                                    {{ item.name | translate }}
+                                </div>
+                            </a>
+                        } @else {
+                            <a
+                                matRipple
+                                [name]="'footer-nav-embed-' + item.id"
+                                [routerLink]="['/embedded', item.id]"
+                                routerLinkActive="active"
+                                class="bg-base-100 border-base-300 hover:bg-base-200 flex h-32 w-full flex-col items-center justify-center gap-2 rounded-2xl border p-2 shadow-lg"
+                            >
+                                <icon class="text-4xl" filled>{{
+                                    item.icon || 'open_in_browser'
+                                }}</icon>
+                                <icon
+                                    outline
+                                    class="text-base-400 text-4xl"
+                                    className="material-symbols-outlined"
+                                    >{{ item.icon || 'open_in_browser' }}</icon
+                                >
+                                <div class="text-center text-sm">
+                                    {{ item.name | translate }}
+                                </div>
+                            </a>
+                        }
                     }
                 </div>
             </div>

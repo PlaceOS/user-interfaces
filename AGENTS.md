@@ -190,6 +190,9 @@ nx migrate --run-migrations
 - Tailwind is custom themed with CSS variables in `shared/styles/application.css`
 - Use **IconComponent** for icons
 - Angular supports two-way binding of signals. e.g. Prefer `[(ngModel)]="a_signal"` over `[ngModel]="a_signal()" (ngModelChange)="a_signal.set($event)"`
+- No weak or unnessessary indirection
+- Only abstract when absolutely nessessary
+- Prefer clear readable procedural code over clean code.
 
 ## Other
 

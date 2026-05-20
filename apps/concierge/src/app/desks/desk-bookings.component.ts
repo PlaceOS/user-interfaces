@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { SettingsService } from '@placeos/common';
+import { settingSignal, SettingsService } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
@@ -298,14 +298,18 @@ import { DesksStateService } from './desks-state.service';
                         <icon class="text-2xl">more_vert</icon>
                     </button>
                     <mat-menu #actionMenu="matMenu">
-                        <button mat-menu-item (click)="cancel(row)">
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-2xl">event_busy</icon>
-                                <div>
-                                    {{ 'COMMON.CANCEL_BOOKING' | translate }}
+                        @if (can_delete()) {
+                            <button mat-menu-item (click)="cancel(row)">
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-2xl">event_busy</icon>
+                                    <div>
+                                        {{
+                                            'COMMON.CANCEL_BOOKING' | translate
+                                        }}
+                                    </div>
                                 </div>
-                            </div>
-                        </button>
+                            </button>
+                        }
                         @if (row.instance) {
                             <button mat-menu-item (click)="cancelSeries(row)">
                                 <div class="flex items-center space-x-2">
@@ -365,6 +369,7 @@ export class DeskBookingsComponent {
     public loading = signal<string>('');
     public readonly filters = this._state.filters;
     public readonly has_more_pages = this._state.has_more_pages;
+    public readonly can_delete = settingSignal('desks.allow_deleting', false);
     public readonly bookings = computed(() => {
         const all_bookings = this._state.bookings();
         if (!this._state.loading()) return all_bookings;

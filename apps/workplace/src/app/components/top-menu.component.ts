@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import {
     afterNextRender,
     Component,
@@ -26,14 +27,17 @@ export interface TopMenuEmbedItem {
     name: string;
     url: string;
     icon?: string;
+    external?: boolean;
 }
 
 interface TopMenuRoute {
     id: string;
     route: string;
+    url?: string;
     icon: string;
     name: string;
     embed?: boolean;
+    external?: boolean;
 }
 
 @Component({
@@ -49,37 +53,42 @@ interface TopMenuRoute {
                 class="text-base-content flex h-full w-full min-w-full items-center justify-center overflow-hidden"
             >
                 @for (route of visible_routes(); track route.id) {
-                    <a
-                        matRipple
-                        [name]="'nav-' + route.id"
-                        class="relative flex items-center justify-center space-x-2 px-8"
-                        [routerLink]="route.route"
-                        routerLinkActive="text-secondary active"
-                        [matTooltip]="route.name"
-                        matTooltipPosition="below"
-                    >
-                        <icon
-                            filled
-                            class="text-xl"
-                            [class.mx-auto]="hide_text()"
-                            >{{ route.icon }}</icon
+                    @if (route.external) {
+                        <a
+                            matRipple
+                            [name]="'nav-' + route.id"
+                            class="relative flex items-center justify-center space-x-2 px-8"
+                            [href]="route.url"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            [matTooltip]="route.name"
+                            matTooltipPosition="below"
                         >
-                        <icon
-                            outline
-                            className="material-symbols-outlined"
-                            [class.mx-auto]="hide_text()"
-                            class="m-0! text-xl"
+                            <ng-container
+                                [ngTemplateOutlet]="route_contents"
+                                [ngTemplateOutletContext]="{ route }"
+                            />
+                        </a>
+                    } @else {
+                        <a
+                            matRipple
+                            [name]="'nav-' + route.id"
+                            class="relative flex items-center justify-center space-x-2 px-8"
+                            [routerLink]="route.route"
+                            routerLinkActive="text-secondary active"
+                            [matTooltip]="route.name"
+                            matTooltipPosition="below"
                         >
-                            {{ route.icon }}
-                        </icon>
-                        @if (!hide_text()) {
-                            <span class="truncate">{{ route.name }}</span>
-                        }
-                        <div
-                            bar
-                            class="bg-secondary absolute inset-x-0 bottom-0 h-0.5"
-                        ></div>
-                    </a>
+                            <ng-container
+                                [ngTemplateOutlet]="route_contents"
+                                [ngTemplateOutletContext]="{ route }"
+                            />
+                            <div
+                                bar
+                                class="bg-secondary absolute inset-x-0 bottom-0 h-0.5"
+                            ></div>
+                        </a>
+                    }
                 }
             </div>
         }
@@ -94,25 +103,61 @@ interface TopMenuRoute {
         }
         <mat-menu #menu="matMenu">
             @for (route of visible_routes(); track route.id) {
-                <a
-                    mat-menu-item
-                    [routerLink]="route.route"
-                    routerLinkActive="text-secondary active"
-                >
-                    <div class="flex items-center space-x-2">
-                        <icon filled class="text-xl">{{ route.icon }}</icon>
-                        <icon
-                            outline
-                            className="material-symbols-outlined"
-                            class="text-xl"
-                        >
-                            {{ route.icon }}
-                        </icon>
-                        <div class="truncate pr-4">{{ route.name }}</div>
-                    </div>
-                </a>
+                @if (route.external) {
+                    <a
+                        mat-menu-item
+                        [href]="route.url"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <ng-container
+                            [ngTemplateOutlet]="mobile_route_contents"
+                            [ngTemplateOutletContext]="{ route }"
+                        />
+                    </a>
+                } @else {
+                    <a
+                        mat-menu-item
+                        [routerLink]="route.route"
+                        routerLinkActive="text-secondary active"
+                    >
+                        <ng-container
+                            [ngTemplateOutlet]="mobile_route_contents"
+                            [ngTemplateOutletContext]="{ route }"
+                        />
+                    </a>
+                }
             }
         </mat-menu>
+        <ng-template #route_contents let-route="route">
+            <icon filled class="text-xl" [class.mx-auto]="hide_text()">{{
+                route.icon
+            }}</icon>
+            <icon
+                outline
+                className="material-symbols-outlined"
+                [class.mx-auto]="hide_text()"
+                class="m-0! text-xl"
+            >
+                {{ route.icon }}
+            </icon>
+            @if (!hide_text()) {
+                <span class="truncate">{{ route.name }}</span>
+            }
+        </ng-template>
+        <ng-template #mobile_route_contents let-route="route">
+            <div class="flex items-center space-x-2">
+                <icon filled class="text-xl">{{ route.icon }}</icon>
+                <icon
+                    outline
+                    className="material-symbols-outlined"
+                    class="text-xl"
+                >
+                    {{ route.icon }}
+                </icon>
+                <div class="truncate pr-4">{{ route.name }}</div>
+            </div>
+        </ng-template>
     `,
     styles: [
         `
@@ -149,7 +194,13 @@ interface TopMenuRoute {
             }
         `,
     ],
-    imports: [MatMenuModule, IconComponent, RouterModule, MatTooltipModule],
+    imports: [
+        MatMenuModule,
+        IconComponent,
+        RouterModule,
+        MatTooltipModule,
+        NgTemplateOutlet,
+    ],
 })
 export class TopMenuComponent {
     private _element = inject(ElementRef);
@@ -307,10 +358,14 @@ export class TopMenuComponent {
             .filter((item) => item?.id && item?.name && item?.url)
             .map((item) => ({
                 id: `embed-${item.id}`,
-                route: `/embedded/${encodeURIComponent(item.id)}`,
+                route: item.external
+                    ? item.url
+                    : `/embedded/${encodeURIComponent(item.id)}`,
+                url: item.external ? item.url : undefined,
                 icon: item.icon || 'open_in_browser',
                 name: item.name,
                 embed: true,
+                external: !!item.external,
             })),
     ]);
 
