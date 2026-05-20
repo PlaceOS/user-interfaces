@@ -82,6 +82,7 @@ import { DesksStateService } from './desks-state.service';
                         name: ' ',
                         content: action_template,
                         size: '3.5rem',
+                        show: can_delete(),
                         sortable: false,
                     },
                 ]"
@@ -310,7 +311,7 @@ import { DesksStateService } from './desks-state.service';
                                 </div>
                             </button>
                         }
-                        @if (row.instance) {
+                        @if (row.instance && can_delete()) {
                             <button mat-menu-item (click)="cancelSeries(row)">
                                 <div class="flex items-center space-x-2">
                                     <icon class="text-error text-2xl"

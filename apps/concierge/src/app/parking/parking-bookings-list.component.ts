@@ -451,7 +451,7 @@ interface ParkingBookingColumnTemplates {
                             <icon class="text-2xl">add_location</icon>
                         </button>
                     }
-                    @if (can_edit()) {
+                    @if (canEdit(row)) {
                         <button
                             icon
                             matRipple
@@ -600,7 +600,13 @@ export class ParkingBookingsListComponent
     });
 
     public readonly can_edit = settingSignal('parking.allow_editing', true);
+    public readonly can_edit_allocated = settingSignal('parking.allow_editing_allocated');
     public readonly can_delete = settingSignal('parking.allow_deleting', false);
+
+    public canEdit(bkn: Booking) {
+        const allocated = !bkn.asset_id.includes('unalloc');
+        return allocated ? this.can_edit_allocated() ?? this.can_edit() : this.can_edit()
+    }
 
     public get show_request_types() {
         return !!this._settings.get('app.parking.show_requests');
