@@ -40,7 +40,9 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                                             | translate
                                     "
                                     (focus)="
-                                        search_term.set(form.value.asset_name)
+                                        search_term.set(
+                                            form.value.asset_name || ''
+                                        )
                                     "
                                     [matAutocomplete]="name_auto"
                                 />
@@ -85,7 +87,9 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                                             | translate
                                     "
                                     (focus)="
-                                        search_term.set(form.value.asset_id)
+                                        search_term.set(
+                                            form.value.asset_id || ''
+                                        )
                                     "
                                     [matAutocomplete]="email_auto"
                                 />
