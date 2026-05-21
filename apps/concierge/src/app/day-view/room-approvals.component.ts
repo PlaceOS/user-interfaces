@@ -366,6 +366,7 @@ export class RoomBookingsApprovalsComponent implements OnInit {
         await mod.execute('accept_event', [event.mailbox, event.id]).catch();
         this.loading.set(false);
         this.status.update((s) => ({ ...s, [event.id]: 'accept' }));
+        this._state.replace(this._eventWithStatus(event, 'approved'));
     }
 
     public async approveSeries(event: CalendarEvent) {
@@ -381,6 +382,7 @@ export class RoomBookingsApprovalsComponent implements OnInit {
             .catch();
         this.loading.set(false);
         this._setSeriesStatus(event, 'accept');
+        this._replaceSeriesEvents(event, 'approved');
     }
 
     public async reject(event: CalendarEvent) {
@@ -390,6 +392,7 @@ export class RoomBookingsApprovalsComponent implements OnInit {
         await mod.execute('decline_event', [event.mailbox, event.id]).catch();
         this.loading.set(false);
         this.status.update((s) => ({ ...s, [event.id]: 'decline' }));
+        this._state.replace(this._eventWithStatus(event, 'declined'));
     }
 
     public async rejectSeries(event: CalendarEvent) {
@@ -405,6 +408,7 @@ export class RoomBookingsApprovalsComponent implements OnInit {
             .catch();
         this.loading.set(false);
         this._setSeriesStatus(event, 'decline');
+        this._replaceSeriesEvents(event, 'declined');
     }
 
     private _setSeriesStatus(
@@ -421,5 +425,38 @@ export class RoomBookingsApprovalsComponent implements OnInit {
             ...Object.fromEntries(series_events.map((_) => [_.id, status])),
             [event.id]: status,
         }));
+    }
+
+    private _replaceSeriesEvents(
+        event: CalendarEvent,
+        status: 'approved' | 'declined',
+    ) {
+        const recurring_event_id = event.recurring_event_id || event.id;
+        const series_events = this.pending().filter(
+            (_) => (_.recurring_event_id || _.id) === recurring_event_id,
+        );
+        for (const series_event of series_events.length
+            ? series_events
+            : [event]) {
+            this._state.replace(this._eventWithStatus(series_event, status));
+        }
+    }
+
+    private _eventWithStatus(
+        event: CalendarEvent,
+        status: 'approved' | 'declined',
+    ) {
+        const response_status = status === 'approved' ? 'accepted' : 'declined';
+        return new CalendarEvent({
+            ...event,
+            status,
+            resources: event.resources.map((resource) => ({
+                ...resource,
+                response_status,
+            })) as any,
+            system: event.system
+                ? ({ ...event.system, response_status } as any)
+                : event.system,
+        });
     }
 }

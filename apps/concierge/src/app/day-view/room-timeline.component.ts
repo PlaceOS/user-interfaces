@@ -12,6 +12,7 @@ import {
     getTimezoneDifferenceInHours,
     getTimezoneOffsetString,
     notifyError,
+    notifyInfo,
     notifySuccess,
 } from '@placeos/common';
 import { TranslatePipe, openConfirmModal } from '@placeos/components';
@@ -453,6 +454,9 @@ Host:  ${event.organiser?.name || event.host}`;
             this._dialog,
         );
         if (resp.reason !== 'done') return;
+        if (item.status === 'declined') {
+            return notifyInfo('Booking has already been cancelled');
+        }
         resp.loading('Requesting booking cancellation...');
         await declineEvent(item.id, {
             calendar: item.calendar || item.mailbox || item.host,

@@ -151,6 +151,33 @@ describe('EventsStateService', () => {
         ).toEqual(['booking', 'setup']);
     });
 
+    it('should keep only the latest local update for a replaced event', () => {
+        const original = new CalendarEvent({
+            id: 'booking',
+            date: Date.now(),
+            duration: 60,
+            resources: [
+                { email: 'room@example.com', response_status: 'tentative' },
+            ],
+        });
+        const updated = new CalendarEvent({
+            ...original,
+            resources: [
+                { email: 'room@example.com', response_status: 'accepted' },
+            ],
+        });
+        spectator.service.replace(original);
+        spectator.service.replace(updated);
+        const added = (spectator.service as any)._added_events.getValue();
+        const removed = (spectator.service as any)._removed_events.getValue();
+
+        expect(added.map((event) => event.status)).toEqual(['approved']);
+        expect(removed.map((event) => event.id)).toEqual([
+            'booking',
+            'booking',
+        ]);
+    });
+
     it('should load building events when no levels are selected', async () => {
         (events_mod as any).queryEvents = jest.fn(() => of([]));
         spectator.service.event_list.subscribe();
