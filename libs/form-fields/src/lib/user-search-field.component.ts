@@ -54,7 +54,7 @@ import { searchStaff } from 'libs/users/src/lib/staff.fn';
             >
                 <div
                     matPrefix
-                    class="mr-2 flex h-8 w-8 items-center justify-center"
+                    class="-ml-1 mr-2 flex h-8 w-8 items-center justify-center"
                 >
                     @if (selected_user(); as user) {
                         <a-user-avatar [user]="user" />
