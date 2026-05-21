@@ -14,12 +14,13 @@ describe('RoomBookingsApprovalsComponent', () => {
     let spectator: Spectator<RoomBookingsApprovalsComponent>;
     const pending = new BehaviorSubject<CalendarEvent[]>([]);
     const execute = jest.fn(() => Promise.resolve());
+    const replace = jest.fn();
     const createComponent = createComponentFactory({
         component: RoomBookingsApprovalsComponent,
         shallow: true,
         detectChanges: false,
         providers: [
-            MockProvider(EventsStateService, { pending } as any),
+            MockProvider(EventsStateService, { pending, replace } as any),
             MockProvider(OrganisationService, {
                 building: { timezone: 'Australia/Sydney' },
                 module: jest.fn(() => ({ execute })),
@@ -33,6 +34,7 @@ describe('RoomBookingsApprovalsComponent', () => {
 
     beforeEach(() => {
         execute.mockClear();
+        replace.mockClear();
         pending.next([]);
         spectator = createComponent();
     });
@@ -110,5 +112,35 @@ describe('RoomBookingsApprovalsComponent', () => {
         expect(
             spectator.component.filtered_pending().map((event) => event.id),
         ).toEqual(['event-3']);
+    });
+
+    it('should update the room booking table after approving a booking', async () => {
+        const event = new CalendarEvent({
+            id: 'event-1',
+            mailbox: 'room@example.com',
+            resources: [
+                { email: 'room@example.com', response_status: 'tentative' },
+            ],
+        });
+
+        await spectator.component.approve(event);
+
+        expect(replace).toHaveBeenCalledTimes(1);
+        expect(replace.mock.calls[0][0].status).toBe('approved');
+    });
+
+    it('should update the room booking table after rejecting a booking', async () => {
+        const event = new CalendarEvent({
+            id: 'event-1',
+            mailbox: 'room@example.com',
+            resources: [
+                { email: 'room@example.com', response_status: 'tentative' },
+            ],
+        });
+
+        await spectator.component.reject(event);
+
+        expect(replace).toHaveBeenCalledTimes(1);
+        expect(replace.mock.calls[0][0].status).toBe('declined');
     });
 });

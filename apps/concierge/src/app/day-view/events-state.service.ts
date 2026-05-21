@@ -301,10 +301,14 @@ export class EventsStateService extends AsyncHandler {
                 options,
             ]: any) => {
                 let event_list = [...events];
-                event_list.filter(
+                event_list = event_list.filter(
                     (_) =>
                         !removed.find(
-                            (e) => _.id === e.id || _.ical_uid === e.ical_uid,
+                            (e) =>
+                                (_.id && e.id && _.id === e.id) ||
+                                (_.ical_uid &&
+                                    e.ical_uid &&
+                                    _.ical_uid === e.ical_uid),
                         ),
                 );
                 event_list = event_list.concat(added);
@@ -469,8 +473,24 @@ export class EventsStateService extends AsyncHandler {
      * @param booking
      */
     public replace(booking: CalendarEvent) {
-        this._removed_events.next([...this._added_events.getValue(), booking]);
-        this._added_events.next([...this._added_events.getValue(), booking]);
+        this._removed_events.next([
+            ...this._removed_events.getValue(),
+            booking,
+        ]);
+        this._added_events.next([
+            ...this._added_events
+                .getValue()
+                .filter(
+                    (_) =>
+                        !(
+                            (_.id && booking.id && _.id === booking.id) ||
+                            (_.ical_uid &&
+                                booking.ical_uid &&
+                                _.ical_uid === booking.ical_uid)
+                        ),
+                ),
+            booking,
+        ]);
     }
 
     /**
