@@ -1022,8 +1022,25 @@ export function setupFormTimeSync(
      * left untouched because they may legitimately fall outside the window.
      * Returns the (potentially adjusted) date.
      */
-    const alignToBookableHours = (date: number): number => {
+    const alignToBookableHours = (
+        date: number,
+        preserve_calendar_day = false,
+    ): number => {
         if (!bookable_hours || !date || form.value.id) return date;
+        if (preserve_calendar_day) {
+            const aligned = alignDateToBookableHours(
+                date,
+                bookable_hours,
+                date,
+                timezone,
+                effective_min_duration(),
+            );
+            if (aligned !== date && _user_date_change) {
+                notifyWarn(i18n('COMMON.BOOKABLE_HOURS_ERROR'));
+                _user_date_change = false;
+            }
+            return aligned;
+        }
         const next = getNextBookableTime(
             bookable_hours,
             date,
@@ -1097,6 +1114,7 @@ export function setupFormTimeSync(
     };
 
     const subscriptions: Subscription[] = [];
+    let last_date = form.getRawValue().date;
 
     // duration → date_end (with min/max enforcement)
     subscriptions.push(
@@ -1165,7 +1183,15 @@ export function setupFormTimeSync(
     // date → date_end + past-date snap + bookable-hours alignment
     subscriptions.push(
         form.controls.date.valueChanges.subscribe((date: number) => {
-            const aligned = alignToBookableHours(date);
+            const previous_time = timezone
+                ? toZonedTime(last_date, timezone)
+                : new Date(last_date);
+            const next_time = timezone
+                ? toZonedTime(date, timezone)
+                : new Date(date);
+            const calendar_day_changed =
+                !!last_date && !!date && !isSameDay(previous_time, next_time);
+            const aligned = alignToBookableHours(date, calendar_day_changed);
             let effective = aligned !== date ? aligned : date;
             if (form.value.all_day && effective < Date.now() && !form.value.id) {
                 const snapped = roundCeil(Date.now());
@@ -1252,6 +1278,7 @@ export function setupFormTimeSync(
             } else if (aligned !== date) {
                 form.patchValue({ date: aligned }, { emitEvent: false });
             }
+            last_date = form.getRawValue().date;
             on_change?.();
         }),
     );
