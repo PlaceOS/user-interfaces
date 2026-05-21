@@ -652,6 +652,7 @@
         "PARKING_VEHICLE_TYPE": "Vehicle Type",
         "PARKING_VEHICLE_CAR": "Car",
         "PARKING_VEHICLE_BIKE": "Bike",
+        "PARKING_VEHICLE_MOTORCYCLE": "Motorcycle",
         "PARKING_VEHICLE_VAN": "Van",
         "PARKING_VEHICLE_TRUCK": "Truck",
         "PARKING_VEHICLE_OTHER": "Other",
@@ -750,7 +751,6 @@
         "INDUCTED": "Inducted",
         "PASS_NUMBER": "Pass Number",
         "FACILITIES": "Features",
-
         "RECURRING_TOOLTIP": "This booking is part of a recurring series",
         "ASSETS_ADD_HEADER": "Add Assets",
         "ASSETS_ADD": "Add this Asset",
