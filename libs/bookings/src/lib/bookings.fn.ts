@@ -601,7 +601,7 @@ export async function createBookingsForEvent(
                             details: item,
                         },
                         zones,
-                    }),
+                    }).toJSON(),
                     { ical_uid: event.ical_uid, event_id: event.id },
                 ),
             );
