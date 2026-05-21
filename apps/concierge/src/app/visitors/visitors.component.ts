@@ -24,10 +24,10 @@ import { VisitorsStateService } from './visitors-state.service';
     selector: '[app-new-visitors]',
     template: `
         <app-topbar class="print:hidden">></app-topbar>
-        <div class="flex h-px flex-1 print:hidden">
-            <app-sidebar></app-sidebar>
+        <div class="flex h-px flex-1">
+            <app-sidebar class="print:hidden"></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">
-                <div class="flex items-center space-x-2 px-8 py-4">
+                <div class="flex items-center space-x-2 px-8 py-4 print:hidden">
                     <h2 class="text-2xl font-medium">
                         {{ 'RESOURCE.VISITORS' | translate }}
                     </h2>
@@ -45,7 +45,7 @@ import { VisitorsStateService } from './visitors-state.service';
                         {{ 'BOOKINGS.VISITOR_INVITE_TITLE' | translate }}
                     </button>
                 </div>
-                <div class="flex items-center px-8 pb-4">
+                <div class="flex items-center px-8 pb-4 print:hidden">
                     <mat-form-field
                         appearance="outline"
                         class="no-subscript w-60"
@@ -88,7 +88,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 </div>
                 @if (loading()) {
                     <mat-progress-bar
-                        class="w-full"
+                        class="w-full print:hidden"
                         mode="indeterminate"
                     ></mat-progress-bar>
                 }

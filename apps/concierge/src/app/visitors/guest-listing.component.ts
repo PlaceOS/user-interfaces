@@ -3,7 +3,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { showMetadata } from '@placeos/ts-client';
 import { lastValueFrom } from 'rxjs';
 
-import { MatDialog } from '@angular/material/dialog';
 import { saveBooking } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -31,7 +30,7 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { UserLabelModalComponent } from '@placeos/users';
+import { UserDetails, UserLabelComponent } from '@placeos/users';
 import { ParkingStateService } from '../parking/parking-state.service';
 import { VisitorsStateService } from './visitors-state.service';
 
@@ -39,8 +38,8 @@ import { VisitorsStateService } from './visitors-state.service';
     selector: 'guest-listings',
     template: `
         <simple-table
-            class="z-0 block text-sm"
-            [style.min-width]="68 + extra_width + 'rem'"
+            class="z-0 block text-sm print:hidden"
+            [style.min-width]="72 + extra_width + 'rem'"
             [data]="guests()"
             [columns]="[
                 {
@@ -697,7 +696,7 @@ import { VisitorsStateService } from './visitors-state.service';
         </ng-template>
         @if (guests().length) {
             <button
-                class="bg-secondary absolute right-4 bottom-4 z-20 h-12 w-12 text-white shadow-sm hover:shadow-lg"
+                class="bg-secondary absolute right-4 bottom-4 z-20 h-12 w-12 text-white shadow-sm hover:shadow-lg print:hidden"
                 [matTooltip]="'APP.CONCIERGE.VISITORS_DOWNLOAD' | translate"
                 matTooltipPosition="left"
                 icon
@@ -706,6 +705,16 @@ import { VisitorsStateService } from './visitors-state.service';
             >
                 <icon>download</icon>
             </button>
+        }
+        @if (printing()) {
+            <div class="print-only fixed top-0 left-0">
+                <user-label
+                    [user]="$any(user_pass())"
+                    [width]="label_size().width"
+                    [height]="label_size().height"
+                    [style.font-size]="label_size().scale + 'mm'"
+                />
+            </div>
         }
         <div class="h-8 w-full"></div>
     `,
@@ -722,6 +731,7 @@ import { VisitorsStateService } from './visitors-state.service';
         SimpleTableComponent,
         CustomTooltipComponent,
         FormsModule,
+        UserLabelComponent,
     ],
 })
 export class GuestListingComponent extends AsyncHandler implements OnInit {
@@ -729,7 +739,6 @@ export class GuestListingComponent extends AsyncHandler implements OnInit {
     private _parking = inject(ParkingStateService);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
-    private _dialog = inject(MatDialog);
 
     public readonly printing = signal('');
     public readonly guests = toSignal(this._state.filtered_bookings, {
@@ -742,7 +751,8 @@ export class GuestListingComponent extends AsyncHandler implements OnInit {
     public readonly inductions_enabled = signal(false);
     public readonly qr_code = signal('');
     public readonly pass_number = signal('');
-    public readonly user_pass = signal({});
+    public readonly user_pass = signal<UserDetails>({} as UserDetails);
+    public readonly label_size = signal({ width: 25, height: 15, scale: 4 });
     public readonly active_building = toSignal(this._org.active_building, {
         initialValue: this._org.building,
     });
@@ -845,11 +855,11 @@ export class GuestListingComponent extends AsyncHandler implements OnInit {
             extra_details: item?.extension_data?.extra_details,
             pass_number: item?.extension_data?.pass_number,
             qr_code: this.qr_code(),
+        } as UserDetails);
+        window.addEventListener('afterprint', () => this.printing.set(''), {
+            once: true,
         });
-        const ref = this._dialog.open(UserLabelModalComponent, {
-            data: this.user_pass(),
-        });
-        ref.afterClosed().subscribe(() => this.printing.set(''));
+        this.timeout('print', () => window.print());
     }
 
     public inducted(item: Booking) {
@@ -879,6 +889,12 @@ export class GuestListingComponent extends AsyncHandler implements OnInit {
                     ...(org_metadata.details || {}),
                     ...(metadata.details || {}),
                 };
+                const label_size = data.visitor_label_size || {};
+                this.label_size.set({
+                    width: label_size.width || 25,
+                    height: label_size.height || 15,
+                    scale: label_size.scale || 4,
+                });
                 this.inductions_enabled.set(
                     data?.induction_enabled && data?.induction_details,
                 );
