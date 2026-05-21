@@ -12,6 +12,7 @@ import {
     getTimezoneDifferenceInHours,
     getTimezoneOffsetString,
     notifyError,
+    notifyInfo,
     notifySuccess,
 } from '@placeos/common';
 import { TranslatePipe, openConfirmModal } from '@placeos/components';
