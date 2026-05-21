@@ -654,6 +654,7 @@
         "PARKING_VEHICLE_TYPE": "Vehicle Type",
         "PARKING_VEHICLE_CAR": "Car",
         "PARKING_VEHICLE_BIKE": "Bike",
+        "PARKING_VEHICLE_MOTORCYCLE": "Motorcycle",
         "PARKING_VEHICLE_VAN": "Van",
         "PARKING_VEHICLE_TRUCK": "Truck",
         "PARKING_VEHICLE_OTHER": "Other",

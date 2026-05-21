@@ -234,7 +234,7 @@ interface ParkingBookingColumnTemplates {
                 </div>
             </ng-template>
             <ng-template #type_template let-row="row">
-                <div class="flex justify-center px-4 py-2 mx-auto">
+                <div class="mx-auto flex justify-center px-4 py-2">
                     <div
                         class="bg-base-300 text-base-content inline-flex h-8 w-8 items-center justify-center rounded"
                         [matTooltip]="vehicleTypeLabel(row) | translate"
@@ -772,6 +772,7 @@ export class ParkingBookingsListComponent
     public vehicleTypeIcon(booking: Booking) {
         const icons = {
             bike: 'pedal_bike',
+            motorcycle: 'motorcycle',
             car: 'directions_car',
             truck: 'local_shipping',
             van: 'airport_shuttle',
