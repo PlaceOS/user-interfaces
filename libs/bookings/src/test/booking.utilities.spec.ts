@@ -68,5 +68,27 @@ describe('Booking Utilities', () => {
             expect(booking.recurrence_nth_of_month).toBe(WeekOfMonth.Third);
             expect(booking.recurrence_interval).toBe(1);
         });
+
+        it('should use recurrence start as the room booking date', () => {
+            const booking = newBookingFromCalendarEvent(
+                new CalendarEvent({
+                    date: new Date(2026, 4, 12, 9).valueOf(),
+                    date_end: new Date(2026, 4, 12, 10).valueOf(),
+                    recurring: true,
+                    recurrence: {
+                        start: new Date(2026, 4, 15, 9).valueOf(),
+                        end: new Date(2026, 10, 30).valueOf(),
+                        interval: 1,
+                        pattern: 'month_day',
+                        days_of_week: [5],
+                        nth_of_month: WeekOfMonth.Third,
+                    },
+                }),
+            );
+
+            expect(booking.date).toBe(new Date(2026, 4, 15, 9).valueOf());
+            expect(booking.recurrence_days).toBe(1 << 5);
+            expect(booking.recurrence_nth_of_month).toBe(WeekOfMonth.Third);
+        });
     });
 });

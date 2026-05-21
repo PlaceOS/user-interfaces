@@ -457,10 +457,10 @@ export class CalendarEvent {
             this.recurrence = {
                 start:
                     data.recurrence?.start ||
-                    this.event_start * 1000 ||
                     new Date(
                         (data.recurrence as any).range_start * 1000,
-                    ).valueOf(),
+                    ).valueOf() ||
+                    this.event_start * 1000,
                 end:
                     data.recurrence.end ||
                     new Date(

@@ -475,8 +475,9 @@ export class MeetingFlowOptionsComponent {
         return formatRecurrence(
             fromEventRecurrence({
                 ...value.recurrence,
-                start: value.date || value.recurrence.start,
+                start: value.recurrence.start || value.date,
             }),
+            value.recurrence.start || value.date,
         );
     }
 

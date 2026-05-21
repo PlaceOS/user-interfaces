@@ -147,8 +147,9 @@ export class MeetingFlowSuccessComponent implements OnInit {
         return formatRecurrence(
             fromEventRecurrence({
                 ...event.recurrence,
-                start: event.date || event.recurrence.start,
+                start: event.recurrence.start || event.date,
             }),
+            event.recurrence.start || event.date,
         );
     }
 
