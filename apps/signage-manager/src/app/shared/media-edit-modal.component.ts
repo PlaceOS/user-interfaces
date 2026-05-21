@@ -43,6 +43,7 @@ import {
 } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-permissions-modal.component';
+import { debounceTime, Subscription } from 'rxjs';
 import {
     getVideoContainer,
     isSupportedImageFile,
@@ -110,7 +111,7 @@ export interface MediaEditModalData {
                             <iframe
                                 title="Media preview"
                                 class="h-screen w-full object-contain object-center"
-                                [src]="url | safe: 'resource'"
+                                [src]="preview_url() | safe: 'resource'"
                             ></iframe>
                         } @else {
                             <img
@@ -139,6 +140,20 @@ export interface MediaEditModalData {
                             'FORM.NAME_REQUIRED' | translate
                         }}</mat-error>
                     </mat-form-field>
+                    @if (media_type === 'webpage') {
+                        <label for="media-uri">URL</label>
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                name="media-uri"
+                                type="url"
+                                formControlName="media_uri"
+                                placeholder="https://example.com"
+                                aria-label="Webpage URL"
+                            />
+                            <mat-error>URL is required</mat-error>
+                        </mat-form-field>
+                    }
                     @if (media_type === 'video') {
                         <div class="flex items-center space-x-4">
                             <label
@@ -344,9 +359,11 @@ export class MediaEditModalComponent implements OnDestroy {
     public readonly thumbnail =
         this._data.file_thumbnail || this._data.media.thumbnail_url;
     public readonly plugin_schema = computed(() => this._resolvePluginSchema());
+    public readonly preview_url = signal('');
 
     public readonly form = new FormGroup({
         name: new FormControl('', [Validators.required]),
+        media_uri: new FormControl(''),
         description: new FormControl(''),
         animation: new FormControl<MediaAnimation>(MediaAnimation.Default),
         start_time: new FormControl(0),
@@ -360,6 +377,7 @@ export class MediaEditModalComponent implements OnDestroy {
     });
 
     private _file_url: string;
+    private _media_uri_subscription: Subscription;
 
     public readonly preview = () =>
         this._data.preview({
@@ -395,6 +413,9 @@ export class MediaEditModalComponent implements OnDestroy {
     }
 
     public get url() {
+        if (this.media_type === 'webpage') {
+            return this.form.value.media_uri || this.item.media_uri;
+        }
         if (this.item.id) return this.item.media_url;
         if (this.item.media_uri) return this.item.media_uri;
         if (this._file_url) return this._file_url;
@@ -403,6 +424,14 @@ export class MediaEditModalComponent implements OnDestroy {
     }
 
     constructor() {
+        if (this.media_type === 'webpage') {
+            this.form.controls.media_uri.addValidators(Validators.required);
+            this.preview_url.set(this.item.media_uri || this.item.media_url);
+            this._media_uri_subscription =
+                this.form.controls.media_uri.valueChanges
+                .pipe(debounceTime(1500))
+                .subscribe((url) => this.preview_url.set(url || ''));
+        }
         this.form.patchValue({
             ...this._data.media,
             plugin_params: this._data.media.plugin_params || null,
@@ -442,6 +471,7 @@ export class MediaEditModalComponent implements OnDestroy {
 
     public ngOnDestroy() {
         if (this._file_url) URL.revokeObjectURL(this._file_url);
+        this._media_uri_subscription?.unsubscribe();
     }
 
     public async saveMedia() {
