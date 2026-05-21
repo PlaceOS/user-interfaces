@@ -300,7 +300,10 @@ export class LandingColleaguesNewComponent {
         if (members.length === 0) return;
         this._router.navigate(['/book', 'desk', 'form']);
         setTimeout(() => {
-            this._booking_form.newForm('desk', new Booking({}));
+            this._booking_form.newForm(
+                'desk',
+                new Booking({ booking_type: 'desk' }),
+            );
             this._booking_form.setOptions({ group: true, members });
             this.clearSelection();
         }, 300);
