@@ -738,6 +738,26 @@ describe('General Methods', () => {
             expect(form.getRawValue().date).toBe(within);
         });
 
+        it('should keep the selected calendar day when a date change preserves an after-hours time', () => {
+            jest.useFakeTimers();
+            jest.setSystemTime(new Date(2028, 5, 15, 19, 0, 0, 0));
+            try {
+                const initial = new Date(2028, 5, 15, 19, 0, 0, 0).valueOf();
+                const selected = new Date(2028, 5, 16, 19, 0, 0, 0).valueOf();
+                const form = createForm({ date: initial, duration: 60 });
+                setupFormTimeSync(form, { bookable_hours: HOURS_9_TO_17 });
+
+                markUserDateChange();
+                form.controls.date.setValue(selected);
+
+                expect(form.getRawValue().date).toBe(
+                    new Date(2028, 5, 16, 9, 0, 0, 0).valueOf(),
+                );
+            } finally {
+                jest.useRealTimers();
+            }
+        });
+
         it('should not snap bookable hours for existing items (has id)', () => {
             jest.useFakeTimers();
             jest.setSystemTime(new Date(2028, 5, 15, 18, 30, 0, 0));
