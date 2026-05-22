@@ -542,7 +542,7 @@ export class ParkingBookingsListComponent
     public action_count(row) {
         let count = 0;
         if (this.isRequest(row) && !this.hide_assign_space) count += 1;
-        if (this.can_edit()) count += 1;
+        if (this.canEdit(row)) count += 1;
         if (this.can_delete()) count += 1;
         return count;
     }
@@ -596,7 +596,7 @@ export class ParkingBookingsListComponent
     public readonly can_delete = settingSignal('parking.allow_deleting', false);
 
     public canEdit(bkn: Booking) {
-        const allocated = !bkn.asset_id.includes('unalloc');
+        const allocated = !bkn?.asset_id?.startsWith('unallocated');
         return allocated
             ? (this.can_edit_allocated() ?? this.can_edit())
             : this.can_edit();

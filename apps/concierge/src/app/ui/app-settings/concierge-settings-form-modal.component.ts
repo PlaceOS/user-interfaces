@@ -1057,6 +1057,25 @@ import { UploadButtonComponent } from './upload-button.component';
                                         listing table
                                     </mat-hint>
                                 </mat-form-field>
+                                <label for="all-visitors-action-window">
+                                    Check-in/out all visitors action window
+                                </label>
+                                <mat-form-field
+                                    appearance="outline"
+                                    class="w-full"
+                                >
+                                    <input
+                                        matInput
+                                        type="number"
+                                        min="0"
+                                        name="all-visitors-action-window"
+                                        formControlName="all_visitors_action_window"
+                                    />
+                                    <mat-hint>
+                                        Minutes before and after the booking time
+                                        to show all visitor check-in/out actions
+                                    </mat-hint>
+                                </mat-form-field>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
                                         name="Allow booking parking for visitors"
@@ -1823,6 +1842,7 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
             allow_printing_label: new FormControl(false),
             allow_international: new FormControl(false),
             show_calendar_links: new FormControl(false),
+            all_visitors_action_window: new FormControl(15),
             hide_fields: new FormControl([]),
         }),
         bookings: new FormGroup({

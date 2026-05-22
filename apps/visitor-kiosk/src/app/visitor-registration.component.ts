@@ -150,7 +150,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             </label>
                             <mat-form-field
                                 appearance="outline"
-                                class="no-subscript w-full"
+                                class="no-subscript mb-4 w-full"
                             >
                                 <input
                                     matInput

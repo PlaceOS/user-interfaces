@@ -127,6 +127,7 @@ describe('ConciergeSettingsFormModalComponent', () => {
         expect(visitors.get('has_parking')).toBeTruthy();
         expect(visitors.get('allow_pass_number')).toBeTruthy();
         expect(visitors.get('allow_printing_label')).toBeTruthy();
+        expect(visitors.get('all_visitors_action_window')).toBeTruthy();
     });
 
     it('should have bookings form group', () => {
