@@ -632,7 +632,7 @@ import { VisitorsStateService } from './visitors-state.service';
                             </div>
                         </button>
                     }
-                    @if (row.linked_event) {
+                    @if (canShowAllVisitorActions(row)) {
                         <button mat-menu-item (click)="checkinAllVisitors(row)">
                             <div class="flex items-center space-x-2">
                                 <icon class="text-2xl"> event_available </icon>
@@ -834,6 +834,22 @@ export class GuestListingComponent extends AsyncHandler implements OnInit {
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public get all_visitor_action_window() {
+        const value = Number(
+            this._settings.get('app.visitors.all_visitors_action_window') ?? 15,
+        );
+        return Number.isFinite(value) && value >= 0 ? value : 15;
+    }
+
+    public canShowAllVisitorActions(item: Booking) {
+        if (!item?.linked_event) return false;
+        const offset = this.all_visitor_action_window * 60 * 1000;
+        const start = item.date - offset;
+        const end = item.date_end + offset;
+        const now = Date.now();
+        return now >= start && now <= end;
     }
 
     public get logo() {
