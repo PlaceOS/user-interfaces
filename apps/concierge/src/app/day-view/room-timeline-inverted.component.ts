@@ -43,6 +43,7 @@ import { debounceTime, filter, first } from 'rxjs/operators';
 import { DateOptionsComponent } from '../ui/date-options.component';
 import { BookingUIOptions, EventsStateService } from './events-state.service';
 import { RoomBookingSearchComponent } from './room-booking-search.component';
+import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
 
 @Component({
     selector: 'room-bookings-inverted-timeline',
@@ -324,7 +325,7 @@ export class RoomBookingsInvertedTimelineComponent
     });
     public readonly events = computed(() => {
         const spaces = this.spaces();
-        const events = this._filtered();
+        const events = this._filtered().filter(isActiveRoomTimelineEvent);
         const date = this.date();
         const event_map = {};
         const offset = this.timezone

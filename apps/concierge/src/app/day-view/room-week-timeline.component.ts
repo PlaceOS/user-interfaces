@@ -30,6 +30,7 @@ import { lastValueFrom } from 'rxjs';
 import { DateOptionsComponent } from '../ui/date-options.component';
 import { BookingUIOptions, EventsStateService } from './events-state.service';
 import { RoomBookingSearchComponent } from './room-booking-search.component';
+import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
 
 @Component({
     selector: 'room-week-bookings-timeline',
@@ -254,7 +255,7 @@ export class RoomWeekBookingsTimelineComponent
 
     public readonly events = computed(() => {
         const day_list = this.days();
-        let events = this._filtered();
+        let events = this._filtered().filter(isActiveRoomTimelineEvent);
         const zones = this._zones();
         if (zones.length) {
             events = events.filter((event) =>
