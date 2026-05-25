@@ -131,7 +131,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                         </label>
                         <mat-form-field
                             appearance="outline"
-                            class="no-subscript w-full"
+                            class="no-subscript mb-4 w-full"
                         >
                             <input
                                 matInput
@@ -144,7 +144,6 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             />
                         </mat-form-field>
                         @if (allow_pass_number()) {
-                            <div class="h-4"></div>
                             <label form="pass">
                                 {{ 'BOOKINGS.VISITOR_PASS' | translate }}
                             </label>
@@ -179,6 +178,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             </label>
                             <a-duration-field
                                 name="duration"
+                                class="text-base"
                                 formControlName="duration"
                                 [time]="form_value().date"
                                 [max]="max_duration()"
