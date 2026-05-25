@@ -81,7 +81,10 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                         <label for="email">
                             {{ 'APP.VISITOR_KIOSK.EMAIL' | translate }}</label
                         >
-                        <mat-form-field appearance="outline" class="w-full">
+                        <mat-form-field
+                            appearance="outline"
+                            class="mb-0 w-full"
+                        >
                             <input
                                 matInput
                                 name="email"
@@ -95,7 +98,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                         <label for="user">Host</label>
                         <a-user-search-field
                             formControlName="user"
-                            class="mb-4"
+                            [class.mb-4]="!form.value.user"
                         ></a-user-search-field>
                         <label form="phone">
                             {{ 'APP.VISITOR_KIOSK.PHONE' | translate }}</label
@@ -131,7 +134,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                         </label>
                         <mat-form-field
                             appearance="outline"
-                            class="no-subscript w-full"
+                            class="no-subscript mb-4 w-full"
                         >
                             <input
                                 matInput
@@ -144,7 +147,6 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             />
                         </mat-form-field>
                         @if (allow_pass_number()) {
-                            <div class="h-4"></div>
                             <label form="pass">
                                 {{ 'BOOKINGS.VISITOR_PASS' | translate }}
                             </label>
@@ -179,6 +181,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             </label>
                             <a-duration-field
                                 name="duration"
+                                class="text-base"
                                 formControlName="duration"
                                 [time]="form_value().date"
                                 [max]="max_duration()"

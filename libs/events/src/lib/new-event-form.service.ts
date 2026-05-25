@@ -733,14 +733,26 @@ export class EventFormService extends AsyncHandler {
                           spaces[0]?.id,
                   }
                 : {};
-            const user_email = currentUser()?.email.toLowerCase() || '';
-            const is_owner =
-                this.form.value.host.toLowerCase() === user_email ||
-                this.form.value.creator.toLowerCase() === user_email ||
-                this.form.value.calendar.toLowerCase() === user_email;
-            if ((is_owner && !ignore_owner) || force_calendar)
-                query.calendar =
-                    this.form.value.host || this.form.value.creator;
+            const user_email = currentUser()?.email?.toLowerCase() || '';
+            const source_calendar =
+                event.calendar ||
+                event.host ||
+                event.creator ||
+                raw_value.calendar ||
+                raw_value.creator;
+            const target_calendar = raw_value.host || raw_value.creator;
+            const query_calendar = event.id ? source_calendar : target_calendar;
+            const owner_fields = event.id
+                ? [event.host, event.creator, event.calendar]
+                : [raw_value.host, raw_value.creator, raw_value.calendar];
+            const is_owner = owner_fields.some(
+                (_) => _?.toLowerCase?.() === user_email,
+            );
+            if (
+                ((is_owner && !ignore_owner) || force_calendar) &&
+                query_calendar
+            )
+                query.calendar = query_calendar;
             if (force_calendar) delete query.system_id;
             const processed_assets = (this.form.value.assets || []).map((_) =>
                 new AssetRequest(_).toJSON(),
