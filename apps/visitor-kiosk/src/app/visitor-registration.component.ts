@@ -81,7 +81,10 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                         <label for="email">
                             {{ 'APP.VISITOR_KIOSK.EMAIL' | translate }}</label
                         >
-                        <mat-form-field appearance="outline" class="w-full">
+                        <mat-form-field
+                            appearance="outline"
+                            class="mb-0 w-full"
+                        >
                             <input
                                 matInput
                                 name="email"
@@ -95,6 +98,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                         <label for="user">Host</label>
                         <a-user-search-field
                             formControlName="user"
+                            [class.mb-4]="!form.value.user"
                         ></a-user-search-field>
                         <label form="phone">
                             {{ 'APP.VISITOR_KIOSK.PHONE' | translate }}</label
