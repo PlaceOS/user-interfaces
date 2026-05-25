@@ -88,6 +88,28 @@ describe('BookingFormService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
+    it('should use the current user as booking rule host when enabled', async () => {
+        (spectator.inject(SettingsService).get as jest.Mock).mockImplementation(
+            (key: string) =>
+                key === 'app.bookings.force_current_user_for_booking_rules'
+                    ? true
+                    : undefined,
+        );
+        const show_user = jest.fn(() => of({ email: 'other@example.com' }));
+        (ts_client as any).showUser = show_user;
+
+        const immediate_host = (spectator.service as any)._bookingRulesHost({
+            email: 'other@example.com',
+        });
+        const loaded_host = await (
+            spectator.service as any
+        )._loadBookingRulesHost('other@example.com');
+
+        expect(immediate_host.email).toBe(currentUser().email);
+        expect(loaded_host.email).toBe(currentUser().email);
+        expect(show_user).not.toHaveBeenCalled();
+    });
+
     it('should handle view changes', () => {
         expect(spectator.service.view()).toBe('form');
         spectator.service.setView('map');

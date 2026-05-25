@@ -79,6 +79,26 @@ describe('EventFormService', () => {
         sessionStorage.clear();
     });
 
+    it('should use the current user as booking rule host when enabled', async () => {
+        const settings = TestBed.inject(SettingsService) as any;
+        settings.get.mockImplementation((key: string) =>
+            key === 'app.events.force_current_user_for_booking_rules'
+                ? true
+                : undefined,
+        );
+        const user_pipe = (service as any)._user_pipe;
+        const transform_spy = jest
+            .spyOn(user_pipe, 'transform')
+            .mockResolvedValue({ email: 'other@example.com' });
+
+        const host = await (service as any)._bookingRulesHost(
+            'other@example.com',
+        );
+
+        expect(host.email).toBe(currentUser().email);
+        expect(transform_spy).not.toHaveBeenCalled();
+    });
+
     it('should refresh last_success when saved event has same start time', () => {
         const date = 1775527143000;
         service.last_success.set(
@@ -394,22 +414,20 @@ describe('EventFormService', () => {
         );
 
         await expect(
-            (service as any)._checkRecurringClashes(
-                {
-                    id: 'event-1',
-                    date,
-                    duration: 60,
-                    recurring: true,
-                    resources: [
-                        {
-                            id: 'space-1',
-                            email: 'space-1@example.com',
-                            name: 'Boardroom',
-                            zones: ['bld-1'],
-                        },
-                    ] as any,
-                } as any,
-            ),
+            (service as any)._checkRecurringClashes({
+                id: 'event-1',
+                date,
+                duration: 60,
+                recurring: true,
+                resources: [
+                    {
+                        id: 'space-1',
+                        email: 'space-1@example.com',
+                        name: 'Boardroom',
+                        zones: ['bld-1'],
+                    },
+                ] as any,
+            } as any),
         ).rejects.toBeTruthy();
         expect(events_fn.findEventClashes).toHaveBeenCalled();
         expect(TestBed.inject(MatDialog).open).not.toHaveBeenCalled();

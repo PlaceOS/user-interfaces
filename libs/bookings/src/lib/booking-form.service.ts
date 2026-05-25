@@ -1764,8 +1764,16 @@ export class BookingFormService extends AsyncHandler {
         return true;
     }
 
+    private _useCurrentUserForBookingRules() {
+        return (
+            this._settings.get(
+                'app.bookings.force_current_user_for_booking_rules',
+            ) === true || this._settings.get('app.basic_user_search') === false
+        );
+    }
+
     private _bookingRulesHost(user?: User) {
-        return this._settings.get('app.basic_user_search') === false
+        return this._useCurrentUserForBookingRules()
             ? currentUser()
             : user || currentUser();
     }
@@ -1773,7 +1781,7 @@ export class BookingFormService extends AsyncHandler {
     private async _loadBookingRulesHost(host: string) {
         const current_user = currentUser();
         if (
-            this._settings.get('app.basic_user_search') === false ||
+            this._useCurrentUserForBookingRules() ||
             current_user.email === host
         ) {
             return current_user;

@@ -79,6 +79,7 @@ const events = {
     allow_recurrence: false,
     allow_daily_allday_recurrence: false,
     allow_online_meetings: false,
+    force_current_user_for_booking_rules: false,
 };
 /*===========================*\
 ||  SPACE LISTING SETTINGS   ||
@@ -215,6 +216,7 @@ const app = {
         all_day_default: false,
         allowed_daily_visitor_count: 100,
         multiple_visitors: true,
+        force_current_user_for_booking_rules: false,
     },
     desks: {
         can_book_lockers: true,
