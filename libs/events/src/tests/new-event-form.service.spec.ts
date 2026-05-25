@@ -178,6 +178,60 @@ describe('EventFormService', () => {
         expect(perform_booking_spy).toHaveBeenCalled();
     });
 
+    it('should use the original calendar when changing host on an existing room booking', async () => {
+        const current_user = currentUser();
+        const new_host = 'new.host@example.com';
+        const date = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
+        const event = new CalendarEvent({
+            id: 'event-1',
+            host: current_user.email,
+            calendar: current_user.email,
+            creator: current_user.email,
+            title: 'Host change test',
+            date,
+            duration: 60,
+            attendees: [],
+            resources: [
+                {
+                    id: 'space-1',
+                    email: 'space-1@example.com',
+                    name: 'Boardroom',
+                    zones: ['bld-1'],
+                } as any,
+            ],
+        });
+        const perform_booking_spy = jest
+            .spyOn(service as any, '_performBooking')
+            .mockResolvedValue(
+                new CalendarEvent({
+                    id: 'event-1',
+                    host: new_host,
+                    calendar: new_host,
+                    creator: current_user.email,
+                    title: 'Host change test',
+                    date,
+                    duration: 60,
+                    attendees: [],
+                    resources: event.resources,
+                }),
+            );
+
+        service.newForm(event);
+        service.form.patchValue({
+            host: new_host,
+            organiser: { email: new_host, name: 'New Host' },
+        });
+
+        await expect(service.postForm(true)).resolves.toBeTruthy();
+        expect(perform_booking_spy).toHaveBeenCalledWith(
+            expect.objectContaining({ host: new_host }),
+            expect.objectContaining({
+                calendar: current_user.email,
+                system_id: 'space-1',
+            }),
+        );
+    });
+
     it('should clear saved host changes after a permission error', async () => {
         const current_user = currentUser();
         const perform_booking_spy = jest
