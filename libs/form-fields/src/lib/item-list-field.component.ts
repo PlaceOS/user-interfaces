@@ -10,32 +10,33 @@ import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
+interface ChipListControl<T> {
+    value: T[];
+    setValue(value: T[]): void;
+}
+
 /**
  * Add a tag to the list of tags for the item
  * @param event Input event
  */
 export function addChipItem<T = string>(
-    control: FormControl<T[]>,
+    control: ChipListControl<T> | FormControl<T[]>,
     event: MatChipInputEvent,
 ): void {
     if (!control) return;
     const input = event.input;
-    const value = event.value as any;
-    const item_list = [...(control.value || [])];
-    if (value.includes(',')) {
-        const list = value.split(',');
-        for (const item of list) {
-            if ((item || '').trim()) {
-                item_list.push(item.trim());
-                control.setValue(item_list);
-            }
-        }
-    } else {
-        if ((value || '').trim()) {
-            item_list.push(value.trim());
-            control.setValue(item_list);
+    const item_list = uniqueChipItems(control.value || []);
+    const new_items = `${event.value || ''}`
+        .split(',')
+        .map((item) => item.trim())
+        .filter((item) => !!item) as T[];
+
+    for (const item of new_items) {
+        if (!item_list.includes(item)) {
+            item_list.push(item);
         }
     }
+    control.setValue(item_list);
 
     // Reset the input value
     if (input) {
@@ -48,19 +49,24 @@ export function addChipItem<T = string>(
  * @param existing_tag Tag to remove
  */
 export function removeChipItem<T = string>(
-    control: FormControl<T[]>,
+    control: ChipListControl<T> | FormControl<T[]>,
     item: T,
+    item_index?: number,
 ): void {
     if (!control) {
         return;
     }
     const item_list = [...(control.value || [])];
-    const index = item_list.indexOf(item);
+    const index = item_index ?? item_list.indexOf(item);
 
-    if (index >= 0) {
+    if (index >= 0 && index < item_list.length) {
         item_list.splice(index, 1);
         control.setValue(item_list);
     }
+}
+
+export function uniqueChipItems<T = string>(items: T[]): T[] {
+    return [...new Set(items)];
 }
 
 @Component({
@@ -68,8 +74,8 @@ export function removeChipItem<T = string>(
     template: `
         <mat-form-field appearance="outline" class="w-full">
             <mat-chip-grid #chipList aria-label="Zone Tags">
-                @for (item of value; track item) {
-                    <mat-chip-row (removed)="remove(item)">
+                @for (item of value; track $index; let i = $index) {
+                    <mat-chip-row (removed)="remove(item, i)">
                         <span class="max-w-md truncate">{{ item }}</span>
                         <button
                             matChipRemove
@@ -100,7 +106,7 @@ export function removeChipItem<T = string>(
     ],
     imports: [MatFormFieldModule, MatChipsModule, IconComponent],
 })
-export class ItemListFieldComponent<T = any> implements ControlValueAccessor {
+export class ItemListFieldComponent<T = string> implements ControlValueAccessor {
     public readonly separators = input<number[]>([ENTER, COMMA]);
 
     public readonly placeholder = input('');
@@ -117,15 +123,16 @@ export class ItemListFieldComponent<T = any> implements ControlValueAccessor {
      */
     public readonly add = (e: MatChipInputEvent) =>
         addChipItem(
-            { value: this.value, setValue: (i) => this.setValue(i) } as any,
+            { value: this.value, setValue: (i) => this.setValue(i) },
             e,
         );
 
     /** Remove the `step` from the current value */
-    public readonly remove = (item: T) =>
+    public readonly remove = (item: T, index?: number) =>
         removeChipItem(
-            { value: this.value, setValue: (i) => this.setValue(i) } as any,
+            { value: this.value, setValue: (i) => this.setValue(i) },
             item,
+            index,
         );
 
     /**
@@ -133,10 +140,10 @@ export class ItemListFieldComponent<T = any> implements ControlValueAccessor {
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: T[]): void {
-        this.value = new_value;
+        this.value = uniqueChipItems(new_value || []);
         /* istanbul ignore else */
         if (this._onChange) {
-            this._onChange(new_value);
+            this._onChange(this.value);
         }
     }
 
@@ -145,7 +152,7 @@ export class ItemListFieldComponent<T = any> implements ControlValueAccessor {
      * @param value The new value for the component
      */
     public writeValue(value: T[]) {
-        this.value = value;
+        this.value = uniqueChipItems(value || []);
     }
 
     /* istanbul ignore next */

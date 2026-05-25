@@ -40,7 +40,17 @@ import {
 } from 'rxjs/operators';
 import { DateFieldComponent } from './date-field.component';
 import { DurationFieldComponent } from './duration-field.component';
-import { ItemListFieldComponent } from './item-list-field.component';
+import {
+    ItemListFieldComponent,
+    uniqueChipItems,
+} from './item-list-field.component';
+
+const ITEM_LIST_CONDITIONS = [
+    'groups',
+    'locations',
+    'tags',
+    'resource_ids',
+];
 
 @Component({
     selector: 'booking-rules-form',
@@ -561,10 +571,15 @@ export class BookingRulesFormComponent implements OnChanges {
             );
         }
         const value = this.form.getRawValue();
-        const condition_keys = Object.keys(value.conditions);
+        const conditions = value.conditions as Record<string, unknown>;
+        const condition_keys = Object.keys(conditions);
         for (const key of condition_keys) {
             if (!this.available_conditions.includes(key)) {
-                delete value.conditions[key];
+                delete conditions[key];
+            } else if (ITEM_LIST_CONDITIONS.includes(key)) {
+                conditions[key] = uniqueChipItems(
+                    (conditions[key] as string[]) || [],
+                );
             }
         }
         this.rulesetChange.emit(value as any);
