@@ -50,7 +50,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
             }
             @if (!loading()) {
                 <div
-                    class="bg-base-100 absolute top-1/2 left-4 max-h-[80vh] w-lg max-w-[calc(100%-2rem)] -translate-y-1/2 overflow-auto rounded-sm text-base shadow-sm"
+                    class="bg-base-100 absolute top-1/2 left-4 max-h-[80vh] w-lg max-w-[calc(100%-2rem)] -translate-y-1/2 overflow-auto rounded-sm shadow-sm"
                     [formGroup]="form"
                 >
                     <div
