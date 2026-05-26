@@ -31,13 +31,33 @@ import {
     updateSignagePlaylist,
 } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { CronInputFieldComponent } from 'libs/form-fields/src/lib/cron-input-field.component';
 import { lastValueFrom, startWith } from 'rxjs';
 
 type PlaylistScheduleType = 'play_hours' | 'play_at' | 'play_cron';
+type RecurringScheduleType =
+    | 'minutes'
+    | 'hours'
+    | 'daily'
+    | 'weekdays'
+    | 'weekly'
+    | 'monthly'
+    | 'monthly_weekday'
+    | 'custom';
 
 const FULL_DAY_START_MINUTES = 0;
 const FULL_DAY_END_MINUTES = 23 * 60 + 59;
+const DEFAULT_RECURRING_TIME = '09:00';
+const DEFAULT_RECURRING_CRON = '0 9 * * *';
+const WEEKDAY_OPTIONS = [
+    { value: 1, label: 'Mon', name: 'Monday' },
+    { value: 2, label: 'Tue', name: 'Tuesday' },
+    { value: 3, label: 'Wed', name: 'Wednesday' },
+    { value: 4, label: 'Thu', name: 'Thursday' },
+    { value: 5, label: 'Fri', name: 'Friday' },
+    { value: 6, label: 'Sat', name: 'Saturday' },
+    { value: 0, label: 'Sun', name: 'Sunday' },
+];
+const WEEK_OF_MONTH_OPTIONS = [1, 2, 3, 4, 5];
 
 function minutesToTime(value: number) {
     const safe_value = Math.max(
@@ -67,9 +87,249 @@ function parsePlayHours(value: string | null | undefined) {
     };
 }
 
+function parseCronPlayHours(
+    play_hours: string | null | undefined,
+    recurrence_time: string,
+) {
+    if (play_hours?.includes('-')) return parsePlayHours(play_hours);
+    const start = timeToMinutes(recurrence_time);
+    const duration = parseDurationMinutes(play_hours) || 30;
+    return {
+        start,
+        end: Math.min(FULL_DAY_END_MINUTES, start + duration),
+    };
+}
+
 function parseDurationMinutes(value: string | null | undefined) {
     const [hours, minutes] = (value || '').split(':').map((_) => +_ || 0);
     return hours * 60 + minutes;
+}
+
+function ordinal(value: number) {
+    if (value >= 11 && value <= 13) return `${value}th`;
+    switch (value % 10) {
+        case 1:
+            return `${value}st`;
+        case 2:
+            return `${value}nd`;
+        case 3:
+            return `${value}rd`;
+        default:
+            return `${value}th`;
+    }
+}
+
+function normaliseWeekdays(value: number[] | null | undefined) {
+    const seen_days = new Set<number>();
+    for (const day of value || []) {
+        if (day >= 0 && day <= 6) seen_days.add(day);
+    }
+    return WEEKDAY_OPTIONS.map((day) => day.value).filter((day) =>
+        seen_days.has(day),
+    );
+}
+
+function parseCronNumber(value: string, min: number, max: number) {
+    if (!/^\d+$/.test(value || '')) return null;
+    const number_value = +value;
+    return number_value >= min && number_value <= max ? number_value : null;
+}
+
+function parseCronStep(value: string, min: number, max: number) {
+    const match = /^\*\/(\d+)$/.exec(value || '');
+    if (!match) return null;
+    const step = +match[1];
+    return step >= min && step <= max ? step : null;
+}
+
+function dayRangeForWeekOfMonth(value: number | null | undefined) {
+    const week = Math.max(1, Math.min(5, value || 1));
+    if (week === 5) return '29-31';
+    const start = (week - 1) * 7 + 1;
+    return `${start}-${start + 6}`;
+}
+
+function parseCronWeekOfMonth(value: string) {
+    const match = /^(\d+)-(\d+)$/.exec(value || '');
+    if (!match) return null;
+    const start = +match[1];
+    const end = +match[2];
+    if (start === 29 && end === 31) return 5;
+    if ((start - 1) % 7 !== 0 || end !== start + 6) return null;
+    const week = (start - 1) / 7 + 1;
+    return week >= 1 && week <= 4 ? week : null;
+}
+
+function isCronMonthlyWeekday(day_part: string, weekday_part: string) {
+    return (
+        parseCronWeekOfMonth(day_part) !== null &&
+        parseCronNumber(weekday_part, 0, 6) !== null
+    );
+}
+
+function parseCronWeekdays(value: string) {
+    if (!value?.trim() || value === '*') return null;
+    const days = new Set<number>();
+    for (const part of value.split(',')) {
+        if (part.includes('-')) {
+            const [start, end] = part
+                .split('-')
+                .map((_) => parseCronNumber(_, 0, 6));
+            if (start === null || end === null || start > end) return null;
+            for (let day = start; day <= end; day++) days.add(day);
+        } else {
+            const day = parseCronNumber(part, 0, 6);
+            if (day === null) return null;
+            days.add(day);
+        }
+    }
+    return normaliseWeekdays([...days]);
+}
+
+function parseRecurringCron(value: string | null | undefined) {
+    const [minute_part, hour_part, day_part, month_part, weekday_part] = (
+        value || DEFAULT_RECURRING_CRON
+    )
+        .trim()
+        .split(/\s+/);
+    const minute = parseCronNumber(minute_part, 0, 59);
+    const hour = parseCronNumber(hour_part, 0, 23);
+    const time =
+        minute === null || hour === null
+            ? DEFAULT_RECURRING_TIME
+            : `${hour.toString().padStart(2, '0')}:${minute
+                  .toString()
+                  .padStart(2, '0')}`;
+    const custom = {
+        recurrence_type: 'custom' as RecurringScheduleType,
+        recurrence_time: time,
+        recurrence_interval: 1,
+        recurrence_week_of_month: 1,
+        recurrence_day_of_week: 1,
+        recurrence_weekdays: [1],
+        recurrence_day_of_month: 1,
+    };
+    if (day_part === '*' && month_part === '*' && weekday_part === '*') {
+        const minute_step =
+            minute_part === '*' ? 1 : parseCronStep(minute_part, 1, 59);
+        if (minute_step !== null && hour_part === '*') {
+            return {
+                ...custom,
+                recurrence_type: 'minutes' as RecurringScheduleType,
+                recurrence_interval: minute_step,
+            };
+        }
+        const hour_step =
+            hour_part === '*' ? 1 : parseCronStep(hour_part, 1, 23);
+        if (parseCronNumber(minute_part, 0, 59) === 0 && hour_step !== null) {
+            return {
+                ...custom,
+                recurrence_type: 'hours' as RecurringScheduleType,
+                recurrence_interval: hour_step,
+            };
+        }
+    }
+    if (minute === null || hour === null || month_part !== '*') return custom;
+    if (day_part === '*' && weekday_part === '*') {
+        return { ...custom, recurrence_type: 'daily' as RecurringScheduleType };
+    }
+    if (day_part === '*' && weekday_part === '1-5') {
+        return {
+            ...custom,
+            recurrence_type: 'weekdays' as RecurringScheduleType,
+        };
+    }
+    const weekdays = parseCronWeekdays(weekday_part);
+    if (isCronMonthlyWeekday(day_part, weekday_part)) {
+        const weekday = parseCronNumber(weekday_part, 0, 6) ?? 1;
+        return {
+            ...custom,
+            recurrence_type: 'monthly_weekday' as RecurringScheduleType,
+            recurrence_week_of_month: parseCronWeekOfMonth(day_part) || 1,
+            recurrence_day_of_week: weekday,
+            recurrence_weekdays: [weekday],
+        };
+    }
+    if (day_part === '*' && weekdays?.length) {
+        return {
+            ...custom,
+            recurrence_type: 'weekly' as RecurringScheduleType,
+            recurrence_weekdays: weekdays,
+        };
+    }
+    const day_of_month = parseCronNumber(day_part, 1, 31);
+    if (day_of_month !== null && weekday_part === '*') {
+        return {
+            ...custom,
+            recurrence_type: 'monthly' as RecurringScheduleType,
+            recurrence_day_of_month: day_of_month,
+        };
+    }
+    return custom;
+}
+
+function isIntervalRecurringType(
+    value: RecurringScheduleType | null | undefined,
+) {
+    return value === 'minutes' || value === 'hours';
+}
+
+function buildRecurringCron(value: {
+    recurrence_type?: RecurringScheduleType | null;
+    recurrence_time?: string | null;
+    recurrence_interval?: number | null;
+    recurrence_week_of_month?: number | null;
+    recurrence_day_of_week?: number | null;
+    recurrence_weekdays?: number[] | null;
+    recurrence_day_of_month?: number | null;
+    play_hours_start?: number | null;
+    play_cron?: string | null;
+}) {
+    if (value.recurrence_type === 'custom') {
+        return value.play_cron || DEFAULT_RECURRING_CRON;
+    }
+    const recurrence_time = isIntervalRecurringType(value.recurrence_type)
+        ? value.recurrence_time || DEFAULT_RECURRING_TIME
+        : minutesToTime(
+              value.play_hours_start ?? timeToMinutes(DEFAULT_RECURRING_TIME),
+          );
+    const [hours, minutes] = recurrence_time.split(':').map((_) => +_ || 0);
+    const minute = Math.max(0, Math.min(59, minutes));
+    const hour = Math.max(0, Math.min(23, hours));
+    if (value.recurrence_type === 'minutes') {
+        const interval = Math.max(
+            1,
+            Math.min(59, value.recurrence_interval || 1),
+        );
+        return interval === 1 ? '* * * * *' : `*/${interval} * * * *`;
+    }
+    if (value.recurrence_type === 'hours') {
+        const interval = Math.max(
+            1,
+            Math.min(23, value.recurrence_interval || 1),
+        );
+        return interval === 1 ? '0 * * * *' : `0 */${interval} * * *`;
+    }
+    if (value.recurrence_type === 'weekdays')
+        return `${minute} ${hour} * * 1-5`;
+    if (value.recurrence_type === 'weekly') {
+        const weekdays = normaliseWeekdays(value.recurrence_weekdays);
+        return `${minute} ${hour} * * ${(weekdays.length ? weekdays : [1]).join(',')}`;
+    }
+    if (value.recurrence_type === 'monthly') {
+        const day = Math.max(
+            1,
+            Math.min(31, value.recurrence_day_of_month || 1),
+        );
+        return `${minute} ${hour} ${day} * *`;
+    }
+    if (value.recurrence_type === 'monthly_weekday') {
+        const day = Math.max(0, Math.min(6, value.recurrence_day_of_week ?? 1));
+        return `${minute} ${hour} ${dayRangeForWeekOfMonth(
+            value.recurrence_week_of_month,
+        )} * ${day}`;
+    }
+    return `${minute} ${hour} * * *`;
 }
 
 function scheduleTypeFor(playlist: SignagePlaylist): PlaylistScheduleType {
@@ -108,6 +368,9 @@ function doesCronMatchDate(cron: string, date: Date) {
     if (day === '*' && day_of_week === '*') return true;
     if (day !== '*' && day_of_week === '*') return day_matches;
     if (day === '*' && day_of_week !== '*') return weekday_matches;
+    if (isCronMonthlyWeekday(day, day_of_week)) {
+        return day_matches && weekday_matches;
+    }
     return day_matches || weekday_matches;
 }
 
@@ -222,159 +485,6 @@ export interface PlaylistEditModalData {
                                         | mediaDuration
                                 }}
                             </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="pt-2 pb-4">
-                    <div class="border-base-300 relative rounded-sm border">
-                        <label
-                            for="schedule-type"
-                            class="bg-base-100 absolute top-0 left-2 m-0 flex w-auto min-w-0 -translate-y-1/2 items-center space-x-2 px-2"
-                        >
-                            <div>Schedule</div>
-                        </label>
-                        <div class="space-y-2 px-2 pt-4 pb-2">
-                            <mat-form-field appearance="outline" class="w-full">
-                                <mat-select
-                                    name="schedule-type"
-                                    formControlName="schedule_type"
-                                    aria-label="Playlist schedule type"
-                                >
-                                    <mat-option value="play_hours"
-                                        >Play Hours</mat-option
-                                    >
-                                    <mat-option value="play_at"
-                                        >Play At</mat-option
-                                    >
-                                    <mat-option value="play_cron"
-                                        >Play Cron</mat-option
-                                    >
-                                </mat-select>
-                            </mat-form-field>
-                            @if (form.value.schedule_type === 'play_hours') {
-                                <div class="flex items-center">
-                                    <mat-slider
-                                        class="flex-1"
-                                        min="0"
-                                        max="1439"
-                                        step="1"
-                                        [displayWith]="formatPlayHour"
-                                    >
-                                        <input
-                                            name="play-hours-start"
-                                            matSliderStartThumb
-                                            formControlName="play_hours_start"
-                                        />
-                                        <input
-                                            name="play-hours-end"
-                                            matSliderEndThumb
-                                            formControlName="play_hours_end"
-                                        />
-                                    </mat-slider>
-                                    <div
-                                        class="w-28 px-2 text-right font-mono text-xs"
-                                    >
-                                        {{
-                                            formatPlayHour(
-                                                form.value.play_hours_start
-                                            )
-                                        }}-{{
-                                            formatPlayHour(
-                                                form.value.play_hours_end
-                                            )
-                                        }}
-                                    </div>
-                                </div>
-                            } @else if (
-                                form.value.schedule_type === 'play_at'
-                            ) {
-                                <div class="flex space-x-4">
-                                    <div class="flex-1">
-                                        <label for="play-at">Play At</label>
-                                        <a-date-field
-                                            name="play-at"
-                                            class="w-full"
-                                            formControlName="play_at"
-                                        ></a-date-field>
-                                    </div>
-                                    <div class="flex-1">
-                                        <label for="play-at-time">&nbsp;</label>
-                                        <a-time-field
-                                            name="play-at-time"
-                                            class="w-full"
-                                            [ngModel]="form.value.play_at"
-                                            (ngModelChange)="
-                                                form.patchValue({
-                                                    play_at: $event,
-                                                })
-                                            "
-                                            [ngModelOptions]="{
-                                                standalone: true,
-                                            }"
-                                        ></a-time-field>
-                                    </div>
-                                </div>
-                                <label for="play-duration">Play Duration</label>
-                                <a-duration-field
-                                    name="play-duration"
-                                    class="w-full"
-                                    formControlName="play_duration"
-                                    [max]="12 * 60"
-                                ></a-duration-field>
-                                <settings-toggle
-                                    class="mb-2"
-                                    [name]="'Takeover playback'"
-                                    formControlName="play_at_takeover"
-                                >
-                                </settings-toggle>
-                            } @else if (
-                                form.value.schedule_type === 'play_cron'
-                            ) {
-                                <label for="play-duration">Play Duration</label>
-                                <a-duration-field
-                                    name="play-duration"
-                                    class="w-full"
-                                    formControlName="play_duration"
-                                    [max]="12 * 60"
-                                ></a-duration-field>
-                                <label
-                                    for="play-cron"
-                                    class="flex items-center gap-4"
-                                    >Play Cron
-                                    <span class="text-base-400">{{
-                                        form.value.play_cron
-                                    }}</span></label
-                                >
-                                <cron-input-field
-                                    name="play-cron"
-                                    formControlName="play_cron"
-                                />
-                                <div
-                                    class="border-base-300 relative mt-6 flex flex-col gap-2 rounded border px-2 pt-4 pb-2 text-sm"
-                                >
-                                    <div
-                                        class="bg-base-100 absolute top-0 left-3 -translate-y-1/2 rounded px-2"
-                                    >
-                                        Example Instances
-                                    </div>
-                                    @for (
-                                        play_time of next_cron_play_times();
-                                        track play_time
-                                    ) {
-                                        <div
-                                            class="border-base-200 hover:bg-base-200/50 rounded-lg border p-2 font-mono text-xs"
-                                        >
-                                            {{ play_time }}
-                                        </div>
-                                    } @empty {
-                                        <div
-                                            class="text-base-content/60 text-xs"
-                                        >
-                                            No upcoming play times found.
-                                        </div>
-                                    }
-                                </div>
-                            }
                         </div>
                     </div>
                 </div>
@@ -496,6 +606,517 @@ export interface PlaylistEditModalData {
                         ></a-date-field>
                     </div>
                 </div>
+                <div class="pt-2 pb-4">
+                    <div class="border-base-300 relative rounded-sm border">
+                        <label
+                            for="schedule-type"
+                            class="bg-base-100 absolute top-0 left-2 m-0 flex w-auto min-w-0 -translate-y-1/2 items-center space-x-2 px-2"
+                        >
+                            <div>Schedule</div>
+                        </label>
+                        <div class="space-y-2 px-2 pt-4 pb-2">
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-select
+                                    name="schedule-type"
+                                    formControlName="schedule_type"
+                                    aria-label="Playlist schedule type"
+                                >
+                                    <mat-option value="play_hours"
+                                        >Play during hours</mat-option
+                                    >
+                                    <mat-option value="play_at"
+                                        >Play once</mat-option
+                                    >
+                                    <mat-option value="play_cron"
+                                        >Recurring schedule</mat-option
+                                    >
+                                </mat-select>
+                            </mat-form-field>
+                            @if (form.value.schedule_type === 'play_hours') {
+                                <div class="space-y-3">
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="no-subscript w-full"
+                                        >
+                                            <mat-label>Start time</mat-label>
+                                            <input
+                                                matInput
+                                                type="time"
+                                                [value]="
+                                                    formatPlayHour(
+                                                        form.value
+                                                            .play_hours_start
+                                                    )
+                                                "
+                                                aria-label="Play hours start time"
+                                                (input)="
+                                                    setPlayHour(
+                                                        'play_hours_start',
+                                                        $any($event.target)
+                                                            .value
+                                                    )
+                                                "
+                                            />
+                                        </mat-form-field>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="no-subscript w-full"
+                                        >
+                                            <mat-label>End time</mat-label>
+                                            <input
+                                                matInput
+                                                type="time"
+                                                [value]="
+                                                    formatPlayHour(
+                                                        form.value
+                                                            .play_hours_end
+                                                    )
+                                                "
+                                                aria-label="Play hours end time"
+                                                (input)="
+                                                    setPlayHour(
+                                                        'play_hours_end',
+                                                        $any($event.target)
+                                                            .value
+                                                    )
+                                                "
+                                            />
+                                        </mat-form-field>
+                                    </div>
+                                    <mat-slider
+                                        class="w-[calc(100%-1rem)]"
+                                        min="0"
+                                        max="1439"
+                                        step="1"
+                                        [displayWith]="formatPlayHour"
+                                    >
+                                        <input
+                                            name="play-hours-start"
+                                            matSliderStartThumb
+                                            formControlName="play_hours_start"
+                                        />
+                                        <input
+                                            name="play-hours-end"
+                                            matSliderEndThumb
+                                            formControlName="play_hours_end"
+                                        />
+                                    </mat-slider>
+                                </div>
+                            } @else if (
+                                form.value.schedule_type === 'play_at'
+                            ) {
+                                <div class="flex space-x-4">
+                                    <div class="flex-1">
+                                        <label for="play-at">Play At</label>
+                                        <a-date-field
+                                            name="play-at"
+                                            class="w-full"
+                                            formControlName="play_at"
+                                        ></a-date-field>
+                                    </div>
+                                    <div class="flex-1">
+                                        <label for="play-at-time">&nbsp;</label>
+                                        <a-time-field
+                                            name="play-at-time"
+                                            class="w-full"
+                                            [ngModel]="form.value.play_at"
+                                            (ngModelChange)="
+                                                form.patchValue({
+                                                    play_at: $event,
+                                                })
+                                            "
+                                            [ngModelOptions]="{
+                                                standalone: true,
+                                            }"
+                                        ></a-time-field>
+                                    </div>
+                                </div>
+                                <label for="play-duration">Play Duration</label>
+                                <a-duration-field
+                                    name="play-duration"
+                                    class="w-full"
+                                    formControlName="play_duration"
+                                    [max]="12 * 60"
+                                ></a-duration-field>
+                                <settings-toggle
+                                    class="mb-2"
+                                    [name]="'Takeover playback'"
+                                    formControlName="play_at_takeover"
+                                >
+                                </settings-toggle>
+                            } @else if (
+                                form.value.schedule_type === 'play_cron'
+                            ) {
+                                <div
+                                    class="bg-base-200/40 border-base-300 space-y-4 rounded-lg border p-3"
+                                >
+                                    <div
+                                        class="flex flex-col gap-3 md:flex-row md:items-end"
+                                    >
+                                        <div class="min-w-48 flex-1">
+                                            <label for="recurrence-type"
+                                                >Repeat</label
+                                            >
+                                            <mat-form-field
+                                                appearance="outline"
+                                                class="no-subscript w-full"
+                                            >
+                                                <mat-select
+                                                    name="recurrence-type"
+                                                    formControlName="recurrence_type"
+                                                    aria-label="Recurring schedule repeat pattern"
+                                                >
+                                                    <mat-option value="minutes"
+                                                        >Every few
+                                                        minutes</mat-option
+                                                    >
+                                                    <mat-option value="hours"
+                                                        >Every few
+                                                        hours</mat-option
+                                                    >
+                                                    <mat-option value="daily"
+                                                        >Every day</mat-option
+                                                    >
+                                                    <mat-option value="weekdays"
+                                                        >Weekdays</mat-option
+                                                    >
+                                                    <mat-option value="weekly"
+                                                        >Weekly</mat-option
+                                                    >
+                                                    <mat-option value="monthly"
+                                                        >Monthly</mat-option
+                                                    >
+                                                    <mat-option
+                                                        value="monthly_weekday"
+                                                        >Monthly by
+                                                        weekday</mat-option
+                                                    >
+                                                    @if (
+                                                        form.value
+                                                            .recurrence_type ===
+                                                        'custom'
+                                                    ) {
+                                                        <mat-option
+                                                            value="custom"
+                                                            >Custom
+                                                            schedule</mat-option
+                                                        >
+                                                    }
+                                                </mat-select>
+                                            </mat-form-field>
+                                        </div>
+                                        @if (isIntervalRecurrence()) {
+                                            <label class="m-0 min-w-40 flex-1">
+                                                <div>
+                                                    {{
+                                                        form.value
+                                                            .recurrence_type ===
+                                                        'minutes'
+                                                            ? 'Minutes between plays'
+                                                            : 'Hours between plays'
+                                                    }}
+                                                </div>
+                                                <input
+                                                    type="number"
+                                                    min="1"
+                                                    [max]="
+                                                        form.value
+                                                            .recurrence_type ===
+                                                        'minutes'
+                                                            ? 59
+                                                            : 23
+                                                    "
+                                                    class="border-base-300 focus:border-base-content h-14 w-full rounded-sm border bg-transparent px-3 text-sm outline-hidden"
+                                                    formControlName="recurrence_interval"
+                                                    aria-label="Recurring schedule interval"
+                                                />
+                                            </label>
+                                        }
+                                    </div>
+                                    @if (
+                                        form.value.recurrence_type === 'weekly'
+                                    ) {
+                                        <div>
+                                            <div
+                                                class="mb-2 text-sm font-medium"
+                                            >
+                                                Play on
+                                            </div>
+                                            <div class="flex flex-wrap gap-2">
+                                                @for (
+                                                    day of weekday_options;
+                                                    track day.value
+                                                ) {
+                                                    <button
+                                                        type="button"
+                                                        class="min-w-12 rounded-full border px-3 py-2 text-sm transition-colors"
+                                                        [class.border-primary]="
+                                                            isRecurrenceWeekdaySelected(
+                                                                day.value
+                                                            )
+                                                        "
+                                                        [class.bg-primary]="
+                                                            isRecurrenceWeekdaySelected(
+                                                                day.value
+                                                            )
+                                                        "
+                                                        [class.text-primary-content]="
+                                                            isRecurrenceWeekdaySelected(
+                                                                day.value
+                                                            )
+                                                        "
+                                                        [class.border-base-300]="
+                                                            !isRecurrenceWeekdaySelected(
+                                                                day.value
+                                                            )
+                                                        "
+                                                        [attr.aria-pressed]="
+                                                            isRecurrenceWeekdaySelected(
+                                                                day.value
+                                                            )
+                                                        "
+                                                        (click)="
+                                                            toggleRecurrenceWeekday(
+                                                                day.value
+                                                            )
+                                                        "
+                                                    >
+                                                        {{ day.label }}
+                                                    </button>
+                                                }
+                                            </div>
+                                        </div>
+                                    } @else if (
+                                        form.value.recurrence_type === 'monthly'
+                                    ) {
+                                        <div>
+                                            <label for="recurrence-day-of-month"
+                                                >Play each month on</label
+                                            >
+                                            <mat-form-field
+                                                appearance="outline"
+                                                class="no-subscript w-full"
+                                            >
+                                                <mat-select
+                                                    name="recurrence-day-of-month"
+                                                    formControlName="recurrence_day_of_month"
+                                                    aria-label="Recurring schedule day of month"
+                                                >
+                                                    @for (
+                                                        day of month_days;
+                                                        track day
+                                                    ) {
+                                                        <mat-option
+                                                            [value]="day"
+                                                            >{{
+                                                                ordinal(day)
+                                                            }}</mat-option
+                                                        >
+                                                    }
+                                                </mat-select>
+                                            </mat-form-field>
+                                        </div>
+                                    } @else if (
+                                        form.value.recurrence_type ===
+                                        'monthly_weekday'
+                                    ) {
+                                        <div>
+                                            <label>Play each month on</label>
+                                            <div class="grid grid-cols-2 gap-3">
+                                                <mat-form-field
+                                                    appearance="outline"
+                                                    class="no-subscript w-full"
+                                                >
+                                                    <mat-select
+                                                        formControlName="recurrence_week_of_month"
+                                                        aria-label="Recurring schedule week of month"
+                                                    >
+                                                        @for (
+                                                            week of week_of_month_options;
+                                                            track week
+                                                        ) {
+                                                            <mat-option
+                                                                [value]="week"
+                                                                >{{
+                                                                    ordinal(
+                                                                        week
+                                                                    )
+                                                                }}</mat-option
+                                                            >
+                                                        }
+                                                    </mat-select>
+                                                </mat-form-field>
+                                                <mat-form-field
+                                                    appearance="outline"
+                                                    class="no-subscript w-full"
+                                                >
+                                                    <mat-select
+                                                        formControlName="recurrence_day_of_week"
+                                                        aria-label="Recurring schedule day of week"
+                                                    >
+                                                        @for (
+                                                            day of weekday_options;
+                                                            track day.value
+                                                        ) {
+                                                            <mat-option
+                                                                [value]="
+                                                                    day.value
+                                                                "
+                                                                >{{
+                                                                    day.name
+                                                                }}</mat-option
+                                                            >
+                                                        }
+                                                    </mat-select>
+                                                </mat-form-field>
+                                            </div>
+                                        </div>
+                                    } @else if (
+                                        form.value.recurrence_type === 'custom'
+                                    ) {
+                                        <div
+                                            class="border-warning/30 bg-warning/10 text-warning-content rounded-lg border p-3 text-sm"
+                                        >
+                                            This playlist uses an advanced
+                                            schedule that cannot be edited with
+                                            the simple recurrence controls.
+                                            Choose one of the repeat patterns
+                                            above to replace it.
+                                        </div>
+                                    }
+                                    @if (showRecurringPlayHours()) {
+                                        <div>
+                                            <div
+                                                class="mb-1 text-sm font-medium"
+                                            >
+                                                Play hours
+                                            </div>
+                                            <div class="space-y-3">
+                                                <div
+                                                    class="grid grid-cols-2 gap-3"
+                                                >
+                                                    <mat-form-field
+                                                        appearance="outline"
+                                                        class="no-subscript w-full"
+                                                    >
+                                                        <mat-label
+                                                            >Start
+                                                            time</mat-label
+                                                        >
+                                                        <input
+                                                            matInput
+                                                            type="time"
+                                                            [value]="
+                                                                formatPlayHour(
+                                                                    form.value
+                                                                        .play_hours_start
+                                                                )
+                                                            "
+                                                            aria-label="Recurring play hours start time"
+                                                            (input)="
+                                                                setPlayHour(
+                                                                    'play_hours_start',
+                                                                    $any(
+                                                                        $event.target
+                                                                    ).value
+                                                                )
+                                                            "
+                                                        />
+                                                    </mat-form-field>
+                                                    <mat-form-field
+                                                        appearance="outline"
+                                                        class="no-subscript w-full"
+                                                    >
+                                                        <mat-label
+                                                            >End time</mat-label
+                                                        >
+                                                        <input
+                                                            matInput
+                                                            type="time"
+                                                            [value]="
+                                                                formatPlayHour(
+                                                                    form.value
+                                                                        .play_hours_end
+                                                                )
+                                                            "
+                                                            aria-label="Recurring play hours end time"
+                                                            (input)="
+                                                                setPlayHour(
+                                                                    'play_hours_end',
+                                                                    $any(
+                                                                        $event.target
+                                                                    ).value
+                                                                )
+                                                            "
+                                                        />
+                                                    </mat-form-field>
+                                                </div>
+                                                <mat-slider
+                                                    class="w-[calc(100%-1rem)]"
+                                                    min="0"
+                                                    max="1439"
+                                                    step="1"
+                                                    [displayWith]="
+                                                        formatPlayHour
+                                                    "
+                                                >
+                                                    <input
+                                                        name="recurring-play-hours-start"
+                                                        matSliderStartThumb
+                                                        formControlName="play_hours_start"
+                                                    />
+                                                    <input
+                                                        name="recurring-play-hours-end"
+                                                        matSliderEndThumb
+                                                        formControlName="play_hours_end"
+                                                    />
+                                                </mat-slider>
+                                            </div>
+                                        </div>
+                                    }
+                                    <div
+                                        class="border-base-300 bg-base-100 rounded-lg border p-3"
+                                    >
+                                        <div
+                                            class="text-base-content/60 text-xs font-medium tracking-wide uppercase"
+                                        >
+                                            Summary
+                                        </div>
+                                        <div class="mt-1 text-sm">
+                                            {{ recurring_schedule_summary() }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div
+                                    class="border-base-300 relative mt-6 flex flex-col gap-2 rounded border px-2 pt-4 pb-2 text-sm"
+                                >
+                                    <div
+                                        class="bg-base-100 absolute top-0 left-3 -translate-y-1/2 rounded px-2"
+                                    >
+                                        Upcoming Play Times
+                                    </div>
+                                    @for (
+                                        play_time of next_cron_play_times();
+                                        track play_time
+                                    ) {
+                                        <div
+                                            class="border-base-200 hover:bg-base-200/50 rounded-lg border p-2 font-mono text-xs"
+                                        >
+                                            {{ play_time }}
+                                        </div>
+                                    } @empty {
+                                        <div
+                                            class="text-base-content/60 text-xs"
+                                        >
+                                            No upcoming play times found.
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
             </form>
         </fullscreen-modal-shell>
     `,
@@ -508,7 +1129,6 @@ export interface PlaylistEditModalData {
         DateFieldComponent,
         TimeFieldComponent,
         DurationFieldComponent,
-        CronInputFieldComponent,
         TranslatePipe,
         MatFormFieldModule,
         MatInputModule,
@@ -524,6 +1144,13 @@ export class PlaylistEditModalComponent {
 
     public readonly loading = signal(false);
     public readonly playlist = this._data.playlist;
+    public readonly weekday_options = WEEKDAY_OPTIONS;
+    public readonly week_of_month_options = WEEK_OF_MONTH_OPTIONS;
+    public readonly month_days = Array.from(
+        { length: 31 },
+        (_, index) => index + 1,
+    );
+    public readonly ordinal = ordinal;
 
     public readonly form = new FormGroup({
         name: new FormControl('', [Validators.required]),
@@ -540,7 +1167,14 @@ export class PlaylistEditModalComponent {
         play_hours_end: new FormControl(FULL_DAY_END_MINUTES),
         play_at: new FormControl(Date.now()),
         play_at_takeover: new FormControl(false),
-        play_cron: new FormControl('* * * * *'),
+        play_cron: new FormControl(DEFAULT_RECURRING_CRON),
+        recurrence_type: new FormControl<RecurringScheduleType>('daily'),
+        recurrence_time: new FormControl(DEFAULT_RECURRING_TIME),
+        recurrence_interval: new FormControl(1),
+        recurrence_week_of_month: new FormControl(1),
+        recurrence_day_of_week: new FormControl(1),
+        recurrence_weekdays: new FormControl<number[]>([1]),
+        recurrence_day_of_month: new FormControl(1),
         play_duration: new FormControl(30),
         valid_from: new FormControl(0),
         valid_until: new FormControl(0),
@@ -552,19 +1186,61 @@ export class PlaylistEditModalComponent {
     public readonly next_cron_play_times = computed(() => {
         const value = this._form_value();
         if (value.schedule_type !== 'play_cron') return [];
-        return nextCronPlayTimes(value.play_cron || '');
+        return nextCronPlayTimes(buildRecurringCron(value));
+    });
+    public readonly recurring_schedule_summary = computed(() => {
+        const value = this._form_value();
+        if (value.recurrence_type === 'custom') {
+            return 'Advanced recurring schedule. Choose a repeat pattern to edit it.';
+        }
+        const interval = value.recurrence_interval || 1;
+        const play_hours = `${this.formatPlayHour(value.play_hours_start)} to ${this.formatPlayHour(value.play_hours_end)}`;
+        if (value.recurrence_type === 'minutes') {
+            return `Plays every ${interval} minute${interval === 1 ? '' : 's'}.`;
+        }
+        if (value.recurrence_type === 'hours') {
+            return `Plays every ${interval} hour${interval === 1 ? '' : 's'}.`;
+        }
+        if (value.recurrence_type === 'weekdays') {
+            return `Plays every weekday from ${play_hours}.`;
+        }
+        if (value.recurrence_type === 'weekly') {
+            const days = this._weekdayNames(value.recurrence_weekdays);
+            return `Plays every ${days} from ${play_hours}.`;
+        }
+        if (value.recurrence_type === 'monthly') {
+            return `Plays on the ${ordinal(
+                value.recurrence_day_of_month || 1,
+            )} of each month from ${play_hours}.`;
+        }
+        if (value.recurrence_type === 'monthly_weekday') {
+            return `Plays on the ${ordinal(
+                value.recurrence_week_of_month || 1,
+            )} ${this._weekdayName(
+                value.recurrence_day_of_week,
+            )} of each month from ${play_hours}.`;
+        }
+        return `Plays every day from ${play_hours}.`;
     });
 
     constructor() {
-        const play_hours = parsePlayHours(this.playlist.play_hours);
         const schedule_type = scheduleTypeFor(this.playlist);
+        const recurring_schedule = parseRecurringCron(this.playlist.play_cron);
+        const play_hours =
+            schedule_type === 'play_cron'
+                ? parseCronPlayHours(
+                      this.playlist.play_hours,
+                      recurring_schedule.recurrence_time,
+                  )
+                : parsePlayHours(this.playlist.play_hours);
         this.form.patchValue({
             ...this.playlist,
             schedule_type,
             play_hours_start: play_hours.start,
             play_hours_end: play_hours.end,
             play_at: this.playlist.play_at || Date.now(),
-            play_cron: this.playlist.play_cron || '* * * * *',
+            play_cron: this.playlist.play_cron || DEFAULT_RECURRING_CRON,
+            ...recurring_schedule,
             play_duration: this.playlist.play_hours?.includes('-')
                 ? 30
                 : parseDurationMinutes(this.playlist.play_hours) || 30,
@@ -582,6 +1258,55 @@ export class PlaylistEditModalComponent {
     public readonly formatPlayHour = (value: number | null | undefined) =>
         minutesToTime(value || 0);
 
+    public setPlayHour(
+        control_name: 'play_hours_start' | 'play_hours_end',
+        value: string,
+    ) {
+        this.form.patchValue({ [control_name]: timeToMinutes(value) });
+    }
+
+    public isIntervalRecurrence() {
+        return isIntervalRecurringType(this.form.value.recurrence_type);
+    }
+
+    public showRecurringPlayHours() {
+        return (
+            this.form.value.recurrence_type !== 'custom' &&
+            !this.isIntervalRecurrence()
+        );
+    }
+
+    public isRecurrenceWeekdaySelected(day: number) {
+        return !!this.form.value.recurrence_weekdays?.includes(day);
+    }
+
+    public toggleRecurrenceWeekday(day: number) {
+        const selected_days = this.form.value.recurrence_weekdays || [];
+        const next_days = selected_days.includes(day)
+            ? selected_days.filter((item) => item !== day)
+            : [...selected_days, day];
+        this.form.patchValue({
+            recurrence_weekdays: normaliseWeekdays(
+                next_days.length ? next_days : [day],
+            ),
+        });
+    }
+
+    private _weekdayName(value: number | null | undefined) {
+        return (
+            WEEKDAY_OPTIONS.find((option) => option.value === value)?.name ||
+            'Monday'
+        );
+    }
+
+    private _weekdayNames(value: number[] | null | undefined) {
+        const weekdays = normaliseWeekdays(value);
+        return (weekdays.length ? weekdays : [1])
+            .map((day) => this._weekdayName(day))
+            .filter((_) => _)
+            .join(', ');
+    }
+
     public async savePlaylist() {
         this.form.markAllAsTouched();
         this.form.updateValueAndValidity();
@@ -594,6 +1319,13 @@ export class PlaylistEditModalComponent {
         delete data.play_hours_start;
         delete data.play_hours_end;
         delete data.play_duration;
+        delete data.recurrence_type;
+        delete data.recurrence_time;
+        delete data.recurrence_interval;
+        delete data.recurrence_week_of_month;
+        delete data.recurrence_day_of_week;
+        delete data.recurrence_weekdays;
+        delete data.recurrence_day_of_month;
         const play_hours_start =
             form_value.play_hours_start ?? FULL_DAY_START_MINUTES;
         const play_hours_end =
@@ -602,7 +1334,12 @@ export class PlaylistEditModalComponent {
             data.play_hours = minutesToTime(form_value.play_duration || 30);
             data.play_cron = '';
         } else if (form_value.schedule_type === 'play_cron') {
-            data.play_hours = minutesToTime(form_value.play_duration || 30);
+            data.play_hours = isIntervalRecurringType(
+                form_value.recurrence_type,
+            )
+                ? null
+                : `${minutesToTime(play_hours_start)}-${minutesToTime(play_hours_end)}`;
+            data.play_cron = buildRecurringCron(form_value);
             data.play_at = 0;
             data.play_at_takeover = false;
         } else {

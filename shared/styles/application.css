@@ -969,6 +969,10 @@ a[icon] {
 
     mat-form-field {
         font-size: 1rem;
+
+        label {
+            width: auto;
+        }
     }
 
     mat-button-toggle {

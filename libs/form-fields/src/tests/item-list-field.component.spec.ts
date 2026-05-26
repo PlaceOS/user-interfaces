@@ -1,9 +1,14 @@
-import { MatChipsModule } from '@angular/material/chips';
+import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent } from 'ng-mocks';
 import { ItemListFieldComponent } from '../lib/item-list-field.component';
+
+const chipEvent = (
+    input: HTMLInputElement,
+    value: string,
+): MatChipInputEvent => ({ input, value }) as unknown as MatChipInputEvent;
 
 describe('ItemListFieldComponent', () => {
     let spectator: Spectator<ItemListFieldComponent>;
@@ -24,11 +29,21 @@ describe('ItemListFieldComponent', () => {
         expect(spectator.component.value).toHaveLength(0);
         spectator.typeInElement('MyElement', 'input');
         expect(spectator.component.value).toHaveLength(0);
-        spectator.component.add({ input, value: input.value } as any);
+        spectator.component.add(chipEvent(input, input.value));
         spectator.detectChanges();
         expect(spectator.component.value).toHaveLength(1);
         expect('mat-chip-row').toExist();
         expect('mat-chip-row').toContainText('MyElement');
+    });
+
+    it('should not allow adding duplicate items', () => {
+        const input: HTMLInputElement = spectator.query('input');
+        spectator.component.writeValue(['Element1']);
+        spectator.component.add(
+            chipEvent(input, 'Element1, Element2, Element1'),
+        );
+
+        expect(spectator.component.value).toEqual(['Element1', 'Element2']);
     });
 
     it('should allow removing items', () => {
@@ -57,7 +72,7 @@ describe('ItemListFieldComponent', () => {
         const value = ['Element1'];
         const input: HTMLInputElement = spectator.query('input');
         spectator.component.writeValue(value);
-        spectator.component.add({ input, value: 'Element2' } as any);
+        spectator.component.add(chipEvent(input, 'Element2'));
 
         expect(value).toEqual(['Element1']);
         expect(spectator.component.value).toEqual(['Element1', 'Element2']);
@@ -70,5 +85,16 @@ describe('ItemListFieldComponent', () => {
 
         expect(value).toEqual(['Element1', 'Element2']);
         expect(spectator.component.value).toEqual(['Element2']);
+    });
+
+    it('should remove the selected item when duplicate values exist', () => {
+        spectator.component.value = ['Element1', 'Element2', 'Element1'];
+        spectator.detectChanges();
+        spectator.dispatchFakeEvent(
+            spectator.queryAll('mat-chip-row')[2],
+            'removed',
+        );
+
+        expect(spectator.component.value).toEqual(['Element1', 'Element2']);
     });
 });

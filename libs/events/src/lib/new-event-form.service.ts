@@ -886,7 +886,8 @@ export class EventFormService extends AsyncHandler {
         if (error instanceof Error && error.message) return error.message;
         if (typeof error?.error === 'string') return error.error;
         if (typeof error?.message === 'string') return error.message;
-        if (typeof error?.error?.message === 'string') return error.error.message;
+        if (typeof error?.error?.message === 'string')
+            return error.error.message;
         return '';
     }
 
@@ -953,13 +954,7 @@ export class EventFormService extends AsyncHandler {
         duration: number,
         host: string,
     ) {
-        const current_user = currentUser();
-        const user =
-            host === current_user.email
-                ? current_user
-                : await this._user_pipe
-                      .transform(host)
-                      .catch(() => ({ email: host, name: host }));
+        const user = await this._bookingRulesHost(host);
         const rules = await nextValueFrom(this.booking_rules$);
         const space_rules = spaces.map((space) => {
             const bld = this._org.buildings.find((b) =>
@@ -983,6 +978,21 @@ export class EventFormService extends AsyncHandler {
             );
         }
         return true;
+    }
+
+    private async _bookingRulesHost(host: string) {
+        const current_user = currentUser();
+        if (
+            this._settings.get(
+                'app.events.force_current_user_for_booking_rules',
+            ) === true ||
+            host === current_user.email
+        ) {
+            return current_user;
+        }
+        return this._user_pipe
+            .transform(host)
+            .catch(() => ({ email: host, name: host }));
     }
 
     /**

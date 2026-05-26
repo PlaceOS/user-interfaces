@@ -125,6 +125,16 @@
                 }
             }
         },
+        "bookings": {
+            "type": "object",
+            "description": "General booking behaviour settings",
+            "properties": {
+                "force_current_user_for_booking_rules": {
+                    "type": "boolean",
+                    "description": "Whether booking rule checks should always use the signed-in user as the host, even when booking on behalf of someone else."
+                }
+            }
+        },
         "events": {
             "type": "object",
             "description": "Data associated with meeting booking flow",
@@ -138,6 +148,10 @@
                 },
                 "all_day_period": {
                     "$ref": "#/$defs/bookable_hours"
+                },
+                "force_current_user_for_booking_rules": {
+                    "type": "boolean",
+                    "description": "Whether meeting room booking rule checks should always use the signed-in user as the host, even when booking on behalf of someone else."
                 }
             }
         },

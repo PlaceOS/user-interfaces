@@ -16,7 +16,7 @@ jest.mock('@placeos/ts-client');
 jest.mock('libs/bookings/src/lib/bookings.fn');
 
 import * as ts_client from '@placeos/ts-client';
-import { endOfYear } from 'date-fns';
+import { endOfYear, getUnixTime } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 
 describe('BookingFormService', () => {
@@ -86,6 +86,28 @@ describe('BookingFormService', () => {
 
     it('should create service', () => {
         expect(spectator.service).toBeTruthy();
+    });
+
+    it('should use the current user as booking rule host when enabled', async () => {
+        (spectator.inject(SettingsService).get as jest.Mock).mockImplementation(
+            (key: string) =>
+                key === 'app.bookings.force_current_user_for_booking_rules'
+                    ? true
+                    : undefined,
+        );
+        const show_user = jest.fn(() => of({ email: 'other@example.com' }));
+        (ts_client as any).showUser = show_user;
+
+        const immediate_host = (spectator.service as any)._bookingRulesHost({
+            email: 'other@example.com',
+        });
+        const loaded_host = await (
+            spectator.service as any
+        )._loadBookingRulesHost('other@example.com');
+
+        expect(immediate_host.email).toBe(currentUser().email);
+        expect(loaded_host.email).toBe(currentUser().email);
+        expect(show_user).not.toHaveBeenCalled();
     });
 
     it('should handle view changes', () => {
@@ -610,8 +632,12 @@ describe('BookingFormService', () => {
             expect(save_booking.mock.calls[0][0]).toEqual(
                 expect.objectContaining({
                     all_day: true,
-                    date: new Date(2026, 2, 20, 10, 5, 0, 0).valueOf(),
-                    duration: 415,
+                    booking_start: getUnixTime(
+                        new Date(2026, 2, 20, 10, 5, 0, 0),
+                    ),
+                    booking_end: getUnixTime(
+                        new Date(2026, 2, 20, 17, 0, 0, 0),
+                    ),
                     date_end: new Date(2026, 2, 20, 17, 0, 0, 0).valueOf(),
                 }),
             );

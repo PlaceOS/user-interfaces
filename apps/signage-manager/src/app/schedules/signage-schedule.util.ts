@@ -62,6 +62,30 @@ interface ScheduleItem {
     zones?: string[];
 }
 
+function parseCronNumber(value: string, min: number, max: number) {
+    if (!/^\d+$/.test(value || '')) return null;
+    const number_value = +value;
+    return number_value >= min && number_value <= max ? number_value : null;
+}
+
+function parseCronWeekOfMonth(value: string) {
+    const match = /^(\d+)-(\d+)$/.exec(value || '');
+    if (!match) return null;
+    const start = +match[1];
+    const end = +match[2];
+    if (start === 29 && end === 31) return 5;
+    if ((start - 1) % 7 !== 0 || end !== start + 6) return null;
+    const week = (start - 1) / 7 + 1;
+    return week >= 1 && week <= 4 ? week : null;
+}
+
+function isCronMonthlyWeekday(day_part: string, weekday_part: string) {
+    return (
+        parseCronWeekOfMonth(day_part) !== null &&
+        parseCronNumber(weekday_part, 0, 6) !== null
+    );
+}
+
 function matchesCronPart(value: number, cron_part: string): boolean {
     if (cron_part === '*') return true;
     if (cron_part.includes(',')) {
@@ -143,6 +167,23 @@ function getCronBlocksForDay(
     const parts = cron.trim().split(/\s+/);
     if (parts.length !== 5) return [];
     const [minute_part, hour_part] = parts;
+    if (play_hours?.includes('-')) {
+        const [start_str, end_str] = play_hours.split('-');
+        const start_minutes = parseDurationMinutes(start_str);
+        const end_minutes = parseDurationMinutes(end_str);
+        const duration_minutes =
+            end_minutes > start_minutes
+                ? end_minutes - start_minutes
+                : MINUTES_PER_DAY - start_minutes + end_minutes;
+        return [
+            {
+                start_minutes,
+                duration_minutes,
+                all_day: false,
+                label: `${start_str} – ${end_str}`,
+            },
+        ];
+    }
     const duration = play_hours
         ? parseDurationMinutes(play_hours)
         : DEFAULT_PLAYLIST_DURATION;
@@ -177,6 +218,12 @@ function doesCronMatchDay(cron: string, day: Date): boolean {
     }
     if (dom_part === '*' && dow_part !== '*') {
         return matchesCronPart(day_of_week, dow_part);
+    }
+    if (isCronMonthlyWeekday(dom_part, dow_part)) {
+        return (
+            matchesCronPart(day_of_month, dom_part) &&
+            matchesCronPart(day_of_week, dow_part)
+        );
     }
     return (
         matchesCronPart(day_of_month, dom_part) ||

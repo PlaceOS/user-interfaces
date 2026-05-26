@@ -52,6 +52,12 @@ const app: any = {
     logo_light: 'assets/logo-light.svg',
     logo_dark: 'assets/logo-dark.svg',
     general: {},
+    bookings: {
+        force_current_user_for_booking_rules: false,
+    },
+    events: {
+        force_current_user_for_booking_rules: false,
+    },
     allow_dark_mode: true,
     show_changelog: true,
 };

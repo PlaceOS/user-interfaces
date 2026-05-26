@@ -454,12 +454,25 @@ export class CalendarEvent {
         this.linked_bookings = data.linked_bookings || [];
         this.update_master = data.update_master ?? false;
         if (data.recurring) {
+            const recurrence = data.recurrence as RecurrenceDetails & {
+                range_start?: number;
+            };
+            const range_start = recurrence.range_start
+                ? new Date(recurrence.range_start * 1000)
+                : null;
+            if (range_start) {
+                const event_start = new Date(this.event_start * 1000);
+                range_start.setHours(
+                    event_start.getHours(),
+                    event_start.getMinutes(),
+                    event_start.getSeconds(),
+                    event_start.getMilliseconds(),
+                );
+            }
             this.recurrence = {
                 start:
                     data.recurrence?.start ||
-                    new Date(
-                        (data.recurrence as any).range_start * 1000,
-                    ).valueOf() ||
+                    range_start?.valueOf() ||
                     this.event_start * 1000,
                 end:
                     data.recurrence.end ||
