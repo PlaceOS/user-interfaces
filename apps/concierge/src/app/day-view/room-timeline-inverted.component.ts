@@ -504,12 +504,14 @@ Host:  ${event.organiser?.name || event.host}`;
         );
         if (resp.reason !== 'done') return;
         resp.loading('Requesting booking cancellation...');
+        this._state.remove(item);
         await declineEvent(item.id, {
             calendar: item.calendar || item.mailbox || item.host,
             system_id: space_id,
         })
             .toPromise()
             .catch((e) => {
+                this._state.restore(item);
                 notifyError(`Unable to cancel booking. ${e}`);
                 resp.close();
                 throw e;
