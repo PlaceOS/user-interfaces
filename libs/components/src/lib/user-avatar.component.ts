@@ -36,7 +36,7 @@ export class UserAvatarComponent {
 
     public get initials(): string {
         const user = this.user();
-        if (!user) return 'NA';
+        if (!user?.name) return 'NA';
         const name = user.name || '';
         const parts = name.replace(/[()[\]\-+=\\/]+/gi, '').split(' ');
         return parts.length > 1

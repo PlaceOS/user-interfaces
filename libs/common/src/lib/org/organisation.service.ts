@@ -60,9 +60,13 @@ export class OrganisationService {
     /** Observable of the initialised state of the object */
     public readonly initialised = this._initialised.asObservable();
     private readonly _regions = new BehaviorSubject<Region[]>([]);
-    private readonly _active_region = new BehaviorSubject<Region>(null);
+    private readonly _active_region = new BehaviorSubject<Region>(
+        new Region({ name: 'Unknown' }),
+    );
     private readonly _buildings = new BehaviorSubject<Building[]>([]);
-    private readonly _active_building = new BehaviorSubject<Building>(null);
+    private readonly _active_building = new BehaviorSubject<Building>(
+        new Building({ name: 'Unknown' }),
+    );
     private readonly _levels = new BehaviorSubject<BuildingLevel[]>([]);
     private readonly _loaded_data: string[] = [];
     private readonly _limited_init = signal(false);
@@ -164,7 +168,8 @@ export class OrganisationService {
     }
 
     public async setRegion(item: Region) {
-        if (!item || this._active_region.value?.id == item.id) return;
+        const active_region = this._active_region.value;
+        if (!item || active_region?.id === item?.id) return;
         this._active_region.next(item);
         await this.loadRegionData(item);
         this._setBuildingFromTimezone();
