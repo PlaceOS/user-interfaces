@@ -129,6 +129,16 @@ function normaliseWeekdays(value: number[] | null | undefined) {
     );
 }
 
+function normaliseMonthDays(value: number[] | null | undefined) {
+    const seen_days = new Set<number>();
+    for (const day of value || []) {
+        if (day >= 1 && day <= 31) seen_days.add(day);
+    }
+    return Array.from({ length: 31 }, (_, index) => index + 1).filter((day) =>
+        seen_days.has(day),
+    );
+}
+
 function parseCronNumber(value: string, min: number, max: number) {
     if (!/^\d+$/.test(value || '')) return null;
     const number_value = +value;
@@ -163,7 +173,7 @@ function parseCronWeekOfMonth(value: string) {
 function isCronMonthlyWeekday(day_part: string, weekday_part: string) {
     return (
         parseCronWeekOfMonth(day_part) !== null &&
-        parseCronNumber(weekday_part, 0, 6) !== null
+        !!parseCronWeekdays(weekday_part)?.length
     );
 }
 
@@ -184,6 +194,17 @@ function parseCronWeekdays(value: string) {
         }
     }
     return normaliseWeekdays([...days]);
+}
+
+function parseCronMonthDays(value: string) {
+    if (!value?.trim() || value === '*') return null;
+    const days = new Set<number>();
+    for (const part of value.split(',')) {
+        const day = parseCronNumber(part, 1, 31);
+        if (day === null) return null;
+        days.add(day);
+    }
+    return normaliseMonthDays([...days]);
 }
 
 function parseRecurringCron(value: string | null | undefined) {
@@ -207,7 +228,7 @@ function parseRecurringCron(value: string | null | undefined) {
         recurrence_week_of_month: 1,
         recurrence_day_of_week: 1,
         recurrence_weekdays: [1],
-        recurrence_day_of_month: 1,
+        recurrence_day_of_month: [1],
     };
     if (day_part === '*' && month_part === '*' && weekday_part === '*') {
         const minute_step =
@@ -241,13 +262,13 @@ function parseRecurringCron(value: string | null | undefined) {
     }
     const weekdays = parseCronWeekdays(weekday_part);
     if (isCronMonthlyWeekday(day_part, weekday_part)) {
-        const weekday = parseCronNumber(weekday_part, 0, 6) ?? 1;
+        const month_weekdays = parseCronWeekdays(weekday_part) || [1];
         return {
             ...custom,
             recurrence_type: 'monthly_weekday' as RecurringScheduleType,
             recurrence_week_of_month: parseCronWeekOfMonth(day_part) || 1,
-            recurrence_day_of_week: weekday,
-            recurrence_weekdays: [weekday],
+            recurrence_day_of_week: month_weekdays[0],
+            recurrence_weekdays: month_weekdays,
         };
     }
     if (day_part === '*' && weekdays?.length) {
@@ -257,12 +278,12 @@ function parseRecurringCron(value: string | null | undefined) {
             recurrence_weekdays: weekdays,
         };
     }
-    const day_of_month = parseCronNumber(day_part, 1, 31);
-    if (day_of_month !== null && weekday_part === '*') {
+    const days_of_month = parseCronMonthDays(day_part);
+    if (days_of_month?.length && weekday_part === '*') {
         return {
             ...custom,
             recurrence_type: 'monthly' as RecurringScheduleType,
-            recurrence_day_of_month: day_of_month,
+            recurrence_day_of_month: days_of_month,
         };
     }
     return custom;
@@ -281,7 +302,7 @@ function buildRecurringCron(value: {
     recurrence_week_of_month?: number | null;
     recurrence_day_of_week?: number | null;
     recurrence_weekdays?: number[] | null;
-    recurrence_day_of_month?: number | null;
+    recurrence_day_of_month?: number[] | null;
     play_hours_start?: number | null;
     play_cron?: string | null;
 }) {
@@ -317,17 +338,14 @@ function buildRecurringCron(value: {
         return `${minute} ${hour} * * ${(weekdays.length ? weekdays : [1]).join(',')}`;
     }
     if (value.recurrence_type === 'monthly') {
-        const day = Math.max(
-            1,
-            Math.min(31, value.recurrence_day_of_month || 1),
-        );
-        return `${minute} ${hour} ${day} * *`;
+        const days = normaliseMonthDays(value.recurrence_day_of_month);
+        return `${minute} ${hour} ${(days.length ? days : [1]).join(',')} * *`;
     }
     if (value.recurrence_type === 'monthly_weekday') {
-        const day = Math.max(0, Math.min(6, value.recurrence_day_of_week ?? 1));
+        const weekdays = normaliseWeekdays(value.recurrence_weekdays);
         return `${minute} ${hour} ${dayRangeForWeekOfMonth(
             value.recurrence_week_of_month,
-        )} * ${day}`;
+        )} * ${(weekdays.length ? weekdays : [1]).join(',')}`;
     }
     return `${minute} ${hour} * * *`;
 }
@@ -901,7 +919,8 @@ export interface PlaylistEditModalData {
                                                 <mat-select
                                                     name="recurrence-day-of-month"
                                                     formControlName="recurrence_day_of_month"
-                                                    aria-label="Recurring schedule day of month"
+                                                    aria-label="Recurring schedule days of month"
+                                                    multiple
                                                 >
                                                     @for (
                                                         day of month_days;
@@ -952,8 +971,9 @@ export interface PlaylistEditModalData {
                                                     class="no-subscript w-full"
                                                 >
                                                     <mat-select
-                                                        formControlName="recurrence_day_of_week"
-                                                        aria-label="Recurring schedule day of week"
+                                                        formControlName="recurrence_weekdays"
+                                                        aria-label="Recurring schedule days of week"
+                                                        multiple
                                                     >
                                                         @for (
                                                             day of weekday_options;
@@ -1174,7 +1194,7 @@ export class PlaylistEditModalComponent {
         recurrence_week_of_month: new FormControl(1),
         recurrence_day_of_week: new FormControl(1),
         recurrence_weekdays: new FormControl<number[]>([1]),
-        recurrence_day_of_month: new FormControl(1),
+        recurrence_day_of_month: new FormControl<number[]>([1]),
         play_duration: new FormControl(30),
         valid_from: new FormControl(0),
         valid_until: new FormControl(0),
@@ -1209,15 +1229,16 @@ export class PlaylistEditModalComponent {
             return `Plays every ${days} from ${play_hours}.`;
         }
         if (value.recurrence_type === 'monthly') {
-            return `Plays on the ${ordinal(
-                value.recurrence_day_of_month || 1,
-            )} of each month from ${play_hours}.`;
+            const days = normaliseMonthDays(value.recurrence_day_of_month);
+            return `Plays on the ${(days.length ? days : [1])
+                .map((day) => ordinal(day))
+                .join(', ')} of each month from ${play_hours}.`;
         }
         if (value.recurrence_type === 'monthly_weekday') {
             return `Plays on the ${ordinal(
                 value.recurrence_week_of_month || 1,
-            )} ${this._weekdayName(
-                value.recurrence_day_of_week,
+            )} ${this._weekdayNames(
+                value.recurrence_weekdays,
             )} of each month from ${play_hours}.`;
         }
         return `Plays every day from ${play_hours}.`;
