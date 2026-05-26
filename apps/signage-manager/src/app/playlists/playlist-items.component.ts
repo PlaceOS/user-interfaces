@@ -129,10 +129,11 @@ import { SignageService } from '../signage.service';
                             <div
                                 class="bg-base-300 h-12 w-16 shrink-0 overflow-hidden rounded"
                             >
-                                @if (item.thumbnail_url && item.thumbnail_id) {
+                                @let url = thumbnailURL(item);
+                                @if (url && item.thumbnail_id) {
                                     <img
                                         auth
-                                        [source]="item.thumbnail_url"
+                                        [source]="url"
                                         [alt]="item.name + ' thumbnail'"
                                         class="h-full w-full object-cover p-2 text-xs"
                                     />
@@ -303,6 +304,10 @@ export class PlaylistItemsComponent {
     });
     public selectItem(item: SignageMedia) {
         this._service.selected_playlist_item.set(item);
+    }
+
+    public thumbnailURL(item: SignageMedia) {
+        return `/api/engine/v2/signage/media/${item.id}/thumbnail`;
     }
 
     public selectItemWithKeyboard(event: Event, item: SignageMedia) {
