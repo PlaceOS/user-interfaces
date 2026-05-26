@@ -180,7 +180,7 @@ export interface MediaEditModalData {
                             />
                         </mat-slider>
                     }
-                    <div class="flex items-center space-x-4">
+                    <div class="flex items-center gap-4">
                         <label for="play-time" class="m-0 w-auto min-w-0">
                             {{
                                 'APP.CONCIERGE.SIGNAGE_MEDIA_PLAY_TIME'
@@ -195,11 +195,11 @@ export interface MediaEditModalData {
                                 }}
                             } @else {
                                 <span class="text-base-content/70">
-                                    {{ 'COMMON.DEFAULT' | translate }} ({{
-                                        item.video_length
-                                            ? (item.video_length / 1000
-                                              | mediaDuration)
-                                            : ''
+                                    {{ 'COMMON.DEFAULT' | translate }}({{
+                                        (item.video_length
+                                            ? item.video_length / 1000
+                                            : 5
+                                        ) | mediaDuration
                                     }})
                                 </span>
                             }
@@ -429,8 +429,8 @@ export class MediaEditModalComponent implements OnDestroy {
             this.preview_url.set(this.item.media_uri || this.item.media_url);
             this._media_uri_subscription =
                 this.form.controls.media_uri.valueChanges
-                .pipe(debounceTime(1500))
-                .subscribe((url) => this.preview_url.set(url || ''));
+                    .pipe(debounceTime(1500))
+                    .subscribe((url) => this.preview_url.set(url || ''));
         }
         this.form.patchValue({
             ...this._data.media,
