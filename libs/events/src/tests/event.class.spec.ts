@@ -230,6 +230,26 @@ describe('CalendarEvent', () => {
         expect(json.recurrence.nth_of_month).toBe(2);
     });
 
+    it('should prefer recurrence range start when parsing recurring events', () => {
+        const range_start = new Date(2026, 5, 9, 9).valueOf();
+        event = new CalendarEvent({
+            event_start: getUnixTime(new Date(2026, 5, 1, 9)),
+            event_end: getUnixTime(new Date(2026, 5, 1, 10)),
+            recurring: true,
+            recurrence: {
+                range_start: getUnixTime(range_start),
+                range_end: getUnixTime(new Date(2026, 11, 31)),
+                interval: 1,
+                pattern: 'month_day',
+                days_of_week: ['tuesday'],
+                nth_of_month: 2,
+            } as any,
+        });
+
+        expect(event.recurrence.start).toBe(range_start);
+        expect(event.recurrence.nth_of_month).toBe(2);
+    });
+
     it('should serialise recurring events until the selected end date', () => {
         const recurrence_end = new Date(2026, 5, 30, 23, 59, 59, 999).valueOf();
         event = new CalendarEvent({

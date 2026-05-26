@@ -320,7 +320,8 @@ export async function findNearbyFeature(
 }
 
 export function newBookingFromCalendarEvent(event: CalendarEvent) {
-    const date = event.date || event.event_start * 1000;
+    const recurrence_start = event.recurrence?.start;
+    const date = recurrence_start || event.date || event.event_start * 1000;
     const recurrence = event.recurrence?.pattern
         ? toBookingRecurrence(fromEventRecurrence(event.recurrence), date)
         : {};
