@@ -32,6 +32,7 @@ const _change = new BehaviorSubject(0);
 
 export const current_user = _current_user.asObservable();
 export const user_groups = signal<PlaceCurrentGroup[]>([]);
+export const user_groups_loaded = signal(false);
 const user_signal = signal(EMPTY_USER);
 
 const PERMISSION_VALUES = [
@@ -92,10 +93,22 @@ function setPublicUser() {
 }
 
 async function loadUserGroups() {
-    if (isPublicMode()) return;
-    const groups = await lastValueFrom(currentGroups({}));
-    user_groups.set(groups);
-    console.log('Permissions:', user_permissions());
+    user_groups_loaded.set(false);
+    if (isPublicMode()) {
+        user_groups.set([]);
+        user_groups_loaded.set(true);
+        return;
+    }
+    try {
+        const groups = await lastValueFrom(currentGroups({}));
+        user_groups.set(groups);
+        console.log('Permissions:', user_permissions());
+    } catch (error) {
+        console.warn('Failed to load user groups.', error);
+        user_groups.set([]);
+    } finally {
+        user_groups_loaded.set(true);
+    }
 }
 
 function initialiseUser() {
@@ -174,12 +187,12 @@ export function userSignal() {
 }
 
 export function hasPermission(subsystem: string, permissions: GroupPermission): boolean {
-    if (user_signal().groups.includes('placeos_admin')) return true;
+    if (user_signal().groups?.includes('placeos_admin')) return true;
     return (getPermissionMask(subsystem) & permissions) === permissions;
 }
 
 export function getPermissions(subsystem: string): GroupPermission[] {
-    if (user_signal().groups.includes('placeos_admin')) return ALL_PERMISSIONS
+    if (user_signal().groups?.includes('placeos_admin')) return ALL_PERMISSIONS
     const permissions = getPermissionMask(subsystem);
     return PERMISSION_VALUES.filter(
         ([, permission]) => permissions & permission,

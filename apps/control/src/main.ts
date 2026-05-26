@@ -9,6 +9,10 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, Router, withHashLocation } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 
+import {
+    AuthorisedUserGuard,
+    UnauthorisedComponent,
+} from '@placeos/components';
 import * as Sentry from '@sentry/angular';
 
 import { AppComponent } from './app/app.component';
@@ -23,25 +27,31 @@ if (environment.production) {
 }
 
 const routes = [
+    { path: 'unauthorised', component: UnauthorisedComponent },
     {
         path: 'bootstrap',
         component: BootstrapComponent,
+        canActivate: [AuthorisedUserGuard],
     },
     {
         path: 'panel/:system',
         component: ControlMainViewComponent,
+        canActivate: [AuthorisedUserGuard],
     },
     {
         path: 'tabbed/:system',
         component: ControlTabbedViewComponent,
+        canActivate: [AuthorisedUserGuard],
     },
     {
         path: 'tabbed/:system/:tab',
         component: ControlTabbedViewComponent,
+        canActivate: [AuthorisedUserGuard],
     },
     {
         path: 'panel/:system/call',
         component: ControlVideoCallViewComponent,
+        canActivate: [AuthorisedUserGuard],
     },
     { path: '**', redirectTo: 'bootstrap' },
 ];

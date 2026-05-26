@@ -4,7 +4,10 @@ import { AlertsComponent } from './alerts.component';
 import { AnalyticsComponent } from './analytics.component';
 import { RemoteSupportComponent } from './remote-support.component';
 
-import { UnauthorisedComponent } from 'libs/components/src/lib/unauthorised.component';
+import {
+    AuthorisedUserGuard,
+    UnauthorisedComponent,
+} from '@placeos/components';
 import { DashboardAlertListComponent } from './dashboards/dashboard-alert-list.component';
 import { DashboardAlertManageComponent } from './dashboards/dashboard-alert-manage.component';
 import { DashboardListComponent } from './dashboards/dashboard-list.component';
@@ -18,13 +21,30 @@ const routes: Routes = [
         path: 'unauthorised',
         component: UnauthorisedComponent,
     },
-    { path: 'alerts', component: AlertsComponent },
-    { path: 'alerts/:id', component: AlertsComponent },
-    { path: 'remote-support', component: RemoteSupportComponent },
-    { path: 'analytics', component: AnalyticsComponent },
+    {
+        path: 'alerts',
+        component: AlertsComponent,
+        canActivate: [AuthorisedUserGuard],
+    },
+    {
+        path: 'alerts/:id',
+        component: AlertsComponent,
+        canActivate: [AuthorisedUserGuard],
+    },
+    {
+        path: 'remote-support',
+        component: RemoteSupportComponent,
+        canActivate: [AuthorisedUserGuard],
+    },
+    {
+        path: 'analytics',
+        component: AnalyticsComponent,
+        canActivate: [AuthorisedUserGuard],
+    },
     {
         path: 'dashboards',
         component: DashboardsComponent,
+        canActivate: [AuthorisedUserGuard],
         children: [
             { path: 'list', component: DashboardListComponent },
             { path: ':id/alerts', component: DashboardAlertListComponent },
@@ -42,7 +62,11 @@ const routes: Routes = [
             { path: '**', redirectTo: 'list' },
         ],
     },
-    { path: 'recorder-grid', component: RecorderGridViewComponent },
+    {
+        path: 'recorder-grid',
+        component: RecorderGridViewComponent,
+        canActivate: [AuthorisedUserGuard],
+    },
     { path: '**', redirectTo: 'alerts' },
 ];
 

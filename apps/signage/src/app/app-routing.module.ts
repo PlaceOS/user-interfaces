@@ -1,6 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { UnauthorisedComponent } from '@placeos/components';
+import {
+    AuthorisedUserGuard,
+    UnauthorisedComponent,
+} from '@placeos/components';
 import { BootstrapComponent } from './bootstrap.component';
 import { SignagePanelComponent } from './signage.component';
 
@@ -9,9 +12,21 @@ const routes: Routes = [
         path: 'unauthorised',
         component: UnauthorisedComponent,
     },
-    { path: 'bootstrap', component: BootstrapComponent },
-    { path: 'signage', component: SignagePanelComponent },
-    { path: 'signage/:system_id', component: SignagePanelComponent },
+    {
+        path: 'bootstrap',
+        component: BootstrapComponent,
+        canActivate: [AuthorisedUserGuard],
+    },
+    {
+        path: 'signage',
+        component: SignagePanelComponent,
+        canActivate: [AuthorisedUserGuard],
+    },
+    {
+        path: 'signage/:system_id',
+        component: SignagePanelComponent,
+        canActivate: [AuthorisedUserGuard],
+    },
     { path: '**', redirectTo: 'bootstrap' },
 ];
 

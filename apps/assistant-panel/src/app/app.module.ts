@@ -18,6 +18,7 @@ import {
     ChatComponent,
     GlobalBannerComponent,
     GlobalLoadingComponent,
+    UnauthorisedComponent,
 } from '@placeos/components';
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
@@ -36,6 +37,7 @@ import { PanelViewComponent } from './panel-view.component';
         ChatComponent,
         GlobalLoadingComponent,
         GlobalBannerComponent,
+        UnauthorisedComponent,
         BootstrapComponent,
         PanelViewComponent,
         ServiceWorkerModule.register('ngsw-worker.js', {
