@@ -70,6 +70,7 @@ import { MediaPlayerItem, MediaPlayerState } from './types';
                 <iframe
                     #web_el
                     class="absolute top-0 left-0 h-full w-full border-0"
+                    (load)="onWebpageLoad()"
                 ></iframe>
                 @if (active_plugin()) {
                     <plugin-embed
@@ -200,6 +201,7 @@ export class MediaPlayerComponent
 
     private _plugin_finished = false;
     private _playback_duration = 0;
+    private _web_waiting_item_id = '';
 
     private _item_playlist: MediaPlayerItem[] = [];
 
@@ -322,6 +324,7 @@ export class MediaPlayerComponent
     }
 
     public nextItem() {
+        if (this._shouldHoldSingleWebpage(this.active_item)) return;
         if (this.hold_over_item()) {
             const item = this._item_playlist.shift();
             if (this.progress() > 50 && this.isValidMedia(item)) {
@@ -391,15 +394,40 @@ export class MediaPlayerComponent
         else if (event === 'MUTE') this.toggleMuted();
     }
 
+    public onWebpageLoad() {
+        const item = this.active_item;
+        if (item?.type !== 'webpage' || this._web_waiting_item_id !== item.id) {
+            return;
+        }
+        this.clearTimeout('webpage-hold-delay');
+        this.timeout(
+            'webpage-hold-delay',
+            () => {
+                if (
+                    this.active_item?.id !== item.id ||
+                    this._web_waiting_item_id !== item.id
+                ) {
+                    return;
+                }
+                this._web_waiting_item_id = '';
+                this._resetPlayback();
+            },
+            2000,
+        );
+    }
+
     private _updateItem() {
         if (this.state() === 'PAUSED') return;
         const item = this.active_item;
         const playback_duration = this._effectivePlaybackDuration(item);
         const duration = Date.now() - this._item_start;
-        if (this._item_start) {
+        if (this._item_start && this._web_waiting_item_id !== item?.id) {
             this.progress.set(Math.floor((duration / playback_duration) * 100));
+            this.duration.set(Math.floor(duration / 1000));
+        } else {
+            this.progress.set(0);
+            this.duration.set(0);
         }
-        this.duration.set(Math.floor(duration / 1000));
 
         if (!this._item_playlist?.length) return;
         this._processURLs();
@@ -417,7 +445,13 @@ export class MediaPlayerComponent
             }
             return;
         }
+        if (this._web_waiting_item_id === item?.id) return;
         if (Date.now() > this._item_start + playback_duration) {
+            if (this._shouldHoldSingleWebpage(item)) {
+                this.progress.set(100);
+                this.duration.set(Math.floor(playback_duration / 1000));
+                return;
+            }
             this.nextItem();
         }
     }
@@ -455,6 +489,8 @@ export class MediaPlayerComponent
             return;
         }
         const should_transition = this._shouldTransition(old_item, item);
+        this.clearTimeout('webpage-hold-delay');
+        this._web_waiting_item_id = item.type === 'webpage' ? item.id : '';
         this._item_start = Date.now();
         this._item_progress = 0;
         this._playback_duration = item.duration || 15 * 1000;
@@ -488,8 +524,21 @@ export class MediaPlayerComponent
                       ? this._web_element()
                       : this._image_element()
             ).nativeElement;
-            active_el.src = url.toString();
+            const url_string = url.toString();
+            const keep_webpage_loaded =
+                item.type === 'webpage' &&
+                this._shouldHoldSingleWebpage(item) &&
+                active_el.src === url_string;
+            if (keep_webpage_loaded) {
+                this._web_waiting_item_id = '';
+            } else {
+                active_el.src = url_string;
+            }
             active_el.classList.remove('hidden');
+            if (item.type === 'webpage' && !keep_webpage_loaded) {
+                this.progress.set(0);
+                this.duration.set(0);
+            }
             if (item.type === 'video') {
                 this._requestVideoPlayback(() => {
                     if (should_transition) {
@@ -666,7 +715,7 @@ export class MediaPlayerComponent
                             web_el.classList.add('hidden');
                             video_el.src = url.toString();
                             video_el.classList.remove('hidden');
-                        } else if (item.type === 'web') {
+                        } else if (item.type === 'webpage') {
                             img_el.classList.add('hidden');
                             video_el.classList.add('hidden');
                             web_el.src = url.toString();
@@ -748,6 +797,12 @@ export class MediaPlayerComponent
     ) {
         if (!this._hasMultipleActivePlaylistItems()) return false;
         return old_item?.id !== new_item?.id;
+    }
+
+    private _shouldHoldSingleWebpage(item: MediaPlayerItem) {
+        return (
+            item?.type === 'webpage' && !this._hasMultipleActivePlaylistItems()
+        );
     }
 
     private _hasMultipleActivePlaylistItems() {
