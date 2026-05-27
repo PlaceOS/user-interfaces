@@ -49,6 +49,7 @@ export interface MediaEvent {
 interface PlaylistOverride {
     ends_at: number;
     playlist: MediaPlayerItem[];
+    schedule_keys?: string[];
 }
 
 interface SignageMetrics {
@@ -64,6 +65,7 @@ const EMPTY_METRICS = JSON.stringify({
 });
 
 const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
+const SCHEDULE_TRIGGER_WINDOW_SECONDS = 28;
 const SINGLE_PASS_TRIGGER_WINDOW_MS = 30 * 1000;
 
 function playlistPlayPeriodMinutes(playlist: SignagePlaylist) {
@@ -128,8 +130,15 @@ function scheduledPlaylistStart(
         ?.starts_at;
 }
 
-function isScheduledPlaylistActive(playlist: SignagePlaylist) {
-    return !!scheduledPlaylistStart(playlist);
+function isScheduledPlaylistActive(
+    playlist: SignagePlaylist,
+    trigger_window_seconds = SCHEDULE_TRIGGER_WINDOW_SECONDS,
+) {
+    return !!scheduledPlaylistStart(
+        playlist,
+        time(),
+        trigger_window_seconds,
+    );
 }
 
 @Injectable({
@@ -150,6 +159,7 @@ export class SignageService extends AsyncHandler {
         playlist_counts: {},
         media_counts: {},
     };
+    private _completed_schedule_overrides = new Set<string>();
 
     public readonly override_playlist = signal<PlaylistOverride>({
         ends_at: 0,
@@ -222,15 +232,20 @@ export class SignageService extends AsyncHandler {
         }),
     );
 
-    public readonly playlist = this.display.pipe(
-        map((item: any) => {
+    public readonly playlist = combineLatest([
+        this.display,
+        interval(15 * 1000).pipe(startWith(0)),
+    ]).pipe(
+        map(([item]: [any, number]) => {
             if (!item?.id) return [];
             let playlists = [...item.playlist_mappings[item.id]];
             for (const zone of item.zones) {
                 if (!item.playlist_mappings[zone]) continue;
                 playlists = playlists.concat(item.playlist_mappings[zone]);
             }
-            this._playlists = playlists;
+            this._playlists = playlists
+                .map((id) => item.playlist_config[id]?.[0])
+                .filter((_) => !!_);
             // Map playlists to media
             const media = this._getPlaylistMedia(
                 item,
@@ -254,7 +269,9 @@ export class SignageService extends AsyncHandler {
                 if (!item.playlist_mappings[zone]) continue;
                 playlists = playlists.concat(item.playlist_mappings[zone]);
             }
-            this._playlists = playlists as any;
+            this._playlists = playlists
+                .map((id) => item.playlist_config[id]?.[0])
+                .filter((_) => !!_);
             const filtered = playlists.filter((id) => {
                 const [playlist] = item.playlist_config[id] as [
                     SignagePlaylist,
@@ -319,11 +336,28 @@ export class SignageService extends AsyncHandler {
                     (id) => display.playlist_config[id][0],
                 );
                 const now = time();
-                const active_playlists = playlist_details.filter(
-                    (plist) => !!scheduledPlaylistStart(plist, now, 28),
+                const active_schedules = playlist_details
+                    .map((playlist) => ({
+                        playlist,
+                        schedule: scheduledPlaylistWindow(
+                            playlist,
+                            now,
+                            SCHEDULE_TRIGGER_WINDOW_SECONDS,
+                        ),
+                    }))
+                    .filter(({ playlist, schedule }) => {
+                        if (!schedule) return false;
+                        const schedule_key = `${playlist.id}:${schedule.starts_at}`;
+                        return !this._completed_schedule_overrides.has(
+                            schedule_key,
+                        );
+                    });
+                const active_playlists = active_schedules.map(
+                    ({ playlist }) => playlist,
                 );
                 const existing_override = this.override_playlist();
                 if (
+                    active_playlists.length &&
                     active_playlists.every(({ id }) =>
                         existing_override.playlist.find(
                             (media) => media.playlist === id,
@@ -332,6 +366,7 @@ export class SignageService extends AsyncHandler {
                 ) {
                     return;
                 }
+                if (!active_playlists.length) return;
                 const media = this._getPlaylistMedia(
                     display,
                     active_playlists.map((_) => _.id),
@@ -340,14 +375,24 @@ export class SignageService extends AsyncHandler {
                     (a, v) => Math.max(a, playlistPlayPeriodMinutes(v)),
                     0,
                 );
-                const duration = duration_minutes * 60 * 1000;
+                const ends_at = duration_minutes
+                    ? Math.max(
+                          ...active_schedules.map(
+                              ({ schedule }) => schedule.ends_at,
+                          ),
+                      )
+                    : 0;
                 log('SIGNAGE', 'Setting override playlist', [
                     media,
-                    duration || 0,
+                    ends_at || 0,
                 ]);
                 this.override_playlist.set({
                     playlist: media,
-                    ends_at: duration ? time() + duration : 0,
+                    ends_at,
+                    schedule_keys: active_schedules.map(
+                        ({ playlist, schedule }) =>
+                            `${playlist.id}:${schedule.starts_at}`,
+                    ),
                 });
             }),
         );
@@ -358,6 +403,10 @@ export class SignageService extends AsyncHandler {
     }
 
     public clearPlaylistOverride() {
+        const { schedule_keys } = this.override_playlist();
+        for (const key of schedule_keys || []) {
+            this._completed_schedule_overrides.add(key);
+        }
         this.override_playlist.set({ playlist: [], ends_at: 0 });
     }
 
