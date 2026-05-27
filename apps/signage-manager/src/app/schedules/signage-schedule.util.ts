@@ -68,7 +68,7 @@ function parseCronNumber(value: string, min: number, max: number) {
     return number_value >= min && number_value <= max ? number_value : null;
 }
 
-function parseCronWeekOfMonth(value: string) {
+function parseCronWeekOfMonthRange(value: string) {
     const match = /^(\d+)-(\d+)$/.exec(value || '');
     if (!match) return null;
     const start = +match[1];
@@ -79,10 +79,40 @@ function parseCronWeekOfMonth(value: string) {
     return week >= 1 && week <= 4 ? week : null;
 }
 
+function parseCronWeeksOfMonth(value: string) {
+    if (!value?.trim() || value === '*') return null;
+    const weeks = new Set<number>();
+    for (const part of value.split(',')) {
+        const week = parseCronWeekOfMonthRange(part);
+        if (week === null) return null;
+        weeks.add(week);
+    }
+    return [...weeks];
+}
+
+function parseCronWeekdays(value: string) {
+    if (!value?.trim() || value === '*') return null;
+    const days = new Set<number>();
+    for (const part of value.split(',')) {
+        if (part.includes('-')) {
+            const [start, end] = part
+                .split('-')
+                .map((_) => parseCronNumber(_, 0, 6));
+            if (start === null || end === null || start > end) return null;
+            for (let day = start; day <= end; day++) days.add(day);
+        } else {
+            const day = parseCronNumber(part, 0, 6);
+            if (day === null) return null;
+            days.add(day);
+        }
+    }
+    return [...days];
+}
+
 function isCronMonthlyWeekday(day_part: string, weekday_part: string) {
     return (
-        parseCronWeekOfMonth(day_part) !== null &&
-        parseCronNumber(weekday_part, 0, 6) !== null
+        !!parseCronWeeksOfMonth(day_part)?.length &&
+        !!parseCronWeekdays(weekday_part)?.length
     );
 }
 
