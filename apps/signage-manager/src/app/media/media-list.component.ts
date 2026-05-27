@@ -31,7 +31,7 @@ import { SignageService } from '../signage.service';
         @if (can_switch_groups()) {
             <nav
                 mat-tab-nav-bar
-                class="bg-base-100/95 border-base-300 sticky top-2 z-10 mx-2 rounded-xl border"
+                class="bg-base-100/95 border-base-300 sticky top-2 z-30 mx-2 rounded-xl border"
                 aria-label="Signage media groups"
                 [tabPanel]="group_tabs_panel"
             >
@@ -306,7 +306,7 @@ import { SignageService } from '../signage.service';
         }
         @if (selected_count() > 0) {
             <footer
-                class="bg-base-100 border-base-300 sticky bottom-4 z-20 mx-4 mt-4 flex items-center justify-between gap-2 rounded-xl border p-2 shadow-lg"
+                class="bg-base-100 border-base-300 sticky bottom-2 z-20 mx-2 mt-2 flex items-center justify-between gap-2 rounded-xl border p-2 shadow-lg"
                 aria-live="polite"
             >
                 <div class="flex items-center gap-3">
