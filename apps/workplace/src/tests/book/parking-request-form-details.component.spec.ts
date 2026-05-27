@@ -13,6 +13,16 @@ import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 import { ParkingRequestFormDetailsComponent } from '../../app/book/parking-request-flow/parking-request-form-details.component';
 
+import * as ts_client from '@placeos/ts-client';
+
+jest.mock('@placeos/ts-client', () => {
+    const actual = jest.requireActual('@placeos/ts-client');
+    return {
+        ...actual,
+        get: jest.fn(() => of([])),
+    };
+});
+
 jest.mock('@placeos/common', () => {
     const actual = jest.requireActual('@placeos/common');
     return {
@@ -52,7 +62,9 @@ describe('ParkingRequestFormDetailsComponent', () => {
     });
 
     afterEach(() => {
-        now_spy?.mockRestore();
+        jest.restoreAllMocks();
+        (ts_client.get as jest.Mock).mockReset();
+        (ts_client.get as jest.Mock).mockReturnValue(of([]));
         now_spy = null;
     });
 
@@ -118,6 +130,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
             },
         ]);
         spectator.component.hide_custom_shift.set(false);
+        spectator.component.default_location_from_desk_booking.set(false);
     });
 
     it('should apply shift times even when the start is earlier than now', () => {
@@ -276,6 +289,146 @@ describe('ParkingRequestFormDetailsComponent', () => {
             base_day + 480 * 60 * 1000,
         );
         expect(spectator.component.form().getRawValue().duration).toBe(240);
+    });
+
+    it('should default the selected building to the first desk booking location for the selected day', async () => {
+        spectator.component.default_location_from_desk_booking.set(true);
+        const org = spectator.inject(OrganisationService) as any;
+        org.active_buildings = of([
+            { id: 'bld-1', timezone: 'UTC', levels: [{ id: 'lvl-1' }] },
+            { id: 'bld-2', timezone: 'UTC', levels: [{ id: 'lvl-2' }] },
+        ]);
+        org.building = { id: 'bld-1', timezone: 'UTC' };
+        (ts_client.get as jest.Mock).mockReturnValue(
+            of([
+                {
+                    id: 'desk-booking-1',
+                    booking_type: 'desk',
+                    user_email: 'me@test.com',
+                    booking_start: 1,
+                    booking_end: 2,
+                    zones: ['lvl-2', 'bld-2'],
+                },
+                {
+                    id: 'desk-booking-2',
+                    booking_type: 'desk',
+                    user_email: 'me@test.com',
+                    booking_start: 1,
+                    booking_end: 2,
+                    zones: ['lvl-1', 'bld-1'],
+                },
+            ]) as any,
+        );
+
+        await spectator.component.ngOnInit();
+
+        expect(org.building.id).toBe('bld-2');
+        expect(spectator.component.desk_booking_building_id()).toBe('bld-2');
+        expect(ts_client.get).toHaveBeenCalledWith(
+            expect.stringContaining('/api/staff/v1/bookings?'),
+        );
+        expect(ts_client.get).toHaveBeenCalledWith(
+            expect.stringContaining('period_start='),
+        );
+        expect(ts_client.get).toHaveBeenCalledWith(
+            expect.stringContaining('type=desk'),
+        );
+        expect(ts_client.get).toHaveBeenCalledWith(
+            expect.stringContaining('email=me%40test.com'),
+        );
+    });
+
+    it('should not default the selected building from desk bookings when disabled by settings', async () => {
+        const org = spectator.inject(OrganisationService) as any;
+        org.active_buildings = of([
+            { id: 'bld-1', timezone: 'UTC', levels: [{ id: 'lvl-1' }] },
+            { id: 'bld-2', timezone: 'UTC', levels: [{ id: 'lvl-2' }] },
+        ]);
+        org.building = { id: 'bld-1', timezone: 'UTC' };
+
+        await spectator.component.ngOnInit();
+
+        expect(org.building.id).toBe('bld-1');
+        expect(spectator.component.desk_booking_building_id()).toBe('');
+        expect(ts_client.get).not.toHaveBeenCalled();
+    });
+
+    it('should use the selected host when defaulting the selected building from desk bookings', async () => {
+        spectator.component.default_location_from_desk_booking.set(true);
+        const org = spectator.inject(OrganisationService) as any;
+        org.active_buildings = of([
+            { id: 'bld-1', timezone: 'UTC', levels: [{ id: 'lvl-1' }] },
+            { id: 'bld-2', timezone: 'UTC', levels: [{ id: 'lvl-2' }] },
+        ]);
+        org.building = { id: 'bld-1', timezone: 'UTC' };
+        (ts_client.get as jest.Mock).mockReturnValue(of([]));
+        await spectator.component.ngOnInit();
+        expect(org.building.id).toBe('bld-1');
+
+        (ts_client.get as jest.Mock).mockReturnValue(
+            of([
+                {
+                    id: 'current-user-desk',
+                    booking_type: 'desk',
+                    user_email: 'me@test.com',
+                    booking_start: 1,
+                    booking_end: 2,
+                    zones: ['lvl-2', 'bld-2'],
+                },
+                {
+                    id: 'selected-user-desk',
+                    booking_type: 'desk',
+                    user_email: 'other@test.com',
+                    booking_start: 1,
+                    booking_end: 2,
+                    zones: ['lvl-1', 'bld-1'],
+                },
+            ]) as any,
+        );
+
+        spectator.component.form().controls.user.setValue({
+            email: 'other@test.com',
+            name: 'Other',
+        });
+
+        expect(org.building.id).toBe('bld-1');
+        expect(spectator.component.desk_booking_building_id()).toBe('bld-1');
+    });
+
+    it('should clear the desk booking location indicator when the user manually selects a building', async () => {
+        spectator.component.default_location_from_desk_booking.set(true);
+        const org = spectator.inject(OrganisationService) as any;
+        const bld_1 = {
+            id: 'bld-1',
+            timezone: 'UTC',
+            levels: [{ id: 'lvl-1' }],
+        };
+        const bld_2 = {
+            id: 'bld-2',
+            timezone: 'UTC',
+            levels: [{ id: 'lvl-2' }],
+        };
+        org.active_buildings = of([bld_1, bld_2]);
+        org.building = bld_1;
+        (ts_client.get as jest.Mock).mockReturnValue(
+            of([
+                {
+                    id: 'desk-booking-1',
+                    booking_type: 'desk',
+                    user_email: 'me@test.com',
+                    booking_start: 1,
+                    booking_end: 2,
+                    zones: ['lvl-2', 'bld-2'],
+                },
+            ]) as any,
+        );
+        await spectator.component.ngOnInit();
+        expect(spectator.component.desk_booking_building_id()).toBe('bld-2');
+
+        spectator.component.setBuilding(bld_1);
+
+        expect(org.building.id).toBe('bld-1');
+        expect(spectator.component.desk_booking_building_id()).toBe('');
     });
 
     it('should clear all_day when a shift is selected so postForm honours the shift window', () => {

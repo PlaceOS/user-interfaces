@@ -17,7 +17,12 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { bookedResourceList, ParkingService } from '@placeos/bookings';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+    bookedResourceList,
+    ParkingService,
+    queryBookings,
+} from '@placeos/bookings';
 import {
     AsyncHandler,
     currentUser,
@@ -773,6 +778,16 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                             ></div>
                                         }
                                     </div>
+                                    @if (
+                                        desk_booking_building_id() === bld.id
+                                    ) {
+                                        <div
+                                            class="bg-info text-info-content flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
+                                            matTooltip="Matched to desk booking"
+                                        >
+                                            <icon class="text-base!">desk</icon>
+                                        </div>
+                                    }
                                     <div
                                         class="flex flex-1 items-center justify-between gap-3"
                                     >
@@ -1118,6 +1133,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
         MatFormFieldModule,
         MatInputModule,
         MatSelectModule,
+        MatTooltipModule,
         TranslatePipe,
         IconComponent,
         DateFieldComponent,
@@ -1193,6 +1209,7 @@ export class ParkingRequestFormDetailsComponent
     public readonly force_allow_any_host = input<boolean>(false);
     public readonly building = this._org.active_building;
     public readonly building_list = this._org.active_buildings;
+    public readonly desk_booking_building_id = signal('');
     public readonly available_space_count = signal<number | null>(null);
     public readonly total_space_count = signal<number | null>(null);
     public readonly availability_loading = signal(false);
@@ -1260,6 +1277,10 @@ export class ParkingRequestFormDetailsComponent
     );
     public readonly hide_availability_counter = settingSignal<boolean>(
         'parking.hide_availability_counter',
+        false,
+    );
+    public readonly default_location_from_desk_booking = settingSignal<boolean>(
+        'parking.default_location_from_desk_booking',
         false,
     );
     public readonly require_plate_number = settingSignal<boolean>(
@@ -1331,7 +1352,8 @@ export class ParkingRequestFormDetailsComponent
     });
     public readonly show_all_day_shift_window = computed(
         () =>
-            this._normaliseShiftOptions(this.shift_options_setting()).length > 0,
+            this._normaliseShiftOptions(this.shift_options_setting()).length >
+            0,
     );
     public readonly allow_custom_shift = computed(
         () => !this.hide_custom_shift(),
@@ -1353,7 +1375,8 @@ export class ParkingRequestFormDetailsComponent
     public readonly show_custom_time_inputs = computed(
         () =>
             !this.forced_request_time() &&
-            this.shift_type() === CUSTOM_SHIFT_ID && this.allow_custom_shift(),
+            this.shift_type() === CUSTOM_SHIFT_ID &&
+            this.allow_custom_shift(),
     );
     public readonly vehicle_type_options = computed(() =>
         this._normaliseOptions(this.vehicle_type_options_setting()),
@@ -1534,6 +1557,61 @@ export class ParkingRequestFormDetailsComponent
                 .subscribe((count) => {
                     this.available_space_count.set(count);
                     this.availability_loading.set(false);
+                }),
+        );
+        this.subscription(
+            'default_building_from_desk_booking',
+            combineLatest([
+                this._org.active_buildings,
+                form.controls.date.valueChanges.pipe(
+                    startWith(form.getRawValue().date),
+                ),
+                form.controls.user.valueChanges.pipe(
+                    startWith(form.getRawValue().user),
+                ),
+            ])
+                .pipe(
+                    switchMap(([buildings, date, user]) => {
+                        if (
+                            !this.default_location_from_desk_booking() ||
+                            form.getRawValue().id ||
+                            !date ||
+                            buildings?.length <= 1
+                        ) {
+                            return of(null);
+                        }
+                        const email = user?.email || currentUser()?.email || '';
+                        if (!email) return of(null);
+                        const period_start = getUnixTime(startOfDay(date));
+                        const period_end = getUnixTime(endOfDay(date));
+                        return queryBookings({
+                            type: 'desk',
+                            period_start,
+                            period_end,
+                            email,
+                            rejected: false,
+                        }).pipe(
+                            map((bookings) => {
+                                const booking = bookings.find(
+                                    (_) =>
+                                        _.user_email?.toLowerCase() ===
+                                        email.toLowerCase(),
+                                );
+                                if (!booking) return null;
+                                return this._buildingForBookingZones(
+                                    booking.zones,
+                                    buildings,
+                                );
+                            }),
+                            catchError(() => of(null)),
+                        );
+                    }),
+                )
+                .subscribe((building) => {
+                    this.desk_booking_building_id.set(building?.id || '');
+                    if (building && building.id !== this._org.building?.id) {
+                        this._org.building = building;
+                    }
                 }),
         );
         this._initShiftStateFromForm(form);
@@ -1777,7 +1855,10 @@ export class ParkingRequestFormDetailsComponent
         form.patchValue({ extra_space_restrictions: list });
     }
 
-    public readonly setBuilding = (bld) => (this._org.building = bld);
+    public setBuilding(bld) {
+        this.desk_booking_building_id.set('');
+        this._org.building = bld;
+    }
 
     public shiftTime(mins: number): number {
         const raw_date = this.form()?.getRawValue()?.date || Date.now();
@@ -1800,6 +1881,15 @@ export class ParkingRequestFormDetailsComponent
     public hasMultipleBuildings(buildings: any[] | null | undefined): boolean {
         const ids = new Set((buildings || []).filter(Boolean).map((_) => _.id));
         return ids.size > 1;
+    }
+
+    private _buildingForBookingZones(zones: string[], buildings: any[]) {
+        const zone_ids = new Set((zones || []).filter((_) => !!_));
+        return (buildings || []).find(
+            (bld) =>
+                zone_ids.has(bld.id) ||
+                bld.levels?.some((level) => zone_ids.has(level.id)),
+        );
     }
 
     private _updateFormTimes(start_mins: number, end_mins: number) {
