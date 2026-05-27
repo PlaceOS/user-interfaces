@@ -426,6 +426,41 @@ describe('BookingFormService', () => {
         );
     });
 
+    it('should store the parking request user groups in extension data', async () => {
+        const save_booking = booking_mod.saveBooking as jest.Mock;
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        save_booking.mockReset();
+        save_booking.mockImplementation((booking: Booking) => of(booking));
+        spectator.service.newForm(
+            'parking',
+            new Booking({
+                booking_type: 'parking',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'unallocated-parking',
+            }),
+        );
+        spectator.service.form.patchValue({
+            booking_type: 'parking',
+            asset_id: 'unallocated-parking',
+            asset_name: 'Parking Request',
+            title: 'Parking Request',
+            user: {
+                email: 'driver@example.com',
+                name: 'Driver One',
+                groups: ['PlaceOS P1 Parking', 'After Hours Parking'],
+            },
+        });
+
+        await spectator.service.postForm(true);
+
+        expect(save_booking).toHaveBeenCalledTimes(1);
+        expect(
+            (save_booking.mock.calls[0][0] as Booking).extension_data
+                .user_groups,
+        ).toEqual(['PlaceOS P1 Parking', 'After Hours Parking']);
+    });
+
     it('should block self desk bookings when the user has an assigned desk', async () => {
         const get = spectator.inject(SettingsService).get as jest.Mock;
         const save_booking = booking_mod.saveBooking as jest.Mock;

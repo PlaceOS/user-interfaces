@@ -865,6 +865,11 @@ export class BookingFormService extends AsyncHandler {
                             ? {
                                   requires_manual_approval:
                                       !!value.requires_manual_approval,
+                                  user_groups: [
+                                      ...(value.user
+                                          ? value.user.groups || []
+                                          : currentUser()?.groups || []),
+                                  ],
                               }
                             : {}),
                         ...(group_members.length
