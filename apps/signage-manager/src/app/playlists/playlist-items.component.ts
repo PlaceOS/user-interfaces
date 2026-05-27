@@ -135,7 +135,7 @@ import { SignageService } from '../signage.service';
                                         auth
                                         [source]="url"
                                         [alt]="item.name + ' thumbnail'"
-                                        class="h-full w-full object-cover p-2 text-xs"
+                                        class="h-full w-full object-cover text-xs"
                                     />
                                 } @else {
                                     <div
