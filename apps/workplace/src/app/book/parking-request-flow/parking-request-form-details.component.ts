@@ -8,7 +8,12 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+    FormGroup,
+    FormsModule,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -972,6 +977,9 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                 {{
                                     'BOOKINGS.PARKING_REGISTRATION' | translate
                                 }}
+                                @if (require_plate_number()) {
+                                    <span>*</span>
+                                }
                             </label>
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
@@ -982,6 +990,12 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                             | translate
                                     "
                                 />
+                                <mat-error>
+                                    {{
+                                        'BOOKINGS.PARKING_PLATE_NUMBER_REQUIRED'
+                                            | translate
+                                    }}
+                                </mat-error>
                             </mat-form-field>
                         </div>
                     </div>
@@ -1150,6 +1164,18 @@ export class ParkingRequestFormDetailsComponent
         effect(() => {
             const form = this.form();
             if (!form) return;
+            const control = form.controls.plate_number;
+            if (!control) return;
+            if (this.require_plate_number()) {
+                control.addValidators(Validators.required);
+            } else {
+                control.removeValidators(Validators.required);
+            }
+            control.updateValueAndValidity({ emitEvent: false });
+        });
+        effect(() => {
+            const form = this.form();
+            if (!form) return;
             const requires_manual_approval =
                 !!this.selected_request_type()?.requires_manual_approval;
             if (
@@ -1234,6 +1260,10 @@ export class ParkingRequestFormDetailsComponent
     );
     public readonly hide_availability_counter = settingSignal<boolean>(
         'parking.hide_availability_counter',
+        false,
+    );
+    public readonly require_plate_number = settingSignal<boolean>(
+        'parking.require_plate_number',
         false,
     );
     public readonly auto_approved_groups_setting = settingSignal<string[]>(

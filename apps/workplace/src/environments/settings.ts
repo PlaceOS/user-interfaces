@@ -248,6 +248,7 @@ const app = {
         hide_custom_shift: false,
         hide_selected_space: false,
         hide_availability_counter: false,
+        require_plate_number: false,
     },
     analytics: {
         enabled: true,

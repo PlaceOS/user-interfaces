@@ -598,6 +598,27 @@ describe('ParkingRequestFormDetailsComponent', () => {
         );
     });
 
+    it('should require the plate number when configured', () => {
+        const control = spectator.component.form().controls.plate_number;
+        control.setValue('');
+
+        spectator.component.require_plate_number.set(true);
+        spectator.detectChanges();
+
+        expect(control.hasError('required')).toBe(true);
+    });
+
+    it('should keep the plate number optional by default', () => {
+        const control = spectator.component.form().controls.plate_number;
+        control.setValue('');
+
+        spectator.component.require_plate_number.set(false);
+        spectator.detectChanges();
+
+        expect(control.valid).toBe(true);
+        expect(control.hasError('required')).toBe(false);
+    });
+
     it('should not clear the plate number for an existing booking already opened for another host', async () => {
         spectator.component.form().patchValue({
             user: { email: 'other@test.com', name: 'Other User' },
