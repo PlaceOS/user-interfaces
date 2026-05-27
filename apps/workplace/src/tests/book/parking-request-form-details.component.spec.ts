@@ -2,8 +2,8 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { ParkingService } from '@placeos/bookings';
 import {
-    OrganisationService,
     currentUser,
+    OrganisationService,
     SettingsService,
     setupFormTimeSync,
 } from '@placeos/common';
@@ -360,9 +360,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
 
         spectator.component.setNumWeeks(2);
 
-        const expected_date = startOfDay(
-            new Date('2026-06-03T08:00:00.000Z'),
-        );
+        const expected_date = startOfDay(new Date('2026-06-03T08:00:00.000Z'));
         expect(spectator.component.weekdays).toEqual([expected_date.valueOf()]);
         expect(form.getRawValue().recurrence_end).toBe(
             Math.floor(endOfDay(expected_date).valueOf() / 1000),
@@ -495,7 +493,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
                 name: 'Day Worker',
                 start_time: 420,
                 end_time: 1020,
-                groups: ['HIO PlaceOS P1 Parking'],
+                groups: ['PlaceOS P1 Parking'],
             },
         ]);
         spectator.component.hide_custom_shift.set(true);
@@ -515,7 +513,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
     it('should show restricted shift presets for users in the configured group', async () => {
         (currentUser as jest.Mock).mockReturnValue({
             email: 'me@test.com',
-            groups: ['HIO PlaceOS P1 Parking'],
+            groups: ['PlaceOS P1 Parking'],
         });
         spectator.component.shift_options_setting.set([
             {
@@ -523,14 +521,14 @@ describe('ParkingRequestFormDetailsComponent', () => {
                 name: 'Day Worker',
                 start_time: 420,
                 end_time: 1020,
-                groups: ['HIO PlaceOS P1 Parking'],
+                groups: ['PlaceOS P1 Parking'],
             },
             {
                 id: 'night_shift',
                 name: 'Night Shift',
                 start_time: 1050,
                 end_time: 390,
-                groups: ['HIO PlaceOS P1 Parking'],
+                groups: ['PlaceOS P1 Parking'],
             },
         ]);
         spectator.component.hide_custom_shift.set(true);
