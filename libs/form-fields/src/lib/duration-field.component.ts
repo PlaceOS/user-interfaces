@@ -118,6 +118,12 @@ export interface DurationOption {
                 width: 100%;
             }
 
+            :host.no-subscript {
+                mat-error {
+                    display: none;
+                }
+            }
+
             mat-form-field {
                 width: 100%;
             }

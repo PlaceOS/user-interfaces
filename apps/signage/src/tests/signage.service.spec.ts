@@ -42,7 +42,6 @@ describe('SignageService', () => {
                     enabled: true,
                     default_animation: MediaAnimation.Cut,
                     default_duration: 15000,
-                    play_hours: '00:00-00:00',
                 },
                 ['media-1'],
             ],
@@ -53,7 +52,6 @@ describe('SignageService', () => {
                     enabled: true,
                     default_animation: MediaAnimation.Cut,
                     default_duration: 20000,
-                    play_hours: '00:00-00:00',
                 },
                 ['media-2'],
             ],
@@ -64,8 +62,9 @@ describe('SignageService', () => {
                     enabled: true,
                     default_animation: MediaAnimation.Cut,
                     default_duration: 10000,
-                    play_at: Date.now(),
-                    play_hours: '00:10',
+                    play_at: Math.floor(Date.now() / 1000),
+                    play_period: 10,
+                    play_takeover: true,
                 },
                 ['media-3'],
             ],
@@ -76,7 +75,6 @@ describe('SignageService', () => {
                     enabled: true,
                     default_animation: MediaAnimation.Cut,
                     default_duration: 5000,
-                    play_hours: '00:00-00:00',
                 },
                 ['media-4'],
             ],
@@ -88,7 +86,6 @@ describe('SignageService', () => {
                     random: true,
                     default_animation: MediaAnimation.Cut,
                     default_duration: 5000,
-                    play_hours: '00:00-00:00',
                 },
                 ['media-5'],
             ],
@@ -187,6 +184,9 @@ describe('SignageService', () => {
         expect(override_playlist.playlist.map((_) => _.id)).toEqual([
             'media-3',
         ]);
+        const [media] = override_playlist.playlist;
+        expect(media.valid_from * 1000).toBeLessThanOrEqual(Date.now());
+        expect(media.valid_until * 1000).toBeGreaterThan(Date.now());
         expect(override_playlist.ends_at).toBeGreaterThan(Date.now());
     });
 
@@ -203,13 +203,139 @@ describe('SignageService', () => {
         });
     });
 
+    it('should update non-takeover scheduled playlists on the schedule timer', async () => {
+        const now = new Date('2026-01-01T10:00:00Z');
+        jest.setSystemTime(now);
+        (ts_client.showSignage as jest.Mock).mockReturnValue(
+            of(
+                create_display({
+                    playlist_mappings: {
+                        'display-1': ['base-playlist', 'future-playlist'],
+                        'zone-1': [],
+                        'trig-fire': ['trigger-playlist'],
+                    },
+                    playlist_config: {
+                        ...create_display().playlist_config,
+                        'future-playlist': [
+                            {
+                                id: 'future-playlist',
+                                name: 'Future Playlist',
+                                enabled: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 10000,
+                                play_at: Math.floor(
+                                    (now.getTime() + 15_000) / 1000,
+                                ),
+                                play_period: 1,
+                                play_takeover: false,
+                            },
+                            ['media-3'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+        const playlists: string[][] = [];
+        const subscription = spectator.service.playlist.subscribe((playlist) =>
+            playlists.push(playlist.map((_) => _.id)),
+        );
+
+        spectator.service.setDisplay('display-1');
+        await Promise.resolve();
+        expect(playlists.at(-1)).toEqual(['media-1']);
+
+        jest.advanceTimersByTime(15_000);
+        await Promise.resolve();
+
+        expect(playlists.at(-1)).toEqual(['media-1', 'media-3']);
+        subscription.unsubscribe();
+    });
+
+    it('should end late-detected scheduled overrides at the schedule end time', async () => {
+        const starts_at = new Date('2026-01-01T10:00:00Z').getTime();
+        jest.setSystemTime(starts_at + 5 * 60 * 1000);
+        (ts_client.showSignage as jest.Mock).mockReturnValue(
+            of(
+                create_display({
+                    playlist_config: {
+                        ...create_display().playlist_config,
+                        'scheduled-playlist': [
+                            {
+                                id: 'scheduled-playlist',
+                                name: 'Scheduled Playlist',
+                                enabled: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 10000,
+                                play_at: Math.floor(starts_at / 1000),
+                                play_period: 10,
+                                play_takeover: true,
+                            },
+                            ['media-3'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+
+        spectator.service.setDisplay('display-1');
+        await Promise.resolve();
+
+        expect(spectator.service.override_playlist().ends_at).toBe(
+            starts_at + 10 * 60 * 1000,
+        );
+    });
+
+    it('should not retrigger completed single-pass scheduled overrides', async () => {
+        const now = new Date('2026-01-01T10:00:00Z').getTime();
+        jest.setSystemTime(now);
+        (ts_client.showSignage as jest.Mock).mockReturnValue(
+            of(
+                create_display({
+                    playlist_config: {
+                        ...create_display().playlist_config,
+                        'scheduled-playlist': [
+                            {
+                                id: 'scheduled-playlist',
+                                name: 'Scheduled Playlist',
+                                enabled: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 10000,
+                                play_at: Math.floor(now / 1000),
+                                play_period: 0,
+                                play_takeover: true,
+                            },
+                            ['media-3'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+
+        spectator.service.setDisplay('display-1');
+        await Promise.resolve();
+        expect(spectator.service.override_playlist().playlist).toHaveLength(1);
+
+        spectator.service.clearPlaylistOverride();
+        jest.advanceTimersByTime(15_000);
+        await Promise.resolve();
+
+        expect(spectator.service.override_playlist().playlist).toHaveLength(0);
+    });
+
     it('should store metric events and ignore playlist counts for random playlists', async () => {
+        (ts_client.showSignage as jest.Mock).mockReturnValue(
+            of(
+                create_display({
+                    playlist_mappings: {
+                        'display-1': ['base-playlist', 'random-playlist'],
+                        'zone-1': [],
+                        'trig-fire': ['trigger-playlist'],
+                    },
+                }) as any,
+            ),
+        );
         spectator.service.setDisplay('display-1');
         await firstValueFrom(spectator.service.playlist.pipe(skip(1), take(1)));
-        (spectator.service as any)._playlists = [
-            { id: 'playlist-1', random: false },
-            { id: 'random-playlist', random: true },
-        ];
 
         await spectator.service.storeMetricEvent({
             type: 'media_count',
@@ -217,11 +343,11 @@ describe('SignageService', () => {
         });
         await spectator.service.storeMetricEvent({
             type: 'playlist_count',
-            ref_id: 'playlist-1',
+            ref_id: 'base-playlist',
         });
         await spectator.service.storeMetricEvent({
             type: 'playlist_through',
-            ref_id: 'playlist-1',
+            ref_id: 'base-playlist',
         });
         await spectator.service.storeMetricEvent({
             type: 'playlist_count',
@@ -230,8 +356,8 @@ describe('SignageService', () => {
 
         expect((spectator.service as any)._metrics).toEqual({
             media_counts: { 'media-1': 1 },
-            playlist_counts: { 'playlist-1': 1 },
-            play_through_counts: { 'playlist-1': 1 },
+            playlist_counts: { 'base-playlist': 1 },
+            play_through_counts: { 'base-playlist': 1 },
         });
     });
 

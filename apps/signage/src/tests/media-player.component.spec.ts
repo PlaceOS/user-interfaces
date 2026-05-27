@@ -26,7 +26,6 @@ describe('MediaPlayerComponent', () => {
         duration: 15000,
         valid_from: 0,
         valid_until: 0,
-        play_hours: '00:00-00:00',
         getURL: async () => `blob:${id}`,
         ...overrides,
     });
@@ -211,6 +210,77 @@ describe('MediaPlayerComponent', () => {
 
         expect(transition_spy).not.toHaveBeenCalled();
         expect(spectator.component.index()).toBe(0);
+    });
+
+    it('should hold a single webpage without advancing or reloading it', async () => {
+        const item = create_item('webpage-1', {
+            type: 'webpage',
+            duration: 10_000,
+        });
+        load_playlist([item]);
+        spectator.component.index.set(0);
+        spectator.component.hold_over_item.set(false);
+        const set_item_spy = jest.spyOn(spectator.component, 'setPlaylistItem');
+        const transition_spy = jest.spyOn(
+            spectator.component as any,
+            '_transition',
+        );
+
+        spectator.component.nextItem();
+
+        expect(set_item_spy).not.toHaveBeenCalled();
+        expect(transition_spy).not.toHaveBeenCalled();
+        expect(spectator.component.index()).toBe(0);
+    });
+
+    it('should wait for webpages to load and then delay hold timing by two seconds', () => {
+        const items = [
+            create_item('webpage-1', {
+                type: 'webpage',
+                duration: 10_000,
+            }),
+            create_item('media-2'),
+        ];
+        load_playlist(items);
+        spectator.component.index.set(0);
+        spectator.component.state.set('PLAYING');
+        spectator.component['_web_waiting_item_id'] = 'webpage-1';
+        spectator.component['_item_start'] = Date.now() - 20_000;
+        const next_item_spy = jest.spyOn(spectator.component, 'nextItem');
+        let hold_delay_callback: () => void = () => undefined;
+        const timeout_spy = jest
+            .spyOn(spectator.component as any, 'timeout')
+            .mockImplementation(
+                (name: string, fn: () => void, delay: number) => {
+                    if (name === 'webpage-hold-delay') {
+                        hold_delay_callback = fn;
+                        expect(delay).toBe(2000);
+                    }
+                },
+            );
+
+        spectator.component['_updateItem']();
+        expect(next_item_spy).not.toHaveBeenCalled();
+        expect(spectator.component.progress()).toBe(0);
+
+        spectator.component.onWebpageLoad();
+        expect(timeout_spy).toHaveBeenCalledWith(
+            'webpage-hold-delay',
+            expect.any(Function),
+            2000,
+        );
+        expect(spectator.component['_web_waiting_item_id']).toBe('webpage-1');
+
+        hold_delay_callback();
+        expect(spectator.component['_web_waiting_item_id']).toBe('');
+
+        spectator.component['_item_start'] = Date.now() - 9_999;
+        spectator.component['_updateItem']();
+        expect(next_item_spy).not.toHaveBeenCalled();
+
+        spectator.component['_item_start'] = Date.now() - 10_001;
+        spectator.component['_updateItem']();
+        expect(next_item_spy).toHaveBeenCalled();
     });
 
     it('should pause cleanly if replaying a looping video is blocked', async () => {

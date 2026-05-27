@@ -238,6 +238,10 @@
                     "type": "boolean",
                     "description": "Whether to hide the parking availability counter shown next to the selected location or level."
                 },
+                "require_plate_number": {
+                    "type": "boolean",
+                    "description": "Whether the plate number/registration field is mandatory in the parking request flow."
+                },
                 "show_status_details": {
                     "type": "boolean",
                     "description": "Whether the explore parking tooltip should show availability status details such as status text, assigned users, and plate numbers."

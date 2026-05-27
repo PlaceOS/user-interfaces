@@ -29,6 +29,10 @@ import {
 describe('AuthorisedUserGuard', () => {
     let spectator: SpectatorService<AuthorisedUserGuard>;
     const access_mock = { group: '' };
+    const settings_mock = {
+        app_name: 'workplace',
+        get: jest.fn(() => []),
+    };
 
     const createService = createServiceFactory({
         service: AuthorisedUserGuard,
@@ -40,7 +44,7 @@ describe('AuthorisedUserGuard', () => {
             },
             {
                 provide: SettingsService,
-                useValue: { get: jest.fn(() => []) },
+                useValue: settings_mock,
             },
             MockProvider(OrganisationService, { initialised: of(true) }),
         ],
@@ -48,6 +52,12 @@ describe('AuthorisedUserGuard', () => {
 
     beforeEach(() => {
         access_mock.group = '';
+        settings_mock.app_name = 'workplace';
+        settings_mock.get.mockReturnValue([]);
+        (ts_client as any).authority = jest.fn(() => undefined);
+        (ts_client as any).currentGroups = jest.fn(() => of([]));
+        common_lib.user_groups.set([]);
+        common_lib.user_groups_loaded.set(true);
         spectator = createService();
     });
 
@@ -96,5 +106,39 @@ describe('AuthorisedUserGuard', () => {
         (common_lib as any).current_user = of({ groups: ['Admin'] });
         can_load = await spectator.service.canLoad();
         expect(can_load).toBeTruthy();
+    });
+
+    it('should require read access to the app subsystem when enabled', async () => {
+        (ts_client as any).onlineState = jest.fn(() => of(true));
+        (ts_client as any).authority = jest.fn(() => ({
+            config: { use_group_subsystem_access: true },
+        }));
+        (common_lib as any).current_user = of({ groups: [] });
+        common_lib.user_groups.set([
+            {
+                group: { subsystems: ['workplace'] },
+                permissions: common_lib.GroupPermission.Read,
+            } as any,
+        ]);
+
+        await expect(spectator.service.canActivate()).resolves.toBeTruthy();
+        expect(ts_client.currentGroups).not.toHaveBeenCalled();
+    });
+
+    it('should block users without read access to the app subsystem', async () => {
+        (ts_client as any).onlineState = jest.fn(() => of(true));
+        (ts_client as any).authority = jest.fn(() => ({
+            config: { use_group_subsystem_access: true },
+        }));
+        (common_lib as any).current_user = of({ groups: [] });
+        common_lib.user_groups.set([
+            {
+                group: { subsystems: ['workplace'] },
+                permissions: common_lib.GroupPermission.Create,
+            } as any,
+        ]);
+
+        await expect(spectator.service.canActivate()).resolves.toBeFalsy();
+        expect(ts_client.currentGroups).not.toHaveBeenCalled();
     });
 });

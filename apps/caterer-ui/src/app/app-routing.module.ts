@@ -1,6 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { UnauthorisedComponent } from '@placeos/components';
+import {
+    AuthorisedUserGuard,
+    UnauthorisedComponent,
+} from '@placeos/components';
 import { CateringComponent } from './catering.component';
 
 const routes: Routes = [
@@ -8,8 +11,16 @@ const routes: Routes = [
         path: 'unauthorised',
         component: UnauthorisedComponent,
     },
-    { path: '', component: CateringComponent },
-    { path: ':view', component: CateringComponent },
+    {
+        path: '',
+        component: CateringComponent,
+        canActivate: [AuthorisedUserGuard],
+    },
+    {
+        path: ':view',
+        component: CateringComponent,
+        canActivate: [AuthorisedUserGuard],
+    },
     { path: '**', redirectTo: '' },
 ];
 

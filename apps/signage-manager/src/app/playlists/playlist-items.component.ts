@@ -43,6 +43,18 @@ import { SignageService } from '../signage.service';
                         >
                             <icon class="text-warning">order_approve</icon>
                         </button>
+                    } @else {
+                        <button
+                            icon
+                            type="button"
+                            matRipple
+                            class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
+                            matTooltip="Request playlist approval"
+                            (click)="requestApproval()"
+                            aria-label="Request approval for selected playlist"
+                        >
+                            <icon class="text-warning">approval</icon>
+                        </button>
                     }
                 }
                 @if (can_update()) {
@@ -129,12 +141,13 @@ import { SignageService } from '../signage.service';
                             <div
                                 class="bg-base-300 h-12 w-16 shrink-0 overflow-hidden rounded"
                             >
-                                @if (item.thumbnail_url && item.thumbnail_id) {
+                                @let url = thumbnailURL(item);
+                                @if (url && item.thumbnail_id) {
                                     <img
                                         auth
-                                        [source]="item.thumbnail_url"
+                                        [source]="url"
                                         [alt]="item.name + ' thumbnail'"
-                                        class="h-full w-full object-cover p-2 text-xs"
+                                        class="h-full w-full object-cover text-xs"
                                     />
                                 } @else {
                                     <div
@@ -305,6 +318,10 @@ export class PlaylistItemsComponent {
         this._service.selected_playlist_item.set(item);
     }
 
+    public thumbnailURL(item: SignageMedia) {
+        return `/api/engine/v2/signage/media/${item.id}/thumbnail`;
+    }
+
     public selectItemWithKeyboard(event: Event, item: SignageMedia) {
         event.preventDefault();
         event.stopPropagation();
@@ -328,6 +345,11 @@ export class PlaylistItemsComponent {
     public approvePlaylist() {
         const playlist = this.selected_playlist();
         if (playlist) this._service.approvePlaylist(playlist);
+    }
+
+    public requestApproval() {
+        const playlist = this.selected_playlist();
+        if (playlist) this._service.requestPlaylistApproval(playlist);
     }
 
     public sharePlaylist() {

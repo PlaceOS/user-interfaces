@@ -13,7 +13,7 @@ const BLOCK_PALETTE = [
 
 export const DAY_COUNT = 7;
 export const MINUTES_PER_DAY = 1440;
-const DEFAULT_PLAYLIST_DURATION = 60;
+const DEFAULT_PLAYLIST_DURATION = 24 * 60;
 export const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 export interface ScheduleBlock {
@@ -111,9 +111,10 @@ function matchesCronPart(value: number, cron_part: string): boolean {
     return Number(cron_part) === value;
 }
 
-function parseDurationMinutes(hhmm: string): number {
-    const [hours, minutes] = hhmm.split(':').map(Number);
-    return (hours || 0) * 60 + (minutes || 0);
+function playPeriodMinutes(playlist: SignagePlaylist) {
+    return Number.isFinite(playlist.play_period)
+        ? Math.max(0, playlist.play_period)
+        : DEFAULT_PLAYLIST_DURATION;
 }
 
 function formatTime(minutes: number): string {
@@ -129,18 +130,9 @@ function formatTimeRange(
     return `${formatTime(start_minutes)} – ${formatTime(start_minutes + duration_minutes)}`;
 }
 
-function parsePlayAt(play_at: string | number): Date | null {
-    if (!play_at || play_at === '0') return null;
-    const numeric_value = Number(play_at);
-    if (!Number.isNaN(numeric_value) && numeric_value > 0) {
-        return new Date(
-            numeric_value > 1_000_000_000_000
-                ? numeric_value
-                : numeric_value * 1000,
-        );
-    }
-    const date = new Date(play_at);
-    return Number.isNaN(date.getTime()) ? null : date;
+function parsePlayAt(play_at: number): Date | null {
+    if (!play_at) return null;
+    return new Date(play_at > 1_000_000_000_000 ? play_at : play_at * 1000);
 }
 
 function isDayInRange(
@@ -162,31 +154,12 @@ function isDayInRange(
 
 function getCronBlocksForDay(
     cron: string,
-    play_hours: string,
+    playlist: SignagePlaylist,
 ): ScheduleBlockBase[] {
     const parts = cron.trim().split(/\s+/);
     if (parts.length !== 5) return [];
     const [minute_part, hour_part] = parts;
-    if (play_hours?.includes('-')) {
-        const [start_str, end_str] = play_hours.split('-');
-        const start_minutes = parseDurationMinutes(start_str);
-        const end_minutes = parseDurationMinutes(end_str);
-        const duration_minutes =
-            end_minutes > start_minutes
-                ? end_minutes - start_minutes
-                : MINUTES_PER_DAY - start_minutes + end_minutes;
-        return [
-            {
-                start_minutes,
-                duration_minutes,
-                all_day: false,
-                label: `${start_str} – ${end_str}`,
-            },
-        ];
-    }
-    const duration = play_hours
-        ? parseDurationMinutes(play_hours)
-        : DEFAULT_PLAYLIST_DURATION;
+    const duration = playPeriodMinutes(playlist);
     const blocks: ScheduleBlockBase[] = [];
     for (let hours = 0; hours < 24; hours++) {
         if (!matchesCronPart(hours, hour_part)) continue;
@@ -196,8 +169,10 @@ function getCronBlocksForDay(
             blocks.push({
                 start_minutes,
                 duration_minutes: duration,
-                all_day: false,
-                label: formatTimeRange(start_minutes, duration),
+                all_day: duration >= MINUTES_PER_DAY,
+                label: duration
+                    ? formatTimeRange(start_minutes, duration)
+                    : 'Play through once',
             });
         }
     }
@@ -248,42 +223,21 @@ function generateScheduleBlocks(
     const { playlist, source_label, source_type } = assignment;
     const colour = BLOCK_PALETTE[palette_index % BLOCK_PALETTE.length];
     const blocks: ScheduleBlock[] = [];
-    const { play_hours, play_at, play_cron, valid_from, valid_until } =
-        playlist;
-    const has_cron = !!play_cron?.trim();
-    const has_at = !!play_at && play_at !== '0';
-    const has_hours = !!play_hours?.trim();
-    const is_range = has_hours && play_hours.includes('-');
+    const { play_at, valid_from, valid_until } = playlist;
+    const play_cron = playlist.play_cron?.trim() || '0 0 * * *';
+    const has_at = !!play_at;
+    const play_period = playPeriodMinutes(playlist);
 
     for (let index = 0; index < days.length; index++) {
         const day = days[index];
         if (!isDayInRange(day, valid_from, valid_until)) continue;
-
-        if (has_cron) {
-            if (!doesCronMatchDay(play_cron, day)) continue;
-            const cron_blocks = getCronBlocksForDay(play_cron, play_hours);
-            for (const block of cron_blocks) {
-                blocks.push({
-                    ...block,
-                    playlist,
-                    day_index: index,
-                    bg_color: colour.bg,
-                    text_color: colour.text,
-                    source_label,
-                    source_type,
-                });
-            }
-            continue;
-        }
 
         if (has_at) {
             const at_date = parsePlayAt(play_at);
             if (!at_date || !isSameDay(day, at_date)) continue;
             const start_minutes =
                 at_date.getHours() * 60 + at_date.getMinutes();
-            const duration_minutes = has_hours
-                ? parseDurationMinutes(play_hours)
-                : DEFAULT_PLAYLIST_DURATION;
+            const duration_minutes = play_period;
             blocks.push({
                 playlist,
                 day_index: index,
@@ -299,41 +253,19 @@ function generateScheduleBlocks(
             continue;
         }
 
-        if (is_range) {
-            const [start_str, end_str] = play_hours.split('-');
-            const start_minutes = parseDurationMinutes(start_str);
-            const end_minutes = parseDurationMinutes(end_str);
-            const duration_minutes =
-                end_minutes > start_minutes
-                    ? end_minutes - start_minutes
-                    : MINUTES_PER_DAY - start_minutes + end_minutes;
+        if (!doesCronMatchDay(play_cron, day)) continue;
+        const cron_blocks = getCronBlocksForDay(play_cron, playlist);
+        for (const block of cron_blocks) {
             blocks.push({
+                ...block,
                 playlist,
                 day_index: index,
-                start_minutes,
-                duration_minutes,
-                all_day: false,
                 bg_color: colour.bg,
                 text_color: colour.text,
-                label: `${start_str} – ${end_str}`,
                 source_label,
                 source_type,
             });
-            continue;
         }
-
-        blocks.push({
-            playlist,
-            day_index: index,
-            start_minutes: 0,
-            duration_minutes: MINUTES_PER_DAY,
-            all_day: true,
-            bg_color: colour.bg,
-            text_color: colour.text,
-            label: playlist.name,
-            source_label,
-            source_type,
-        });
     }
 
     return blocks;

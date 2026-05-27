@@ -44,6 +44,7 @@ import {
     removeGroupZone,
     removeSignageMedia,
     removeSignagePlaylist,
+    requestApprovalSignagePlaylist,
     shareSignageMedia,
     shareSignagePlaylists,
     SignageMedia,
@@ -75,6 +76,10 @@ import { MediaEditModalComponent } from './shared/media-edit-modal.component';
 import { MediaPreviewModalComponent } from './shared/media-preview-modal.component';
 import { PlaylistApproveModalComponent } from './shared/playlist-approve-modal.component';
 import { PlaylistEditModalComponent } from './shared/playlist-edit-modal.component';
+import {
+    PlaylistRequestApprovalModalComponent,
+    PlaylistRequestApprovalModalResult,
+} from './shared/playlist-request-approval-modal.component';
 import { PlaylistSelectModalComponent } from './shared/playlist-select-modal.component';
 import { ZoneSelectModalComponent } from './shared/zone-select-modal.component';
 import {
@@ -865,6 +870,43 @@ export class SignageService {
         });
     }
 
+    public async requestPlaylistApproval(playlist: SignagePlaylist) {
+        if (!playlist?.id) return;
+        if (this.can_approve()) {
+            this.approvePlaylist(playlist);
+            return;
+        }
+        const groups = await this._playlistApprovalGroups(playlist);
+        if (!groups.length) {
+            notifyWarn('No signage groups are available for this playlist.');
+            return;
+        }
+        const selected_group_id = this._api_group_id();
+        const ref = this._dialog.open(PlaylistRequestApprovalModalComponent, {
+            data: {
+                playlist,
+                groups,
+                selected_group_id: groups.some(
+                    (item) => item.group.id === selected_group_id,
+                )
+                    ? selected_group_id
+                    : groups[0].group.id,
+            },
+            panelClass: 'mobile-fullscreen',
+        });
+        const result: PlaylistRequestApprovalModalResult | undefined =
+            await lastValueFrom(ref.afterClosed());
+        if (!result?.group_id) return;
+        await lastValueFrom(
+            requestApprovalSignagePlaylist(
+                playlist.id,
+                result.group_id,
+                result.message || '',
+            ),
+        );
+        notifySuccess('Playlist approval requested');
+    }
+
     public async removeMediaFromPlaylist(
         playlist_id: string,
         media_id: string,
@@ -1177,14 +1219,14 @@ export class SignageService {
                 'You cannot share items from this group.',
             )
         )
-            return;
+            return false;
         const selected_group_id = this.selected_group()?.group.id || '';
         const target_groups = this.signage_groups().filter(
             (item) => item.group.id !== selected_group_id,
         );
         if (!target_groups.length) {
             notifyWarn('No other signage groups are available to share with.');
-            return;
+            return false;
         }
         const ref = this._dialog.open(GroupSelectModalComponent, {
             data: {
@@ -1197,7 +1239,7 @@ export class SignageService {
             panelClass: 'mobile-fullscreen',
         });
         const group_id = await lastValueFrom(ref.afterClosed());
-        if (!group_id) return;
+        if (!group_id) return false;
         const request =
             item_type === 'media'
                 ? shareSignageMedia({ items: item_ids.join(','), to: group_id })
@@ -1209,6 +1251,36 @@ export class SignageService {
         notifySuccess(
             item_type === 'media' ? 'Media shared' : 'Playlist shared',
         );
+        return true;
+    }
+
+    private async _playlistApprovalGroups(playlist: SignagePlaylist) {
+        const groups = this.signage_groups();
+        const selected_group_id = this._api_group_id();
+        const matching_groups: PlaceCurrentGroup[] = [];
+        for (const group of groups) {
+            if (!group.group.id) continue;
+            if (group.group.id === selected_group_id) {
+                matching_groups.push(group);
+                continue;
+            }
+            try {
+                const result = await lastValueFrom(
+                    querySignagePlaylists({
+                        group_id: group.group.id,
+                        limit: 500,
+                    } as any),
+                );
+                if (
+                    (result.data || []).some((item) => item.id === playlist.id)
+                ) {
+                    matching_groups.push(group);
+                }
+            } catch {
+                // Ignore groups the user cannot query.
+            }
+        }
+        return matching_groups;
     }
 
     private _cacheDisplay(display: any) {
@@ -1278,6 +1350,37 @@ export class SignageService {
         }
         const new_items = [...(media_list.items || []), media_id];
         await this.updatePlaylistMedia(playlist_id, new_items);
+    }
+
+    public async addMediaItemsToPlaylist(
+        playlist_id: string,
+        media_ids: string[],
+    ) {
+        if (
+            !this._requirePermission(
+                this.can_update(),
+                'You cannot update playlists in this group.',
+            )
+        )
+            return false;
+        const unique_media_ids = [...new Set(media_ids)].filter(Boolean);
+        if (!playlist_id || !unique_media_ids.length) return false;
+        const media_list = await lastValueFrom(
+            listSignagePlaylistMedia(playlist_id),
+        );
+        const existing_items = media_list.items || [];
+        const new_media_ids = unique_media_ids.filter(
+            (id) => !existing_items.includes(id),
+        );
+        if (!new_media_ids.length) {
+            notifyWarn('Selected media is already in this playlist.');
+            return false;
+        }
+        await this.updatePlaylistMedia(playlist_id, [
+            ...existing_items,
+            ...new_media_ids,
+        ]);
+        return true;
     }
 
     private _needsPlaylistMetaRefresh(playlist: SignagePlaylist) {
@@ -1744,9 +1847,47 @@ export class SignageService {
         result.close();
     }
 
+    public async removeMediaItems(items: SignageMedia[]) {
+        const media_items = items.filter((item) => !!item?.id);
+        if (!media_items.length) return false;
+        if (
+            !this._requirePermission(
+                this.can_delete(),
+                'You cannot delete media in this group.',
+            )
+        )
+            return false;
+        const result = await openConfirmModal(
+            {
+                title: 'Remove media?',
+                content: `Delete ${media_items.length} selected media item${
+                    media_items.length === 1 ? '' : 's'
+                }?`,
+                icon: { content: 'delete' },
+            },
+            this._dialog,
+        );
+        if (result.reason !== 'done') return false;
+        await Promise.all(
+            media_items.map((item) =>
+                lastValueFrom(removeSignageMedia(item.id)),
+            ),
+        );
+        this.changed();
+        notifySuccess('Media removed');
+        result.close();
+        return true;
+    }
+
     public async shareMedia(item: SignageMedia) {
         if (!item?.id) return;
         await this._shareSignageItems('media', [item.id]);
+    }
+
+    public async shareMediaItems(items: SignageMedia[]) {
+        const media_ids = items.map((item) => item.id).filter(Boolean);
+        if (!media_ids.length) return false;
+        return this._shareSignageItems('media', media_ids);
     }
 
     public async openPlaylistSelectModal(media_id: string) {
@@ -1757,6 +1898,16 @@ export class SignageService {
         const playlist_id = await lastValueFrom(ref.afterClosed());
         if (!playlist_id) return;
         await this.addMediaToPlaylist(playlist_id, media_id);
+    }
+
+    public async openBulkPlaylistSelectModal(media_ids: string[]) {
+        const ref = this._dialog.open(PlaylistSelectModalComponent, {
+            data: { media_ids },
+            panelClass: 'mobile-fullscreen',
+        });
+        const playlist_id = await lastValueFrom(ref.afterClosed());
+        if (!playlist_id) return false;
+        return this.addMediaItemsToPlaylist(playlist_id, media_ids);
     }
 
     public async addPlaylistToZone(zone: any) {

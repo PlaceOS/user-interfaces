@@ -7,7 +7,10 @@ import {
 import { provideRouter, Routes, withHashLocation } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 import { LocaleService } from '@placeos/common';
-import { UnauthorisedComponent } from '@placeos/components';
+import {
+    AuthorisedUserGuard,
+    UnauthorisedComponent,
+} from '@placeos/components';
 import { environment } from '../environments/environment';
 import { signageAccessGuard } from './signage-access.guard';
 
@@ -18,7 +21,8 @@ const APP_ROUTES: Routes = [
     },
     {
         path: '',
-        canActivateChild: [signageAccessGuard],
+        canActivate: [AuthorisedUserGuard],
+        canActivateChild: [AuthorisedUserGuard, signageAccessGuard],
         children: [
             {
                 path: 'media',

@@ -16,7 +16,6 @@ import {
     SignagePlaylist,
     SignagePlugin,
 } from '@placeos/ts-client';
-import { addSeconds, differenceInSeconds } from 'date-fns';
 import {
     BehaviorSubject,
     combineLatest,
@@ -50,6 +49,7 @@ export interface MediaEvent {
 interface PlaylistOverride {
     ends_at: number;
     playlist: MediaPlayerItem[];
+    schedule_keys?: string[];
 }
 
 interface SignageMetrics {
@@ -64,9 +64,81 @@ const EMPTY_METRICS = JSON.stringify({
     media_counts: {},
 });
 
-function durationStampToMinutes(duration: string) {
-    const [hours, minutes] = duration.split(':').map(Number);
-    return hours * 60 + minutes;
+const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
+const SCHEDULE_TRIGGER_WINDOW_SECONDS = 28;
+const SINGLE_PASS_TRIGGER_WINDOW_MS = 30 * 1000;
+
+function playlistPlayPeriodMinutes(playlist: SignagePlaylist) {
+    return Number.isFinite(playlist.play_period)
+        ? Math.max(0, playlist.play_period)
+        : DEFAULT_PLAY_PERIOD_MINUTES;
+}
+
+function parsePlayAtTimestamp(value: number) {
+    if (!Number.isFinite(value) || value <= 0) return 0;
+    return value > 1_000_000_000_000 ? value : value * 1000;
+}
+
+function scheduledPlaylistEnd(starts_at: number, period_minutes: number) {
+    return period_minutes
+        ? starts_at + period_minutes * 60 * 1000
+        : starts_at + SINGLE_PASS_TRIGGER_WINDOW_MS;
+}
+
+function scheduledPlaylistWindow(
+    playlist: SignagePlaylist,
+    now = time(),
+    trigger_window_seconds = 0,
+) {
+    const period_minutes = playlistPlayPeriodMinutes(playlist);
+    const window_seconds = trigger_window_seconds || period_minutes * 60;
+    if (playlist.play_at) {
+        const starts_at = parsePlayAtTimestamp(playlist.play_at);
+        if (!starts_at) return null;
+        const ends_at = scheduledPlaylistEnd(starts_at, period_minutes);
+        return now >= starts_at && now <= ends_at
+            ? { starts_at, ends_at }
+            : null;
+    }
+    if (playlist.play_cron?.trim()) {
+        try {
+            const search_start = now - Math.max(window_seconds, 30) * 1000;
+            const next = getNextCronRunTimestampInRange(
+                playlist.play_cron,
+                Math.max(window_seconds, 30),
+                search_start,
+            );
+            if (!next) return null;
+            const starts_at = next * 1000;
+            const ends_at = scheduledPlaylistEnd(starts_at, period_minutes);
+            return starts_at <= now && now <= ends_at
+                ? { starts_at, ends_at }
+                : null;
+        } catch {
+            return null;
+        }
+    }
+    return null;
+}
+
+function scheduledPlaylistStart(
+    playlist: SignagePlaylist,
+    now = time(),
+    trigger_window_seconds = 0,
+) {
+    return scheduledPlaylistWindow(playlist, now, trigger_window_seconds)
+        ?.starts_at;
+}
+
+function isScheduledPlaylistActive(
+    playlist: SignagePlaylist,
+    trigger_window_seconds = SCHEDULE_TRIGGER_WINDOW_SECONDS,
+) {
+    return !!scheduledPlaylistStart(
+        playlist,
+        time(),
+        trigger_window_seconds,
+    );
 }
 
 @Injectable({
@@ -87,6 +159,7 @@ export class SignageService extends AsyncHandler {
         playlist_counts: {},
         media_counts: {},
     };
+    private _completed_schedule_overrides = new Set<string>();
 
     public readonly override_playlist = signal<PlaylistOverride>({
         ends_at: 0,
@@ -159,20 +232,28 @@ export class SignageService extends AsyncHandler {
         }),
     );
 
-    public readonly playlist = this.display.pipe(
-        map((item: any) => {
+    public readonly playlist = combineLatest([
+        this.display,
+        interval(15 * 1000).pipe(startWith(0)),
+    ]).pipe(
+        map(([item]: [any, number]) => {
             if (!item?.id) return [];
             let playlists = [...item.playlist_mappings[item.id]];
             for (const zone of item.zones) {
                 if (!item.playlist_mappings[zone]) continue;
                 playlists = playlists.concat(item.playlist_mappings[zone]);
             }
-            this._playlists = playlists;
+            this._playlists = playlists
+                .map((id) => item.playlist_config[id]?.[0])
+                .filter((_) => !!_);
             // Map playlists to media
             const media = this._getPlaylistMedia(
                 item,
                 playlists,
-                (p) => !p.play_at && !p.play_cron && p.enabled,
+                (p) =>
+                    p.enabled &&
+                    ((!p.play_at && !p.play_cron) ||
+                        (!p.play_takeover && isScheduledPlaylistActive(p))),
             );
             return media;
         }),
@@ -188,14 +269,18 @@ export class SignageService extends AsyncHandler {
                 if (!item.playlist_mappings[zone]) continue;
                 playlists = playlists.concat(item.playlist_mappings[zone]);
             }
-            this._playlists = playlists as any;
+            this._playlists = playlists
+                .map((id) => item.playlist_config[id]?.[0])
+                .filter((_) => !!_);
             const filtered = playlists.filter((id) => {
                 const [playlist] = item.playlist_config[id] as [
                     SignagePlaylist,
                     string[],
                 ];
                 return (
-                    (playlist.play_at || playlist.play_cron) && playlist.enabled
+                    (playlist.play_at || playlist.play_cron) &&
+                    playlist.enabled &&
+                    playlist.play_takeover
                 );
             });
             // Map playlists to media
@@ -250,30 +335,29 @@ export class SignageService extends AsyncHandler {
                 const playlist_details: SignagePlaylist[] = playlists.map(
                     (id) => display.playlist_config[id][0],
                 );
-                const active_playlists = playlist_details.filter((plist) => {
-                    if (plist.play_at) {
-                        return (
-                            Math.abs(
-                                differenceInSeconds(plist.play_at, time()),
-                            ) <= 18
+                const now = time();
+                const active_schedules = playlist_details
+                    .map((playlist) => ({
+                        playlist,
+                        schedule: scheduledPlaylistWindow(
+                            playlist,
+                            now,
+                            SCHEDULE_TRIGGER_WINDOW_SECONDS,
+                        ),
+                    }))
+                    .filter(({ playlist, schedule }) => {
+                        if (!schedule) return false;
+                        const schedule_key = `${playlist.id}:${schedule.starts_at}`;
+                        return !this._completed_schedule_overrides.has(
+                            schedule_key,
                         );
-                    }
-                    if (plist.play_cron && plist.play_cron !== '* * * * *') {
-                        try {
-                            const next = getNextCronRunTimestampInRange(
-                                plist.play_cron,
-                                28,
-                                addSeconds(time(), -14).valueOf(),
-                            );
-                            return !!next;
-                        } catch {
-                            return false;
-                        }
-                    }
-                    return false;
-                });
+                    });
+                const active_playlists = active_schedules.map(
+                    ({ playlist }) => playlist,
+                );
                 const existing_override = this.override_playlist();
                 if (
+                    active_playlists.length &&
                     active_playlists.every(({ id }) =>
                         existing_override.playlist.find(
                             (media) => media.playlist === id,
@@ -282,22 +366,33 @@ export class SignageService extends AsyncHandler {
                 ) {
                     return;
                 }
+                if (!active_playlists.length) return;
                 const media = this._getPlaylistMedia(
                     display,
                     active_playlists.map((_) => _.id),
                 );
-                const duration_minutes = playlist_details.reduce(
-                    (a, v) => Math.max(a, durationStampToMinutes(v.play_hours)),
+                const duration_minutes = active_playlists.reduce(
+                    (a, v) => Math.max(a, playlistPlayPeriodMinutes(v)),
                     0,
                 );
-                const duration = duration_minutes * 60 * 1000;
+                const ends_at = duration_minutes
+                    ? Math.max(
+                          ...active_schedules.map(
+                              ({ schedule }) => schedule.ends_at,
+                          ),
+                      )
+                    : 0;
                 log('SIGNAGE', 'Setting override playlist', [
                     media,
-                    duration || 0,
+                    ends_at || 0,
                 ]);
                 this.override_playlist.set({
                     playlist: media,
-                    ends_at: duration ? time() + duration : 0,
+                    ends_at,
+                    schedule_keys: active_schedules.map(
+                        ({ playlist, schedule }) =>
+                            `${playlist.id}:${schedule.starts_at}`,
+                    ),
                 });
             }),
         );
@@ -308,6 +403,10 @@ export class SignageService extends AsyncHandler {
     }
 
     public clearPlaylistOverride() {
+        const { schedule_keys } = this.override_playlist();
+        for (const key of schedule_keys || []) {
+            this._completed_schedule_overrides.add(key);
+        }
         this.override_playlist.set({ playlist: [], ends_at: 0 });
     }
 
@@ -369,18 +468,32 @@ export class SignageService extends AsyncHandler {
                     string[],
                 ];
                 if (!filter_fn(playlist)) return [];
+                const schedule = scheduledPlaylistWindow(playlist);
+                const schedule_start = schedule
+                    ? Math.floor(schedule.starts_at / 1000)
+                    : 0;
+                const schedule_end = schedule
+                    ? Math.ceil(schedule.ends_at / 1000)
+                    : 0;
+                const playlist_valid_from =
+                    playlist?.valid_from && schedule_start
+                        ? Math.max(playlist.valid_from, schedule_start)
+                        : playlist?.valid_from || schedule_start;
+                const playlist_valid_until =
+                    playlist?.valid_until && schedule_end
+                        ? Math.min(playlist.valid_until, schedule_end)
+                        : playlist?.valid_until || schedule_end;
                 const media = media_list.map((media_id) => ({
                     id: media_id,
                     playlist_id: id,
-                    valid_from: playlist?.valid_from || 0,
-                    valid_until: playlist?.valid_until || 0,
-                    play_hours: playlist?.play_hours || '00:00-00:00',
+                    valid_from: playlist_valid_from,
+                    valid_until: playlist_valid_until,
                 }));
                 return playlist.random ? shuffleArray(media) : media;
             })
             .flat();
         return playlist_media
-            .map(({ id, playlist_id, valid_from, valid_until, play_hours }) => {
+            .map(({ id, playlist_id, valid_from, valid_until }) => {
                 const media_ref: SignageMedia | null =
                     display.playlist_media.find((item) => item.id === id);
                 if (!media_ref) return null;
@@ -413,7 +526,6 @@ export class SignageService extends AsyncHandler {
                         valid_until && media_ref.valid_until
                             ? Math.min(valid_until, media_ref.valid_until)
                             : media_ref.valid_until || valid_until,
-                    play_hours,
                     plugin,
                     plugin_params: is_plugin
                         ? {

@@ -212,9 +212,6 @@ export class EventsStateService extends AsyncHandler {
                 this.tz_offset,
                 this._week_start,
             );
-            this._removed_events.next([]);
-            this._added_events.next([]);
-
             // Split spaces into driver-bound and API-fetched
             const spaces_with_driver = spaces.filter((s) => s.room_booking_url);
             const spaces_without_driver = spaces.filter(
@@ -275,7 +272,13 @@ export class EventsStateService extends AsyncHandler {
                 map((event_lists) => flatten(event_lists)),
             );
         }),
-        tap(() => this._loading.next(false)),
+        tap(() => {
+            this._loading.next(false);
+            queueMicrotask(() => {
+                this._removed_events.next([]);
+                this._added_events.next([]);
+            });
+        }),
         shareReplay(1),
     );
     /** Obsevable for filtered list of bookings */
@@ -447,6 +450,7 @@ export class EventsStateService extends AsyncHandler {
         );
         if (details.reason !== 'done') return false;
         details.loading(i18n('APP.CONCIERGE.BOOKING_REMOVE_LOADING'));
+        this.remove(event);
         await declineEvent(
             series ? event.recurring_event_id || event.id : event.id,
             {
@@ -456,6 +460,7 @@ export class EventsStateService extends AsyncHandler {
         )
             .toPromise()
             .catch((e) => {
+                this.restore(event);
                 notifyError(
                     i18n('APP.CONCIERGE.BOOKING_REMOVE_ERROR', { error: e }),
                 );
@@ -463,7 +468,6 @@ export class EventsStateService extends AsyncHandler {
                 throw e;
             });
         notifySuccess(i18n('APP.CONCIERGE.BOOKING_REMOVE_SUCCESS'));
-        this.remove(event);
         this._dialog.closeAll();
         return true;
     }
@@ -502,6 +506,26 @@ export class EventsStateService extends AsyncHandler {
             ...this._removed_events.getValue(),
             booking,
         ]);
+    }
+
+    /**
+     * Restore a booking that was optimistically removed
+     * @param booking
+     */
+    public restore(booking: CalendarEvent) {
+        this._removed_events.next(
+            this._removed_events
+                .getValue()
+                .filter(
+                    (_) =>
+                        !(
+                            (_.id && booking.id && _.id === booking.id) ||
+                            (_.ical_uid &&
+                                booking.ical_uid &&
+                                _.ical_uid === booking.ical_uid)
+                        ),
+                ),
+        );
     }
 
     private filterEvents(
