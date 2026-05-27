@@ -5,7 +5,7 @@ import {
 } from './signage-schedule.util';
 
 describe('signage-schedule.util', () => {
-    it('builds timed blocks for a playlist range', () => {
+    it('builds timed blocks for a playlist schedule', () => {
         const days = [new Date('2026-03-02T00:00:00')];
         const blocks = buildScheduleBlocks(
             [
@@ -13,7 +13,8 @@ describe('signage-schedule.util', () => {
                     playlist: {
                         id: 'playlist-1',
                         name: 'Breakfast',
-                        play_hours: '09:00-12:00',
+                        play_cron: '0 9 * * *',
+                        play_period: 180,
                     } as any,
                     source_type: 'zone',
                     source_label: 'Lobby',

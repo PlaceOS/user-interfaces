@@ -8,6 +8,8 @@ import { IconComponent, MediaDurationPipe } from '@placeos/components';
 import { MediaAnimation } from '@placeos/ts-client';
 import { SignageService } from '../signage.service';
 
+const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
+
 @Component({
     selector: 'playlist-item-details',
     template: `
@@ -151,6 +153,16 @@ import { SignageService } from '../signage.service';
                                         </div>
                                     </div>
                                 }
+                                <div>
+                                    <div
+                                        class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
+                                    >
+                                        Schedule
+                                    </div>
+                                    <div class="text-sm">
+                                        {{ schedule_label() }}
+                                    </div>
+                                </div>
                                 @if (playlist().play_count) {
                                     <div>
                                         <div
@@ -484,6 +496,24 @@ export class PlaylistItemDetailsComponent {
         const pl = this.playlist();
         if (!pl?.valid_until) return '';
         return new Date(pl.valid_until * 1000).toLocaleDateString();
+    });
+
+    public readonly schedule_label = computed(() => {
+        const pl = this.playlist();
+        if (!pl) return '';
+        const period = Number.isFinite(pl.play_period)
+            ? pl.play_period
+            : DEFAULT_PLAY_PERIOD_MINUTES;
+        const duration = period ? `${period} min` : 'play through once';
+        if (pl.play_at) {
+            const date = new Date(
+                pl.play_at > 1_000_000_000_000 ? pl.play_at : pl.play_at * 1000,
+            );
+            return `Once at ${date.toLocaleString()} for ${duration}`;
+        }
+        return `${pl.play_cron || '0 0 * * *'} for ${duration}${
+            pl.play_takeover ? ' · takeover' : ''
+        }`;
     });
 
     constructor() {

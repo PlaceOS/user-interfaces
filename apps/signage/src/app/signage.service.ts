@@ -16,7 +16,6 @@ import {
     SignagePlaylist,
     SignagePlugin,
 } from '@placeos/ts-client';
-import { addSeconds, differenceInSeconds } from 'date-fns';
 import {
     BehaviorSubject,
     combineLatest,
@@ -64,9 +63,60 @@ const EMPTY_METRICS = JSON.stringify({
     media_counts: {},
 });
 
-function durationStampToMinutes(duration: string) {
-    const [hours, minutes] = duration.split(':').map(Number);
-    return hours * 60 + minutes;
+const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
+const SINGLE_PASS_TRIGGER_WINDOW_MS = 30 * 1000;
+
+function playlistPlayPeriodMinutes(playlist: SignagePlaylist) {
+    return Number.isFinite(playlist.play_period)
+        ? Math.max(0, playlist.play_period)
+        : DEFAULT_PLAY_PERIOD_MINUTES;
+}
+
+function parsePlayAtTimestamp(value: number) {
+    if (!Number.isFinite(value) || value <= 0) return 0;
+    return value > 1_000_000_000_000 ? value : value * 1000;
+}
+
+function scheduledPlaylistEnd(starts_at: number, period_minutes: number) {
+    return period_minutes
+        ? starts_at + period_minutes * 60 * 1000
+        : starts_at + SINGLE_PASS_TRIGGER_WINDOW_MS;
+}
+
+function scheduledPlaylistStart(
+    playlist: SignagePlaylist,
+    now = time(),
+    trigger_window_seconds = 0,
+) {
+    const period_minutes = playlistPlayPeriodMinutes(playlist);
+    const window_seconds = trigger_window_seconds || period_minutes * 60;
+    if (playlist.play_at) {
+        const starts_at = parsePlayAtTimestamp(playlist.play_at);
+        if (!starts_at) return 0;
+        const ends_at = scheduledPlaylistEnd(starts_at, period_minutes);
+        return now >= starts_at && now <= ends_at ? starts_at : 0;
+    }
+    if (playlist.play_cron?.trim()) {
+        try {
+            const search_start = now - Math.max(window_seconds, 30) * 1000;
+            const next = getNextCronRunTimestampInRange(
+                playlist.play_cron,
+                Math.max(window_seconds, 30),
+                search_start,
+            );
+            if (!next) return 0;
+            const starts_at = next * 1000;
+            const ends_at = scheduledPlaylistEnd(starts_at, period_minutes);
+            return starts_at <= now && now <= ends_at ? starts_at : 0;
+        } catch {
+            return 0;
+        }
+    }
+    return 0;
+}
+
+function isScheduledPlaylistActive(playlist: SignagePlaylist) {
+    return !!scheduledPlaylistStart(playlist);
 }
 
 @Injectable({
@@ -172,7 +222,10 @@ export class SignageService extends AsyncHandler {
             const media = this._getPlaylistMedia(
                 item,
                 playlists,
-                (p) => !p.play_at && !p.play_cron && p.enabled,
+                (p) =>
+                    p.enabled &&
+                    ((!p.play_at && !p.play_cron) ||
+                        (!p.play_takeover && isScheduledPlaylistActive(p))),
             );
             return media;
         }),
@@ -195,7 +248,9 @@ export class SignageService extends AsyncHandler {
                     string[],
                 ];
                 return (
-                    (playlist.play_at || playlist.play_cron) && playlist.enabled
+                    (playlist.play_at || playlist.play_cron) &&
+                    playlist.enabled &&
+                    playlist.play_takeover
                 );
             });
             // Map playlists to media
@@ -250,28 +305,10 @@ export class SignageService extends AsyncHandler {
                 const playlist_details: SignagePlaylist[] = playlists.map(
                     (id) => display.playlist_config[id][0],
                 );
-                const active_playlists = playlist_details.filter((plist) => {
-                    if (plist.play_at) {
-                        return (
-                            Math.abs(
-                                differenceInSeconds(plist.play_at, time()),
-                            ) <= 18
-                        );
-                    }
-                    if (plist.play_cron && plist.play_cron !== '* * * * *') {
-                        try {
-                            const next = getNextCronRunTimestampInRange(
-                                plist.play_cron,
-                                28,
-                                addSeconds(time(), -14).valueOf(),
-                            );
-                            return !!next;
-                        } catch {
-                            return false;
-                        }
-                    }
-                    return false;
-                });
+                const now = time();
+                const active_playlists = playlist_details.filter(
+                    (plist) => !!scheduledPlaylistStart(plist, now, 28),
+                );
                 const existing_override = this.override_playlist();
                 if (
                     active_playlists.every(({ id }) =>
@@ -286,8 +323,8 @@ export class SignageService extends AsyncHandler {
                     display,
                     active_playlists.map((_) => _.id),
                 );
-                const duration_minutes = playlist_details.reduce(
-                    (a, v) => Math.max(a, durationStampToMinutes(v.play_hours)),
+                const duration_minutes = active_playlists.reduce(
+                    (a, v) => Math.max(a, playlistPlayPeriodMinutes(v)),
                     0,
                 );
                 const duration = duration_minutes * 60 * 1000;
@@ -374,13 +411,12 @@ export class SignageService extends AsyncHandler {
                     playlist_id: id,
                     valid_from: playlist?.valid_from || 0,
                     valid_until: playlist?.valid_until || 0,
-                    play_hours: playlist?.play_hours || '00:00-00:00',
                 }));
                 return playlist.random ? shuffleArray(media) : media;
             })
             .flat();
         return playlist_media
-            .map(({ id, playlist_id, valid_from, valid_until, play_hours }) => {
+            .map(({ id, playlist_id, valid_from, valid_until }) => {
                 const media_ref: SignageMedia | null =
                     display.playlist_media.find((item) => item.id === id);
                 if (!media_ref) return null;
@@ -413,7 +449,7 @@ export class SignageService extends AsyncHandler {
                         valid_until && media_ref.valid_until
                             ? Math.min(valid_until, media_ref.valid_until)
                             : media_ref.valid_until || valid_until,
-                    play_hours,
+                    play_hours: '00:00-00:00',
                     plugin,
                     plugin_params: is_plugin
                         ? {
