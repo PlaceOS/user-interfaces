@@ -43,6 +43,18 @@ import { SignageService } from '../signage.service';
                         >
                             <icon class="text-warning">order_approve</icon>
                         </button>
+                    } @else {
+                        <button
+                            icon
+                            type="button"
+                            matRipple
+                            class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
+                            matTooltip="Request playlist approval"
+                            (click)="requestApproval()"
+                            aria-label="Request approval for selected playlist"
+                        >
+                            <icon class="text-warning">approval</icon>
+                        </button>
                     }
                 }
                 @if (can_update()) {
@@ -333,6 +345,11 @@ export class PlaylistItemsComponent {
     public approvePlaylist() {
         const playlist = this.selected_playlist();
         if (playlist) this._service.approvePlaylist(playlist);
+    }
+
+    public requestApproval() {
+        const playlist = this.selected_playlist();
+        if (playlist) this._service.requestPlaylistApproval(playlist);
     }
 
     public sharePlaylist() {
