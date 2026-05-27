@@ -2,6 +2,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import {
     Component,
+    computed,
     DestroyRef,
     inject,
     input,
@@ -13,6 +14,7 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AuthenticatedImageDirective,
@@ -25,6 +27,36 @@ import { SignageService } from '../signage.service';
 @Component({
     selector: 'media-list',
     template: `
+        @if (can_switch_groups()) {
+            <nav
+                mat-tab-nav-bar
+                class="bg-base-100/95 border-base-300 sticky top-2 z-10 mx-2 rounded-xl border"
+                aria-label="Signage media groups"
+                [tabPanel]="group_tabs_panel"
+            >
+                @if (is_sys_admin()) {
+                    <button
+                        mat-tab-link
+                        type="button"
+                        [active]="!selected_group_id()"
+                        (click)="selectGroup('')"
+                    >
+                        All Groups
+                    </button>
+                }
+                @for (item of groups(); track item.group.id) {
+                    <button
+                        mat-tab-link
+                        type="button"
+                        [active]="selected_group_id() === item.group.id"
+                        (click)="selectGroup(item.group.id)"
+                    >
+                        {{ item.group.name }}
+                    </button>
+                }
+            </nav>
+            <mat-tab-nav-panel #group_tabs_panel />
+        }
         @if (media().length > 0) {
             <div
                 class="grid w-full grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
@@ -267,7 +299,7 @@ import { SignageService } from '../signage.service';
             :host {
                 display: flex;
                 flex-direction: column;
-                height: 100%;
+                min-height: 100%;
             }
 
             ::ng-deep .cdk-drag-preview {
@@ -279,6 +311,7 @@ import { SignageService } from '../signage.service';
         DragDropModule,
         MatRippleModule,
         MatMenuModule,
+        MatTabsModule,
         MatTooltipModule,
         IconComponent,
         AuthenticatedImageDirective,
@@ -308,6 +341,18 @@ export class MediaListComponent implements OnChanges, OnInit {
     public readonly media = toSignal(this._service.filtered_media, {
         initialValue: [] as SignageMedia[],
     });
+    public readonly groups = this._service.signage_groups;
+    public readonly selected_group_id = this._service.selected_group_id;
+    public readonly is_sys_admin = this._service.is_sys_admin;
+    public readonly can_switch_groups = computed(() =>
+        this.is_sys_admin()
+            ? this.groups().length > 0
+            : this.groups().length > 1,
+    );
+
+    public selectGroup(group_id: string) {
+        this._service.setSelectedGroup(group_id);
+    }
 
     public isExpired(item: SignageMedia): boolean {
         return !!item.valid_until && item.valid_until * 1000 < Date.now();
