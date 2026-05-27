@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
@@ -9,7 +10,15 @@ import { MediaAnimation } from '@placeos/ts-client';
 import { SignageService } from '../signage.service';
 
 const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
-const WEEKDAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const WEEKDAY_NAMES = [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+];
 
 function matchesCronPart(value: number, cron_part: string) {
     if (cron_part === '*') return true;
@@ -352,7 +361,9 @@ function nextCronPlayTimes(cron: string, duration_minutes: number) {
                                             Valid From
                                         </div>
                                         <div class="text-sm">
-                                            {{ valid_from() }}
+                                            {{
+                                                valid_from() | date: 'longDate'
+                                            }}
                                         </div>
                                     </div>
                                 }
@@ -364,7 +375,9 @@ function nextCronPlayTimes(cron: string, duration_minutes: number) {
                                             Valid Until
                                         </div>
                                         <div class="text-sm">
-                                            {{ valid_until() }}
+                                            {{
+                                                valid_until() | date: 'longDate'
+                                            }}
                                         </div>
                                     </div>
                                 }
@@ -394,8 +407,11 @@ function nextCronPlayTimes(cron: string, duration_minutes: number) {
                                                     {{ play_time }}
                                                 </div>
                                             } @empty {
-                                                <div class="text-base-content/60">
-                                                    No upcoming play times found.
+                                                <div
+                                                    class="text-base-content/60"
+                                                >
+                                                    No upcoming play times
+                                                    found.
                                                 </div>
                                             }
                                         </div>
@@ -669,6 +685,7 @@ function nextCronPlayTimes(cron: string, duration_minutes: number) {
         MatTooltipModule,
         RouterLink,
         IconComponent,
+        DatePipe,
         MediaDurationPipe,
     ],
 })
@@ -727,13 +744,13 @@ export class PlaylistItemDetailsComponent {
     public readonly valid_from = computed(() => {
         const pl = this.playlist();
         if (!pl?.valid_from) return '';
-        return new Date(pl.valid_from * 1000).toLocaleDateString();
+        return pl.valid_from * 1000;
     });
 
     public readonly valid_until = computed(() => {
         const pl = this.playlist();
         if (!pl?.valid_until) return '';
-        return new Date(pl.valid_until * 1000).toLocaleDateString();
+        return pl.valid_until * 1000;
     });
 
     public readonly schedule_label = computed(() => {

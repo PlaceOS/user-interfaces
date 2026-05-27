@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -223,6 +224,36 @@ interface MediaPreviewModalData {
                                 </div>
                             </div>
                         }
+                        @if (item.valid_from) {
+                            <div>
+                                <div
+                                    class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
+                                >
+                                    Valid From
+                                </div>
+                                <div class="text-sm capitalize">
+                                    {{
+                                        item.valid_from * 1000
+                                            | date: 'mediumDate'
+                                    }}
+                                </div>
+                            </div>
+                        }
+                        @if (item.valid_until) {
+                            <div>
+                                <div
+                                    class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
+                                >
+                                    Valid Until
+                                </div>
+                                <div class="text-sm capitalize">
+                                    {{
+                                        item.valid_until * 1000
+                                            | date: 'mediumDate'
+                                    }}
+                                </div>
+                            </div>
+                        }
                     </div>
                 </aside>
             </main>
@@ -243,6 +274,7 @@ interface MediaPreviewModalData {
         RouterLink,
         IconComponent,
         AuthenticatedImageDirective,
+        DatePipe,
         MediaDurationPipe,
         PluginEmbedComponent,
     ],
