@@ -22,7 +22,6 @@ const create_item = (
     duration: 15000,
     valid_from: valid ? 0 : Math.floor(Date.now() / 1000) + 3600,
     valid_until: 0,
-    play_hours: '00:00-00:00',
     getURL: async () => '',
 });
 
@@ -86,26 +85,6 @@ describe('validateMedia', () => {
         item.valid_until = Math.floor(Date.now() / 1000) - 60;
 
         expect(validateMedia(item)).toBe('Media expired.');
-    });
-
-    it('returns an error when before the allowed hours', () => {
-        const current_time = new Date(2026, 3, 7, 9, 0, 0, 0).valueOf();
-        jest.spyOn(Date, 'now').mockReturnValue(current_time);
-        setMockTime(current_time);
-        const item = create_item('before-hours', true);
-        item.play_hours = '10:00-18:00';
-
-        expect(validateMedia(item)).toBe('Before hours');
-    });
-
-    it('returns an error when after the allowed hours', () => {
-        const current_time = new Date(2026, 3, 7, 19, 0, 0, 0).valueOf();
-        jest.spyOn(Date, 'now').mockReturnValue(current_time);
-        setMockTime(current_time);
-        const item = create_item('after-hours', true);
-        item.play_hours = '08:00-18:00';
-
-        expect(validateMedia(item)).toBe('After hours');
     });
 
     it('returns an empty string for valid media', () => {

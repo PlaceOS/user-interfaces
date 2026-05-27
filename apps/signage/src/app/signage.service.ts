@@ -83,7 +83,7 @@ function scheduledPlaylistEnd(starts_at: number, period_minutes: number) {
         : starts_at + SINGLE_PASS_TRIGGER_WINDOW_MS;
 }
 
-function scheduledPlaylistStart(
+function scheduledPlaylistWindow(
     playlist: SignagePlaylist,
     now = time(),
     trigger_window_seconds = 0,
@@ -92,9 +92,11 @@ function scheduledPlaylistStart(
     const window_seconds = trigger_window_seconds || period_minutes * 60;
     if (playlist.play_at) {
         const starts_at = parsePlayAtTimestamp(playlist.play_at);
-        if (!starts_at) return 0;
+        if (!starts_at) return null;
         const ends_at = scheduledPlaylistEnd(starts_at, period_minutes);
-        return now >= starts_at && now <= ends_at ? starts_at : 0;
+        return now >= starts_at && now <= ends_at
+            ? { starts_at, ends_at }
+            : null;
     }
     if (playlist.play_cron?.trim()) {
         try {
@@ -104,15 +106,26 @@ function scheduledPlaylistStart(
                 Math.max(window_seconds, 30),
                 search_start,
             );
-            if (!next) return 0;
+            if (!next) return null;
             const starts_at = next * 1000;
             const ends_at = scheduledPlaylistEnd(starts_at, period_minutes);
-            return starts_at <= now && now <= ends_at ? starts_at : 0;
+            return starts_at <= now && now <= ends_at
+                ? { starts_at, ends_at }
+                : null;
         } catch {
-            return 0;
+            return null;
         }
     }
-    return 0;
+    return null;
+}
+
+function scheduledPlaylistStart(
+    playlist: SignagePlaylist,
+    now = time(),
+    trigger_window_seconds = 0,
+) {
+    return scheduledPlaylistWindow(playlist, now, trigger_window_seconds)
+        ?.starts_at;
 }
 
 function isScheduledPlaylistActive(playlist: SignagePlaylist) {
@@ -406,11 +419,26 @@ export class SignageService extends AsyncHandler {
                     string[],
                 ];
                 if (!filter_fn(playlist)) return [];
+                const schedule = scheduledPlaylistWindow(playlist);
+                const schedule_start = schedule
+                    ? Math.floor(schedule.starts_at / 1000)
+                    : 0;
+                const schedule_end = schedule
+                    ? Math.ceil(schedule.ends_at / 1000)
+                    : 0;
+                const playlist_valid_from =
+                    playlist?.valid_from && schedule_start
+                        ? Math.max(playlist.valid_from, schedule_start)
+                        : playlist?.valid_from || schedule_start;
+                const playlist_valid_until =
+                    playlist?.valid_until && schedule_end
+                        ? Math.min(playlist.valid_until, schedule_end)
+                        : playlist?.valid_until || schedule_end;
                 const media = media_list.map((media_id) => ({
                     id: media_id,
                     playlist_id: id,
-                    valid_from: playlist?.valid_from || 0,
-                    valid_until: playlist?.valid_until || 0,
+                    valid_from: playlist_valid_from,
+                    valid_until: playlist_valid_until,
                 }));
                 return playlist.random ? shuffleArray(media) : media;
             })
@@ -449,7 +477,6 @@ export class SignageService extends AsyncHandler {
                         valid_until && media_ref.valid_until
                             ? Math.min(valid_until, media_ref.valid_until)
                             : media_ref.valid_until || valid_until,
-                    play_hours: '00:00-00:00',
                     plugin,
                     plugin_params: is_plugin
                         ? {

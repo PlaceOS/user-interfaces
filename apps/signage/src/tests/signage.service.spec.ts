@@ -184,6 +184,9 @@ describe('SignageService', () => {
         expect(override_playlist.playlist.map((_) => _.id)).toEqual([
             'media-3',
         ]);
+        const [media] = override_playlist.playlist;
+        expect(media.valid_from * 1000).toBeLessThanOrEqual(Date.now());
+        expect(media.valid_until * 1000).toBeGreaterThan(Date.now());
         expect(override_playlist.ends_at).toBeGreaterThan(Date.now());
     });
 

@@ -26,7 +26,6 @@ describe('MediaPlayerComponent', () => {
         duration: 15000,
         valid_from: 0,
         valid_until: 0,
-        play_hours: '00:00-00:00',
         getURL: async () => `blob:${id}`,
         ...overrides,
     });

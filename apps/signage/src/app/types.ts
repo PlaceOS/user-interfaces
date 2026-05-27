@@ -12,7 +12,6 @@ export interface MediaPlayerItem {
     duration: number;
     valid_from: number;
     valid_until: number;
-    play_hours: string;
     plugin?: SignagePlugin;
     plugin_params?: HashMap;
     getURL: () => Promise<string | URL>;
