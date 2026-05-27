@@ -72,7 +72,7 @@ import { SignageService } from '../signage.service';
                     <div
                         cdkDrag
                         role="listitem"
-                        class="border-base-300 bg-base-100 relative flex flex-col items-center justify-center rounded-lg border p-3 hover:opacity-80"
+                        class="border-base-300 bg-base-100 relative flex flex-col items-center justify-center rounded-lg border p-3 hover:opacity-80 hover:shadow-xl"
                         [class.opacity-60]="isExpired(media_item)"
                         [class.ring-2]="isSelected(media_item.id)"
                         [class.ring-primary]="isSelected(media_item.id)"
@@ -132,7 +132,7 @@ import { SignageService } from '../signage.service';
                                     auth
                                     [source]="media_item.thumbnail_url"
                                     [alt]="media_item.name + ' thumbnail'"
-                                    class="absolute -inset-px flex items-center justify-center rounded-lg object-contain object-center p-2"
+                                    class="absolute -inset-px flex h-full w-full items-center justify-center rounded-lg object-contain object-center"
                                 />
                                 <div
                                     class="absolute inset-0 flex items-end justify-end p-1 opacity-0 transition-opacity duration-200 hover:opacity-100"
