@@ -13,14 +13,16 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
+import { combineLatest } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
 import {
     i18n,
     OrganisationService,
+    SettingsService,
     settingSignal,
     userSignal,
 } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
-import { filter, map } from 'rxjs/operators';
 
 export interface TopMenuEmbedItem {
     id: string;
@@ -38,6 +40,34 @@ interface TopMenuRoute {
     name: string;
     embed?: boolean;
     external?: boolean;
+}
+
+interface TopMenuSettingsState {
+    settings_initialised: boolean;
+    org_initialised: boolean;
+    has_region_context: boolean;
+    has_building_context: boolean;
+    override_count: number;
+    required_override_count: number;
+}
+
+const TOP_MENU_FEATURE_ALIASES: Record<string, string[]> = {
+    'parking-requests': ['parking', 'parking-requests'],
+};
+
+export function hasActiveTopMenuFeature(type: string, features: string[]) {
+    const feature_names = TOP_MENU_FEATURE_ALIASES[type] || [type];
+    return feature_names.some((_) => features.includes(_));
+}
+
+export function hasLoadedTopMenuSettings(state: TopMenuSettingsState) {
+    return (
+        !!state.settings_initialised &&
+        !!state.org_initialised &&
+        state.has_region_context &&
+        state.has_building_context &&
+        state.override_count >= state.required_override_count
+    );
 }
 
 @Component({
@@ -206,12 +236,46 @@ export class TopMenuComponent {
     private _element = inject(ElementRef);
     private _org = inject(OrganisationService);
     private _router = inject(Router);
+    private _settings = inject(SettingsService);
 
     private readonly menu =
         viewChild<ElementRef<HTMLDivElement>>('menuContainer');
 
     public readonly buildings = this._org.building_list;
     public readonly building = toSignal(this._org.active_building);
+    private readonly settings_ready = toSignal(
+        combineLatest([
+            this._settings.initialised,
+            this._org.initialised,
+            this._org.active_region,
+            this._org.active_building,
+            this._settings.overrides$,
+        ]).pipe(
+            map(
+                ([
+                    settings_initialised,
+                    org_initialised,
+                    region,
+                    building,
+                    overrides,
+                ]) => {
+                    const has_region_context =
+                        !this._org.regions.length || !!region?.id;
+                    const required_overrides =
+                        (this._org.settings?.length || 0) + 2;
+                    return hasLoadedTopMenuSettings({
+                        settings_initialised,
+                        org_initialised,
+                        has_region_context,
+                        has_building_context: !!building?.id,
+                        override_count: overrides.length,
+                        required_override_count: required_overrides,
+                    });
+                },
+            ),
+        ),
+        { initialValue: false },
+    );
     private readonly previous_size = signal(9999);
     public readonly checking = signal(false);
     public readonly mobile_menu = signal(false);
@@ -390,9 +454,17 @@ export class TopMenuComponent {
     }
 
     private _checkRoute() {
+        if (!this.settings_ready()) {
+            this._scheduleCheckMenu(300);
+            return;
+        }
         const type = this.type();
         const features = this.features();
-        if (type && type !== 'home' && !features.includes(type)) {
+        if (
+            type &&
+            type !== 'home' &&
+            !hasActiveTopMenuFeature(type, features)
+        ) {
             this._router.navigate(['/']);
         }
         this._scheduleCheckMenu(300);
