@@ -417,6 +417,26 @@ function formatPlayDateTimeRange(start: Date, duration_minutes: number) {
     return `${formatPlayDateTime(start)} – ${end_text}`;
 }
 
+function formatMinutes(value: number | null | undefined) {
+    const total_minutes = Math.max(0, Math.round(value || 0));
+    if (!total_minutes) return '';
+    const days = Math.floor(total_minutes / (24 * 60));
+    const hours = Math.floor((total_minutes % (24 * 60)) / 60);
+    const minutes = total_minutes % 60;
+    const parts = [
+        { value: days, label: 'day' },
+        { value: hours, label: 'hour' },
+        { value: minutes, label: 'minute' },
+    ];
+    return parts
+        .filter((part) => part.value)
+        .map(
+            (part) =>
+                `${part.value} ${part.label}${part.value === 1 ? '' : 's'}`,
+        )
+        .join(' ');
+}
+
 function nextCronPlayTimes(cron: string, duration_minutes: number) {
     const result: string[] = [];
     if (!cron?.trim()) return result;
@@ -1127,9 +1147,7 @@ export class PlaylistEditModalComponent {
         const interval = value.recurrence_interval || 1;
         const start_time = this.formatPlayHour(value.play_start);
         const period = value.play_period ?? DEFAULT_PLAY_PERIOD_MINUTES;
-        const duration = period
-            ? `${period} minute${period === 1 ? '' : 's'}`
-            : 'one playlist pass';
+        const duration = formatMinutes(period) || 'one playlist pass';
         if (value.recurrence_type === 'minutes') {
             return `Plays every ${interval} minute${interval === 1 ? '' : 's'}.`;
         }

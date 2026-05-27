@@ -70,4 +70,23 @@ describe('PlaylistEditModalComponent', () => {
         expect(dialog_ref.close).toHaveBeenCalledWith({ id: 'playlist-1' });
         expect(notifySuccess).toHaveBeenCalledWith('Playlist saved');
     });
+
+    it('formats schedule summary minutes as readable durations', () => {
+        const fixture = TestBed.createComponent(PlaylistEditModalComponent);
+        const component = fixture.componentInstance;
+
+        component.form.patchValue({
+            recurrence_type: 'daily',
+            play_start: 9 * 60,
+            play_period: 90,
+        });
+
+        expect(component.recurring_schedule_summary()).toContain(
+            'for 1 hour 30 minutes',
+        );
+
+        component.form.patchValue({ play_period: 24 * 60 });
+
+        expect(component.recurring_schedule_summary()).toContain('for 1 day');
+    });
 });
