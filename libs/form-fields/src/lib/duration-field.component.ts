@@ -10,7 +10,14 @@ import {
     signal,
     SimpleChanges,
 } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import {
+    AbstractControl,
+    ControlValueAccessor,
+    NG_VALIDATORS,
+    NG_VALUE_ACCESSOR,
+    ValidationErrors,
+    Validator,
+} from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatMenuModule } from '@angular/material/menu';
 import {
@@ -135,11 +142,16 @@ export interface DurationOption {
             useExisting: forwardRef(() => DurationFieldComponent),
             multi: true,
         },
+        {
+            provide: NG_VALIDATORS,
+            useExisting: forwardRef(() => DurationFieldComponent),
+            multi: true,
+        },
     ],
     imports: [MatMenuModule, MatFormFieldModule, CommonModule, IconComponent],
 })
 export class DurationFieldComponent
-    implements OnInit, OnChanges, ControlValueAccessor
+    implements OnInit, OnChanges, ControlValueAccessor, Validator
 {
     /** Maximum duration option available */
     public readonly max = input(240);
@@ -172,6 +184,8 @@ export class DurationFieldComponent
     private _onChange: (_: number) => void;
     /** Form control on touch handler */
     private _onTouch: (_: number) => void;
+    /** Form control validator change handler */
+    private _onValidatorChange: () => void;
 
     public readonly time_format = computed(() =>
         this.use_24hr() ? 'HH : mm' : 'h : mm a',
@@ -234,6 +248,7 @@ export class DurationFieldComponent
     public writeValue(value: number) {
         this.duration.set(value);
         this._setDurationOptions();
+        this._updateNoOptions();
         this._updateOption();
     }
 
@@ -245,6 +260,7 @@ export class DurationFieldComponent
 
     public setDisabledState(disabled: boolean) {
         this.disabled.set(disabled);
+        this._updateNoOptions();
     }
 
     /* istanbul ignore next */
@@ -263,6 +279,15 @@ export class DurationFieldComponent
      */
     public registerOnTouched(fn: (_: number) => void): void {
         this._onTouch = fn;
+    }
+
+    /** Mark the control invalid when the selected date has no valid durations. */
+    public validate(_: AbstractControl): ValidationErrors | null {
+        return this.no_options() ? { no_duration_options: true } : null;
+    }
+
+    public registerOnValidatorChange(fn: () => void): void {
+        this._onValidatorChange = fn;
     }
 
     private generateDurationOptions(max: number, min: number, step: number) {
@@ -329,11 +354,13 @@ export class DurationFieldComponent
 
     /** Update whether the field should show as disabled due to no options */
     private _updateNoOptions(): void {
-        this.no_options.set(
+        const next_no_options =
             !this.disabled() &&
                 (!this.duration_options() ||
-                    this.duration_options().length === 0),
-        );
+                    this.duration_options().length === 0);
+        if (this.no_options() === next_no_options) return;
+        this.no_options.set(next_no_options);
+        this._onValidatorChange?.();
     }
 
     private _updateOption() {

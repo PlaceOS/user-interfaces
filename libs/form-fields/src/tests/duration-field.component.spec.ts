@@ -145,6 +145,60 @@ describe('DurationFieldComponent', () => {
         );
     });
 
+    it('should mark the field invalid when the selected time has no duration options', () => {
+        spectator.setInput({
+            time: new Date(2026, 0, 1, 16, 30).valueOf(),
+            min: 60,
+            max: 240,
+            step: 30,
+            end_time: 17,
+        });
+        spectator.detectChanges();
+
+        expect(spectator.component.duration_options()).toEqual([]);
+        expect(spectator.component.no_options()).toBe(true);
+        expect(spectator.component.validate(null as any)).toEqual({
+            no_duration_options: true,
+        });
+        expect('button[duration-field]').toHaveAttribute('disabled');
+    });
+
+    it('should update validity when duration options become available again', () => {
+        const on_validator_change = jest.fn();
+        spectator.component.registerOnValidatorChange(on_validator_change);
+        spectator.setInput({
+            time: new Date(2026, 0, 1, 16, 30).valueOf(),
+            min: 60,
+            max: 240,
+            step: 30,
+            end_time: 17,
+        });
+        spectator.detectChanges();
+
+        spectator.setInput({ time: new Date(2026, 0, 1, 16, 0).valueOf() });
+        spectator.detectChanges();
+
+        expect(spectator.component.no_options()).toBe(false);
+        expect(spectator.component.validate(null as any)).toBeNull();
+        expect(on_validator_change).toHaveBeenCalledTimes(2);
+    });
+
+    it('should keep custom duration options below a high minimum when bookable hours limit the end time', () => {
+        spectator.setInput({
+            time: new Date(2026, 0, 1, 16, 0).valueOf(),
+            min: 240,
+            max: 480,
+            step: 30,
+            custom_options: [30, 60, 90],
+            end_time: 17,
+        });
+        spectator.detectChanges();
+
+        expect(spectator.component.duration_options().map((_) => _.id)).toEqual(
+            [30, 60],
+        );
+    });
+
     it('should preserve the current duration when it is outside the generated step options', () => {
         spectator.setInput({
             min: 30,
