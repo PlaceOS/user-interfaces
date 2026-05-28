@@ -141,7 +141,7 @@ describe('formatRecurrence', () => {
 
     it('should recover monthly recurrence week and weekday from event recurrence start', () => {
         const recurrence = fromEventRecurrence({
-            pattern: 'month_day',
+            pattern: 'monthly',
             interval: 1,
             days_of_week: [3],
             start: new Date(2026, 4, 13, 9).valueOf(),
@@ -168,15 +168,14 @@ describe('formatRecurrence', () => {
             booking_date,
         );
 
-        expect(raw.pattern).toBe('month_day');
+        expect(raw.pattern).toBe('monthly');
         expect(raw.days_of_week).toEqual([3]);
-        expect(raw.nth_of_month).toBe(WeekOfMonth.Second);
         expect(raw.start).toBe(new Date(2026, 4, 13, 9).valueOf());
     });
 
     it('should prefer the monthly recurrence week from event metadata', () => {
         const recurrence = fromEventRecurrence({
-            pattern: 'month_day',
+            pattern: 'monthly',
             interval: 1,
             days_of_week: [3],
             nth_of_month: WeekOfMonth.Second,
@@ -187,6 +186,39 @@ describe('formatRecurrence', () => {
         expect(formatRecurrence(recurrence)).toBe(
             'Every 1 month on the Second Wednesday until 30 Nov 2026',
         );
+    });
+
+    it('should serialise monthly event recurrence by day of month', () => {
+        const booking_date = new Date(2026, 4, 12, 9).valueOf();
+        const raw = toEventRecurrence(
+            {
+                _custom: true,
+                type: 'monthly',
+                interval: 1,
+                monthly_type: 'day_of_month',
+                end_type: 'never',
+            },
+            booking_date,
+        );
+
+        expect(raw.pattern).toBe('month_day');
+        expect(raw.days_of_week).toEqual([]);
+        expect(raw.start).toBe(booking_date);
+    });
+
+    it('should recover monthly event recurrence by day of month', () => {
+        const recurrence = fromEventRecurrence({
+            pattern: 'month_day',
+            interval: 1,
+            days_of_week: [],
+            start: new Date(2026, 4, 12, 9).valueOf(),
+            end: new Date(2026, 10, 30).valueOf(),
+        });
+
+        expect(recurrence.monthly_type).toBe('day_of_month');
+        expect(
+            formatRecurrence(recurrence, new Date(2026, 4, 12).valueOf()),
+        ).toBe('Every 1 month on day 12 until 30 Nov 2026');
     });
 
     it('should preserve the selected event recurrence end date', () => {
