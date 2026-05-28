@@ -869,6 +869,7 @@ function playlistMediaResponse(playlist_id: string, approved = false) {
         playlist_id,
         items: (playlist?.items || []).map((item) => item.media_id),
         approved,
+        approval_requested: false,
         updated_at: playlist?.updated_at || getUnixTime(Date.now()),
     };
 }

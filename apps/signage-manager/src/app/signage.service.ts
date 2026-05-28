@@ -117,6 +117,7 @@ interface PlaylistMetaState {
     media_ids: string[];
     updated_at: number;
     approved?: boolean;
+    approval_requested?: boolean;
 }
 
 const PLAYLIST_META_SESSION_KEY = 'PlaceOS.SIGNAGE:playlist-meta-cache:v1';
@@ -668,6 +669,17 @@ export class SignageService {
         }
         return result;
     });
+    public readonly playlist_approval_requested_status = computed(() => {
+        const result: Record<string, boolean> = {};
+        for (const [playlist_id, data] of Object.entries(
+            this._playlist_meta_state(),
+        )) {
+            if (typeof data.approval_requested === 'boolean') {
+                result[playlist_id] = data.approval_requested;
+            }
+        }
+        return result;
+    });
     public readonly playlist_approval_request_loading = signal(false);
     public readonly playlist_thumbnail_media = computed(() => {
         const result: Record<string, string[]> = {};
@@ -923,6 +935,7 @@ export class SignageService {
                 result.approver_id || '',
             ),
         );
+        this.setPlaylistApprovalStatus(playlist.id, false, true);
         notifySuccess('Playlist approval requested');
     }
 
@@ -1411,7 +1424,8 @@ export class SignageService {
             !loading &&
             !queued &&
             (meta?.updated_at !== playlist_updated_at ||
-                typeof meta?.approved !== 'boolean')
+                typeof meta?.approved !== 'boolean' ||
+                typeof meta?.approval_requested !== 'boolean')
         );
     }
 
@@ -1437,6 +1451,7 @@ export class SignageService {
                         media_ids: (media.items || []).slice(0, 3),
                         updated_at: playlist_updated_at,
                         approved: media.approved,
+                        approval_requested: media.approval_requested,
                     });
                 } catch {
                     this._setPlaylistMeta(next_playlist.id, {
@@ -1462,7 +1477,11 @@ export class SignageService {
         }));
     }
 
-    public setPlaylistApprovalStatus(playlist_id: string, approved: boolean) {
+    public setPlaylistApprovalStatus(
+        playlist_id: string,
+        approved: boolean,
+        approval_requested = false,
+    ) {
         const playlist =
             this._playlists().find((item) => item.id === playlist_id) ||
             this.selected_playlist();
@@ -1472,6 +1491,7 @@ export class SignageService {
             updated_at:
                 current_state?.updated_at || playlist?.updated_at || Date.now(),
             approved,
+            approval_requested,
         });
     }
 
@@ -1489,6 +1509,10 @@ export class SignageService {
             updated_at:
                 current_state?.updated_at || playlist?.updated_at || Date.now(),
             approved: approved ?? current_state?.approved,
+            approval_requested:
+                approved === false
+                    ? false
+                    : (current_state?.approval_requested ?? false),
         });
     }
 

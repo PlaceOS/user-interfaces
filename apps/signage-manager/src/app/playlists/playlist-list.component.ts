@@ -12,7 +12,12 @@ import {
 import { SignagePlaylist } from '@placeos/ts-client';
 import { SignageService } from '../signage.service';
 
-type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
+type PlaylistStatus =
+    | 'expired'
+    | 'pending'
+    | 'awaiting_approval'
+    | 'awaiting_review'
+    | null;
 
 @Component({
     selector: 'playlist-list',
@@ -100,10 +105,12 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                             >
                                 {{ playlist.name }}
                             </div>
-                            <div class="flex flex-wrap gap-1">
+                            <div
+                                class="flex flex-wrap gap-1 text-[0.625rem] font-medium uppercase"
+                            >
                                 @if (!playlist.enabled) {
                                     <span
-                                        class="bg-warning text-warning-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
+                                        class="bg-base-200 shrink-0 rounded px-1.5 py-0.5"
                                     >
                                         Disabled
                                     </span>
@@ -111,23 +118,30 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                 @switch (getStatus(playlist)) {
                                     @case ('expired') {
                                         <span
-                                            class="bg-error text-error-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
+                                            class="bg-error text-error-content shrink-0 rounded px-1.5 py-0.5"
                                         >
                                             Expired
                                         </span>
                                     }
                                     @case ('pending') {
                                         <span
-                                            class="bg-info text-info-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
+                                            class="bg-info text-info-content shrink-0 rounded px-1.5 py-0.5"
                                         >
                                             Pending
                                         </span>
                                     }
+                                    @case ('awaiting_review') {
+                                        <span
+                                            class="bg-warning text-warning-content shrink-0 rounded px-1.5 py-0.5"
+                                        >
+                                            Awaiting Review
+                                        </span>
+                                    }
                                     @case ('awaiting_approval') {
                                         <span
-                                            class="bg-secondary text-secondary-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
+                                            class="bg-base-300 shrink-0 rounded px-1.5 py-0.5"
                                         >
-                                            Awaiting Approval
+                                            Approval Required
                                         </span>
                                     }
                                 }
@@ -188,6 +202,8 @@ export class PlaylistListComponent {
         this._service.playlist_thumbnail_media;
     public readonly playlist_approval_status =
         this._service.playlist_approval_status;
+    public readonly playlist_approval_requested_status =
+        this._service.playlist_approval_requested_status;
 
     constructor() {
         effect(() => {
@@ -202,6 +218,13 @@ export class PlaylistListComponent {
         if (playlist.valid_from && playlist.valid_from > now_s)
             return 'pending';
         const approvals = this.playlist_approval_status();
+        const approval_requests = this.playlist_approval_requested_status();
+        if (
+            playlist.id in approvals &&
+            !approvals[playlist.id] &&
+            approval_requests[playlist.id]
+        )
+            return 'awaiting_review';
         if (playlist.id in approvals && !approvals[playlist.id])
             return 'awaiting_approval';
         return null;
