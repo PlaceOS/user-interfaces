@@ -1028,18 +1028,13 @@ export function setupFormTimeSync(
     ): number => {
         if (!bookable_hours || !date || form.value.id) return date;
         if (preserve_calendar_day) {
-            const aligned = alignDateToBookableHours(
+            return alignDateToBookableHours(
                 date,
                 bookable_hours,
                 date,
                 timezone,
                 effective_min_duration(),
             );
-            if (aligned !== date && _user_date_change) {
-                notifyWarn(i18n('COMMON.BOOKABLE_HOURS_ERROR'));
-                _user_date_change = false;
-            }
-            return aligned;
         }
         const next = getNextBookableTime(
             bookable_hours,

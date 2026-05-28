@@ -21,6 +21,7 @@ import {
     addSignagePlaylist,
     apiEndpoint,
     currentGroups,
+    listSignagePlaylistApprovers,
     listSignagePlaylistMedia,
     mediaThumbnail,
     PlaceCurrentGroup,
@@ -49,6 +50,7 @@ import {
     shareSignagePlaylists,
     SignageMedia,
     SignagePlaylist,
+    type SignagePlaylistApprover,
     SignagePlugin,
     updateGroup,
     updateGroupUser,
@@ -115,6 +117,7 @@ interface PlaylistMetaState {
     media_ids: string[];
     updated_at: number;
     approved?: boolean;
+    approval_requested?: boolean;
 }
 
 const PLAYLIST_META_SESSION_KEY = 'PlaceOS.SIGNAGE:playlist-meta-cache:v1';
@@ -666,6 +669,18 @@ export class SignageService {
         }
         return result;
     });
+    public readonly playlist_approval_requested_status = computed(() => {
+        const result: Record<string, boolean> = {};
+        for (const [playlist_id, data] of Object.entries(
+            this._playlist_meta_state(),
+        )) {
+            if (typeof data.approval_requested === 'boolean') {
+                result[playlist_id] = data.approval_requested;
+            }
+        }
+        return result;
+    });
+    public readonly playlist_approval_request_loading = signal(false);
     public readonly playlist_thumbnail_media = computed(() => {
         const result: Record<string, string[]> = {};
         for (const [playlist_id, data] of Object.entries(
@@ -872,38 +887,55 @@ export class SignageService {
 
     public async requestPlaylistApproval(playlist: SignagePlaylist) {
         if (!playlist?.id) return;
+        if (this.playlist_approval_request_loading()) return;
         if (this.can_approve()) {
             this.approvePlaylist(playlist);
             return;
         }
-        const groups = await this._playlistApprovalGroups(playlist);
-        if (!groups.length) {
-            notifyWarn('No signage groups are available for this playlist.');
-            return;
+        let approvers: SignagePlaylistApprover[] = [];
+        let group: PlaceCurrentGroup | null = null;
+        this.playlist_approval_request_loading.set(true);
+        try {
+            const groups = await this._playlistApprovalGroups(playlist);
+            if (!groups.length) {
+                notifyWarn(
+                    'No signage groups are available for this playlist.',
+                );
+                return;
+            }
+            const selected_group_id = this._api_group_id();
+            group =
+                groups.find((item) => item.group.id === selected_group_id) ||
+                groups[0];
+            approvers =
+                ((await lastValueFrom(
+                    listSignagePlaylistApprovers(group.group.id),
+                )) as SignagePlaylistApprover[]) || [];
+        } catch {
+            notifyWarn('Unable to load playlist approvers.');
+        } finally {
+            this.playlist_approval_request_loading.set(false);
         }
-        const selected_group_id = this._api_group_id();
+        if (!group) return;
         const ref = this._dialog.open(PlaylistRequestApprovalModalComponent, {
             data: {
                 playlist,
-                groups,
-                selected_group_id: groups.some(
-                    (item) => item.group.id === selected_group_id,
-                )
-                    ? selected_group_id
-                    : groups[0].group.id,
+                approvers,
             },
             panelClass: 'mobile-fullscreen',
         });
         const result: PlaylistRequestApprovalModalResult | undefined =
             await lastValueFrom(ref.afterClosed());
-        if (!result?.group_id) return;
+        if (!result) return;
         await lastValueFrom(
             requestApprovalSignagePlaylist(
                 playlist.id,
-                result.group_id,
+                group.group.id,
                 result.message || '',
+                result.approver_id || '',
             ),
         );
+        this.setPlaylistApprovalStatus(playlist.id, false, true);
         notifySuccess('Playlist approval requested');
     }
 
@@ -1392,7 +1424,8 @@ export class SignageService {
             !loading &&
             !queued &&
             (meta?.updated_at !== playlist_updated_at ||
-                typeof meta?.approved !== 'boolean')
+                typeof meta?.approved !== 'boolean' ||
+                typeof meta?.approval_requested !== 'boolean')
         );
     }
 
@@ -1418,6 +1451,7 @@ export class SignageService {
                         media_ids: (media.items || []).slice(0, 3),
                         updated_at: playlist_updated_at,
                         approved: media.approved,
+                        approval_requested: media.approval_requested,
                     });
                 } catch {
                     this._setPlaylistMeta(next_playlist.id, {
@@ -1443,7 +1477,11 @@ export class SignageService {
         }));
     }
 
-    public setPlaylistApprovalStatus(playlist_id: string, approved: boolean) {
+    public setPlaylistApprovalStatus(
+        playlist_id: string,
+        approved: boolean,
+        approval_requested = false,
+    ) {
         const playlist =
             this._playlists().find((item) => item.id === playlist_id) ||
             this.selected_playlist();
@@ -1453,6 +1491,7 @@ export class SignageService {
             updated_at:
                 current_state?.updated_at || playlist?.updated_at || Date.now(),
             approved,
+            approval_requested,
         });
     }
 
@@ -1470,6 +1509,10 @@ export class SignageService {
             updated_at:
                 current_state?.updated_at || playlist?.updated_at || Date.now(),
             approved: approved ?? current_state?.approved,
+            approval_requested:
+                approved === false
+                    ? false
+                    : (current_state?.approval_requested ?? false),
         });
     }
 

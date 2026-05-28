@@ -7,11 +7,8 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { notifyError, notifySuccess } from '@placeos/common';
-import {
-    AuthenticatedImageDirective,
-    IconComponent,
-} from '@placeos/components';
+import { notifyError, notifySuccess, notifyWarn } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
 import {
     approveSignagePlaylist,
     listSignagePlaylistMediaRevisions,
@@ -29,8 +26,9 @@ import {
     switchMap,
     tap,
 } from 'rxjs';
-import { SignageService } from '../signage.service';
 import { playlistMediaItems } from '../signage-playlist.util';
+import { SignageService } from '../signage.service';
+import { PlaylistApprovalPreviewComponent } from './playlist-approval-preview.component';
 
 interface PlaylistApproveModalData {
     playlist: SignagePlaylist;
@@ -58,155 +56,27 @@ interface PlaylistApproveModalData {
                 <main class="max-h-[60vh] gap-2 overflow-auto py-2">
                     @let versions = playlist_versions | async;
                     @let media = playlist_media | async;
-                    <div class="flex gap-2 max-md:flex-col">
-                        <div
-                            class="border-base-300 bg-success-light w-[24rem] rounded-sm border max-md:w-full"
-                        >
-                            @let current_version = versions?.[0];
-                            @let current_media = media?.[0] || [];
-                            <div
-                                class="border-base-300 bg-base-200 flex items-center space-x-8 rounded-sm border-b px-4 py-2"
-                            >
-                                <h3>Version to approve</h3>
-                                <div
-                                    class="text-base-content/70 font-mono text-xs"
-                                >
-                                    {{
-                                        current_version?.updated_at * 1000
-                                            | date: 'dd MMM, HH:mm'
-                                    }}
-                                </div>
-                            </div>
-                            <div class="space-y-2 p-2">
-                                <div class="px-2 text-sm">
-                                    {{ (current_version?.items || []).length }}
-                                    items
-                                </div>
-                                @for (item of current_media; track item?.id) {
-                                    <div
-                                        class="border-base-300 bg-base-100 flex items-center space-x-2 rounded-sm border p-2"
-                                    >
-                                        <button
-                                            type="button"
-                                            class="bg-base-200 relative h-10 w-10 shrink-0 overflow-hidden rounded-sm"
-                                            matRipple
-                                            (click)="previewItem(item)"
-                                            [attr.aria-label]="
-                                                'Preview ' + item.name
-                                            "
-                                        >
-                                            @if (item.thumbnail_url) {
-                                                <img
-                                                    auth
-                                                    [source]="
-                                                        item.thumbnail_url
-                                                    "
-                                                    [alt]="
-                                                        item.name + ' thumbnail'
-                                                    "
-                                                    class="h-full w-full object-cover"
-                                                />
-                                                <div
-                                                    class="absolute inset-0 flex items-end justify-end p-1 opacity-0 transition-opacity duration-200 hover:opacity-100"
-                                                >
-                                                    <icon class="text-lg"
-                                                        >expand_content</icon
-                                                    >
-                                                </div>
-                                            }
-                                        </button>
-                                        <span class="truncate">{{
-                                            item.name
-                                        }}</span>
-                                    </div>
-                                } @empty {
-                                    <div
-                                        class="text-base-content/70 flex flex-col items-center justify-center p-8"
-                                    >
-                                        <icon class="text-4xl">hide_image</icon>
-                                        <p class="text-sm">No items</p>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                        <div
-                            class="border-base-300 bg-error-light w-[24rem] rounded-sm border max-md:w-full"
-                        >
-                            @let previous_version = versions?.[1];
-                            @let previous_media = media?.[1] || [];
-                            <div
-                                class="border-base-300 bg-base-200 flex items-center space-x-8 rounded-sm border-b px-4 py-2"
-                            >
-                                <h3>Previous version</h3>
-                                <div
-                                    class="text-base-content/70 font-mono text-xs"
-                                >
-                                    {{
-                                        previous_version?.updated_at * 1000
-                                            | date: 'dd MMM, HH:mm'
-                                    }}
-                                </div>
-                            </div>
-                            <div class="space-y-2 p-2">
-                                <div class="px-2 text-sm">
-                                    {{ (previous_version?.items || []).length }}
-                                    items
-                                </div>
-                                @for (item of previous_media; track item?.id) {
-                                    <div
-                                        class="border-base-300 bg-base-100 flex items-center space-x-2 rounded-sm border p-2"
-                                    >
-                                        <button
-                                            type="button"
-                                            class="bg-base-200 h-10 w-10 shrink-0 overflow-hidden rounded-sm"
-                                            matRipple
-                                            (click)="previewItem(item)"
-                                            [attr.aria-label]="
-                                                'Preview ' + item.name
-                                            "
-                                        >
-                                            @if (item.thumbnail_url) {
-                                                <img
-                                                    auth
-                                                    [source]="
-                                                        item.thumbnail_url
-                                                    "
-                                                    [alt]="
-                                                        item.name + ' thumbnail'
-                                                    "
-                                                    class="h-full w-full object-cover"
-                                                />
-                                            }
-                                        </button>
-                                        <span class="truncate">{{
-                                            item.name
-                                        }}</span>
-                                    </div>
-                                } @empty {
-                                    <div
-                                        class="text-base-content/70 flex flex-col items-center justify-center p-8"
-                                    >
-                                        <icon class="text-4xl">hide_image</icon>
-                                        <p class="text-sm">No items</p>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    </div>
+                    <playlist-approval-preview
+                        [versions]="versions || []"
+                        [media]="media || []"
+                        (preview)="previewItem($event)"
+                    />
                 </main>
                 <footer
                     class="bg-base-200 flex items-center justify-end space-x-2 rounded-sm p-2"
                 >
-                    <button
-                        btn
-                        type="button"
-                        matRipple
-                        class="inverse bg-base-100 w-40"
-                        [disabled]="!has_previous_version()"
-                        (click)="undoChanges()"
-                    >
-                        Undo Changes
-                    </button>
+                    @if (can_update()) {
+                        <button
+                            btn
+                            type="button"
+                            matRipple
+                            class="inverse bg-base-100 w-40"
+                            [disabled]="!has_previous_version()"
+                            (click)="undoChanges()"
+                        >
+                            Undo Changes
+                        </button>
+                    }
                     <button
                         btn
                         type="button"
@@ -235,7 +105,7 @@ interface PlaylistApproveModalData {
         MatRippleModule,
         MatDialogModule,
         MatProgressSpinnerModule,
-        AuthenticatedImageDirective,
+        PlaylistApprovalPreviewComponent,
     ],
 })
 export class PlaylistApproveModalComponent implements OnInit {
@@ -248,6 +118,7 @@ export class PlaylistApproveModalComponent implements OnInit {
 
     public readonly loading = signal('');
     public readonly has_previous_version = signal(false);
+    public readonly can_update = this._service.can_update;
 
     public readonly playlist_versions = this._playlist_id.pipe(
         filter((id) => !!id),
@@ -270,6 +141,10 @@ export class PlaylistApproveModalComponent implements OnInit {
     }
 
     public async undoChanges() {
+        if (!this.can_update()) {
+            notifyWarn('You cannot update playlists in this group.');
+            return;
+        }
         const [, previous_version] = await firstValueFrom(
             this.playlist_versions,
         );
@@ -303,7 +178,10 @@ export class PlaylistApproveModalComponent implements OnInit {
         this._dialog_ref.disableClose = true;
         try {
             await lastValueFrom(approveSignagePlaylist(this._data.playlist.id));
-            this._service.setPlaylistApprovalStatus(this._data.playlist.id, true);
+            this._service.setPlaylistApprovalStatus(
+                this._data.playlist.id,
+                true,
+            );
             notifySuccess('Playlist approved');
             this._dialog_ref.close(true);
             this._service.changed();

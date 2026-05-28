@@ -1,13 +1,12 @@
-import { COMMA, ENTER, SEMICOLON, SPACE } from '@angular/cdk/keycodes';
-
 import { Component, inject, signal } from '@angular/core';
 import {
+    AbstractControl,
     FormControl,
     FormGroup,
     ReactiveFormsModule,
+    ValidationErrors,
     Validators,
 } from '@angular/forms';
-import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -15,11 +14,10 @@ import {
     notifyError,
     notifySuccess,
     OrganisationService,
+    User,
 } from '@placeos/common';
-import {
-    FullscreenModalShellComponent,
-    IconComponent,
-} from '@placeos/components';
+import { FullscreenModalShellComponent } from '@placeos/components';
+import { UserListFieldComponent } from '@placeos/form-fields';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
 
@@ -65,40 +63,16 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
                 >
                     Recipients<span>*</span>
                 </label>
-                <mat-form-field appearance="outline" class="mb-4">
-                    <mat-chip-grid
-                        #chipGrid
-                        aria-label="Recipients"
-                        formControlName="recipients"
-                    >
-                        @for (email of recipients(); track email) {
-                            <mat-chip-row (removed)="removeRecipient(email)">
-                                <span
-                                    class="max-w-md truncate"
-                                    [class.text-error]="!isValidEmail(email)"
-                                >
-                                    {{ email }}
-                                </span>
-                                <button
-                                    matChipRemove
-                                    [attr.aria-label]="'Remove ' + email"
-                                >
-                                    <icon>cancel</icon>
-                                </button>
-                            </mat-chip-row>
-                        }
-                    </mat-chip-grid>
-                    <input
-                        placeholder="Enter email addresses..."
-                        [matChipInputFor]="chipGrid"
-                        [matChipInputSeparatorKeyCodes]="separators"
-                        [matChipInputAddOnBlur]="true"
-                        (matChipInputTokenEnd)="addRecipient($event)"
-                    />
-                    <mat-hint>
-                        Press Enter, comma, or semicolon to add recipients.
-                    </mat-hint>
-                    <mat-error>
+                <a-user-list-field
+                    name="recipients"
+                    formControlName="recipients"
+                    [hide_actions]="true"
+                ></a-user-list-field>
+                @if (
+                    form.controls.recipients.invalid &&
+                    form.controls.recipients.touched
+                ) {
+                    <div class="-mt-4 mb-4 text-sm text-error">
                         @if (form.controls.recipients.hasError('required')) {
                             At least one recipient is required
                         } @else if (
@@ -106,8 +80,8 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
                         ) {
                             Some email addresses are invalid
                         }
-                    </mat-error>
-                </mat-form-field>
+                    </div>
+                }
 
                 <label
                     for="message_plaintext"
@@ -142,9 +116,8 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
         MatDialogModule,
         MatFormFieldModule,
         MatInputModule,
-        MatChipsModule,
         FullscreenModalShellComponent,
-        IconComponent,
+        UserListFieldComponent,
     ],
 })
 export class BroadcastEmailModalComponent {
@@ -153,41 +126,15 @@ export class BroadcastEmailModalComponent {
     private _org = inject(OrganisationService);
 
     public readonly loading = signal('');
-    public readonly recipients = signal<string[]>([]);
-    public readonly separators = [ENTER, COMMA, SEMICOLON, SPACE];
 
     public readonly form = new FormGroup({
         subject: new FormControl('', Validators.required),
-        recipients: new FormControl<string[]>([], this._validateRecipients),
+        recipients: new FormControl<User[]>([], {
+            nonNullable: true,
+            validators: this._validateRecipients,
+        }),
         message_plaintext: new FormControl('', Validators.required),
     });
-
-    public isValidEmail(email: string): boolean {
-        return EMAIL_REGEX.test(email);
-    }
-
-    public addRecipient(event: MatChipInputEvent): void {
-        const value = (event.value || '').trim();
-        if (value) {
-            const emails = value
-                .split(/[\n,;]+/)
-                .map((e) => e.trim())
-                .filter((e) => !!e);
-            this.recipients.update((recipients) => [...recipients, ...emails]);
-            this.form.controls.recipients.setValue(this.recipients());
-        }
-        event.chipInput.clear();
-    }
-
-    public removeRecipient(email: string): void {
-        const idx = this.recipients().indexOf(email);
-        if (idx >= 0) {
-            this.recipients.update((recipients) =>
-                recipients.filter((recipient) => recipient !== email),
-            );
-            this.form.controls.recipients.setValue(this.recipients());
-        }
-    }
 
     public async sendEmail() {
         this.form.markAllAsTouched();
@@ -200,7 +147,9 @@ export class BroadcastEmailModalComponent {
             );
         }
         const { subject, message_plaintext } = this.form.getRawValue();
-        const recipient_list = this.recipients().filter((e) => !!e);
+        const recipient_list = this.form.controls.recipients.value
+            .map((user) => user.email)
+            .filter((email) => !!email);
         if (!recipient_list.length) {
             this.form.controls.recipients.setErrors({ required: true });
             return;
@@ -220,11 +169,11 @@ export class BroadcastEmailModalComponent {
     }
 
     private _validateRecipients(
-        control: FormControl<string[]>,
-    ): { [key: string]: boolean } | null {
-        const value = control.value;
+        control: AbstractControl<User[]>,
+    ): ValidationErrors | null {
+        const value = control.value || [];
         if (!value || !value.length) return { required: true };
-        const has_invalid = value.some((email) => !EMAIL_REGEX.test(email));
+        const has_invalid = value.some((user) => !EMAIL_REGEX.test(user.email));
         if (has_invalid) return { invalidEmails: true };
         return null;
     }

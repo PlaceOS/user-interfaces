@@ -44,24 +44,13 @@ test.describe('Signage App Initialization', () => {
         expect(url).toContain('#');
     });
 
-    test('should load Angular Material styles', async ({ page }) => {
+    test('should load Angular Material controls', async ({ page }) => {
         await initializeAppWithMock(page);
         await waitForAppReady(page);
 
-        // Check that Material components are available in the DOM
-        const has_material = await page.evaluate(() => {
-            // Check for Material-related elements or classes
-            const mat_elements = document.querySelectorAll(
-                '[class*="mat-"], [class*="mdc-"]',
-            );
-            return (
-                mat_elements.length > 0 ||
-                document.querySelector('mat-select') !== null
-            );
+        await expect(page.locator('mat-select')).toBeVisible({
+            timeout: LOAD_TIMEOUT,
         });
-
-        // Material should be loaded (elements or styles present)
-        expect(has_material || true).toBeTruthy();
     });
 
     test('should display app root container', async ({ page }) => {

@@ -287,7 +287,7 @@ export function fromEventRecurrence(r: RecurrenceDetails): Recurrence {
         recurr.weekdays = new Set(r.days_of_week as DayIndex[]);
     }
 
-    if (r.pattern === 'monthly' || r.pattern === 'month_day') {
+    if (r.pattern === 'monthly') {
         recurr.type = 'monthly';
         recurr.monthly_type = 'day_of_week';
         if (r.days_of_week?.length) {
@@ -298,6 +298,11 @@ export function fromEventRecurrence(r: RecurrenceDetails): Recurrence {
         } else if (r.start) {
             recurr.week = weekOfMonth(r.start);
         }
+    }
+
+    if (r.pattern === 'month_day') {
+        recurr.type = 'monthly';
+        recurr.monthly_type = 'day_of_month';
     }
 
     return recurr;
@@ -317,12 +322,6 @@ export function toEventRecurrence(
             end: date,
         };
     }
-    const monthly_day =
-        r.type === 'monthly' &&
-        r.monthly_type === 'day_of_week' &&
-        r.weekdays?.size
-            ? Array.from(r.weekdays).sort((a, b) => a - b)[0]
-            : undefined;
     const recurrence_start = firstRecurrenceInstance(r, date);
     const date_obj = new Date(recurrence_start);
     let end = addMonths(recurrence_start, 6).valueOf();
@@ -345,12 +344,10 @@ export function toEventRecurrence(
     }
     if ((r.type === 'weekly' || r.type === 'monthly') && r.weekdays) {
         details.days_of_week = Array.from(r.weekdays);
-        if (r.type === 'monthly') {
-            details.pattern = 'month_day';
-            if (r.week) details.nth_of_month = r.week;
-        }
+        if (r.type === 'monthly') details.pattern = 'monthly';
     } else if (r.type === 'monthly') {
         details.days_of_week = [];
+        if (r.monthly_type === 'day_of_month') details.pattern = 'month_day';
     }
     if (
         r.end_type === 'never' &&

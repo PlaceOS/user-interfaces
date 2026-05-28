@@ -51,9 +51,14 @@ import { SignageService } from '../signage.service';
                             class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                             matTooltip="Request playlist approval"
                             (click)="requestApproval()"
+                            [disabled]="approval_request_loading()"
                             aria-label="Request approval for selected playlist"
                         >
-                            <icon class="text-warning">approval</icon>
+                            @if (approval_request_loading()) {
+                                <mat-spinner diameter="20" />
+                            } @else {
+                                <icon class="text-warning">approval</icon>
+                            }
                         </button>
                     }
                 }
@@ -311,6 +316,8 @@ export class PlaylistItemsComponent {
     public readonly can_delete = this._service.can_delete;
     public readonly can_share = this._service.can_share;
     public readonly loading = this._service.playlist_media_loading;
+    public readonly approval_request_loading =
+        this._service.playlist_approval_request_loading;
     public readonly items = toSignal(this._service.playlist_media_items$, {
         initialValue: [] as SignageMedia[],
     });

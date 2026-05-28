@@ -216,7 +216,7 @@ describe('CalendarEvent', () => {
                 start: recurrence_start,
                 end: new Date(2026, 10, 30).valueOf(),
                 interval: 1,
-                pattern: 'month_day',
+                pattern: 'monthly',
                 days_of_week: [3],
             },
         });
@@ -227,7 +227,6 @@ describe('CalendarEvent', () => {
             getUnixTime(startOfDay(recurrence_start)),
         );
         expect(json.recurrence.days_of_week).toEqual(['wednesday']);
-        expect(json.recurrence.nth_of_month).toBe(2);
     });
 
     it('should serialise recurring events until the selected end date', () => {

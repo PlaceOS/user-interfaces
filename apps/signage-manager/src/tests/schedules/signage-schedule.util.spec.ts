@@ -2,7 +2,7 @@ import {
     buildDisplayScheduleAssignments,
     buildScheduleBlocks,
     buildZoneScheduleAssignments,
-} from './signage-schedule.util';
+} from '../../app/schedules/signage-schedule.util';
 
 describe('signage-schedule.util', () => {
     it('builds timed blocks for a playlist schedule', () => {
@@ -13,8 +13,13 @@ describe('signage-schedule.util', () => {
                     playlist: {
                         id: 'playlist-1',
                         name: 'Breakfast',
-                        play_cron: '0 9 * * *',
-                        play_period: 180,
+                        schedules: [
+                            {
+                                play_cron: '0 9 * * *',
+                                play_period: 180,
+                                play_takeover: false,
+                            },
+                        ],
                     } as any,
                     source_type: 'zone',
                     source_label: 'Lobby',
@@ -32,6 +37,36 @@ describe('signage-schedule.util', () => {
                 source_label: 'Lobby',
             }),
         ]);
+    });
+
+    it('matches monthly weekday schedules with multiple month instances', () => {
+        const days = [
+            new Date('2026-03-02T00:00:00'),
+            new Date('2026-03-09T00:00:00'),
+            new Date('2026-03-16T00:00:00'),
+        ];
+        const blocks = buildScheduleBlocks(
+            [
+                {
+                    playlist: {
+                        id: 'playlist-1',
+                        name: 'Breakfast',
+                        schedules: [
+                            {
+                                play_cron: '0 9 1-7,15-21 * 1',
+                                play_period: 180,
+                                play_takeover: false,
+                            },
+                        ],
+                    } as any,
+                    source_type: 'zone',
+                    source_label: 'Lobby',
+                },
+            ],
+            days,
+        );
+
+        expect(blocks.map((block) => block.day_index)).toEqual([0, 2]);
     });
 
     it('deduplicates display schedules and collapses repeated zone sources', () => {

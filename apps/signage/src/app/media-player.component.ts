@@ -392,6 +392,7 @@ export class MediaPlayerComponent
         else if (event === 'NEXT') this.nextItem();
         else if (event === 'PREVIOUS') this.previousItem();
         else if (event === 'MUTE') this.toggleMuted();
+        else if (event === 'LOOP') this.toggleLoop();
     }
 
     public onWebpageLoad() {

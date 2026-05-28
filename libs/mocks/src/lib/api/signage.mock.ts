@@ -869,6 +869,7 @@ function playlistMediaResponse(playlist_id: string, approved = false) {
         playlist_id,
         items: (playlist?.items || []).map((item) => item.media_id),
         approved,
+        approval_requested: false,
         updated_at: playlist?.updated_at || getUnixTime(Date.now()),
     };
 }
@@ -1154,6 +1155,19 @@ export function registerMockSignage() {
     });
 
     registerMockEndpoint({
+        path: '/api/engine/v2/signage/playlists/approvers',
+        metadata: {},
+        method: 'GET',
+        callback: (request) =>
+            SIGNAGE_GROUP_USERS.filter(
+                (item) => item.group_id === request.query_params?.group_id,
+            ).map((item) => ({
+                id: item.user?.email || item.user_id,
+                name: item.user?.name || item.user_id,
+            })),
+    });
+
+    registerMockEndpoint({
         path: '/api/engine/v2/signage/playlists',
         metadata: {},
         method: 'POST',
@@ -1222,6 +1236,13 @@ export function registerMockSignage() {
         method: 'POST',
         callback: (request) =>
             playlistMediaResponse(request.route_params.id, true),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/playlists/:id/media/request_approval',
+        metadata: {},
+        method: 'POST',
+        callback: () => ({}),
     });
 
     registerMockEndpoint({
