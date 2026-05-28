@@ -12,13 +12,124 @@ export const SIGNAGE_SYSTEM_URL = (system_id: string) =>
 export const UNAUTHORISED_URL = '/#/unauthorised';
 
 // Mock system IDs for testing
-export const MOCK_SYSTEM_ID = 'sys-signage-01';
+export const MOCK_SYSTEM_ID = 'display-1';
 export const MOCK_BUILDING_ID = 'bld-01';
+export const MOCK_ZONE_ID = 'zone-1';
 
 // LocalStorage keys (must match the app's STORE_PREFIX)
 export const STORE_PREFIX = 'PlaceOS.SIGNAGE';
 export const STORE_DISPLAY_KEY = `${STORE_PREFIX}.display`;
 export const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
+export const STORE_DISPLAY_DETAILS_KEY = `${STORE_PREFIX}.display_details`;
+export const STORE_CACHED_FILES_KEY = `${STORE_PREFIX}.cached_files`;
+
+export const TEST_IMAGE_URL = '/e2e-media/welcome.png';
+export const TEST_VIDEO_URL = '/e2e-media/intro.mp4';
+export const TEST_WEBPAGE_URL = '/e2e-webpage';
+
+const TEST_IMAGE_BYTES = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+    'base64',
+);
+
+export function mockDisplay(system_id = MOCK_SYSTEM_ID) {
+    return {
+        id: system_id,
+        zones: [MOCK_ZONE_ID],
+        playlist_mappings: {
+            [system_id]: ['base-playlist'],
+            [MOCK_ZONE_ID]: ['zone-playlist'],
+            'trig-alert': ['trigger-playlist'],
+        },
+        playlist_config: {
+            'base-playlist': [
+                {
+                    id: 'base-playlist',
+                    name: 'Base Playlist',
+                    enabled: true,
+                    default_animation: 0,
+                    default_duration: 15000,
+                },
+                ['media-image', 'media-webpage'],
+            ],
+            'zone-playlist': [
+                {
+                    id: 'zone-playlist',
+                    name: 'Zone Playlist',
+                    enabled: true,
+                    default_animation: 0,
+                    default_duration: 20000,
+                },
+                ['media-video'],
+            ],
+            'trigger-playlist': [
+                {
+                    id: 'trigger-playlist',
+                    name: 'Trigger Playlist',
+                    enabled: true,
+                    default_animation: 0,
+                    default_duration: 5000,
+                },
+                ['media-trigger'],
+            ],
+        },
+        playlist_media: [
+            {
+                id: 'media-image',
+                name: 'Welcome Image',
+                media_type: 'image',
+                media_uri: TEST_IMAGE_URL,
+                play_time: 15000,
+            },
+            {
+                id: 'media-webpage',
+                name: 'Live Webpage',
+                media_type: 'webpage',
+                media_uri: TEST_WEBPAGE_URL,
+                play_time: 15000,
+            },
+            {
+                id: 'media-video',
+                name: 'Intro Video',
+                media_type: 'video',
+                media_uri: TEST_VIDEO_URL,
+                video_length: 20000,
+            },
+            {
+                id: 'media-trigger',
+                name: 'Trigger Notice',
+                media_type: 'webpage',
+                media_uri: TEST_WEBPAGE_URL,
+                play_time: 5000,
+            },
+        ],
+        plugins: [],
+    };
+}
+
+export async function installMediaRoutes(page: Page): Promise<void> {
+    await page.route(`**${TEST_IMAGE_URL}`, async (route) => {
+        await route.fulfill({
+            status: 200,
+            contentType: 'image/png',
+            body: TEST_IMAGE_BYTES,
+        });
+    });
+    await page.route(`**${TEST_VIDEO_URL}`, async (route) => {
+        await route.fulfill({
+            status: 200,
+            contentType: 'video/mp4',
+            body: '',
+        });
+    });
+    await page.route(`**${TEST_WEBPAGE_URL}`, async (route) => {
+        await route.fulfill({
+            status: 200,
+            contentType: 'text/html',
+            body: '<!doctype html><html><body><h1>Signage Webpage</h1></body></html>',
+        });
+    });
+}
 
 /**
  * Initialize the app with mock mode enabled
@@ -31,7 +142,7 @@ export async function initializeAppWithMock(page: Page): Promise<void> {
         .evaluate(() => {
             localStorage.setItem('mock', 'true');
         })
-        .catch(() => {});
+        .catch(() => undefined);
 
     await page.goto('/?mock=true');
     await page.waitForLoadState('domcontentloaded');
@@ -40,7 +151,7 @@ export async function initializeAppWithMock(page: Page): Promise<void> {
         .evaluate(() => {
             localStorage.setItem('mock', 'true');
         })
-        .catch(() => {});
+        .catch(() => undefined);
 
     await page
         .locator('app-root')
@@ -69,6 +180,7 @@ export async function navigateWithConfig(
     url: string,
     config?: { building_id?: string; system_id?: string },
 ): Promise<void> {
+    await installMediaRoutes(page);
     await page.goto('/?mock=true');
     await page.waitForTimeout(500);
 
@@ -76,13 +188,24 @@ export async function navigateWithConfig(
     const system_id = config?.system_id || MOCK_SYSTEM_ID;
 
     await page.evaluate(
-        ({ building_id, system_id, display_key, building_key }) => {
+        ({
+            building_id,
+            system_id,
+            display_key,
+            building_key,
+            display_details_key,
+            display_details,
+        }) => {
             localStorage.setItem('mock', 'true');
             if (building_id) {
                 localStorage.setItem(building_key, building_id);
             }
             if (system_id) {
                 localStorage.setItem(display_key, system_id);
+                localStorage.setItem(
+                    display_details_key,
+                    JSON.stringify(display_details),
+                );
             }
         },
         {
@@ -90,6 +213,8 @@ export async function navigateWithConfig(
             system_id,
             display_key: STORE_DISPLAY_KEY,
             building_key: STORE_BUILDING_KEY,
+            display_details_key: STORE_DISPLAY_DETAILS_KEY,
+            display_details: mockDisplay(system_id),
         },
     );
 
@@ -111,7 +236,7 @@ export async function waitForLoadingComplete(page: Page): Promise<void> {
             .locator('global-loading')
             .waitFor({ state: 'hidden', timeout: LOAD_TIMEOUT }),
         page.waitForTimeout(10000),
-    ]).catch(() => {});
+    ]).catch(() => undefined);
 
     // Also wait for loader/loading attributes
     await Promise.race([
@@ -122,7 +247,7 @@ export async function waitForLoadingComplete(page: Page): Promise<void> {
             .locator('[loading]')
             .waitFor({ state: 'detached', timeout: LOAD_TIMEOUT }),
         page.waitForTimeout(5000),
-    ]).catch(() => {});
+    ]).catch(() => undefined);
 }
 
 /**
@@ -156,7 +281,7 @@ export async function waitForBootstrapPage(page: Page): Promise<void> {
             .locator('[bootstrap] button[btn]')
             .waitFor({ state: 'visible', timeout: LOAD_TIMEOUT }),
         page.waitForTimeout(10000),
-    ]).catch(() => {});
+    ]).catch(() => undefined);
 
     // Additional wait for the form to be interactive
     await page.waitForTimeout(500);
@@ -288,9 +413,7 @@ export async function clickMuteToggle(page: Page): Promise<void> {
  * Click loop toggle button in media controls
  */
 export async function clickLoopToggle(page: Page): Promise<void> {
-    const button = page.locator(
-        'media-controls button:has(icon:has-text("repeat"))',
-    );
+    const button = page.locator('media-controls button').nth(4);
     await button.click();
     await page.waitForTimeout(300);
 }
@@ -328,7 +451,7 @@ export async function isPlaylistVisible(page: Page): Promise<boolean> {
  * Get the count of items in the playlist display
  */
 export async function getPlaylistItemCount(page: Page): Promise<number> {
-    const items = page.locator('playlist-display [playlist-item]');
+    const items = page.locator('playlist-display button');
     return items.count();
 }
 
@@ -339,7 +462,7 @@ export async function clickPlaylistItem(
     page: Page,
     index: number,
 ): Promise<void> {
-    const item = page.locator('playlist-display [playlist-item]').nth(index);
+    const item = page.locator('playlist-display button').nth(index);
     await item.click();
     await page.waitForTimeout(300);
 }
@@ -348,9 +471,7 @@ export async function clickPlaylistItem(
  * Open time controls modal in debug mode
  */
 export async function openTimeControls(page: Page): Promise<void> {
-    const button = page.locator(
-        'time-controls button:has(icon:has-text("schedule"))',
-    );
+    const button = page.locator('time-controls > button');
     await button.click();
     await page.waitForTimeout(300);
 }
@@ -368,11 +489,23 @@ export async function isTimeOverrideActive(page: Page): Promise<boolean> {
  */
 export async function clearLocalStorage(page: Page): Promise<void> {
     await page.evaluate(
-        ({ display_key, building_key }) => {
+        ({
+            display_key,
+            building_key,
+            display_details_key,
+            cached_files_key,
+        }) => {
             localStorage.removeItem(building_key);
             localStorage.removeItem(display_key);
+            localStorage.removeItem(display_details_key);
+            localStorage.removeItem(cached_files_key);
         },
-        { display_key: STORE_DISPLAY_KEY, building_key: STORE_BUILDING_KEY },
+        {
+            display_key: STORE_DISPLAY_KEY,
+            building_key: STORE_BUILDING_KEY,
+            display_details_key: STORE_DISPLAY_DETAILS_KEY,
+            cached_files_key: STORE_CACHED_FILES_KEY,
+        },
     );
 }
 
