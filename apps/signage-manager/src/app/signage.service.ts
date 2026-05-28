@@ -21,6 +21,7 @@ import {
     addSignagePlaylist,
     apiEndpoint,
     currentGroups,
+    listSignagePlaylistApprovers,
     listSignagePlaylistMedia,
     mediaThumbnail,
     PlaceCurrentGroup,
@@ -49,6 +50,7 @@ import {
     shareSignagePlaylists,
     SignageMedia,
     SignagePlaylist,
+    type SignagePlaylistApprover,
     SignagePlugin,
     updateGroup,
     updateGroupUser,
@@ -666,6 +668,7 @@ export class SignageService {
         }
         return result;
     });
+    public readonly playlist_approval_request_loading = signal(false);
     public readonly playlist_thumbnail_media = computed(() => {
         const result: Record<string, string[]> = {};
         for (const [playlist_id, data] of Object.entries(
@@ -872,36 +875,52 @@ export class SignageService {
 
     public async requestPlaylistApproval(playlist: SignagePlaylist) {
         if (!playlist?.id) return;
+        if (this.playlist_approval_request_loading()) return;
         if (this.can_approve()) {
             this.approvePlaylist(playlist);
             return;
         }
-        const groups = await this._playlistApprovalGroups(playlist);
-        if (!groups.length) {
-            notifyWarn('No signage groups are available for this playlist.');
-            return;
+        let approvers: SignagePlaylistApprover[] = [];
+        let group: PlaceCurrentGroup | null = null;
+        this.playlist_approval_request_loading.set(true);
+        try {
+            const groups = await this._playlistApprovalGroups(playlist);
+            if (!groups.length) {
+                notifyWarn(
+                    'No signage groups are available for this playlist.',
+                );
+                return;
+            }
+            const selected_group_id = this._api_group_id();
+            group =
+                groups.find((item) => item.group.id === selected_group_id) ||
+                groups[0];
+            approvers =
+                ((await lastValueFrom(
+                    listSignagePlaylistApprovers(group.group.id),
+                )) as SignagePlaylistApprover[]) || [];
+        } catch {
+            notifyWarn('Unable to load playlist approvers.');
+        } finally {
+            this.playlist_approval_request_loading.set(false);
         }
-        const selected_group_id = this._api_group_id();
+        if (!group) return;
         const ref = this._dialog.open(PlaylistRequestApprovalModalComponent, {
             data: {
                 playlist,
-                groups,
-                selected_group_id: groups.some(
-                    (item) => item.group.id === selected_group_id,
-                )
-                    ? selected_group_id
-                    : groups[0].group.id,
+                approvers,
             },
             panelClass: 'mobile-fullscreen',
         });
         const result: PlaylistRequestApprovalModalResult | undefined =
             await lastValueFrom(ref.afterClosed());
-        if (!result?.group_id) return;
+        if (!result) return;
         await lastValueFrom(
             requestApprovalSignagePlaylist(
                 playlist.id,
-                result.group_id,
+                group.group.id,
                 result.message || '',
+                result.approver_id || '',
             ),
         );
         notifySuccess('Playlist approval requested');

@@ -1,6 +1,7 @@
 import { Component, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IconComponent } from '@placeos/components';
@@ -82,11 +83,18 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                             class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                             matTooltip="Request playlist approval"
                                             (click)="requestApproval()"
+                                            [disabled]="
+                                                approval_request_loading()
+                                            "
                                             aria-label="Request approval for selected playlist"
                                         >
-                                            <icon class="text-warning"
-                                                >approval</icon
-                                            >
+                                            @if (approval_request_loading()) {
+                                                <mat-spinner diameter="20" />
+                                            } @else {
+                                                <icon class="text-warning"
+                                                    >approval</icon
+                                                >
+                                            }
                                         </button>
                                     }
                                 }
@@ -242,6 +250,7 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
         PlaylistItemsComponent,
         PlaylistItemDetailsComponent,
         MatRippleModule,
+        MatProgressSpinnerModule,
         MatTooltipModule,
         IconComponent,
     ],
@@ -259,6 +268,8 @@ export class PlaylistsSectionComponent {
     public readonly can_update = this._service.can_update;
     public readonly can_delete = this._service.can_delete;
     public readonly can_share = this._service.can_share;
+    public readonly approval_request_loading =
+        this._service.playlist_approval_request_loading;
 
     private readonly _playlists = toSignal(this._service.playlists, {
         initialValue: [],

@@ -10,16 +10,19 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { IconComponent } from '@placeos/components';
-import { PlaceCurrentGroup, SignagePlaylist } from '@placeos/ts-client';
+import {
+    SignagePlaylist,
+    type SignagePlaylistApprover,
+} from '@placeos/ts-client';
 
 export interface PlaylistRequestApprovalModalData {
     playlist: SignagePlaylist;
-    groups: PlaceCurrentGroup[];
-    selected_group_id?: string;
+    approvers: SignagePlaylistApprover[];
+    selected_approver_id?: string;
 }
 
 export interface PlaylistRequestApprovalModalResult {
-    group_id: string;
+    approver_id: string;
     message: string;
 }
 
@@ -48,21 +51,19 @@ export interface PlaylistRequestApprovalModalResult {
                 <div class="font-medium">{{ data.playlist.name }}</div>
             </div>
             <div>
-                <label for="approval-group"
-                    >Group to request approval from</label
-                >
+                <label for="approval-approver">Approver</label>
                 <mat-form-field
                     appearance="outline"
                     class="no-subscript w-full"
                 >
                     <mat-select
-                        name="approval-group"
-                        [(ngModel)]="selected_group_id"
-                        required
+                        name="approval-approver"
+                        [(ngModel)]="selected_approver_id"
                     >
-                        @for (item of data.groups; track item.group.id) {
-                            <mat-option [value]="item.group.id">
-                                {{ item.group.name || item.group.id }}
+                        <mat-option value="">Anyone</mat-option>
+                        @for (item of data.approvers; track item.id) {
+                            <mat-option [value]="item.id">
+                                {{ item.name || item.id }}
                             </mat-option>
                         }
                     </mat-select>
@@ -101,7 +102,6 @@ export interface PlaylistRequestApprovalModalResult {
                 type="button"
                 matRipple
                 class="w-44"
-                [disabled]="!selected_group_id()"
                 (click)="submit()"
             >
                 Request Approval
@@ -129,14 +129,15 @@ export class PlaylistRequestApprovalModalComponent {
             >
         >(MatDialogRef);
 
-    public readonly selected_group_id = signal(
-        this.data.selected_group_id || this.data.groups[0]?.group.id || '',
+    public readonly selected_approver_id = signal(
+        this.data.selected_approver_id || '',
     );
     public readonly message = signal('');
 
     public submit() {
-        const group_id = this.selected_group_id();
-        if (!group_id) return;
-        this._dialog_ref.close({ group_id, message: this.message().trim() });
+        this._dialog_ref.close({
+            approver_id: this.selected_approver_id(),
+            message: this.message().trim(),
+        });
     }
 }
