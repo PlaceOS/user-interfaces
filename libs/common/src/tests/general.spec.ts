@@ -11,6 +11,7 @@ import {
     setupFormTimeSync,
     timePeriodsIntersect,
 } from '../lib/general';
+import * as notifications from '../lib/notifications';
 
 describe('General Methods', () => {
     describe('timePeriodsIntersect', () => {
@@ -741,6 +742,9 @@ describe('General Methods', () => {
         it('should keep the selected calendar day when a date change preserves an after-hours time', () => {
             jest.useFakeTimers();
             jest.setSystemTime(new Date(2028, 5, 15, 19, 0, 0, 0));
+            const notify_warn = jest
+                .spyOn(notifications, 'notifyWarn')
+                .mockImplementation();
             try {
                 const initial = new Date(2028, 5, 15, 19, 0, 0, 0).valueOf();
                 const selected = new Date(2028, 5, 16, 19, 0, 0, 0).valueOf();
@@ -753,7 +757,9 @@ describe('General Methods', () => {
                 expect(form.getRawValue().date).toBe(
                     new Date(2028, 5, 16, 9, 0, 0, 0).valueOf(),
                 );
+                expect(notify_warn).not.toHaveBeenCalled();
             } finally {
+                notify_warn.mockRestore();
                 jest.useRealTimers();
             }
         });
@@ -884,39 +890,50 @@ describe('General Methods', () => {
         });
 
         it('should show notification when markUserDateChange is called before setValue', () => {
-            const notifyWarnMock = jest.fn();
-            jest.doMock('../lib/notifications', () => ({
-                notifyWarn: notifyWarnMock,
-            }));
+            const notify_warn = jest
+                .spyOn(notifications, 'notifyWarn')
+                .mockImplementation();
+            try {
+                // 06:00 is before the 09:00-17:00 window
+                const early = new Date(2028, 5, 15, 6, 0, 0, 0).valueOf();
+                const form = createForm({ date: early, duration: 60 });
+                setupFormTimeSync(form, { bookable_hours: HOURS_9_TO_17 });
 
-            // 06:00 is before the 09:00–17:00 window
-            const early = new Date(2028, 5, 15, 6, 0, 0, 0).valueOf();
-            const form = createForm({ date: early, duration: 60 });
-            setupFormTimeSync(form, { bookable_hours: HOURS_9_TO_17 });
+                // Simulate user interaction: mark then set
+                markUserDateChange();
+                form.controls.date.setValue(early);
 
-            // Simulate user interaction: mark then set
-            markUserDateChange();
-            form.controls.date.setValue(early);
-
-            // Should snap to 09:00
-            expect(form.getRawValue().date).toBe(
-                new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
-            );
+                // Should snap to 09:00
+                expect(form.getRawValue().date).toBe(
+                    new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+                );
+                expect(notify_warn).toHaveBeenCalledTimes(1);
+            } finally {
+                notify_warn.mockRestore();
+            }
         });
 
         it('should not show notification without markUserDateChange', () => {
-            // 06:00 is before the 09:00–17:00 window
-            const early = new Date(2028, 5, 15, 6, 0, 0, 0).valueOf();
-            const form = createForm({ date: early, duration: 60 });
-            setupFormTimeSync(form, { bookable_hours: HOURS_9_TO_17 });
+            const notify_warn = jest
+                .spyOn(notifications, 'notifyWarn')
+                .mockImplementation();
+            try {
+                // 06:00 is before the 09:00-17:00 window
+                const early = new Date(2028, 5, 15, 6, 0, 0, 0).valueOf();
+                const form = createForm({ date: early, duration: 60 });
+                setupFormTimeSync(form, { bookable_hours: HOURS_9_TO_17 });
 
-            // Programmatic set (no markUserDateChange)
-            form.controls.date.setValue(early);
+                // Programmatic set (no markUserDateChange)
+                form.controls.date.setValue(early);
 
-            // Should still snap to 09:00 (alignment still works)
-            expect(form.getRawValue().date).toBe(
-                new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
-            );
+                // Should still snap to 09:00 (alignment still works)
+                expect(form.getRawValue().date).toBe(
+                    new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+                );
+                expect(notify_warn).not.toHaveBeenCalled();
+            } finally {
+                notify_warn.mockRestore();
+            }
         });
 
         // --- date change to a different calendar day (regression: date_end stale bug) ---
