@@ -13,8 +13,13 @@ describe('signage-schedule.util', () => {
                     playlist: {
                         id: 'playlist-1',
                         name: 'Breakfast',
-                        play_cron: '0 9 * * *',
-                        play_period: 180,
+                        schedules: [
+                            {
+                                play_cron: '0 9 * * *',
+                                play_period: 180,
+                                play_takeover: false,
+                            },
+                        ],
                     } as any,
                     source_type: 'zone',
                     source_label: 'Lobby',
@@ -46,8 +51,13 @@ describe('signage-schedule.util', () => {
                     playlist: {
                         id: 'playlist-1',
                         name: 'Breakfast',
-                        play_cron: '0 9 1-7,15-21 * 1',
-                        play_period: 180,
+                        schedules: [
+                            {
+                                play_cron: '0 9 1-7,15-21 * 1',
+                                play_period: 180,
+                                play_takeover: false,
+                            },
+                        ],
                     } as any,
                     source_type: 'zone',
                     source_label: 'Lobby',

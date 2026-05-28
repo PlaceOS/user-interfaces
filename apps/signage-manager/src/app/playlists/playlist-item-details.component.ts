@@ -6,7 +6,11 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { IconComponent, MediaDurationPipe } from '@placeos/components';
-import { MediaAnimation } from '@placeos/ts-client';
+import {
+    MediaAnimation,
+    SignagePlaylist,
+    type SignagePlaylistSchedule,
+} from '@placeos/ts-client';
 import { SignageService } from '../signage.service';
 
 const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
@@ -234,6 +238,64 @@ function nextCronPlayTimes(cron: string, duration_minutes: number) {
     return result;
 }
 
+function playlistSchedules(playlist: SignagePlaylist) {
+    const legacy_playlist = playlist as SignagePlaylist & {
+        play_at?: number;
+        play_cron?: string;
+        play_period?: number;
+        play_takeover?: boolean;
+    };
+    if (playlist.schedules?.length) return playlist.schedules;
+    return [
+        {
+            play_at: legacy_playlist.play_at,
+            play_cron: legacy_playlist.play_cron || '0 0 * * *',
+            play_period:
+                legacy_playlist.play_period ?? DEFAULT_PLAY_PERIOD_MINUTES,
+            play_takeover: !!legacy_playlist.play_takeover,
+        },
+    ];
+}
+
+function schedulePeriod(schedule: Partial<SignagePlaylistSchedule>) {
+    return Number.isFinite(schedule.play_period)
+        ? schedule.play_period || 0
+        : DEFAULT_PLAY_PERIOD_MINUTES;
+}
+
+function scheduleLabel(schedule: Partial<SignagePlaylistSchedule>) {
+    const period = schedulePeriod(schedule);
+    if (schedule.play_at) {
+        const date = new Date(
+            schedule.play_at > 1_000_000_000_000
+                ? schedule.play_at
+                : schedule.play_at * 1000,
+        );
+        return `Plays once on ${date.toLocaleString()} for ${durationLabel(period)}`;
+    }
+    return `${humanizeCronSchedule(schedule.play_cron || '0 0 * * *', period)}${
+        schedule.play_takeover ? ' · takeover' : ''
+    }`;
+}
+
+function nextSchedulePlaySessions(schedule: Partial<SignagePlaylistSchedule>) {
+    const period = schedulePeriod(schedule);
+    if (schedule.play_at) {
+        const start = new Date(
+            schedule.play_at > 1_000_000_000_000
+                ? schedule.play_at
+                : schedule.play_at * 1000,
+        );
+        const end = new Date(start);
+        end.setMinutes(end.getMinutes() + Math.max(0, period || 0));
+        if (period > 0) end.setSeconds(end.getSeconds() - 1);
+        return end >= new Date()
+            ? [formatPlayDateTimeRange(start, period)]
+            : [];
+    }
+    return nextCronPlayTimes(schedule.play_cron || '0 0 * * *', period);
+}
+
 @Component({
     selector: 'playlist-item-details',
     template: `
@@ -387,8 +449,13 @@ function nextCronPlayTimes(cron: string, duration_minutes: number) {
                                     >
                                         Schedule
                                     </div>
-                                    <div class="text-sm">
-                                        {{ schedule_label() }}
+                                    <div class="space-y-1 text-sm">
+                                        @for (
+                                            schedule of schedule_labels();
+                                            track schedule
+                                        ) {
+                                            <div>{{ schedule }}</div>
+                                        }
                                     </div>
                                     <div class="mt-2">
                                         <div
@@ -753,41 +820,18 @@ export class PlaylistItemDetailsComponent {
         return pl.valid_until * 1000;
     });
 
-    public readonly schedule_label = computed(() => {
+    public readonly schedule_labels = computed(() => {
         const pl = this.playlist();
-        if (!pl) return '';
-        const period = Number.isFinite(pl.play_period)
-            ? pl.play_period
-            : DEFAULT_PLAY_PERIOD_MINUTES;
-        if (pl.play_at) {
-            const date = new Date(
-                pl.play_at > 1_000_000_000_000 ? pl.play_at : pl.play_at * 1000,
-            );
-            return `Plays once on ${date.toLocaleString()} for ${durationLabel(period)}`;
-        }
-        return `${humanizeCronSchedule(pl.play_cron || '0 0 * * *', period)}${
-            pl.play_takeover ? ' · takeover' : ''
-        }`;
+        if (!pl) return [];
+        return playlistSchedules(pl).map((schedule) => scheduleLabel(schedule));
     });
 
     public readonly next_play_sessions = computed(() => {
         const pl = this.playlist();
         if (!pl) return [];
-        const period = Number.isFinite(pl.play_period)
-            ? pl.play_period
-            : DEFAULT_PLAY_PERIOD_MINUTES;
-        if (pl.play_at) {
-            const start = new Date(
-                pl.play_at > 1_000_000_000_000 ? pl.play_at : pl.play_at * 1000,
-            );
-            const end = new Date(start);
-            end.setMinutes(end.getMinutes() + Math.max(0, period || 0));
-            if (period > 0) end.setSeconds(end.getSeconds() - 1);
-            return end >= new Date()
-                ? [formatPlayDateTimeRange(start, period)]
-                : [];
-        }
-        return nextCronPlayTimes(pl.play_cron || '0 0 * * *', period);
+        return playlistSchedules(pl)
+            .flatMap((schedule) => nextSchedulePlaySessions(schedule))
+            .slice(0, 5);
     });
 
     constructor() {
