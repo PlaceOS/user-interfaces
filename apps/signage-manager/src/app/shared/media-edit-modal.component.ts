@@ -35,7 +35,10 @@ import {
     SchemaFormComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { DateFieldComponent } from '@placeos/form-fields';
+import {
+    DateFieldComponent,
+    ItemListFieldComponent,
+} from '@placeos/form-fields';
 import {
     MediaAnimation,
     SignageMedia,
@@ -297,6 +300,12 @@ export interface MediaEditModalData {
                             "
                         ></textarea>
                     </mat-form-field>
+                    <label for="tags">{{ 'COMMON.TAGS' | translate }}</label>
+                    <item-list-field
+                        name="tags"
+                        formControlName="tags"
+                        [placeholder]="'COMMON.TAGS' | translate"
+                    ></item-list-field>
                     @if (media_type === 'plugin' && plugin_loading()) {
                         <div
                             class="bg-base-200/60 mb-2 flex items-center gap-3 rounded-lg p-4"
@@ -369,6 +378,7 @@ export interface MediaEditModalData {
         MediaDurationPipe,
         SchemaFormComponent,
         PluginEmbedComponent,
+        ItemListFieldComponent,
     ],
 })
 export class MediaEditModalComponent implements OnDestroy {
@@ -401,6 +411,7 @@ export class MediaEditModalComponent implements OnDestroy {
         animation: new FormControl<MediaAnimation>(MediaAnimation.Default),
         start_time: new FormControl(0),
         play_time: new FormControl<number | null>(null),
+        tags: new FormControl<string[]>([]),
         plugin_params: new FormControl<Record<string, unknown> | null>(null),
         valid_from: new FormControl<number | null>(null),
         valid_until: new FormControl<number | null>(null),

@@ -20,7 +20,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AuthenticatedImageDirective,
     IconComponent,
-    MediaDurationPipe, TranslatePipe } from '@placeos/components';
+    MediaDurationPipe,
+    TranslatePipe,
+} from '@placeos/components';
 import { SignageMedia } from '@placeos/ts-client';
 import { SignageService } from '../signage.service';
 
@@ -31,7 +33,9 @@ import { SignageService } from '../signage.service';
             <nav
                 mat-tab-nav-bar
                 class="bg-base-100/95 border-base-300 sticky top-2 z-30 mx-2 rounded-xl border"
-                [attr.aria-label]="'SIGNAGE_MANAGER.MEDIA_GROUPS_ARIA' | translate"
+                [attr.aria-label]="
+                    'SIGNAGE_MANAGER.MEDIA_GROUPS_ARIA' | translate
+                "
                 [tabPanel]="group_tabs_panel"
             >
                 @if (is_sys_admin()) {
@@ -71,7 +75,7 @@ import { SignageService } from '../signage.service';
                     <div
                         cdkDrag
                         role="listitem"
-                        class="border-base-300 bg-base-100 relative flex flex-col items-center justify-center rounded-lg border p-3 hover:opacity-80 hover:shadow-xl"
+                        class="border-base-300 bg-base-100 hover:border-info relative flex flex-col items-center justify-center rounded-lg border p-3 hover:opacity-80 hover:shadow-xl"
                         [class.opacity-60]="isExpired(media_item)"
                         [class.ring-2]="isSelected(media_item.id)"
                         [class.ring-primary]="isSelected(media_item.id)"
@@ -220,7 +224,9 @@ import { SignageService } from '../signage.service';
                                 type="button"
                                 matRipple
                                 [matMenuTriggerFor]="menu"
-                                [attr.aria-label]="'SIGNAGE_MANAGER.MEDIA_ACTIONS' | translate"
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.MEDIA_ACTIONS' | translate
+                                "
                             >
                                 <icon>more_vert</icon>
                             </button>
@@ -235,7 +241,9 @@ import { SignageService } from '../signage.service';
                                             class="flex items-center space-x-2"
                                         >
                                             <icon class="text-2xl">edit</icon>
-                                            <div class="pr-2">{{ 'COMMON.EDIT' | translate }}</div>
+                                            <div class="pr-2">
+                                                {{ 'COMMON.EDIT' | translate }}
+                                            </div>
                                         </div>
                                     </button>
                                 }
@@ -250,7 +258,10 @@ import { SignageService } from '../signage.service';
                                         >
                                             <icon class="text-2xl">add</icon>
                                             <div class="pr-2">
-                                                {{ 'SIGNAGE_MANAGER.ADD_TO_PLAYLIST' | translate }}
+                                                {{
+                                                    'SIGNAGE_MANAGER.ADD_TO_PLAYLIST'
+                                                        | translate
+                                                }}
                                             </div>
                                         </div>
                                     </button>
@@ -267,7 +278,12 @@ import { SignageService } from '../signage.service';
                                             <icon class="text-2xl"
                                                 >ios_share</icon
                                             >
-                                            <div class="pr-2">{{ 'SIGNAGE_MANAGER.SHARE' | translate }}</div>
+                                            <div class="pr-2">
+                                                {{
+                                                    'SIGNAGE_MANAGER.SHARE'
+                                                        | translate
+                                                }}
+                                            </div>
                                         </div>
                                     </button>
                                 }
@@ -278,7 +294,9 @@ import { SignageService } from '../signage.service';
                                 >
                                     <div class="flex items-center space-x-2">
                                         <icon class="text-2xl">visibility</icon>
-                                        <div class="pr-2">{{ 'COMMON.PREVIEW' | translate }}</div>
+                                        <div class="pr-2">
+                                            {{ 'COMMON.PREVIEW' | translate }}
+                                        </div>
                                     </div>
                                 </button>
                                 @if (can_delete()) {
@@ -293,12 +311,42 @@ import { SignageService } from '../signage.service';
                                             <icon class="text-error text-2xl">
                                                 delete
                                             </icon>
-                                            <div class="pr-2">{{ 'COMMON.REMOVE' | translate }}</div>
+                                            <div class="pr-2">
+                                                {{
+                                                    'COMMON.REMOVE' | translate
+                                                }}
+                                            </div>
                                         </div>
                                     </button>
                                 }
                             </mat-menu>
                         </div>
+                        @if (media_item.tags?.length) {
+                            <div
+                                class="mt-3 flex min-h-6 w-full items-center gap-1 overflow-hidden"
+                            >
+                                @for (
+                                    tag of visibleTags(media_item);
+                                    track tag
+                                ) {
+                                    <span
+                                        class="bg-base-200 text-base-content/80 max-w-[45%] truncate rounded px-2 py-1 text-xs"
+                                    >
+                                        {{ tag }}
+                                    </span>
+                                }
+                                @if (remainingTagCount(media_item) > 0) {
+                                    <span
+                                        class="bg-base-300 text-base-content/80 rounded px-2 py-1 text-xs"
+                                        [matTooltip]="
+                                            remainingTags(media_item).join(', ')
+                                        "
+                                    >
+                                        +{{ remainingTagCount(media_item) }}
+                                    </span>
+                                }
+                            </div>
+                        }
                     </div>
                 }
             </div>
@@ -320,14 +368,21 @@ import { SignageService } from '../signage.service';
                         icon
                         matRipple
                         class="hover:bg-base-200 rounded-xl"
-                        [attr.aria-label]="'SIGNAGE_MANAGER.CLEAR_SELECTED' | translate"
-                        [matTooltip]="'SIGNAGE_MANAGER.CLEAR_SELECTED' | translate"
+                        [attr.aria-label]="
+                            'SIGNAGE_MANAGER.CLEAR_SELECTED' | translate
+                        "
+                        [matTooltip]="
+                            'SIGNAGE_MANAGER.CLEAR_SELECTED' | translate
+                        "
                         (click)="clearSelection()"
                     >
                         <icon>close</icon>
                     </button>
                     <div class="font-medium">
-                        {{ 'COMMON.SELECTED_COUNT' | translate: { count: selected_count() } }}
+                        {{
+                            'COMMON.SELECTED_COUNT'
+                                | translate: { count: selected_count() }
+                        }}
                     </div>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
@@ -349,7 +404,9 @@ import { SignageService } from '../signage.service';
                             default
                             matRipple
                             (click)="addSelectedToPlaylist()"
-                            [matTooltip]="'SIGNAGE_MANAGER.ADD_TO_PLAYLIST' | translate"
+                            [matTooltip]="
+                                'SIGNAGE_MANAGER.ADD_TO_PLAYLIST' | translate
+                            "
                         >
                             <icon>playlist_add</icon>
                         </button>
@@ -458,6 +515,18 @@ export class MediaListComponent implements OnChanges, OnInit {
 
     public isExpired(item: SignageMedia): boolean {
         return !!item.valid_until && item.valid_until * 1000 < Date.now();
+    }
+
+    public visibleTags(item: SignageMedia): string[] {
+        return (item.tags || []).slice(0, 2);
+    }
+
+    public remainingTags(item: SignageMedia): string[] {
+        return (item.tags || []).slice(2);
+    }
+
+    public remainingTagCount(item: SignageMedia): number {
+        return this.remainingTags(item).length;
     }
 
     public readonly previewFile = (event: Event) =>

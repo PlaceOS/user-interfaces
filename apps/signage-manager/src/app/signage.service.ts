@@ -472,11 +472,17 @@ export class SignageService {
         this.search_term$,
         this.media,
     ]).pipe(
-        map(([search, media]) =>
-            media.filter((media) =>
-                media.name.toLowerCase().includes(search.toLowerCase()),
-            ),
-        ),
+        map(([search, media]) => {
+            const term = search.trim().toLowerCase();
+            if (!term) return media;
+            return media.filter(
+                (media) =>
+                    media.name.toLowerCase().includes(term) ||
+                    (media.tags || []).some((tag) =>
+                        tag.toLowerCase().includes(term),
+                    ),
+            );
+        }),
     );
 
     public readonly playlists = combineLatest([
