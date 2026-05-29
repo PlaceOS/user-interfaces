@@ -2,7 +2,7 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { map } from 'rxjs/operators';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
@@ -43,7 +43,9 @@ function parseZoneTab(value: string | null): 'playlists' | 'displays' {
                                     matRipple
                                     class="sm:hidden"
                                     (click)="deselectZone()"
-                                    aria-label="Back to zones list"
+                                    [attr.aria-label]="
+                                        'SIGNAGE_MANAGER.BACK_TO_ZONES' | translate
+                                    "
                                 >
                                     <icon>arrow_back</icon>
                                 </button>
@@ -69,7 +71,9 @@ function parseZoneTab(value: string | null): 'playlists' | 'displays' {
                             <div
                                 class="bg-base-100 border-base-300 mx-2 mt-2 flex overflow-hidden rounded-lg border lg:hidden"
                                 role="tablist"
-                                aria-label="Zone details tabs"
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.ZONE_DETAILS_TABS' | translate
+                                "
                             >
                                 <button
                                     type="button"
@@ -94,7 +98,12 @@ function parseZoneTab(value: string | null): 'playlists' | 'displays' {
                                     aria-controls="zone-playlists-panel"
                                     id="zone-playlists-tab"
                                 >
-                                    Playlists ({{ playlist_count() }})
+                                    {{
+                                        'SIGNAGE_MANAGER.PLAYLISTS_COUNT'
+                                            | translate
+                                                : { count: playlist_count() }
+                                                : playlist_count()
+                                    }}
                                 </button>
                                 <button
                                     type="button"
@@ -119,7 +128,12 @@ function parseZoneTab(value: string | null): 'playlists' | 'displays' {
                                     aria-controls="zone-displays-panel"
                                     id="zone-displays-tab"
                                 >
-                                    Displays ({{ display_count() }})
+                                    {{
+                                        'SIGNAGE_MANAGER.DISPLAYS_COUNT'
+                                            | translate
+                                                : { count: display_count() }
+                                                : display_count()
+                                    }}
                                 </button>
                             </div>
                         }
@@ -156,6 +170,7 @@ function parseZoneTab(value: string | null): 'playlists' | 'displays' {
         ZoneContentComponent,
         MatRippleModule,
         IconComponent,
+        TranslatePipe,
     ],
 })
 export class ZonesSectionComponent {

@@ -5,7 +5,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignageService } from '../signage.service';
 
 @Component({
@@ -14,13 +14,17 @@ import { SignageService } from '../signage.service';
         <header
             class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
-            <h2 class="px-2 text-xl font-medium">Add to Playlist</h2>
+            <h2 class="px-2 text-xl font-medium">
+                {{ 'SIGNAGE_MANAGER.ADD_TO_PLAYLIST' | translate }}
+            </h2>
             <button
                 icon
                 type="button"
                 matRipple
                 mat-dialog-close
-                aria-label="Close add playlist dialog"
+                [attr.aria-label]="
+                    'SIGNAGE_MANAGER.CLOSE_ADD_PLAYLIST' | translate
+                "
             >
                 <icon>close</icon>
             </button>
@@ -36,8 +40,10 @@ import { SignageService } from '../signage.service';
                     matInput
                     [ngModel]="search()"
                     (ngModelChange)="search.set($event)"
-                    placeholder="Search playlists"
-                    aria-label="Search playlists"
+                    [placeholder]="'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate
+                    "
                 />
             </mat-form-field>
             @if (filtered_playlists()?.length > 0) {
@@ -72,7 +78,9 @@ import { SignageService } from '../signage.service';
                     <icon class="text-base-content/70 text-8xl"
                         >playlist_play</icon
                     >
-                    <div class="text-base-content/70">No playlists found</div>
+                    <div class="text-base-content/70">
+                        {{ 'SIGNAGE_MANAGER.NO_PLAYLISTS' | translate }}
+                    </div>
                 </div>
             }
         </main>
@@ -84,6 +92,7 @@ import { SignageService } from '../signage.service';
         MatFormFieldModule,
         MatInputModule,
         IconComponent,
+        TranslatePipe,
     ],
 })
 export class PlaylistSelectModalComponent {

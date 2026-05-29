@@ -1,7 +1,12 @@
 import { Component, computed, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
-import { CustomTooltipComponent, IconComponent } from '@placeos/components';
+import {
+    CustomTooltipComponent,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import { i18n } from '@placeos/common';
 import { lastValueFrom } from 'rxjs';
 import { SignageService } from '../signage.service';
 import { GroupSelectModalComponent } from './group-select-modal.component';
@@ -26,7 +31,10 @@ import { GroupSelectModalComponent } from './group-select-modal.component';
                     type="button"
                     matRipple
                     class="hover:bg-base-100/30 focus-visible:bg-base-100/30 relative flex h-18 w-18 flex-col items-center justify-center rounded-xl"
-                    [attr.aria-label]="'Signage group: ' + selected_label()"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.SIGNAGE_GROUP_LABEL'
+                            | translate: { name: selected_label() }
+                    "
                     (click)="selectGroup()"
                 >
                     <icon class="text-3xl">group</icon>
@@ -75,7 +83,10 @@ import { GroupSelectModalComponent } from './group-select-modal.component';
                                             <div
                                                 class="text-base-content/60 text-xs"
                                             >
-                                                Active
+                                                {{
+                                                    'COMMON.STATE_ACTIVE'
+                                                        | translate
+                                                }}
                                             </div>
                                         }
                                     </div>
@@ -84,14 +95,21 @@ import { GroupSelectModalComponent } from './group-select-modal.component';
                         </ol>
                     } @else {
                         <div class="bg-base-200 rounded-lg px-3 py-2 text-sm">
-                            All signage groups are active.
+                            {{
+                                'SIGNAGE_MANAGER.ALL_GROUPS_ACTIVE' | translate
+                            }}
                         </div>
                     }
                 </div>
             </ng-template>
         }
     `,
-    imports: [MatRippleModule, CustomTooltipComponent, IconComponent],
+    imports: [
+        MatRippleModule,
+        CustomTooltipComponent,
+        IconComponent,
+        TranslatePipe,
+    ],
 })
 export class SignageGroupSelectorComponent {
     private readonly _service = inject(SignageService);
@@ -102,7 +120,9 @@ export class SignageGroupSelectorComponent {
     public readonly selected_group_id = this._service.selected_group_id;
     public readonly is_sys_admin = this._service.is_sys_admin;
     public readonly selected_label = computed(
-        () => this.selected_group()?.group.name || 'All Groups',
+        () =>
+            this.selected_group()?.group.name ||
+            i18n('SIGNAGE_MANAGER.ALL_GROUPS'),
     );
     public readonly selected_hierarchy = computed(() => {
         const selected_group = this.selected_group();
@@ -124,7 +144,7 @@ export class SignageGroupSelectorComponent {
     public async selectGroup() {
         const ref = this._dialog.open(GroupSelectModalComponent, {
             data: {
-                title: 'Select signage group',
+                title: i18n('SIGNAGE_MANAGER.SELECT_SIGNAGE_GROUP'),
                 groups: this.groups(),
                 selected_group_id: this.selected_group_id(),
                 show_all_groups: this.is_sys_admin(),

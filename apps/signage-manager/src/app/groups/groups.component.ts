@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import { TranslatePipe } from '@placeos/components';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
 import { SignageService } from '../signage.service';
@@ -29,7 +30,10 @@ import { SignageGroupTabsComponent } from './signage-group-tabs.component';
                             <div
                                 class="flex h-full items-center justify-center p-8 text-center opacity-60"
                             >
-                                Select a signage group to manage it.
+                                {{
+                                    'SIGNAGE_MANAGER.GROUPS_SELECT_PROMPT'
+                                        | translate
+                                }}
                             </div>
                         }
                     </section>
@@ -55,6 +59,7 @@ import { SignageGroupTabsComponent } from './signage-group-tabs.component';
         SignageGroupDetailHeaderComponent,
         SignageGroupTabsComponent,
         SignageGroupContentComponent,
+        TranslatePipe,
     ],
 })
 export class GroupsSectionComponent {

@@ -4,7 +4,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceZone } from '@placeos/ts-client';
 import { lastValueFrom } from 'rxjs';
 import { SignageService } from '../signage.service';
@@ -15,13 +15,15 @@ import { SignageService } from '../signage.service';
         <header
             class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
-            <h2 class="px-2 text-xl font-medium">Add Zone</h2>
+            <h2 class="px-2 text-xl font-medium">
+                {{ 'SIGNAGE_MANAGER.ADD_ZONE_TITLE' | translate }}
+            </h2>
             <button
                 icon
                 type="button"
                 matRipple
                 mat-dialog-close
-                aria-label="Close add zone dialog"
+                [attr.aria-label]="'SIGNAGE_MANAGER.CLOSE_ADD_ZONE' | translate"
             >
                 <icon>close</icon>
             </button>
@@ -37,8 +39,8 @@ import { SignageService } from '../signage.service';
                     matInput
                     [ngModel]="search()"
                     (ngModelChange)="setSearch($event)"
-                    placeholder="Search zones"
-                    aria-label="Search zones"
+                    [placeholder]="'SIGNAGE_MANAGER.SEARCH_ZONES' | translate"
+                    [attr.aria-label]="'SIGNAGE_MANAGER.SEARCH_ZONES' | translate"
                 />
             </mat-form-field>
             @if (zones().length > 0) {
@@ -73,7 +75,9 @@ import { SignageService } from '../signage.service';
                     <icon class="text-base-content/70 text-8xl"
                         >layers_clear</icon
                     >
-                    <div class="text-base-content/70">No zones found</div>
+                    <div class="text-base-content/70">
+                        {{ 'SIGNAGE_MANAGER.NO_ZONES' | translate }}
+                    </div>
                 </div>
             }
         </main>
@@ -85,6 +89,7 @@ import { SignageService } from '../signage.service';
         MatFormFieldModule,
         MatInputModule,
         IconComponent,
+        TranslatePipe,
     ],
 })
 export class SignageGroupZoneSelectModalComponent {

@@ -5,7 +5,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignageService } from '../signage.service';
 
 @Component({
@@ -14,13 +14,17 @@ import { SignageService } from '../signage.service';
         <header
             class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
-            <h2 class="px-2 text-xl font-medium">Add Display</h2>
+            <h2 class="px-2 text-xl font-medium">
+                {{ 'SIGNAGE_MANAGER.ADD_DISPLAY_TITLE' | translate }}
+            </h2>
             <button
                 icon
                 type="button"
                 matRipple
                 mat-dialog-close
-                aria-label="Close add display dialog"
+                [attr.aria-label]="
+                    'SIGNAGE_MANAGER.CLOSE_ADD_DISPLAY' | translate
+                "
             >
                 <icon>close</icon>
             </button>
@@ -36,8 +40,10 @@ import { SignageService } from '../signage.service';
                     matInput
                     [ngModel]="search()"
                     (ngModelChange)="search.set($event)"
-                    placeholder="Search displays"
-                    aria-label="Search displays"
+                    [placeholder]="'SIGNAGE_MANAGER.SEARCH_DISPLAYS' | translate"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.SEARCH_DISPLAYS' | translate
+                    "
                 />
             </mat-form-field>
             @if (filtered_displays()?.length > 0) {
@@ -70,7 +76,9 @@ import { SignageService } from '../signage.service';
                     class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center space-y-4 rounded-lg p-16"
                 >
                     <icon class="text-base-content/70 text-8xl">tv</icon>
-                    <div class="text-base-content/70">No displays found</div>
+                    <div class="text-base-content/70">
+                        {{ 'SIGNAGE_MANAGER.NO_DISPLAYS' | translate }}
+                    </div>
                 </div>
             }
         </main>
@@ -82,6 +90,7 @@ import { SignageService } from '../signage.service';
         MatFormFieldModule,
         MatInputModule,
         IconComponent,
+        TranslatePipe,
     ],
 })
 export class DisplaySelectModalComponent {

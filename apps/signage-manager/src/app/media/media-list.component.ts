@@ -20,8 +20,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AuthenticatedImageDirective,
     IconComponent,
-    MediaDurationPipe,
-} from '@placeos/components';
+    MediaDurationPipe, TranslatePipe } from '@placeos/components';
 import { SignageMedia } from '@placeos/ts-client';
 import { SignageService } from '../signage.service';
 
@@ -32,7 +31,7 @@ import { SignageService } from '../signage.service';
             <nav
                 mat-tab-nav-bar
                 class="bg-base-100/95 border-base-300 sticky top-2 z-30 mx-2 rounded-xl border"
-                aria-label="Signage media groups"
+                [attr.aria-label]="'SIGNAGE_MANAGER.MEDIA_GROUPS_ARIA' | translate"
                 [tabPanel]="group_tabs_panel"
             >
                 @if (is_sys_admin()) {
@@ -42,7 +41,7 @@ import { SignageService } from '../signage.service';
                         [active]="!selected_group_id()"
                         (click)="selectGroup('')"
                     >
-                        All Groups
+                        {{ 'SIGNAGE_MANAGER.ALL_GROUPS' | translate }}
                     </button>
                 }
                 @for (item of groups(); track item.group.id) {
@@ -86,7 +85,10 @@ import { SignageService } from '../signage.service';
                         <mat-checkbox
                             class="absolute top-4 right-4 z-20 rounded"
                             [checked]="isSelected(media_item.id)"
-                            [attr.aria-label]="'Select ' + media_item.name"
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.SELECT_MEDIA'
+                                    | translate: { name: media_item.name }
+                            "
                             (click)="$event.stopPropagation()"
                             (change)="toggleSelection(media_item.id)"
                         />
@@ -96,13 +98,16 @@ import { SignageService } from '../signage.service';
                             matRipple
                             (click)="previewItem(media_item)"
                             class="bg-base-200 relative h-36 w-full overflow-hidden rounded-lg"
-                            [attr.aria-label]="'Preview ' + media_item.name"
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.PREVIEW_MEDIA'
+                                    | translate: { name: media_item.name }
+                            "
                         >
                             @if (isExpired(media_item)) {
                                 <div
                                     class="bg-error text-error-content absolute inset-x-0 top-1/2 z-10 -translate-y-1/2 py-1 text-center text-xs font-bold tracking-wide"
                                 >
-                                    EXPIRED
+                                    {{ 'SIGNAGE_MANAGER.EXPIRED' | translate }}
                                 </div>
                             }
                             @if (
@@ -179,13 +184,14 @@ import { SignageService } from '../signage.service';
                                 "
                             >
                                 {{
-                                    media_item.media_type === 'image'
-                                        ? 'Image'
+                                    (media_item.media_type === 'image'
+                                        ? 'COMMON.IMAGE'
                                         : media_item.media_type === 'webpage'
-                                          ? 'Webpage'
+                                          ? 'COMMON.WEBPAGE'
                                           : media_item.media_type === 'plugin'
-                                            ? 'Plugin'
-                                            : 'Video'
+                                            ? 'SIGNAGE_MANAGER.TYPE_PLUGIN'
+                                            : 'COMMON.VIDEO'
+                                    ) | translate
                                 }}
                             </div>
                             @if (media_item.play_time) {
@@ -214,7 +220,7 @@ import { SignageService } from '../signage.service';
                                 type="button"
                                 matRipple
                                 [matMenuTriggerFor]="menu"
-                                aria-label="Media Actions"
+                                [attr.aria-label]="'SIGNAGE_MANAGER.MEDIA_ACTIONS' | translate"
                             >
                                 <icon>more_vert</icon>
                             </button>
@@ -229,7 +235,7 @@ import { SignageService } from '../signage.service';
                                             class="flex items-center space-x-2"
                                         >
                                             <icon class="text-2xl">edit</icon>
-                                            <div class="pr-2">Edit</div>
+                                            <div class="pr-2">{{ 'COMMON.EDIT' | translate }}</div>
                                         </div>
                                     </button>
                                 }
@@ -244,7 +250,7 @@ import { SignageService } from '../signage.service';
                                         >
                                             <icon class="text-2xl">add</icon>
                                             <div class="pr-2">
-                                                Add to Playlist
+                                                {{ 'SIGNAGE_MANAGER.ADD_TO_PLAYLIST' | translate }}
                                             </div>
                                         </div>
                                     </button>
@@ -261,7 +267,7 @@ import { SignageService } from '../signage.service';
                                             <icon class="text-2xl"
                                                 >ios_share</icon
                                             >
-                                            <div class="pr-2">Share</div>
+                                            <div class="pr-2">{{ 'SIGNAGE_MANAGER.SHARE' | translate }}</div>
                                         </div>
                                     </button>
                                 }
@@ -272,7 +278,7 @@ import { SignageService } from '../signage.service';
                                 >
                                     <div class="flex items-center space-x-2">
                                         <icon class="text-2xl">visibility</icon>
-                                        <div class="pr-2">Preview</div>
+                                        <div class="pr-2">{{ 'COMMON.PREVIEW' | translate }}</div>
                                     </div>
                                 </button>
                                 @if (can_delete()) {
@@ -287,7 +293,7 @@ import { SignageService } from '../signage.service';
                                             <icon class="text-error text-2xl">
                                                 delete
                                             </icon>
-                                            <div class="pr-2">Remove</div>
+                                            <div class="pr-2">{{ 'COMMON.REMOVE' | translate }}</div>
                                         </div>
                                     </button>
                                 }
@@ -301,7 +307,7 @@ import { SignageService } from '../signage.service';
                 class="text-base-content/70 mx-auto flex flex-1 flex-col items-center justify-center space-y-2 p-8"
             >
                 <icon class="text-6xl">hide_image</icon>
-                <p>No media items found.</p>
+                <p>{{ 'SIGNAGE_MANAGER.NO_MEDIA' | translate }}</p>
             </div>
         }
         @if (selected_count() > 0) {
@@ -314,14 +320,14 @@ import { SignageService } from '../signage.service';
                         icon
                         matRipple
                         class="hover:bg-base-200 rounded-xl"
-                        aria-label="Clear selected media"
-                        matTooltip="Clear selected media"
+                        [attr.aria-label]="'SIGNAGE_MANAGER.CLEAR_SELECTED' | translate"
+                        [matTooltip]="'SIGNAGE_MANAGER.CLEAR_SELECTED' | translate"
                         (click)="clearSelection()"
                     >
                         <icon>close</icon>
                     </button>
                     <div class="font-medium">
-                        {{ selected_count() }} selected
+                        {{ 'COMMON.SELECTED_COUNT' | translate: { count: selected_count() } }}
                     </div>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
@@ -332,7 +338,7 @@ import { SignageService } from '../signage.service';
                             matRipple
                             error
                             (click)="deleteSelected()"
-                            matTooltip="Delete"
+                            [matTooltip]="'COMMON.DELETE' | translate"
                         >
                             <icon>delete</icon>
                         </button>
@@ -343,7 +349,7 @@ import { SignageService } from '../signage.service';
                             default
                             matRipple
                             (click)="addSelectedToPlaylist()"
-                            matTooltip="Add to Playlist"
+                            [matTooltip]="'SIGNAGE_MANAGER.ADD_TO_PLAYLIST' | translate"
                         >
                             <icon>playlist_add</icon>
                         </button>
@@ -354,7 +360,7 @@ import { SignageService } from '../signage.service';
                             default
                             matRipple
                             (click)="shareSelected()"
-                            matTooltip="Share"
+                            [matTooltip]="'SIGNAGE_MANAGER.SHARE' | translate"
                         >
                             <icon>ios_share</icon>
                         </button>
@@ -386,6 +392,7 @@ import { SignageService } from '../signage.service';
         IconComponent,
         AuthenticatedImageDirective,
         MediaDurationPipe,
+        TranslatePipe,
     ],
 })
 export class MediaListComponent implements OnChanges, OnInit {

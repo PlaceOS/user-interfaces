@@ -4,7 +4,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { settingSignal } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { map } from 'rxjs/operators';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
@@ -50,7 +50,10 @@ function parseDisplayTab(
                                     matRipple
                                     class="sm:hidden"
                                     (click)="deselectDisplay()"
-                                    aria-label="Back to displays list"
+                                    [attr.aria-label]="
+                                        'SIGNAGE_MANAGER.BACK_TO_DISPLAYS'
+                                            | translate
+                                    "
                                 >
                                     <icon>arrow_back</icon>
                                 </button>
@@ -76,11 +79,16 @@ function parseDisplayTab(
                                     icon
                                     matRipple
                                     class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                                    matTooltip="Open signage panel"
+                                    [matTooltip]="
+                                        'SIGNAGE_MANAGER.OPEN_PANEL' | translate
+                                    "
                                     [href]="panel_link()"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    aria-label="Open signage panel in new tab"
+                                    [attr.aria-label]="
+                                        'SIGNAGE_MANAGER.OPEN_PANEL_NEW_TAB'
+                                            | translate
+                                    "
                                 >
                                     <icon>open_in_new</icon>
                                 </a>
@@ -88,7 +96,10 @@ function parseDisplayTab(
                             <div
                                 class="bg-base-100 border-base-300 mx-2 mt-2 flex overflow-hidden rounded-lg border"
                                 role="tablist"
-                                aria-label="Display details tabs"
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.DISPLAY_DETAILS_TABS'
+                                        | translate
+                                "
                             >
                                 <button
                                     type="button"
@@ -113,7 +124,7 @@ function parseDisplayTab(
                                     aria-controls="display-schedule-panel"
                                     id="display-schedule-tab"
                                 >
-                                    Schedule
+                                    {{ 'SIGNAGE_MANAGER.SCHEDULE' | translate }}
                                 </button>
                                 <button
                                     type="button"
@@ -138,7 +149,12 @@ function parseDisplayTab(
                                     aria-controls="display-playlists-panel"
                                     id="display-playlists-tab"
                                 >
-                                    Playlists ({{ playlist_count() }})
+                                    {{
+                                        'SIGNAGE_MANAGER.PLAYLISTS_COUNT'
+                                            | translate
+                                                : { count: playlist_count() }
+                                                : playlist_count()
+                                    }}
                                 </button>
                                 <button
                                     type="button"
@@ -159,7 +175,12 @@ function parseDisplayTab(
                                     aria-controls="display-zones-panel"
                                     id="display-zones-tab"
                                 >
-                                    Zones ({{ zone_count() }})
+                                    {{
+                                        'SIGNAGE_MANAGER.ZONES_COUNT'
+                                            | translate
+                                                : { count: zone_count() }
+                                                : zone_count()
+                                    }}
                                 </button>
                             </div>
                         }
@@ -197,6 +218,7 @@ function parseDisplayTab(
         MatRippleModule,
         MatTooltipModule,
         IconComponent,
+        TranslatePipe,
     ],
 })
 export class DisplaysSectionComponent {

@@ -2,7 +2,8 @@ import { Component, input, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
-import { DateFromPipe, IconComponent } from '@placeos/components';
+import { DateFromPipe, IconComponent, TranslatePipe } from '@placeos/components';
+import { i18n } from '@placeos/common';
 import { differenceInMinutes, format, startOfDay } from 'date-fns';
 import {
     MINUTES_PER_DAY,
@@ -21,7 +22,12 @@ import {
                 <div
                     class="text-base-content/50 text-[10px] font-semibold tracking-[0.2em] uppercase"
                 >
-                    {{ view_tab() === 'displays' ? 'Displays' : 'Zones' }}
+                    {{
+                        (view_tab() === 'displays'
+                            ? 'SIGNAGE_MANAGER.NAV_DISPLAYS'
+                            : 'SIGNAGE_MANAGER.NAV_ZONES'
+                        ) | translate
+                    }}
                 </div>
             </div>
             <div
@@ -131,7 +137,7 @@ import {
                             [style.height]="row_height + 'rem'"
                         >
                             <icon class="text-sm">event_busy</icon>
-                            No playlists scheduled
+                            {{ 'SIGNAGE_MANAGER.NO_PLAYLISTS_SCHEDULED' | translate }}
                         </div>
                     }
 
@@ -184,14 +190,20 @@ import {
                                     class="truncate text-[10px] leading-tight opacity-70"
                                 >
                                     {{
-                                        block.all_day ? 'All day' : block.label
+                                        block.all_day
+                                            ? ('SIGNAGE_MANAGER.ALL_DAY'
+                                              | translate)
+                                            : block.label
                                     }}
                                 </div>
                                 @if (requiresApproval(block)) {
                                     <div
                                         class="mt-auto truncate text-[10px] leading-tight font-medium"
                                     >
-                                        Awaiting approval
+                                        {{
+                                            'SIGNAGE_MANAGER.AWAITING_APPROVAL'
+                                                | translate
+                                        }}
                                     </div>
                                 }
                                 @if (
@@ -203,8 +215,13 @@ import {
                                     >
                                         {{
                                             block.source_type === 'display'
-                                                ? 'Direct'
-                                                : 'via ' + block.source_label
+                                                ? ('SIGNAGE_MANAGER.SOURCE_DIRECT'
+                                                  | translate)
+                                                : ('SIGNAGE_MANAGER.SOURCE_VIA'
+                                                  | translate
+                                                      : {
+                                                            source: block.source_label,
+                                                        })
                                         }}
                                     </div>
                                 }
@@ -278,6 +295,7 @@ import {
         RouterLink,
         IconComponent,
         DateFromPipe,
+        TranslatePipe,
     ],
 })
 export class ScheduleTimelineComponent {
@@ -358,21 +376,30 @@ export class ScheduleTimelineComponent {
     public blockTooltip(row: ScheduleTimelineRow, block: ScheduleBlock) {
         const source =
             block.source_label && this.view_tab() === 'displays'
-                ? `\nSource: ${
-                      block.source_type === 'display'
-                          ? 'Display'
-                          : block.source_label
-                  }`
+                ? `\n${i18n('SIGNAGE_MANAGER.TOOLTIP_SOURCE', {
+                      source:
+                          block.source_type === 'display'
+                              ? i18n('SIGNAGE_MANAGER.SOURCE_DISPLAY')
+                              : block.source_label,
+                  })}`
                 : '';
         const approval = this.requiresApproval(block)
-            ? '\nStatus: Awaiting Approval'
+            ? `\n${i18n('SIGNAGE_MANAGER.TOOLTIP_STATUS_AWAITING')}`
             : '';
-        return `${row.name}\nPlaylist: ${block.playlist.name}\nTime: ${block.all_day ? 'All day' : block.label}${source}${approval}`;
+        const time = block.all_day
+            ? i18n('SIGNAGE_MANAGER.ALL_DAY')
+            : block.label;
+        return `${row.name}\n${i18n('SIGNAGE_MANAGER.TOOLTIP_PLAYLIST', {
+            name: block.playlist.name,
+        })}\n${i18n('SIGNAGE_MANAGER.TOOLTIP_TIME', {
+            time,
+        })}${source}${approval}`;
     }
 
     public blockAriaLabel(row: ScheduleTimelineRow, block: ScheduleBlock) {
-        return `${row.name}, ${block.playlist.name}, ${
-            block.all_day ? 'all day' : block.label
-        }`;
+        const time = block.all_day
+            ? i18n('SIGNAGE_MANAGER.ALL_DAY_LOWER')
+            : block.label;
+        return `${row.name}, ${block.playlist.name}, ${time}`;
     }
 }

@@ -3,7 +3,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { IconComponent } from '@placeos/components';
+import { i18n } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceGroupZone } from '@placeos/ts-client';
 import { lastValueFrom } from 'rxjs';
 import { SignageService } from '../signage.service';
@@ -26,15 +27,20 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
                     class="text-base-content/80 flex flex-1 items-center gap-2 font-medium tracking-wider uppercase"
                 >
                     <icon class="text-lg">layers</icon>
-                    Zones ({{ zones().length }})
+                    {{
+                        'SIGNAGE_MANAGER.ZONES_COUNT'
+                            | translate: { count: zones().length } : zones().length
+                    }}
                 </h5>
                 <button
                     icon
                     type="button"
                     matRipple
                     class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                    matTooltip="Add zone"
-                    aria-label="Search for zone to add"
+                    [matTooltip]="'SIGNAGE_MANAGER.ADD_ZONE_TOOLTIP' | translate"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.ADD_ZONE_ARIA' | translate
+                    "
                     (click)="addZone()"
                 >
                     <icon>add</icon>
@@ -67,13 +73,17 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
                                     @if (labels) {
                                         {{ labels }}
                                     } @else {
-                                        <span class="italic"
-                                            >Default permissions</span
-                                        >
+                                        <span class="italic">{{
+                                            'SIGNAGE_MANAGER.DEFAULT_PERMISSIONS'
+                                                | translate
+                                        }}</span>
                                     }
                                     @if (row.deny) {
                                         <span class="text-error">
-                                            · Denied</span
+                                            {{
+                                                'SIGNAGE_MANAGER.DENIED'
+                                                    | translate
+                                            }}</span
                                         >
                                     }
                                 </div>
@@ -83,8 +93,12 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
                                 type="button"
                                 matRipple
                                 class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                                matTooltip="Edit zone permissions"
-                                aria-label="Edit zone permissions"
+                                [matTooltip]="
+                                    'SIGNAGE_MANAGER.EDIT_ZONE_PERMS' | translate
+                                "
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.EDIT_ZONE_PERMS' | translate
+                                "
                                 (click)="editZonePermissions(row)"
                             >
                                 <icon>edit</icon>
@@ -94,8 +108,12 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
                                 type="button"
                                 matRipple
                                 class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                                matTooltip="Remove zone"
-                                aria-label="Remove zone"
+                                [matTooltip]="
+                                    'SIGNAGE_MANAGER.REMOVE_ZONE' | translate
+                                "
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.REMOVE_ZONE' | translate
+                                "
                                 (click)="removeZone(row)"
                             >
                                 <icon class="text-error">close</icon>
@@ -107,7 +125,9 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
                         class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-6"
                     >
                         <icon class="text-4xl">layers_clear</icon>
-                        <p class="text-sm">No zones assigned to this group.</p>
+                        <p class="text-sm">
+                            {{ 'SIGNAGE_MANAGER.NO_ZONES_ASSIGNED' | translate }}
+                        </p>
                     </div>
                 }
             </div>
@@ -121,7 +141,7 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
             }
         `,
     ],
-    imports: [MatRippleModule, MatTooltipModule, IconComponent],
+    imports: [MatRippleModule, MatTooltipModule, IconComponent, TranslatePipe],
 })
 export class SignageGroupZonesComponent {
     private readonly _service = inject(SignageService);
@@ -151,7 +171,7 @@ export class SignageGroupZonesComponent {
             this._dialog
                 .open(SignageGroupPermissionsModalComponent, {
                     data: {
-                        title: 'Zone permissions',
+                        title: i18n('SIGNAGE_MANAGER.ZONE_PERMISSIONS'),
                         permissions: row.permissions,
                         deny: row.deny,
                         show_deny: true,

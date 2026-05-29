@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceCurrentGroup } from '@placeos/ts-client';
 
 export interface GroupSelectModalData {
@@ -25,7 +25,9 @@ export interface GroupSelectModalData {
                 type="button"
                 matRipple
                 mat-dialog-close
-                aria-label="Close group selection dialog"
+                [attr.aria-label]="
+                    'SIGNAGE_MANAGER.CLOSE_GROUP_SELECT' | translate
+                "
             >
                 <icon>close</icon>
             </button>
@@ -35,15 +37,21 @@ export interface GroupSelectModalData {
         >
             @if (!data.selected_group_id && data.show_all_groups) {
                 <nav
-                    aria-label="Active group hierarchy"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.ACTIVE_GROUP_HIERARCHY' | translate
+                    "
                     class="border-base-300 bg-base-200/60 flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm"
                 >
                     <icon class="text-base-content/60 text-xl">public</icon>
-                    <span class="font-medium">All Groups</span>
+                    <span class="font-medium">{{
+                        'SIGNAGE_MANAGER.ALL_GROUPS' | translate
+                    }}</span>
                 </nav>
             } @else if (selected_hierarchy().length) {
                 <nav
-                    aria-label="Active group hierarchy"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.ACTIVE_GROUP_HIERARCHY' | translate
+                    "
                     class="border-base-300 bg-base-200/60 flex w-full items-center gap-1 overflow-x-auto rounded-lg border px-3 py-2 text-left text-sm"
                 >
                     <icon class="text-base-content/60 mr-1 text-xl">
@@ -94,7 +102,9 @@ export interface GroupSelectModalData {
                         }}
                     </icon>
                     <div class="min-w-0 flex-1">
-                        <div class="truncate">All Groups</div>
+                        <div class="truncate">
+                            {{ 'SIGNAGE_MANAGER.ALL_GROUPS' | translate }}
+                        </div>
                     </div>
                 </button>
             }
@@ -135,12 +145,14 @@ export interface GroupSelectModalData {
                     class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center space-y-4 rounded-lg p-16"
                 >
                     <icon class="text-base-content/70 text-8xl">group</icon>
-                    <div class="text-base-content/70">No groups available</div>
+                    <div class="text-base-content/70">
+                        {{ 'SIGNAGE_MANAGER.NO_GROUPS_AVAILABLE' | translate }}
+                    </div>
                 </div>
             }
         </main>
     `,
-    imports: [MatRippleModule, MatDialogModule, IconComponent],
+    imports: [MatRippleModule, MatDialogModule, IconComponent, TranslatePipe],
 })
 export class GroupSelectModalComponent {
     public readonly data = inject<GroupSelectModalData>(MAT_DIALOG_DATA);

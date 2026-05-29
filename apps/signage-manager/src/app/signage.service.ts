@@ -3,6 +3,7 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import {
     current_user,
+    i18n,
     currentUser,
     notifyError,
     notifyInfo,
@@ -783,7 +784,7 @@ export class SignageService {
         if (
             !this._requirePermission(
                 this.can_create(),
-                'You cannot create playlists in this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_CREATE_PLAYLISTS'),
             )
         )
             return;
@@ -816,7 +817,7 @@ export class SignageService {
         if (
             !this._requirePermission(
                 this.can_update(),
-                'You cannot update playlists in this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS'),
             )
         )
             return;
@@ -842,14 +843,14 @@ export class SignageService {
         if (
             !this._requirePermission(
                 this.can_delete(),
-                'You cannot delete playlists in this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_DELETE_PLAYLISTS'),
             )
         )
             return;
         const result = await openConfirmModal(
             {
-                title: 'Remove playlist?',
-                content: `Delete "${playlist.name}"?`,
+                title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_PLAYLIST_TITLE'),
+                content: i18n('SIGNAGE_MANAGER.SVC_DELETE_NAMED', { name: playlist.name }),
                 icon: { content: 'delete' },
             },
             this._dialog,
@@ -861,7 +862,7 @@ export class SignageService {
             this.selected_playlist_item.set(null);
         }
         this.changed();
-        notifySuccess('Playlist removed');
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_REMOVED'));
         result.close();
     }
 
@@ -875,7 +876,7 @@ export class SignageService {
         if (
             !this._requirePermission(
                 this.can_approve(),
-                'You cannot approve playlists in this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_APPROVE_PLAYLISTS'),
             )
         )
             return;
@@ -899,7 +900,7 @@ export class SignageService {
             const groups = await this._playlistApprovalGroups(playlist);
             if (!groups.length) {
                 notifyWarn(
-                    'No signage groups are available for this playlist.',
+                    i18n('SIGNAGE_MANAGER.SVC_NO_GROUPS_FOR_PLAYLIST'),
                 );
                 return;
             }
@@ -912,7 +913,7 @@ export class SignageService {
                     listSignagePlaylistApprovers(group.group.id),
                 )) as SignagePlaylistApprover[]) || [];
         } catch {
-            notifyWarn('Unable to load playlist approvers.');
+            notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_APPROVERS'));
         } finally {
             this.playlist_approval_request_loading.set(false);
         }
@@ -936,7 +937,7 @@ export class SignageService {
             ),
         );
         this.setPlaylistApprovalStatus(playlist.id, false, true);
-        notifySuccess('Playlist approval requested');
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_APPROVAL_REQUESTED'));
     }
 
     public async removeMediaFromPlaylist(
@@ -947,7 +948,7 @@ export class SignageService {
         if (
             !this._requirePermission(
                 this.can_update(),
-                'You cannot update playlists in this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS'),
             )
         )
             return;
@@ -967,7 +968,7 @@ export class SignageService {
         }
         await lastValueFrom(updateSignagePlaylistMedia(playlist_id, new_items));
         this._setPlaylistMediaState(playlist_id, new_items, false);
-        notifySuccess('Item removed from playlist');
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_ITEM_REMOVED'));
         this._playlist_change.next(Date.now());
         this.changed();
     }
@@ -976,7 +977,7 @@ export class SignageService {
         if (
             !this._requirePermission(
                 this.can_update(),
-                'You cannot update playlists in this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS'),
             )
         )
             return;
@@ -1003,7 +1004,7 @@ export class SignageService {
     ) {
         const managed_group_id = group.id || data.parent_id || '';
         if (!this.canManageSignageGroup(managed_group_id)) {
-            notifyWarn('You cannot manage this signage group.');
+            notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_MANAGE_GROUP'));
             return null;
         }
         const payload = {
@@ -1016,24 +1017,24 @@ export class SignageService {
         const result = await lastValueFrom(
             group.id ? updateGroup(group.id, payload) : addGroup(payload),
         ).catch((error) => {
-            notifyError('Error saving signage group');
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_SAVE_GROUP'));
             throw error;
         });
         this._groups_change.next(Date.now());
-        notifySuccess('Signage group saved');
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_GROUP_SAVED'));
         return result;
     }
 
     public async removeSignageGroup(group: PlaceGroup) {
         if (!group?.id) return;
         if (!this.canManageSignageGroup(group.id)) {
-            notifyWarn('You cannot manage this signage group.');
+            notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_MANAGE_GROUP'));
             return;
         }
         const result = await openConfirmModal(
             {
-                title: 'Remove signage group?',
-                content: `Delete "${group.name}"?`,
+                title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_GROUP_TITLE'),
+                content: i18n('SIGNAGE_MANAGER.SVC_DELETE_NAMED', { name: group.name }),
                 icon: { content: 'delete' },
             },
             this._dialog,
@@ -1041,7 +1042,7 @@ export class SignageService {
         if (result.reason !== 'done') return;
         await lastValueFrom(removeGroup(group.id)).catch((error) => {
             result.close();
-            notifyError('Error removing signage group');
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_REMOVE_GROUP'));
             throw error;
         });
         result.close();
@@ -1049,7 +1050,7 @@ export class SignageService {
             this.selected_group_id.set('');
         }
         this._groups_change.next(Date.now());
-        notifySuccess('Signage group removed');
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_GROUP_REMOVED'));
     }
 
     public searchGroupUsers(search = '') {
@@ -1080,11 +1081,11 @@ export class SignageService {
         await lastValueFrom(
             addGroupUser({ group_id, user_id: user.id, permissions: 0 }),
         ).catch((error) => {
-            notifyError('Error adding group user');
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_ADD_USER'));
             throw error;
         });
         this._groups_change.next(Date.now());
-        notifySuccess('Group user added');
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_USER_ADDED'));
     }
 
     public async updateManagedGroupUser(
@@ -1095,19 +1096,19 @@ export class SignageService {
         await lastValueFrom(
             updateGroupUser(item.user_id, item.group_id, { permissions }),
         ).catch((error) => {
-            notifyError('Error updating group user');
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_UPDATE_USER'));
             throw error;
         });
         this._groups_change.next(Date.now());
-        notifySuccess('Group user updated');
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_USER_UPDATED'));
     }
 
     public async removeManagedGroupUser(item: PlaceGroupUser) {
         if (!this.canManageSignageGroup(item.group_id)) return;
         const result = await openConfirmModal(
             {
-                title: 'Remove group user?',
-                content: `Remove "${item.user?.name || item.user_id}" from this group?`,
+                title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_USER_TITLE'),
+                content: i18n('SIGNAGE_MANAGER.SVC_REMOVE_NAMED_FROM_GROUP', { name: item.user?.name || item.user_id }),
                 icon: { content: 'delete' },
             },
             this._dialog,
@@ -1116,13 +1117,13 @@ export class SignageService {
         await lastValueFrom(removeGroupUser(item.user_id, item.group_id)).catch(
             (error) => {
                 result.close();
-                notifyError('Error removing group user');
+                notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_REMOVE_USER'));
                 throw error;
             },
         );
         result.close();
         this._groups_change.next(Date.now());
-        notifySuccess('Group user removed');
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_USER_REMOVED'));
     }
 
     public async addManagedGroupZone(zone: PlaceZone) {
@@ -1131,11 +1132,11 @@ export class SignageService {
         await lastValueFrom(
             addGroupZone({ group_id, zone_id: zone.id, permissions: 0 }),
         ).catch((error) => {
-            notifyError('Error adding group zone');
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_ADD_ZONE'));
             throw error;
         });
         this._groups_change.next(Date.now());
-        notifySuccess('Group zone added');
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_ZONE_ADDED'));
     }
 
     public async updateManagedGroupZone(
@@ -1147,19 +1148,19 @@ export class SignageService {
         await lastValueFrom(
             updateGroupZone(item.group_id, item.zone_id, { permissions, deny }),
         ).catch((error) => {
-            notifyError('Error updating group zone');
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_UPDATE_ZONE'));
             throw error;
         });
         this._groups_change.next(Date.now());
-        notifySuccess('Group zone updated');
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_ZONE_UPDATED'));
     }
 
     public async removeManagedGroupZone(item: PlaceGroupZone) {
         if (!this.canManageSignageGroup(item.group_id)) return;
         const result = await openConfirmModal(
             {
-                title: 'Remove group zone?',
-                content: `Remove "${item.zone?.name || item.zone_id}" from this group?`,
+                title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_ZONE_TITLE'),
+                content: i18n('SIGNAGE_MANAGER.SVC_REMOVE_NAMED_FROM_GROUP', { name: item.zone?.name || item.zone_id }),
                 icon: { content: 'delete' },
             },
             this._dialog,
@@ -1168,13 +1169,13 @@ export class SignageService {
         await lastValueFrom(removeGroupZone(item.group_id, item.zone_id)).catch(
             (error) => {
                 result.close();
-                notifyError('Error removing group zone');
+                notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_REMOVE_ZONE'));
                 throw error;
             },
         );
         result.close();
         this._groups_change.next(Date.now());
-        notifySuccess('Group zone removed');
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_ZONE_REMOVED'));
     }
 
     public setSelectedGroup(group_id: string) {
@@ -1248,7 +1249,7 @@ export class SignageService {
         if (
             !this._requirePermission(
                 this.can_share(),
-                'You cannot share items from this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_SHARE_ITEMS'),
             )
         )
             return false;
@@ -1257,15 +1258,15 @@ export class SignageService {
             (item) => item.group.id !== selected_group_id,
         );
         if (!target_groups.length) {
-            notifyWarn('No other signage groups are available to share with.');
+            notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_GROUPS_TO_SHARE'));
             return false;
         }
         const ref = this._dialog.open(GroupSelectModalComponent, {
             data: {
                 title:
                     item_type === 'media'
-                        ? 'Share media with group'
-                        : 'Share playlist with group',
+                        ? i18n('SIGNAGE_MANAGER.SVC_SHARE_MEDIA_TITLE')
+                        : i18n('SIGNAGE_MANAGER.SVC_SHARE_PLAYLIST_TITLE'),
                 groups: target_groups,
             },
             panelClass: 'mobile-fullscreen',
@@ -1281,7 +1282,7 @@ export class SignageService {
                   });
         await lastValueFrom(request);
         notifySuccess(
-            item_type === 'media' ? 'Media shared' : 'Playlist shared',
+            item_type === 'media' ? i18n('SIGNAGE_MANAGER.SVC_MEDIA_SHARED') : i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_SHARED'),
         );
         return true;
     }
@@ -1345,13 +1346,13 @@ export class SignageService {
         if (
             !this._requirePermission(
                 this.can_update(),
-                'You cannot update playlists in this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS'),
             )
         )
             return;
         await lastValueFrom(updateSignagePlaylistMedia(playlist_id, list));
         this._setPlaylistMediaState(playlist_id, list, false);
-        notifySuccess('Playlist updated');
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_UPDATED'));
         this._playlist_change.next(Date.now());
         this.changed();
     }
@@ -1360,7 +1361,7 @@ export class SignageService {
         if (
             !this._requirePermission(
                 this.can_update(),
-                'You cannot update playlists in this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS'),
             )
         )
             return;
@@ -1370,9 +1371,9 @@ export class SignageService {
         if (media_list.items?.includes(media_id)) {
             const result = await openConfirmModal(
                 {
-                    title: 'Add duplicate media?',
+                    title: i18n('SIGNAGE_MANAGER.SVC_ADD_DUPLICATE_TITLE'),
                     content:
-                        'This media is already in the playlist. Add another copy?',
+                        i18n('SIGNAGE_MANAGER.SVC_ADD_DUPLICATE_CONTENT'),
                     icon: { content: 'playlist_add' },
                 },
                 this._dialog,
@@ -1391,7 +1392,7 @@ export class SignageService {
         if (
             !this._requirePermission(
                 this.can_update(),
-                'You cannot update playlists in this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS'),
             )
         )
             return false;
@@ -1405,7 +1406,7 @@ export class SignageService {
             (id) => !existing_items.includes(id),
         );
         if (!new_media_ids.length) {
-            notifyWarn('Selected media is already in this playlist.');
+            notifyWarn(i18n('SIGNAGE_MANAGER.SVC_MEDIA_ALREADY_IN'));
             return false;
         }
         await this.updatePlaylistMedia(playlist_id, [
@@ -1557,7 +1558,7 @@ export class SignageService {
         if (
             !this._requirePermission(
                 this.can_create(),
-                'You cannot create media in this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_CREATE_MEDIA'),
             )
         )
             return;
@@ -1579,7 +1580,7 @@ export class SignageService {
         if (
             !this._requirePermission(
                 this.can_create(),
-                'You cannot create media in this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_CREATE_MEDIA'),
             )
         )
             return;
@@ -1597,7 +1598,7 @@ export class SignageService {
         if (
             !this._requirePermission(
                 this.can_create(),
-                'You cannot create media in this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_CREATE_MEDIA'),
             )
         )
             return;
@@ -1623,14 +1624,14 @@ export class SignageService {
             if (
                 !this._requirePermission(
                     this.can_update(),
-                    'You cannot update media in this group.',
+                    i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_MEDIA'),
                 )
             )
                 return;
         } else if (
             !this._requirePermission(
                 this.can_create(),
-                'You cannot create media in this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_CREATE_MEDIA'),
             )
         )
             return;
@@ -1699,7 +1700,7 @@ export class SignageService {
         if (
             !this._requirePermission(
                 this.can_update(),
-                'You cannot update media in this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_MEDIA'),
             )
         )
             return;
@@ -1772,17 +1773,17 @@ export class SignageService {
         if (
             !this._requirePermission(
                 this.can_create(),
-                'You cannot create media in this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_CREATE_MEDIA'),
             )
         ) {
-            throw new Error('Permission denied');
+            throw new Error(i18n('SIGNAGE_MANAGER.SVC_PERMISSION_DENIED'));
         }
         const prepared =
             (file_metadata &&
                 (await this._prepareUploadMedia(file, file_metadata))) ||
             (await this._prepareUploadMedia(file));
         if (!prepared) {
-            throw new Error('Please select a media file to upload.');
+            throw new Error(i18n('SIGNAGE_MANAGER.SVC_SELECT_MEDIA_FILE'));
         }
         const { file: upload_file, media_type, metadata } = prepared;
         const { is_landscape } = metadata;
@@ -1828,7 +1829,7 @@ export class SignageService {
         metadata?: SignageMediaMetadata,
     ): Promise<PreparedUploadMedia | null> {
         if (!file) {
-            notifyError('Please select a media file to upload.');
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_SELECT_MEDIA_FILE'));
             return null;
         }
         const normalized_file = await this._normalizeImageUpload(file);
@@ -1858,7 +1859,7 @@ export class SignageService {
         try {
             const converted_file = await this._convertImageToWebp(file);
             notifyInfo(
-                `Converted ${file.name} to ${converted_file.name} for browser compatibility.`,
+                i18n('SIGNAGE_MANAGER.SVC_CONVERTED_MEDIA', { from: file.name, to: converted_file.name }),
             );
             return converted_file;
         } catch {
@@ -1871,14 +1872,14 @@ export class SignageService {
         if (
             !this._requirePermission(
                 this.can_delete(),
-                'You cannot delete media in this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_DELETE_MEDIA'),
             )
         )
             return;
         const result = await openConfirmModal(
             {
-                title: 'Remove media?',
-                content: `Delete ${item.name}?`,
+                title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_MEDIA_TITLE'),
+                content: i18n('SIGNAGE_MANAGER.SVC_DELETE_NAMED_PLAIN', { name: item.name }),
                 icon: { content: 'delete' },
             },
             this._dialog,
@@ -1886,7 +1887,7 @@ export class SignageService {
         if (result.reason !== 'done') return;
         await lastValueFrom(removeSignageMedia(item.id));
         this.changed();
-        notifySuccess('Media removed');
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_MEDIA_REMOVED'));
         result.close();
     }
 
@@ -1896,16 +1897,14 @@ export class SignageService {
         if (
             !this._requirePermission(
                 this.can_delete(),
-                'You cannot delete media in this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_DELETE_MEDIA'),
             )
         )
             return false;
         const result = await openConfirmModal(
             {
-                title: 'Remove media?',
-                content: `Delete ${media_items.length} selected media item${
-                    media_items.length === 1 ? '' : 's'
-                }?`,
+                title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_MEDIA_TITLE'),
+                content: i18n('SIGNAGE_MANAGER.SVC_DELETE_SELECTED_MEDIA', { count: media_items.length }, media_items.length),
                 icon: { content: 'delete' },
             },
             this._dialog,
@@ -1917,7 +1916,7 @@ export class SignageService {
             ),
         );
         this.changed();
-        notifySuccess('Media removed');
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_MEDIA_REMOVED'));
         result.close();
         return true;
     }
@@ -1957,7 +1956,7 @@ export class SignageService {
         if (
             !this._requirePermission(
                 this.can_update(),
-                'You cannot update signage assignments in this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_ASSIGNMENTS'),
             )
         )
             return;
@@ -1968,7 +1967,7 @@ export class SignageService {
         const playlist_id = await lastValueFrom(ref.afterClosed());
         if (!playlist_id) return;
         if (zone.playlists?.includes(playlist_id)) {
-            notifyError('Playlist already assigned to this zone.');
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_IN_ZONE'));
             return;
         }
         const playlists = [...(zone.playlists || []), playlist_id];
@@ -1978,14 +1977,14 @@ export class SignageService {
         this._cacheZone(updated);
         this.selected_zone.set(updated);
         this.changed();
-        notifySuccess('Playlist added to zone');
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_ADDED_ZONE'));
     }
 
     public async removePlaylistFromZone(zone: any, playlist_id: string) {
         if (
             !this._requirePermission(
                 this.can_update(),
-                'You cannot update signage assignments in this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_ASSIGNMENTS'),
             )
         )
             return;
@@ -1998,14 +1997,14 @@ export class SignageService {
         this._cacheZone(updated);
         this.selected_zone.set(updated);
         this.changed();
-        notifySuccess('Playlist removed from zone');
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_REMOVED_ZONE'));
     }
 
     public async addDisplayToZone(zone: any) {
         if (
             !this._requirePermission(
                 this.can_update(),
-                'You cannot update signage assignments in this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_ASSIGNMENTS'),
             )
         )
             return;
@@ -2019,7 +2018,7 @@ export class SignageService {
         const display = displays.find((d: any) => d.id === display_id);
         if (!display) return;
         if (display.zones?.includes(zone.id)) {
-            notifyError('Display already assigned to this zone.');
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_IN_ZONE'));
             return;
         }
         const zones = [...(display.zones || []), zone.id];
@@ -2032,14 +2031,14 @@ export class SignageService {
         );
         this._cacheDisplay(updated);
         this.changed();
-        notifySuccess('Display added to zone');
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_ADDED_ZONE'));
     }
 
     public async removeDisplayFromZone(zone: any, display_id: string) {
         if (
             !this._requirePermission(
                 this.can_update(),
-                'You cannot update signage assignments in this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_ASSIGNMENTS'),
             )
         )
             return;
@@ -2058,14 +2057,14 @@ export class SignageService {
         );
         this._cacheDisplay(updated);
         this.changed();
-        notifySuccess('Display removed from zone');
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_REMOVED_ZONE'));
     }
 
     public async addPlaylistToDisplay(display: any) {
         if (
             !this._requirePermission(
                 this.can_update(),
-                'You cannot update signage assignments in this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_ASSIGNMENTS'),
             )
         )
             return;
@@ -2076,7 +2075,7 @@ export class SignageService {
         const playlist_id = await lastValueFrom(ref.afterClosed());
         if (!playlist_id) return;
         if (display.playlists?.includes(playlist_id)) {
-            notifyError('Playlist already assigned to this display.');
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_IN_DISPLAY'));
             return;
         }
         const playlists = [...(display.playlists || []), playlist_id];
@@ -2090,14 +2089,14 @@ export class SignageService {
         this._cacheDisplay(updated);
         this.selected_display.set(updated);
         this.changed();
-        notifySuccess('Playlist added to display');
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_ADDED_DISPLAY'));
     }
 
     public async addDisplayToPlaylist(playlist: SignagePlaylist) {
         if (
             !this._requirePermission(
                 this.can_update(),
-                'You cannot update signage assignments in this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_ASSIGNMENTS'),
             )
         )
             return;
@@ -2111,7 +2110,7 @@ export class SignageService {
         const display = displays.find((d: any) => d.id === display_id);
         if (!display) return;
         if (display.playlists?.includes(playlist.id)) {
-            notifyError('Playlist already assigned to this display.');
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_IN_DISPLAY'));
             return;
         }
         const playlists = [...(display.playlists || []), playlist.id];
@@ -2127,14 +2126,14 @@ export class SignageService {
             this.selected_display.set(updated);
         }
         this.changed();
-        notifySuccess('Display added to playlist');
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_ADDED_PLAYLIST'));
     }
 
     public async addZoneToPlaylist(playlist: SignagePlaylist) {
         if (
             !this._requirePermission(
                 this.can_update(),
-                'You cannot update signage assignments in this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_ASSIGNMENTS'),
             )
         )
             return;
@@ -2148,7 +2147,7 @@ export class SignageService {
         const zone = zones.find((z: any) => z.id === zone_id);
         if (!zone) return;
         if (zone.playlists?.includes(playlist.id)) {
-            notifyError('Playlist already assigned to this zone.');
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_IN_ZONE'));
             return;
         }
         const playlists = [...(zone.playlists || []), playlist.id];
@@ -2160,7 +2159,7 @@ export class SignageService {
             this.selected_zone.set(updated);
         }
         this.changed();
-        notifySuccess('Zone added to playlist');
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_ZONE_ADDED_PLAYLIST'));
     }
 
     public async removeDisplayFromPlaylist(
@@ -2170,7 +2169,7 @@ export class SignageService {
         if (
             !this._requirePermission(
                 this.can_update(),
-                'You cannot update signage assignments in this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_ASSIGNMENTS'),
             )
         )
             return;
@@ -2189,14 +2188,14 @@ export class SignageService {
             this.selected_display.set(updated);
         }
         this.changed();
-        notifySuccess('Display removed from playlist');
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_REMOVED_PLAYLIST'));
     }
 
     public async removeZoneFromPlaylist(playlist: SignagePlaylist, zone: any) {
         if (
             !this._requirePermission(
                 this.can_update(),
-                'You cannot update signage assignments in this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_ASSIGNMENTS'),
             )
         )
             return;
@@ -2211,14 +2210,14 @@ export class SignageService {
             this.selected_zone.set(updated);
         }
         this.changed();
-        notifySuccess('Zone removed from playlist');
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_ZONE_REMOVED_PLAYLIST'));
     }
 
     public async removePlaylistFromDisplay(display: any, playlist_id: string) {
         if (
             !this._requirePermission(
                 this.can_update(),
-                'You cannot update signage assignments in this group.',
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_ASSIGNMENTS'),
             )
         )
             return;
@@ -2235,7 +2234,7 @@ export class SignageService {
         this._cacheDisplay(updated);
         this.selected_display.set(updated);
         this.changed();
-        notifySuccess('Playlist removed from display');
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_REMOVED_DISPLAY'));
     }
 
     private _getMediaMetadata(file: File) {
@@ -2312,12 +2311,12 @@ export class SignageService {
         canvas.width = image.width;
         canvas.height = image.height;
         const ctx = canvas.getContext('2d');
-        if (!ctx) throw new Error('Unable to convert image');
+        if (!ctx) throw new Error(i18n('SIGNAGE_MANAGER.SVC_ERR_CONVERT_IMAGE'));
         ctx.drawImage(image, 0, 0);
         const blob = await new Promise<Blob | null>((resolve) =>
             canvas.toBlob(resolve, 'image/webp', 0.92),
         );
-        if (!blob) throw new Error('Unable to convert image');
+        if (!blob) throw new Error(i18n('SIGNAGE_MANAGER.SVC_ERR_CONVERT_IMAGE'));
         return new File([blob], this._replaceFileExtension(file.name, 'webp'), {
             type: 'image/webp',
             lastModified: file.lastModified,
@@ -2334,7 +2333,7 @@ export class SignageService {
             };
             image.onerror = () => {
                 URL.revokeObjectURL(url);
-                reject(new Error('Unable to load image'));
+                reject(new Error(i18n('SIGNAGE_MANAGER.SVC_ERR_LOAD_IMAGE')));
             };
             image.src = url;
         });

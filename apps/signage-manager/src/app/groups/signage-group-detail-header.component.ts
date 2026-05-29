@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceGroup } from '@placeos/ts-client';
 import { SignageService } from '../signage.service';
 import { SignageGroupEditModalComponent } from './signage-group-edit-modal.component';
@@ -19,14 +19,19 @@ import { SignageGroupEditModalComponent } from './signage-group-edit-modal.compo
                     matRipple
                     type="button"
                     class="sm:hidden"
-                    aria-label="Back to groups list"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.BACK_TO_GROUPS' | translate
+                    "
                     (click)="clearSelection()"
                 >
                     <icon>arrow_back</icon>
                 </button>
                 <div class="min-w-0 flex-1">
                     <h4 class="truncate text-lg font-medium">
-                        {{ group.name || 'Unnamed group' }}
+                        {{
+                            group.name ||
+                                ('SIGNAGE_MANAGER.UNNAMED_GROUP' | translate)
+                        }}
                     </h4>
                 </div>
                 <button
@@ -34,7 +39,7 @@ import { SignageGroupEditModalComponent } from './signage-group-edit-modal.compo
                     type="button"
                     matRipple
                     class="border-base-200 hover:bg-base-200 hover:border-base-300 mr-1 rounded-lg border hover:shadow-md"
-                    matTooltip="Edit group"
+                    [matTooltip]="'SIGNAGE_MANAGER.EDIT_GROUP_TOOLTIP' | translate"
                     (click)="editGroup(group)"
                 >
                     <icon>edit</icon>
@@ -44,7 +49,9 @@ import { SignageGroupEditModalComponent } from './signage-group-edit-modal.compo
                     type="button"
                     matRipple
                     class="border-base-200 hover:bg-base-200 hover:border-base-300 text-error mr-1 rounded-lg border hover:shadow-md"
-                    matTooltip="Remove group"
+                    [matTooltip]="
+                        'SIGNAGE_MANAGER.REMOVE_GROUP_TOOLTIP' | translate
+                    "
                     (click)="removeGroup(group)"
                 >
                     <icon>delete</icon>
@@ -52,7 +59,7 @@ import { SignageGroupEditModalComponent } from './signage-group-edit-modal.compo
             </div>
         }
     `,
-    imports: [IconComponent, MatRippleModule, MatTooltipModule],
+    imports: [IconComponent, MatRippleModule, MatTooltipModule, TranslatePipe],
 })
 export class SignageGroupDetailHeaderComponent {
     private readonly _service = inject(SignageService);

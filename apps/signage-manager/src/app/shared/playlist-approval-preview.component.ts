@@ -4,6 +4,7 @@ import { MatRippleModule } from '@angular/material/core';
 import {
     AuthenticatedImageDirective,
     IconComponent,
+    TranslatePipe,
 } from '@placeos/components';
 import { SignageMedia, SignagePlaylistMedia } from '@placeos/ts-client';
 import {
@@ -23,7 +24,7 @@ import {
                 <div
                     class="border-base-300 bg-base-200 flex items-center space-x-8 rounded-sm border-b px-4 py-2"
                 >
-                    <h3>Version to approve</h3>
+                    <h3>{{ 'SIGNAGE_MANAGER.VERSION_TO_APPROVE' | translate }}</h3>
                     <div class="text-base-content/70 font-mono text-xs">
                         {{
                             current_version?.updated_at * 1000
@@ -33,7 +34,15 @@ import {
                 </div>
                 <div class="space-y-2 p-2">
                     <div class="px-2 text-sm">
-                        {{ (current_version?.items || []).length }} items
+                        {{
+                            'COMMON.ITEM_COUNT'
+                                | translate
+                                    : {
+                                          count: (current_version?.items || [])
+                                              .length,
+                                      }
+                                    : (current_version?.items || []).length
+                        }}
                     </div>
                     @for (item of current_media; track item?.id) {
                         <ng-container
@@ -53,7 +62,7 @@ import {
                 <div
                     class="border-base-300 bg-base-200 flex items-center space-x-8 rounded-sm border-b px-4 py-2"
                 >
-                    <h3>Previous version</h3>
+                    <h3>{{ 'SIGNAGE_MANAGER.PREVIOUS_VERSION' | translate }}</h3>
                     <div class="text-base-content/70 font-mono text-xs">
                         {{
                             previous_version?.updated_at * 1000
@@ -63,7 +72,15 @@ import {
                 </div>
                 <div class="space-y-2 p-2">
                     <div class="px-2 text-sm">
-                        {{ (previous_version?.items || []).length }} items
+                        {{
+                            'COMMON.ITEM_COUNT'
+                                | translate
+                                    : {
+                                          count: (previous_version?.items || [])
+                                              .length,
+                                      }
+                                    : (previous_version?.items || []).length
+                        }}
                     </div>
                     @for (item of previous_media; track item?.id) {
                         <ng-container
@@ -86,7 +103,10 @@ import {
                     class="bg-base-200 relative h-10 w-10 shrink-0 overflow-hidden rounded-sm"
                     matRipple
                     (click)="preview.emit(item)"
-                    [attr.aria-label]="'Preview ' + item.name"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.PREVIEW_MEDIA'
+                            | translate: { name: item.name }
+                    "
                 >
                     @let thumbnail_url = thumbnailUrl(item);
                     @if (thumbnail_url) {
@@ -120,7 +140,9 @@ import {
                 class="text-base-content/70 flex flex-col items-center justify-center p-8"
             >
                 <icon class="text-4xl">hide_image</icon>
-                <p class="text-sm">No items</p>
+                <p class="text-sm">
+                    {{ 'COMMON.NO_ITEMS' | translate }}
+                </p>
             </div>
         </ng-template>
     `,
@@ -129,6 +151,7 @@ import {
         IconComponent,
         MatRippleModule,
         AuthenticatedImageDirective,
+        TranslatePipe,
     ],
 })
 export class PlaylistApprovalPreviewComponent {

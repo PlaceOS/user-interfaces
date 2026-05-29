@@ -3,7 +3,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { IconComponent } from '@placeos/components';
+import { i18n } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceGroupUser } from '@placeos/ts-client';
 import { lastValueFrom } from 'rxjs';
 import { SignageService } from '../signage.service';
@@ -26,15 +27,20 @@ import { SignageGroupUserSelectModalComponent } from './signage-group-user-selec
                     class="text-base-content/80 flex flex-1 items-center gap-2 font-medium tracking-wider uppercase"
                 >
                     <icon class="text-lg">group</icon>
-                    Users ({{ users().length }})
+                    {{
+                        'SIGNAGE_MANAGER.USERS_COUNT'
+                            | translate: { count: users().length } : users().length
+                    }}
                 </h5>
                 <button
                     icon
                     type="button"
                     matRipple
                     class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                    matTooltip="Add user"
-                    aria-label="Search for user to add"
+                    [matTooltip]="'SIGNAGE_MANAGER.ADD_USER_TOOLTIP' | translate"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.ADD_USER_ARIA' | translate
+                    "
                     (click)="addUser()"
                 >
                     <icon>add</icon>
@@ -70,9 +76,10 @@ import { SignageGroupUserSelectModalComponent } from './signage-group-user-selec
                                     @if (labels) {
                                         {{ labels }}
                                     } @else {
-                                        <span class="italic"
-                                            >Default permissions</span
-                                        >
+                                        <span class="italic">{{
+                                            'SIGNAGE_MANAGER.DEFAULT_PERMISSIONS'
+                                                | translate
+                                        }}</span>
                                     }
                                 </div>
                             </div>
@@ -81,8 +88,12 @@ import { SignageGroupUserSelectModalComponent } from './signage-group-user-selec
                                 type="button"
                                 matRipple
                                 class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                                matTooltip="Edit user permissions"
-                                aria-label="Edit user permissions"
+                                [matTooltip]="
+                                    'SIGNAGE_MANAGER.EDIT_USER_PERMS' | translate
+                                "
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.EDIT_USER_PERMS' | translate
+                                "
                                 (click)="editUserPermissions(row)"
                             >
                                 <icon>edit</icon>
@@ -92,8 +103,12 @@ import { SignageGroupUserSelectModalComponent } from './signage-group-user-selec
                                 type="button"
                                 matRipple
                                 class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                                matTooltip="Remove user"
-                                aria-label="Remove user"
+                                [matTooltip]="
+                                    'SIGNAGE_MANAGER.REMOVE_USER' | translate
+                                "
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.REMOVE_USER' | translate
+                                "
                                 (click)="removeUser(row)"
                             >
                                 <icon class="text-error">close</icon>
@@ -105,7 +120,9 @@ import { SignageGroupUserSelectModalComponent } from './signage-group-user-selec
                         class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-6"
                     >
                         <icon class="text-4xl">group_off</icon>
-                        <p class="text-sm">No users assigned to this group.</p>
+                        <p class="text-sm">
+                            {{ 'SIGNAGE_MANAGER.NO_USERS_ASSIGNED' | translate }}
+                        </p>
                     </div>
                 }
             </div>
@@ -119,7 +136,7 @@ import { SignageGroupUserSelectModalComponent } from './signage-group-user-selec
             }
         `,
     ],
-    imports: [MatRippleModule, MatTooltipModule, IconComponent],
+    imports: [MatRippleModule, MatTooltipModule, IconComponent, TranslatePipe],
 })
 export class SignageGroupUsersComponent {
     private readonly _service = inject(SignageService);
@@ -149,7 +166,7 @@ export class SignageGroupUsersComponent {
             this._dialog
                 .open(SignageGroupPermissionsModalComponent, {
                     data: {
-                        title: 'User permissions',
+                        title: i18n('SIGNAGE_MANAGER.USER_PERMISSIONS'),
                         permissions: row.permissions,
                     },
                 })

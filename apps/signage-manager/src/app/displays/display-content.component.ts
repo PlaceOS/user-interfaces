@@ -6,6 +6,7 @@ import { RouterLink } from '@angular/router';
 import {
     AuthenticatedImageDirective,
     IconComponent,
+    TranslatePipe,
 } from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
 import { SignageService } from '../signage.service';
@@ -46,7 +47,15 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                     class="text-base-content/80 flex flex-1 items-center gap-2 font-medium tracking-wider uppercase"
                                 >
                                     <icon class="text-lg">playlist_play</icon>
-                                    Playlists ({{ display_playlists().length }})
+                                    {{
+                                        'SIGNAGE_MANAGER.PLAYLISTS_COUNT'
+                                            | translate
+                                                : {
+                                                      count: display_playlists()
+                                                          .length,
+                                                  }
+                                                : display_playlists().length
+                                    }}
                                 </h5>
                                 @if (can_update()) {
                                     <button
@@ -54,9 +63,15 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                         type="button"
                                         matRipple
                                         class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                                        matTooltip="Add playlist"
+                                        [matTooltip]="
+                                            'SIGNAGE_MANAGER.ADD_PLAYLIST_TOOLTIP'
+                                                | translate
+                                        "
                                         (click)="addPlaylist()"
-                                        aria-label="Add playlist to display"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.ADD_PLAYLIST_TO_DISPLAY_ARIA'
+                                                | translate
+                                        "
                                     >
                                         <icon>add</icon>
                                     </button>
@@ -79,8 +94,11 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                     playlist.id,
                                                 ]"
                                                 [attr.aria-label]="
-                                                    'Open playlist ' +
-                                                    playlist.name
+                                                    'SIGNAGE_MANAGER.OPEN_PLAYLIST'
+                                                        | translate
+                                                            : {
+                                                                  name: playlist.name,
+                                                              }
                                                 "
                                             >
                                                 <div
@@ -156,7 +174,10 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                             <span
                                                                 class="bg-warning text-warning-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
                                                             >
-                                                                Disabled
+                                                                {{
+                                                                    'COMMON.DISABLED'
+                                                                        | translate
+                                                                }}
                                                             </span>
                                                         }
                                                         @switch (
@@ -166,22 +187,30 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                                 <span
                                                                     class="bg-error text-error-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
                                                                 >
-                                                                    Expired
+                                                                    {{
+                                                                        'SIGNAGE_MANAGER.STATUS_EXPIRED'
+                                                                            | translate
+                                                                    }}
                                                                 </span>
                                                             }
                                                             @case ('pending') {
                                                                 <span
                                                                     class="bg-info text-info-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
                                                                 >
-                                                                    Pending
+                                                                    {{
+                                                                        'COMMON.PENDING'
+                                                                            | translate
+                                                                    }}
                                                                 </span>
                                                             }
                                                             @case ('awaiting_approval') {
                                                                 <span
                                                                     class="bg-secondary text-secondary-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
                                                                 >
-                                                                    Awaiting
-                                                                    Approval
+                                                                    {{
+                                                                        'SIGNAGE_MANAGER.STATUS_AWAITING_APPROVAL'
+                                                                            | translate
+                                                                    }}
                                                                 </span>
                                                             }
                                                         }
@@ -203,7 +232,10 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                     type="button"
                                                     matRipple
                                                     class="border-base-200 hover:bg-base-200 hover:border-base-300 mr-1 rounded-lg border hover:shadow-md"
-                                                    matTooltip="Remove playlist"
+                                                    [matTooltip]="
+                                                        'SIGNAGE_MANAGER.REMOVE_PLAYLIST_TOOLTIP'
+                                                            | translate
+                                                    "
                                                     (click)="
                                                         removePlaylist(
                                                             $event,
@@ -211,9 +243,11 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                         )
                                                     "
                                                     [attr.aria-label]="
-                                                        'Remove playlist ' +
-                                                        playlist.name +
-                                                        ' from display'
+                                                        'SIGNAGE_MANAGER.REMOVE_PLAYLIST_FROM_DISPLAY'
+                                                            | translate
+                                                                : {
+                                                                      name: playlist.name,
+                                                                  }
                                                     "
                                                 >
                                                     <icon class="text-error">
@@ -231,8 +265,10 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                             >playlist_remove</icon
                                         >
                                         <p class="text-sm">
-                                            No playlists assigned to this
-                                            display.
+                                            {{
+                                                'SIGNAGE_MANAGER.NO_PLAYLISTS_DISPLAY'
+                                                    | translate
+                                            }}
                                         </p>
                                     </div>
                                 }
@@ -255,7 +291,12 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                     class="text-base-content/80 flex flex-1 items-center gap-2 font-medium tracking-wider uppercase"
                                 >
                                     <icon class="text-lg">layers</icon>
-                                    Zones ({{ display_zones().length }})
+                                    {{
+                                        'SIGNAGE_MANAGER.ZONES_COUNT'
+                                            | translate
+                                                : { count: display_zones().length }
+                                                : display_zones().length
+                                    }}
                                 </h5>
                             </div>
                             <div class="gap-2 p-2">
@@ -269,8 +310,13 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                             class="border-base-300 bg-base-100 hover:bg-base-200 mb-2 flex items-center gap-3 rounded-lg border px-4 py-3 no-underline transition-colors"
                                             [routerLink]="['/zones', zone.id]"
                                             [attr.aria-label]="
-                                                'Open zone ' +
-                                                (zone.display_name || zone.name)
+                                                'SIGNAGE_MANAGER.OPEN_ZONE'
+                                                    | translate
+                                                        : {
+                                                              name:
+                                                                  zone.display_name ||
+                                                                  zone.name,
+                                                          }
                                             "
                                         >
                                             <icon
@@ -304,7 +350,10 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                             >layers_clear</icon
                                         >
                                         <p class="text-sm">
-                                            This display is not in any zones.
+                                            {{
+                                                'SIGNAGE_MANAGER.DISPLAY_NO_ZONES'
+                                                    | translate
+                                            }}
                                         </p>
                                     </div>
                                 }
@@ -318,7 +367,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                 class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
             >
                 <icon class="text-6xl">tv</icon>
-                <p>Select a display to view its details.</p>
+                <p>{{ 'SIGNAGE_MANAGER.DISPLAY_SELECT_DETAILS' | translate }}</p>
             </div>
         }
     `,
@@ -338,6 +387,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
         AuthenticatedImageDirective,
         IconComponent,
         DisplayScheduleComponent,
+        TranslatePipe,
     ],
 })
 export class DisplayContentComponent {

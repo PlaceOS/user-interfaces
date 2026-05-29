@@ -73,14 +73,14 @@ export interface MediaEditModalData {
         <fullscreen-modal-shell
             [heading]="
                 (item.id
-                    ? 'APP.CONCIERGE.SIGNAGE_MEDIA_EDIT'
-                    : 'APP.CONCIERGE.SIGNAGE_MEDIA_NEW'
+                    ? 'SIGNAGE_MANAGER.MEDIA_EDIT'
+                    : 'SIGNAGE_MANAGER.MEDIA_NEW'
                 ) | translate
             "
             (confirm)="saveMedia()"
             [loading]="
                 loading()
-                    ? ('APP.CONCIERGE.SIGNAGE_MEDIA_SAVING' | translate)
+                    ? ('SIGNAGE_MANAGER.MEDIA_SAVING' | translate)
                     : ''
             "
         >
@@ -91,14 +91,21 @@ export interface MediaEditModalData {
                         matRipple
                         class="bg-base-300 border-base-300 relative mx-auto mb-4 h-48 w-full overflow-hidden rounded-xl border shadow"
                         (click)="preview()"
-                        aria-label="Preview media"
+                        [attr.aria-label]="
+                            'SIGNAGE_MANAGER.PREVIEW_MEDIA_ARIA' | translate
+                        "
                     >
                         @if (media_type === 'plugin' && plugin_loading()) {
                             <div
                                 class="text-base-content/70 flex h-full w-full flex-col items-center justify-center gap-3"
                             >
                                 <mat-spinner diameter="32" />
-                                <p class="text-sm">Loading plugin preview...</p>
+                                <p class="text-sm">
+                                    {{
+                                        'SIGNAGE_MANAGER.LOADING_PLUGIN_PREVIEW'
+                                            | translate
+                                    }}
+                                </p>
                             </div>
                         } @else if (media_type === 'plugin' && plugin()) {
                             <plugin-embed
@@ -109,7 +116,9 @@ export interface MediaEditModalData {
                             ></plugin-embed>
                         } @else if (media_type === 'webpage') {
                             <iframe
-                                title="Media preview"
+                                [title]="
+                                    'SIGNAGE_MANAGER.MEDIA_PREVIEW' | translate
+                                "
                                 class="h-screen w-full object-contain object-center"
                                 [src]="preview_url() | safe: 'resource'"
                             ></iframe>
@@ -118,7 +127,10 @@ export interface MediaEditModalData {
                                 class="h-full w-full object-contain object-center"
                                 auth
                                 [source]="thumbnail || url"
-                                [alt]="form.value.name || 'Media preview'"
+                                [alt]="
+                                    form.value.name ||
+                                    ('SIGNAGE_MANAGER.MEDIA_PREVIEW' | translate)
+                                "
                             />
                         }
                         <div
@@ -134,14 +146,18 @@ export interface MediaEditModalData {
                             name="name"
                             formControlName="name"
                             [placeholder]="'FORM.NAME' | translate"
-                            aria-label="Media name"
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.MEDIA_NAME_ARIA' | translate
+                            "
                         />
                         <mat-error>{{
                             'FORM.NAME_REQUIRED' | translate
                         }}</mat-error>
                     </mat-form-field>
                     @if (media_type === 'webpage') {
-                        <label for="media-uri">URL</label>
+                        <label for="media-uri">{{
+                            'COMMON.URL' | translate
+                        }}</label>
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
@@ -149,9 +165,13 @@ export interface MediaEditModalData {
                                 type="url"
                                 formControlName="media_uri"
                                 placeholder="https://example.com"
-                                aria-label="Webpage URL"
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.WEBPAGE_URL_ARIA' | translate
+                                "
                             />
-                            <mat-error>URL is required</mat-error>
+                            <mat-error>{{
+                                'SIGNAGE_MANAGER.URL_REQUIRED' | translate
+                            }}</mat-error>
                         </mat-form-field>
                     }
                     @if (media_type === 'video') {
@@ -183,7 +203,7 @@ export interface MediaEditModalData {
                     <div class="flex items-center gap-4">
                         <label for="play-time" class="m-0 w-auto min-w-0">
                             {{
-                                'APP.CONCIERGE.SIGNAGE_MEDIA_PLAY_TIME'
+                                'SIGNAGE_MANAGER.MEDIA_PLAY_TIME'
                                     | translate
                             }}</label
                         >
@@ -217,41 +237,46 @@ export interface MediaEditModalData {
                         />
                     </mat-slider>
                     <label for="animation">{{
-                        'APP.CONCIERGE.SIGNAGE_ANIMATION' | translate
+                        'SIGNAGE_MANAGER.ANIMATION' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
                         <mat-select
                             name="animation"
                             formControlName="animation"
-                            placeholder="Playlist Default"
-                            aria-label="Animation"
+                            [placeholder]="
+                                'COMMON.DEFAULT'
+                                    | translate
+                            "
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.ANIMATION' | translate
+                            "
                         >
                             <mat-option [value]="0">{{
-                                'APP.CONCIERGE.SIGNAGE_ANIMATION_DEFAULT'
+                                'COMMON.DEFAULT'
                                     | translate
                             }}</mat-option>
                             <mat-option [value]="1">{{
-                                'APP.CONCIERGE.SIGNAGE_ANIMATION_CUT'
+                                'SIGNAGE_MANAGER.ANIM_CUT'
                                     | translate
                             }}</mat-option>
                             <mat-option [value]="2">{{
-                                'APP.CONCIERGE.SIGNAGE_ANIMATION_CROSS_FADE'
+                                'SIGNAGE_MANAGER.ANIM_CROSS_FADE'
                                     | translate
                             }}</mat-option>
                             <mat-option [value]="3">{{
-                                'APP.CONCIERGE.SIGNAGE_ANIMATION_SLIDE_TOP'
+                                'SIGNAGE_MANAGER.ANIM_SLIDE_TOP'
                                     | translate
                             }}</mat-option>
                             <mat-option [value]="4">{{
-                                'APP.CONCIERGE.SIGNAGE_ANIMATION_SLIDE_LEFT'
+                                'SIGNAGE_MANAGER.ANIM_SLIDE_LEFT'
                                     | translate
                             }}</mat-option>
                             <mat-option [value]="5">{{
-                                'APP.CONCIERGE.SIGNAGE_ANIMATION_SLIDE_RIGHT'
+                                'SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT'
                                     | translate
                             }}</mat-option>
                             <mat-option [value]="6">{{
-                                'APP.CONCIERGE.SIGNAGE_ANIMATION_SLIDE_BOTTOM'
+                                'SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM'
                                     | translate
                             }}</mat-option>
                         </mat-select>
@@ -266,7 +291,10 @@ export interface MediaEditModalData {
                             [placeholder]="'COMMON.DESCRIPTION' | translate"
                             formControlName="description"
                             class="min-h-32"
-                            aria-label="Media description"
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.MEDIA_DESCRIPTION_ARIA'
+                                    | translate
+                            "
                         ></textarea>
                     </mat-form-field>
                     @if (media_type === 'plugin' && plugin_loading()) {
@@ -275,11 +303,16 @@ export interface MediaEditModalData {
                         >
                             <mat-spinner diameter="24" />
                             <p class="m-0 text-sm opacity-70">
-                                Loading plugin details...
+                                {{
+                                    'SIGNAGE_MANAGER.LOADING_PLUGIN_DETAILS'
+                                        | translate
+                                }}
                             </p>
                         </div>
                     } @else if (plugin_schema()) {
-                        <label>Plugin Parameters</label>
+                        <label>{{
+                            'SIGNAGE_MANAGER.PLUGIN_PARAMETERS' | translate
+                        }}</label>
                         <div class="bg-base-200/60 mb-2 rounded-lg p-4">
                             <schema-form
                                 [schema]="plugin_schema()"
@@ -290,7 +323,7 @@ export interface MediaEditModalData {
                     <div class="flex space-x-4">
                         <div class="flex-1">
                             <label for="valid-from">{{
-                                'APP.CONCIERGE.VALID_FROM' | translate
+                                'SIGNAGE_MANAGER.VALID_FROM' | translate
                             }}</label>
                             <a-date-field
                                 name="valid-from"
@@ -300,7 +333,7 @@ export interface MediaEditModalData {
                         </div>
                         <div class="flex-1">
                             <label for="valid-until">{{
-                                'APP.CONCIERGE.VALID_UNTIL' | translate
+                                'FORM.EXPIRES_AT' | translate
                             }}</label>
                             <a-date-field
                                 name="valid-until"
@@ -512,7 +545,7 @@ export class MediaEditModalComponent implements OnDestroy {
             this._dialog_ref.disableClose = false;
             this.loading.set(false);
             notifyError(
-                i18n('APP.CONCIERGE.SIGNAGE_MEDIA_SAVE_ERROR', { error: e }),
+                i18n('SIGNAGE_MANAGER.MEDIA_SAVE_ERROR', { error: e }),
             );
             throw e;
         };
@@ -529,6 +562,6 @@ export class MediaEditModalComponent implements OnDestroy {
         }
         this._dialog_ref.disableClose = false;
         this._dialog_ref.close();
-        notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_MEDIA_SAVE_SUCCESS'));
+        notifySuccess(i18n('SIGNAGE_MANAGER.MEDIA_SAVE_SUCCESS'));
     }
 }

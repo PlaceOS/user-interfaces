@@ -7,8 +7,8 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { notifyError, notifySuccess, notifyWarn } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
+import { i18n, notifyError, notifySuccess, notifyWarn } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
     approveSignagePlaylist,
     listSignagePlaylistMediaRevisions,
@@ -39,14 +39,18 @@ interface PlaylistApproveModalData {
     template: `
         <div class="p-2">
             <header class="bg-base-200 rounded-sm p-2">
-                <h2 class="px-2 text-xl font-medium">Approve Playlist</h2>
+                <h2 class="px-2 text-xl font-medium">
+                    {{ 'SIGNAGE_MANAGER.APPROVE_PLAYLIST' | translate }}
+                </h2>
                 @if (!loading()) {
                     <button
                         icon
                         type="button"
                         matRipple
                         mat-dialog-close
-                        aria-label="Close approve playlist dialog"
+                        [attr.aria-label]="
+                            'SIGNAGE_MANAGER.CLOSE_APPROVE_PLAYLIST' | translate
+                        "
                     >
                         <icon>close</icon>
                     </button>
@@ -74,7 +78,7 @@ interface PlaylistApproveModalData {
                             [disabled]="!has_previous_version()"
                             (click)="undoChanges()"
                         >
-                            Undo Changes
+                            {{ 'SIGNAGE_MANAGER.UNDO_CHANGES' | translate }}
                         </button>
                     }
                     <button
@@ -84,7 +88,7 @@ interface PlaylistApproveModalData {
                         class="w-40"
                         (click)="approve()"
                     >
-                        Approve
+                        {{ 'COMMON.APPROVE' | translate }}
                     </button>
                 </footer>
             } @else {
@@ -106,6 +110,7 @@ interface PlaylistApproveModalData {
         MatDialogModule,
         MatProgressSpinnerModule,
         PlaylistApprovalPreviewComponent,
+        TranslatePipe,
     ],
 })
 export class PlaylistApproveModalComponent implements OnInit {
@@ -122,7 +127,7 @@ export class PlaylistApproveModalComponent implements OnInit {
 
     public readonly playlist_versions = this._playlist_id.pipe(
         filter((id) => !!id),
-        tap(() => this.loading.set('Loading versions...')),
+        tap(() => this.loading.set(i18n('SIGNAGE_MANAGER.LOADING_VERSIONS'))),
         switchMap((id) => listSignagePlaylistMediaRevisions(id, { limit: 2 })),
         tap((versions) => this.has_previous_version.set(versions.length > 1)),
         shareReplay(1),
@@ -142,14 +147,14 @@ export class PlaylistApproveModalComponent implements OnInit {
 
     public async undoChanges() {
         if (!this.can_update()) {
-            notifyWarn('You cannot update playlists in this group.');
+            notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS'));
             return;
         }
         const [, previous_version] = await firstValueFrom(
             this.playlist_versions,
         );
         if (!previous_version?.items) return;
-        this.loading.set('Undoing changes...');
+        this.loading.set(i18n('SIGNAGE_MANAGER.UNDOING_CHANGES'));
         this._dialog_ref.disableClose = true;
         try {
             await lastValueFrom(
@@ -162,11 +167,11 @@ export class PlaylistApproveModalComponent implements OnInit {
                 this._data.playlist.id,
                 false,
             );
-            notifySuccess('Playlist reverted to previous version');
+            notifySuccess(i18n('SIGNAGE_MANAGER.PLAYLIST_REVERTED'));
             this._dialog_ref.close(true);
             this._service.changed();
         } catch (e) {
-            notifyError('Error reverting playlist changes');
+            notifyError(i18n('SIGNAGE_MANAGER.PLAYLIST_REVERT_ERROR'));
         } finally {
             this.loading.set('');
             this._dialog_ref.disableClose = false;
@@ -174,7 +179,7 @@ export class PlaylistApproveModalComponent implements OnInit {
     }
 
     public async approve() {
-        this.loading.set('Approving playlist...');
+        this.loading.set(i18n('SIGNAGE_MANAGER.APPROVING_PLAYLIST'));
         this._dialog_ref.disableClose = true;
         try {
             await lastValueFrom(approveSignagePlaylist(this._data.playlist.id));
@@ -182,11 +187,11 @@ export class PlaylistApproveModalComponent implements OnInit {
                 this._data.playlist.id,
                 true,
             );
-            notifySuccess('Playlist approved');
+            notifySuccess(i18n('SIGNAGE_MANAGER.PLAYLIST_APPROVED'));
             this._dialog_ref.close(true);
             this._service.changed();
         } catch (e) {
-            notifyError('Error approving playlist');
+            notifyError(i18n('SIGNAGE_MANAGER.PLAYLIST_APPROVE_ERROR'));
         } finally {
             this.loading.set('');
             this._dialog_ref.disableClose = false;

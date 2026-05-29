@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Component, input, output } from '@angular/core';
 import {
     FormControl,
@@ -8,7 +9,12 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { IconComponent, SettingsToggleComponent } from '@placeos/components';
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import { i18n } from '@placeos/common';
 import {
     CounterComponent,
     DateFieldComponent,
@@ -38,13 +44,13 @@ const DEFAULT_RECURRING_TIME = '00:00';
 const DEFAULT_RECURRING_CRON = '0 0 * * *';
 const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
 const WEEKDAY_OPTIONS = [
-    { value: 1, label: 'Mon', name: 'Monday' },
-    { value: 2, label: 'Tue', name: 'Tuesday' },
-    { value: 3, label: 'Wed', name: 'Wednesday' },
-    { value: 4, label: 'Thu', name: 'Thursday' },
-    { value: 5, label: 'Fri', name: 'Friday' },
-    { value: 6, label: 'Sat', name: 'Saturday' },
-    { value: 0, label: 'Sun', name: 'Sunday' },
+    { value: 1 },
+    { value: 2 },
+    { value: 3 },
+    { value: 4 },
+    { value: 5 },
+    { value: 6 },
+    { value: 0 },
 ];
 const WEEK_OF_MONTH_OPTIONS = [1, 2, 3, 4, 5];
 
@@ -433,16 +439,22 @@ function formatMinutes(value: number | null | undefined) {
     const hours = Math.floor((total_minutes % (24 * 60)) / 60);
     const minutes = total_minutes % 60;
     const parts = [
-        { value: days, label: 'day' },
-        { value: hours, label: 'hour' },
-        { value: minutes, label: 'minute' },
+        {
+            value: days,
+            key: 'SIGNAGE_MANAGER.DURATION_DAY',
+        },
+        {
+            value: hours,
+            key: 'SIGNAGE_MANAGER.DURATION_HOUR',
+        },
+        {
+            value: minutes,
+            key: 'SIGNAGE_MANAGER.DURATION_MINUTE',
+        },
     ];
     return parts
         .filter((part) => part.value)
-        .map(
-            (part) =>
-                `${part.value} ${part.label}${part.value === 1 ? '' : 's'}`,
-        )
+        .map((part) => i18n(part.key, { count: part.value }, part.value))
         .join(' ');
 }
 
@@ -535,7 +547,10 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                     (click)="toggle.emit()"
                 >
                     <div class="min-w-24 text-sm font-medium">
-                        Schedule {{ index() + 1 }}
+                        {{
+                            'SIGNAGE_MANAGER.SCHEDULE_NUMBER'
+                                | translate: { number: index() + 1 }
+                        }}
                     </div>
                     <div
                         class="text-base-content min-w-0 flex-1 truncate text-xs"
@@ -573,18 +588,24 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                     >
                         <mat-select
                             formControlName="schedule_type"
-                            aria-label="Playlist schedule type"
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.SCHEDULE_TYPE_ARIA' | translate
+                            "
                         >
-                            <mat-option value="play_at">Play once</mat-option>
-                            <mat-option value="play_cron"
-                                >Recurring schedule</mat-option
-                            >
+                            <mat-option value="play_at">{{
+                                'SIGNAGE_MANAGER.PLAY_ONCE' | translate
+                            }}</mat-option>
+                            <mat-option value="play_cron">{{
+                                'SIGNAGE_MANAGER.RECURRING_SCHEDULE' | translate
+                            }}</mat-option>
                         </mat-select>
                     </mat-form-field>
                     @if (schedule().value.schedule_type === 'play_at') {
                         <div class="flex space-x-4">
                             <div class="flex-1">
-                                <label>Play At</label>
+                                <label>{{
+                                    'SIGNAGE_MANAGER.PLAY_AT' | translate
+                                }}</label>
                                 <a-date-field
                                     class="w-full"
                                     formControlName="play_at"
@@ -604,7 +625,9 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                                 ></a-time-field>
                             </div>
                         </div>
-                        <label>Play Period</label>
+                        <label>{{
+                            'SIGNAGE_MANAGER.PLAY_PERIOD' | translate
+                        }}</label>
                         <a-duration-field
                             class="w-full"
                             formControlName="play_period"
@@ -613,7 +636,7 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                             [custom_options]="[schedule().value.play_period]"
                         ></a-duration-field>
                         <settings-toggle
-                            [name]="'Takeover playback'"
+                            [name]="'SIGNAGE_MANAGER.TAKEOVER_PLAYBACK' | translate"
                             formControlName="play_takeover"
                         />
                     } @else if (
@@ -626,41 +649,53 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                                 class="flex flex-col gap-3 md:flex-row md:items-end"
                             >
                                 <div class="min-w-48 flex-1">
-                                    <label>Repeat</label>
+                                    <label>{{
+                                        'SIGNAGE_MANAGER.REPEAT' | translate
+                                    }}</label>
                                     <mat-form-field
                                         appearance="outline"
                                         class="no-subscript w-full"
                                     >
                                         <mat-select
                                             formControlName="recurrence_type"
-                                            aria-label="Recurring schedule repeat pattern"
+                                            [attr.aria-label]="
+                                                'SIGNAGE_MANAGER.REPEAT_PATTERN_ARIA'
+                                                    | translate
+                                            "
                                         >
-                                            <mat-option value="hours"
-                                                >Every few hours</mat-option
-                                            >
-                                            <mat-option value="daily"
-                                                >Every day</mat-option
-                                            >
-                                            <mat-option value="weekdays"
-                                                >Weekdays</mat-option
-                                            >
-                                            <mat-option value="weekly"
-                                                >Weekly</mat-option
-                                            >
-                                            <mat-option value="monthly"
-                                                >Monthly</mat-option
-                                            >
-                                            <mat-option value="monthly_weekday"
-                                                >Monthly by weekday</mat-option
-                                            >
+                                            <mat-option value="hours">{{
+                                                'SIGNAGE_MANAGER.EVERY_FEW_HOURS'
+                                                    | translate
+                                            }}</mat-option>
+                                            <mat-option value="daily">{{
+                                                'SIGNAGE_MANAGER.EVERY_DAY'
+                                                    | translate
+                                            }}</mat-option>
+                                            <mat-option value="weekdays">{{
+                                                'SIGNAGE_MANAGER.WEEKDAYS'
+                                                    | translate
+                                            }}</mat-option>
+                                            <mat-option value="weekly">{{
+                                                'SIGNAGE_MANAGER.WEEKLY'
+                                                    | translate
+                                            }}</mat-option>
+                                            <mat-option value="monthly">{{
+                                                'SIGNAGE_MANAGER.MONTHLY'
+                                                    | translate
+                                            }}</mat-option>
+                                            <mat-option value="monthly_weekday">{{
+                                                'SIGNAGE_MANAGER.MONTHLY_BY_WEEKDAY'
+                                                    | translate
+                                            }}</mat-option>
                                             @if (
                                                 schedule().value
                                                     .recurrence_type ===
                                                 'custom'
                                             ) {
-                                                <mat-option value="custom"
-                                                    >Custom schedule</mat-option
-                                                >
+                                                <mat-option value="custom">{{
+                                                    'SIGNAGE_MANAGER.CUSTOM_SCHEDULE'
+                                                        | translate
+                                                }}</mat-option>
                                             }
                                         </mat-select>
                                     </mat-form-field>
@@ -669,11 +704,12 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                                     <label class="m-0 min-w-40 flex-1">
                                         <div>
                                             {{
-                                                schedule().value
+                                                (schedule().value
                                                     .recurrence_type ===
                                                 'minutes'
-                                                    ? 'Minutes between plays'
-                                                    : 'Hours between plays'
+                                                    ? 'SIGNAGE_MANAGER.MINUTES_BETWEEN_PLAYS'
+                                                    : 'SIGNAGE_MANAGER.HOURS_BETWEEN_PLAYS'
+                                                ) | translate
                                             }}
                                         </div>
                                         <a-counter
@@ -686,7 +722,10 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                                                     : 23
                                             "
                                             formControlName="recurrence_interval"
-                                            aria-label="Recurring schedule interval"
+                                            [attr.aria-label]="
+                                                'SIGNAGE_MANAGER.SCHEDULE_INTERVAL_ARIA'
+                                                    | translate
+                                            "
                                         />
                                     </label>
                                 }
@@ -696,7 +735,7 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                             ) {
                                 <div>
                                     <div class="mb-2 text-sm font-medium">
-                                        Play on
+                                        {{ 'SIGNAGE_MANAGER.PLAY_ON' | translate }}
                                     </div>
                                     <div class="flex flex-wrap gap-2">
                                         @for (
@@ -737,7 +776,12 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                                                     )
                                                 "
                                             >
-                                                {{ day.label }}
+                                                {{
+                                                    weekdayLabel(
+                                                        day.value,
+                                                        'EEE'
+                                                    )
+                                                }}
                                             </button>
                                         }
                                     </div>
@@ -746,14 +790,20 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                                 schedule().value.recurrence_type === 'monthly'
                             ) {
                                 <div>
-                                    <label>Play each month on</label>
+                                    <label>{{
+                                        'SIGNAGE_MANAGER.PLAY_EACH_MONTH_ON'
+                                            | translate
+                                    }}</label>
                                     <mat-form-field
                                         appearance="outline"
                                         class="no-subscript w-full"
                                     >
                                         <mat-select
                                             formControlName="recurrence_day_of_month"
-                                            aria-label="Recurring schedule days of month"
+                                            [attr.aria-label]="
+                                                'SIGNAGE_MANAGER.DAYS_OF_MONTH_ARIA'
+                                                    | translate
+                                            "
                                             multiple
                                         >
                                             @for (
@@ -772,7 +822,10 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                                 'monthly_weekday'
                             ) {
                                 <div>
-                                    <label>Play each month on</label>
+                                    <label>{{
+                                        'SIGNAGE_MANAGER.PLAY_EACH_MONTH_ON'
+                                            | translate
+                                    }}</label>
                                     <div class="grid grid-cols-2 gap-3">
                                         <mat-form-field
                                             appearance="outline"
@@ -780,7 +833,10 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                                         >
                                             <mat-select
                                                 formControlName="recurrence_week_of_month"
-                                                aria-label="Recurring schedule week of month"
+                                                [attr.aria-label]="
+                                                    'SIGNAGE_MANAGER.WEEK_OF_MONTH_ARIA'
+                                                        | translate
+                                                "
                                                 multiple
                                             >
                                                 @for (
@@ -802,7 +858,10 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                                         >
                                             <mat-select
                                                 formControlName="recurrence_weekdays"
-                                                aria-label="Recurring schedule days of week"
+                                                [attr.aria-label]="
+                                                    'SIGNAGE_MANAGER.DAYS_OF_WEEK_ARIA'
+                                                        | translate
+                                                "
                                                 multiple
                                             >
                                                 @for (
@@ -812,7 +871,10 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                                                     <mat-option
                                                         [value]="day.value"
                                                         >{{
-                                                            day.name
+                                                            weekdayLabel(
+                                                                day.value,
+                                                                'EEEE'
+                                                            )
                                                         }}</mat-option
                                                     >
                                                 }
@@ -826,16 +888,18 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                                 <div
                                     class="border-warning/30 bg-warning/10 text-warning-content rounded-lg border p-3 text-sm"
                                 >
-                                    This playlist uses an advanced schedule that
-                                    cannot be edited with the simple recurrence
-                                    controls. Choose one of the repeat patterns
-                                    above to replace it.
+                                    {{
+                                        'SIGNAGE_MANAGER.ADVANCED_SCHEDULE_WARNING'
+                                            | translate
+                                    }}
                                 </div>
                             }
                             <div class="flex flex-col gap-3 md:flex-row">
                                 @if (showRecurringStartTime()) {
                                     <div class="flex w-full flex-1 flex-col">
-                                        <label>Start</label>
+                                        <label>{{
+                                            'SIGNAGE_MANAGER.START' | translate
+                                        }}</label>
                                         <mat-form-field
                                             appearance="outline"
                                             class="no-subscript"
@@ -849,7 +913,10 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                                                             .play_start
                                                     )
                                                 "
-                                                aria-label="Play period start time"
+                                                [attr.aria-label]="
+                                                    'SIGNAGE_MANAGER.PLAY_PERIOD_START_ARIA'
+                                                        | translate
+                                                "
                                                 (input)="
                                                     setPlayStart(
                                                         $any($event.target)
@@ -861,7 +928,9 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                                     </div>
                                 }
                                 <div class="w-full flex-1">
-                                    <label>Play Period</label>
+                                    <label>{{
+                                        'SIGNAGE_MANAGER.PLAY_PERIOD' | translate
+                                    }}</label>
                                     <a-duration-field
                                         class="no-subscript w-full flex-1"
                                         formControlName="play_period"
@@ -874,7 +943,7 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                                 </div>
                             </div>
                             <settings-toggle
-                                [name]="'Takeover playback'"
+                                [name]="'SIGNAGE_MANAGER.TAKEOVER_PLAYBACK' | translate"
                                 formControlName="play_takeover"
                             />
                         </div>
@@ -884,7 +953,7 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                             <div
                                 class="bg-base-100 absolute top-0 left-3 -translate-y-1/2 rounded px-2"
                             >
-                                Upcoming Play Times
+                                {{ 'SIGNAGE_MANAGER.UPCOMING_PLAY_TIMES' | translate }}
                             </div>
                             @for (
                                 play_time of nextCronPlayTimes();
@@ -897,7 +966,10 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                                 </div>
                             } @empty {
                                 <div class="text-base-content/60 text-xs">
-                                    No upcoming play times found.
+                                    {{
+                                        'SIGNAGE_MANAGER.NO_UPCOMING_PLAY_TIMES'
+                                            | translate
+                                    }}
                                 </div>
                             }
                         </div>
@@ -919,9 +991,12 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
         IconComponent,
         CounterComponent,
         SettingsToggleComponent,
+        TranslatePipe,
     ],
 })
 export class PlaylistScheduleFormComponent {
+    private readonly _date_pipe = new DatePipe('en');
+
     public readonly schedule = input.required<FormGroup>();
     public readonly index = input.required<number>();
     public readonly open = input(false);
@@ -957,55 +1032,84 @@ export class PlaylistScheduleFormComponent {
     public recurringScheduleSummary() {
         const value = this.schedule().getRawValue();
         if (value.recurrence_type === 'custom') {
-            return 'Advanced recurring schedule. Choose a repeat pattern to edit it.';
+            return i18n('SIGNAGE_MANAGER.SUMMARY_ADVANCED');
         }
         const interval = value.recurrence_interval || 1;
         const start_time = this.formatPlayHour(value.play_start);
         const period = value.play_period ?? DEFAULT_PLAY_PERIOD_MINUTES;
-        const duration = formatMinutes(period) || 'one playlist pass';
+        const duration =
+            formatMinutes(period) || i18n('SIGNAGE_MANAGER.ONE_PLAYLIST_PASS');
         if (value.recurrence_type === 'minutes') {
-            return `Plays every ${interval} minute${interval === 1 ? '' : 's'}.`;
+            return i18n(
+                'SIGNAGE_MANAGER.SUMMARY_EVERY_MINUTE',
+                { interval },
+                interval,
+            );
         }
         if (value.recurrence_type === 'hours') {
-            return `Plays every ${interval} hour${interval === 1 ? '' : 's'}.`;
+            return i18n(
+                'SIGNAGE_MANAGER.SUMMARY_EVERY_HOUR',
+                { interval },
+                interval,
+            );
         }
         if (value.recurrence_type === 'weekdays') {
-            return `Starts every weekday at ${start_time} for ${duration}.`;
+            return i18n('SIGNAGE_MANAGER.SUMMARY_WEEKDAYS', {
+                time: start_time,
+                duration,
+            });
         }
         if (value.recurrence_type === 'weekly') {
             const days = this._weekdayNames(value.recurrence_weekdays);
-            return `Starts every ${days} at ${start_time} for ${duration}.`;
+            return i18n('SIGNAGE_MANAGER.SUMMARY_WEEKLY', {
+                days,
+                time: start_time,
+                duration,
+            });
         }
         if (value.recurrence_type === 'monthly') {
             const days = normaliseMonthDays(value.recurrence_day_of_month);
-            return `Starts on the ${(days.length ? days : [1])
-                .map((day) => ordinal(day))
-                .join(', ')} of each month at ${start_time} for ${duration}.`;
+            return i18n('SIGNAGE_MANAGER.SUMMARY_MONTHLY', {
+                days: (days.length ? days : [1])
+                    .map((day) => ordinal(day))
+                    .join(', '),
+                time: start_time,
+                duration,
+            });
         }
         if (value.recurrence_type === 'monthly_weekday') {
             const weeks = normaliseWeeksOfMonth(value.recurrence_week_of_month);
-            return `Starts on the ${(weeks.length ? weeks : [1])
-                .map((week) => ordinal(week))
-                .join(', ')} ${this._weekdayNames(
-                value.recurrence_weekdays,
-            )} of each month at ${start_time} for ${duration}.`;
+            return i18n('SIGNAGE_MANAGER.SUMMARY_MONTHLY_WEEKDAY', {
+                weeks: (weeks.length ? weeks : [1])
+                    .map((week) => ordinal(week))
+                    .join(', '),
+                days: this._weekdayNames(value.recurrence_weekdays),
+                time: start_time,
+                duration,
+            });
         }
-        return `Starts every day at ${start_time} for ${duration}.`;
+        return i18n('SIGNAGE_MANAGER.SUMMARY_DAILY', {
+            time: start_time,
+            duration,
+        });
     }
 
     public scheduleSummary() {
         const value = this.schedule().getRawValue();
         const period = value.play_period ?? DEFAULT_PLAY_PERIOD_MINUTES;
-        const duration = formatMinutes(period) || 'one playlist pass';
+        const duration =
+            formatMinutes(period) || i18n('SIGNAGE_MANAGER.ONE_PLAYLIST_PASS');
+        const takeover = value.play_takeover
+            ? i18n('SIGNAGE_MANAGER.TAKEOVER_SUFFIX')
+            : '';
         if (value.schedule_type === 'play_at') {
             const date = new Date(value.play_at || Date.now());
-            return `Plays once on ${formatPlayDateTime(date)} for ${duration}${
-                value.play_takeover ? ' · takeover' : ''
-            }`;
+            return `${i18n('SIGNAGE_MANAGER.SUMMARY_PLAY_ONCE', {
+                datetime: formatPlayDateTime(date),
+                duration,
+            })}${takeover}`;
         }
-        return `${this.recurringScheduleSummary()}${
-            value.play_takeover ? ' · takeover' : ''
-        }`;
+        return `${this.recurringScheduleSummary()}${takeover}`;
     }
 
     public recurringPlayStartTime() {
@@ -1048,17 +1152,20 @@ export class PlaylistScheduleFormComponent {
         });
     }
 
-    private _weekdayName(value: number | null | undefined) {
-        return (
-            WEEKDAY_OPTIONS.find((option) => option.value === value)?.name ||
-            'Monday'
-        );
+    public weekdayLabel(
+        value: number | null | undefined,
+        format: 'EEE' | 'EEEE',
+    ) {
+        const day = typeof value === 'number' ? value : 1;
+        const monday_based_offset = day === 0 ? 6 : day - 1;
+        const date = new Date(2024, 0, 1 + monday_based_offset);
+        return this._date_pipe.transform(date, format) || '';
     }
 
     private _weekdayNames(value: number[] | null | undefined) {
         const weekdays = normaliseWeekdays(value);
         return (weekdays.length ? weekdays : [1])
-            .map((day) => this._weekdayName(day))
+            .map((day) => this.weekdayLabel(day, 'EEEE'))
             .filter((_) => _)
             .join(', ');
     }

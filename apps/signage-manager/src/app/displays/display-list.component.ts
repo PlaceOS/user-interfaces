@@ -4,7 +4,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { RouterLink } from '@angular/router';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignageService } from '../signage.service';
 
 @Component({
@@ -20,10 +20,12 @@ import { SignageService } from '../signage.service';
                 >
                     <input
                         matInput
-                        placeholder="Search displays"
+                        [placeholder]="'SIGNAGE_MANAGER.SEARCH_DISPLAYS' | translate"
                         [ngModel]="search()"
                         (ngModelChange)="search.set($event)"
-                        aria-label="Search displays"
+                        [attr.aria-label]="
+                            'SIGNAGE_MANAGER.SEARCH_DISPLAYS' | translate
+                        "
                     />
                 </mat-form-field>
             </div>
@@ -42,8 +44,13 @@ import { SignageService } from '../signage.service';
                         [routerLink]="['/displays', display.id]"
                         queryParamsHandling="merge"
                         [attr.aria-label]="
-                            'Open display ' +
-                            (display.display_name || display.name)
+                            'SIGNAGE_MANAGER.OPEN_DISPLAY'
+                                | translate
+                                    : {
+                                          name:
+                                              display.display_name ||
+                                              display.name,
+                                      }
                         "
                     >
                         <icon class="shrink-0 text-2xl">tv</icon>
@@ -72,7 +79,7 @@ import { SignageService } from '../signage.service';
                     class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
                 >
                     <icon class="text-6xl">tv</icon>
-                    <p>No displays found.</p>
+                    <p>{{ 'SIGNAGE_MANAGER.NO_DISPLAYS' | translate }}</p>
                 </div>
             }
         </div>
@@ -93,6 +100,7 @@ import { SignageService } from '../signage.service';
         MatFormFieldModule,
         MatInputModule,
         IconComponent,
+        TranslatePipe,
     ],
 })
 export class DisplayListComponent {

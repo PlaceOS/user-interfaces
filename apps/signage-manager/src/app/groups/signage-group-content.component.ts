@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignageService } from '../signage.service';
 import { SignageGroupUsersComponent } from './signage-group-users.component';
 import { SignageGroupZonesComponent } from './signage-group-zones.component';
@@ -33,7 +33,7 @@ import { SignageGroupZonesComponent } from './signage-group-zones.component';
                 class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
             >
                 <icon class="text-6xl">group</icon>
-                <p>Select a group to view its details.</p>
+                <p>{{ 'SIGNAGE_MANAGER.GROUP_SELECT_DETAILS' | translate }}</p>
             </div>
         }
     `,
@@ -63,6 +63,7 @@ import { SignageGroupZonesComponent } from './signage-group-zones.component';
         IconComponent,
         SignageGroupUsersComponent,
         SignageGroupZonesComponent,
+        TranslatePipe,
     ],
 })
 export class SignageGroupContentComponent {

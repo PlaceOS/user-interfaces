@@ -11,8 +11,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { notifyError, notifySuccess, notifyWarn } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
+import { i18n, notifyError, notifySuccess, notifyWarn } from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
     listSignagePlaylistMediaRevisions,
     SignageMedia,
@@ -51,14 +51,18 @@ export interface PlaylistRequestApprovalModalResult {
         <header
             class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
-            <h2 class="px-2 text-xl font-medium">Request Approval</h2>
+            <h2 class="px-2 text-xl font-medium">
+                {{ 'SIGNAGE_MANAGER.REQUEST_APPROVAL' | translate }}
+            </h2>
             @if (!loading()) {
                 <button
                     icon
                     type="button"
                     matRipple
                     mat-dialog-close
-                    aria-label="Close request approval dialog"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.CLOSE_REQUEST_APPROVAL' | translate
+                    "
                 >
                     <icon>close</icon>
                 </button>
@@ -71,11 +75,15 @@ export interface PlaylistRequestApprovalModalResult {
             >
                 @if (!show_preview()) {
                     <div>
-                        <div class="text-base-content/70 text-sm">Playlist</div>
+                        <div class="text-base-content/70 text-sm">
+                            {{ 'SIGNAGE_MANAGER.PLAYLIST_LABEL' | translate }}
+                        </div>
                         <div class="font-medium">{{ data.playlist.name }}</div>
                     </div>
                     <div>
-                        <label for="approval-approver">Approver</label>
+                        <label for="approval-approver">{{
+                            'SIGNAGE_MANAGER.APPROVER' | translate
+                        }}</label>
                         <mat-form-field
                             appearance="outline"
                             class="no-subscript w-full"
@@ -84,7 +92,9 @@ export interface PlaylistRequestApprovalModalResult {
                                 name="approval-approver"
                                 [(ngModel)]="selected_approver_id"
                             >
-                                <mat-option value="">Anyone</mat-option>
+                                <mat-option value="">{{
+                                    'SIGNAGE_MANAGER.ANYONE' | translate
+                                }}</mat-option>
                                 @for (item of data.approvers; track item.id) {
                                     <mat-option [value]="item.id">
                                         {{ item.name || item.id }}
@@ -94,7 +104,9 @@ export interface PlaylistRequestApprovalModalResult {
                         </mat-form-field>
                     </div>
                     <div>
-                        <label for="message">Message</label>
+                        <label for="message">{{
+                            'SIGNAGE_MANAGER.MESSAGE' | translate
+                        }}</label>
                         <mat-form-field
                             appearance="outline"
                             class="no-subscript w-full"
@@ -103,7 +115,10 @@ export interface PlaylistRequestApprovalModalResult {
                                 matInput
                                 name="message"
                                 class="min-h-28 resize-y"
-                                placeholder="Add a note for the approvers..."
+                                [placeholder]="
+                                    'SIGNAGE_MANAGER.APPROVERS_NOTE_PLACEHOLDER'
+                                        | translate
+                                "
                                 [(ngModel)]="message"
                             ></textarea>
                         </mat-form-field>
@@ -116,17 +131,22 @@ export interface PlaylistRequestApprovalModalResult {
                     [class.bg-base-200]="show_preview()"
                     [attr.aria-pressed]="show_preview()"
                     [attr.aria-label]="
-                        show_preview()
-                            ? 'Hide approval changes'
-                            : 'Show approval changes'
+                        (show_preview()
+                            ? 'SIGNAGE_MANAGER.HIDE_APPROVAL_CHANGES'
+                            : 'SIGNAGE_MANAGER.SHOW_APPROVAL_CHANGES'
+                        ) | translate
                     "
                     (click)="show_preview.set(!show_preview())"
                 >
                     <div>
-                        <div class="font-medium">Preview changes</div>
+                        <div class="font-medium">
+                            {{ 'SIGNAGE_MANAGER.PREVIEW_CHANGES' | translate }}
+                        </div>
                         <div class="text-base-content/70 text-sm">
-                            Compare the pending version with the previous
-                            version.
+                            {{
+                                'SIGNAGE_MANAGER.PREVIEW_CHANGES_HINT'
+                                    | translate
+                            }}
                         </div>
                     </div>
                     <icon class="px-2 text-2xl">{{
@@ -154,7 +174,7 @@ export interface PlaylistRequestApprovalModalResult {
                         class="inverse w-36"
                         mat-dialog-close
                     >
-                        Cancel
+                        {{ 'COMMON.CANCEL' | translate }}
                     </button>
                 }
                 @if (show_preview() && can_update()) {
@@ -166,7 +186,7 @@ export interface PlaylistRequestApprovalModalResult {
                         [disabled]="!has_previous_version()"
                         (click)="undoChanges()"
                     >
-                        Undo Changes
+                        {{ 'SIGNAGE_MANAGER.UNDO_CHANGES' | translate }}
                     </button>
                 }
                 @if (!show_preview()) {
@@ -177,7 +197,7 @@ export interface PlaylistRequestApprovalModalResult {
                         class="w-44"
                         (click)="submit()"
                     >
-                        Request Approval
+                        {{ 'SIGNAGE_MANAGER.REQUEST_APPROVAL' | translate }}
                     </button>
                 }
             </footer>
@@ -203,6 +223,7 @@ export interface PlaylistRequestApprovalModalResult {
         MatSelectModule,
         IconComponent,
         PlaylistApprovalPreviewComponent,
+        TranslatePipe,
     ],
 })
 export class PlaylistRequestApprovalModalComponent implements OnInit {
@@ -229,7 +250,7 @@ export class PlaylistRequestApprovalModalComponent implements OnInit {
 
     public readonly playlist_versions = this._playlist_id.pipe(
         filter((id) => !!id),
-        tap(() => this.loading.set('Loading versions...')),
+        tap(() => this.loading.set(i18n('SIGNAGE_MANAGER.LOADING_VERSIONS'))),
         switchMap((id) => listSignagePlaylistMediaRevisions(id, { limit: 2 })),
         tap((versions) => this.has_previous_version.set(versions.length > 1)),
         shareReplay(1),
@@ -256,14 +277,14 @@ export class PlaylistRequestApprovalModalComponent implements OnInit {
 
     public async undoChanges() {
         if (!this.can_update()) {
-            notifyWarn('You cannot update playlists in this group.');
+            notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS'));
             return;
         }
         const [, previous_version] = await firstValueFrom(
             this.playlist_versions,
         );
         if (!previous_version?.items) return;
-        this.loading.set('Undoing changes...');
+        this.loading.set(i18n('SIGNAGE_MANAGER.UNDOING_CHANGES'));
         this._dialog_ref.disableClose = true;
         try {
             await lastValueFrom(
@@ -276,11 +297,11 @@ export class PlaylistRequestApprovalModalComponent implements OnInit {
                 this.data.playlist.id,
                 false,
             );
-            notifySuccess('Playlist reverted to previous version');
+            notifySuccess(i18n('SIGNAGE_MANAGER.PLAYLIST_REVERTED'));
             this._dialog_ref.close();
             this._service.changed();
         } catch {
-            notifyError('Error reverting playlist changes');
+            notifyError(i18n('SIGNAGE_MANAGER.PLAYLIST_REVERT_ERROR'));
         } finally {
             this.loading.set('');
             this._dialog_ref.disableClose = false;

@@ -1,33 +1,37 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { i18n } from '@placeos/common';
 import {
     FullscreenModalShellComponent,
     SettingsToggleComponent,
+    TranslatePipe,
 } from '@placeos/components';
 
 const GROUP_PERMISSION_FLAGS = [
-    { key: 'read', label: 'Read', value: 1 },
-    { key: 'create', label: 'Create', value: 2 },
-    { key: 'update', label: 'Update', value: 4 },
-    { key: 'delete', label: 'Delete', value: 8 },
-    { key: 'operate', label: 'Operate', value: 16 },
-    { key: 'approve', label: 'Approve', value: 32 },
-    { key: 'manage', label: 'Manage', value: 64 },
-    { key: 'share', label: 'Share', value: 128 },
+    { key: 'read', label: 'SIGNAGE_MANAGER.PERM_READ', value: 1 },
+    { key: 'create', label: 'SIGNAGE_MANAGER.PERM_CREATE', value: 2 },
+    { key: 'update', label: 'SIGNAGE_MANAGER.PERM_UPDATE', value: 4 },
+    { key: 'delete', label: 'COMMON.DELETE', value: 8 },
+    { key: 'operate', label: 'SIGNAGE_MANAGER.PERM_OPERATE', value: 16 },
+    { key: 'approve', label: 'COMMON.APPROVE', value: 32 },
+    { key: 'manage', label: 'SIGNAGE_MANAGER.PERM_MANAGE', value: 64 },
+    { key: 'share', label: 'SIGNAGE_MANAGER.PERM_SHARE', value: 128 },
 ];
 
 @Component({
     selector: 'signage-group-permissions-modal',
     template: `
         <fullscreen-modal-shell
-            [heading]="data.title || 'Permissions'"
+            [heading]="
+                data.title || ('SIGNAGE_MANAGER.PERMISSIONS' | translate)
+            "
             (confirm)="save()"
         >
             <div class="flex flex-col gap-3">
                 @for (permission of permissions; track permission.key) {
                     <settings-toggle
-                        [name]="permission.label"
+                        [name]="permission.label | translate"
                         [ngModel]="hasPermission(permission.value)"
                         (ngModelChange)="
                             setPermission(permission.value, $event)
@@ -37,7 +41,9 @@ const GROUP_PERMISSION_FLAGS = [
                 @if (data.show_deny) {
                     <div class="border-base-300 mt-2 border-t pt-3">
                         <settings-toggle
-                            name="Deny selected permissions"
+                            [name]="
+                                'SIGNAGE_MANAGER.PERM_DENY_SELECTED' | translate
+                            "
                             [(ngModel)]="deny"
                         />
                     </div>
@@ -50,6 +56,7 @@ const GROUP_PERMISSION_FLAGS = [
         FullscreenModalShellComponent,
         FormsModule,
         SettingsToggleComponent,
+        TranslatePipe,
     ],
 })
 export class SignageGroupPermissionsModalComponent {
@@ -85,5 +92,5 @@ export function groupPermissionLabels(permissions: number) {
     return GROUP_PERMISSION_FLAGS.filter(
         (permission) =>
             ((+permissions || 0) & permission.value) === permission.value,
-    ).map((permission) => permission.label);
+    ).map((permission) => i18n(permission.label));
 }

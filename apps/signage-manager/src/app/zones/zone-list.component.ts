@@ -14,7 +14,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { RouterLink } from '@angular/router';
 import { OrganisationService } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceZone } from '@placeos/ts-client';
 import { lastValueFrom } from 'rxjs';
 import { SignageService } from '../signage.service';
@@ -43,10 +43,12 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                 >
                     <input
                         matInput
-                        placeholder="Search zones"
+                        [placeholder]="'SIGNAGE_MANAGER.SEARCH_ZONES' | translate"
                         [ngModel]="search()"
                         (ngModelChange)="search.set($event)"
-                        aria-label="Search zones"
+                        [attr.aria-label]="
+                            'SIGNAGE_MANAGER.SEARCH_ZONES' | translate
+                        "
                     />
                 </mat-form-field>
             </div>
@@ -67,7 +69,9 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                             [routerLink]="['/zones', zone.id]"
                             queryParamsHandling="merge"
                             [attr.aria-label]="
-                                'Open zone ' + (zone.display_name || zone.name)
+                                'SIGNAGE_MANAGER.OPEN_ZONE'
+                                    | translate
+                                        : { name: zone.display_name || zone.name }
                             "
                             (click)="selectZone(zone)"
                         >
@@ -107,7 +111,7 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                         class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
                     >
                         <icon class="text-6xl">layers</icon>
-                        <p>No zones found.</p>
+                        <p>{{ 'SIGNAGE_MANAGER.NO_ZONES' | translate }}</p>
                     </div>
                 }
             } @else if (tree_nodes().length) {
@@ -142,9 +146,15 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                                 class="hover:bg-base-content/20 ml-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors"
                                 [attr.aria-label]="
                                     (isExpanded(node)
-                                        ? 'Collapse zone '
-                                        : 'Expand zone ') +
-                                    (node.zone.display_name || node.zone.name)
+                                        ? 'SIGNAGE_MANAGER.COLLAPSE_ZONE'
+                                        : 'SIGNAGE_MANAGER.EXPAND_ZONE'
+                                    )
+                                        | translate
+                                            : {
+                                                  name:
+                                                      node.zone.display_name ||
+                                                      node.zone.name,
+                                              }
                                 "
                                 (click)="
                                     onExpandedChange(node, !isExpanded(node));
@@ -168,8 +178,13 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                             [routerLink]="['/zones', node.zone.id]"
                             queryParamsHandling="merge"
                             [attr.aria-label]="
-                                'Open zone ' +
-                                (node.zone.display_name || node.zone.name)
+                                'SIGNAGE_MANAGER.OPEN_ZONE'
+                                    | translate
+                                        : {
+                                              name:
+                                                  node.zone.display_name ||
+                                                  node.zone.name,
+                                          }
                             "
                             (click)="selectZone(node.zone)"
                         >
@@ -218,7 +233,7 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                     class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
                 >
                     <icon class="text-6xl">layers</icon>
-                    <p>No zones found.</p>
+                    <p>{{ 'SIGNAGE_MANAGER.NO_ZONES' | translate }}</p>
                 </div>
             }
         </div>
@@ -244,6 +259,7 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
         MatInputModule,
         CdkTreeModule,
         IconComponent,
+        TranslatePipe,
     ],
 })
 export class ZoneListComponent {

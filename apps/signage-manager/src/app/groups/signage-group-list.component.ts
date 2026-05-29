@@ -11,7 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceGroup } from '@placeos/ts-client';
 import { lastValueFrom } from 'rxjs';
 import { SignageService } from '../signage.service';
@@ -43,9 +43,11 @@ interface GroupListRow extends GroupTreeNode {
                         matInput
                         id="group-search"
                         name="group-search"
-                        placeholder="Search groups"
+                        [placeholder]="'SIGNAGE_MANAGER.SEARCH_GROUPS' | translate"
                         [(ngModel)]="search"
-                        aria-label="Search signage groups"
+                        [attr.aria-label]="
+                            'SIGNAGE_MANAGER.GROUPS_SEARCH_ARIA' | translate
+                        "
                     />
                 </mat-form-field>
             </header>
@@ -67,7 +69,9 @@ interface GroupListRow extends GroupTreeNode {
                                     group.id !== selected_group()?.id
                                 "
                                 [attr.aria-label]="
-                                    'Open group ' + (group.name || group.id)
+                                    'SIGNAGE_MANAGER.OPEN_GROUP'
+                                        | translate
+                                            : { name: group.name || group.id }
                                 "
                                 (click)="selectGroup(group)"
                             >
@@ -76,7 +80,11 @@ interface GroupListRow extends GroupTreeNode {
                                         <div
                                             class="min-w-0 flex-1 truncate font-medium"
                                         >
-                                            {{ group.name || 'Unnamed group' }}
+                                            {{
+                                                group.name ||
+                                                    ('SIGNAGE_MANAGER.UNNAMED_GROUP'
+                                                        | translate)
+                                            }}
                                         </div>
                                         @if (childCount(group) > 0) {
                                             <span
@@ -109,7 +117,7 @@ interface GroupListRow extends GroupTreeNode {
                             class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
                         >
                             <icon class="text-6xl">group</icon>
-                            <p>No groups found.</p>
+                            <p>{{ 'SIGNAGE_MANAGER.NO_GROUPS' | translate }}</p>
                         </div>
                     }
                 } @else if (visible_group_rows().length) {
@@ -146,9 +154,15 @@ interface GroupListRow extends GroupTreeNode {
                                     class="hover:bg-base-content/20 ml-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors"
                                     [attr.aria-label]="
                                         (isExpanded(row.group)
-                                            ? 'Collapse group '
-                                            : 'Expand group ') +
-                                        (row.group.name || row.group.id)
+                                            ? 'SIGNAGE_MANAGER.COLLAPSE_GROUP'
+                                            : 'SIGNAGE_MANAGER.EXPAND_GROUP'
+                                        )
+                                            | translate
+                                                : {
+                                                      name:
+                                                          row.group.name ||
+                                                          row.group.id,
+                                                  }
                                     "
                                     (click)="
                                         onExpandedChange(row, !isExpanded(row));
@@ -179,7 +193,8 @@ interface GroupListRow extends GroupTreeNode {
                                         >
                                             {{
                                                 row.group.name ||
-                                                    'Unnamed group'
+                                                    ('SIGNAGE_MANAGER.UNNAMED_GROUP'
+                                                        | translate)
                                             }}
                                         </div>
                                         @if (childCount(row.group)) {
@@ -216,7 +231,7 @@ interface GroupListRow extends GroupTreeNode {
                     </cdk-tree>
                 } @else {
                     <div class="p-6 text-center opacity-60">
-                        No manageable signage groups
+                        {{ 'SIGNAGE_MANAGER.NO_MANAGEABLE_GROUPS' | translate }}
                     </div>
                 }
             </section>
@@ -242,6 +257,7 @@ interface GroupListRow extends GroupTreeNode {
         MatInputModule,
         CdkTreeModule,
         IconComponent,
+        TranslatePipe,
     ],
 })
 export class SignageGroupListComponent {

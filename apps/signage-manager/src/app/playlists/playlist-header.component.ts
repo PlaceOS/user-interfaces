@@ -10,7 +10,9 @@ import { SignageService } from '../signage.service';
             class="bg-base-100 border-base-300 sticky top-0 flex flex-wrap items-center gap-2 border-b px-4 py-2 shadow sm:flex-nowrap"
         >
             <div class="py-2">
-                <h3 class="text-2xl font-medium">Signage Playlists</h3>
+                <h3 class="text-2xl font-medium">
+                    {{ 'SIGNAGE_MANAGER.PLAYLISTS_PAGE_TITLE' | translate }}
+                </h3>
                 <div class="text-sm opacity-60">
                     {{
                         'COMMON.ITEM_COUNT'
@@ -26,10 +28,12 @@ import { SignageService } from '../signage.service';
                     matRipple
                     class="bg-secondary text-secondary-content h-12 shrink-0 rounded-lg px-4"
                     (click)="addPlaylist()"
-                    aria-label="Create new playlist"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.CREATE_NEW_PLAYLIST' | translate
+                    "
                 >
                     <icon class="mr-2 text-2xl">add</icon>
-                    <div>New Playlist</div>
+                    <div>{{ 'SIGNAGE_MANAGER.NEW_PLAYLIST' | translate }}</div>
                 </button>
             }
         </div>

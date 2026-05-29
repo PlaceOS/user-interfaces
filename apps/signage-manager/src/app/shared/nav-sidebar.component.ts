@@ -4,6 +4,7 @@ import { SettingsService } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
+    TranslatePipe,
 } from '@placeos/components';
 import { SignageService } from '../signage.service';
 import { filterManageNavItems } from './nav-items';
@@ -13,7 +14,7 @@ import { SignageGroupSelectorComponent } from './signage-group-selector.componen
     selector: 'nav-sidebar',
     template: `
         <nav
-            aria-label="Primary navigation"
+            [attr.aria-label]="'SIGNAGE_MANAGER.PRIMARY_NAV' | translate"
             class="bg-secondary text-secondary-content border-base-100 relative z-30 hidden h-full flex-col border-r p-2 shadow-lg sm:flex"
         >
             <div
@@ -24,11 +25,13 @@ import { SignageGroupSelectorComponent } from './signage-group-selector.componen
                     <img
                         auth
                         class="max-h-18 max-w-18 object-contain"
-                        alt="Logo"
+                        [alt]="'SIGNAGE_MANAGER.LOGO_ALT' | translate"
                         [source]="logo"
                     />
                 } @else {
-                    <div class="opacity-20">LOGO</div>
+                    <div class="opacity-20">
+                        {{ 'SIGNAGE_MANAGER.LOGO_ALT' | translate }}
+                    </div>
                 }
             </div>
             <div class="flex flex-1 flex-col gap-4 p-2">
@@ -38,13 +41,15 @@ import { SignageGroupSelectorComponent } from './signage-group-selector.componen
                         class="hover:bg-base-100/30 focus-visible:bg-base-100/30 relative flex h-18 w-18 flex-col items-center justify-center rounded-xl"
                         [routerLink]="item.route"
                         routerLinkActive="active bg-primary/30"
-                        [attr.aria-label]="item.label"
+                        [attr.aria-label]="item.label | translate"
                         [attr.aria-current]="
                             route_active.isActive ? 'page' : null
                         "
                     >
                         <icon class="text-3xl">{{ item.icon }}</icon>
-                        <div class="text-sm font-medium">{{ item.label }}</div>
+                        <div class="text-sm font-medium">
+                            {{ item.label | translate }}
+                        </div>
                         <div
                             active
                             class="bg-base-100 absolute inset-y-0 top-0 -right-4 w-2 rounded-l-lg"
@@ -76,6 +81,7 @@ import { SignageGroupSelectorComponent } from './signage-group-selector.componen
         IconComponent,
         AuthenticatedImageDirective,
         SignageGroupSelectorComponent,
+        TranslatePipe,
     ],
 })
 export class NavSidebarComponent {
