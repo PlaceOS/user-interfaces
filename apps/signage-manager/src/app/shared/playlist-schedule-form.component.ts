@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -14,7 +14,7 @@ import {
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { i18n } from '@placeos/common';
+import { i18n, LocaleService } from '@placeos/common';
 import {
     CounterComponent,
     DateFieldComponent,
@@ -995,7 +995,8 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
     ],
 })
 export class PlaylistScheduleFormComponent {
-    private readonly _date_pipe = new DatePipe('en');
+    private readonly _locale = inject(LocaleService);
+    private readonly _date_pipe = new DatePipe(this._locale.locale);
 
     public readonly schedule = input.required<FormGroup>();
     public readonly index = input.required<number>();

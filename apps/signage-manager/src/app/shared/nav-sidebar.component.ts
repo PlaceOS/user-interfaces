@@ -1,6 +1,9 @@
 import { Component, computed, inject } from '@angular/core';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
-import { SettingsService } from '@placeos/common';
+import { i18n, LocaleService, SettingsService } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
@@ -58,6 +61,62 @@ import { SignageGroupSelectorComponent } from './signage-group-selector.componen
                 }
             </div>
             <div class="p-2">
+                @if (show_locale_selector() && locales().length > 1) {
+                    <button
+                        type="button"
+                        matRipple
+                        class="hover:bg-base-100/30 focus-visible:bg-base-100/30 mb-2 flex h-18 w-18 flex-col items-center justify-center rounded-xl text-center"
+                        [matMenuTriggerFor]="language_menu"
+                        [matTooltip]="active_locale_details()"
+                        matTooltipPosition="right"
+                        [attr.aria-label]="
+                            'COMMON.LANGUAGE_SELECT' | translate
+                        "
+                    >
+                        <icon class="text-3xl">language</icon>
+                        <div class="mt-1 line-clamp-2 w-full px-1 text-xs leading-tight font-medium">
+                            {{ active_locale_label() | translate }}
+                        </div>
+                    </button>
+                    <mat-menu #language_menu="matMenu" xPosition="after">
+                        @for (lang of locales(); track lang.id) {
+                            <button
+                                type="button"
+                                mat-menu-item
+                                (click)="setLocale(lang.id)"
+                                [matTooltip]="localeDetails(lang)"
+                                matTooltipPosition="right"
+                                [class.font-semibold]="
+                                    active_locale() === lang.id
+                                "
+                            >
+                                <div class="flex max-w-64 min-w-44 items-center gap-3">
+                                    <icon class="text-xl">
+                                        {{
+                                            active_locale() === lang.id
+                                                ? 'check'
+                                                : 'language'
+                                        }}
+                                    </icon>
+                                    <div class="min-w-0 leading-tight">
+                                        <div>{{ lang.name | translate }}</div>
+                                        @if (
+                                            lang.local &&
+                                            (lang.name | translate) !==
+                                                lang.local
+                                        ) {
+                                            <div
+                                                class="text-base-content/60 truncate text-xs"
+                                            >
+                                                {{ lang.local }}
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </button>
+                        }
+                    </mat-menu>
+                }
                 <signage-group-selector />
             </div>
         </nav>
@@ -78,6 +137,9 @@ import { SignageGroupSelectorComponent } from './signage-group-selector.componen
     ],
     imports: [
         RouterModule,
+        MatMenuModule,
+        MatRippleModule,
+        MatTooltipModule,
         IconComponent,
         AuthenticatedImageDirective,
         SignageGroupSelectorComponent,
@@ -86,7 +148,15 @@ import { SignageGroupSelectorComponent } from './signage-group-selector.componen
 })
 export class NavSidebarComponent {
     private readonly _settings = inject(SettingsService);
+    private readonly _locale = inject(LocaleService);
     private readonly _service = inject(SignageService);
+    public readonly locales = this._settings.signal<
+        { id: string; name: string; local?: string }[]
+    >('locales', []);
+    public readonly show_locale_selector = this._settings.signal(
+        'show_locale_selector',
+        false,
+    );
 
     public readonly nav_items = computed(() =>
         filterManageNavItems(
@@ -94,6 +164,33 @@ export class NavSidebarComponent {
                 !!this._service.manageable_signage_groups().length,
         ),
     );
+    public readonly active_locale = computed(() => this._locale.locale);
+    public readonly active_locale_label = computed(() => {
+        const active_locale = this.active_locale();
+        const locale = this.locales().find((item) => item.id === active_locale);
+        return locale?.name || 'LANGUAGE.ENGLISH';
+    });
+    public readonly active_locale_details = computed(() => {
+        const active_locale = this.active_locale();
+        const locale = this.locales().find((item) => item.id === active_locale);
+        return locale
+            ? this.localeDetails(locale)
+            : `${i18n('COMMON.LANGUAGE')}: ${active_locale}`;
+    });
+
+    public localeDetails(locale: { id: string; name: string; local?: string }) {
+        const name = i18n(locale.name);
+        return locale.local && locale.local !== name
+            ? `${name} (${locale.local}) · ${locale.id}`
+            : `${name} · ${locale.id}`;
+    }
+
+    public setLocale(code: string) {
+        if (code === this.active_locale()) return;
+        this._locale.setLocale(code);
+        localStorage.setItem('PLACEOS.locale', code);
+        setTimeout(() => location.reload(), 300);
+    }
 
     public get logo_src(): string {
         const logo = this._settings.get<string | { src?: string }>(
