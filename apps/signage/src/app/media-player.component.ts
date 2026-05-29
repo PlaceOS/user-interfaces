@@ -338,6 +338,13 @@ export class MediaPlayerComponent
         const loop = this.loop();
         if (loop === 'ONE') next_index = this.index();
         else if (loop === 'NONE' && next_index === this._item_playlist.length) {
+            // Playlist has ended; still credit the final item before pausing.
+            const last_index = this.index();
+            const last_item = this._item_playlist[last_index];
+            if (this.progress() > 50 && this.isValidMedia(last_item)) {
+                this.event.emit({ type: 'media_count', ref_id: last_item.id });
+            }
+            this._emitPlaylistMetrics(last_index);
             this.index.set(-1);
             this.state.set('PAUSED');
             this._item_start = 0;
@@ -472,18 +479,7 @@ export class MediaPlayerComponent
         const item = this.active_item;
 
         const old_item = this._item_playlist[old_index];
-        if (this._isLastValidPlaylistItem(old_index) && old_item?.playlist) {
-            this.event.emit({
-                type: 'playlist_count',
-                ref_id: old_item.playlist,
-            });
-            if (this.progress() > 50) {
-                this.event.emit({
-                    type: 'playlist_through',
-                    ref_id: old_item.playlist,
-                });
-            }
-        }
+        this._emitPlaylistMetrics(old_index);
         if (!item) return;
         if (!this.isValidMedia(item)) {
             if (old_index !== index) this.nextItem();
@@ -832,6 +828,18 @@ export class MediaPlayerComponent
         return this.playlist().some((item) => this.isValidMedia(item));
     }
 
+    private _emitPlaylistMetrics(idx: number) {
+        const item = this._item_playlist[idx];
+        if (!this._isLastValidPlaylistItem(idx) || !item?.playlist) return;
+        this.event.emit({ type: 'playlist_count', ref_id: item.playlist });
+        if (this.progress() > 50) {
+            this.event.emit({
+                type: 'playlist_through',
+                ref_id: item.playlist,
+            });
+        }
+    }
+
     private _isLastValidPlaylistItem(idx: number) {
         const playlist = this.playlist();
         const item = playlist[idx];
@@ -839,6 +847,9 @@ export class MediaPlayerComponent
         const next_index = findValidPlaylistIndex(playlist, idx, 1);
         if (next_index === idx) return true;
         if (next_index === -1) return true;
+        // Forward search wrapped past the end of the list back to the start,
+        // so this is the last valid item (e.g. a single playlist on loop).
+        if (next_index < idx) return true;
         const next_item = playlist[next_index];
         return item.playlist !== next_item.playlist;
     }
