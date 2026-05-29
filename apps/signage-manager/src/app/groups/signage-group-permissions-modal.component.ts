@@ -1,7 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { i18n } from '@placeos/common';
 import {
     FullscreenModalShellComponent,
     SettingsToggleComponent,
@@ -92,5 +91,5 @@ export function groupPermissionLabels(permissions: number) {
     return GROUP_PERMISSION_FLAGS.filter(
         (permission) =>
             ((+permissions || 0) & permission.value) === permission.value,
-    ).map((permission) => i18n(permission.label));
+    ).map((permission) => permission.label);
 }

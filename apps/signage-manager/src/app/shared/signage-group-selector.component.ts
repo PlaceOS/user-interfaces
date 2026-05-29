@@ -33,13 +33,13 @@ import { GroupSelectModalComponent } from './group-select-modal.component';
                     class="hover:bg-base-100/30 focus-visible:bg-base-100/30 relative flex h-18 w-18 flex-col items-center justify-center rounded-xl"
                     [attr.aria-label]="
                         'SIGNAGE_MANAGER.SIGNAGE_GROUP_LABEL'
-                            | translate: { name: selected_label() }
+                            | translate: { name: (selected_label() | translate) }
                     "
                     (click)="selectGroup()"
                 >
                     <icon class="text-3xl">group</icon>
                     <div class="line-clamp-3 max-w-14 text-xs font-medium">
-                        {{ selected_label() }}
+                        {{ selected_label() | translate }}
                     </div>
                 </button>
             </div>
@@ -122,7 +122,7 @@ export class SignageGroupSelectorComponent {
     public readonly selected_label = computed(
         () =>
             this.selected_group()?.group.name ||
-            i18n('SIGNAGE_MANAGER.ALL_GROUPS'),
+            'SIGNAGE_MANAGER.ALL_GROUPS',
     );
     public readonly selected_hierarchy = computed(() => {
         const selected_group = this.selected_group();

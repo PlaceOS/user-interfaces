@@ -141,7 +141,7 @@ interface MediaPreviewModalData {
                                     item.media_type === 'plugin'
                                 "
                             >
-                                {{ type_label() }}
+                                {{ type_label() | translate }}
                             </span>
                         </div>
                         @if (item.play_time) {
@@ -166,7 +166,7 @@ interface MediaPreviewModalData {
                                 {{ 'SIGNAGE_MANAGER.ANIMATION' | translate }}
                             </div>
                             <div class="text-sm">
-                                {{ animation_label() }}
+                                {{ animation_label() | translate }}
                             </div>
                         </div>
                         <div>
@@ -336,13 +336,13 @@ export class MediaPreviewModalComponent implements OnInit {
     public readonly type_label = computed(() => {
         switch (this.item.media_type) {
             case 'video':
-                return i18n('COMMON.VIDEO');
+                return 'COMMON.VIDEO';
             case 'image':
-                return i18n('COMMON.IMAGE');
+                return 'COMMON.IMAGE';
             case 'webpage':
-                return i18n('COMMON.WEBPAGE');
+                return 'COMMON.WEBPAGE';
             case 'plugin':
-                return i18n('SIGNAGE_MANAGER.TYPE_PLUGIN');
+                return 'SIGNAGE_MANAGER.TYPE_PLUGIN';
             default:
                 return this.item.media_type;
         }
@@ -351,19 +351,19 @@ export class MediaPreviewModalComponent implements OnInit {
     public readonly animation_label = computed(() => {
         switch (this.item.animation) {
             case MediaAnimation.Cut:
-                return i18n('SIGNAGE_MANAGER.ANIM_CUT');
+                return 'SIGNAGE_MANAGER.ANIM_CUT';
             case MediaAnimation.CrossFade:
-                return i18n('SIGNAGE_MANAGER.ANIM_CROSS_FADE');
+                return 'SIGNAGE_MANAGER.ANIM_CROSS_FADE';
             case MediaAnimation.SlideTop:
-                return i18n('SIGNAGE_MANAGER.ANIM_SLIDE_TOP');
+                return 'SIGNAGE_MANAGER.ANIM_SLIDE_TOP';
             case MediaAnimation.SlideLeft:
-                return i18n('SIGNAGE_MANAGER.ANIM_SLIDE_LEFT');
+                return 'SIGNAGE_MANAGER.ANIM_SLIDE_LEFT';
             case MediaAnimation.SlideRight:
-                return i18n('SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT');
+                return 'SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT';
             case MediaAnimation.SlideBottom:
-                return i18n('SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM');
+                return 'SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM';
             default:
-                return i18n('COMMON.DEFAULT');
+                return 'COMMON.DEFAULT';
         }
     });
 

@@ -158,9 +158,9 @@ function parseScheduleTab(value: string | null): 'displays' | 'zones' {
                                 matInput
                                 type="search"
                                 [value]="search_term()"
-                                [placeholder]="search_placeholder()"
+                                [placeholder]="search_placeholder() | translate"
                                 (input)="setSearch($event)"
-                                [attr.aria-label]="search_placeholder()"
+                                [attr.aria-label]="search_placeholder() | translate"
                             />
                             @if (search_term()) {
                                 <button
@@ -280,8 +280,8 @@ export class SchedulesSectionComponent {
     public readonly zone_total = computed(() => this._zones().length);
     public readonly search_placeholder = computed(() =>
         this.view_tab() === 'displays'
-            ? i18n('SIGNAGE_MANAGER.SEARCH_DISPLAYS_ZONES_PLAYLISTS')
-            : i18n('SIGNAGE_MANAGER.SEARCH_ZONES_PLAYLISTS'),
+            ? 'SIGNAGE_MANAGER.SEARCH_DISPLAYS_ZONES_PLAYLISTS'
+            : 'SIGNAGE_MANAGER.SEARCH_ZONES_PLAYLISTS',
     );
     public readonly current_minutes = computed(() => {
         const now = this.current_time();

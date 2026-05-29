@@ -400,7 +400,7 @@ function nextSchedulePlaySessions(
                                         {{ 'SIGNAGE_MANAGER.DEFAULT_ANIMATION' | translate }}
                                     </div>
                                     <div class="text-sm">
-                                        {{ animation_label() }}
+                                        {{ animation_label() | translate }}
                                     </div>
                                 </div>
                                 @if (playlist().orientation) {
@@ -864,22 +864,22 @@ export class PlaylistItemDetailsComponent {
 
     public readonly animation_label = computed(() => {
         const pl = this.playlist();
-        if (!pl) return 'Default';
+        if (!pl) return 'COMMON.DEFAULT';
         switch (pl.default_animation) {
             case MediaAnimation.Cut:
-                return 'Cut';
+                return 'SIGNAGE_MANAGER.ANIM_CUT';
             case MediaAnimation.CrossFade:
-                return 'Cross Fade';
+                return 'SIGNAGE_MANAGER.ANIM_CROSS_FADE';
             case MediaAnimation.SlideTop:
-                return 'Slide Top';
+                return 'SIGNAGE_MANAGER.ANIM_SLIDE_TOP';
             case MediaAnimation.SlideLeft:
-                return 'Slide Left';
+                return 'SIGNAGE_MANAGER.ANIM_SLIDE_LEFT';
             case MediaAnimation.SlideRight:
-                return 'Slide Right';
+                return 'SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT';
             case MediaAnimation.SlideBottom:
-                return 'Slide Bottom';
+                return 'SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM';
             default:
-                return 'Default';
+                return 'COMMON.DEFAULT';
         }
     });
 

@@ -89,7 +89,7 @@ import { filterManageNavItems } from './nav-items';
                                     <div
                                         class="text-base-content/70 truncate text-xs"
                                     >
-                                        {{ selected_label() }}
+                                        {{ selected_label() | translate }}
                                     </div>
                                 </div>
                             </div>
@@ -148,7 +148,7 @@ export class NavFooterComponent {
     public readonly selected_label = computed(
         () =>
             this.selected_group()?.group.name ||
-            i18n('SIGNAGE_MANAGER.ALL_GROUPS'),
+            'SIGNAGE_MANAGER.ALL_GROUPS',
     );
 
     public async selectGroup() {
