@@ -1,6 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatRippleModule } from '@angular/material/core';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { i18n, LocaleService, SettingsService } from '@placeos/common';
@@ -50,7 +50,7 @@ import { SignageGroupSelectorComponent } from './signage-group-selector.componen
                         "
                     >
                         <icon class="text-3xl">{{ item.icon }}</icon>
-                        <div class="text-sm font-medium">
+                        <div class="text-center text-xs font-medium">
                             {{ item.label | translate }}
                         </div>
                         <div
@@ -69,12 +69,12 @@ import { SignageGroupSelectorComponent } from './signage-group-selector.componen
                         [matMenuTriggerFor]="language_menu"
                         [matTooltip]="active_locale_details()"
                         matTooltipPosition="right"
-                        [attr.aria-label]="
-                            'COMMON.LANGUAGE_SELECT' | translate
-                        "
+                        [attr.aria-label]="'COMMON.LANGUAGE_SELECT' | translate"
                     >
                         <icon class="text-3xl">language</icon>
-                        <div class="mt-1 line-clamp-2 w-full px-1 text-xs leading-tight font-medium">
+                        <div
+                            class="mt-1 line-clamp-2 w-full px-1 text-xs leading-tight font-medium"
+                        >
                             {{ active_locale_label() | translate }}
                         </div>
                     </button>
@@ -90,7 +90,9 @@ import { SignageGroupSelectorComponent } from './signage-group-selector.componen
                                     active_locale() === lang.id
                                 "
                             >
-                                <div class="flex max-w-64 min-w-44 items-center gap-3">
+                                <div
+                                    class="flex max-w-64 min-w-44 items-center gap-3"
+                                >
                                     <icon class="text-xl">
                                         {{
                                             active_locale() === lang.id

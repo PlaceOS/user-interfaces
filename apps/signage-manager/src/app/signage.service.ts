@@ -448,18 +448,18 @@ export class SignageService {
     );
 
     public readonly media = combineLatest([
-        this._org.active_building,
+        this._org.initialised,
         this._change,
         this._api_group_id$,
     ]).pipe(
         filter(
-            ([building, , group_id]) =>
-                !!building?.id && (this.is_sys_admin() || !!group_id),
+            ([initialised, , group_id]) =>
+                !!initialised && (this.is_sys_admin() || !!group_id),
         ),
         debounceTime(300),
         switchMap(([, , group_id]) =>
             querySignageMedia(
-                this._groupQueryParams({ limit: 2500 }, group_id),
+                this._orgZoneQueryParams({ limit: 2500 }, group_id),
             ).pipe(catchError(() => of({ data: [] }))),
         ),
         map((result: any) =>
@@ -486,18 +486,18 @@ export class SignageService {
     );
 
     public readonly playlists = combineLatest([
-        this._org.active_building,
+        this._org.initialised,
         this._change,
         this._api_group_id$,
     ]).pipe(
         filter(
-            ([building, , group_id]) =>
-                !!building?.id && (this.is_sys_admin() || !!group_id),
+            ([initialised, , group_id]) =>
+                !!initialised && (this.is_sys_admin() || !!group_id),
         ),
         debounceTime(300),
         switchMap(([, , group_id]) =>
             querySignagePlaylists(
-                this._groupQueryParams({ limit: 500 }, group_id),
+                this._orgZoneQueryParams({ limit: 500 }, group_id),
             ).pipe(catchError(() => of({ data: [] }))),
         ),
         map((result: any) =>
@@ -508,15 +508,13 @@ export class SignageService {
 
     public readonly displays = combineLatest([
         combineLatest([this._org.initialised, this._change]).pipe(
-            filter(([_]) => !_),
+            filter(([initialised]) => !!initialised),
             debounceTime(300),
             switchMap(() => this._api_group_id$),
             filter((group_id) => this.is_sys_admin() || !!group_id),
             switchMap((group_id) =>
                 querySystems({
-                    ...(group_id
-                        ? { group_id }
-                        : { zone_id: this._org.organisation?.id }),
+                    ...this._orgZoneQueryParams({}, group_id),
                     limit: 500,
                     signage: true,
                 } as any).pipe(catchError(() => of({ data: [] }))),
@@ -531,8 +529,8 @@ export class SignageService {
     );
 
     public readonly zones = combineLatest([
-        combineLatest([this._org.active_building, this._change]).pipe(
-            filter(([building]) => !!building?.id),
+        combineLatest([this._org.initialised, this._change]).pipe(
+            filter(([initialised]) => !!initialised),
             debounceTime(300),
             switchMap(() => this._api_group_id$),
             filter((group_id) => this.is_sys_admin() || !!group_id),
@@ -588,7 +586,13 @@ export class SignageService {
                     ...(group_id ? { group_id } : { parent_id: 'root' }),
                 } as any).pipe(catchError(() => of({ data: [] }))),
             ),
-            map((result: any) => result.data || []),
+            map((result: any) => {
+                const zones = result.data || [];
+                const org_zone_id = this._org.organisation?.id;
+                return org_zone_id
+                    ? zones.filter((zone) => zone.id === org_zone_id)
+                    : zones;
+            }),
             startWith([]),
         ),
         this._zone_overrides$,
@@ -606,13 +610,15 @@ export class SignageService {
     }
 
     public readonly plugins = combineLatest([
-        this._org.active_building,
+        this._org.initialised,
         this._change,
     ]).pipe(
-        filter(([building]) => !!building?.id),
+        filter(([initialised]) => !!initialised),
         debounceTime(300),
         switchMap(() =>
-            querySignagePlugins({ limit: 500 } as any).pipe(
+            querySignagePlugins(
+                this._orgZoneQueryParams({ limit: 500 }),
+            ).pipe(
                 catchError(() => of({ data: [] })),
             ),
         ),
@@ -1235,6 +1241,23 @@ export class SignageService {
             ...query_params,
             ...(group_id ? { group_id } : {}),
         } as T & { group_id?: string };
+    }
+
+    private _orgZoneQueryParams<T extends Record<string, any>>(
+        query_params: T,
+        group_id = this._api_group_id(),
+    ) {
+        const org_zone_id = this._org.organisation?.id;
+        let zone_params: { group_id?: string; zone_id?: string } = {};
+        if (group_id) {
+            zone_params = { group_id };
+        } else if (org_zone_id) {
+            zone_params = { zone_id: org_zone_id };
+        }
+        return { ...query_params, ...zone_params } as T & {
+            group_id?: string;
+            zone_id?: string;
+        };
     }
 
     private _addSignageMedia(form_data: Partial<SignageMedia>) {

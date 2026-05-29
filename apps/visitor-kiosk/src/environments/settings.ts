@@ -64,7 +64,7 @@ const app = {
         { id: 'es', name: 'LANGUAGE.SPANISH', local: 'Español', flag: '🇪🇸' },
         {
             id: 'pt',
-            name: 'LANGUAGE.PORTUGESE',
+            name: 'LANGUAGE.PORTUGUESE',
             local: 'Português',
             flag: '🇵🇹',
         },
