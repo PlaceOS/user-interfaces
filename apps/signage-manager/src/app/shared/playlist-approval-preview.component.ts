@@ -22,9 +22,11 @@ import {
                 @let current_version = versions()?.[0];
                 @let current_media = media()?.[0] || [];
                 <div
-                    class="border-base-300 bg-base-200 flex items-center space-x-8 rounded-sm border-b px-4 py-2"
+                    class="border-base-300 bg-base-200 flex items-center justify-between gap-2 rounded-sm border-b px-4 py-2"
                 >
-                    <h3>{{ 'SIGNAGE_MANAGER.VERSION_TO_APPROVE' | translate }}</h3>
+                    <h3>
+                        {{ 'SIGNAGE_MANAGER.VERSION_TO_APPROVE' | translate }}
+                    </h3>
                     <div class="text-base-content/70 font-mono text-xs">
                         {{
                             current_version?.updated_at * 1000
@@ -60,9 +62,11 @@ import {
                 @let previous_version = versions()?.[1];
                 @let previous_media = media()?.[1] || [];
                 <div
-                    class="border-base-300 bg-base-200 flex items-center space-x-8 rounded-sm border-b px-4 py-2"
+                    class="border-base-300 bg-base-200 flex items-center justify-between gap-2 rounded-sm border-b px-4 py-2"
                 >
-                    <h3>{{ 'SIGNAGE_MANAGER.PREVIOUS_VERSION' | translate }}</h3>
+                    <h3>
+                        {{ 'SIGNAGE_MANAGER.PREVIOUS_VERSION' | translate }}
+                    </h3>
                     <div class="text-base-content/70 font-mono text-xs">
                         {{
                             previous_version?.updated_at * 1000
