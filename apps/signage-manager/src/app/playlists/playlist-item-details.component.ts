@@ -43,7 +43,7 @@ function matchesCronPart(value: number, cron_part: string) {
 }
 
 function isCronMonthlyWeekday(day_part: string, weekday_part: string) {
-    return /^\d+-\d+$/.test(day_part || '') && weekday_part !== '*';
+    return /^\d+-\d+(,\d+-\d+)*$/.test(day_part || '') && weekday_part !== '*';
 }
 
 function doesCronMatchDate(cron: string, date: Date) {
@@ -134,6 +134,11 @@ function weekOfMonthLabel(day_part: string) {
     return '';
 }
 
+function weekOfMonthLabels(day_part: string) {
+    const labels = day_part.split(',').map((range) => weekOfMonthLabel(range));
+    return labels.every((label) => label) ? labels : [];
+}
+
 function humanizeCronSchedule(cron: string, duration_minutes: number) {
     const parts = (cron || '0 0 * * *').trim().split(/\s+/);
     if (parts.length !== 5) return `Custom schedule (${cron})`;
@@ -182,12 +187,12 @@ function humanizeCronSchedule(cron: string, duration_minutes: number) {
             : `Custom schedule (${cron})`;
     }
     if (isCronMonthlyWeekday(day, day_of_week)) {
-        const week = weekOfMonthLabel(day);
+        const weeks = weekOfMonthLabels(day);
         const weekdays = parseCronList(day_of_week, 0, 6).map(
             (day_value) => WEEKDAY_NAMES[day_value],
         );
-        return week && weekdays.length
-            ? `On the ${week} ${listText(weekdays)} of each month at ${time}${suffix}`
+        return weeks.length && weekdays.length
+            ? `On the ${listText(weeks)} ${listText(weekdays)} of each month at ${time}${suffix}`
             : `Custom schedule (${cron})`;
     }
     return `Custom schedule (${cron})`;
@@ -221,18 +226,16 @@ function formatPlayDateTimeRange(start: Date, duration_minutes: number) {
     return `${formatPlayDateTime(start)} – ${end_text}`;
 }
 
-function nextCronPlayTimes(cron: string, duration_minutes: number) {
-    const result: string[] = [];
+function nextCronPlayDates(cron: string, count: number) {
+    const result: Date[] = [];
     if (!cron?.trim()) return result;
     const date = new Date();
     date.setSeconds(0, 0);
     date.setMinutes(date.getMinutes() + 1);
     const end = new Date(date);
     end.setFullYear(end.getFullYear() + 2);
-    while (date <= end && result.length < 5) {
-        if (doesCronMatchDate(cron, date)) {
-            result.push(formatPlayDateTimeRange(date, duration_minutes));
-        }
+    while (date <= end && result.length < count) {
+        if (doesCronMatchDate(cron, date)) result.push(new Date(date));
         date.setMinutes(date.getMinutes() + 1);
     }
     return result;
@@ -278,7 +281,15 @@ function scheduleLabel(schedule: Partial<SignagePlaylistSchedule>) {
     }`;
 }
 
-function nextSchedulePlaySessions(schedule: Partial<SignagePlaylistSchedule>) {
+interface PlaySession {
+    start: Date;
+    period: number;
+}
+
+function nextSchedulePlaySessions(
+    schedule: Partial<SignagePlaylistSchedule>,
+    count: number,
+): PlaySession[] {
     const period = schedulePeriod(schedule);
     if (schedule.play_at) {
         const start = new Date(
@@ -289,11 +300,11 @@ function nextSchedulePlaySessions(schedule: Partial<SignagePlaylistSchedule>) {
         const end = new Date(start);
         end.setMinutes(end.getMinutes() + Math.max(0, period || 0));
         if (period > 0) end.setSeconds(end.getSeconds() - 1);
-        return end >= new Date()
-            ? [formatPlayDateTimeRange(start, period)]
-            : [];
+        return end >= new Date() ? [{ start, period }] : [];
     }
-    return nextCronPlayTimes(schedule.play_cron || '0 0 * * *', period);
+    return nextCronPlayDates(schedule.play_cron || '0 0 * * *', count).map(
+        (start) => ({ start, period }),
+    );
 }
 
 @Component({
@@ -830,8 +841,12 @@ export class PlaylistItemDetailsComponent {
         const pl = this.playlist();
         if (!pl) return [];
         return playlistSchedules(pl)
-            .flatMap((schedule) => nextSchedulePlaySessions(schedule))
-            .slice(0, 5);
+            .flatMap((schedule) => nextSchedulePlaySessions(schedule, 5))
+            .sort((a, b) => a.start.getTime() - b.start.getTime())
+            .slice(0, 5)
+            .map((session) =>
+                formatPlayDateTimeRange(session.start, session.period),
+            );
     });
 
     constructor() {

@@ -234,6 +234,9 @@ import { SpacesService } from '../spaces.service';
                                     formControlName="duration"
                                     [time]="form?.getRawValue()?.date"
                                     [max]="max_duration()"
+                                    [min]="min_duration()"
+                                    [step]="duration_step()"
+                                    [custom_options]="custom_duration_options()"
                                     [use_24hr]="use_24hr()"
                                     [timezone]="timezone()"
                                     [end_time]="bookable_hours()?.end"
@@ -452,6 +455,11 @@ export class NewSpaceFiltersComponent {
     public readonly max_duration = settingSignal<number>(
         'events.max_duration',
         480,
+    );
+
+    public readonly duration_step = settingSignal<number>(
+        'events.duration_step',
+        30,
     );
 
     public readonly min_duration = settingSignal<number>(

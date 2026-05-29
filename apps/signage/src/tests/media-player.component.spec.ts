@@ -177,6 +177,77 @@ describe('MediaPlayerComponent', () => {
         });
     });
 
+    it('should emit playlist metrics when a single looping playlist wraps to its start', async () => {
+        const event_spy = jest.spyOn(spectator.component.event, 'emit');
+        const items = [
+            create_item('media-1', { playlist: 'playlist-1' }),
+            create_item('media-2', { playlist: 'playlist-1' }),
+        ];
+        load_playlist(items);
+        spectator.component.index.set(1);
+        spectator.component.progress.set(75);
+
+        await spectator.component.setPlaylistItem(0);
+
+        expect(event_spy).toHaveBeenCalledWith({
+            type: 'playlist_count',
+            ref_id: 'playlist-1',
+        });
+        expect(event_spy).toHaveBeenCalledWith({
+            type: 'playlist_through',
+            ref_id: 'playlist-1',
+        });
+    });
+
+    it('should emit playlist metrics for a single-item playlist on every loop', async () => {
+        const event_spy = jest.spyOn(spectator.component.event, 'emit');
+        load_playlist([create_item('media-1', { playlist: 'playlist-1' })]);
+        spectator.component.index.set(0);
+        spectator.component.progress.set(75);
+
+        await spectator.component.setPlaylistItem(0);
+
+        expect(event_spy).toHaveBeenCalledWith({
+            type: 'playlist_count',
+            ref_id: 'playlist-1',
+        });
+        expect(event_spy).toHaveBeenCalledWith({
+            type: 'playlist_through',
+            ref_id: 'playlist-1',
+        });
+    });
+
+    it('should emit media and playlist metrics when a NONE loop reaches the end', () => {
+        const event_spy = jest.spyOn(spectator.component.event, 'emit');
+        const items = [
+            create_item('media-1', { playlist: 'playlist-1' }),
+            create_item('media-2', { playlist: 'playlist-1' }),
+        ];
+        load_playlist(items);
+        spectator.component.index.set(1);
+        spectator.component.hold_over_item.set(false);
+        spectator.component.loop.set('NONE');
+        spectator.component.state.set('PLAYING');
+        spectator.component.progress.set(75);
+
+        spectator.component.nextItem();
+
+        expect(spectator.component.index()).toBe(-1);
+        expect(spectator.component.state()).toBe('PAUSED');
+        expect(event_spy).toHaveBeenCalledWith({
+            type: 'media_count',
+            ref_id: 'media-2',
+        });
+        expect(event_spy).toHaveBeenCalledWith({
+            type: 'playlist_count',
+            ref_id: 'playlist-1',
+        });
+        expect(event_spy).toHaveBeenCalledWith({
+            type: 'playlist_through',
+            ref_id: 'playlist-1',
+        });
+    });
+
     it('should skip invalid playlist items when selected', async () => {
         load_playlist([
             create_item('valid-media'),

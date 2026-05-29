@@ -465,6 +465,98 @@ describe('General Methods', () => {
             expect(form.getRawValue().duration).toBe(600);
         });
 
+        // --- bookable-hours duration cap (PPT-2511) ---
+
+        // Bookable window 08:00–18:00 used across the cap tests below.
+        const BOOKABLE = { start: 8, end: 18 };
+        // Jun 15 2028 11:00 — leaves only 7h until the 18:00 window end.
+        const LATE_START = new Date(2028, 5, 15, 11, 0, 0, 0).valueOf();
+        const WINDOW_END = new Date(2028, 5, 15, 18, 0, 0, 0).valueOf();
+
+        it('should cap duration to the bookable window end even below min_duration', () => {
+            const form = createForm({ date: LATE_START, duration: 60 });
+            setupFormTimeSync(form, {
+                min_duration: 480,
+                bookable_hours: BOOKABLE,
+            });
+
+            // min_duration (8h) from 11:00 would end at 19:00, past 18:00
+            form.controls.duration.setValue(480);
+
+            // Capped to the 7h remaining in the window
+            expect(form.getRawValue().duration).toBe(420);
+            expect(form.getRawValue().date_end).toBe(WINDOW_END);
+        });
+
+        it('should cap a custom duration to the bookable window end', () => {
+            const form = createForm({ date: LATE_START, duration: 60 });
+            setupFormTimeSync(form, {
+                min_duration: 480,
+                custom_duration_options: [600],
+                bookable_hours: BOOKABLE,
+            });
+
+            // Custom 10h option from 11:00 would end at 21:00, past 18:00
+            form.controls.duration.setValue(600);
+
+            expect(form.getRawValue().duration).toBe(420);
+            expect(form.getRawValue().date_end).toBe(WINDOW_END);
+        });
+
+        it('should preserve a custom duration below min_duration when it fits the window', () => {
+            const form = createForm({ date: BASE, duration: 60 });
+            setupFormTimeSync(form, {
+                min_duration: 480,
+                custom_duration_options: [60],
+                bookable_hours: BOOKABLE,
+            });
+
+            // 60 min from 10:00 ends at 11:00, well inside the window
+            form.controls.duration.setValue(60);
+
+            // Held at the custom value, not raised to min_duration
+            expect(form.getRawValue().duration).toBe(60);
+            expect(form.getRawValue().date_end).toBe(
+                addMinutes(BASE, 60).valueOf(),
+            );
+        });
+
+        it('should re-cap duration to the window when the start date moves later', () => {
+            const form = createForm({
+                date: BASE,
+                duration: 480,
+                date_end: addMinutes(BASE, 480).valueOf(),
+            });
+            setupFormTimeSync(form, {
+                min_duration: 480,
+                // small custom option keeps the late start inside the window
+                custom_duration_options: [60],
+                bookable_hours: BOOKABLE,
+            });
+
+            form.controls.date.setValue(LATE_START);
+
+            expect(form.getRawValue().duration).toBe(420);
+            expect(form.getRawValue().date_end).toBe(WINDOW_END);
+        });
+
+        it('should NOT cap duration to the window for existing items (has id)', () => {
+            const form = createForm({
+                id: 'booking-1',
+                date: LATE_START,
+                duration: 60,
+            });
+            setupFormTimeSync(form, {
+                min_duration: 480,
+                bookable_hours: BOOKABLE,
+            });
+
+            form.controls.duration.setValue(480);
+
+            // Existing bookings may legitimately fall outside the window
+            expect(form.getRawValue().duration).toBe(480);
+        });
+
         // --- all_day ---
 
         it('should reset duration to default_duration when all_day is toggled off', () => {
