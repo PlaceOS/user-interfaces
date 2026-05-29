@@ -116,6 +116,7 @@ interface PreparedUploadMedia {
 
 interface PlaylistMetaState {
     media_ids: string[];
+    item_ids?: string[];
     updated_at: number;
     approved?: boolean;
     approval_requested?: boolean;
@@ -736,6 +737,11 @@ export class SignageService {
             return listSignagePlaylistMedia(playlist.id).pipe(
                 map((result) => {
                     this.playlist_media_loading.set(false);
+                    this._setPlaylistMediaState(
+                        playlist.id,
+                        result.items || [],
+                        result.approved,
+                    );
                     return playlistMediaItems(result);
                 }),
                 catchError(() => {
@@ -861,6 +867,7 @@ export class SignageService {
             this.selected_playlist.set(null);
             this.selected_playlist_item.set(null);
         }
+        this._removePlaylistMediaState(playlist.id);
         this.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_REMOVED'));
         result.close();
@@ -1425,6 +1432,7 @@ export class SignageService {
             !loading &&
             !queued &&
             (meta?.updated_at !== playlist_updated_at ||
+                !Array.isArray(meta?.item_ids) ||
                 typeof meta?.approved !== 'boolean' ||
                 typeof meta?.approval_requested !== 'boolean')
         );
@@ -1448,8 +1456,10 @@ export class SignageService {
                     const media = await lastValueFrom(
                         listSignagePlaylistMedia(next_playlist.id),
                     );
+                    const media_ids = media.items || [];
                     this._setPlaylistMeta(next_playlist.id, {
-                        media_ids: (media.items || []).slice(0, 3),
+                        media_ids: media_ids.slice(0, 3),
+                        item_ids: media_ids,
                         updated_at: playlist_updated_at,
                         approved: media.approved,
                         approval_requested: media.approval_requested,
@@ -1489,6 +1499,7 @@ export class SignageService {
         const current_state = this._playlist_meta_state()[playlist_id];
         this._setPlaylistMeta(playlist_id, {
             media_ids: current_state?.media_ids || [],
+            item_ids: current_state?.item_ids,
             updated_at:
                 current_state?.updated_at || playlist?.updated_at || Date.now(),
             approved,
@@ -1507,6 +1518,7 @@ export class SignageService {
         const current_state = this._playlist_meta_state()[playlist_id];
         this._setPlaylistMeta(playlist_id, {
             media_ids: media_ids.slice(0, 3),
+            item_ids: media_ids,
             updated_at:
                 current_state?.updated_at || playlist?.updated_at || Date.now(),
             approved: approved ?? current_state?.approved,
@@ -1515,6 +1527,50 @@ export class SignageService {
                     ? false
                     : (current_state?.approval_requested ?? false),
         });
+    }
+
+    private _removePlaylistMediaState(playlist_id: string) {
+        this._updatePlaylistMetaState((state) => {
+            const next_state = { ...state };
+            delete next_state[playlist_id];
+            return next_state;
+        });
+    }
+
+    private async _removeMediaFromCachedPlaylists(media_ids: string[]) {
+        const removed_ids = new Set(media_ids.filter(Boolean));
+        if (!removed_ids.size) return;
+        const cached_state = this._playlist_meta_state();
+        const linked_playlist_ids = Object.entries(cached_state)
+            .filter(([, state]) =>
+                (state.item_ids || state.media_ids || []).some((id) =>
+                    removed_ids.has(id),
+                ),
+            )
+            .map(([playlist_id]) => playlist_id);
+        if (!linked_playlist_ids.length) return;
+        for (const playlist_id of linked_playlist_ids) {
+            const cached_items = cached_state[playlist_id]?.item_ids;
+            const current_items =
+                cached_items ||
+                (
+                    await lastValueFrom(listSignagePlaylistMedia(playlist_id))
+                ).items ||
+                [];
+            const updated_items = current_items.filter(
+                (id) => !removed_ids.has(id),
+            );
+            if (updated_items.length === current_items.length) continue;
+            await lastValueFrom(
+                updateSignagePlaylistMedia(playlist_id, updated_items),
+            );
+            this._setPlaylistMediaState(playlist_id, updated_items, false);
+        }
+        const selected_item = this.selected_playlist_item();
+        if (selected_item?.id && removed_ids.has(selected_item.id)) {
+            this.selected_playlist_item.set(null);
+        }
+        this._playlist_change.next(Date.now());
     }
 
     private _updatePlaylistMetaState(
@@ -1885,6 +1941,7 @@ export class SignageService {
             this._dialog,
         );
         if (result.reason !== 'done') return;
+        await this._removeMediaFromCachedPlaylists([item.id]);
         await lastValueFrom(removeSignageMedia(item.id));
         this.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_MEDIA_REMOVED'));
@@ -1910,6 +1967,9 @@ export class SignageService {
             this._dialog,
         );
         if (result.reason !== 'done') return false;
+        await this._removeMediaFromCachedPlaylists(
+            media_items.map((item) => item.id),
+        );
         await Promise.all(
             media_items.map((item) =>
                 lastValueFrom(removeSignageMedia(item.id)),
