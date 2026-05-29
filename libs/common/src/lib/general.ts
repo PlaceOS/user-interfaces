@@ -1008,11 +1008,38 @@ export function setupFormTimeSync(
     const allDayMinDate = () =>
         form.getRawValue().id ? undefined : Date.now();
 
-    /** Clamp a duration value to [min_duration, max_duration]. */
-    const clampDuration = (dur: number): number => {
-        if (is_custom_duration(dur)) return dur;
+    /**
+     * Minutes remaining in the bookable window from `start` until the end of
+     * bookable hours on the same day. Returns `Infinity` when no bookable
+     * hours are configured, the form has no start date, or the form item
+     * already exists (existing items may legitimately fall outside the
+     * window).
+     */
+    const bookableWindowRemaining = (start: number): number => {
+        if (!bookable_hours || !start || form.value.id)
+            return Number.POSITIVE_INFINITY;
+        const time = timezone
+            ? toZonedTime(start, timezone)
+            : new Date(start);
+        const start_minutes = time.getHours() * 60 + time.getMinutes();
+        const end_minutes = bookable_hours.end * 60;
+        return Math.max(0, end_minutes - start_minutes);
+    };
+
+    /**
+     * Clamp a duration value to [min_duration, max_duration]. When bookable
+     * hours are configured the duration is also capped so the booking never
+     * extends past the end of the bookable window on its start day, even if
+     * that means falling below `min_duration`.
+     */
+    const clampDuration = (dur: number, start?: number): number => {
+        if (is_custom_duration(dur)) {
+            const window = bookableWindowRemaining(start);
+            return Math.min(dur, window);
+        }
         let clamped = Math.max(dur, min_duration);
         if (max_duration > 0) clamped = Math.min(clamped, max_duration);
+        clamped = Math.min(clamped, bookableWindowRemaining(start));
         return clamped;
     };
 
@@ -1127,7 +1154,7 @@ export function setupFormTimeSync(
                 if (actual_dur !== dur) patch.duration = actual_dur;
                 form.patchValue(patch, { emitEvent: false });
             } else {
-                const clamped = clampDuration(dur);
+                const clamped = clampDuration(dur, date);
                 const clamped_end = roundCeil(addMinutes(date, clamped));
                 const patch: Record<string, any> = { date_end: clamped_end };
                 if (clamped !== dur) patch.duration = clamped;
@@ -1158,7 +1185,7 @@ export function setupFormTimeSync(
                     form.patchValue({ duration: raw }, { emitEvent: false });
                 }
             } else {
-                const clamped = clampDuration(raw);
+                const clamped = clampDuration(raw, date);
                 if (clamped !== raw) {
                     form.patchValue(
                         {
@@ -1258,10 +1285,15 @@ export function setupFormTimeSync(
                         }
                     }
                 } else {
-                    form.patchValue(
-                        { date_end: expected_end },
-                        { emitEvent: false },
-                    );
+                    const duration = form.getRawValue().duration;
+                    const capped = clampDuration(duration, effective);
+                    const capped_end =
+                        capped === duration
+                            ? expected_end
+                            : roundCeil(addMinutes(effective, capped));
+                    const patch: Record<string, any> = { date_end: capped_end };
+                    if (capped !== duration) patch.duration = capped;
+                    form.patchValue(patch, { emitEvent: false });
                 }
             }
             if (effective < Date.now() && !form.value.id) {
@@ -1294,8 +1326,8 @@ export function setupFormTimeSync(
                         { emitEvent: false },
                     );
                 } else {
-                    const dur = clampDuration(default_duration);
                     const date = form.getRawValue().date;
+                    const dur = clampDuration(default_duration, date);
                     form.patchValue(
                         {
                             duration: dur,
@@ -1358,7 +1390,7 @@ export function setupFormTimeSync(
                 const multiday = isMultiday(date, date_end);
                 if (!multiday) {
                     const current = form.getRawValue().duration;
-                    const clamped = clampDuration(current);
+                    const clamped = clampDuration(current, date);
                     if (clamped !== current) {
                         form.patchValue(
                             {
