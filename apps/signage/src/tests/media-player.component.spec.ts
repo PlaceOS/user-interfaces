@@ -1,6 +1,7 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MediaAnimation } from '@placeos/ts-client';
 
+import { setMockTime } from '../app/media-helpers';
 import { MediaPlayerComponent } from '../app/media-player.component';
 import { MediaPlayerItem } from '../app/types';
 
@@ -54,6 +55,7 @@ describe('MediaPlayerComponent', () => {
     });
 
     afterEach(() => {
+        setMockTime(0);
         jest.useRealTimers();
         jest.restoreAllMocks();
     });
@@ -153,6 +155,106 @@ describe('MediaPlayerComponent', () => {
             'media-2',
             'media-3',
         ]);
+    });
+
+    it('should not reset playback when the same playlist is emitted again', () => {
+        const items = [create_item('media-1'), create_item('media-2')];
+        load_playlist(items);
+        spectator.component.index.set(1);
+        spectator.component.progress.set(60);
+        spectator.component.hold_over_item.set(false);
+
+        load_playlist(items.map((item) => ({ ...item })));
+
+        expect(spectator.component.index()).toBe(1);
+        expect(spectator.component.progress()).toBe(60);
+        expect(spectator.component.hold_over_item()).toBe(false);
+        expect(spectator.component.playlist_items.map((_) => _.id)).toEqual([
+            'media-1',
+            'media-2',
+        ]);
+    });
+
+    it('should preserve paused state when the playlist changes', () => {
+        const items = [create_item('media-1'), create_item('media-2')];
+        load_playlist(items);
+        spectator.component.index.set(0);
+        spectator.component.state.set('PAUSED');
+
+        load_playlist([...items, create_item('media-3')]);
+
+        expect(spectator.component.state()).toBe('PAUSED');
+    });
+
+    it('should reset playback when the same media id changes source', () => {
+        const items = [create_item('media-1', { url: 'old-url' })];
+        load_playlist(items);
+        spectator.component.index.set(0);
+        spectator.component.progress.set(60);
+        spectator.component['_item_urls'] = {
+            'media-1': 'blob:old-url' as any,
+        };
+
+        load_playlist([create_item('media-1', { url: 'new-url' })]);
+
+        expect(spectator.component.progress()).toBe(0);
+        expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:old-url');
+    });
+
+    it('should wrap negative playlist indices', async () => {
+        load_playlist([
+            create_item('media-1'),
+            create_item('media-2'),
+            create_item('media-3'),
+        ]);
+        spectator.component.index.set(0);
+        spectator.component.hold_over_item.set(false);
+
+        await spectator.component.previousItem();
+
+        expect(spectator.component.index()).toBe(2);
+    });
+
+    it('should emit playlist metrics from the active playlist order', async () => {
+        const event_spy = jest.spyOn(spectator.component.event, 'emit');
+        const items = [
+            create_item('media-1', { playlist: 'playlist-1' }),
+            create_item('media-2', { playlist: 'playlist-1' }),
+            create_item('media-3', { playlist: 'playlist-2' }),
+        ];
+        load_playlist(items);
+        spectator.component['_item_playlist'] = [items[2], items[0], items[1]];
+        spectator.component.index.set(0);
+        spectator.component.progress.set(75);
+
+        await spectator.component.setPlaylistItem(1);
+
+        expect(event_spy).toHaveBeenCalledWith({
+            type: 'playlist_count',
+            ref_id: 'playlist-2',
+        });
+        expect(event_spy).toHaveBeenCalledWith({
+            type: 'playlist_through',
+            ref_id: 'playlist-2',
+        });
+    });
+
+    it('should progress playback using simulated time speed', () => {
+        jest.useFakeTimers();
+        jest.setSystemTime(0);
+        setMockTime(1_000, 16);
+        const item = create_item('media-1', { duration: 15_000 });
+        load_playlist([item]);
+        spectator.component.index.set(0);
+        spectator.component.state.set('PLAYING');
+        spectator.component.hold_over_item.set(false);
+        spectator.component['_item_start'] = 1_000;
+        const next_item_spy = jest.spyOn(spectator.component, 'nextItem');
+
+        jest.setSystemTime(1_001);
+        spectator.component['_updateItem']();
+
+        expect(next_item_spy).toHaveBeenCalled();
     });
 
     it('should emit playlist metrics when advancing from the last valid playlist item', async () => {

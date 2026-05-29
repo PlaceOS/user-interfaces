@@ -1,6 +1,7 @@
 import { MediaAnimation } from '@placeos/ts-client';
 import {
     findValidPlaylistIndex,
+    mockTimeState,
     setMockTime,
     time,
     validateMedia,
@@ -69,6 +70,21 @@ describe('time helpers', () => {
 
         expect(time()).toBe(1600);
     });
+
+    it('returns a progressing mocked time at the selected speed', () => {
+        jest.spyOn(Date, 'now').mockReturnValue(2000);
+        setMockTime(1000, 4);
+        jest.spyOn(Date, 'now').mockReturnValue(2600);
+
+        expect(time()).toBe(3400);
+    });
+
+    it('exposes the active mock time state', () => {
+        setMockTime(1000, 0.5);
+
+        expect(mockTimeState().active).toBe(true);
+        expect(mockTimeState().speed).toBe(0.5);
+    });
 });
 
 describe('validateMedia', () => {
@@ -89,5 +105,25 @@ describe('validateMedia', () => {
 
     it('returns an empty string for valid media', () => {
         expect(validateMedia(create_item('valid', true))).toBe('');
+    });
+
+    it('validates future media against the simulated time', () => {
+        const now = Date.now();
+        const item = create_item('future', true);
+        item.valid_from = Math.floor((now + 60 * 60 * 1000) / 1000);
+
+        setMockTime(now + 2 * 60 * 60 * 1000);
+
+        expect(validateMedia(item)).toBe('');
+    });
+
+    it('validates expired media against the simulated time', () => {
+        const now = Date.now();
+        const item = create_item('expired', true);
+        item.valid_until = Math.floor((now + 60 * 60 * 1000) / 1000);
+
+        setMockTime(now + 2 * 60 * 60 * 1000);
+
+        expect(validateMedia(item)).toBe('Media expired.');
     });
 });

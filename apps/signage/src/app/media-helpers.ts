@@ -1,23 +1,36 @@
 import { MediaPlayerItem } from './types';
 
 let _time_override = 0;
-let _time_offset = 0;
+let _time_anchor: number | null = null;
+let _time_speed = 0;
 
-export function setMockTime(date: number, progress = false): void {
+export function setMockTime(date: number, speed: boolean | number = 0): void {
     _time_override = date;
-    _time_offset = progress ? Date.now() : 0;
+    _time_anchor = date ? Date.now() : null;
+    _time_speed = typeof speed === 'boolean' ? (speed ? 1 : 0) : speed;
+    if (!date) _time_speed = 0;
 }
 
 export function time() {
-    const offset = _time_offset ? Date.now() - _time_offset : 0;
+    const offset =
+        _time_anchor !== null ? (Date.now() - _time_anchor) * _time_speed : 0;
     return (_time_override || Date.now()) + offset;
+}
+
+export function mockTimeState() {
+    return {
+        active: !!_time_override,
+        speed: _time_override ? _time_speed : 1,
+        time: time(),
+    };
 }
 
 export function validateMedia(item: MediaPlayerItem) {
     if (!item || !item.id) return 'Invalid media';
-    if (item.valid_from && item.valid_from * 1000 > Date.now())
+    const now = time();
+    if (item.valid_from && item.valid_from * 1000 > now)
         return 'Media not valid yet.';
-    if (item.valid_until && item.valid_until * 1000 < Date.now())
+    if (item.valid_until && item.valid_until * 1000 < now)
         return 'Media expired.';
     return '';
 }

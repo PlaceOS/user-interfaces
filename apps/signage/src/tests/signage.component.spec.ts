@@ -131,6 +131,22 @@ describe('SignagePanelComponent', () => {
         expect(spectator.component.debug()).toBe(true);
     });
 
+    it('should persist muted state for the browser session', () => {
+        build_component();
+
+        spectator.component.setMuted(true);
+
+        expect(spectator.component.muted()).toBe(true);
+        expect(sessionStorage.getItem('SIGNAGE.muted')).toBe('true');
+    });
+
+    it('should restore muted state from session storage', () => {
+        sessionStorage.setItem('SIGNAGE.muted', 'true');
+        build_component();
+
+        expect(spectator.component.muted()).toBe(true);
+    });
+
     it('should clear expired override playlists on the interval check', () => {
         jest.useFakeTimers();
         build_component();

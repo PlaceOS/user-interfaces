@@ -22,7 +22,7 @@ import {
 } from '@placeos/components';
 import { MediaAnimation, SignagePlugin } from '@placeos/ts-client';
 import { MediaControlsComponent } from './media-controls.component';
-import { findValidPlaylistIndex, validateMedia } from './media-helpers';
+import { findValidPlaylistIndex, time, validateMedia } from './media-helpers';
 import { PlaylistDisplayComponent } from './playlist-display.component';
 import { MediaEvent } from './signage.service';
 import { TimeControlsComponent } from './time-controls.component';
@@ -204,6 +204,7 @@ export class MediaPlayerComponent
     private _web_waiting_item_id = '';
 
     private _item_playlist: MediaPlayerItem[] = [];
+    private _playlist_signature = '';
 
     private _item_urls: Record<string, URL> = {};
     private _item_start = 0;
@@ -243,23 +244,25 @@ export class MediaPlayerComponent
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.playlist) {
-            this.progress.set(0);
-            if (this.state() === 'PLAYING') this.togglePause();
-            const current_item = this.active_item;
-            this._item_playlist = [...(this.playlist() || [])];
-            const current_exists = this._item_playlist.find(
-                (_) => _.id === current_item?.id,
+            const playlist_signature = this._getPlaylistSignature(
+                this.playlist() || [],
             );
-            if (this.index() >= 0 && current_exists) {
-                this._item_playlist = [current_item, ...this._item_playlist];
-                this.hold_over_item.set(true);
-                this.index.set(0);
-            } else {
+            if (playlist_signature !== this._playlist_signature) {
+                const was_playing = this.state() === 'PLAYING';
+                const current_item = this.active_item;
+                this._playlist_signature = playlist_signature;
+                this._clearItemURLs();
+                this.progress.set(0);
+                if (was_playing) this.togglePause();
+                this._item_playlist = [...(this.playlist() || [])];
+                const current_index = this._item_playlist.findIndex(
+                    (_) => _.id === current_item?.id,
+                );
                 this.hold_over_item.set(false);
+                const target_index = current_index >= 0 ? current_index : 0;
+                this.setPlaylistItem(target_index, was_playing);
+                this._validatePlaylist();
             }
-            this.togglePause();
-            this._updateItem();
-            this._validatePlaylist();
         }
         if (changes.animation_time) {
             document.documentElement.style.setProperty(
@@ -288,7 +291,7 @@ export class MediaPlayerComponent
     }
 
     public previousItem() {
-        const new_index = (this.index() - 1) % this._item_playlist.length;
+        const new_index = this._normalisePlaylistIndex(this.index() - 1);
         this.setPlaylistItem(new_index);
     }
 
@@ -303,14 +306,14 @@ export class MediaPlayerComponent
         this.clearTimeout('re-start');
         if (this.state() === 'PLAYING') {
             this.state.set('PAUSED');
-            this._item_progress = Date.now() - this._item_start;
+            this._item_progress = time() - this._item_start;
             this._item_start = 0;
             if (this.active_item?.type === 'video') {
                 this._video_element().nativeElement.pause();
             }
         } else {
             this.state.set('PLAYING');
-            this._item_start = Date.now() - this._item_progress;
+            this._item_start = time() - this._item_progress;
             this._item_progress = 0;
             if (this.active_item?.type === 'video') {
                 this._requestVideoPlayback(() => {
@@ -351,7 +354,7 @@ export class MediaPlayerComponent
             this._item_progress = 0;
             return;
         }
-        const new_index = next_index % this._item_playlist.length;
+        const new_index = this._normalisePlaylistIndex(next_index);
         const old_item = this._item_playlist[this.index()];
         if (this.progress() > 50 && this.isValidMedia(old_item)) {
             this.event.emit({ type: 'media_count', ref_id: old_item.id });
@@ -428,7 +431,8 @@ export class MediaPlayerComponent
         if (this.state() === 'PAUSED') return;
         const item = this.active_item;
         const playback_duration = this._effectivePlaybackDuration(item);
-        const duration = Date.now() - this._item_start;
+        const now = time();
+        const duration = now - this._item_start;
         if (this._item_start && this._web_waiting_item_id !== item?.id) {
             this.progress.set(Math.floor((duration / playback_duration) * 100));
             this.duration.set(Math.floor(duration / 1000));
@@ -454,7 +458,7 @@ export class MediaPlayerComponent
             return;
         }
         if (this._web_waiting_item_id === item?.id) return;
-        if (Date.now() > this._item_start + playback_duration) {
+        if (now > this._item_start + playback_duration) {
             if (this._shouldHoldSingleWebpage(item)) {
                 this.progress.set(100);
                 this.duration.set(Math.floor(playback_duration / 1000));
@@ -464,15 +468,16 @@ export class MediaPlayerComponent
         }
     }
 
-    public setPlaylistItem(index: number) {
+    public setPlaylistItem(index: number, resume_if_paused = true) {
         if (!this._hasValidPlaylistItem()) {
             return this.timeout(
                 'retry_set_item',
-                () => this.setPlaylistItem(index),
+                () => this.setPlaylistItem(index, resume_if_paused),
                 5000,
             );
         }
         this.clearTimeout('retry_set_item');
+        index = this._normalisePlaylistIndex(index);
         const old_index = this.index();
         this.index.set(index);
         this.indexChange.emit(index);
@@ -488,7 +493,7 @@ export class MediaPlayerComponent
         const should_transition = this._shouldTransition(old_item, item);
         this.clearTimeout('webpage-hold-delay');
         this._web_waiting_item_id = item.type === 'webpage' ? item.id : '';
-        this._item_start = Date.now();
+        this._item_start = time();
         this._item_progress = 0;
         this._playback_duration = item.duration || 15 * 1000;
         this.progress.set(0);
@@ -511,7 +516,9 @@ export class MediaPlayerComponent
             this.plugin_config.set(null);
             const url = this.url(item.id);
             if (!url) {
-                this.timeout('wait-for-url', () => this.setPlaylistItem(index));
+                this.timeout('wait-for-url', () =>
+                    this.setPlaylistItem(index, resume_if_paused),
+                );
                 return;
             }
             const active_el = (
@@ -553,10 +560,11 @@ export class MediaPlayerComponent
         this.playing_id.emit(item.id);
         if (!should_transition) {
             this._resetTransitionState();
-            if (this.state() === 'PAUSED') this.togglePause();
+            if (resume_if_paused && this.state() === 'PAUSED')
+                this.togglePause();
             return;
         }
-        this._transition();
+        this._transition(resume_if_paused);
     }
 
     public onPluginStatus(status: SignagePluginMessageType | 'unknown') {
@@ -575,7 +583,7 @@ export class MediaPlayerComponent
             // Send play signal after config
             this.timeout(
                 'plugin-play',
-                () => this.plugin_play.set(Date.now()),
+                () => this.plugin_play.set(time()),
                 100,
             );
         } else if (status === 'finished') {
@@ -616,7 +624,7 @@ export class MediaPlayerComponent
             this._playback_duration = playback_duration;
         }
         this._item_progress = 0;
-        this._item_start = this.state() === 'PLAYING' ? Date.now() : 0;
+        this._item_start = this.state() === 'PLAYING' ? time() : 0;
         this.progress.set(0);
         this.duration.set(0);
     }
@@ -675,12 +683,16 @@ export class MediaPlayerComponent
         }
     }
 
-    private _transition() {
+    private _transition(resume_on_end = true) {
         if (!this.active_item) return;
         if (this.state() === 'PLAYING') this.togglePause();
         this.in_animation.set(true);
         if (this.active_item.animation === MediaAnimation.Cut) {
-            this.timeout('re-start', () => this._onTransitionEnd(), 500);
+            this.timeout(
+                're-start',
+                () => this._onTransitionEnd(resume_on_end),
+                500,
+            );
             return;
         }
         const indexValue = this.index();
@@ -761,15 +773,15 @@ export class MediaPlayerComponent
             });
             this.timeout(
                 're-start',
-                () => this._onTransitionEnd(),
+                () => this._onTransitionEnd(resume_on_end),
                 this.animation_time() || 3000,
             );
         });
     }
 
-    private _onTransitionEnd() {
+    private _onTransitionEnd(resume = true) {
         this._resetTransitionState();
-        this.togglePause();
+        if (resume) this.togglePause();
     }
 
     private _resetTransitionState() {
@@ -812,20 +824,20 @@ export class MediaPlayerComponent
     }
 
     private _validatePlaylist() {
-        if (!this.playlist().length) return;
-        const has_valid_items = this.playlist().some((item) =>
+        if (!this._item_playlist.length) return;
+        const has_valid_items = this._item_playlist.some((item) =>
             this.isValidMedia(item),
         );
         if (!has_valid_items) {
             this.event.emit({
                 type: 'playlist_through',
-                ref_id: this.playlist()[0]?.playlist,
+                ref_id: this._item_playlist[0]?.playlist,
             });
         }
     }
 
     private _hasValidPlaylistItem() {
-        return this.playlist().some((item) => this.isValidMedia(item));
+        return this._item_playlist.some((item) => this.isValidMedia(item));
     }
 
     private _emitPlaylistMetrics(idx: number) {
@@ -841,7 +853,7 @@ export class MediaPlayerComponent
     }
 
     private _isLastValidPlaylistItem(idx: number) {
-        const playlist = this.playlist();
+        const playlist = this._item_playlist;
         const item = playlist[idx];
         if (!item || !this.isValidMedia(item)) return false;
         const next_index = findValidPlaylistIndex(playlist, idx, 1);
@@ -855,6 +867,39 @@ export class MediaPlayerComponent
     }
 
     private _hasValidPlaylist() {
-        return this.playlist().some((item) => this.isValidMedia(item));
+        return this._item_playlist.some((item) => this.isValidMedia(item));
+    }
+
+    private _getPlaylistSignature(playlist: MediaPlayerItem[]) {
+        return JSON.stringify(
+            playlist.map((item) => ({
+                id: item.id,
+                name: item.name,
+                playlist: item.playlist,
+                playlist_name: item.playlist_name,
+                type: item.type,
+                url: item.url,
+                animation: item.animation,
+                start_time: item.start_time,
+                duration: item.duration,
+                valid_from: item.valid_from,
+                valid_until: item.valid_until,
+                plugin_id: item.plugin?.id,
+                plugin_params: item.plugin_params,
+            })),
+        );
+    }
+
+    private _normalisePlaylistIndex(index: number) {
+        const length = this._item_playlist.length;
+        return length ? (index + length) % length : -1;
+    }
+
+    private _clearItemURLs() {
+        for (const key in this._item_urls) {
+            const url = this._item_urls[key];
+            if (url) URL.revokeObjectURL(url.toString());
+            delete this._item_urls[key];
+        }
     }
 }

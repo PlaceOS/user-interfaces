@@ -65,7 +65,7 @@ test.describe('US-SIG-022: Enable Debug Mode', () => {
 });
 
 test.describe('US-SIG-023: Override Time in Debug', () => {
-    test('opens the time override controls with static, clear, and save actions', async ({
+    test('opens the time override controls with speed, clear, and save actions', async ({
         page,
     }) => {
         await navigateWithConfig(page, SIGNAGE_DEBUG_URL);
@@ -73,12 +73,11 @@ test.describe('US-SIG-023: Override Time in Debug', () => {
 
         await openTimeControls(page);
 
-        await expect(page.locator('text=Set Time')).toBeVisible({
+        await expect(page.locator('text=Debug Time')).toBeVisible({
             timeout: LOAD_TIMEOUT,
         });
-        await expect(
-            page.locator('settings-toggle:has-text("Static")'),
-        ).toBeVisible();
+        await expect(page.locator('text=Progression')).toBeVisible();
+        await expect(page.locator('button:has-text("16x")')).toBeVisible();
         await expect(
             page.locator('button[btn]:has-text("Clear")'),
         ).toBeVisible();

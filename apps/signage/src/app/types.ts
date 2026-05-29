@@ -8,6 +8,7 @@ export interface MediaPlayerItem {
     playlist_name: string;
     animation: MediaAnimation;
     type: string;
+    url?: string;
     start_time: number;
     duration: number;
     valid_from: number;
