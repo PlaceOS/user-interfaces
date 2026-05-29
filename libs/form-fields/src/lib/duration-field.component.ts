@@ -310,7 +310,10 @@ export class DurationFieldComponent
         for (const option of custom_option_ids) {
             blocks.push({
                 id: option,
-                date: date ? addMinutes(date, option).valueOf() : undefined,
+                date:
+                    date && option < 24 * 60
+                        ? addMinutes(date, option).valueOf()
+                        : undefined,
                 name:
                     option >= 24 * 60
                         ? `${formatDuration({
@@ -326,7 +329,10 @@ export class DurationFieldComponent
         while (time <= effective_max) {
             blocks.push({
                 id: time,
-                date: date ? addMinutes(date, time).valueOf() : undefined,
+                date:
+                    date && time < 24 * 60
+                        ? addMinutes(date, time).valueOf()
+                        : undefined,
                 name:
                     time === 0
                         ? formatDuration({ minutes: 0 }, { zero: true })
