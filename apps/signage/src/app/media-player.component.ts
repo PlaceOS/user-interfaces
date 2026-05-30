@@ -210,6 +210,9 @@ export class MediaPlayerComponent
     private _consecutive_load_errors = 0;
     /** Marks the display cycle whose load error has already been handled */
     private _handled_error_cycle = '';
+    /** Increments on every item (re)display; scopes load-error handling so a
+     * looping playlist keeps skipping a broken item rather than freezing on it */
+    private _display_generation = 0;
     /** Media item ids whose URL is currently being fetched */
     private _url_fetch_in_flight = new Set<string>();
 
@@ -476,6 +479,9 @@ export class MediaPlayerComponent
                 this.duration.set(Math.floor(playback_duration / 1000));
                 return;
             }
+            // Reaching full duration means the current item displayed fine, so
+            // the run of consecutive load failures (if any) is broken here.
+            this._consecutive_load_errors = 0;
             this.nextItem();
         }
     }
@@ -502,6 +508,9 @@ export class MediaPlayerComponent
             if (old_index !== index) this.nextItem();
             return;
         }
+        // New display attempt - scope load-error handling to this attempt so the
+        // same item can be skipped again the next time the playlist loops.
+        this._display_generation++;
         const should_transition = this._shouldTransition(old_item, item);
         this.clearTimeout('webpage-hold-delay');
         this._web_waiting_item_id = item.type === 'webpage' ? item.id : '';
@@ -723,7 +732,7 @@ export class MediaPlayerComponent
     }
 
     private _currentMediaCycle() {
-        return `${this.index()}:${this._item_start}`;
+        return `${this.index()}:${this._display_generation}`;
     }
 
     private _skipFailedMedia() {

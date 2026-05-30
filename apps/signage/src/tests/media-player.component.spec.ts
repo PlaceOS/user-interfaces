@@ -599,4 +599,27 @@ describe('MediaPlayerComponent', () => {
 
         expect(next_item_spy).toHaveBeenCalled();
     });
+
+    it('should keep skipping a broken item each time the playlist loops back to it', () => {
+        load_playlist([
+            create_item('good-1'),
+            create_item('bad-1'),
+            create_item('good-2'),
+        ]);
+        const next_item_spy = jest.spyOn(spectator.component, 'nextItem');
+
+        // Land on the broken item; a running transition zeroes _item_start.
+        spectator.component.setPlaylistItem(1);
+        spectator.component['_item_start'] = 0;
+        spectator.component.onMediaLoadError('image');
+        expect(next_item_spy).toHaveBeenCalled();
+
+        // Loop back around to the same broken item - it must skip again rather
+        // than freeze on it (the load error must not be deduped across loops).
+        next_item_spy.mockClear();
+        spectator.component.setPlaylistItem(1);
+        spectator.component['_item_start'] = 0;
+        spectator.component.onMediaLoadError('image');
+        expect(next_item_spy).toHaveBeenCalled();
+    });
 });
