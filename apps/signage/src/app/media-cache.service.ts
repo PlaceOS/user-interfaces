@@ -16,6 +16,7 @@ export type CacheItemStatus =
 export interface CacheItem {
     id: string;
     url: string;
+    owner?: string;
     status: CacheItemStatus;
     on_change: Subject<CacheItemStatus>;
 }
@@ -66,7 +67,10 @@ export class MediaCacheService extends AsyncHandler {
         this._file_cache_index.subscribe(() => this._saveCacheMetadata());
     }
 
-    public async requestFilesToCache(url_list: string[]): Promise<boolean> {
+    public async requestFilesToCache(
+        url_list: string[],
+        owner = '',
+    ): Promise<boolean> {
         let failures = false;
         let uncached_count = 0;
         for (const url of url_list) {
@@ -82,6 +86,7 @@ export class MediaCacheService extends AsyncHandler {
             const cache_item: CacheItem = {
                 id: randomString(16, '0123456789ABCDEF'),
                 url,
+                owner,
                 status: 'preparing',
                 on_change: new Subject(),
             };
@@ -169,9 +174,13 @@ export class MediaCacheService extends AsyncHandler {
         }
     }
 
-    public availableFiles() {
+    public availableFiles(owner = '') {
         return this._cache_index
-            .filter((_) => _.status === 'cached')
+            .filter(
+                (_) =>
+                    _.status === 'cached' &&
+                    (!owner || _.owner === owner),
+            )
             .map((_) => _.url);
     }
 
@@ -279,10 +288,12 @@ export class MediaCacheService extends AsyncHandler {
         });
     }
 
-    public invalidateFile(url: string) {
+    public invalidateFile(url: string, owner = '') {
         return new Promise<void>((resolve, reject) => {
-            const cache_item = this._cache_index.find((_) => _.url === url);
-            if (cache_item.status !== 'cached')
+            const cache_item = this._cache_index.find(
+                (_) => _.url === url && (!owner || _.owner === owner),
+            );
+            if (cache_item?.status !== 'cached')
                 return reject('Cached item with URL not found');
             const transaction = this._cache_db.transaction(
                 ['files'],
@@ -321,6 +332,7 @@ export class MediaCacheService extends AsyncHandler {
                     metadata.map((_) => ({
                         id: _.id,
                         url: _.url,
+                        owner: _.owner || '',
                         status: 'cached',
                         on_change: new Subject(),
                     })),
@@ -334,7 +346,11 @@ export class MediaCacheService extends AsyncHandler {
             log('MediaCache', 'Saving cache metadata...');
             const metadata = this._cache_index
                 .filter((_) => _.status === 'cached')
-                .map((_) => ({ id: _.id, url: _.url }));
+                .map((_) => ({
+                    id: _.id,
+                    url: _.url,
+                    owner: _.owner || '',
+                }));
             localStorage.setItem(STORE_KEY, JSON.stringify(metadata));
         });
     }

@@ -79,4 +79,38 @@ describe('MediaCacheService', () => {
             expect.any(File),
         );
     });
+
+    it('should only report cached files for the requested owner', async () => {
+        const fetch_spy = jest.fn().mockResolvedValue({
+            ok: true,
+            blob: () =>
+                Promise.resolve(new Blob(['image'], { type: 'image/png' })),
+        } as Response);
+        Object.defineProperty(globalThis, 'fetch', {
+            configurable: true,
+            value: fetch_spy,
+        });
+
+        await spectator.service.requestFilesToCache(
+            ['/outer.png'],
+            'outer-display',
+        );
+        await spectator.service.requestFilesToCache(
+            ['/embedded.png'],
+            'embedded-display',
+        );
+
+        expect(spectator.service.availableFiles('outer-display')).toEqual([
+            '/outer.png',
+        ]);
+        expect(spectator.service.availableFiles('embedded-display')).toEqual([
+            '/embedded.png',
+        ]);
+        await expect(
+            spectator.service.invalidateFile('/outer.png', 'embedded-display'),
+        ).rejects.toBe('Cached item with URL not found');
+        await expect(
+            spectator.service.getFile('/outer.png'),
+        ).resolves.toEqual(expect.any(File));
+    });
 });

@@ -171,12 +171,17 @@ describe('SignageService', () => {
         const playlist = await playlist_promise;
 
         expect(playlist.map((_) => _.id)).toEqual(['media-1', 'media-2']);
+        expect(media_cache.availableFiles).toHaveBeenCalledWith('display-1');
         expect(media_cache.requestFilesToCache).toHaveBeenCalled();
         expect(media_cache.requestFilesToCache.mock.calls[0][0]).toHaveLength(
             4,
         );
+        expect(media_cache.requestFilesToCache.mock.calls[0][1]).toBe(
+            'display-1',
+        );
         expect(media_cache.invalidateFile).toHaveBeenCalledWith(
             '/stale-file.jpg',
+            'display-1',
         );
     });
 

@@ -377,7 +377,10 @@ export class SignageService extends AsyncHandler {
             this.display,
             this._retry.pipe(debounceTime(15 * 1000), startWith(0)),
         ]).subscribe(async ([_]) => {
-            const available_media = this._media_cache.availableFiles();
+            const cache_owner = _.id || '';
+            const available_media = this._media_cache.availableFiles(
+                cache_owner,
+            );
             const media = _.playlist_media
                 .filter(
                     (_) =>
@@ -391,10 +394,13 @@ export class SignageService extends AsyncHandler {
                 (url) => !media.includes(url),
             );
             const has_failures =
-                await this._media_cache.requestFilesToCache(media);
+                await this._media_cache.requestFilesToCache(
+                    media,
+                    cache_owner,
+                );
             // Remove unneeded media items
             for (const item of extra_media) {
-                this._media_cache.invalidateFile(item);
+                this._media_cache.invalidateFile(item, cache_owner);
             }
             if (has_failures) this._retry.next(Date.now());
         });
