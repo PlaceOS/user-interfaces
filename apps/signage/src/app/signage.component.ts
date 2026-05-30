@@ -46,14 +46,16 @@ function isDebugEnabled(value: string | null) {
         }
         @if (debug()) {
             <div
-                class="absolute bottom-2 left-2 text-xs text-white/30 text-shadow-lg"
+                stroke
+                class="text-base-400 absolute bottom-2 left-2 text-xs text-shadow-lg"
             >
                 {{ version_hash }} <br />
                 {{ version_date | date: 'mediumDate' }} -
                 {{ version_date | date: 'shortTime' }}
             </div>
             <div
-                class="absolute right-2 bottom-2 text-xs text-white/30 text-shadow-lg"
+                stroke
+                class="text-base-400 absolute right-2 bottom-2 text-xs text-shadow-lg"
             >
                 {{ playing_id() }}
             </div>
@@ -64,6 +66,10 @@ function isDebugEnabled(value: string | null) {
             display: block;
             height: 100%;
             width: 100%;
+        }
+
+        .stroke {
+            -webkit-text-stroke: 1px #000;
         }
     `,
     imports: [DatePipe, MediaPlayerComponent],
