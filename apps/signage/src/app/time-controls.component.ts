@@ -8,6 +8,7 @@ import { mockTimeState, setMockTime } from './media-helpers';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     CustomTooltipComponent,
     IconComponent,
@@ -28,7 +29,12 @@ import { DateFieldComponent } from '@placeos/form-fields';
             [class.bg-warning]="has_changes()"
             [class.text-warning-content]="has_changes()"
         >
-            <div class="pl-2">{{ time() | date: 'dd MMM, HH:mm' }}</div>
+            <div class="pl-2">
+                {{ time() | date: 'dd MMM, HH:mm'
+                }}<span class="text-base-400 text-xs"
+                    >:{{ time() | date: 'ss' }}</span
+                >
+            </div>
             @if (mock_active() && speed() !== 1) {
                 <div
                     class="bg-info text-info-content rounded-full px-2 py-0.5 font-mono text-xs"
@@ -51,18 +57,30 @@ import { DateFieldComponent } from '@placeos/form-fields';
                     class="border-base-300 bg-base-100 w-[24rem] rounded-sm border p-2 shadow-sm"
                 >
                     <div
-                        class="bg-base-200 mb-2 flex h-12 items-center rounded-sm p-2"
+                        class="bg-base-200 mb-2 flex h-12 items-center gap-2 rounded-sm p-2"
                     >
                         <h3 class="flex-1 px-2 text-lg font-medium">
                             Debug Time
                         </h3>
-                        @if (has_changes()) {
-                            <div
-                                class="bg-warning text-warning-content mr-2 rounded-full px-2 py-1 text-xs font-medium"
-                            >
-                                Unsaved changes
-                            </div>
-                        }
+                        <button
+                            icon
+                            default
+                            error
+                            matRipple
+                            (click)="clear()"
+                            [matTooltip]="'COMMON.CLEAR' | translate"
+                        >
+                            <icon>delete_sweep</icon>
+                        </button>
+                        <button
+                            icon
+                            default
+                            matRipple
+                            (click)="save()"
+                            [matTooltip]="'COMMON.SAVE' | translate"
+                        >
+                            <icon>save</icon>
+                        </button>
                         <button icon matRipple (click)="close()">
                             <icon>close</icon>
                         </button>
@@ -137,19 +155,7 @@ import { DateFieldComponent } from '@placeos/form-fields';
                             +1h
                         </button>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <button
-                            btn
-                            matRipple
-                            class="inverse flex-1"
-                            (click)="clear()"
-                        >
-                            {{ 'COMMON.CLEAR' | translate }}
-                        </button>
-                        <button btn matRipple class="flex-1" (click)="save()">
-                            {{ 'COMMON.SAVE' | translate }}
-                        </button>
-                    </div>
+                    <div class="flex items-center space-x-2"></div>
                 </div>
             </div>
         </ng-template>
@@ -165,6 +171,7 @@ import { DateFieldComponent } from '@placeos/form-fields';
         TranslatePipe,
         MatFormFieldModule,
         MatInputModule,
+        MatTooltipModule,
     ],
 })
 export class TimeControlsComponent extends AsyncHandler implements OnInit {
