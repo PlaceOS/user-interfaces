@@ -646,26 +646,72 @@ describe('MediaPlayerComponent', () => {
     });
 
     it('should keep skipping a broken item each time the playlist loops back to it', () => {
+        setMockTime(10_000);
         load_playlist([
             create_item('good-1'),
             create_item('bad-1'),
             create_item('good-2'),
         ]);
         const next_item_spy = jest.spyOn(spectator.component, 'nextItem');
+        let skip_callback: () => void = () => undefined;
+        const timeout_spy = jest
+            .spyOn(spectator.component as any, 'timeout')
+            .mockImplementation(
+                (name: string, fn: () => void, delay: number) => {
+                    if (name === 'skip-failed-media') {
+                        skip_callback = fn;
+                        expect(delay).toBe(1000);
+                    }
+                },
+            );
 
-        // Land on the broken item; a running transition zeroes _item_start.
+        // Land on the broken item and fail during its first second.
         spectator.component.setPlaylistItem(1);
-        spectator.component['_item_start'] = 0;
+        spectator.component['_item_start'] = 10_000;
         spectator.component.onMediaLoadError('image');
+        expect(next_item_spy).not.toHaveBeenCalled();
+        expect(timeout_spy).toHaveBeenCalledWith(
+            'skip-failed-media',
+            expect.any(Function),
+            1000,
+        );
+        skip_callback();
         expect(next_item_spy).toHaveBeenCalled();
 
         // Loop back around to the same broken item - it must skip again rather
         // than freeze on it (the load error must not be deduped across loops).
         next_item_spy.mockClear();
+        skip_callback = () => undefined;
         spectator.component.setPlaylistItem(1);
-        spectator.component['_item_start'] = 0;
+        spectator.component['_item_start'] = 10_000;
         spectator.component.onMediaLoadError('image');
+        expect(next_item_spy).not.toHaveBeenCalled();
+        skip_callback();
         expect(next_item_spy).toHaveBeenCalled();
+    });
+
+    it('should skip a failed media item immediately after waiting one second', () => {
+        setMockTime(10_000);
+        load_playlist([
+            create_item('good-1'),
+            create_item('bad-1'),
+            create_item('good-2'),
+        ]);
+        const next_item_spy = jest.spyOn(spectator.component, 'nextItem');
+        const timeout_spy = jest
+            .spyOn(spectator.component as any, 'timeout')
+            .mockImplementation(() => undefined);
+
+        spectator.component.setPlaylistItem(1);
+        spectator.component['_item_start'] = 9_000;
+        spectator.component.onMediaLoadError('image');
+
+        expect(next_item_spy).toHaveBeenCalled();
+        expect(timeout_spy).not.toHaveBeenCalledWith(
+            'skip-failed-media',
+            expect.any(Function),
+            expect.any(Number),
+        );
     });
 
     it('should skip an item instead of hanging when its URL never resolves', () => {
@@ -676,6 +722,9 @@ describe('MediaPlayerComponent', () => {
             create_item('c'),
         ]);
         const next_item_spy = jest.spyOn(spectator.component, 'nextItem');
+        const timeout_spy = jest
+            .spyOn(spectator.component as any, 'timeout')
+            .mockImplementation(() => undefined);
 
         // The fetch for "a" has been in-flight far longer than the wait cap.
         spectator.component['_url_fetch_in_flight'].add('a');
@@ -686,5 +735,10 @@ describe('MediaPlayerComponent', () => {
         spectator.component.setPlaylistItem(0);
 
         expect(next_item_spy).toHaveBeenCalled();
+        expect(timeout_spy).not.toHaveBeenCalledWith(
+            'skip-failed-media',
+            expect.any(Function),
+            expect.any(Number),
+        );
     });
 });

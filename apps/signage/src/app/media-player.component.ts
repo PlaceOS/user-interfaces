@@ -34,6 +34,8 @@ const MAX_URL_WAIT_LOADING = 30 * 1000;
 const MAX_URL_WAIT_IDLE = 3 * 1000;
 /** Safety cap so a hung getURL() never pins an item from being re-fetched */
 const URL_FETCH_TIMEOUT = 30 * 1000;
+/** Minimum time to wait on a media item before skipping a load failure */
+const MIN_FAILED_MEDIA_WAIT = 1000;
 
 @Component({
     selector: 'media-player',
@@ -714,7 +716,7 @@ export class MediaPlayerComponent
             'warn',
         );
         this._handled_error_cycle = this._currentMediaCycle();
-        this._skipFailedMedia();
+        this._skipFailedMedia(this._url_wait_started);
         return false;
     }
 
@@ -870,6 +872,7 @@ export class MediaPlayerComponent
     public onMediaLoadSuccess() {
         this._consecutive_load_errors = 0;
         this.clearTimeout('retry-failed-media');
+        this.clearTimeout('skip-failed-media');
     }
 
     public onMediaLoadError(source: 'image' | 'video') {
@@ -890,14 +893,14 @@ export class MediaPlayerComponent
             [this.url(item.id)?.toString()],
             'warn',
         );
-        this._skipFailedMedia();
+        this._skipFailedMedia(this._item_start);
     }
 
     private _currentMediaCycle() {
         return `${this.index()}:${this._display_generation}`;
     }
 
-    private _skipFailedMedia() {
+    private _skipFailedMedia(wait_started = time()) {
         const valid_count = this._item_playlist.filter((item) =>
             this.isValidMedia(item),
         ).length;
@@ -923,7 +926,24 @@ export class MediaPlayerComponent
             );
             return;
         }
-        this.nextItem();
+        const failed_cycle = this._currentMediaCycle();
+        const skip_delay = Math.max(
+            MIN_FAILED_MEDIA_WAIT - (time() - wait_started),
+            0,
+        );
+        const skip = () => {
+            if (this._currentMediaCycle() !== failed_cycle) return;
+            this.nextItem();
+        };
+        if (skip_delay <= 0) {
+            skip();
+            return;
+        }
+        this.timeout(
+            'skip-failed-media',
+            skip,
+            skip_delay,
+        );
     }
 
     private _processURLs() {
