@@ -300,7 +300,7 @@ export class SignageItemPlaylistsComponent {
     });
 
     public isScheduled(item: SignagePlaylist): boolean {
-        return !!item.play_at || !!item.play_cron;
+        return !!item;
     }
 
     public readonly playlist_count = PLAYLIST_ITEM_COUNTS;
