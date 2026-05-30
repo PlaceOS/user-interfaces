@@ -7,7 +7,13 @@ describe('MediaCacheService', () => {
     let spectator: SpectatorService<MediaCacheService>;
     const stored_files = new Map<
         string,
-        { name: string; url?: string; owner?: string; file: File }
+        {
+            name: string;
+            url?: string;
+            owner?: string;
+            owners?: string[];
+            file: File;
+        }
     >();
 
     const create_service = createServiceFactory({
@@ -27,6 +33,7 @@ describe('MediaCacheService', () => {
                         name: string;
                         url?: string;
                         owner?: string;
+                        owners?: string[];
                         file: File;
                     }) => {
                         const request: IDBRequest = {} as IDBRequest;
@@ -42,6 +49,21 @@ describe('MediaCacheService', () => {
                             result: stored_files.get(name),
                         } as IDBRequest;
                         queueMicrotask(() => request.onsuccess?.({} as Event));
+                        return request;
+                    },
+                    put: (item: {
+                        name: string;
+                        url?: string;
+                        owner?: string;
+                        owners?: string[];
+                        file: File;
+                    }) => {
+                        const request: IDBRequest = {} as IDBRequest;
+                        stored_files.set(item.name, item);
+                        queueMicrotask(() => {
+                            request.onsuccess?.({} as Event);
+                            transaction.oncomplete?.({} as Event);
+                        });
                         return request;
                     },
                     getAll: () => {
@@ -155,6 +177,103 @@ describe('MediaCacheService', () => {
         await expect(
             spectator.service.getFile('/outer.png'),
         ).resolves.toEqual(expect.any(File));
+    });
+
+    it('should share one cached file between multiple owners', async () => {
+        const fetch_spy = jest.fn().mockResolvedValue({
+            ok: true,
+            blob: () =>
+                Promise.resolve(new Blob(['image'], { type: 'image/png' })),
+        } as Response);
+        Object.defineProperty(globalThis, 'fetch', {
+            configurable: true,
+            value: fetch_spy,
+        });
+
+        await spectator.service.requestFilesToCache(
+            ['/shared.png'],
+            'outer-display',
+        );
+        await spectator.service.requestFilesToCache(
+            ['/shared.png'],
+            'embedded-display',
+        );
+
+        expect(fetch_spy).toHaveBeenCalledTimes(1);
+        expect(stored_files.size).toBe(1);
+        expect(spectator.service.availableFiles('outer-display')).toEqual([
+            '/shared.png',
+        ]);
+        expect(spectator.service.availableFiles('embedded-display')).toEqual([
+            '/shared.png',
+        ]);
+        expect([...stored_files.values()][0].owners).toEqual([
+            'outer-display',
+            'embedded-display',
+        ]);
+    });
+
+    it('should keep shared cached files when one owner invalidates them', async () => {
+        const fetch_spy = jest.fn().mockResolvedValue({
+            ok: true,
+            blob: () =>
+                Promise.resolve(new Blob(['image'], { type: 'image/png' })),
+        } as Response);
+        Object.defineProperty(globalThis, 'fetch', {
+            configurable: true,
+            value: fetch_spy,
+        });
+        await spectator.service.requestFilesToCache(
+            ['/shared.png'],
+            'outer-display',
+        );
+        await spectator.service.requestFilesToCache(
+            ['/shared.png'],
+            'embedded-display',
+        );
+
+        await spectator.service.invalidateFile('/shared.png', 'outer-display');
+
+        expect(stored_files.size).toBe(1);
+        expect(spectator.service.availableFiles('outer-display')).toEqual([]);
+        expect(spectator.service.availableFiles('embedded-display')).toEqual([
+            '/shared.png',
+        ]);
+        await expect(
+            spectator.service.getFile('/shared.png'),
+        ).resolves.toEqual(expect.any(File));
+        expect([...stored_files.values()][0].owners).toEqual([
+            'embedded-display',
+        ]);
+    });
+
+    it('should remove shared cached files when the last owner invalidates them', async () => {
+        const fetch_spy = jest.fn().mockResolvedValue({
+            ok: true,
+            blob: () =>
+                Promise.resolve(new Blob(['image'], { type: 'image/png' })),
+        } as Response);
+        Object.defineProperty(globalThis, 'fetch', {
+            configurable: true,
+            value: fetch_spy,
+        });
+        await spectator.service.requestFilesToCache(
+            ['/shared.png'],
+            'outer-display',
+        );
+        await spectator.service.requestFilesToCache(
+            ['/shared.png'],
+            'embedded-display',
+        );
+
+        await spectator.service.invalidateFile('/shared.png', 'outer-display');
+        await spectator.service.invalidateFile(
+            '/shared.png',
+            'embedded-display',
+        );
+
+        expect(stored_files.size).toBe(0);
+        expect(spectator.service.availableFiles()).toEqual([]);
     });
 
     it('should re-download cached metadata when the backing file is missing', async () => {
@@ -344,6 +463,7 @@ describe('MediaCacheService', () => {
                             name: string;
                             url?: string;
                             owner?: string;
+                            owners?: string[];
                             file: File;
                         }) => {
                             const request: IDBRequest = {} as IDBRequest;

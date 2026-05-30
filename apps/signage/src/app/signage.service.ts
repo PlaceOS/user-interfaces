@@ -1,10 +1,10 @@
 import { inject, Injectable, signal } from '@angular/core';
 import {
     AsyncHandler,
-    log,
     MINUTES,
     nextValueFrom,
     randomInt,
+    scoped_log,
     SECONDS,
     shuffleArray,
 } from '@placeos/common';
@@ -91,6 +91,29 @@ const EMPTY_METRICS = JSON.stringify({
 const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
 const SCHEDULE_TRIGGER_WINDOW_SECONDS = 28;
 const SINGLE_PASS_TRIGGER_WINDOW_MS = 30 * 1000;
+const log = scoped_log('SIGNAGE');
+
+function signageDisplayIDFromURL(url = '') {
+    if (!url) return '';
+    try {
+        const parsed_url = new URL(url, location.href);
+        const route = parsed_url.hash?.startsWith('#/')
+            ? parsed_url.hash.slice(1)
+            : parsed_url.pathname;
+        const match = route.match(/(?:^|\/)signage\/([^/?#]+)/);
+        return match ? decodeURIComponent(match[1]) : '';
+    } catch {
+        return '';
+    }
+}
+
+function isNestedPlayerWindow() {
+    try {
+        return window.self !== window.top;
+    } catch {
+        return true;
+    }
+}
 
 function playlistSchedules(playlist: SignagePlaylist): PlaylistSchedule[] {
     return playlist.schedules || [];
@@ -247,14 +270,14 @@ export class SignageService extends AsyncHandler {
         ),
         distinctUntilKeyChanged(1),
         map(([value]) => {
-            log('Signage', 'Display updated.');
+            log.debug('Display updated.');
             try {
                 value.playlist_media =
                     value.playlist_media?.map((_) => new SignageMedia(_)) || [];
                 value.plugins =
                     value.plugins?.map((_) => new SignagePlugin(_)) || [];
             } catch (e) {
-                log('Signage', 'Failed to parse display media.', [e], 'error');
+                log.error('Failed to parse display media.', e);
                 value = value || {};
                 value.playlist_media = value.playlist_media || [];
                 value.plugins = value.plugins || [];
@@ -305,11 +328,9 @@ export class SignageService extends AsyncHandler {
                 this._last_playlist = media;
                 return media;
             } catch (e) {
-                log(
-                    'SIGNAGE',
+                log.error(
                     'Failed to build playlist; keeping last known playlist.',
-                    [e],
-                    'error',
+                    e,
                 );
                 return this._last_playlist;
             }
@@ -332,12 +353,7 @@ export class SignageService extends AsyncHandler {
                 this._last_override_playlists = filtered;
                 return filtered;
             } catch (e) {
-                log(
-                    'SIGNAGE',
-                    'Failed to build override playlists.',
-                    [e],
-                    'error',
-                );
+                log.error('Failed to build override playlists.', e);
                 return this._last_override_playlists;
             }
         }),
@@ -418,7 +434,7 @@ export class SignageService extends AsyncHandler {
                         this._metrics,
                     ),
                 );
-                log('SIGNAGE', 'Posted metrics:', [this._metrics]);
+                log.debug('Posted metrics:', this._metrics);
                 this._metrics = {
                     play_through_counts: {},
                     playlist_counts: {},
@@ -495,7 +511,7 @@ export class SignageService extends AsyncHandler {
             active_playlists.map((_) => _.id),
         );
         const ends_at = this._scheduledOverrideEnd(active_schedules);
-        log('SIGNAGE', 'Setting override playlist', [media, ends_at || 0]);
+        log.debug('Setting override playlist', media, ends_at || 0);
         this.override_playlist.set({
             playlist: media,
             ends_at,
@@ -615,6 +631,7 @@ export class SignageService extends AsyncHandler {
             (item) => item.id === id,
         );
         if (!media_ref) return null;
+        if (!this._canEmbedMedia(display, media_ref)) return null;
         const playlist: SignagePlaylist | undefined = this._playlistConfig(
             display,
             playlist_id,
@@ -661,6 +678,32 @@ export class SignageService extends AsyncHandler {
         } as MediaPlayerItem;
     }
 
+    private _canEmbedMedia(display: any, media: SignageMedia) {
+        const embedded_display_id = signageDisplayIDFromURL(media.media_url);
+        if (!embedded_display_id) return true;
+        if (embedded_display_id === display.id) {
+            log.warn(
+                'Skipped signage media embedded with the same display ID.',
+                media.id,
+                embedded_display_id,
+            );
+            return false;
+        }
+        if (this._isNestedPlayerWindow()) {
+            log.warn(
+                'Skipped nested signage media inside an embedded player.',
+                media.id,
+                embedded_display_id,
+            );
+            return false;
+        }
+        return true;
+    }
+
+    private _isNestedPlayerWindow() {
+        return isNestedPlayerWindow();
+    }
+
     private async _mediaURL(media: SignageMedia, plugin?: SignagePlugin) {
         if (media.media_type === 'webpage' || media.media_type === 'plugin') {
             return media.media_url || plugin?.uri;
@@ -682,7 +725,7 @@ export class SignageService extends AsyncHandler {
             (p) => p.enabled,
         );
         if (media.length <= 0) return;
-        log('SIGNAGE', `Handled trigger ${id}`, [media]);
+        log.debug(`Handled trigger ${id}`, media);
         this.setPlaylistOverride(media);
     }
 }

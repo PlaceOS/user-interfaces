@@ -18,6 +18,7 @@ export interface CacheItem {
     id: string;
     url: string;
     owner?: string;
+    owners?: string[];
     status: CacheItemStatus;
     on_change: Subject<CacheItemStatus>;
 }
@@ -26,6 +27,7 @@ interface StoredCacheRecord {
     name: string;
     url?: string;
     owner?: string;
+    owners?: string[];
     file: File;
 }
 
@@ -40,6 +42,12 @@ function isLoadingStatus(status: CacheItemStatus) {
 function cacheStatus(item: CacheItem, status: CacheItemStatus) {
     item.status = status;
     item.on_change.next(status);
+}
+
+function cacheOwners(item: CacheItem | StoredCacheRecord) {
+    return [...new Set([...(item.owners || []), item.owner || ''])].filter(
+        (_) => !!_,
+    );
 }
 
 @Injectable({
@@ -97,11 +105,15 @@ export class MediaCacheService extends AsyncHandler {
             if (existing) {
                 if (isLoadingStatus(existing.status)) {
                     const final_status = await this._finalCacheStatus(existing);
-                    if (final_status === 'cached') continue;
+                    if (final_status === 'cached') {
+                        await this._addOwner(existing, owner);
+                        continue;
+                    }
                 } else if (
                     existing.status === 'cached' &&
                     (await this._hasStoredFile(existing, url))
                 ) {
+                    await this._addOwner(existing, owner);
                     continue;
                 }
             }
@@ -116,6 +128,7 @@ export class MediaCacheService extends AsyncHandler {
                 id: randomString(16, '0123456789ABCDEF'),
                 url,
                 owner,
+                owners: owner ? [owner] : [],
                 status: 'preparing',
                 on_change: new Subject(),
             };
@@ -172,7 +185,9 @@ export class MediaCacheService extends AsyncHandler {
     public availableFiles(owner = '') {
         return this._cache_index
             .filter(
-                (_) => _.status === 'cached' && (!owner || _.owner === owner),
+                (_) =>
+                    _.status === 'cached' &&
+                    (!owner || cacheOwners(_).includes(owner)),
             )
             .map((_) => _.url);
     }
@@ -241,11 +256,22 @@ export class MediaCacheService extends AsyncHandler {
     public invalidateFile(url: string, owner = '') {
         if (!this._cache_db_ready) return Promise.reject('Cache DB not ready');
         return new Promise<void>((resolve, reject) => {
-            const cache_item = this._cache_index.find(
-                (_) => _.url === url && (!owner || _.owner === owner),
-            );
+            const cache_item = this._cache_index.find((_) => _.url === url);
             if (cache_item?.status !== 'cached')
                 return reject('Cached item with URL not found');
+            if (owner && !cacheOwners(cache_item).includes(owner)) {
+                return reject('Cached item with URL not found');
+            }
+            const remaining_owners = owner
+                ? cacheOwners(cache_item).filter((_) => _ !== owner)
+                : [];
+            if (owner && remaining_owners.length) {
+                cache_item.owner = remaining_owners[0] || '';
+                cache_item.owners = remaining_owners;
+                this._file_cache_index.next([...this._cache_index]);
+                this._updateStoredOwners(cache_item).then(resolve).catch(reject);
+                return;
+            }
             this._cache_db_ready
                 .then(() => {
                     const transaction = this._cache_db.transaction(
@@ -306,6 +332,7 @@ export class MediaCacheService extends AsyncHandler {
                 name: cache_item.id,
                 url: cache_item.url,
                 owner: cache_item.owner || '',
+                owners: cacheOwners(cache_item),
                 file,
             });
 
@@ -376,6 +403,7 @@ export class MediaCacheService extends AsyncHandler {
                 id: record.name,
                 url: record.url,
                 owner: record.owner || '',
+                owners: cacheOwners(record),
                 status: 'cached' as const,
                 on_change: new Subject<CacheItemStatus>(),
             }));
@@ -431,6 +459,7 @@ export class MediaCacheService extends AsyncHandler {
                         id: _.id,
                         url: _.url,
                         owner: _.owner || '',
+                        owners: _.owners || (_.owner ? [_.owner] : []),
                         status: 'cached',
                         on_change: new Subject(),
                     })),
@@ -447,9 +476,60 @@ export class MediaCacheService extends AsyncHandler {
                 .map((_) => ({
                     id: _.id,
                     url: _.url,
-                    owner: _.owner || '',
+                    owner: cacheOwners(_)[0] || '',
+                    owners: cacheOwners(_),
                 }));
             localStorage.setItem(STORE_KEY, JSON.stringify(metadata));
+        });
+    }
+
+    private async _addOwner(cache_item: CacheItem, owner = '') {
+        if (!owner || cacheOwners(cache_item).includes(owner)) return;
+        cache_item.owner = cache_item.owner || owner;
+        cache_item.owners = [...cacheOwners(cache_item), owner];
+        this._file_cache_index.next([...this._cache_index]);
+        await this._updateStoredOwners(cache_item);
+    }
+
+    private async _updateStoredOwners(cache_item: CacheItem) {
+        await this._cache_db_ready;
+        const record = await this._storedRecord(cache_item.id);
+        if (!record) return;
+        await this._putStoredRecord({
+            ...record,
+            owner: cacheOwners(cache_item)[0] || '',
+            owners: cacheOwners(cache_item),
+        });
+    }
+
+    private _storedRecord(id: string): Promise<StoredCacheRecord | null> {
+        return new Promise((resolve, reject) => {
+            const transaction = this._cache_db.transaction(
+                ['files'],
+                'readonly',
+            );
+            const objectStore = transaction.objectStore('files');
+            const request = objectStore.get(id);
+
+            request.onerror = (event: any) => reject(event.target.error);
+            request.onsuccess = () =>
+                resolve((request.result as StoredCacheRecord) || null);
+        });
+    }
+
+    private _putStoredRecord(record: StoredCacheRecord) {
+        return new Promise<void>((resolve, reject) => {
+            const transaction = this._cache_db.transaction(
+                ['files'],
+                'readwrite',
+            );
+            const objectStore = transaction.objectStore('files');
+            const request = objectStore.put(record);
+
+            request.onerror = (event: any) => reject(event.target.error);
+            transaction.onerror = (event: any) => reject(event.target.error);
+            transaction.onabort = (event: any) => reject(event.target.error);
+            transaction.oncomplete = () => resolve();
         });
     }
 
