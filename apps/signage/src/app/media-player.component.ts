@@ -522,125 +522,17 @@ export class MediaPlayerComponent
         // same item can be skipped again the next time the playlist loops.
         this._display_generation++;
         const should_transition = this._shouldTransition(old_item, item);
-        this.clearTimeout('webpage-hold-delay');
-        this._web_waiting_item_id = item.type === 'webpage' ? item.id : '';
-        this._item_start = time();
-        this._item_progress = 0;
-        this._playback_duration = item.duration || 15 * 1000;
-        this.progress.set(0);
-        this.duration.set(0);
-        this._plugin_finished = false;
-        // Hide all media elements first
-        this._video_element().nativeElement.classList.add('hidden');
-        this._web_element().nativeElement.classList.add('hidden');
-        this._image_element().nativeElement.classList.add('hidden');
-        // Preserve outgoing plugin in previous layer for transitions
-        const outgoing_plugin = this.active_plugin();
-        if (outgoing_plugin) {
-            this.previous_plugin.set(outgoing_plugin);
-        }
+        this._startDisplayAttempt(item);
         if (item.type === 'plugin' && item.plugin) {
             this._showPlugin(item);
         } else {
-            // Clear active plugin when switching to non-plugin media
-            this.active_plugin.set(null);
-            this.plugin_config.set(null);
-            const url = this.url(item.id);
-            if (!url) {
-                const fetched = this._item_urls[item.id] !== undefined;
-                const fetching = this._url_fetch_in_flight.has(item.id);
-                const still_loading = item.isLoading?.() ?? false;
-                // Track how long we have waited on THIS item. The wait-for-url
-                // retry re-runs setPlaylistItem, which resets _item_start and so
-                // disables the normal duration-based advance - without a cap the
-                // playlist would hang forever on an item whose data never comes.
-                if (this._url_wait_item_id !== item.id) {
-                    this._url_wait_item_id = item.id;
-                    this._url_wait_started = time();
-                }
-                const waited = time() - this._url_wait_started;
-                const max_wait = still_loading
-                    ? MAX_URL_WAIT_LOADING
-                    : MAX_URL_WAIT_IDLE;
-                if (
-                    (still_loading || fetching || !fetched) &&
-                    waited < max_wait
-                ) {
-                    // Still being prepared/downloaded - keep waiting rather than
-                    // dropping the item.
-                    this._ensureItemURL(item);
-                    this.timeout('wait-for-url', () =>
-                        this.setPlaylistItem(index, resume_if_paused),
-                    );
-                    return;
-                }
-                // Nothing is loading it, or we waited too long - skip so the
-                // playlist keeps advancing instead of hanging on this item.
-                this._url_wait_item_id = '';
-                log(
-                    'MediaPlayer',
-                    `Unable to resolve URL for media "${item.name}"`,
-                    [item],
-                    'warn',
-                );
-                this._handled_error_cycle = this._currentMediaCycle();
-                this._skipFailedMedia();
-                return;
-            }
-            this._url_wait_item_id = '';
-            const active_el = (
-                item.type === 'video'
-                    ? this._video_element()
-                    : item.type === 'webpage'
-                      ? this._web_element()
-                      : this._image_element()
-            ).nativeElement;
-            const url_string = url.toString();
-            const keep_webpage_loaded =
-                item.type === 'webpage' &&
-                this._shouldHoldSingleWebpage(item) &&
-                active_el.src === url_string;
-            if (keep_webpage_loaded) {
-                this._web_waiting_item_id = '';
-            } else {
-                active_el.src = url_string;
-            }
-            active_el.classList.remove('hidden');
-            if (item.type === 'webpage' && !keep_webpage_loaded) {
-                this.progress.set(0);
-                this.duration.set(0);
-                // Some pages never report a load (e.g. blocked by the remote
-                // server's X-Frame-Options). Without this fallback the player
-                // would wait on that page forever, so continue after a delay.
-                this.timeout(
-                    'webpage-load-timeout',
-                    () => {
-                        if (this._web_waiting_item_id !== item.id) return;
-                        log(
-                            'MediaPlayer',
-                            `Webpage "${item.name}" did not load in time; continuing.`,
-                            [this.url(item.id)?.toString()],
-                            'warn',
-                        );
-                        this._web_waiting_item_id = '';
-                        this._resetPlayback();
-                    },
-                    15 * 1000,
-                );
-            }
-            if (item.type === 'video') {
-                this._requestVideoPlayback(() => {
-                    if (should_transition) {
-                        this.nextItem();
-                    } else {
-                        this.state.set('PAUSED');
-                        this._item_start = 0;
-                        this._item_progress = 0;
-                    }
-                });
-            } else {
-                this._video_element().nativeElement.pause();
-            }
+            const ready = this._showMediaItem(
+                item,
+                index,
+                resume_if_paused,
+                should_transition,
+            );
+            if (!ready) return;
         }
         this.playing_id.emit(item.id);
         if (!should_transition) {
@@ -650,6 +542,159 @@ export class MediaPlayerComponent
             return;
         }
         this._transition(resume_if_paused);
+    }
+
+    private _startDisplayAttempt(item: MediaPlayerItem) {
+        this.clearTimeout('webpage-hold-delay');
+        this._web_waiting_item_id = item.type === 'webpage' ? item.id : '';
+        this._item_start = time();
+        this._item_progress = 0;
+        this._playback_duration = item.duration || 15 * 1000;
+        this.progress.set(0);
+        this.duration.set(0);
+        this._plugin_finished = false;
+        this._hideActiveMediaElements();
+        this._holdOutgoingPluginForTransition();
+    }
+
+    private _hideActiveMediaElements() {
+        this._video_element().nativeElement.classList.add('hidden');
+        this._web_element().nativeElement.classList.add('hidden');
+        this._image_element().nativeElement.classList.add('hidden');
+    }
+
+    private _holdOutgoingPluginForTransition() {
+        const outgoing_plugin = this.active_plugin();
+        if (outgoing_plugin) this.previous_plugin.set(outgoing_plugin);
+    }
+
+    private _showMediaItem(
+        item: MediaPlayerItem,
+        index: number,
+        resume_if_paused: boolean,
+        should_transition: boolean,
+    ) {
+        this.active_plugin.set(null);
+        this.plugin_config.set(null);
+        const url = this.url(item.id);
+        if (!url) {
+            return this._handleMissingMediaURL(item, index, resume_if_paused);
+        }
+        this._url_wait_item_id = '';
+        const active_el = this._activeMediaElement(item);
+        const url_string = url.toString();
+        const keep_webpage_loaded =
+            item.type === 'webpage' &&
+            this._shouldHoldSingleWebpage(item) &&
+            active_el.src === url_string;
+        if (keep_webpage_loaded) {
+            this._web_waiting_item_id = '';
+        } else {
+            active_el.src = url_string;
+        }
+        active_el.classList.remove('hidden');
+        if (item.type === 'webpage' && !keep_webpage_loaded) {
+            this._waitForWebpageLoad(item);
+        }
+        this._startNativeMediaPlayback(item, should_transition);
+        return true;
+    }
+
+    private _handleMissingMediaURL(
+        item: MediaPlayerItem,
+        index: number,
+        resume_if_paused: boolean,
+    ) {
+        const fetched = this._item_urls[item.id] !== undefined;
+        const fetching = this._url_fetch_in_flight.has(item.id);
+        const still_loading = item.isLoading?.() ?? false;
+        if (
+            this._shouldWaitForMediaURL(item, fetched, fetching, still_loading)
+        ) {
+            this._ensureItemURL(item);
+            this.timeout('wait-for-url', () =>
+                this.setPlaylistItem(index, resume_if_paused),
+            );
+            return false;
+        }
+        this._url_wait_item_id = '';
+        log(
+            'MediaPlayer',
+            `Unable to resolve URL for media "${item.name}"`,
+            [item],
+            'warn',
+        );
+        this._handled_error_cycle = this._currentMediaCycle();
+        this._skipFailedMedia();
+        return false;
+    }
+
+    private _shouldWaitForMediaURL(
+        item: MediaPlayerItem,
+        fetched: boolean,
+        fetching: boolean,
+        still_loading: boolean,
+    ) {
+        // Track how long we have waited on THIS item. The wait-for-url retry
+        // re-runs setPlaylistItem, which resets _item_start and so disables the
+        // normal duration-based advance; the cap keeps bad media from hanging.
+        if (this._url_wait_item_id !== item.id) {
+            this._url_wait_item_id = item.id;
+            this._url_wait_started = time();
+        }
+        const waited = time() - this._url_wait_started;
+        const max_wait = still_loading
+            ? MAX_URL_WAIT_LOADING
+            : MAX_URL_WAIT_IDLE;
+        return (still_loading || fetching || !fetched) && waited < max_wait;
+    }
+
+    private _activeMediaElement(item: MediaPlayerItem) {
+        if (item.type === 'video') return this._video_element().nativeElement;
+        if (item.type === 'webpage') return this._web_element().nativeElement;
+        return this._image_element().nativeElement;
+    }
+
+    private _waitForWebpageLoad(item: MediaPlayerItem) {
+        this.progress.set(0);
+        this.duration.set(0);
+        // Some pages never report a load (e.g. blocked by the remote server's
+        // X-Frame-Options). Without this fallback the player would wait on that
+        // page forever, so continue after a delay.
+        this.timeout(
+            'webpage-load-timeout',
+            () => {
+                if (this._web_waiting_item_id !== item.id) return;
+                log(
+                    'MediaPlayer',
+                    `Webpage "${item.name}" did not load in time; continuing.`,
+                    [this.url(item.id)?.toString()],
+                    'warn',
+                );
+                this._web_waiting_item_id = '';
+                this._resetPlayback();
+            },
+            15 * 1000,
+        );
+    }
+
+    private _startNativeMediaPlayback(
+        item: MediaPlayerItem,
+        should_transition: boolean,
+    ) {
+        if (item.type === 'video') {
+            this._requestVideoPlayback(() => {
+                if (should_transition) {
+                    this.nextItem();
+                } else {
+                    this.state.set('PAUSED');
+                    this._item_start = 0;
+                    this._item_progress = 0;
+                }
+            });
+        } else {
+            this._video_element().nativeElement.pause();
+        }
     }
 
     public onPluginStatus(status: SignagePluginMessageType | 'unknown') {
@@ -796,24 +841,7 @@ export class MediaPlayerComponent
         const current_index = Math.max(this.index(), 0);
         const item_count = this._item_playlist.length;
         if (!item_count) return;
-        // Get current
-        const current_item = this._item_playlist[current_index];
-        // Get previous 2 items
-        const prev_item =
-            this._item_playlist[(current_index - 1 + item_count) % item_count];
-        const prev_prev_item =
-            this._item_playlist[(current_index - 2 + item_count) % item_count];
-        // Get next 2 items
-        const next_item = this._item_playlist[(current_index + 1) % item_count];
-        const next_next_item =
-            this._item_playlist[(current_index + 2) % item_count];
-        const item_list = [
-            current_item,
-            next_item,
-            prev_item,
-            next_next_item,
-            prev_prev_item,
-        ];
+        const item_list = this._nearbyPlaylistItems(current_index);
         // Request new URLs
         for (const item of item_list) {
             this._ensureItemURL(item);
@@ -825,6 +853,14 @@ export class MediaPlayerComponent
             if (url) URL.revokeObjectURL(url.toString());
             delete this._item_urls[key];
         }
+    }
+
+    private _nearbyPlaylistItems(current_index: number) {
+        const item_count = this._item_playlist.length;
+        return [0, 1, -1, 2, -2].map((offset) => {
+            const index = (current_index + offset + item_count) % item_count;
+            return this._item_playlist[index];
+        });
     }
 
     private _ensureItemURL(item: MediaPlayerItem) {
@@ -865,49 +901,7 @@ export class MediaPlayerComponent
             return;
         }
         const indexValue = this.index();
-        if (indexValue !== -1) {
-            const img_el = this._previous_img_element().nativeElement;
-            const web_el = this._previous_web_element().nativeElement;
-            const video_el = this._previous_video_element().nativeElement;
-            const previous_index = findValidPlaylistIndex(
-                this._item_playlist,
-                indexValue,
-                -1,
-            );
-            if (previous_index === -1) {
-                img_el.classList.add('hidden');
-                video_el.classList.add('hidden');
-                web_el.classList.add('hidden');
-            } else {
-                const item = this._item_playlist[previous_index];
-                if (item.type === 'plugin') {
-                    // Plugin is handled by previous_plugin signal in the previous container
-                    img_el.classList.add('hidden');
-                    video_el.classList.add('hidden');
-                    web_el.classList.add('hidden');
-                } else {
-                    const url = this.url(item.id);
-                    if (url) {
-                        if (item.type === 'video') {
-                            img_el.classList.add('hidden');
-                            web_el.classList.add('hidden');
-                            video_el.src = url.toString();
-                            video_el.classList.remove('hidden');
-                        } else if (item.type === 'webpage') {
-                            img_el.classList.add('hidden');
-                            video_el.classList.add('hidden');
-                            web_el.src = url.toString();
-                            web_el.classList.remove('hidden');
-                        } else {
-                            video_el.classList.add('hidden');
-                            web_el.classList.add('hidden');
-                            img_el.src = url.toString();
-                            img_el.classList.remove('hidden');
-                        }
-                    }
-                }
-            }
-        }
+        if (indexValue !== -1) this._showPreviousItemForTransition(indexValue);
         const item = this.active_item;
         const prev_container_el = this._previous_container().nativeElement;
         const container_el = this._container().nativeElement;
@@ -946,6 +940,37 @@ export class MediaPlayerComponent
                 this.animation_time() || 3000,
             );
         });
+    }
+
+    private _showPreviousItemForTransition(index: number) {
+        const previous_index = findValidPlaylistIndex(
+            this._item_playlist,
+            index,
+            -1,
+        );
+        const item = this._item_playlist[previous_index];
+        const url = item && item.type !== 'plugin' ? this.url(item.id) : '';
+        this._setPreviousMediaLayer(item, url?.toString());
+    }
+
+    private _setPreviousMediaLayer(item?: MediaPlayerItem, url = '') {
+        const img_el = this._previous_img_element().nativeElement;
+        const web_el = this._previous_web_element().nativeElement;
+        const video_el = this._previous_video_element().nativeElement;
+        img_el.classList.add('hidden');
+        video_el.classList.add('hidden');
+        web_el.classList.add('hidden');
+        if (!item || !url) return;
+        if (item.type === 'video') {
+            video_el.src = url;
+            video_el.classList.remove('hidden');
+        } else if (item.type === 'webpage') {
+            web_el.src = url;
+            web_el.classList.remove('hidden');
+        } else {
+            img_el.src = url;
+            img_el.classList.remove('hidden');
+        }
     }
 
     private _onTransitionEnd(resume = true) {
@@ -1033,10 +1058,6 @@ export class MediaPlayerComponent
         if (next_index < idx) return true;
         const next_item = playlist[next_index];
         return item.playlist !== next_item.playlist;
-    }
-
-    private _hasValidPlaylist() {
-        return this._item_playlist.some((item) => this.isValidMedia(item));
     }
 
     private _getPlaylistSignature(playlist: MediaPlayerItem[]) {
