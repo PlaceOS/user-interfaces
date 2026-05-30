@@ -31,8 +31,8 @@ import { DateFieldComponent } from '@placeos/form-fields';
         >
             <div class="pl-2">
                 {{ time() | date: 'dd MMM, HH:mm'
-                }}<span class="text-base-400 text-xs"
-                    >:{{ time() | date: 'ss' }}</span
+                }}<span class="text-base-400 text-xs">
+                    : {{ time() | date: 'ss' }}</span
                 >
             </div>
             @if (mock_active() && speed() !== 1) {
