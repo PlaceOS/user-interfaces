@@ -210,8 +210,8 @@ export class MediaPlayerComponent
     private _consecutive_load_errors = 0;
     /** Marks the display cycle whose load error has already been handled */
     private _handled_error_cycle = '';
-    /** Per-item count of attempts spent waiting for a media URL to resolve */
-    private _url_wait_attempts: Record<string, number> = {};
+    /** Media item ids whose URL is currently being fetched */
+    private _url_fetch_in_flight = new Set<string>();
 
     private _item_playlist: MediaPlayerItem[] = [];
     private _playlist_signature = '';
@@ -528,26 +528,29 @@ export class MediaPlayerComponent
             this.plugin_config.set(null);
             const url = this.url(item.id);
             if (!url) {
-                const attempts = (this._url_wait_attempts[item.id] || 0) + 1;
-                this._url_wait_attempts[item.id] = attempts;
-                if (attempts > 3) {
-                    delete this._url_wait_attempts[item.id];
-                    log(
-                        'MediaPlayer',
-                        `Unable to resolve URL for media "${item.name}"`,
-                        [item],
-                        'warn',
+                const fetched = this._item_urls[item.id] !== undefined;
+                const fetching = this._url_fetch_in_flight.has(item.id);
+                const still_loading = item.isLoading?.() ?? false;
+                if (still_loading || fetching || !fetched) {
+                    // The media is still being prepared/downloaded by the
+                    // services - keep waiting rather than dropping the item.
+                    this._ensureItemURL(item);
+                    this.timeout('wait-for-url', () =>
+                        this.setPlaylistItem(index, resume_if_paused),
                     );
-                    this._handled_error_cycle = this._currentMediaCycle();
-                    this._skipFailedMedia();
                     return;
                 }
-                this.timeout('wait-for-url', () =>
-                    this.setPlaylistItem(index, resume_if_paused),
+                // URL resolved to nothing and nothing is loading it - skip.
+                log(
+                    'MediaPlayer',
+                    `Unable to resolve URL for media "${item.name}"`,
+                    [item],
+                    'warn',
                 );
+                this._handled_error_cycle = this._currentMediaCycle();
+                this._skipFailedMedia();
                 return;
             }
-            this._url_wait_attempts[item.id] = 0;
             const active_el = (
                 item.type === 'video'
                     ? this._video_element()
@@ -752,9 +755,10 @@ export class MediaPlayerComponent
         this.nextItem();
     }
 
-    private async _processURLs() {
+    private _processURLs() {
         const current_index = Math.max(this.index(), 0);
         const item_count = this._item_playlist.length;
+        if (!item_count) return;
         // Get current
         const current_item = this._item_playlist[current_index];
         // Get previous 2 items
@@ -773,22 +777,33 @@ export class MediaPlayerComponent
             next_next_item,
             prev_prev_item,
         ];
-        //
         // Request new URLs
         for (const item of item_list) {
-            if (!item?.id || this._item_urls[item.id]) continue;
-            // Plugins don't need pre-fetched URLs
-            if (item.type === 'plugin') continue;
-            this._item_urls[item.id] = await item.getURL().catch((_) => null);
+            this._ensureItemURL(item);
         }
         // Revoke old URLs
         for (const key in this._item_urls) {
-            if (item_list.find((_) => _.id === key)) continue;
+            if (item_list.find((_) => _?.id === key)) continue;
             const url = this._item_urls[key];
-            if (!url) continue;
-            URL.revokeObjectURL(url.toString());
+            if (url) URL.revokeObjectURL(url.toString());
             delete this._item_urls[key];
         }
+    }
+
+    private _ensureItemURL(item: MediaPlayerItem) {
+        // Plugins render directly and don't need a pre-fetched URL.
+        if (!item?.id || item.type === 'plugin') return;
+        // A truthy entry is already a usable URL; '' / null mark a previous
+        // failure that we retry, undefined means we have not fetched it yet.
+        if (this._item_urls[item.id]) return;
+        if (this._url_fetch_in_flight.has(item.id)) return;
+        this._url_fetch_in_flight.add(item.id);
+        item.getURL()
+            .catch(() => null)
+            .then((resolved) => {
+                this._url_fetch_in_flight.delete(item.id);
+                this._item_urls[item.id] = (resolved ?? null) as any;
+            });
     }
 
     private _transition(resume_on_end = true) {

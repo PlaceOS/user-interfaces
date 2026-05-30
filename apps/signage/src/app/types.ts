@@ -16,6 +16,8 @@ export interface MediaPlayerItem {
     plugin?: SignagePlugin;
     plugin_params?: HashMap;
     getURL: () => Promise<string | URL>;
+    /** Whether the media's data is still being fetched/cached by the services */
+    isLoading?: () => boolean;
 }
 
 export type MediaPlayerState = 'PAUSED' | 'PLAYING';

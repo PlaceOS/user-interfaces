@@ -185,6 +185,8 @@ export class SignageService extends AsyncHandler {
     private _retry = new BehaviorSubject(0);
     private _last_modified = 0;
     private _playlists: SignagePlaylist[] = [];
+    private _last_playlist: MediaPlayerItem[] = [];
+    private _last_override_playlists: string[] = [];
     private _metrics: SignageMetrics = {
         play_through_counts: {},
         playlist_counts: {},
@@ -237,10 +239,17 @@ export class SignageService extends AsyncHandler {
         distinctUntilKeyChanged(1),
         map(([value]) => {
             log('Signage', 'Display updated.');
-            value.playlist_media =
-                value.playlist_media?.map((_) => new SignageMedia(_)) || [];
-            value.plugins =
-                value.plugins?.map((_) => new SignagePlugin(_)) || [];
+            try {
+                value.playlist_media =
+                    value.playlist_media?.map((_) => new SignageMedia(_)) || [];
+                value.plugins =
+                    value.plugins?.map((_) => new SignagePlugin(_)) || [];
+            } catch (e) {
+                log('Signage', 'Failed to parse display media.', [e], 'error');
+                value = value || {};
+                value.playlist_media = value.playlist_media || [];
+                value.plugins = value.plugins || [];
+            }
             return value;
         }),
         shareReplay(1),
@@ -268,27 +277,40 @@ export class SignageService extends AsyncHandler {
         interval(15 * 1000).pipe(startWith(0)),
     ]).pipe(
         map(([item]: [any, number]) => {
-            if (!item?.id) return [];
-            let playlists = [...item.playlist_mappings[item.id]];
-            for (const zone of item.zones) {
-                if (!item.playlist_mappings[zone]) continue;
-                playlists = playlists.concat(item.playlist_mappings[zone]);
+            try {
+                if (!item?.id || !item.playlist_mappings?.[item.id]) {
+                    return this._last_playlist;
+                }
+                let playlists = [...item.playlist_mappings[item.id]];
+                for (const zone of item.zones || []) {
+                    if (!item.playlist_mappings[zone]) continue;
+                    playlists = playlists.concat(item.playlist_mappings[zone]);
+                }
+                this._playlists = playlists
+                    .map((id) => item.playlist_config?.[id]?.[0])
+                    .filter((_) => !!_);
+                // Map playlists to media
+                const media = this._getPlaylistMedia(
+                    item,
+                    playlists,
+                    (p) =>
+                        p.enabled &&
+                        (!playlistSchedules(p).length ||
+                            activePlaylistSchedules(p).some(
+                                ({ schedule }) => !schedule.play_takeover,
+                            )),
+                );
+                this._last_playlist = media;
+                return media;
+            } catch (e) {
+                log(
+                    'SIGNAGE',
+                    'Failed to build playlist; keeping last known playlist.',
+                    [e],
+                    'error',
+                );
+                return this._last_playlist;
             }
-            this._playlists = playlists
-                .map((id) => item.playlist_config[id]?.[0])
-                .filter((_) => !!_);
-            // Map playlists to media
-            const media = this._getPlaylistMedia(
-                item,
-                playlists,
-                (p) =>
-                    p.enabled &&
-                    (!playlistSchedules(p).length ||
-                        activePlaylistSchedules(p).some(
-                            ({ schedule }) => !schedule.play_takeover,
-                        )),
-            );
-            return media;
         }),
         startWith([]),
         shareReplay(1),
@@ -296,29 +318,44 @@ export class SignageService extends AsyncHandler {
 
     public readonly override_playlists = this.display.pipe(
         map((item: any) => {
-            if (!item?.id) return [];
-            let playlists: string[] = [...item.playlist_mappings[item.id]];
-            for (const zone of item.zones) {
-                if (!item.playlist_mappings[zone]) continue;
-                playlists = playlists.concat(item.playlist_mappings[zone]);
-            }
-            this._playlists = playlists
-                .map((id) => item.playlist_config[id]?.[0])
-                .filter((_) => !!_);
-            const filtered = playlists.filter((id) => {
-                const [playlist] = item.playlist_config[id] as [
-                    SignagePlaylist,
-                    string[],
-                ];
-                return (
-                    playlist.enabled &&
-                    playlistSchedules(playlist).some(
-                        (schedule) => schedule.play_takeover,
-                    )
+            try {
+                if (!item?.id || !item.playlist_mappings?.[item.id]) {
+                    return this._last_override_playlists;
+                }
+                let playlists: string[] = [...item.playlist_mappings[item.id]];
+                for (const zone of item.zones || []) {
+                    if (!item.playlist_mappings[zone]) continue;
+                    playlists = playlists.concat(item.playlist_mappings[zone]);
+                }
+                this._playlists = playlists
+                    .map((id) => item.playlist_config?.[id]?.[0])
+                    .filter((_) => !!_);
+                const filtered = playlists.filter((id) => {
+                    const config = item.playlist_config?.[id] as [
+                        SignagePlaylist,
+                        string[],
+                    ];
+                    if (!config?.[0]) return false;
+                    const [playlist] = config;
+                    return (
+                        playlist.enabled &&
+                        playlistSchedules(playlist).some(
+                            (schedule) => schedule.play_takeover,
+                        )
+                    );
+                });
+                // Map playlists to media
+                this._last_override_playlists = filtered;
+                return filtered;
+            } catch (e) {
+                log(
+                    'SIGNAGE',
+                    'Failed to build override playlists.',
+                    [e],
+                    'error',
                 );
-            });
-            // Map playlists to media
-            return filtered;
+                return this._last_override_playlists;
+            }
         }),
         startWith([]),
         shareReplay(1),
@@ -497,11 +534,13 @@ export class SignageService extends AsyncHandler {
         const plugins: SignagePlugin[] = display.plugins || [];
         const playlist_media = playlists
             .map((id) => {
-                const [playlist, media_list] = display.playlist_config[id] as [
+                const config = display.playlist_config?.[id] as [
                     SignagePlaylist,
                     string[],
                 ];
-                if (!filter_fn(playlist)) return [];
+                if (!config) return [];
+                const [playlist, media_list] = config;
+                if (!playlist || !filter_fn(playlist)) return [];
                 const schedule = activePlaylistSchedule(playlist);
                 const schedule_start = schedule
                     ? Math.floor(schedule.starts_at / 1000)
@@ -532,7 +571,7 @@ export class SignageService extends AsyncHandler {
                     display.playlist_media.find((item) => item.id === id);
                 if (!media_ref) return null;
                 const playlist: SignagePlaylist | undefined =
-                    display.playlist_config[playlist_id][0];
+                    display.playlist_config[playlist_id]?.[0];
                 const is_plugin = media_ref.media_type === 'plugin';
                 const plugin = is_plugin
                     ? plugins.find((_) => _.id === media_ref.plugin_id)
@@ -542,7 +581,7 @@ export class SignageService extends AsyncHandler {
                     url: media_ref.media_url,
                     name: media_ref.name,
                     animation:
-                        media_ref.animation || playlist.default_animation,
+                        media_ref.animation || playlist?.default_animation,
                     playlist: playlist_id || '',
                     playlist_name: playlist?.name || '',
                     type: media_ref.media_type,
@@ -577,6 +616,13 @@ export class SignageService extends AsyncHandler {
                                       .then((_) => URL.createObjectURL(_))
                                       .catch((_) => '')
                             : null,
+                    isLoading:
+                        media_ref.media_type === 'webpage' || is_plugin
+                            ? () => false
+                            : () =>
+                                  this._media_cache.isLoadingFile(
+                                      media_ref.media_url,
+                                  ),
                 } as MediaPlayerItem;
             })
             .filter((_) => !!_);

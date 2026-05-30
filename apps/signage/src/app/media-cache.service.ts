@@ -151,6 +151,21 @@ export class MediaCacheService extends AsyncHandler {
         return this._cache_index.map((_) => _.url);
     }
 
+    /**
+     * Whether a file is still being prepared/downloaded/stored, or has not yet
+     * been registered for caching (i.e. queued). Returns false once the file is
+     * cached or has been invalidated.
+     */
+    public isLoadingFile(url: string): boolean {
+        const item = this._cache_index.find((_) => _.url === url);
+        if (!item) return true;
+        return (
+            item.status === 'preparing' ||
+            item.status === 'downloading' ||
+            item.status === 'storing'
+        );
+    }
+
     public async getFile(url: string): Promise<File> {
         const cache_item = this._cache_index.find((_) => _.url === url);
         if (!cache_item) throw new Error('Unable to find file with URL');
