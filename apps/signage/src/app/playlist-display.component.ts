@@ -32,71 +32,73 @@ import { MediaPlayerItem } from './types';
                 </div>
             </div>
             @if (playlist().length > 0) {
-                <div>
-                    @for (
-                        item of playlist();
-                        track item.id + i;
-                        let i = $index
-                    ) {
-                        @let is_valid = isValidMedia(item);
-                        <button
-                            matRipple
-                            class="hover:bg-base-200 flex w-[20rem] items-center space-x-2 rounded-lg p-2 text-left"
-                            [class.overflow-visible]="i === index()"
-                            [class.pointer-events-none]="i === index()"
-                            (click)="setPlaylistItem(i)"
-                            [disabled]="!is_valid"
-                        >
-                            <div
-                                class="flex h-10 w-10 items-center justify-center rounded-full"
-                                [class.bg-info]="i === index()"
-                                [class.text-info-content]="i === index()"
-                                [class.bg-base-300]="i !== index()"
-                                [class.bg-error!]="!is_valid"
-                                [class.text-error-content!]="!is_valid"
-                                [matTooltip]="validateMedia(item)"
-                                matTooltipPosition="left"
+                <div class="max-h-[calc(100vh-10rem)] overflow-auto">
+                    <div>
+                        @for (
+                            item of playlist();
+                            track item.id + i;
+                            let i = $index
+                        ) {
+                            @let is_valid = isValidMedia(item);
+                            <button
+                                matRipple
+                                class="hover:bg-base-200 flex w-[20rem] items-center space-x-2 rounded-lg p-2 text-left"
+                                [class.overflow-visible]="i === index()"
+                                [class.pointer-events-none]="i === index()"
+                                (click)="setPlaylistItem(i)"
+                                [disabled]="!is_valid"
                             >
                                 <div
-                                    class="relative flex h-7 w-7 items-center justify-center"
+                                    class="flex h-10 w-10 items-center justify-center rounded-full"
+                                    [class.bg-info]="i === index()"
+                                    [class.text-info-content]="i === index()"
+                                    [class.bg-base-300]="i !== index()"
+                                    [class.bg-error!]="!is_valid"
+                                    [class.text-error-content!]="!is_valid"
+                                    [matTooltip]="validateMedia(item)"
+                                    matTooltipPosition="left"
                                 >
-                                    @if (is_valid && i === index()) {
-                                        <span
-                                            class="bg-info absolute z-0 inline-flex h-full w-full animate-ping rounded-full opacity-75"
-                                        ></span>
-                                    }
-                                    <icon
-                                        class="relative z-10 text-2xl"
-                                        [class.opacity-30]="i !== index()"
-                                        >{{
-                                            !is_valid
-                                                ? 'error'
-                                                : i === index()
-                                                  ? 'play_arrow'
-                                                  : 'not_started'
-                                        }}</icon
+                                    <div
+                                        class="relative flex h-7 w-7 items-center justify-center"
                                     >
+                                        @if (is_valid && i === index()) {
+                                            <span
+                                                class="bg-info absolute z-0 inline-flex h-full w-full animate-ping rounded-full opacity-75"
+                                            ></span>
+                                        }
+                                        <icon
+                                            class="relative z-10 text-2xl"
+                                            [class.opacity-30]="i !== index()"
+                                            >{{
+                                                !is_valid
+                                                    ? 'error'
+                                                    : i === index()
+                                                      ? 'play_arrow'
+                                                      : 'not_started'
+                                            }}</icon
+                                        >
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="flex w-1/2 flex-1 flex-col">
-                                <div class="truncate">{{ item.name }}</div>
-                                <div class="text-xs opacity-30">
-                                    {{ item.playlist_name }}
+                                <div class="flex w-1/2 flex-1 flex-col">
+                                    <div class="truncate">{{ item.name }}</div>
+                                    <div class="text-xs opacity-30">
+                                        {{ item.playlist_name }}
+                                    </div>
                                 </div>
-                            </div>
-                            <div
-                                class="bg-info text-info-content rounded-sm px-2 py-1 font-mono text-xs"
-                            >
-                                {{ item.duration / 1000 | mediaDuration }}
-                            </div>
-                        </button>
-                    }
-                </div>
-                <div class="flex flex-col justify-end">
-                    <div
-                        class="bg-base-300 rounded-lg p-2 text-center text-xs opacity-30"
-                    >
-                        {{ 'APP.SIGNAGE.MEDIA_LIST_END' | translate }}
+                                <div
+                                    class="bg-info text-info-content rounded-sm px-2 py-1 font-mono text-xs"
+                                >
+                                    {{ item.duration / 1000 | mediaDuration }}
+                                </div>
+                            </button>
+                        }
+                    </div>
+                    <div class="flex flex-col justify-end">
+                        <div
+                            class="bg-base-300 rounded-lg p-2 text-center text-xs opacity-30"
+                        >
+                            {{ 'APP.SIGNAGE.MEDIA_LIST_END' | translate }}
+                        </div>
                     </div>
                 </div>
             } @else {
