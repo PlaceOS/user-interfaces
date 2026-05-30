@@ -1,7 +1,8 @@
+import { DatePipe } from '@angular/common';
 import { Component, inject, OnInit, signal, viewChildren } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler, log, SettingsService } from '@placeos/common';
+import { AsyncHandler, log, SettingsService, VERSION } from '@placeos/common';
 import { time } from './media-helpers';
 import { MediaPlayerComponent } from './media-player.component';
 import { MediaEvent, SignageService } from './signage.service';
@@ -45,7 +46,14 @@ function isDebugEnabled(value: string | null) {
         }
         @if (debug()) {
             <div
-                class="absolute right-2 bottom-2 text-xs text-white opacity-30"
+                class="absolute bottom-2 left-2 text-xs text-white/30 text-shadow-lg"
+            >
+                {{ version_hash }} <br />
+                {{ version_date | date: 'mediumDate' }} -
+                {{ version_date | date: 'shortTime' }}
+            </div>
+            <div
+                class="absolute right-2 bottom-2 text-xs text-white/30 text-shadow-lg"
             >
                 {{ playing_id() }}
             </div>
@@ -58,7 +66,7 @@ function isDebugEnabled(value: string | null) {
             width: 100%;
         }
     `,
-    imports: [MediaPlayerComponent],
+    imports: [DatePipe, MediaPlayerComponent],
 })
 export class SignagePanelComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
@@ -71,6 +79,8 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
     public readonly debug = this._signage.debug;
     public readonly playing_id = this._signage.playing_id;
     public readonly muted = signal(false);
+    public readonly version_hash = VERSION.hash;
+    public readonly version_date = VERSION.time;
 
     private readonly _players = viewChildren(MediaPlayerComponent);
 

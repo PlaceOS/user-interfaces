@@ -53,7 +53,7 @@ const URL_FETCH_TIMEOUT = 30 * 1000;
                 ></video>
                 <iframe
                     #previous_web_el
-                    class="absolute top-0 left-0 h-full w-full border-0"
+                    class="absolute top-0 left-0 hidden h-full w-full border-0"
                 ></iframe>
                 @if (previous_plugin()) {
                     <plugin-embed
@@ -65,6 +65,7 @@ const URL_FETCH_TIMEOUT = 30 * 1000;
             <div
                 #media_container
                 class="pointer-events-none absolute top-0 left-0 h-full w-full"
+                [class.opacity-0]="defer_reveal()"
             >
                 <img
                     #img_el
@@ -204,6 +205,7 @@ export class MediaPlayerComponent
     public readonly show_playlist = signal(true);
     public readonly hold_over_item = signal(true);
     public readonly in_animation = signal(false);
+    public readonly defer_reveal = signal(false);
 
     public readonly active_plugin = signal<SignagePlugin>(null);
     public readonly previous_plugin = signal<SignagePlugin>(null);
@@ -211,6 +213,9 @@ export class MediaPlayerComponent
     public readonly plugin_play = signal(0);
 
     private _plugin_finished = false;
+    private _deferred_reveal_item_id = '';
+    private _deferred_reveal_resume = true;
+    private _deferred_reveal_transition = false;
     private _playback_duration = 0;
     private _web_waiting_item_id = '';
     /** Number of items skipped due to load failures since the last good display */
@@ -447,6 +452,7 @@ export class MediaPlayerComponent
                 }
                 this._web_waiting_item_id = '';
                 this._resetPlayback();
+                this._finishDeferredReveal(item, 0);
             },
             2000,
         );
@@ -522,7 +528,17 @@ export class MediaPlayerComponent
         // same item can be skipped again the next time the playlist loops.
         this._display_generation++;
         const should_transition = this._shouldTransition(old_item, item);
+        const should_defer_reveal = this._shouldDeferReveal(item);
         this._startDisplayAttempt(item);
+        if (should_defer_reveal) {
+            this._prepareDeferredReveal(
+                old_item,
+                resume_if_paused,
+                should_transition,
+            );
+        } else {
+            this._clearDeferredReveal();
+        }
         if (item.type === 'plugin' && item.plugin) {
             this._showPlugin(item);
         } else {
@@ -534,14 +550,86 @@ export class MediaPlayerComponent
             );
             if (!ready) return;
         }
+        if (should_defer_reveal) return;
+        this._revealPreparedItem(item, resume_if_paused, should_transition);
+    }
+
+    private _shouldDeferReveal(item: MediaPlayerItem) {
+        return item?.type === 'webpage' || item?.type === 'plugin';
+    }
+
+    private _prepareDeferredReveal(
+        old_item: MediaPlayerItem,
+        resume_if_paused: boolean,
+        should_transition: boolean,
+    ) {
+        this.clearTimeout('deferred-reveal');
+        this.defer_reveal.set(true);
+        this._deferred_reveal_item_id = this.active_item?.id || '';
+        this._deferred_reveal_resume = resume_if_paused;
+        this._deferred_reveal_transition = should_transition;
+        if (!should_transition) return;
+        const url =
+            old_item && old_item.type !== 'plugin' ? this.url(old_item.id) : '';
+        this._setPreviousMediaLayer(old_item, url?.toString());
+    }
+
+    private _clearDeferredReveal() {
+        this.clearTimeout('deferred-reveal');
+        this._deferred_reveal_item_id = '';
+        this._deferred_reveal_resume = true;
+        this._deferred_reveal_transition = false;
+        this.defer_reveal.set(false);
+    }
+
+    private _finishDeferredReveal(item: MediaPlayerItem, delay = 2000) {
+        if (this._deferred_reveal_item_id !== item.id) return;
+        const reveal = () => {
+            if (
+                this.active_item?.id !== item.id ||
+                this._deferred_reveal_item_id !== item.id
+            ) {
+                return;
+            }
+            this._resetPlayback();
+            this._revealPreparedItem(
+                item,
+                this._deferred_reveal_resume,
+                this._deferred_reveal_transition,
+            );
+        };
+        if (delay <= 0) {
+            reveal();
+            return;
+        }
+        this.timeout(
+            'deferred-reveal',
+            reveal,
+            delay,
+        );
+    }
+
+    private _revealPreparedItem(
+        item: MediaPlayerItem,
+        resume_if_paused: boolean,
+        should_transition: boolean,
+    ) {
+        this._clearDeferredReveal();
         this.playing_id.emit(item.id);
         if (!should_transition) {
             this._resetTransitionState();
             if (resume_if_paused && this.state() === 'PAUSED')
                 this.togglePause();
+            this._playPreparedPlugin(item);
             return;
         }
         this._transition(resume_if_paused);
+        this._playPreparedPlugin(item);
+    }
+
+    private _playPreparedPlugin(item: MediaPlayerItem) {
+        if (item.type !== 'plugin') return;
+        this.timeout('plugin-play', () => this.plugin_play.set(time()), 100);
     }
 
     private _startDisplayAttempt(item: MediaPlayerItem) {
@@ -589,6 +677,7 @@ export class MediaPlayerComponent
             active_el.src === url_string;
         if (keep_webpage_loaded) {
             this._web_waiting_item_id = '';
+            this._finishDeferredReveal(item, 0);
         } else {
             active_el.src = url_string;
         }
@@ -673,6 +762,7 @@ export class MediaPlayerComponent
                 );
                 this._web_waiting_item_id = '';
                 this._resetPlayback();
+                this._finishDeferredReveal(item, 0);
             },
             15 * 1000,
         );
@@ -710,12 +800,11 @@ export class MediaPlayerComponent
                         this._effectivePlaybackDuration(item),
                 },
             });
-            // Send play signal after config
-            this.timeout(
-                'plugin-play',
-                () => this.plugin_play.set(time()),
-                100,
-            );
+            if (this._deferred_reveal_item_id === item.id) {
+                this._finishDeferredReveal(item);
+            } else {
+                this._playPreparedPlugin(item);
+            }
         } else if (status === 'finished') {
             this._plugin_finished = true;
         }

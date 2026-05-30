@@ -446,6 +446,7 @@ describe('MediaPlayerComponent', () => {
 
         hold_delay_callback();
         expect(spectator.component['_web_waiting_item_id']).toBe('');
+        spectator.component.state.set('PLAYING');
 
         spectator.component['_item_start'] = Date.now() - 9_999;
         spectator.component['_updateItem']();
@@ -454,6 +455,44 @@ describe('MediaPlayerComponent', () => {
         spectator.component['_item_start'] = Date.now() - 10_001;
         spectator.component['_updateItem']();
         expect(next_item_spy).toHaveBeenCalled();
+    });
+
+    it('should keep the previous item visible while a webpage loads', () => {
+        jest.useFakeTimers();
+        const items = [
+            create_item('media-1'),
+            create_item('webpage-1', {
+                type: 'webpage',
+                duration: 10_000,
+            }),
+        ];
+        load_playlist(items);
+        spectator.component['_item_urls'] = {
+            'media-1': 'blob:media-1' as any,
+            'webpage-1': 'blob:webpage-1' as any,
+        };
+        spectator.component.index.set(0);
+        spectator.component.hold_over_item.set(false);
+        spectator.component.state.set('PLAYING');
+        spectator.component['clearTimeout']('wait-for-url');
+        const transition_spy = jest.spyOn(
+            spectator.component as any,
+            '_transition',
+        );
+
+        spectator.component.setPlaylistItem(1);
+
+        expect(spectator.component.defer_reveal()).toBe(true);
+        expect(transition_spy).not.toHaveBeenCalled();
+
+        spectator.component.onWebpageLoad();
+        jest.advanceTimersByTime(1999);
+        expect(spectator.component.defer_reveal()).toBe(true);
+        expect(transition_spy).not.toHaveBeenCalled();
+
+        jest.advanceTimersByTime(1);
+        expect(spectator.component.defer_reveal()).toBe(false);
+        expect(transition_spy).toHaveBeenCalled();
     });
 
     it('should pause cleanly if replaying a looping video is blocked', async () => {
@@ -475,7 +514,7 @@ describe('MediaPlayerComponent', () => {
         expect(next_item_spy).toHaveBeenCalledTimes(1);
     });
 
-    it('should configure plugins when they report ready status', () => {
+    it('should configure plugins when they report ready status and reveal them after two seconds', () => {
         jest.useFakeTimers();
         const plugin_item = create_item('plugin-1', {
             type: 'plugin',
@@ -488,13 +527,19 @@ describe('MediaPlayerComponent', () => {
         spectator.component.active_plugin.set(plugin_item.plugin);
 
         spectator.component.onPluginStatus('ready');
-        jest.advanceTimersByTime(101);
 
         expect(spectator.component.plugin_config()).toEqual({
             instance_id: 'plugin-1',
             config: { theme: 'dark' },
             timing: { scheduled_duration_ms: 20000 },
         });
+        expect(spectator.component.defer_reveal()).toBe(true);
+        expect(spectator.component.plugin_play()).toBe(0);
+
+        jest.advanceTimersByTime(2000);
+        expect(spectator.component.defer_reveal()).toBe(false);
+
+        jest.advanceTimersByTime(101);
         expect(spectator.component.plugin_play()).toBeGreaterThan(0);
         jest.useRealTimers();
     });
