@@ -94,6 +94,16 @@ export function log(
     }
 }
 
+export function scoped_log(scope: string) {
+    return {
+        debug: (msg, ...args) => log(scope, msg, args, 'debug'),
+        info: (msg, ...args) => log(scope, msg, args, 'info'),
+        error: (msg, ...args) => log(scope, msg, args, 'error'),
+        warn: (msg, ...args) => log(scope, msg, args, 'warn'),
+        log: (msg, ...args) => log(scope, msg, args, 'log'),
+    };
+}
+
 /**
  * Pad the start of a string or number with given character
  * @param value String or number to pad
@@ -702,7 +712,10 @@ export function getAllDayTimeRange(
         const period_start = clampStart(day_start, period_end);
         return {
             date: period_start,
-            duration: Math.max(0, differenceInMinutes(period_end, period_start)),
+            duration: Math.max(
+                0,
+                differenceInMinutes(period_end, period_start),
+            ),
             date_end: period_end,
         };
     }
@@ -1018,9 +1031,7 @@ export function setupFormTimeSync(
     const bookableWindowRemaining = (start: number): number => {
         if (!bookable_hours || !start || form.value.id)
             return Number.POSITIVE_INFINITY;
-        const time = timezone
-            ? toZonedTime(start, timezone)
-            : new Date(start);
+        const time = timezone ? toZonedTime(start, timezone) : new Date(start);
         const start_minutes = time.getHours() * 60 + time.getMinutes();
         const end_minutes = bookable_hours.end * 60;
         return Math.max(0, end_minutes - start_minutes);
@@ -1215,7 +1226,11 @@ export function setupFormTimeSync(
                 !!last_date && !!date && !isSameDay(previous_time, next_time);
             const aligned = alignToBookableHours(date, calendar_day_changed);
             let effective = aligned !== date ? aligned : date;
-            if (form.value.all_day && effective < Date.now() && !form.value.id) {
+            if (
+                form.value.all_day &&
+                effective < Date.now() &&
+                !form.value.id
+            ) {
                 const snapped = roundCeil(Date.now());
                 effective = alignToBookableHours(snapped) || snapped;
             }
@@ -1365,10 +1380,7 @@ export function setupFormTimeSync(
             if (patch.all_day_end !== undefined)
                 all_day_end = patch.all_day_end;
 
-            if (
-                form.value.all_day &&
-                form.getRawValue().date
-            ) {
+            if (form.value.all_day && form.getRawValue().date) {
                 form.patchValue(
                     getAllDayTimeRange(
                         form.getRawValue().date,

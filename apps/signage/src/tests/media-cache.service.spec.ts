@@ -5,7 +5,10 @@ import { MediaCacheService } from '../app/media-cache.service';
 
 describe('MediaCacheService', () => {
     let spectator: SpectatorService<MediaCacheService>;
-    const stored_files = new Map<string, File>();
+    const stored_files = new Map<
+        string,
+        { name: string; url?: string; owner?: string; file: File }
+    >();
 
     const create_service = createServiceFactory({
         service: MediaCacheService,
@@ -14,6 +17,62 @@ describe('MediaCacheService', () => {
     beforeEach(() => {
         stored_files.clear();
         localStorage.clear();
+        const create_transaction = () => {
+            const transaction = {
+                oncomplete: null,
+                onerror: null,
+                onabort: null,
+                objectStore: () => ({
+                    add: (item: {
+                        name: string;
+                        url?: string;
+                        owner?: string;
+                        file: File;
+                    }) => {
+                        const request: IDBRequest = {} as IDBRequest;
+                        stored_files.set(item.name, item);
+                        queueMicrotask(() => {
+                            request.onsuccess?.({} as Event);
+                            transaction.oncomplete?.({} as Event);
+                        });
+                        return request;
+                    },
+                    get: (name: string) => {
+                        const request: IDBRequest = {
+                            result: stored_files.get(name),
+                        } as IDBRequest;
+                        queueMicrotask(() => request.onsuccess?.({} as Event));
+                        return request;
+                    },
+                    getAll: () => {
+                        const request: IDBRequest = {
+                            result: [...stored_files.values()],
+                        } as IDBRequest;
+                        queueMicrotask(() => request.onsuccess?.({} as Event));
+                        return request;
+                    },
+                    delete: (name: string) => {
+                        const request: IDBRequest = {} as IDBRequest;
+                        stored_files.delete(name);
+                        queueMicrotask(() => {
+                            request.onsuccess?.({} as Event);
+                            transaction.oncomplete?.({} as Event);
+                        });
+                        return request;
+                    },
+                    clear: () => {
+                        const request: IDBRequest = {} as IDBRequest;
+                        stored_files.clear();
+                        queueMicrotask(() => {
+                            request.onsuccess?.({} as Event);
+                            transaction.oncomplete?.({} as Event);
+                        });
+                        return request;
+                    },
+                }),
+            };
+            return transaction;
+        };
         Object.defineProperty(globalThis, 'indexedDB', {
             configurable: true,
             value: {
@@ -22,26 +81,9 @@ describe('MediaCacheService', () => {
         });
         spectator = create_service();
         spectator.service['_cache_db'] = {
-            transaction: jest.fn(() => ({
-                objectStore: () => ({
-                    add: (item: { name: string; file: File }) => {
-                        const request: IDBRequest = {} as IDBRequest;
-                        stored_files.set(item.name, item.file);
-                        queueMicrotask(() => request.onsuccess?.({} as Event));
-                        return request;
-                    },
-                    get: (name: string) => {
-                        const request: IDBRequest = {
-                            result: stored_files.has(name)
-                                ? { file: stored_files.get(name) }
-                                : undefined,
-                        } as IDBRequest;
-                        queueMicrotask(() => request.onsuccess?.({} as Event));
-                        return request;
-                    },
-                }),
-            })),
+            transaction: jest.fn(create_transaction),
         } as any;
+        spectator.service['_cache_db_ready'] = Promise.resolve();
     });
 
     afterEach(() => {
@@ -148,5 +190,200 @@ describe('MediaCacheService', () => {
         await expect(
             spectator.service.getFile('/stale.png'),
         ).resolves.toEqual(expect.any(File));
+    });
+
+    it('should load cache metadata from IndexedDB records', async () => {
+        stored_files.set('stored-file', {
+            name: 'stored-file',
+            url: '/stored.png',
+            owner: 'display-1',
+            file: new File(['image'], 'stored-file'),
+        });
+
+        await spectator.service['_loadCacheMetadataFromStore']();
+
+        expect(spectator.service.availableFiles('display-1')).toEqual([
+            '/stored.png',
+        ]);
+        await expect(
+            spectator.service.getFile('/stored.png'),
+        ).resolves.toEqual(expect.any(File));
+    });
+
+    it('should re-download cached metadata when the backing file is blank', async () => {
+        stored_files.set('blank-file', {
+            name: 'blank-file',
+            url: '/blank.png',
+            owner: 'display-1',
+            file: new File([], 'blank-file'),
+        });
+        const fetch_spy = jest.fn().mockResolvedValue({
+            ok: true,
+            blob: () =>
+                Promise.resolve(new Blob(['fresh'], { type: 'image/png' })),
+        } as Response);
+        Object.defineProperty(globalThis, 'fetch', {
+            configurable: true,
+            value: fetch_spy,
+        });
+        spectator.service['_file_cache_index'].next([
+            {
+                id: 'blank-file',
+                url: '/blank.png',
+                owner: 'display-1',
+                status: 'cached',
+                on_change: new Subject(),
+            },
+        ]);
+
+        const has_failures = await spectator.service.requestFilesToCache(
+            ['/blank.png'],
+            'display-1',
+        );
+
+        expect(has_failures).toBe(false);
+        expect(fetch_spy).toHaveBeenCalledWith('/blank.png');
+        await expect(
+            spectator.service.getFile('/blank.png'),
+        ).resolves.toEqual(expect.any(File));
+    });
+
+    it('should reject empty downloads instead of storing blank files', async () => {
+        const fetch_spy = jest.fn().mockResolvedValue({
+            ok: true,
+            blob: () => Promise.resolve(new Blob([])),
+        } as Response);
+        Object.defineProperty(globalThis, 'fetch', {
+            configurable: true,
+            value: fetch_spy,
+        });
+
+        const has_failures = await spectator.service.requestFilesToCache([
+            '/empty.png',
+        ]);
+
+        expect(has_failures).toBe(true);
+        expect(stored_files.size).toBe(0);
+        expect(spectator.service.availableFiles()).toEqual([]);
+        await expect(spectator.service.getFile('/empty.png')).resolves.toBe(
+            null,
+        );
+    });
+
+    it('should wait for the cache database before writing files', async () => {
+        let resolve_ready: () => void;
+        spectator.service['_cache_db_ready'] = new Promise<void>(
+            (resolve) => (resolve_ready = resolve),
+        );
+        const fetch_spy = jest.fn().mockResolvedValue({
+            ok: true,
+            blob: () =>
+                Promise.resolve(new Blob(['image'], { type: 'image/png' })),
+        } as Response);
+        Object.defineProperty(globalThis, 'fetch', {
+            configurable: true,
+            value: fetch_spy,
+        });
+
+        const cache_promise = spectator.service.requestFilesToCache([
+            '/waiting.png',
+        ]);
+        await Promise.resolve();
+        await Promise.resolve();
+
+        expect(fetch_spy).toHaveBeenCalledWith('/waiting.png');
+        expect(spectator.service['_cache_db'].transaction).not.toHaveBeenCalled();
+
+        resolve_ready();
+        await cache_promise;
+
+        expect(spectator.service['_cache_db'].transaction).toHaveBeenCalled();
+        expect(spectator.service.availableFiles()).toEqual(['/waiting.png']);
+    });
+
+    it('should not start a duplicate download for media already loading', async () => {
+        const on_change = new Subject<any>();
+        spectator.service['_file_cache_index'].next([
+            {
+                id: 'loading-file',
+                url: '/loading.png',
+                owner: 'display-1',
+                status: 'downloading',
+                on_change,
+            },
+        ]);
+        const fetch_spy = jest.fn();
+        Object.defineProperty(globalThis, 'fetch', {
+            configurable: true,
+            value: fetch_spy,
+        });
+
+        const cache_promise = spectator.service.requestFilesToCache(
+            ['/loading.png'],
+            'display-1',
+        );
+        await Promise.resolve();
+        spectator.service['_cache_index'][0].status = 'cached';
+        on_change.next('cached');
+        const has_failures = await cache_promise;
+
+        expect(has_failures).toBe(false);
+        expect(fetch_spy).not.toHaveBeenCalled();
+    });
+
+    it('should only mark files cached after the IndexedDB transaction completes', async () => {
+        let complete_transaction: () => void;
+        spectator.service['_cache_db'] = {
+            transaction: jest.fn(() => {
+                const transaction = {
+                    oncomplete: null,
+                    onerror: null,
+                    onabort: null,
+                    objectStore: () => ({
+                        add: (item: {
+                            name: string;
+                            url?: string;
+                            owner?: string;
+                            file: File;
+                        }) => {
+                            const request: IDBRequest = {} as IDBRequest;
+                            stored_files.set(item.name, item);
+                            queueMicrotask(() =>
+                                request.onsuccess?.({} as Event),
+                            );
+                            complete_transaction = () =>
+                                transaction.oncomplete?.({} as Event);
+                            return request;
+                        },
+                    }),
+                };
+                return transaction;
+            }),
+        } as any;
+        const fetch_spy = jest.fn().mockResolvedValue({
+            ok: true,
+            blob: () =>
+                Promise.resolve(new Blob(['image'], { type: 'image/png' })),
+        } as Response);
+        Object.defineProperty(globalThis, 'fetch', {
+            configurable: true,
+            value: fetch_spy,
+        });
+
+        const cache_promise = spectator.service.requestFilesToCache([
+            '/transaction.png',
+        ]);
+        await Promise.resolve();
+        await Promise.resolve();
+        await Promise.resolve();
+
+        expect(spectator.service.availableFiles()).toEqual([]);
+
+        complete_transaction();
+        await cache_promise;
+
+        expect(spectator.service.availableFiles()).toEqual([
+            '/transaction.png',
+        ]);
     });
 });
