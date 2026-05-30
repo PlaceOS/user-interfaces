@@ -28,6 +28,13 @@ import { MediaEvent } from './signage.service';
 import { TimeControlsComponent } from './time-controls.component';
 import { MediaPlayerItem, MediaPlayerState } from './types';
 
+/** Max wait for an item whose data is still being downloaded before skipping */
+const MAX_URL_WAIT_LOADING = 30 * 1000;
+/** Max wait for an item whose data is not actively loading before skipping */
+const MAX_URL_WAIT_IDLE = 3 * 1000;
+/** Safety cap so a hung getURL() never pins an item from being re-fetched */
+const URL_FETCH_TIMEOUT = 30 * 1000;
+
 @Component({
     selector: 'media-player',
     template: `
@@ -215,6 +222,9 @@ export class MediaPlayerComponent
     private _display_generation = 0;
     /** Media item ids whose URL is currently being fetched */
     private _url_fetch_in_flight = new Set<string>();
+    /** Id of the item we are currently waiting on a URL for, and when we began */
+    private _url_wait_item_id = '';
+    private _url_wait_started = 0;
 
     private _item_playlist: MediaPlayerItem[] = [];
     private _playlist_signature = '';
@@ -540,16 +550,33 @@ export class MediaPlayerComponent
                 const fetched = this._item_urls[item.id] !== undefined;
                 const fetching = this._url_fetch_in_flight.has(item.id);
                 const still_loading = item.isLoading?.() ?? false;
-                if (still_loading || fetching || !fetched) {
-                    // The media is still being prepared/downloaded by the
-                    // services - keep waiting rather than dropping the item.
+                // Track how long we have waited on THIS item. The wait-for-url
+                // retry re-runs setPlaylistItem, which resets _item_start and so
+                // disables the normal duration-based advance - without a cap the
+                // playlist would hang forever on an item whose data never comes.
+                if (this._url_wait_item_id !== item.id) {
+                    this._url_wait_item_id = item.id;
+                    this._url_wait_started = time();
+                }
+                const waited = time() - this._url_wait_started;
+                const max_wait = still_loading
+                    ? MAX_URL_WAIT_LOADING
+                    : MAX_URL_WAIT_IDLE;
+                if (
+                    (still_loading || fetching || !fetched) &&
+                    waited < max_wait
+                ) {
+                    // Still being prepared/downloaded - keep waiting rather than
+                    // dropping the item.
                     this._ensureItemURL(item);
                     this.timeout('wait-for-url', () =>
                         this.setPlaylistItem(index, resume_if_paused),
                     );
                     return;
                 }
-                // URL resolved to nothing and nothing is loading it - skip.
+                // Nothing is loading it, or we waited too long - skip so the
+                // playlist keeps advancing instead of hanging on this item.
+                this._url_wait_item_id = '';
                 log(
                     'MediaPlayer',
                     `Unable to resolve URL for media "${item.name}"`,
@@ -560,6 +587,7 @@ export class MediaPlayerComponent
                 this._skipFailedMedia();
                 return;
             }
+            this._url_wait_item_id = '';
             const active_el = (
                 item.type === 'video'
                     ? this._video_element()
@@ -806,13 +834,22 @@ export class MediaPlayerComponent
         // failure that we retry, undefined means we have not fetched it yet.
         if (this._item_urls[item.id]) return;
         if (this._url_fetch_in_flight.has(item.id)) return;
-        this._url_fetch_in_flight.add(item.id);
+        const id = item.id;
+        this._url_fetch_in_flight.add(id);
+        let settled = false;
+        const settle = (resolved: string | URL | null) => {
+            if (settled) return;
+            settled = true;
+            this.clearTimeout(`url-fetch-${id}`);
+            this._url_fetch_in_flight.delete(id);
+            this._item_urls[id] = (resolved ?? null) as any;
+        };
         item.getURL()
-            .catch(() => null)
-            .then((resolved) => {
-                this._url_fetch_in_flight.delete(item.id);
-                this._item_urls[item.id] = (resolved ?? null) as any;
-            });
+            .then((resolved) => settle(resolved ?? null))
+            .catch(() => settle(null));
+        // A hung getURL() must not pin the in-flight flag, or the item could
+        // never be re-fetched on later loops.
+        this.timeout(`url-fetch-${id}`, () => settle(null), URL_FETCH_TIMEOUT);
     }
 
     private _transition(resume_on_end = true) {

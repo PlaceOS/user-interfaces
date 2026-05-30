@@ -622,4 +622,24 @@ describe('MediaPlayerComponent', () => {
         spectator.component.onMediaLoadError('image');
         expect(next_item_spy).toHaveBeenCalled();
     });
+
+    it('should skip an item instead of hanging when its URL never resolves', () => {
+        setMockTime(1_000_000);
+        load_playlist([
+            create_item('a', { getURL: () => new Promise<string>(() => {}) }),
+            create_item('b'),
+            create_item('c'),
+        ]);
+        const next_item_spy = jest.spyOn(spectator.component, 'nextItem');
+
+        // The fetch for "a" has been in-flight far longer than the wait cap.
+        spectator.component['_url_fetch_in_flight'].add('a');
+        spectator.component['_url_wait_item_id'] = 'a';
+        spectator.component['_url_wait_started'] = 0;
+        next_item_spy.mockClear();
+
+        spectator.component.setPlaylistItem(0);
+
+        expect(next_item_spy).toHaveBeenCalled();
+    });
 });
