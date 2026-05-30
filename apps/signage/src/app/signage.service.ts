@@ -668,7 +668,7 @@ export class SignageService extends AsyncHandler {
         return await this._media_cache
             .getFile(media.media_url)
             .catch((_) => null)
-            .then((_) => URL.createObjectURL(_))
+            .then((_) => (_ ? URL.createObjectURL(_) : ''))
             .catch((_) => '');
     }
 

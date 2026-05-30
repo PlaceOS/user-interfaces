@@ -1,4 +1,5 @@
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { Subject } from 'rxjs';
 
 import { MediaCacheService } from '../app/media-cache.service';
 
@@ -31,9 +32,9 @@ describe('MediaCacheService', () => {
                     },
                     get: (name: string) => {
                         const request: IDBRequest = {
-                            result: {
-                                file: stored_files.get(name),
-                            },
+                            result: stored_files.has(name)
+                                ? { file: stored_files.get(name) }
+                                : undefined,
                         } as IDBRequest;
                         queueMicrotask(() => request.onsuccess?.({} as Event));
                         return request;
@@ -111,6 +112,41 @@ describe('MediaCacheService', () => {
         ).rejects.toBe('Cached item with URL not found');
         await expect(
             spectator.service.getFile('/outer.png'),
+        ).resolves.toEqual(expect.any(File));
+    });
+
+    it('should re-download cached metadata when the backing file is missing', async () => {
+        const fetch_spy = jest.fn().mockResolvedValue({
+            ok: true,
+            blob: () =>
+                Promise.resolve(new Blob(['fresh'], { type: 'image/png' })),
+        } as Response);
+        Object.defineProperty(globalThis, 'fetch', {
+            configurable: true,
+            value: fetch_spy,
+        });
+        spectator.service['_file_cache_index'].next([
+            {
+                id: 'missing-file',
+                url: '/stale.png',
+                owner: 'display-1',
+                status: 'cached',
+                on_change: new Subject(),
+            },
+        ]);
+
+        const has_failures = await spectator.service.requestFilesToCache(
+            ['/stale.png'],
+            'display-1',
+        );
+
+        expect(has_failures).toBe(false);
+        expect(fetch_spy).toHaveBeenCalledWith('/stale.png');
+        expect(spectator.service.availableFiles('display-1')).toEqual([
+            '/stale.png',
+        ]);
+        await expect(
+            spectator.service.getFile('/stale.png'),
         ).resolves.toEqual(expect.any(File));
     });
 });

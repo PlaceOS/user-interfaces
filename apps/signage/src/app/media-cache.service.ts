@@ -75,7 +75,12 @@ export class MediaCacheService extends AsyncHandler {
         let uncached_count = 0;
         for (const url of url_list) {
             const existing = this._cache_index.find((_) => _.url === url);
-            if (existing?.status === 'cached') continue;
+            if (
+                existing?.status === 'cached' &&
+                (await this._hasStoredFile(existing, url))
+            ) {
+                continue;
+            }
             // Stagger requests for uncached resources to avoid overwhelming the network
             if (uncached_count > 0) {
                 await new Promise((resolve) =>
@@ -224,38 +229,7 @@ export class MediaCacheService extends AsyncHandler {
             return null;
         }
 
-        return new Promise<File>((resolve, reject) => {
-            const transaction = this._cache_db.transaction(
-                ['files'],
-                'readonly',
-            );
-            const objectStore = transaction.objectStore('files');
-            const request = objectStore.get(cache_item.id);
-
-            request.onerror = (event: any) => {
-                log(
-                    'MediaCache',
-                    `Error retrieving cached resource. ${event.target.error}`,
-                    [url],
-                    'error',
-                );
-                reject(event.target.error);
-            };
-
-            request.onsuccess = (event: any) => {
-                if (request.result) {
-                    resolve(request.result.file);
-                } else {
-                    log(
-                        'MediaCache',
-                        `Unable to find cached resource. ${event.target.error}`,
-                        [url],
-                        'error',
-                    );
-                    resolve(null);
-                }
-            };
-        });
+        return this._storedFile(cache_item, url);
     }
 
     public invalidateStore() {
@@ -320,6 +294,51 @@ export class MediaCacheService extends AsyncHandler {
                 resolve();
             };
         });
+    }
+
+    private _hasStoredFile(cache_item: CacheItem, url: string) {
+        return this._storedFile(cache_item, url).then((_) => !!_);
+    }
+
+    private _storedFile(cache_item: CacheItem, url: string): Promise<File> {
+        return new Promise<File>((resolve, reject) => {
+            const transaction = this._cache_db.transaction(
+                ['files'],
+                'readonly',
+            );
+            const objectStore = transaction.objectStore('files');
+            const request = objectStore.get(cache_item.id);
+
+            request.onerror = (event: any) => {
+                log(
+                    'MediaCache',
+                    `Error retrieving cached resource. ${event.target.error}`,
+                    [url],
+                    'error',
+                );
+                reject(event.target.error);
+            };
+
+            request.onsuccess = (event: any) => {
+                if (request.result) {
+                    resolve(request.result.file);
+                } else {
+                    log(
+                        'MediaCache',
+                        `Unable to find cached resource.`,
+                        [url],
+                        'error',
+                    );
+                    this._markInvalidated(cache_item);
+                    resolve(null);
+                }
+            };
+        });
+    }
+
+    private _markInvalidated(cache_item: CacheItem) {
+        cacheStatus(cache_item, 'invalidated');
+        this._file_cache_index.next([...this._cache_index]);
     }
 
     private _loadCacheMetadata() {
