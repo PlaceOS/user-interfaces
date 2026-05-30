@@ -54,6 +54,29 @@ describe('PlaylistDisplayComponent', () => {
         expect(emit_spy).toHaveBeenCalledWith(2);
     });
 
+    it('should map media types to playlist display icons', () => {
+        expect(
+            spectator.component.mediaTypeIcon(
+                create_item('image-media', { type: 'image' }),
+            ),
+        ).toBe('image');
+        expect(
+            spectator.component.mediaTypeIcon(
+                create_item('video-media', { type: 'video' }),
+            ),
+        ).toBe('video_library');
+        expect(
+            spectator.component.mediaTypeIcon(
+                create_item('webpage-media', { type: 'webpage' }),
+            ),
+        ).toBe('http');
+        expect(
+            spectator.component.mediaTypeIcon(
+                create_item('plugin-media', { type: 'plugin' }),
+            ),
+        ).toBe('extension');
+    });
+
     it('should disable invalid playlist items in the template', () => {
         spectator.setInput('playlist', [
             create_item('valid-media'),

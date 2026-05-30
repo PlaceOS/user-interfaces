@@ -23,7 +23,7 @@ import { MediaPlayerItem } from './types';
                 >
                     <div class="text-info">
                         {{
-                            'APP.SIGNAGE.PLAYLIST_LENGTH'
+                            'COMMON.ITEM_COUNT'
                                 | translate
                                     : { count: playlist()?.length || 0 }
                                     : playlist()?.length || 0
@@ -81,8 +81,16 @@ import { MediaPlayerItem } from './types';
                                 </div>
                                 <div class="flex w-1/2 flex-1 flex-col">
                                     <div class="truncate">{{ item.name }}</div>
-                                    <div class="text-xs opacity-30">
-                                        {{ item.playlist_name }}
+                                    <div
+                                        class="flex items-center gap-1 text-xs opacity-30"
+                                    >
+                                        <icon
+                                            class="bg-base-300 rounded text-base"
+                                            [matTooltip]="item.type"
+                                            matTooltipPosition="right"
+                                            >{{ mediaTypeIcon(item) }}</icon
+                                        >
+                                        <div>{{ item.playlist_name }}</div>
                                     </div>
                                 </div>
                                 <div
@@ -128,6 +136,21 @@ export class PlaylistDisplayComponent {
 
     public readonly validateMedia = (item: MediaPlayerItem) =>
         validateMedia(item);
+
+    public mediaTypeIcon(item: MediaPlayerItem): string {
+        switch (item.type) {
+            case 'video':
+                return 'video_library';
+            case 'webpage':
+                return 'http';
+            case 'plugin':
+                return 'extension';
+            case 'image':
+                return 'image';
+            default:
+                return 'draft';
+        }
+    }
 
     public isValidMedia(item: MediaPlayerItem): boolean {
         return validateMedia(item) === '';
