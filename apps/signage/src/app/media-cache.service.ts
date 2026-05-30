@@ -98,57 +98,81 @@ export class MediaCacheService extends AsyncHandler {
     }
 
     public async requestAndCacheFile(url: string, cache_item: CacheItem) {
-        cacheStatus(cache_item, 'downloading');
-        // If not an API call, just load the image
-        if (url.includes('/api/engine/v2/uploads')) {
-            this._applyAuthenticationCookie();
-        }
-        // Fetch the file from the server
-        const response = await fetch(url);
-        if (!response.ok) {
-            log(
-                'MediaCache',
-                `Error fetching resource. ${response.status}`,
-                [url],
-                'error',
-            );
-            throw new Error();
-        }
-
-        // Get the file as a blob
-        const blob = await response.blob();
-
-        cacheStatus(cache_item, 'storing');
-
-        // Create a File object (or you can use the blob directly)
-        const file = new File([blob], cache_item.id, { type: blob.type });
-        // Store the file in IndexedDB
-        const transaction = this._cache_db.transaction(['files'], 'readwrite');
-        const objectStore = transaction.objectStore('files');
-        const request = objectStore.add({ name: cache_item.id, file: file });
-
-        return new Promise<void>((resolve, reject) => {
-            request.onerror = (event: any) => {
+        try {
+            cacheStatus(cache_item, 'downloading');
+            // If not an API call, just load the image
+            if (url.includes('/api/engine/v2/uploads')) {
+                this._applyAuthenticationCookie();
+            }
+            // Fetch the file from the server
+            const response = await fetch(url);
+            if (!response.ok) {
                 log(
                     'MediaCache',
-                    `Error caching resource. ${event.target.error}`,
-                    url,
+                    `Error fetching resource. ${response.status}`,
+                    [url],
                     'error',
                 );
-                cacheStatus(cache_item, 'invalidated');
-                reject(event.target.error);
-            };
+                throw new Error();
+            }
 
-            request.onsuccess = () => {
-                log('MediaCache', `Cached resource.`, [cache_item.id, url]);
-                cacheStatus(cache_item, 'cached');
-                resolve();
-            };
-        });
+            // Get the file as a blob
+            const blob = await response.blob();
+
+            cacheStatus(cache_item, 'storing');
+
+            // Create a File object (or you can use the blob directly)
+            const file = new File([blob], cache_item.id, { type: blob.type });
+            // Store the file in IndexedDB
+            const transaction = this._cache_db.transaction(
+                ['files'],
+                'readwrite',
+            );
+            const objectStore = transaction.objectStore('files');
+            const request = objectStore.add({
+                name: cache_item.id,
+                file: file,
+            });
+
+            return new Promise<void>((resolve, reject) => {
+                request.onerror = (event: any) => {
+                    log(
+                        'MediaCache',
+                        `Error caching resource. ${event.target.error}`,
+                        url,
+                        'error',
+                    );
+                    cacheStatus(cache_item, 'invalidated');
+                    reject(event.target.error);
+                };
+
+                request.onsuccess = () => {
+                    log('MediaCache', `Cached resource.`, [
+                        cache_item.id,
+                        url,
+                    ]);
+                    cacheStatus(cache_item, 'cached');
+                    resolve();
+                };
+            });
+        } catch (e) {
+            log(
+                'MediaCache',
+                `Error downloading resource.`,
+                [url, e],
+                'error',
+            );
+            if (cache_item.status !== 'invalidated') {
+                cacheStatus(cache_item, 'invalidated');
+            }
+            throw e;
+        }
     }
 
     public availableFiles() {
-        return this._cache_index.map((_) => _.url);
+        return this._cache_index
+            .filter((_) => _.status === 'cached')
+            .map((_) => _.url);
     }
 
     /**
