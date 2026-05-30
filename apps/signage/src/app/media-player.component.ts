@@ -62,10 +62,14 @@ import { MediaPlayerItem, MediaPlayerState } from './types';
                 <img
                     #img_el
                     class="absolute top-0 left-0 h-full w-full object-contain object-center"
+                    (load)="onMediaLoadSuccess()"
+                    (error)="onMediaLoadError('image')"
                 />
                 <video
                     #video_el
                     class="absolute top-0 left-0 h-full w-full object-contain object-center"
+                    (loadeddata)="onMediaLoadSuccess()"
+                    (error)="onMediaLoadError('video')"
                 ></video>
                 <iframe
                     #web_el
@@ -202,6 +206,12 @@ export class MediaPlayerComponent
     private _plugin_finished = false;
     private _playback_duration = 0;
     private _web_waiting_item_id = '';
+    /** Number of items skipped due to load failures since the last good display */
+    private _consecutive_load_errors = 0;
+    /** Marks the display cycle whose load error has already been handled */
+    private _handled_error_cycle = '';
+    /** Per-item count of attempts spent waiting for a media URL to resolve */
+    private _url_wait_attempts: Record<string, number> = {};
 
     private _item_playlist: MediaPlayerItem[] = [];
     private _playlist_signature = '';
@@ -410,6 +420,8 @@ export class MediaPlayerComponent
         if (item?.type !== 'webpage' || this._web_waiting_item_id !== item.id) {
             return;
         }
+        this.onMediaLoadSuccess();
+        this.clearTimeout('webpage-load-timeout');
         this.clearTimeout('webpage-hold-delay');
         this.timeout(
             'webpage-hold-delay',
@@ -516,11 +528,26 @@ export class MediaPlayerComponent
             this.plugin_config.set(null);
             const url = this.url(item.id);
             if (!url) {
+                const attempts = (this._url_wait_attempts[item.id] || 0) + 1;
+                this._url_wait_attempts[item.id] = attempts;
+                if (attempts > 3) {
+                    delete this._url_wait_attempts[item.id];
+                    log(
+                        'MediaPlayer',
+                        `Unable to resolve URL for media "${item.name}"`,
+                        [item],
+                        'warn',
+                    );
+                    this._handled_error_cycle = this._currentMediaCycle();
+                    this._skipFailedMedia();
+                    return;
+                }
                 this.timeout('wait-for-url', () =>
                     this.setPlaylistItem(index, resume_if_paused),
                 );
                 return;
             }
+            this._url_wait_attempts[item.id] = 0;
             const active_el = (
                 item.type === 'video'
                     ? this._video_element()
@@ -542,6 +569,24 @@ export class MediaPlayerComponent
             if (item.type === 'webpage' && !keep_webpage_loaded) {
                 this.progress.set(0);
                 this.duration.set(0);
+                // Some pages never report a load (e.g. blocked by the remote
+                // server's X-Frame-Options). Without this fallback the player
+                // would wait on that page forever, so continue after a delay.
+                this.timeout(
+                    'webpage-load-timeout',
+                    () => {
+                        if (this._web_waiting_item_id !== item.id) return;
+                        log(
+                            'MediaPlayer',
+                            `Webpage "${item.name}" did not load in time; continuing.`,
+                            [this.url(item.id)?.toString()],
+                            'warn',
+                        );
+                        this._web_waiting_item_id = '';
+                        this._resetPlayback();
+                    },
+                    15 * 1000,
+                );
             }
             if (item.type === 'video') {
                 this._requestVideoPlayback(() => {
@@ -630,9 +675,13 @@ export class MediaPlayerComponent
     }
 
     private _requestVideoPlayback(on_error?: () => void) {
+        const cycle = this._currentMediaCycle();
         requestAnimationFrame(() => {
             const play_action = this._video_element().nativeElement.play();
             play_action?.catch((error) => {
+                // The active item changed before playback started - ignore this
+                // stale rejection so we don't skip the wrong (now current) item.
+                if (cycle !== this._currentMediaCycle()) return;
                 log(
                     'MediaPlayer',
                     'Video playback could not be started.',
@@ -642,6 +691,65 @@ export class MediaPlayerComponent
                 on_error?.();
             });
         });
+    }
+
+    public onMediaLoadSuccess() {
+        this._consecutive_load_errors = 0;
+        this.clearTimeout('retry-failed-media');
+    }
+
+    public onMediaLoadError(source: 'image' | 'video') {
+        const item = this.active_item;
+        if (!item || item.type === 'plugin' || item.type === 'webpage') return;
+        // The image element is reused for unknown media types; the video
+        // element is only used for video. Match the error to the active item so
+        // a stale, hidden element doesn't skip the current media.
+        const is_video_item = item.type === 'video';
+        if (is_video_item !== (source === 'video')) return;
+        // Only react to a given item's failure once per display cycle.
+        const cycle = this._currentMediaCycle();
+        if (cycle === this._handled_error_cycle) return;
+        this._handled_error_cycle = cycle;
+        log(
+            'MediaPlayer',
+            `Failed to load ${item.type} media "${item.name}"`,
+            [this.url(item.id)?.toString()],
+            'warn',
+        );
+        this._skipFailedMedia();
+    }
+
+    private _currentMediaCycle() {
+        return `${this.index()}:${this._item_start}`;
+    }
+
+    private _skipFailedMedia() {
+        const valid_count = this._item_playlist.filter((item) =>
+            this.isValidMedia(item),
+        ).length;
+        this._consecutive_load_errors++;
+        // Drop the cached URL so a transient failure can be re-fetched on retry.
+        const failed = this.active_item;
+        if (failed) {
+            const url = this._item_urls[failed.id];
+            if (url) URL.revokeObjectURL(url.toString());
+            delete this._item_urls[failed.id];
+        }
+        // If every playable item has failed to load, stop cycling (which would
+        // peg the CPU) and retry the whole playlist after a short delay.
+        if (valid_count <= 1 || this._consecutive_load_errors >= valid_count) {
+            this._consecutive_load_errors = 0;
+            this.timeout(
+                'retry-failed-media',
+                () => {
+                    this._handled_error_cycle = '';
+                    this.setPlaylistItem(this.index());
+                },
+                30 * 1000,
+            );
+            return;
+        }
+        this.nextItem();
     }
 
     private async _processURLs() {
