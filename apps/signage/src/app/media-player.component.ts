@@ -147,6 +147,7 @@ const INTERACTIVE_PRELOAD_LEAD_TIME = 3 * 1000;
                         [progress]="progress()"
                         [duration]="duration()"
                         [animating]="in_animation()"
+                        [loading]="waiting_for_item()"
                         (event)="handleControlEvent($event)"
                     />
                 </div>
@@ -244,6 +245,7 @@ export class MediaPlayerComponent
     public readonly hold_over_item = signal(true);
     public readonly in_animation = signal(false);
     public readonly defer_reveal = signal(false);
+    public readonly waiting_for_item = signal(false);
     public readonly active_output = signal<0 | 1>(0);
     public readonly pending_output = signal<0 | 1>(0);
 
@@ -700,6 +702,7 @@ export class MediaPlayerComponent
     ) {
         this.clearTimeout('deferred-reveal');
         this.defer_reveal.set(true);
+        this.waiting_for_item.set(true);
         this._deferred_reveal_item_id = this.active_item?.id || '';
         this._deferred_reveal_resume = resume_if_paused;
         this._deferred_reveal_transition = should_transition;
@@ -711,6 +714,7 @@ export class MediaPlayerComponent
         this._deferred_reveal_resume = true;
         this._deferred_reveal_transition = false;
         this.defer_reveal.set(false);
+        this.waiting_for_item.set(false);
     }
 
     private _finishDeferredReveal(item: MediaPlayerItem, delay = 2000) {
@@ -809,6 +813,7 @@ export class MediaPlayerComponent
             return this._handleMissingMediaURL(item, index, resume_if_paused);
         }
         this._url_wait_item_id = '';
+        if (!this._shouldDeferReveal(item)) this.waiting_for_item.set(false);
         const active_el = this._activeMediaElement(item, output);
         const url_string = url.toString();
         const keep_webpage_loaded =
@@ -843,12 +848,14 @@ export class MediaPlayerComponent
             this._shouldWaitForMediaURL(item, fetched, fetching, still_loading)
         ) {
             this._ensureItemURL(item);
+            this.waiting_for_item.set(true);
             this.timeout('wait-for-url', () =>
                 this.setPlaylistItem(index, resume_if_paused),
             );
             return false;
         }
         this._url_wait_item_id = '';
+        this.waiting_for_item.set(false);
         log(
             'MediaPlayer',
             `Unable to resolve URL for media "${item.name}"`,
@@ -1141,6 +1148,7 @@ export class MediaPlayerComponent
             this.nextItem();
         };
         if (skip_delay <= 0) {
+            this.waiting_for_item.set(false);
             skip();
             return;
         }

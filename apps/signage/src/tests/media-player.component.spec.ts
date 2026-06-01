@@ -546,15 +546,18 @@ describe('MediaPlayerComponent', () => {
         spectator.component.setPlaylistItem(1);
 
         expect(spectator.component.defer_reveal()).toBe(true);
+        expect(spectator.component.waiting_for_item()).toBe(true);
         expect(transition_spy).not.toHaveBeenCalled();
 
         spectator.component.onWebpageLoad();
         jest.advanceTimersByTime(1999);
         expect(spectator.component.defer_reveal()).toBe(true);
+        expect(spectator.component.waiting_for_item()).toBe(true);
         expect(transition_spy).not.toHaveBeenCalled();
 
         jest.advanceTimersByTime(1);
         expect(spectator.component.defer_reveal()).toBe(false);
+        expect(spectator.component.waiting_for_item()).toBe(false);
         expect(transition_spy).toHaveBeenCalled();
     });
 

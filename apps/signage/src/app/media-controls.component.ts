@@ -1,5 +1,6 @@
 import { Component, model, output } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import {
@@ -52,7 +53,7 @@ type MediaEvent =
                 <button
                     icon
                     matRipple
-                    class="hover:bg-base-200"
+                    class="hover:bg-base-200 relative"
                     (click)="event.emit(state() ? 'PAUSE' : 'PLAY')"
                     [matTooltip]="
                         (state() === 'PLAYING'
@@ -61,9 +62,15 @@ type MediaEvent =
                         ) | translate
                     "
                 >
-                    <icon>{{
+                    <icon [class.opacity-30]="loading()">{{
                         state() === 'PLAYING' ? 'pause' : 'play_arrow'
                     }}</icon>
+                    @if (loading()) {
+                        <mat-spinner
+                            class="absolute inset-0 m-auto"
+                            [diameter]="24"
+                        ></mat-spinner>
+                    }
                 </button>
                 <button
                     icon
@@ -143,6 +150,7 @@ type MediaEvent =
         TranslatePipe,
         MatTooltipModule,
         MatProgressBarModule,
+        MatProgressSpinnerModule,
         MediaDurationPipe,
     ],
 })
@@ -151,6 +159,7 @@ export class MediaControlsComponent {
     public readonly duration = model(0);
     public readonly progress = model(0);
     public readonly muted = model(false);
+    public readonly loading = model(false);
     public readonly loop = model<MediaLoop>('NONE');
     public readonly state = model<MediaPlayerState>('PAUSED');
     public readonly shuffle = model(false);
