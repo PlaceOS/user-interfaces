@@ -160,11 +160,24 @@ describe('SignagePanelComponent', () => {
         expect(sessionStorage.getItem('SIGNAGE.muted')).toBe('true');
     });
 
+    it('should default to muted media', () => {
+        build_component();
+
+        expect(spectator.component.muted()).toBe(true);
+    });
+
     it('should restore muted state from session storage', () => {
         sessionStorage.setItem('SIGNAGE.muted', 'true');
         build_component();
 
         expect(spectator.component.muted()).toBe(true);
+    });
+
+    it('should restore unmuted state from session storage', () => {
+        sessionStorage.setItem('SIGNAGE.muted', 'false');
+        build_component();
+
+        expect(spectator.component.muted()).toBe(false);
     });
 
     it('should clear expired override playlists on the interval check', () => {

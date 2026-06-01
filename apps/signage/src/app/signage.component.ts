@@ -47,15 +47,15 @@ function isDebugEnabled(value: string | null) {
         @if (debug()) {
             <div
                 stroke
-                class="text-base-400 absolute bottom-2 left-2 text-xs text-shadow-lg"
+                class="text-base-400 absolute bottom-2 left-2 font-mono text-xs text-shadow-lg"
             >
                 {{ version_hash }} <br />
-                {{ version_date | date: 'mediumDate' }} -
+                {{ version_date | date: 'mediumDate' }} &ndash;
                 {{ version_date | date: 'shortTime' }}
             </div>
             <div
                 stroke
-                class="text-base-400 absolute right-2 bottom-2 text-xs text-shadow-lg"
+                class="text-base-400 absolute right-2 bottom-2 font-mono text-xs text-shadow-lg"
             >
                 {{ playing_id() }}
             </div>
@@ -84,7 +84,7 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
     public readonly override_playlist = this._signage.override_playlist;
     public readonly debug = this._signage.debug;
     public readonly playing_id = this._signage.playing_id;
-    public readonly muted = signal(false);
+    public readonly muted = signal(true);
     public readonly version_hash = VERSION.hash;
     public readonly version_date = VERSION.time;
 
