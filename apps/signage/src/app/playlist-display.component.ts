@@ -82,15 +82,26 @@ import { MediaPlayerItem } from './types';
                                 <div class="flex w-1/2 flex-1 flex-col">
                                     <div class="truncate">{{ item.name }}</div>
                                     <div
-                                        class="flex items-center gap-1 text-xs opacity-30"
+                                        class="flex items-center gap-1 text-xs"
                                     >
                                         <icon
-                                            class="bg-base-300 rounded text-base"
+                                            class="bg-base-300 text-base-400 rounded text-base"
                                             [matTooltip]="item.type"
                                             matTooltipPosition="right"
                                             >{{ mediaTypeIcon(item) }}</icon
                                         >
-                                        <div>{{ item.playlist_name }}</div>
+                                        <div class="text-base-300 flex-1">
+                                            {{ item.playlist_name }}
+                                        </div>
+                                        @if (isCachedMedia(item)) {
+                                            <icon
+                                                data-testid="cached-media-icon"
+                                                class="text-success text-base"
+                                                matTooltip="Cached"
+                                                matTooltipPosition="right"
+                                                >offline_pin</icon
+                                            >
+                                        }
                                     </div>
                                 </div>
                                 <div
@@ -101,7 +112,7 @@ import { MediaPlayerItem } from './types';
                             </button>
                         }
                     </div>
-                    <div class="flex flex-col justify-end">
+                    <div class="mt-2 flex flex-col justify-end">
                         <div
                             class="bg-base-300 rounded-lg p-2 text-center text-xs opacity-30"
                         >
@@ -154,6 +165,10 @@ export class PlaylistDisplayComponent {
 
     public isValidMedia(item: MediaPlayerItem): boolean {
         return validateMedia(item) === '';
+    }
+
+    public isCachedMedia(item: MediaPlayerItem): boolean {
+        return item.isCached?.() || false;
     }
 
     public setPlaylistItem(index: number) {

@@ -5,6 +5,7 @@ import { BehaviorSubject, filter, firstValueFrom, Subject } from 'rxjs';
 
 const STORE_KEY = 'PlaceOS.SIGNAGE.cached_files';
 const STAGGER_DELAY_MS = 500; // Delay between uncached resource requests
+const DEFAULT_OWNER_CACHE_LIMIT_BYTES = 512 * 1024 * 1024;
 const log = scoped_log('MediaCache');
 
 export type CacheItemStatus =
@@ -21,6 +22,10 @@ export interface CacheItem {
     owners?: string[];
     status: CacheItemStatus;
     on_change: Subject<CacheItemStatus>;
+}
+
+export interface CacheRequestOptions {
+    max_size?: number;
 }
 
 interface StoredCacheRecord {
@@ -97,6 +102,7 @@ export class MediaCacheService extends AsyncHandler {
     public async requestFilesToCache(
         url_list: string[],
         owner = '',
+        options: CacheRequestOptions = {},
     ): Promise<boolean> {
         let failures = false;
         let uncached_count = 0;
@@ -139,8 +145,10 @@ export class MediaCacheService extends AsyncHandler {
             await this.requestAndCacheFile(url, cache_item).catch((_) => {
                 failures = true;
             });
+            await this.pruneCache(owner, url_list, options.max_size);
         }
         this._file_cache_index.next(this._cache_index);
+        await this.pruneCache(owner, url_list, options.max_size);
         return failures;
     }
 
@@ -203,6 +211,12 @@ export class MediaCacheService extends AsyncHandler {
         return isLoadingStatus(item.status);
     }
 
+    public isCachedFile(url: string): boolean {
+        return this._cache_index.some(
+            (item) => item.url === url && item.status === 'cached',
+        );
+    }
+
     public async getFile(url: string): Promise<File | null> {
         const cache_item = this._cache_index.find((_) => _.url === url);
         if (!cache_item) throw new Error('Unable to find file with URL');
@@ -218,6 +232,49 @@ export class MediaCacheService extends AsyncHandler {
         }
 
         return this._storedFile(cache_item, url);
+    }
+
+    public async pruneCache(
+        owner = '',
+        priority_urls: string[] = [],
+        max_size = DEFAULT_OWNER_CACHE_LIMIT_BYTES,
+    ) {
+        if (!this._cache_db_ready || max_size <= 0) return;
+        await this._cache_db_ready;
+        const records = await this._storedFileRecords().catch(() => []);
+        const owner_items = this._cache_index
+            .filter(
+                (item) =>
+                    item.status === 'cached' &&
+                    (!owner || cacheOwners(item).includes(owner)),
+            )
+            .map((item) => {
+                const record = records.find((_) => _.name === item.id);
+                return {
+                    item,
+                    size: record?.file?.size || 0,
+                    priority: priority_urls.indexOf(item.url),
+                };
+            })
+            .filter((_) => _.size > 0);
+        let total_size = owner_items.reduce(
+            (total, item) => total + item.size,
+            0,
+        );
+        if (total_size <= max_size) return;
+        const eviction_list = owner_items.sort((a, b) => {
+            const a_priority =
+                a.priority >= 0 ? a.priority : Number.MAX_SAFE_INTEGER;
+            const b_priority =
+                b.priority >= 0 ? b.priority : Number.MAX_SAFE_INTEGER;
+            if (a_priority !== b_priority) return b_priority - a_priority;
+            return b.size - a.size;
+        });
+        for (const { item, size } of eviction_list) {
+            if (total_size <= max_size) break;
+            await this.invalidateFile(item.url, owner).catch(() => undefined);
+            total_size -= size;
+        }
     }
 
     public invalidateStore() {

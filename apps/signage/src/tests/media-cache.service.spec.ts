@@ -506,4 +506,85 @@ describe('MediaCacheService', () => {
             '/transaction.png',
         ]);
     });
+
+    it('should keep earlier priority files when the owner cache is over size', async () => {
+        const fetch_spy = jest
+            .fn()
+            .mockResolvedValueOnce({
+                ok: true,
+                blob: () => Promise.resolve(new Blob(['1111'])),
+            } as Response)
+            .mockResolvedValueOnce({
+                ok: true,
+                blob: () => Promise.resolve(new Blob(['2222'])),
+            } as Response)
+            .mockResolvedValueOnce({
+                ok: true,
+                blob: () => Promise.resolve(new Blob(['3333'])),
+            } as Response);
+        Object.defineProperty(globalThis, 'fetch', {
+            configurable: true,
+            value: fetch_spy,
+        });
+
+        await spectator.service.requestFilesToCache(
+            ['/first.png', '/second.png', '/third.png'],
+            'display-1',
+            { max_size: 8 },
+        );
+
+        expect(spectator.service.availableFiles('display-1')).toEqual([
+            '/first.png',
+            '/second.png',
+        ]);
+        expect([...stored_files.values()].map((_) => _.url)).toEqual([
+            '/first.png',
+            '/second.png',
+        ]);
+    });
+
+    it('should evict non-priority owner files before active playlist files', async () => {
+        const make_file = (name: string) => new File(['12345'], name);
+        stored_files.set('active-file', {
+            name: 'active-file',
+            url: '/active.png',
+            owner: 'display-1',
+            owners: ['display-1'],
+            file: make_file('active-file'),
+        });
+        stored_files.set('stale-file', {
+            name: 'stale-file',
+            url: '/stale.png',
+            owner: 'display-1',
+            owners: ['display-1'],
+            file: make_file('stale-file'),
+        });
+        spectator.service['_file_cache_index'].next([
+            {
+                id: 'active-file',
+                url: '/active.png',
+                owner: 'display-1',
+                owners: ['display-1'],
+                status: 'cached',
+                on_change: new Subject(),
+            },
+            {
+                id: 'stale-file',
+                url: '/stale.png',
+                owner: 'display-1',
+                owners: ['display-1'],
+                status: 'cached',
+                on_change: new Subject(),
+            },
+        ]);
+
+        await spectator.service.pruneCache('display-1', ['/active.png'], 5);
+
+        expect(spectator.service.availableFiles('display-1')).toEqual([
+            '/active.png',
+        ]);
+        expect([...stored_files.values()].map((_) => _.url)).toEqual([
+            '/active.png',
+        ]);
+    });
 });

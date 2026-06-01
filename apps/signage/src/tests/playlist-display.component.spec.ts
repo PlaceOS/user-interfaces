@@ -46,6 +46,17 @@ describe('PlaylistDisplayComponent', () => {
         expect(spectator.component.isValidMedia(invalid_item)).toBe(false);
     });
 
+    it('should mark cached media items as cached', () => {
+        expect(
+            spectator.component.isCachedMedia(
+                create_item('cached-media', { isCached: () => true }),
+            ),
+        ).toBe(true);
+        expect(spectator.component.isCachedMedia(create_item('media'))).toBe(
+            false,
+        );
+    });
+
     it('should emit the selected playlist index', () => {
         const emit_spy = jest.spyOn(spectator.component.selected, 'emit');
 
@@ -92,5 +103,18 @@ describe('PlaylistDisplayComponent', () => {
         expect(buttons).toHaveLength(2);
         expect(buttons[0].disabled).toBe(false);
         expect(buttons[1].disabled).toBe(true);
+    });
+
+    it('should show a cache icon for cached playlist items', () => {
+        spectator.setInput('playlist', [
+            create_item('cached-media', { isCached: () => true }),
+            create_item('remote-media', { isCached: () => false }),
+        ]);
+        spectator.setInput('index', 0);
+        spectator.detectChanges();
+
+        expect(
+            spectator.queryAll('[data-testid="cached-media-icon"]'),
+        ).toHaveLength(1);
     });
 });

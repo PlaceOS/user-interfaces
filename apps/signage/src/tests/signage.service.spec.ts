@@ -100,31 +100,31 @@ describe('SignageService', () => {
                 id: 'media-1',
                 name: 'Welcome',
                 media_type: 'image',
-                media_url: '/media-1.jpg',
+                media_uri: '/media-1.jpg',
             },
             {
                 id: 'media-2',
                 name: 'Zone Video',
                 media_type: 'video',
-                media_url: '/media-2.mp4',
+                media_uri: '/media-2.mp4',
             },
             {
                 id: 'media-3',
                 name: 'Scheduled Notice',
                 media_type: 'image',
-                media_url: '/media-3.jpg',
+                media_uri: '/media-3.jpg',
             },
             {
                 id: 'media-4',
                 name: 'Triggered Notice',
                 media_type: 'webpage',
-                media_url: 'https://example.com',
+                media_uri: 'https://example.com',
             },
             {
                 id: 'media-5',
                 name: 'Random Notice',
                 media_type: 'image',
-                media_url: '/media-5.jpg',
+                media_uri: '/media-5.jpg',
             },
         ],
         plugins: [],
@@ -173,12 +173,15 @@ describe('SignageService', () => {
         expect(playlist.map((_) => _.id)).toEqual(['media-1', 'media-2']);
         expect(media_cache.availableFiles).toHaveBeenCalledWith('display-1');
         expect(media_cache.requestFilesToCache).toHaveBeenCalled();
-        expect(media_cache.requestFilesToCache.mock.calls[0][0]).toHaveLength(
-            4,
+        const cache_call = media_cache.requestFilesToCache.mock.calls.find(
+            ([urls]) => urls.length,
         );
-        expect(media_cache.requestFilesToCache.mock.calls[0][1]).toBe(
-            'display-1',
-        );
+        expect(cache_call?.[0]).toEqual([
+            '/media-1.jpg',
+            '/media-2.mp4',
+            '/media-3.jpg',
+        ]);
+        expect(cache_call?.[1]).toBe('display-1');
         expect(media_cache.invalidateFile).toHaveBeenCalledWith(
             '/stale-file.jpg',
             'display-1',

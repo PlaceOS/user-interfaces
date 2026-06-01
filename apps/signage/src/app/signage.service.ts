@@ -472,10 +472,11 @@ export class SignageService extends AsyncHandler {
 
     private async _syncMediaCache(display: any) {
         const cache_owner = display.id || '';
-        const media = this._cacheableMediaURLs(display);
+        const media = this._activeCacheableMediaURLs(display);
+        const known_media = this._cacheableMediaURLs(display);
         const available_media = this._media_cache.availableFiles(cache_owner);
         const extra_media = available_media.filter(
-            (url) => !media.includes(url),
+            (url) => !known_media.includes(url),
         );
         const has_failures = await this._media_cache.requestFilesToCache(
             media,
@@ -487,13 +488,47 @@ export class SignageService extends AsyncHandler {
         if (has_failures) this._retry.next(Date.now());
     }
 
+    private _activeCacheableMediaURLs(display: any) {
+        if (!display?.id || !display.playlist_mappings?.[display.id]) {
+            return this._cacheableMediaURLs(display);
+        }
+        const playlists = this._mappedPlaylistIds(display);
+        const active_media = [
+            ...this._getPlaylistMedia(
+                display,
+                playlists,
+                (p) =>
+                    p.enabled &&
+                    (!playlistSchedules(p).length ||
+                        activePlaylistSchedules(p).some(
+                            ({ schedule }) => !schedule.play_takeover,
+                        )),
+            ),
+            ...this._getPlaylistMedia(
+                display,
+                playlists,
+                (p) =>
+                    p.enabled &&
+                    activePlaylistSchedules(p).some(
+                        ({ schedule }) => schedule.play_takeover,
+                    ),
+            ),
+        ];
+        const urls = active_media
+            .filter(({ type }) => type !== 'webpage' && type !== 'plugin')
+            .map(({ url }) => url)
+            .filter((_) => !!_) as string[];
+        return [...new Set(urls)];
+    }
+
     private _cacheableMediaURLs(display: any) {
         return (display.playlist_media || [])
             .filter((item) => {
                 const type = item.media_type || item.type;
                 return type !== 'webpage' && type !== 'plugin';
             })
-            .map((item) => item.media_url);
+            .map((item) => item.media_url)
+            .filter((_) => !!_);
     }
 
     private _checkScheduledOverrides(display: any, playlist_ids: string[]) {
@@ -675,6 +710,11 @@ export class SignageService extends AsyncHandler {
                     ? () => false
                     : () =>
                           this._media_cache.isLoadingFile(media_ref.media_url),
+            isCached:
+                media_ref.media_type === 'webpage' || is_plugin
+                    ? () => false
+                    : () =>
+                          this._media_cache.isCachedFile(media_ref.media_url),
         } as MediaPlayerItem;
     }
 
