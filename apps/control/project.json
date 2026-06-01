@@ -58,7 +58,7 @@
                     "fileReplacements": [
                         {
                             "replace": "apps/control/src/environments/environment.ts",
-                            "with": "apps/control/src/environments/environment.prod.ts"
+                            "with": "apps/control/src/environments/environment.mobile.ts"
                         },
                         {
                             "replace": "libs/common/src/lib/settings.ts",

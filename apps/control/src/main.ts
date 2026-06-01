@@ -62,7 +62,7 @@ bootstrapApplication(AppComponent, {
         provideAnimations(),
         provideRouter(routes, withHashLocation()),
         provideServiceWorker('ngsw-worker.js', {
-            enabled: !isDevMode(),
+            enabled: !isDevMode() && environment.service_worker,
             registrationStrategy: 'registerWhenStable:30000',
         }),
         {
