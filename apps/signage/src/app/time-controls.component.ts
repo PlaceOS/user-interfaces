@@ -250,7 +250,7 @@ export class TimeControlsComponent extends AsyncHandler implements OnInit {
     }
 
     public speedLabel(value: number) {
-        return `⨯${value}`;
+        return `${value}x`;
     }
 
     public formatTimeInput(value: number) {

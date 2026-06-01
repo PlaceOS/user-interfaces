@@ -21,7 +21,6 @@ import {
 import {
     BehaviorSubject,
     combineLatest,
-    interval,
     lastValueFrom,
     of,
 } from 'rxjs';
@@ -38,7 +37,7 @@ import {
 } from 'rxjs/operators';
 import { getNextCronRunTimestampInRange } from './cron-helpers';
 import { MediaCacheService } from './media-cache.service';
-import { time } from './media-helpers';
+import { mockAwareInterval, time } from './media-helpers';
 import { MediaPlayerItem } from './types';
 
 const DISPLAY_KEY = 'PlaceOS.SIGNAGE.display_details';
@@ -318,7 +317,7 @@ export class SignageService extends AsyncHandler {
 
     public readonly playlist = combineLatest([
         this.display,
-        interval(15 * 1000).pipe(startWith(0)),
+        mockAwareInterval(15 * SECONDS),
     ]).pipe(
         map(([item]: [any, number]) => {
             try {
@@ -376,7 +375,7 @@ export class SignageService extends AsyncHandler {
     public readonly override_check = combineLatest([
         this.display,
         this.override_playlists,
-        interval(15 * SECONDS).pipe(startWith(0)),
+        mockAwareInterval(15 * SECONDS),
     ]);
 
     public setDisplay(system_id: string) {

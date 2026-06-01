@@ -1,3 +1,4 @@
+import { Observable } from 'rxjs';
 import { MediaPlayerItem } from './types';
 
 let _time_override = 0;
@@ -23,6 +24,31 @@ export function mockTimeState() {
         speed: _time_override ? _time_speed : 1,
         time: time(),
     };
+}
+
+export function mockAwareInterval(
+    interval_ms: number,
+    minimum_interval_ms = 250,
+) {
+    return new Observable<number>((observer) => {
+        let tick = 0;
+        let timer: ReturnType<typeof setTimeout>;
+        const schedule = () => {
+            const { active, speed } = mockTimeState();
+            const effective_speed = active && speed > 1 ? speed : 1;
+            const delay = Math.max(
+                minimum_interval_ms,
+                Math.min(interval_ms, interval_ms / effective_speed),
+            );
+            timer = setTimeout(() => {
+                observer.next(tick++);
+                schedule();
+            }, delay);
+        };
+        observer.next(tick++);
+        schedule();
+        return () => clearTimeout(timer);
+    });
 }
 
 export function validateMedia(item: MediaPlayerItem) {

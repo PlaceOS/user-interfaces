@@ -22,7 +22,12 @@ import {
 } from '@placeos/components';
 import { MediaAnimation, SignagePlugin } from '@placeos/ts-client';
 import { MediaControlsComponent } from './media-controls.component';
-import { findValidPlaylistIndex, time, validateMedia } from './media-helpers';
+import {
+    findValidPlaylistIndex,
+    mockTimeState,
+    time,
+    validateMedia,
+} from './media-helpers';
 import { PlaylistDisplayComponent } from './playlist-display.component';
 import { MediaEvent } from './signage.service';
 import { TimeControlsComponent } from './time-controls.component';
@@ -273,6 +278,7 @@ export class MediaPlayerComponent
     /** Id of the item we are currently waiting on a URL for, and when we began */
     private _url_wait_item_id = '';
     private _url_wait_started = 0;
+    private _last_video_speed = new Map<0 | 1, number>();
 
     private _item_playlist: MediaPlayerItem[] = [];
     private _playlist_signature = '';
@@ -280,6 +286,8 @@ export class MediaPlayerComponent
     private _item_urls: Record<string, URL> = {};
     private _item_start = 0;
     private _item_progress = 0;
+    private _item_real_start = 0;
+    private _item_real_progress = 0;
     private _item_output = new Map<string, 0 | 1>();
     private _output_items: [MediaPlayerItem, MediaPlayerItem] = [null, null];
     private _ready_output_items = new Set<string>();
@@ -439,20 +447,24 @@ export class MediaPlayerComponent
         if (this.state() === 'PLAYING') {
             this.state.set('PAUSED');
             this._item_progress = time() - this._item_start;
+            this._item_real_progress = Date.now() - this._item_real_start;
             this._item_start = 0;
+            this._item_real_start = 0;
             if (this.active_item?.type === 'video') {
                 this._video_element().nativeElement.pause();
             }
         } else {
             this.state.set('PLAYING');
             this._item_start = time() - this._item_progress;
+            this._item_real_start = Date.now() - this._item_real_progress;
             this._item_progress = 0;
+            this._item_real_progress = 0;
             if (this.active_item?.type === 'video') {
-                this._requestVideoPlayback(this.active_output(), () => {
-                    this.state.set('PAUSED');
-                    this._item_start = 0;
-                    this._item_progress = 0;
-                });
+                this._applyVideoPlaybackSpeed(
+                    this.active_output(),
+                    () => this._pauseBlockedVideoPlayback(),
+                    true,
+                );
             }
             if (this.index() === -1) this._updateItem();
         }
@@ -484,6 +496,8 @@ export class MediaPlayerComponent
             this.state.set('PAUSED');
             this._item_start = 0;
             this._item_progress = 0;
+            this._item_real_start = 0;
+            this._item_real_progress = 0;
             return;
         }
         const new_index = this._normalisePlaylistIndex(next_index);
@@ -573,6 +587,9 @@ export class MediaPlayerComponent
     private _updateItem() {
         if (this.state() === 'PAUSED') return;
         const item = this.active_item;
+        if (item?.type === 'video') {
+            this._applyVideoPlaybackSpeed(this._activeItemOutput());
+        }
         const playback_duration = this._effectivePlaybackDuration(item);
         const now = time();
         const duration = now - this._item_start;
@@ -763,11 +780,14 @@ export class MediaPlayerComponent
         }
         this._item_start = time();
         this._item_progress = 0;
+        this._item_real_start = Date.now();
+        this._item_real_progress = 0;
         this._playback_duration = item.duration || 15 * 1000;
         this.progress.set(0);
         this.duration.set(0);
         this._plugin_finished = false;
         this._hideMediaElements(output);
+        this._last_video_speed.delete(output);
     }
 
     private _hideMediaElements(output: 0 | 1) {
@@ -898,18 +918,46 @@ export class MediaPlayerComponent
         should_transition: boolean,
     ) {
         if (item.type === 'video') {
-            this._requestVideoPlayback(output, () => {
-                if (should_transition) {
-                    this.nextItem();
-                } else {
-                    this.state.set('PAUSED');
-                    this._item_start = 0;
-                    this._item_progress = 0;
-                }
+            this._applyVideoPlaybackSpeed(output, () => {
+                if (should_transition) this.nextItem();
+                else this._pauseBlockedVideoPlayback();
             });
         } else {
             this._video_element(output).nativeElement.pause();
         }
+    }
+
+    private _pauseBlockedVideoPlayback() {
+        this.state.set('PAUSED');
+        this._item_start = 0;
+        this._item_progress = 0;
+        this._item_real_start = 0;
+        this._item_real_progress = 0;
+    }
+
+    private _applyVideoPlaybackSpeed(
+        output: 0 | 1,
+        on_error?: () => void,
+        force_play = false,
+    ) {
+        const video = this._video_element(output).nativeElement;
+        const { active, speed } = mockTimeState();
+        const playback_speed = active ? speed : 1;
+        if (
+            !force_play &&
+            this._last_video_speed.get(output) === playback_speed
+        ) {
+            return;
+        }
+        this._last_video_speed.set(output, playback_speed);
+        if (playback_speed <= 0) {
+            video.pause();
+            return;
+        }
+        video.playbackRate = playback_speed;
+        video.muted = this.muted() || playback_speed >= 4;
+        if (this.state() === 'PLAYING')
+            this._requestVideoPlayback(output, on_error);
     }
 
     public onPluginStatus(
@@ -994,6 +1042,8 @@ export class MediaPlayerComponent
         }
         this._item_progress = 0;
         this._item_start = this.state() === 'PLAYING' ? time() : 0;
+        this._item_real_progress = 0;
+        this._item_real_start = this.state() === 'PLAYING' ? Date.now() : 0;
         this.progress.set(0);
         this.duration.set(0);
     }
@@ -1154,10 +1204,11 @@ export class MediaPlayerComponent
     }
 
     private _shouldPreloadUpcomingInteractiveContent() {
-        if (!this._item_start) return false;
+        if (!this._item_real_start) return false;
         const item = this.active_item;
         const remaining =
-            this._effectivePlaybackDuration(item) - (time() - this._item_start);
+            this._effectivePlaybackDuration(item) -
+            (Date.now() - this._item_real_start);
         return remaining <= INTERACTIVE_PRELOAD_LEAD_TIME;
     }
 

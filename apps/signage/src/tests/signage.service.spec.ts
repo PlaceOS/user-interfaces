@@ -5,6 +5,7 @@ import { MockProvider } from 'ng-mocks';
 import { firstValueFrom, of, skip, take, throwError } from 'rxjs';
 
 import { MediaCacheService } from '../app/media-cache.service';
+import { setMockTime } from '../app/media-helpers';
 import { SignageService } from '../app/signage.service';
 
 jest.mock('@placeos/ts-client', () => {
@@ -154,6 +155,7 @@ describe('SignageService', () => {
 
     afterEach(() => {
         if (spectator?.service) spectator.service.ngOnDestroy();
+        setMockTime(0);
         jest.useRealTimers();
         jest.restoreAllMocks();
     });
@@ -404,6 +406,60 @@ describe('SignageService', () => {
         expect(playlists.at(-1)).toEqual(['media-1']);
 
         jest.advanceTimersByTime(15_000);
+        await Promise.resolve();
+
+        expect(playlists.at(-1)).toEqual(['media-1', 'media-3']);
+        subscription.unsubscribe();
+    });
+
+    it('should update scheduled playlists quickly while debug time is fast-forwarding', async () => {
+        const now = new Date('2026-01-01T10:00:00Z');
+        jest.setSystemTime(now);
+        setMockTime(now.getTime(), 64);
+        (ts_client.showSignage as jest.Mock).mockReturnValue(
+            of(
+                create_display({
+                    playlist_mappings: {
+                        'display-1': ['base-playlist', 'future-playlist'],
+                        'zone-1': [],
+                        'trig-fire': ['trigger-playlist'],
+                    },
+                    playlist_config: {
+                        ...create_display().playlist_config,
+                        'future-playlist': [
+                            {
+                                id: 'future-playlist',
+                                name: 'Future Playlist',
+                                enabled: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 10000,
+                                schedules: [
+                                    {
+                                        play_at: Math.floor(
+                                            (now.getTime() + 15_000) / 1000,
+                                        ),
+                                        play_cron: '',
+                                        play_period: 1,
+                                        play_takeover: false,
+                                    },
+                                ],
+                            },
+                            ['media-3'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+        const playlists: string[][] = [];
+        const subscription = spectator.service.playlist.subscribe((playlist) =>
+            playlists.push(playlist.map((_) => _.id)),
+        );
+
+        spectator.service.setDisplay('display-1');
+        await Promise.resolve();
+        expect(playlists.at(-1)).toEqual(['media-1']);
+
+        jest.advanceTimersByTime(250);
         await Promise.resolve();
 
         expect(playlists.at(-1)).toEqual(['media-1', 'media-3']);

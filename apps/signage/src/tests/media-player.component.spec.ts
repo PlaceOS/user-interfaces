@@ -269,6 +269,57 @@ describe('MediaPlayerComponent', () => {
         expect(next_item_spy).toHaveBeenCalled();
     });
 
+    it('should apply simulated time speed to video playback', () => {
+        setMockTime(1_000, 4);
+        const item = create_item('video-1', { type: 'video' });
+        load_playlist([item]);
+        spectator.component.index.set(0);
+        spectator.component.state.set('PLAYING');
+        spectator.component.hold_over_item.set(false);
+        spectator.component['_item_start'] = 1_000;
+
+        spectator.component['_updateItem']();
+
+        expect(
+            spectator.component['_video_element']().nativeElement.playbackRate,
+        ).toBe(4);
+        expect(
+            spectator.component['_video_element']().nativeElement.muted,
+        ).toBe(true);
+    });
+
+    it('should preserve video audio below 4x when the player is not muted', () => {
+        setMockTime(1_000, 2);
+        const item = create_item('video-1', { type: 'video' });
+        load_playlist([item]);
+        spectator.component.index.set(0);
+        spectator.component.state.set('PLAYING');
+        spectator.component.muted.set(false);
+        spectator.component.hold_over_item.set(false);
+        spectator.component['_item_start'] = 1_000;
+
+        spectator.component['_updateItem']();
+
+        expect(
+            spectator.component['_video_element']().nativeElement.muted,
+        ).toBe(false);
+    });
+
+    it('should pause video playback when simulated time is static', () => {
+        setMockTime(1_000, 0);
+        const item = create_item('video-1', { type: 'video' });
+        const pause_spy = jest.spyOn(HTMLMediaElement.prototype, 'pause');
+        load_playlist([item]);
+        spectator.component.index.set(0);
+        spectator.component.state.set('PLAYING');
+        spectator.component.hold_over_item.set(false);
+        spectator.component['_item_start'] = 1_000;
+
+        spectator.component['_updateItem']();
+
+        expect(pause_spy).toHaveBeenCalled();
+    });
+
     it('should emit playlist metrics when advancing from the last valid playlist item', async () => {
         const event_spy = jest.spyOn(spectator.component.event, 'emit');
         const items = [
@@ -523,6 +574,40 @@ describe('MediaPlayerComponent', () => {
         spectator.component.pending_output.set(0);
         spectator.component['_output_items'] = [items[0], null];
         spectator.component['_item_start'] = Date.now() - 11_999;
+        spectator.component['_item_real_start'] = Date.now() - 11_999;
+        spectator.component['_item_urls'] = {
+            'webpage-1': 'blob:webpage-1' as any,
+            'webpage-2': 'blob:webpage-2' as any,
+        };
+
+        spectator.component['_processURLs']();
+
+        expect(spectator.component['_output_items'][1]).toBeNull();
+        expect(
+            spectator.component['_web_element'](1).nativeElement.src,
+        ).toBe('');
+    });
+
+    it('should not preload upcoming interactive media early when debug time is fast', () => {
+        jest.useFakeTimers();
+        jest.setSystemTime(1_000);
+        setMockTime(10_000, 16);
+        const items = [
+            create_item('webpage-1', {
+                type: 'webpage',
+                duration: 15_000,
+            }),
+            create_item('webpage-2', {
+                type: 'webpage',
+            }),
+        ];
+        load_playlist(items);
+        spectator.component.index.set(0);
+        spectator.component.active_output.set(0);
+        spectator.component.pending_output.set(0);
+        spectator.component['_output_items'] = [items[0], null];
+        spectator.component['_item_start'] = -2_000;
+        spectator.component['_item_real_start'] = 250;
         spectator.component['_item_urls'] = {
             'webpage-1': 'blob:webpage-1' as any,
             'webpage-2': 'blob:webpage-2' as any,
@@ -552,6 +637,7 @@ describe('MediaPlayerComponent', () => {
         spectator.component.pending_output.set(0);
         spectator.component['_output_items'] = [items[0], null];
         spectator.component['_item_start'] = Date.now() - 12_000;
+        spectator.component['_item_real_start'] = Date.now() - 12_000;
         spectator.component['_item_urls'] = {
             'webpage-1': 'blob:webpage-1' as any,
             'webpage-2': 'blob:webpage-2' as any,
@@ -582,6 +668,7 @@ describe('MediaPlayerComponent', () => {
         spectator.component.pending_output.set(0);
         spectator.component['_output_items'] = [items[0], null];
         spectator.component['_item_start'] = Date.now() - 12_000;
+        spectator.component['_item_real_start'] = Date.now() - 12_000;
         spectator.component['_item_urls'] = {
             'webpage-1': 'blob:webpage-1' as any,
             'webpage-2': 'blob:webpage-2' as any,
@@ -627,6 +714,7 @@ describe('MediaPlayerComponent', () => {
         spectator.component.pending_output.set(0);
         spectator.component['_output_items'] = [items[0], null];
         spectator.component['_item_start'] = Date.now() - 12_000;
+        spectator.component['_item_real_start'] = Date.now() - 12_000;
 
         spectator.component['_processURLs']();
 

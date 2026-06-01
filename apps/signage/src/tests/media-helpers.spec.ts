@@ -1,6 +1,7 @@
 import { MediaAnimation } from '@placeos/ts-client';
 import {
     findValidPlaylistIndex,
+    mockAwareInterval,
     mockTimeState,
     setMockTime,
     time,
@@ -84,6 +85,24 @@ describe('time helpers', () => {
 
         expect(mockTimeState().active).toBe(true);
         expect(mockTimeState().speed).toBe(0.5);
+    });
+
+    it('scales polling intervals while mock time is fast-forwarding', () => {
+        jest.useFakeTimers();
+        setMockTime(1000, 64);
+        const callback = jest.fn();
+        const subscription = mockAwareInterval(15_000).subscribe(callback);
+
+        expect(callback).toHaveBeenCalledTimes(1);
+
+        jest.advanceTimersByTime(249);
+        expect(callback).toHaveBeenCalledTimes(1);
+
+        jest.advanceTimersByTime(1);
+        expect(callback).toHaveBeenCalledTimes(2);
+
+        subscription.unsubscribe();
+        jest.useRealTimers();
     });
 });
 
