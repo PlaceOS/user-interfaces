@@ -58,7 +58,7 @@ interface MediaPreviewModalData {
                 <section
                     class="bg-base-200 border-base-300 relative flex flex-1 items-center justify-center overflow-hidden rounded-lg border"
                 >
-                    @if (thumbnail_url && media_loading()) {
+                    @if (thumbnail_url && (media_loading() || media_error())) {
                         <img
                             auth
                             [source]="thumbnail_url"
@@ -66,7 +66,23 @@ interface MediaPreviewModalData {
                             class="absolute inset-0 h-full w-full object-contain"
                         />
                     }
-                    @if (media_loading()) {
+                    @if (media_error()) {
+                        <div
+                            class="absolute inset-0 z-10 flex flex-col items-center justify-center space-y-2 bg-base-200/80 p-4 text-center"
+                            aria-live="assertive"
+                        >
+                            <icon class="text-error text-6xl">error</icon>
+                            <p class="text-base font-medium">
+                                Failed to load media preview.
+                            </p>
+                            <p class="text-base-content/70 max-w-sm text-sm">
+                                {{
+                                    'SIGNAGE_MANAGER.PREVIEW_UNAVAILABLE'
+                                        | translate
+                                }}
+                            </p>
+                        </div>
+                    } @else if (media_loading()) {
                         <div
                             class="absolute inset-0 z-10 flex items-center justify-center bg-base-200/60"
                             aria-live="polite"
@@ -83,9 +99,11 @@ interface MediaPreviewModalData {
                             [source]="media_url"
                             [alt]="item.name"
                             class="h-full max-h-full w-full max-w-full object-contain"
-                            [class.opacity-0]="media_loading()"
+                            [class.opacity-0]="
+                                media_loading() || media_error()
+                            "
                             (load)="handleMediaLoaded()"
-                            (error)="handleMediaLoaded()"
+                            (error)="handleMediaLoadError()"
                         />
                     } @else if (item.media_type === 'video') {
                         <video
@@ -94,9 +112,11 @@ interface MediaPreviewModalData {
                             controls
                             [attr.aria-label]="item.name"
                             class="h-full max-h-full w-full max-w-full object-contain"
-                            [class.opacity-0]="media_loading()"
+                            [class.opacity-0]="
+                                media_loading() || media_error()
+                            "
                             (loadeddata)="handleMediaLoaded()"
-                            (error)="handleMediaLoaded()"
+                            (error)="handleMediaLoadError()"
                         ></video>
                     } @else if (item.media_type === 'webpage') {
                         <iframe
@@ -339,6 +359,7 @@ export class MediaPreviewModalComponent implements OnInit {
     public readonly media_url = this.item.media_url || this.item.media_uri;
     public readonly thumbnail_url = playlistMediaThumbnailUrl(this.item);
     public readonly media_loading = signal(this._hasLoadableMedia());
+    public readonly media_error = signal(false);
 
     public readonly containing_playlists = signal<SignagePlaylist[]>([]);
     public readonly loading_playlists = signal(true);
@@ -420,6 +441,12 @@ export class MediaPreviewModalComponent implements OnInit {
 
     public handleMediaLoaded() {
         this.media_loading.set(false);
+        this.media_error.set(false);
+    }
+
+    public handleMediaLoadError() {
+        this.media_loading.set(false);
+        this.media_error.set(true);
     }
 
     private _hasLoadableMedia() {
