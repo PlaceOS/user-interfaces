@@ -182,10 +182,26 @@ describe('SignageService', () => {
             '/media-3.jpg',
         ]);
         expect(cache_call?.[1]).toBe('display-1');
+        expect(cache_call?.[2]).toEqual({ prune_other_owners: true });
         expect(media_cache.invalidateFile).toHaveBeenCalledWith(
             '/stale-file.jpg',
             'display-1',
         );
+    });
+
+    it('should not allow embedded players to prune other display caches', async () => {
+        jest.spyOn(
+            spectator.service as any,
+            '_isNestedPlayerWindow',
+        ).mockReturnValue(true);
+
+        spectator.service.setDisplay('display-1');
+        await firstValueFrom(spectator.service.playlist.pipe(skip(1), take(1)));
+
+        const cache_call = media_cache.requestFilesToCache.mock.calls.find(
+            ([urls]) => urls.length,
+        );
+        expect(cache_call?.[2]).toEqual({ prune_other_owners: false });
     });
 
     it('should not clear another display cache when display loading fails', async () => {

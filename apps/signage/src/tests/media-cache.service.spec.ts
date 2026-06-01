@@ -587,4 +587,108 @@ describe('MediaCacheService', () => {
             '/active.png',
         ]);
     });
+
+    it('should allow root players to evict nested player files when over size', async () => {
+        const make_file = (name: string) => new File(['12345'], name);
+        stored_files.set('active-file', {
+            name: 'active-file',
+            url: '/active.png',
+            owner: 'root-display',
+            owners: ['root-display'],
+            file: make_file('active-file'),
+        });
+        stored_files.set('nested-file', {
+            name: 'nested-file',
+            url: '/nested.png',
+            owner: 'nested-display',
+            owners: ['nested-display'],
+            file: make_file('nested-file'),
+        });
+        spectator.service['_file_cache_index'].next([
+            {
+                id: 'active-file',
+                url: '/active.png',
+                owner: 'root-display',
+                owners: ['root-display'],
+                status: 'cached',
+                on_change: new Subject(),
+            },
+            {
+                id: 'nested-file',
+                url: '/nested.png',
+                owner: 'nested-display',
+                owners: ['nested-display'],
+                status: 'cached',
+                on_change: new Subject(),
+            },
+        ]);
+
+        await spectator.service.pruneCache(
+            'root-display',
+            ['/active.png'],
+            5,
+            true,
+        );
+
+        expect(spectator.service.availableFiles('root-display')).toEqual([
+            '/active.png',
+        ]);
+        expect(spectator.service.availableFiles('nested-display')).toEqual([]);
+        expect([...stored_files.values()].map((_) => _.url)).toEqual([
+            '/active.png',
+        ]);
+    });
+
+    it('should keep pruning scoped to one owner by default', async () => {
+        const make_file = (name: string) => new File(['12345'], name);
+        stored_files.set('root-file', {
+            name: 'root-file',
+            url: '/root.png',
+            owner: 'root-display',
+            owners: ['root-display'],
+            file: make_file('root-file'),
+        });
+        stored_files.set('nested-file', {
+            name: 'nested-file',
+            url: '/nested.png',
+            owner: 'nested-display',
+            owners: ['nested-display'],
+            file: make_file('nested-file'),
+        });
+        spectator.service['_file_cache_index'].next([
+            {
+                id: 'root-file',
+                url: '/root.png',
+                owner: 'root-display',
+                owners: ['root-display'],
+                status: 'cached',
+                on_change: new Subject(),
+            },
+            {
+                id: 'nested-file',
+                url: '/nested.png',
+                owner: 'nested-display',
+                owners: ['nested-display'],
+                status: 'cached',
+                on_change: new Subject(),
+            },
+        ]);
+
+        await spectator.service.pruneCache(
+            'nested-display',
+            ['/nested.png'],
+            5,
+        );
+
+        expect(spectator.service.availableFiles('root-display')).toEqual([
+            '/root.png',
+        ]);
+        expect(spectator.service.availableFiles('nested-display')).toEqual([
+            '/nested.png',
+        ]);
+        expect([...stored_files.values()].map((_) => _.url)).toEqual([
+            '/root.png',
+            '/nested.png',
+        ]);
+    });
 });

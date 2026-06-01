@@ -493,6 +493,7 @@ export class SignageService extends AsyncHandler {
         const has_failures = await this._media_cache.requestFilesToCache(
             media,
             cache_owner,
+            { prune_other_owners: !this._isNestedPlayerWindow() },
         );
         for (const item of extra_media) {
             this._media_cache.invalidateFile(item, cache_owner);

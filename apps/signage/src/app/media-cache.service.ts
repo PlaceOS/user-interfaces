@@ -26,6 +26,7 @@ export interface CacheItem {
 
 export interface CacheRequestOptions {
     max_size?: number;
+    prune_other_owners?: boolean;
 }
 
 interface StoredCacheRecord {
@@ -145,10 +146,20 @@ export class MediaCacheService extends AsyncHandler {
             await this.requestAndCacheFile(url, cache_item).catch((_) => {
                 failures = true;
             });
-            await this.pruneCache(owner, url_list, options.max_size);
+            await this.pruneCache(
+                owner,
+                url_list,
+                options.max_size,
+                options.prune_other_owners,
+            );
         }
         this._file_cache_index.next(this._cache_index);
-        await this.pruneCache(owner, url_list, options.max_size);
+        await this.pruneCache(
+            owner,
+            url_list,
+            options.max_size,
+            options.prune_other_owners,
+        );
         return failures;
     }
 
@@ -238,6 +249,7 @@ export class MediaCacheService extends AsyncHandler {
         owner = '',
         priority_urls: string[] = [],
         max_size = DEFAULT_OWNER_CACHE_LIMIT_BYTES,
+        prune_other_owners = false,
     ) {
         if (!this._cache_db_ready || max_size <= 0) return;
         await this._cache_db_ready;
@@ -246,14 +258,22 @@ export class MediaCacheService extends AsyncHandler {
             .filter(
                 (item) =>
                     item.status === 'cached' &&
-                    (!owner || cacheOwners(item).includes(owner)),
+                    (!owner ||
+                        cacheOwners(item).includes(owner) ||
+                        prune_other_owners),
             )
             .map((item) => {
                 const record = records.find((_) => _.name === item.id);
+                const owners = cacheOwners(item);
                 return {
                     item,
+                    owners,
                     size: record?.file?.size || 0,
                     priority: priority_urls.indexOf(item.url),
+                    owner_priority:
+                        !owner || owners.includes(owner)
+                            ? 1
+                            : 0,
                 };
             })
             .filter((_) => _.size > 0);
@@ -267,12 +287,19 @@ export class MediaCacheService extends AsyncHandler {
                 a.priority >= 0 ? a.priority : Number.MAX_SAFE_INTEGER;
             const b_priority =
                 b.priority >= 0 ? b.priority : Number.MAX_SAFE_INTEGER;
+            if (a.owner_priority !== b.owner_priority) {
+                return a.owner_priority - b.owner_priority;
+            }
             if (a_priority !== b_priority) return b_priority - a_priority;
             return b.size - a.size;
         });
-        for (const { item, size } of eviction_list) {
+        for (const { item, owners, size } of eviction_list) {
             if (total_size <= max_size) break;
-            await this.invalidateFile(item.url, owner).catch(() => undefined);
+            const is_owner_file = owner && owners.includes(owner);
+            await this.invalidateFile(
+                item.url,
+                is_owner_file ? owner : '',
+            ).catch(() => undefined);
             total_size -= size;
         }
     }
