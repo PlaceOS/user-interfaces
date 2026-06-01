@@ -22,5 +22,8 @@ export const DEFAULT_SETTINGS = {
         use_domain: false,
         local_login: false,
     },
+    service_worker: {
+        auto_reload: true,
+    },
     app,
 };

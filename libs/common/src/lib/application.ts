@@ -8,29 +8,57 @@ let _timer: ReturnType<typeof setInterval> | undefined;
 let _version_subscription: Subscription | undefined;
 let _unrecoverable_subscription: Subscription | undefined;
 let _new_version = false;
+let _auto_reload = false;
+
+export interface CacheOptions {
+    /** Whether to reload the app as soon as a new service worker version is ready. */
+    auto_reload?: boolean;
+    /** Time interval to check the service worker cache for changes. */
+    interval?: number;
+}
 
 export function hasNewVersion() {
     return _new_version;
 }
 
+function reloadApp() {
+    location.reload();
+}
+
+function cacheOptions(options: CacheOptions | number = {}): CacheOptions {
+    return typeof options === 'number' ? { interval: options } : options;
+}
+
+function handleNewVersion() {
+    if (_new_version) return;
+    _new_version = true;
+    if (_auto_reload) return reloadApp();
+    notifyInfo(
+        'Newer version of the application is available',
+        'Refresh',
+        () => reloadApp(),
+    );
+}
+
 /**
  * Setup handler for cache change events
  * @param cache Angular Service worker service
- * @param interval Time interval to check the cache for changes
+ * @param options Cache options or interval in milliseconds
  */
-export function setupCache(cache: SwUpdate, interval: number = 5 * 60 * 1000) {
+export function setupCache(
+    cache: SwUpdate,
+    options: CacheOptions | number = {},
+) {
+    const { auto_reload = false, interval = 5 * 60 * 1000 } =
+        cacheOptions(options);
+    _auto_reload = auto_reload;
     if (cache.isEnabled) {
         if (_timer) clearInterval(_timer);
         if (!_version_subscription) {
             _version_subscription = cache.versionUpdates.subscribe((event) => {
                 if (event.type !== 'VERSION_READY' || _new_version) return;
                 log('CACHE', `New application version is ready.`);
-                _new_version = true;
-                notifyInfo(
-                    'Newer version of the application is available',
-                    'Refresh',
-                    () => location.reload(),
-                );
+                handleNewVersion();
             });
         }
         if (!_unrecoverable_subscription) {
@@ -42,11 +70,12 @@ export function setupCache(cache: SwUpdate, interval: number = 5 * 60 * 1000) {
                         undefined,
                         'error',
                     );
+                    if (_auto_reload) return reloadApp();
                     _new_version = true;
                     notifyInfo(
                         'Application update failed to load',
                         'Reload',
-                        () => location.reload(),
+                        () => reloadApp(),
                     );
                 },
             );
