@@ -36,6 +36,8 @@ const MAX_URL_WAIT_IDLE = 3 * 1000;
 const URL_FETCH_TIMEOUT = 30 * 1000;
 /** Minimum time to wait on a media item before skipping a load failure */
 const MIN_FAILED_MEDIA_WAIT = 1000;
+/** Lead time for rendering the next webpage/plugin output before it is shown */
+const INTERACTIVE_PRELOAD_LEAD_TIME = 3 * 1000;
 
 @Component({
     selector: 'media-player',
@@ -44,6 +46,13 @@ const MIN_FAILED_MEDIA_WAIT = 1000;
             <div
                 #media_container_0
                 class="pointer-events-none absolute top-0 left-0 h-full w-full"
+                [class.invisible]="
+                    !in_animation() &&
+                    (active_output() !== 0 ||
+                        (defer_reveal() && pending_output() === 0))
+                "
+                [class.z-10]="active_output() === 0"
+                [class.z-0]="active_output() !== 0"
                 [class.opacity-0]="
                     active_output() !== 0 || (defer_reveal() && pending_output() === 0)
                 "
@@ -80,6 +89,13 @@ const MIN_FAILED_MEDIA_WAIT = 1000;
             <div
                 #media_container_1
                 class="pointer-events-none absolute top-0 left-0 h-full w-full"
+                [class.invisible]="
+                    !in_animation() &&
+                    (active_output() !== 1 ||
+                        (defer_reveal() && pending_output() === 1))
+                "
+                [class.z-10]="active_output() === 1"
+                [class.z-0]="active_output() !== 1"
                 [class.opacity-0]="
                     active_output() !== 1 || (defer_reveal() && pending_output() === 1)
                 "
@@ -114,10 +130,10 @@ const MIN_FAILED_MEDIA_WAIT = 1000;
                 }
             </div>
             @if (controls()) {
-                <div class="absolute top-0 left-0 p-4">
+                <div class="absolute top-0 left-0 z-20 p-4">
                     <time-controls />
                 </div>
-                <div class="absolute bottom-0 left-1/2 -translate-x-1/2">
+                <div class="absolute bottom-0 left-1/2 z-20 -translate-x-1/2">
                     <media-controls
                         [state]="state()"
                         [loop]="loop()"
@@ -130,7 +146,7 @@ const MIN_FAILED_MEDIA_WAIT = 1000;
                     />
                 </div>
                 @if (can_close()) {
-                    <div class="absolute top-0 left-1/2 -translate-x-1/2 p-2">
+                    <div class="absolute top-0 left-1/2 z-20 -translate-x-1/2 p-2">
                         <div
                             class="border-base-200 bg-base-100 flex items-center space-x-4 rounded-full border p-2"
                         >
@@ -157,7 +173,7 @@ const MIN_FAILED_MEDIA_WAIT = 1000;
                     </div>
                 }
                 @if (show_playlist()) {
-                    <div class="absolute top-0 right-0 p-4">
+                    <div class="absolute top-0 right-0 z-20 p-4">
                         <playlist-display
                             [index]="index()"
                             [playlist]="playlist_items"
@@ -168,7 +184,7 @@ const MIN_FAILED_MEDIA_WAIT = 1000;
                 <button
                     icon
                     matRipple
-                    class="border-base-200 bg-base-100 absolute top-6 right-6 border shadow-sm"
+                    class="border-base-200 bg-base-100 absolute top-6 right-6 z-20 border shadow-sm"
                     (click)="show_playlist.set(!show_playlist())"
                 >
                     <icon>{{ show_playlist() ? 'close' : 'queue_music' }}</icon>
@@ -1105,6 +1121,7 @@ export class MediaPlayerComponent
     }
 
     private _preloadUpcomingInteractiveContent(current_index: number) {
+        if (!this._shouldPreloadUpcomingInteractiveContent()) return;
         const next_index = findValidPlaylistIndex(
             this._item_playlist,
             current_index,
@@ -1134,6 +1151,14 @@ export class MediaPlayerComponent
         if (item.plugin) {
             this._setOutputPlugin(output, item.plugin);
         }
+    }
+
+    private _shouldPreloadUpcomingInteractiveContent() {
+        if (!this._item_start) return false;
+        const item = this.active_item;
+        const remaining =
+            this._effectivePlaybackDuration(item) - (time() - this._item_start);
+        return remaining <= INTERACTIVE_PRELOAD_LEAD_TIME;
     }
 
     private _nearbyPlaylistItems(current_index: number) {

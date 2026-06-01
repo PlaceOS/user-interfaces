@@ -93,6 +93,18 @@ describe('MediaPlayerComponent', () => {
         expect(spectator.component.state()).toBe('PLAYING');
     });
 
+    it('should render debug controls above media outputs', () => {
+        spectator.setInput('controls', true);
+        spectator.detectChanges();
+
+        expect(spectator.query('time-controls')?.parentElement?.classList).toContain(
+            'z-20',
+        );
+        expect(
+            spectator.query('media-controls')?.parentElement?.classList,
+        ).toContain('z-20');
+    });
+
     it('should pause playback when loop mode is NONE and the playlist ends', () => {
         load_playlist([create_item('media-1')]);
         spectator.component.index.set(0);
@@ -495,10 +507,11 @@ describe('MediaPlayerComponent', () => {
         expect(transition_spy).toHaveBeenCalled();
     });
 
-    it('should preload the next webpage while the current item is a webpage', () => {
+    it('should not preload the next webpage before the final three seconds', () => {
         const items = [
             create_item('webpage-1', {
                 type: 'webpage',
+                duration: 15_000,
             }),
             create_item('webpage-2', {
                 type: 'webpage',
@@ -506,6 +519,39 @@ describe('MediaPlayerComponent', () => {
         ];
         load_playlist(items);
         spectator.component.index.set(0);
+        spectator.component.active_output.set(0);
+        spectator.component.pending_output.set(0);
+        spectator.component['_output_items'] = [items[0], null];
+        spectator.component['_item_start'] = Date.now() - 11_999;
+        spectator.component['_item_urls'] = {
+            'webpage-1': 'blob:webpage-1' as any,
+            'webpage-2': 'blob:webpage-2' as any,
+        };
+
+        spectator.component['_processURLs']();
+
+        expect(spectator.component['_output_items'][1]).toBeNull();
+        expect(
+            spectator.component['_web_element'](1).nativeElement.src,
+        ).toBe('');
+    });
+
+    it('should preload the next webpage in the final three seconds', () => {
+        const items = [
+            create_item('webpage-1', {
+                type: 'webpage',
+                duration: 15_000,
+            }),
+            create_item('webpage-2', {
+                type: 'webpage',
+            }),
+        ];
+        load_playlist(items);
+        spectator.component.index.set(0);
+        spectator.component.active_output.set(0);
+        spectator.component.pending_output.set(0);
+        spectator.component['_output_items'] = [items[0], null];
+        spectator.component['_item_start'] = Date.now() - 12_000;
         spectator.component['_item_urls'] = {
             'webpage-1': 'blob:webpage-1' as any,
             'webpage-2': 'blob:webpage-2' as any,
@@ -520,7 +566,39 @@ describe('MediaPlayerComponent', () => {
         expect(spectator.component.output_plugins()[1]).toBeNull();
     });
 
-    it('should preload the next plugin while the current item is a plugin', () => {
+    it('should keep the preloaded webpage output invisible until it is active', () => {
+        const items = [
+            create_item('webpage-1', {
+                type: 'webpage',
+                duration: 15_000,
+            }),
+            create_item('webpage-2', {
+                type: 'webpage',
+            }),
+        ];
+        load_playlist(items);
+        spectator.component.index.set(0);
+        spectator.component.active_output.set(0);
+        spectator.component.pending_output.set(0);
+        spectator.component['_output_items'] = [items[0], null];
+        spectator.component['_item_start'] = Date.now() - 12_000;
+        spectator.component['_item_urls'] = {
+            'webpage-1': 'blob:webpage-1' as any,
+            'webpage-2': 'blob:webpage-2' as any,
+        };
+
+        spectator.component['_processURLs']();
+        spectator.detectChanges();
+
+        expect(
+            spectator.component['_container'](1).nativeElement.classList,
+        ).toContain('invisible');
+        expect(
+            spectator.component['_container'](1).nativeElement.classList,
+        ).toContain('z-0');
+    });
+
+    it('should preload the next plugin in the final three seconds', () => {
         const plugin_1 = {
             id: 'plugin-1',
             name: 'Weather',
@@ -545,6 +623,10 @@ describe('MediaPlayerComponent', () => {
         ];
         load_playlist(items);
         spectator.component.index.set(0);
+        spectator.component.active_output.set(0);
+        spectator.component.pending_output.set(0);
+        spectator.component['_output_items'] = [items[0], null];
+        spectator.component['_item_start'] = Date.now() - 12_000;
 
         spectator.component['_processURLs']();
 
