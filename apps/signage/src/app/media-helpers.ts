@@ -52,13 +52,41 @@ export function mockAwareInterval(
 }
 
 export function validateMedia(item: MediaPlayerItem) {
-    if (!item || !item.id) return 'Invalid media';
+    if (!item) return 'Invalid media: missing media data.';
+    if (!item.id) return 'Invalid media: missing media ID.';
     const now = time();
-    if (item.valid_from && item.valid_from * 1000 > now)
-        return 'Media not valid yet.';
-    if (item.valid_until && item.valid_until * 1000 < now)
-        return 'Media expired.';
+    if (item.valid_from && item.valid_from * 1000 > now) {
+        const source = validitySourceLabel(
+            item.validity?.valid_from_source,
+        );
+        return `${source} not valid yet. Starts at ${formatMediaTime(item.valid_from)}. Current player time is ${formatMediaTime(now / 1000)}.`;
+    }
+    if (item.valid_until && item.valid_until * 1000 < now) {
+        const source = validitySourceLabel(
+            item.validity?.valid_until_source,
+        );
+        return `${source} expired. Ended at ${formatMediaTime(item.valid_until)}. Current player time is ${formatMediaTime(now / 1000)}.`;
+    }
     return '';
+}
+
+function validitySourceLabel(
+    source: 'playlist' | 'media' | 'playlist_media' | undefined,
+) {
+    if (source === 'playlist') return 'Playlist';
+    if (source === 'media') return 'Media item';
+    if (source === 'playlist_media') return 'Playlist and media item';
+    return 'Media';
+}
+
+function formatMediaTime(seconds: number) {
+    return new Intl.DateTimeFormat(undefined, {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+    }).format(new Date(seconds * 1000));
 }
 
 export function findValidPlaylistIndex(

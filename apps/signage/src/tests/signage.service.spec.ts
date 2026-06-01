@@ -191,6 +191,80 @@ describe('SignageService', () => {
         );
     });
 
+    it('should track whether playlist or media validity controls the item window', async () => {
+        const now = Date.UTC(2026, 0, 1, 10, 0, 0);
+        setMockTime(now);
+        (ts_client.showSignage as jest.Mock).mockReturnValue(
+            of(
+                create_display({
+                    playlist_mappings: {
+                        'display-1': ['playlist-source', 'media-source'],
+                    },
+                    playlist_config: {
+                        'playlist-source': [
+                            {
+                                id: 'playlist-source',
+                                name: 'Playlist Source',
+                                enabled: true,
+                                valid_from: Math.floor(
+                                    (now + 60 * 60 * 1000) / 1000,
+                                ),
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 15000,
+                            },
+                            ['playlist-controlled-media'],
+                        ],
+                        'media-source': [
+                            {
+                                id: 'media-source',
+                                name: 'Media Source',
+                                enabled: true,
+                                valid_from: Math.floor(
+                                    (now + 60 * 60 * 1000) / 1000,
+                                ),
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 15000,
+                            },
+                            ['media-controlled-media'],
+                        ],
+                    },
+                    playlist_media: [
+                        {
+                            id: 'playlist-controlled-media',
+                            name: 'Playlist Controlled',
+                            media_type: 'image',
+                            media_uri: '/playlist-controlled.jpg',
+                        },
+                        {
+                            id: 'media-controlled-media',
+                            name: 'Media Controlled',
+                            media_type: 'image',
+                            media_uri: '/media-controlled.jpg',
+                            valid_from: Math.floor(
+                                (now + 2 * 60 * 60 * 1000) / 1000,
+                            ),
+                        },
+                    ],
+                }) as any,
+            ),
+        );
+        const playlist_promise = firstValueFrom(
+            spectator.service.playlist.pipe(skip(1), take(1)),
+        );
+
+        spectator.service.setDisplay('display-1');
+        const playlist = await playlist_promise;
+
+        expect(
+            playlist.find((_) => _.id === 'playlist-controlled-media')
+                ?.validity?.valid_from_source,
+        ).toBe('playlist');
+        expect(
+            playlist.find((_) => _.id === 'media-controlled-media')?.validity
+                ?.valid_from_source,
+        ).toBe('media');
+    });
+
     it('should not allow embedded players to prune other display caches', async () => {
         jest.spyOn(
             spectator.service as any,

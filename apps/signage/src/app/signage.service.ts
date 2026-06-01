@@ -687,6 +687,16 @@ export class SignageService extends AsyncHandler {
         const plugin = is_plugin
             ? plugins.find((_) => _.id === media_ref.plugin_id)
             : undefined;
+        const media_valid_from = media_ref.valid_from || 0;
+        const media_valid_until = media_ref.valid_until || 0;
+        const final_valid_from =
+            valid_from && media_valid_from
+                ? Math.max(valid_from, media_valid_from)
+                : media_valid_from || valid_from;
+        const final_valid_until =
+            valid_until && media_valid_until
+                ? Math.min(valid_until, media_valid_until)
+                : media_valid_until || valid_until;
         return {
             id,
             url: media_ref.media_url,
@@ -701,14 +711,20 @@ export class SignageService extends AsyncHandler {
                 media_ref.video_length ||
                 playlist?.default_duration ||
                 15 * 1000,
-            valid_from:
-                valid_from && media_ref.valid_from
-                    ? Math.max(valid_from, media_ref.valid_from)
-                    : media_ref.valid_from || valid_from,
-            valid_until:
-                valid_until && media_ref.valid_until
-                    ? Math.min(valid_until, media_ref.valid_until)
-                    : media_ref.valid_until || valid_until,
+            valid_from: final_valid_from,
+            valid_until: final_valid_until,
+            validity: {
+                valid_from_source: this._validFromSource(
+                    valid_from,
+                    media_valid_from,
+                    final_valid_from,
+                ),
+                valid_until_source: this._validUntilSource(
+                    valid_until,
+                    media_valid_until,
+                    final_valid_until,
+                ),
+            },
             plugin,
             plugin_params: is_plugin
                 ? {
@@ -727,6 +743,38 @@ export class SignageService extends AsyncHandler {
                     ? () => false
                     : () => this._media_cache.isCachedFile(media_ref.media_url),
         } as MediaPlayerItem;
+    }
+
+    private _validFromSource(
+        playlist_valid_from: number,
+        media_valid_from: number,
+        final_valid_from: number,
+    ): 'playlist' | 'media' | 'playlist_media' | undefined {
+        if (!final_valid_from) return undefined;
+        if (
+            playlist_valid_from === final_valid_from &&
+            media_valid_from === final_valid_from
+        )
+            return 'playlist_media';
+        if (media_valid_from === final_valid_from) return 'media';
+        if (playlist_valid_from === final_valid_from) return 'playlist';
+        return undefined;
+    }
+
+    private _validUntilSource(
+        playlist_valid_until: number,
+        media_valid_until: number,
+        final_valid_until: number,
+    ): 'playlist' | 'media' | 'playlist_media' | undefined {
+        if (!final_valid_until) return undefined;
+        if (
+            playlist_valid_until === final_valid_until &&
+            media_valid_until === final_valid_until
+        )
+            return 'playlist_media';
+        if (media_valid_until === final_valid_until) return 'media';
+        if (playlist_valid_until === final_valid_until) return 'playlist';
+        return undefined;
     }
 
     private _canEmbedMedia(display: any, media: SignageMedia) {

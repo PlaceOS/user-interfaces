@@ -13,6 +13,10 @@ export interface MediaPlayerItem {
     duration: number;
     valid_from: number;
     valid_until: number;
+    validity?: {
+        valid_from_source?: 'playlist' | 'media' | 'playlist_media';
+        valid_until_source?: 'playlist' | 'media' | 'playlist_media';
+    };
     plugin?: SignagePlugin;
     plugin_params?: HashMap;
     getURL: () => Promise<string | URL>;
