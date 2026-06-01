@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DomSanitizer } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 import {
@@ -22,6 +23,7 @@ import {
 } from '@placeos/ts-client';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { SignageService } from '../signage.service';
+import { playlistMediaThumbnailUrl } from '../signage-playlist.util';
 
 interface MediaPreviewModalData {
     media: SignageMedia;
@@ -54,14 +56,36 @@ interface MediaPreviewModalData {
                 class="bg-base-100 z-0 mx-2 mb-2 flex w-[calc(100%-1rem)] flex-1 gap-2 overflow-hidden rounded-sm max-md:flex-col"
             >
                 <section
-                    class="bg-base-200 border-base-300 flex flex-1 items-center justify-center overflow-hidden rounded-lg border"
+                    class="bg-base-200 border-base-300 relative flex flex-1 items-center justify-center overflow-hidden rounded-lg border"
                 >
+                    @if (thumbnail_url && media_loading()) {
+                        <img
+                            auth
+                            [source]="thumbnail_url"
+                            [alt]="item.name + ' thumbnail'"
+                            class="absolute inset-0 h-full w-full object-contain"
+                        />
+                    }
+                    @if (media_loading()) {
+                        <div
+                            class="absolute inset-0 z-10 flex items-center justify-center bg-base-200/60"
+                            aria-live="polite"
+                        >
+                            <mat-spinner [diameter]="48"></mat-spinner>
+                            <span class="sr-only">{{
+                                'COMMON.LOADING' | translate
+                            }}</span>
+                        </div>
+                    }
                     @if (item.media_type === 'image') {
                         <img
                             auth
                             [source]="media_url"
                             [alt]="item.name"
                             class="h-full max-h-full w-full max-w-full object-contain"
+                            [class.opacity-0]="media_loading()"
+                            (load)="handleMediaLoaded()"
+                            (error)="handleMediaLoaded()"
                         />
                     } @else if (item.media_type === 'video') {
                         <video
@@ -70,12 +94,17 @@ interface MediaPreviewModalData {
                             controls
                             [attr.aria-label]="item.name"
                             class="h-full max-h-full w-full max-w-full object-contain"
+                            [class.opacity-0]="media_loading()"
+                            (loadeddata)="handleMediaLoaded()"
+                            (error)="handleMediaLoaded()"
                         ></video>
                     } @else if (item.media_type === 'webpage') {
                         <iframe
                             [src]="safe_url()"
                             [title]="item.name"
                             class="h-full w-full border-0 bg-white"
+                            [class.opacity-0]="media_loading()"
+                            (load)="handleMediaLoaded()"
                         ></iframe>
                     } @else if (item.media_type === 'plugin' && plugin) {
                         <plugin-embed
@@ -290,6 +319,7 @@ interface MediaPreviewModalData {
     imports: [
         MatRippleModule,
         MatDialogModule,
+        MatProgressSpinnerModule,
         RouterLink,
         IconComponent,
         AuthenticatedImageDirective,
@@ -307,6 +337,8 @@ export class MediaPreviewModalComponent implements OnInit {
     public readonly item = this._data.media;
     public readonly plugin = this._data.plugin;
     public readonly media_url = this.item.media_url || this.item.media_uri;
+    public readonly thumbnail_url = playlistMediaThumbnailUrl(this.item);
+    public readonly media_loading = signal(this._hasLoadableMedia());
 
     public readonly containing_playlists = signal<SignagePlaylist[]>([]);
     public readonly loading_playlists = signal(true);
@@ -384,5 +416,16 @@ export class MediaPreviewModalComponent implements OnInit {
         }
         this.containing_playlists.set(matching);
         this.loading_playlists.set(false);
+    }
+
+    public handleMediaLoaded() {
+        this.media_loading.set(false);
+    }
+
+    private _hasLoadableMedia() {
+        return (
+            !!this.media_url &&
+            ['image', 'video', 'webpage'].includes(this.item.media_type)
+        );
     }
 }
