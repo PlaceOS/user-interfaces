@@ -98,7 +98,7 @@ test.describe('US-SIG-015: Use Manual Playback Controls', () => {
             ),
         ).toBeVisible();
         await expect(
-            page.locator('media-controls mat-progress-bar'),
+            page.locator('media-controls media-progress-bar'),
         ).toBeVisible();
     });
 });
