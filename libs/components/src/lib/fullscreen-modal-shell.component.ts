@@ -67,6 +67,7 @@ import { TranslatePipe } from './translate.pipe';
                         btn
                         matRipple
                         class="min-w-32"
+                        [disabled]="confirm_disabled()"
                         (click)="confirm.emit()"
                     >
                         {{ confirm_text() || ('COMMON.SAVE' | translate) }}
@@ -96,6 +97,7 @@ export class FullscreenModalShellComponent {
     public readonly loading = input('');
     public readonly heading = input('Fullscreen Modal');
     public readonly confirm_text = input('');
+    public readonly confirm_disabled = input(false);
     public readonly close = input<string[]>([]);
     public readonly hide_confirm = input(false);
     public readonly hide_close = input(false);
