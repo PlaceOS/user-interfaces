@@ -56,25 +56,6 @@ import { SignageMediaModalComponent } from './signage-media-modal.component';
 import { SignageMediaPreviewModalComponent } from './signage-media-preview-modal.component';
 import { SignagePlaylistModalComponent } from './signage-playlist-modal.component';
 
-function dataURLtoBlob(dataURL) {
-    // Split the data URL to get the mime type and the data
-    const [prefix, data] = dataURL.split(',');
-    const mimeType = prefix.split(':')[1].split(';')[0];
-
-    // Convert base64 to raw binary data
-    const byteString = atob(data);
-
-    // Create an ArrayBuffer and fill it with the binary data
-    const arrayBuffer = new ArrayBuffer(byteString.length);
-    const uint8Array = new Uint8Array(arrayBuffer);
-    for (let i = 0; i < byteString.length; i++) {
-        uint8Array[i] = byteString.charCodeAt(i);
-    }
-
-    // Create and return the Blob
-    return new Blob([arrayBuffer], { type: mimeType });
-}
-
 function dataURLtoFile(dataURL, filename) {
     // Split the data URL to get the mime type and the data
     const [prefix, data] = dataURL.split(',');

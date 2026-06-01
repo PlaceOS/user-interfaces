@@ -90,7 +90,10 @@ import { MediaPlayerItem } from './types';
                                             matTooltipPosition="right"
                                             >{{ mediaTypeIcon(item) }}</icon
                                         >
-                                        <div class="text-base-300 flex-1">
+                                        <div
+                                            class="text-base-300 flex-1 truncate"
+                                            [matTooltip]="item.playlist_name"
+                                        >
                                             {{ item.playlist_name }}
                                         </div>
                                         @if (isCachedMedia(item)) {
