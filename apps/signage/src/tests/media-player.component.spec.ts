@@ -495,6 +495,73 @@ describe('MediaPlayerComponent', () => {
         expect(transition_spy).toHaveBeenCalled();
     });
 
+    it('should preload the next webpage while the current item is a webpage', () => {
+        const items = [
+            create_item('webpage-1', {
+                type: 'webpage',
+            }),
+            create_item('webpage-2', {
+                type: 'webpage',
+            }),
+        ];
+        load_playlist(items);
+        spectator.component.index.set(0);
+        spectator.component['_item_urls'] = {
+            'webpage-1': 'blob:webpage-1' as any,
+            'webpage-2': 'blob:webpage-2' as any,
+        };
+
+        spectator.component['_processURLs']();
+
+        expect(spectator.component['_output_items'][1].id).toBe('webpage-2');
+        expect(
+            spectator.component['_web_element'](1).nativeElement.src,
+        ).toBe('blob:webpage-2');
+        expect(spectator.component.output_plugins()[1]).toBeNull();
+    });
+
+    it('should preload the next plugin while the current item is a plugin', () => {
+        const plugin_1 = {
+            id: 'plugin-1',
+            name: 'Weather',
+            uri: 'https://plugins.example/weather',
+        } as any;
+        const plugin_2 = {
+            id: 'plugin-2',
+            name: 'News',
+            uri: 'https://plugins.example/news',
+        } as any;
+        const items = [
+            create_item('plugin-item-1', {
+                type: 'plugin',
+                plugin: plugin_1,
+            }),
+            create_item('plugin-item-2', {
+                type: 'plugin',
+                plugin: plugin_2,
+                plugin_params: { topic: 'site-updates' },
+                duration: 20_000,
+            }),
+        ];
+        load_playlist(items);
+        spectator.component.index.set(0);
+
+        spectator.component['_processURLs']();
+
+        expect(spectator.component['_output_items'][1].id).toBe(
+            'plugin-item-2',
+        );
+        expect(spectator.component.output_plugins()[1]).toBe(plugin_2);
+
+        spectator.component.onPluginStatus('ready', 1);
+
+        expect(spectator.component.output_plugin_configs()[1]).toEqual({
+            instance_id: 'plugin-item-2',
+            config: { topic: 'site-updates' },
+            timing: { scheduled_duration_ms: 20_000 },
+        });
+    });
+
     it('should pause cleanly if replaying a looping video is blocked', async () => {
         load_playlist([create_item('video-1', { type: 'video' })]);
         spectator.component.index.set(0);
@@ -664,6 +731,9 @@ describe('MediaPlayerComponent', () => {
                     }
                 },
             );
+        spectator.component['_item_urls'] = {
+            'bad-1': 'blob:bad-1' as any,
+        };
 
         // Land on the broken item and fail during its first second.
         spectator.component.setPlaylistItem(1);
@@ -682,6 +752,9 @@ describe('MediaPlayerComponent', () => {
         // than freeze on it (the load error must not be deduped across loops).
         next_item_spy.mockClear();
         skip_callback = () => undefined;
+        spectator.component['_item_urls'] = {
+            'bad-1': 'blob:bad-1' as any,
+        };
         spectator.component.setPlaylistItem(1);
         spectator.component['_item_start'] = 10_000;
         spectator.component.onMediaLoadError('image');
@@ -701,6 +774,9 @@ describe('MediaPlayerComponent', () => {
         const timeout_spy = jest
             .spyOn(spectator.component as any, 'timeout')
             .mockImplementation(() => undefined);
+        spectator.component['_item_urls'] = {
+            'bad-1': 'blob:bad-1' as any,
+        };
 
         spectator.component.setPlaylistItem(1);
         spectator.component['_item_start'] = 9_000;

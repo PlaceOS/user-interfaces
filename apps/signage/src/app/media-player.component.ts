@@ -42,59 +42,74 @@ const MIN_FAILED_MEDIA_WAIT = 1000;
     template: `
         <div class="absolute inset-0 bg-[#212121]">
             <div
-                #previous_container
+                #media_container_0
                 class="pointer-events-none absolute top-0 left-0 h-full w-full"
+                [class.opacity-0]="
+                    active_output() !== 0 || (defer_reveal() && pending_output() === 0)
+                "
             >
                 <img
-                    #previous_image_el
+                    #img_el_0
                     class="absolute top-0 left-0 hidden h-full w-full object-contain object-center"
+                    (load)="onMediaLoadSuccess(0)"
+                    (error)="onMediaLoadError('image', 0)"
                 />
                 <video
-                    #previous_video_el
+                    #video_el_0
                     class="absolute top-0 left-0 hidden h-full w-full object-contain object-center"
+                    (loadeddata)="onMediaLoadSuccess(0)"
+                    (error)="onMediaLoadError('video', 0)"
                 ></video>
                 <iframe
-                    #previous_web_el
+                    #web_el_0
                     class="absolute top-0 left-0 hidden h-full w-full border-0"
+                    (load)="onWebpageLoad(0)"
                 ></iframe>
-                @if (previous_plugin()) {
+                @if (output_plugins()[0]) {
                     <plugin-embed
                         class="absolute top-0 left-0 h-full w-full"
-                        [plugin]="previous_plugin()"
+                        [plugin]="output_plugins()[0]"
+                        [config]="output_plugin_configs()[0]"
+                        [play]="output_plugin_plays()[0]"
+                        (statusChange)="onPluginStatus($event, 0)"
+                        (plugin_interaction)="onPluginInteraction($event, 0)"
+                        (plugin_error)="onPluginError($event, 0)"
                     />
                 }
             </div>
             <div
-                #media_container
+                #media_container_1
                 class="pointer-events-none absolute top-0 left-0 h-full w-full"
-                [class.opacity-0]="defer_reveal()"
+                [class.opacity-0]="
+                    active_output() !== 1 || (defer_reveal() && pending_output() === 1)
+                "
             >
                 <img
-                    #img_el
+                    #img_el_1
                     class="absolute top-0 left-0 h-full w-full object-contain object-center"
-                    (load)="onMediaLoadSuccess()"
-                    (error)="onMediaLoadError('image')"
+                    (load)="onMediaLoadSuccess(1)"
+                    (error)="onMediaLoadError('image', 1)"
                 />
                 <video
-                    #video_el
+                    #video_el_1
                     class="absolute top-0 left-0 h-full w-full object-contain object-center"
-                    (loadeddata)="onMediaLoadSuccess()"
-                    (error)="onMediaLoadError('video')"
+                    (loadeddata)="onMediaLoadSuccess(1)"
+                    (error)="onMediaLoadError('video', 1)"
                 ></video>
                 <iframe
-                    #web_el
+                    #web_el_1
                     class="absolute top-0 left-0 h-full w-full border-0"
-                    (load)="onWebpageLoad()"
+                    (load)="onWebpageLoad(1)"
                 ></iframe>
-                @if (active_plugin()) {
+                @if (output_plugins()[1]) {
                     <plugin-embed
                         class="absolute top-0 left-0 h-full w-full"
-                        [plugin]="active_plugin()"
-                        [config]="plugin_config()"
-                        [play]="plugin_play()"
-                        (statusChange)="onPluginStatus($event)"
-                        (plugin_interaction)="onPluginInteraction($event)"
-                        (plugin_error)="onPluginError($event)"
+                        [plugin]="output_plugins()[1]"
+                        [config]="output_plugin_configs()[1]"
+                        [play]="output_plugin_plays()[1]"
+                        (statusChange)="onPluginStatus($event, 1)"
+                        (plugin_interaction)="onPluginInteraction($event, 1)"
+                        (plugin_error)="onPluginError($event, 1)"
                     />
                 }
             </div>
@@ -208,11 +223,20 @@ export class MediaPlayerComponent
     public readonly hold_over_item = signal(true);
     public readonly in_animation = signal(false);
     public readonly defer_reveal = signal(false);
+    public readonly active_output = signal<0 | 1>(0);
+    public readonly pending_output = signal<0 | 1>(0);
 
     public readonly active_plugin = signal<SignagePlugin>(null);
-    public readonly previous_plugin = signal<SignagePlugin>(null);
     public readonly plugin_config = signal<PluginConfigPayload>(null);
     public readonly plugin_play = signal(0);
+    public readonly output_plugins = signal<[SignagePlugin, SignagePlugin]>([
+        null,
+        null,
+    ]);
+    public readonly output_plugin_configs = signal<
+        [PluginConfigPayload, PluginConfigPayload]
+    >([null, null]);
+    public readonly output_plugin_plays = signal<[number, number]>([0, 0]);
 
     private _plugin_finished = false;
     private _deferred_reveal_item_id = '';
@@ -220,6 +244,7 @@ export class MediaPlayerComponent
     private _deferred_reveal_transition = false;
     private _playback_duration = 0;
     private _web_waiting_item_id = '';
+    private _web_waiting_output: 0 | 1 = 0;
     /** Number of items skipped due to load failures since the last good display */
     private _consecutive_load_errors = 0;
     /** Marks the display cycle whose load error has already been handled */
@@ -239,6 +264,9 @@ export class MediaPlayerComponent
     private _item_urls: Record<string, URL> = {};
     private _item_start = 0;
     private _item_progress = 0;
+    private _item_output = new Map<string, 0 | 1>();
+    private _output_items: [MediaPlayerItem, MediaPlayerItem] = [null, null];
+    private _ready_output_items = new Set<string>();
 
     public get playlist_items() {
         return this._item_playlist;
@@ -248,25 +276,83 @@ export class MediaPlayerComponent
         return this._item_playlist[this.index()];
     }
 
-    private readonly _previous_container =
-        viewChild<ElementRef<HTMLDivElement>>('previous_container');
-    private readonly _previous_img_element =
-        viewChild<ElementRef<HTMLImageElement>>('previous_image_el');
-    private readonly _previous_video_element =
-        viewChild<ElementRef<HTMLVideoElement>>('previous_video_el');
-    private readonly _previous_web_element =
-        viewChild<ElementRef<HTMLIFrameElement>>('previous_web_el');
-
-    private readonly _container =
-        viewChild<ElementRef<HTMLDivElement>>('media_container');
-    private readonly _image_element =
-        viewChild<ElementRef<HTMLImageElement>>('img_el');
-    private readonly _video_element =
-        viewChild<ElementRef<HTMLVideoElement>>('video_el');
-    private readonly _web_element =
-        viewChild<ElementRef<HTMLIFrameElement>>('web_el');
+    private readonly _container_0 =
+        viewChild<ElementRef<HTMLDivElement>>('media_container_0');
+    private readonly _container_1 =
+        viewChild<ElementRef<HTMLDivElement>>('media_container_1');
+    private readonly _image_element_0 =
+        viewChild<ElementRef<HTMLImageElement>>('img_el_0');
+    private readonly _image_element_1 =
+        viewChild<ElementRef<HTMLImageElement>>('img_el_1');
+    private readonly _video_element_0 =
+        viewChild<ElementRef<HTMLVideoElement>>('video_el_0');
+    private readonly _video_element_1 =
+        viewChild<ElementRef<HTMLVideoElement>>('video_el_1');
+    private readonly _web_element_0 =
+        viewChild<ElementRef<HTMLIFrameElement>>('web_el_0');
+    private readonly _web_element_1 =
+        viewChild<ElementRef<HTMLIFrameElement>>('web_el_1');
 
     public readonly validateMedia = (i) => validateMedia(i);
+
+    private _container(output: 0 | 1 = this.active_output()) {
+        return output === 0 ? this._container_0() : this._container_1();
+    }
+
+    private _image_element(output: 0 | 1 = this.active_output()) {
+        return output === 0 ? this._image_element_0() : this._image_element_1();
+    }
+
+    private _video_element(output: 0 | 1 = this.active_output()) {
+        return output === 0 ? this._video_element_0() : this._video_element_1();
+    }
+
+    private _web_element(output: 0 | 1 = this.active_output()) {
+        return output === 0 ? this._web_element_0() : this._web_element_1();
+    }
+
+    private _inactiveOutput(): 0 | 1 {
+        return this.active_output() === 0 ? 1 : 0;
+    }
+
+    private _activeItemOutput(): 0 | 1 {
+        return this._item_output.get(this.active_item?.id) ?? this.active_output();
+    }
+
+    private _setOutputPlugin(output: 0 | 1, plugin: SignagePlugin) {
+        const plugins = [...this.output_plugins()] as [
+            SignagePlugin,
+            SignagePlugin,
+        ];
+        plugins[output] = plugin;
+        this.output_plugins.set(plugins);
+        if (!plugin) {
+            this._setOutputPluginConfig(output, null);
+            this._setOutputPluginPlay(output, 0);
+        }
+    }
+
+    private _setOutputPluginConfig(
+        output: 0 | 1,
+        config: PluginConfigPayload,
+    ) {
+        const configs = [...this.output_plugin_configs()] as [
+            PluginConfigPayload,
+            PluginConfigPayload,
+        ];
+        configs[output] = config;
+        this.output_plugin_configs.set(configs);
+    }
+
+    private _setOutputPluginPlay(output: 0 | 1, value: number) {
+        const plays = [...this.output_plugin_plays()] as [number, number];
+        plays[output] = value;
+        this.output_plugin_plays.set(plays);
+    }
+
+    private _outputKey(output: 0 | 1, item: MediaPlayerItem) {
+        return `${output}:${item?.id || ''}`;
+    }
 
     public ngOnInit() {
         this.interval('playlist_check', () => this._updateItem(), 50);
@@ -346,7 +432,7 @@ export class MediaPlayerComponent
             this._item_start = time() - this._item_progress;
             this._item_progress = 0;
             if (this.active_item?.type === 'video') {
-                this._requestVideoPlayback(() => {
+                this._requestVideoPlayback(this.active_output(), () => {
                     this.state.set('PAUSED');
                     this._item_start = 0;
                     this._item_progress = 0;
@@ -435,12 +521,20 @@ export class MediaPlayerComponent
         else if (event === 'LOOP') this.toggleLoop();
     }
 
-    public onWebpageLoad() {
-        const item = this.active_item;
-        if (item?.type !== 'webpage' || this._web_waiting_item_id !== item.id) {
+    public onWebpageLoad(output: 0 | 1 = this.pending_output()) {
+        const item = this._output_items[output] || this.active_item;
+        if (item?.type === 'webpage') {
+            this._ready_output_items.add(this._outputKey(output, item));
+        }
+        if (
+            item?.type !== 'webpage' ||
+            this.active_item?.id !== item.id ||
+            this._web_waiting_item_id !== item.id ||
+            this._web_waiting_output !== output
+        ) {
             return;
         }
-        this.onMediaLoadSuccess();
+        this.onMediaLoadSuccess(output);
         this.clearTimeout('webpage-load-timeout');
         this.clearTimeout('webpage-hold-delay');
         this.timeout(
@@ -531,10 +625,13 @@ export class MediaPlayerComponent
         this._display_generation++;
         const should_transition = this._shouldTransition(old_item, item);
         const should_defer_reveal = this._shouldDeferReveal(item);
-        this._startDisplayAttempt(item);
+        const output = should_transition
+            ? this._inactiveOutput()
+            : this.active_output();
+        this.pending_output.set(output);
+        this._startDisplayAttempt(item, output);
         if (should_defer_reveal) {
             this._prepareDeferredReveal(
-                old_item,
                 resume_if_paused,
                 should_transition,
             );
@@ -542,11 +639,15 @@ export class MediaPlayerComponent
             this._clearDeferredReveal();
         }
         if (item.type === 'plugin' && item.plugin) {
-            this._showPlugin(item);
+            this._showPlugin(item, output);
+            if (this._ready_output_items.has(this._outputKey(output, item))) {
+                this._finishDeferredReveal(item);
+            }
         } else {
             const ready = this._showMediaItem(
                 item,
                 index,
+                output,
                 resume_if_paused,
                 should_transition,
             );
@@ -561,7 +662,6 @@ export class MediaPlayerComponent
     }
 
     private _prepareDeferredReveal(
-        old_item: MediaPlayerItem,
         resume_if_paused: boolean,
         should_transition: boolean,
     ) {
@@ -570,10 +670,6 @@ export class MediaPlayerComponent
         this._deferred_reveal_item_id = this.active_item?.id || '';
         this._deferred_reveal_resume = resume_if_paused;
         this._deferred_reveal_transition = should_transition;
-        if (!should_transition) return;
-        const url =
-            old_item && old_item.type !== 'plugin' ? this.url(old_item.id) : '';
-        this._setPreviousMediaLayer(old_item, url?.toString());
     }
 
     private _clearDeferredReveal() {
@@ -619,6 +715,7 @@ export class MediaPlayerComponent
         this._clearDeferredReveal();
         this.playing_id.emit(item.id);
         if (!should_transition) {
+            this.active_output.set(this.pending_output());
             this._resetTransitionState();
             if (resume_if_paused && this.state() === 'PAUSED')
                 this.togglePause();
@@ -631,52 +728,59 @@ export class MediaPlayerComponent
 
     private _playPreparedPlugin(item: MediaPlayerItem) {
         if (item.type !== 'plugin') return;
-        this.timeout('plugin-play', () => this.plugin_play.set(time()), 100);
+        const output = this._item_output.get(item.id) ?? this.active_output();
+        this.timeout('plugin-play', () => {
+            const value = time();
+            this._setOutputPluginPlay(output, value);
+            this.plugin_play.set(value);
+        }, 100);
     }
 
-    private _startDisplayAttempt(item: MediaPlayerItem) {
+    private _startDisplayAttempt(item: MediaPlayerItem, output: 0 | 1) {
         this.clearTimeout('webpage-hold-delay');
         this._web_waiting_item_id = item.type === 'webpage' ? item.id : '';
+        this._web_waiting_output = output;
+        const output_item = this._output_items[output];
+        this._output_items[output] = item;
+        if (output_item?.id !== item.id) {
+            this._ready_output_items.delete(this._outputKey(output, item));
+        }
         this._item_start = time();
         this._item_progress = 0;
         this._playback_duration = item.duration || 15 * 1000;
         this.progress.set(0);
         this.duration.set(0);
         this._plugin_finished = false;
-        this._hideActiveMediaElements();
-        this._holdOutgoingPluginForTransition();
+        this._hideMediaElements(output);
     }
 
-    private _hideActiveMediaElements() {
-        this._video_element().nativeElement.classList.add('hidden');
-        this._web_element().nativeElement.classList.add('hidden');
-        this._image_element().nativeElement.classList.add('hidden');
-    }
-
-    private _holdOutgoingPluginForTransition() {
-        const outgoing_plugin = this.active_plugin();
-        if (outgoing_plugin) this.previous_plugin.set(outgoing_plugin);
+    private _hideMediaElements(output: 0 | 1) {
+        this._video_element(output).nativeElement.classList.add('hidden');
+        this._web_element(output).nativeElement.classList.add('hidden');
+        this._image_element(output).nativeElement.classList.add('hidden');
+        this._setOutputPlugin(output, null);
     }
 
     private _showMediaItem(
         item: MediaPlayerItem,
         index: number,
+        output: 0 | 1,
         resume_if_paused: boolean,
         should_transition: boolean,
     ) {
-        this.active_plugin.set(null);
-        this.plugin_config.set(null);
         const url = this.url(item.id);
         if (!url) {
             return this._handleMissingMediaURL(item, index, resume_if_paused);
         }
         this._url_wait_item_id = '';
-        const active_el = this._activeMediaElement(item);
+        const active_el = this._activeMediaElement(item, output);
         const url_string = url.toString();
         const keep_webpage_loaded =
             item.type === 'webpage' &&
-            this._shouldHoldSingleWebpage(item) &&
+            (this._shouldHoldSingleWebpage(item) ||
+                this._ready_output_items.has(this._outputKey(output, item))) &&
             active_el.src === url_string;
+        this._item_output.set(item.id, output);
         if (keep_webpage_loaded) {
             this._web_waiting_item_id = '';
             this._finishDeferredReveal(item, 0);
@@ -687,7 +791,7 @@ export class MediaPlayerComponent
         if (item.type === 'webpage' && !keep_webpage_loaded) {
             this._waitForWebpageLoad(item);
         }
-        this._startNativeMediaPlayback(item, should_transition);
+        this._startNativeMediaPlayback(item, output, should_transition);
         return true;
     }
 
@@ -740,10 +844,12 @@ export class MediaPlayerComponent
         return (still_loading || fetching || !fetched) && waited < max_wait;
     }
 
-    private _activeMediaElement(item: MediaPlayerItem) {
-        if (item.type === 'video') return this._video_element().nativeElement;
-        if (item.type === 'webpage') return this._web_element().nativeElement;
-        return this._image_element().nativeElement;
+    private _activeMediaElement(item: MediaPlayerItem, output: 0 | 1) {
+        if (item.type === 'video')
+            return this._video_element(output).nativeElement;
+        if (item.type === 'webpage')
+            return this._web_element(output).nativeElement;
+        return this._image_element(output).nativeElement;
     }
 
     private _waitForWebpageLoad(item: MediaPlayerItem) {
@@ -772,10 +878,11 @@ export class MediaPlayerComponent
 
     private _startNativeMediaPlayback(
         item: MediaPlayerItem,
+        output: 0 | 1,
         should_transition: boolean,
     ) {
         if (item.type === 'video') {
-            this._requestVideoPlayback(() => {
+            this._requestVideoPlayback(output, () => {
                 if (should_transition) {
                     this.nextItem();
                 } else {
@@ -785,24 +892,37 @@ export class MediaPlayerComponent
                 }
             });
         } else {
-            this._video_element().nativeElement.pause();
+            this._video_element(output).nativeElement.pause();
         }
     }
 
-    public onPluginStatus(status: SignagePluginMessageType | 'unknown') {
-        const item = this.active_item;
+    public onPluginStatus(
+        status: SignagePluginMessageType | 'unknown',
+        output: 0 | 1 = this.pending_output(),
+    ) {
+        const item = this._output_items[output] || this.active_item;
         if (!item || item.type !== 'plugin') return;
+        if (this._item_output.get(item.id) !== output) return;
         log('MediaPlayer', `Plugin status: ${status}`, [item.name]);
         if (status === 'ready') {
-            this.plugin_config.set({
+            const config = {
                 instance_id: item.id,
                 config: item.plugin_params || {},
                 timing: {
                     scheduled_duration_ms:
-                        this._effectivePlaybackDuration(item),
+                        this.active_item?.id === item.id
+                            ? this._effectivePlaybackDuration(item)
+                            : item.duration || 15 * 1000,
                 },
-            });
-            if (this._deferred_reveal_item_id === item.id) {
+            };
+            this._setOutputPluginConfig(output, config);
+            this._ready_output_items.add(this._outputKey(output, item));
+            if (this.active_item?.id !== item.id) return;
+            this.plugin_config.set(config);
+            if (
+                this._deferred_reveal_item_id === item.id &&
+                this.pending_output() === output
+            ) {
                 this._finishDeferredReveal(item);
             } else {
                 this._playPreparedPlugin(item);
@@ -812,8 +932,12 @@ export class MediaPlayerComponent
         }
     }
 
-    public onPluginInteraction(interaction: PluginInteractionPayload) {
+    public onPluginInteraction(
+        interaction: PluginInteractionPayload,
+        output: 0 | 1 = this._activeItemOutput(),
+    ) {
         const item = this.active_item;
+        if (this._item_output.get(item?.id) !== output) return;
         const interactive =
             item?.type === 'plugin' &&
             item.plugin?.playback_type === 'interactive';
@@ -822,15 +946,23 @@ export class MediaPlayerComponent
         this._resetPlayback(Number.isFinite(value) && value > 0 ? value : 0);
     }
 
-    public onPluginError(error: PluginErrorPayload) {
+    public onPluginError(
+        error: PluginErrorPayload,
+        output: 0 | 1 = this._activeItemOutput(),
+    ) {
+        const item = this.active_item;
+        if (item?.type === 'plugin' && this._item_output.get(item.id) !== output)
+            return;
         log('MediaPlayer', `Plugin error: ${error.message}`, [error], 'error');
         if (error.fatal) {
             this.nextItem();
         }
     }
 
-    private _showPlugin(item: MediaPlayerItem) {
+    private _showPlugin(item: MediaPlayerItem, output: 0 | 1) {
         log('MediaPlayer', `Showing plugin: ${item.name}`, [item.plugin?.name]);
+        this._item_output.set(item.id, output);
+        this._setOutputPlugin(output, item.plugin);
         this.active_plugin.set(item.plugin);
     }
 
@@ -850,10 +982,11 @@ export class MediaPlayerComponent
         this.duration.set(0);
     }
 
-    private _requestVideoPlayback(on_error?: () => void) {
+    private _requestVideoPlayback(output: 0 | 1, on_error?: () => void) {
         const cycle = this._currentMediaCycle();
         requestAnimationFrame(() => {
-            const play_action = this._video_element().nativeElement.play();
+            const play_action =
+                this._video_element(output).nativeElement.play();
             play_action?.catch((error) => {
                 // The active item changed before playback started - ignore this
                 // stale rejection so we don't skip the wrong (now current) item.
@@ -869,15 +1002,21 @@ export class MediaPlayerComponent
         });
     }
 
-    public onMediaLoadSuccess() {
+    public onMediaLoadSuccess(output: 0 | 1 = this._activeItemOutput()) {
+        const item = this.active_item;
+        if (item && this._item_output.get(item.id) !== output) return;
         this._consecutive_load_errors = 0;
         this.clearTimeout('retry-failed-media');
         this.clearTimeout('skip-failed-media');
     }
 
-    public onMediaLoadError(source: 'image' | 'video') {
+    public onMediaLoadError(
+        source: 'image' | 'video',
+        output: 0 | 1 = this._activeItemOutput(),
+    ) {
         const item = this.active_item;
         if (!item || item.type === 'plugin' || item.type === 'webpage') return;
+        if (this._item_output.get(item.id) !== output) return;
         // The image element is reused for unknown media types; the video
         // element is only used for video. Match the error to the active item so
         // a stale, hidden element doesn't skip the current media.
@@ -962,6 +1101,39 @@ export class MediaPlayerComponent
             if (url) URL.revokeObjectURL(url.toString());
             delete this._item_urls[key];
         }
+        this._preloadUpcomingInteractiveContent(current_index);
+    }
+
+    private _preloadUpcomingInteractiveContent(current_index: number) {
+        const next_index = findValidPlaylistIndex(
+            this._item_playlist,
+            current_index,
+            1,
+        );
+        const item =
+            next_index >= 0 && next_index !== current_index
+                ? this._item_playlist[next_index]
+                : null;
+        const output = this._inactiveOutput();
+        if (!item || (item.type !== 'webpage' && item.type !== 'plugin')) {
+            return;
+        }
+        if (this._output_items[output]?.id === item.id) return;
+        this._hideMediaElements(output);
+        this._output_items[output] = item;
+        this._item_output.set(item.id, output);
+        this._ready_output_items.delete(this._outputKey(output, item));
+        if (item.type === 'webpage') {
+            const url = this.url(item.id);
+            if (!url) return;
+            const web_el = this._web_element(output).nativeElement;
+            web_el.src = url.toString();
+            web_el.classList.remove('hidden');
+            return;
+        }
+        if (item.plugin) {
+            this._setOutputPlugin(output, item.plugin);
+        }
     }
 
     private _nearbyPlaylistItems(current_index: number) {
@@ -1004,17 +1176,22 @@ export class MediaPlayerComponent
         if (this.active_item.animation === MediaAnimation.Cut) {
             this.timeout(
                 're-start',
-                () => this._onTransitionEnd(resume_on_end),
+                () => this._onTransitionEnd(resume_on_end, true),
                 500,
             );
             return;
         }
-        const indexValue = this.index();
-        if (indexValue !== -1) this._showPreviousItemForTransition(indexValue);
         const item = this.active_item;
-        const prev_container_el = this._previous_container().nativeElement;
-        const container_el = this._container().nativeElement;
+        const previous_output = this.active_output();
+        const next_output = this.pending_output();
+        const prev_container_el =
+            this._container(previous_output).nativeElement;
+        const container_el = this._container(next_output).nativeElement;
         requestAnimationFrame(() => {
+            prev_container_el.classList.remove('opacity-0');
+            if (item.animation !== MediaAnimation.CrossFade) {
+                container_el.classList.remove('opacity-0');
+            }
             switch (item.animation) {
                 case MediaAnimation.SlideTop:
                     container_el.style.transform = 'translate(0, -100%)';
@@ -1045,61 +1222,26 @@ export class MediaPlayerComponent
             });
             this.timeout(
                 're-start',
-                () => this._onTransitionEnd(resume_on_end),
+                () => this._onTransitionEnd(resume_on_end, true),
                 this.animation_time() || 3000,
             );
         });
     }
 
-    private _showPreviousItemForTransition(index: number) {
-        const previous_index = findValidPlaylistIndex(
-            this._item_playlist,
-            index,
-            -1,
-        );
-        const item = this._item_playlist[previous_index];
-        const url = item && item.type !== 'plugin' ? this.url(item.id) : '';
-        this._setPreviousMediaLayer(item, url?.toString());
-    }
-
-    private _setPreviousMediaLayer(item?: MediaPlayerItem, url = '') {
-        const img_el = this._previous_img_element().nativeElement;
-        const web_el = this._previous_web_element().nativeElement;
-        const video_el = this._previous_video_element().nativeElement;
-        img_el.classList.add('hidden');
-        video_el.classList.add('hidden');
-        web_el.classList.add('hidden');
-        if (!item || !url) return;
-        if (item.type === 'video') {
-            video_el.src = url;
-            video_el.classList.remove('hidden');
-        } else if (item.type === 'webpage') {
-            web_el.src = url;
-            web_el.classList.remove('hidden');
-        } else {
-            img_el.src = url;
-            img_el.classList.remove('hidden');
-        }
-    }
-
-    private _onTransitionEnd(resume = true) {
+    private _onTransitionEnd(resume = true, swap_outputs = false) {
+        if (swap_outputs) this.active_output.set(this.pending_output());
         this._resetTransitionState();
         if (resume) this.togglePause();
     }
 
     private _resetTransitionState() {
         this.clearTimeout('re-start');
-        const prev_container_el = this._previous_container().nativeElement;
-        const container_el = this._container().nativeElement;
-        prev_container_el.classList.remove('opacity-0');
-        this._previous_video_element().nativeElement.classList.add('hidden');
-        this._previous_img_element().nativeElement.classList.add('hidden');
-        this._previous_web_element().nativeElement.classList.add('hidden');
-        this.previous_plugin.set(null);
-        prev_container_el.classList.remove('player-animate');
-        container_el.classList.remove('player-animate');
-        container_el.classList.remove('opacity-0');
-        container_el.style.transform = 'translate(0, 0)';
+        for (const output of [0, 1] as const) {
+            const container_el = this._container(output).nativeElement;
+            container_el.classList.remove('player-animate');
+            container_el.classList.remove('opacity-0');
+            container_el.style.transform = 'translate(0, 0)';
+        }
         this.in_animation.set(false);
     }
 
@@ -1200,5 +1342,10 @@ export class MediaPlayerComponent
             if (url) URL.revokeObjectURL(url.toString());
             delete this._item_urls[key];
         }
+        this._item_output.clear();
+        this._output_items = [null, null];
+        this._ready_output_items.clear();
+        this._setOutputPlugin(0, null);
+        this._setOutputPlugin(1, null);
     }
 }
