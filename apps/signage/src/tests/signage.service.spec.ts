@@ -2,7 +2,7 @@ import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import * as ts_client from '@placeos/ts-client';
 import { MediaAnimation } from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
-import { firstValueFrom, of, skip, take } from 'rxjs';
+import { firstValueFrom, of, skip, take, throwError } from 'rxjs';
 
 import { MediaCacheService } from '../app/media-cache.service';
 import { SignageService } from '../app/signage.service';
@@ -186,6 +186,39 @@ describe('SignageService', () => {
             '/stale-file.jpg',
             'display-1',
         );
+    });
+
+    it('should not clear another display cache when display loading fails', async () => {
+        localStorage.setItem(
+            'PlaceOS.SIGNAGE.display_details.display-1',
+            JSON.stringify(create_display()),
+        );
+        (ts_client.showSignage as jest.Mock).mockReturnValue(
+            throwError(() => new Error('display unavailable')),
+        );
+        const display_promise = firstValueFrom(
+            spectator.service.display.pipe(take(1)),
+        );
+
+        spectator.service.setDisplay('display-2');
+        const display = await display_promise;
+
+        expect(display).toEqual(
+            expect.objectContaining({
+                playlist_media: [],
+                plugins: [],
+            }),
+        );
+        expect(
+            JSON.parse(
+                localStorage.getItem(
+                    'PlaceOS.SIGNAGE.display_details.display-1',
+                ) || '{}',
+            ).id,
+        ).toBe('display-1');
+        expect(
+            localStorage.getItem('PlaceOS.SIGNAGE.display_details.display-2'),
+        ).toBeNull();
     });
 
     it('should not include signage media that embeds the same display', async () => {

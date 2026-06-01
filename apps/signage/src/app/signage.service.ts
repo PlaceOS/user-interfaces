@@ -91,7 +91,7 @@ const EMPTY_METRICS = JSON.stringify({
 const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
 const SCHEDULE_TRIGGER_WINDOW_SECONDS = 28;
 const SINGLE_PASS_TRIGGER_WINDOW_MS = 30 * 1000;
-const log = scoped_log('SIGNAGE');
+const log = scoped_log('Signage');
 
 function signageDisplayIDFromURL(url = '') {
     if (!url) return '';
@@ -113,6 +113,10 @@ function isNestedPlayerWindow() {
     } catch {
         return true;
     }
+}
+
+function displayCacheKey(id: string) {
+    return `${DISPLAY_KEY}.${id}`;
 }
 
 function playlistSchedules(playlist: SignagePlaylist): PlaylistSchedule[] {
@@ -251,12 +255,20 @@ export class SignageService extends AsyncHandler {
                 catchError((_) => of(null)),
                 map((d: any) => {
                     if (!d) {
+                        const display_key = displayCacheKey(id);
                         d = JSON.parse(
-                            localStorage.getItem(DISPLAY_KEY) || '{}',
+                            localStorage.getItem(display_key) ||
+                                localStorage.getItem(DISPLAY_KEY) ||
+                                '{}',
                         );
                         if (d.id !== id) d = {};
                     }
-                    localStorage.setItem(DISPLAY_KEY, JSON.stringify(d));
+                    if (d.id === id) {
+                        localStorage.setItem(
+                            displayCacheKey(id),
+                            JSON.stringify(d),
+                        );
+                    }
                     const path = `/api/engine/v2/signage/${id}`;
                     const headers = responseHeaders(
                         `${location.origin}${path}`,
@@ -713,8 +725,7 @@ export class SignageService extends AsyncHandler {
             isCached:
                 media_ref.media_type === 'webpage' || is_plugin
                     ? () => false
-                    : () =>
-                          this._media_cache.isCachedFile(media_ref.media_url),
+                    : () => this._media_cache.isCachedFile(media_ref.media_url),
         } as MediaPlayerItem;
     }
 
