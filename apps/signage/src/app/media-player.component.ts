@@ -43,6 +43,8 @@ const URL_FETCH_TIMEOUT = 30 * 1000;
 const MIN_FAILED_MEDIA_WAIT = 1000;
 /** Lead time for rendering the next webpage/plugin output before it is shown */
 const INTERACTIVE_PRELOAD_LEAD_TIME = 3 * 1000;
+/** Max wait for plugin load/ready before continuing playback anyway */
+const PLUGIN_LOAD_TIMEOUT = 15 * 1000;
 
 @Component({
     selector: 'media-player',
@@ -85,6 +87,7 @@ const INTERACTIVE_PRELOAD_LEAD_TIME = 3 * 1000;
                         [plugin]="output_plugins()[0]"
                         [config]="output_plugin_configs()[0]"
                         [play]="output_plugin_plays()[0]"
+                        (loaded)="onPluginLoad(0)"
                         (statusChange)="onPluginStatus($event, 0)"
                         (plugin_interaction)="onPluginInteraction($event, 0)"
                         (plugin_error)="onPluginError($event, 0)"
@@ -128,6 +131,7 @@ const INTERACTIVE_PRELOAD_LEAD_TIME = 3 * 1000;
                         [plugin]="output_plugins()[1]"
                         [config]="output_plugin_configs()[1]"
                         [play]="output_plugin_plays()[1]"
+                        (loaded)="onPluginLoad(1)"
                         (statusChange)="onPluginStatus($event, 1)"
                         (plugin_interaction)="onPluginInteraction($event, 1)"
                         (plugin_error)="onPluginError($event, 1)"
@@ -817,6 +821,7 @@ export class MediaPlayerComponent
     }
 
     private _hideMediaElements(output: 0 | 1) {
+        this.clearTimeout(this._pluginLoadTimeoutName(output));
         this._video_element(output).nativeElement.classList.add('hidden');
         this._web_element(output).nativeElement.classList.add('hidden');
         this._image_element(output).nativeElement.classList.add('hidden');
@@ -999,31 +1004,17 @@ export class MediaPlayerComponent
         if (this._item_output.get(item.id) !== output) return;
         log('MediaPlayer', `Plugin status: ${status}`, [item.name]);
         if (status === 'ready') {
-            const config = {
-                instance_id: item.id,
-                config: item.plugin_params || {},
-                timing: {
-                    scheduled_duration_ms:
-                        this.active_item?.id === item.id
-                            ? this._effectivePlaybackDuration(item)
-                            : item.duration || 15 * 1000,
-                },
-            };
-            this._setOutputPluginConfig(output, config);
-            this._ready_output_items.add(this._outputKey(output, item));
-            if (this.active_item?.id !== item.id) return;
-            this.plugin_config.set(config);
-            if (
-                this._deferred_reveal_item_id === item.id &&
-                this.pending_output() === output
-            ) {
-                this._finishDeferredReveal(item);
-            } else {
-                this._playPreparedPlugin(item);
-            }
+            this._handlePluginReady(item, output);
         } else if (status === 'finished') {
             this._plugin_finished = true;
         }
+    }
+
+    public onPluginLoad(output: 0 | 1 = this.pending_output()) {
+        const item = this._output_items[output] || this.active_item;
+        if (!item || item.type !== 'plugin') return;
+        if (this._item_output.get(item.id) !== output) return;
+        this._handlePluginReady(item, output);
     }
 
     public onPluginInteraction(
@@ -1058,6 +1049,60 @@ export class MediaPlayerComponent
         this._item_output.set(item.id, output);
         this._setOutputPlugin(output, item.plugin);
         this.active_plugin.set(item.plugin);
+        this._waitForPluginLoad(item, output);
+    }
+
+    private _waitForPluginLoad(item: MediaPlayerItem, output: 0 | 1) {
+        const timeout_name = this._pluginLoadTimeoutName(output);
+        this.clearTimeout(timeout_name);
+        this.timeout(
+            timeout_name,
+            () => {
+                if (this._item_output.get(item.id) !== output) return;
+                log(
+                    'MediaPlayer',
+                    `Plugin "${item.name}" did not report load in time; continuing.`,
+                    [item.plugin?.uri],
+                    'warn',
+                );
+                this._configurePluginOutput(item, output);
+            },
+            PLUGIN_LOAD_TIMEOUT,
+        );
+    }
+
+    private _handlePluginReady(item: MediaPlayerItem, output: 0 | 1) {
+        this.clearTimeout(this._pluginLoadTimeoutName(output));
+        this._configurePluginOutput(item, output);
+    }
+
+    private _pluginLoadTimeoutName(output: 0 | 1) {
+        return `plugin-load-timeout-${output}`;
+    }
+
+    private _configurePluginOutput(item: MediaPlayerItem, output: 0 | 1) {
+        const config = {
+            instance_id: item.id,
+            config: item.plugin_params || {},
+            timing: {
+                scheduled_duration_ms:
+                    this.active_item?.id === item.id
+                        ? this._effectivePlaybackDuration(item)
+                        : item.duration || 15 * 1000,
+            },
+        };
+        this._setOutputPluginConfig(output, config);
+        this._ready_output_items.add(this._outputKey(output, item));
+        if (this.active_item?.id !== item.id) return;
+        this.plugin_config.set(config);
+        if (
+            this._deferred_reveal_item_id === item.id &&
+            this.pending_output() === output
+        ) {
+            this._finishDeferredReveal(item);
+        } else {
+            this._playPreparedPlugin(item);
+        }
     }
 
     private _effectivePlaybackDuration(

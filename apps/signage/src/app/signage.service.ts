@@ -12,6 +12,7 @@ import {
     cleanObject,
     getModule,
     post,
+    querySignagePlugins,
     responseHeaders,
     showSignage,
     SignageMedia,
@@ -280,21 +281,15 @@ export class SignageService extends AsyncHandler {
             ),
         ),
         distinctUntilKeyChanged(1),
-        map(([value]) => {
-            log.debug('Display updated.');
-            try {
-                value.playlist_media =
-                    value.playlist_media?.map((_) => new SignageMedia(_)) || [];
-                value.plugins =
-                    value.plugins?.map((_) => new SignagePlugin(_)) || [];
-            } catch (e) {
-                log.error('Failed to parse display media.', e);
-                value = value || {};
-                value.playlist_media = value.playlist_media || [];
-                value.plugins = value.plugins || [];
-            }
-            return value;
-        }),
+        map(([value]) => this._parseDisplay(value)),
+        switchMap((display) =>
+            this._resolveDisplayPlugins(display).pipe(
+                map((plugins) => {
+                    display.plugins = plugins;
+                    return display;
+                }),
+            ),
+        ),
         shareReplay(1),
     );
 
@@ -619,6 +614,51 @@ export class SignageService extends AsyncHandler {
                 this._createMediaPlayerItem(display, media, plugins),
             )
             .filter((_) => !!_);
+    }
+
+    private _parseDisplay(value: any) {
+        log.debug('Display updated.');
+        value = value || {};
+        try {
+            value.playlist_media =
+                value.playlist_media?.map((_) => new SignageMedia(_)) || [];
+            value.plugins =
+                value.plugins?.map((_) => new SignagePlugin(_)) || [];
+        } catch (e) {
+            log.error('Failed to parse display media.', e);
+            value = value || {};
+            value.playlist_media = value.playlist_media || [];
+            value.plugins = value.plugins || [];
+        }
+        return value;
+    }
+
+    private _resolveDisplayPlugins(display: any) {
+        const display_plugins = display?.plugins || [];
+        const plugin_ids = display?.playlist_media
+            ?.filter((media: SignageMedia) => media.media_type === 'plugin')
+            .map((media: SignageMedia) => media.plugin_id)
+            .filter((id: string) => !!id);
+        const unresolved_plugin = plugin_ids?.some(
+            (id: string) =>
+                !display_plugins.find(
+                    (plugin: SignagePlugin) => plugin.id === id && plugin.uri,
+                ),
+        );
+        if (!unresolved_plugin) return of(display_plugins);
+        return querySignagePlugins({ limit: 500 } as any).pipe(
+            catchError(() => of({ data: [] })),
+            map((result: any) => {
+                const plugins = new Map<string, SignagePlugin>();
+                for (const plugin of result.data || []) {
+                    if (plugin?.id) plugins.set(plugin.id, plugin);
+                }
+                for (const plugin of display_plugins) {
+                    if (plugin?.id) plugins.set(plugin.id, plugin);
+                }
+                return [...plugins.values()];
+            }),
+        );
     }
 
     private _playlistConfig(display: any, id: string) {

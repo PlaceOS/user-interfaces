@@ -79,6 +79,7 @@ export type PluginInteractionPayload = {
                 sandbox="allow-scripts allow-same-origin"
                 referrerpolicy="no-referrer"
                 [src]="plugin().uri | safe: 'resource'"
+                (load)="loaded.emit()"
             >
             </iframe>
         }
@@ -113,6 +114,7 @@ export class PluginEmbedComponent
     public readonly status = model<SignagePluginMessageType | 'unknown'>(
         'unknown',
     );
+    public readonly loaded = output<void>();
     public readonly plugin_error = output<PluginErrorPayload>();
     public readonly plugin_interaction = output<PluginInteractionPayload>();
     private readonly _plugin_el =
@@ -122,7 +124,7 @@ export class PluginEmbedComponent
         try {
             const uri = this.plugin()?.uri;
             if (!uri) return '';
-            return new URL(uri).origin;
+            return new URL(uri, window.location.origin).origin;
         } catch {
             return '';
         }
@@ -156,9 +158,11 @@ export class PluginEmbedComponent
         type: SignageHostMessageType,
         payload: PluginConfigPayload | null = null,
     ) {
+        const origin = this.plugin_origin();
+        if (!origin) return;
         this._plugin_el()?.nativeElement?.contentWindow.postMessage(
             { api: API_VERSION, type, payload },
-            this.plugin_origin(),
+            origin,
         );
     }
 

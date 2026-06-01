@@ -13,6 +13,7 @@ jest.mock('@placeos/ts-client', () => {
     return {
         ...actual,
         showSignage: jest.fn(),
+        querySignagePlugins: jest.fn(),
         responseHeaders: jest.fn(),
         post: jest.fn(),
     };
@@ -144,6 +145,9 @@ describe('SignageService', () => {
         (ts_client.showSignage as jest.Mock).mockReturnValue(
             of(create_display() as any),
         );
+        (ts_client.querySignagePlugins as jest.Mock).mockReturnValue(
+            of({ data: [] } as any),
+        );
         (ts_client.responseHeaders as jest.Mock).mockReturnValue({
             'last-modified': new Date().toUTCString(),
         } as any);
@@ -188,6 +192,70 @@ describe('SignageService', () => {
         expect(media_cache.invalidateFile).toHaveBeenCalledWith(
             '/stale-file.jpg',
             'display-1',
+        );
+    });
+
+    it('should resolve plugin media URLs from the plugin catalogue', async () => {
+        (ts_client.showSignage as jest.Mock).mockReturnValue(
+            of(
+                create_display({
+                    playlist_mappings: {
+                        'display-1': ['base-playlist'],
+                        'zone-1': [],
+                        'trig-fire': ['trigger-playlist'],
+                    },
+                    playlist_config: {
+                        'base-playlist': [
+                            {
+                                id: 'base-playlist',
+                                name: 'Base Playlist',
+                                enabled: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 15000,
+                            },
+                            ['plugin-media'],
+                        ],
+                    },
+                    playlist_media: [
+                        {
+                            id: 'plugin-media',
+                            name: 'Weather Plugin',
+                            media_type: 'plugin',
+                            media_uri: '',
+                            plugin_id: 'weather-plugin',
+                            plugin_params: { theme: 'dark' },
+                        },
+                    ],
+                    plugins: [],
+                }) as any,
+            ),
+        );
+        (ts_client.querySignagePlugins as jest.Mock).mockReturnValue(
+            of({
+                data: [
+                    {
+                        id: 'weather-plugin',
+                        name: 'Weather',
+                        uri: '/plugins/weather/index.html',
+                        defaults: { units: 'metric' },
+                    },
+                ],
+            } as any),
+        );
+        const playlist_promise = firstValueFrom(
+            spectator.service.playlist.pipe(skip(1), take(1)),
+        );
+
+        spectator.service.setDisplay('display-1');
+        const [plugin_item] = await playlist_promise;
+
+        expect(plugin_item.plugin?.uri).toBe('/plugins/weather/index.html');
+        expect(plugin_item.plugin_params).toEqual({
+            units: 'metric',
+            theme: 'dark',
+        });
+        await expect(plugin_item.getURL()).resolves.toBe(
+            '/plugins/weather/index.html',
         );
     });
 

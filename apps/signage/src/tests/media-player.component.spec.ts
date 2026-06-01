@@ -576,8 +576,8 @@ describe('MediaPlayerComponent', () => {
         spectator.component.active_output.set(0);
         spectator.component.pending_output.set(0);
         spectator.component['_output_items'] = [items[0], null];
-        spectator.component['_item_start'] = Date.now() - 11_999;
-        spectator.component['_item_real_start'] = Date.now() - 11_999;
+        spectator.component['_item_start'] = Date.now() - 11_000;
+        spectator.component['_item_real_start'] = Date.now() - 11_000;
         spectator.component['_item_urls'] = {
             'webpage-1': 'blob:webpage-1' as any,
             'webpage-2': 'blob:webpage-2' as any,
@@ -784,6 +784,68 @@ describe('MediaPlayerComponent', () => {
         jest.useRealTimers();
     });
 
+    it('should configure and reveal plugins when the iframe loads without ready status', () => {
+        jest.useFakeTimers();
+        const plugin_item = create_item('plugin-1', {
+            type: 'plugin',
+            duration: 20000,
+            plugin: { id: 'plugin-1', name: 'Weather' } as any,
+            plugin_params: { theme: 'dark' },
+        });
+        load_playlist([plugin_item]);
+
+        spectator.component.setPlaylistItem(0);
+        expect(spectator.component.defer_reveal()).toBe(true);
+
+        spectator.component.onPluginLoad();
+
+        expect(spectator.component.plugin_config()).toEqual({
+            instance_id: 'plugin-1',
+            config: { theme: 'dark' },
+            timing: { scheduled_duration_ms: 20000 },
+        });
+
+        jest.advanceTimersByTime(2000);
+        expect(spectator.component.defer_reveal()).toBe(false);
+
+        jest.advanceTimersByTime(101);
+        expect(spectator.component.plugin_play()).toBeGreaterThan(0);
+        jest.useRealTimers();
+    });
+
+    it('should continue plugin playback when the plugin never reports load or ready', () => {
+        jest.useFakeTimers();
+        const plugin_item = create_item('plugin-1', {
+            type: 'plugin',
+            duration: 20000,
+            plugin: {
+                id: 'plugin-1',
+                name: 'Weather',
+                uri: 'https://plugins.example/weather',
+            } as any,
+            plugin_params: { theme: 'dark' },
+        });
+        load_playlist([plugin_item]);
+
+        spectator.component.setPlaylistItem(0);
+        expect(spectator.component.defer_reveal()).toBe(true);
+
+        jest.advanceTimersByTime(15_000);
+
+        expect(spectator.component.plugin_config()).toEqual({
+            instance_id: 'plugin-1',
+            config: { theme: 'dark' },
+            timing: { scheduled_duration_ms: 20000 },
+        });
+
+        jest.advanceTimersByTime(2000);
+        expect(spectator.component.defer_reveal()).toBe(false);
+
+        jest.advanceTimersByTime(101);
+        expect(spectator.component.plugin_play()).toBeGreaterThan(0);
+        jest.useRealTimers();
+    });
+
     it('should reset plugin playback when requested by a plugin interaction', () => {
         jest.useFakeTimers();
         jest.setSystemTime(10_000);
@@ -966,7 +1028,9 @@ describe('MediaPlayerComponent', () => {
     it('should skip an item instead of hanging when its URL never resolves', () => {
         setMockTime(1_000_000);
         load_playlist([
-            create_item('a', { getURL: () => new Promise<string>(() => {}) }),
+            create_item('a', {
+                getURL: () => new Promise<string>((resolve) => void resolve),
+            }),
             create_item('b'),
             create_item('c'),
         ]);
