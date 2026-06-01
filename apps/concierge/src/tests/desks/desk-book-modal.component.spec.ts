@@ -12,6 +12,7 @@ describe('DeskBookModalComponent', () => {
     let settings: Record<string, unknown>;
     const form = generateBookingForm();
     const newForm = jest.fn();
+    const applyDurationSettings = jest.fn();
     const createComponent = createComponentFactory({
         component: DeskBookModalComponent,
         shallow: true,
@@ -19,6 +20,7 @@ describe('DeskBookModalComponent', () => {
             MockProvider(BookingFormService, {
                 form,
                 newForm,
+                applyDurationSettings,
                 options: of({ type: 'desk' }),
                 postForm: jest.fn(async () => null),
             }),
@@ -33,6 +35,7 @@ describe('DeskBookModalComponent', () => {
         settings = { 'app.desks.default_duration': 60 };
         form.reset();
         newForm.mockClear();
+        applyDurationSettings.mockClear();
     });
 
     it('should initialise a desk booking form', () => {
@@ -40,6 +43,7 @@ describe('DeskBookModalComponent', () => {
 
         expect(newForm).toHaveBeenCalledWith('desk');
         expect(spectator.component.form.value.duration).toBe(60);
+        expect(applyDurationSettings).toHaveBeenCalledTimes(1);
     });
 
     it('should apply the desk all day default setting', () => {

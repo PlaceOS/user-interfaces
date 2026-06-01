@@ -67,6 +67,7 @@ export class DeskBookModalComponent implements OnInit {
                     this._settings.get('app.bookings.all_day_default')
                 ),
             });
+            this._booking_form.applyDurationSettings();
         }
     }
 
