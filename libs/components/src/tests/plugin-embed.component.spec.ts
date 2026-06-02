@@ -60,4 +60,21 @@ describe('PluginEmbedComponent', () => {
 
         expect(loaded_spy).toHaveBeenCalled();
     });
+
+    it('should emit a fatal plugin error when the iframe errors', () => {
+        const error_spy = jest.spyOn(spectator.component.plugin_error, 'emit');
+        spectator.setInput('plugin', {
+            id: 'plugin-1',
+            name: 'Local Plugin',
+            uri: '/plugins/weather/index.html',
+        });
+
+        spectator.triggerEventHandler('iframe', 'error', {});
+
+        expect(error_spy).toHaveBeenCalledWith({
+            code: 'iframe_load_error',
+            message: 'Plugin iframe failed to load.',
+            fatal: true,
+        });
+    });
 });

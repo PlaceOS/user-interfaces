@@ -80,6 +80,7 @@ export type PluginInteractionPayload = {
                 referrerpolicy="no-referrer"
                 [src]="plugin().uri | safe: 'resource'"
                 (load)="loaded.emit()"
+                (error)="onIframeError()"
             >
             </iframe>
         }
@@ -164,6 +165,14 @@ export class PluginEmbedComponent
             { api: API_VERSION, type, payload },
             origin,
         );
+    }
+
+    public onIframeError() {
+        this.plugin_error.emit({
+            code: 'iframe_load_error',
+            message: 'Plugin iframe failed to load.',
+            fatal: true,
+        });
     }
 
     private _setupChannels() {

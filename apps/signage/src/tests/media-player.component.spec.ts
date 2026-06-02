@@ -936,15 +936,92 @@ describe('MediaPlayerComponent', () => {
         expect(spectator.component['_item_start']).toBe(5_000);
     });
 
-    it('should skip to the next item on a fatal plugin error', () => {
-        const next_item_spy = jest.spyOn(spectator.component, 'nextItem');
+    it('should clear the plugin output and skip on a fatal plugin error', () => {
+        jest.useFakeTimers();
+        const plugin_item = create_item('plugin-1', {
+            type: 'plugin',
+            plugin: {
+                id: 'plugin-1',
+                name: 'Weather',
+                uri: 'https://plugins.example/weather',
+            } as any,
+        });
+        load_playlist([plugin_item, create_item('image-1')]);
+        spectator.component.setPlaylistItem(0);
+
+        expect(spectator.component.output_plugins()[0]).toBe(
+            plugin_item.plugin,
+        );
 
         spectator.component.onPluginError({
             fatal: true,
             message: 'Boom',
         } as any);
 
-        expect(next_item_spy).toHaveBeenCalled();
+        expect(spectator.component.output_plugins()[0]).toBeNull();
+        expect(spectator.component.defer_reveal()).toBe(false);
+
+        jest.advanceTimersByTime(1000);
+        expect(spectator.component.index()).toBe(1);
+        jest.useRealTimers();
+    });
+
+    it('should clear inactive webpage content after moving to another item', () => {
+        jest.useFakeTimers();
+        const web_item = create_item('webpage-1', {
+            type: 'webpage',
+        });
+        const image_item = create_item('image-1');
+        load_playlist([web_item, image_item]);
+        spectator.component['_item_urls'] = {
+            'webpage-1': 'https://example.com/page' as any,
+            'image-1': 'blob:image-1' as any,
+        };
+
+        spectator.component.setPlaylistItem(0);
+        spectator.component.onWebpageLoad(0);
+        jest.advanceTimersByTime(2000);
+        expect(
+            spectator.component['_web_element'](0).nativeElement.getAttribute(
+                'src',
+            ),
+        ).toBe('https://example.com/page');
+
+        spectator.component.setPlaylistItem(1);
+        jest.advanceTimersByTime(500);
+
+        expect(
+            spectator.component['_web_element'](0).nativeElement.getAttribute(
+                'src',
+            ),
+        ).toBeNull();
+        jest.useRealTimers();
+    });
+
+    it('should clear inactive plugin content after moving to another item', () => {
+        jest.useFakeTimers();
+        const plugin_item = create_item('plugin-1', {
+            type: 'plugin',
+            plugin: {
+                id: 'plugin-1',
+                name: 'Weather',
+                uri: 'https://plugins.example/weather',
+            } as any,
+        });
+        load_playlist([plugin_item, create_item('image-1')]);
+
+        spectator.component.setPlaylistItem(0);
+        spectator.component.onPluginLoad(0);
+        jest.advanceTimersByTime(2000);
+        expect(spectator.component.output_plugins()[0]).toBe(
+            plugin_item.plugin,
+        );
+
+        spectator.component.setPlaylistItem(1);
+        jest.advanceTimersByTime(500);
+
+        expect(spectator.component.output_plugins()[0]).toBeNull();
+        jest.useRealTimers();
     });
 
     it('should keep skipping a broken item each time the playlist loops back to it', () => {

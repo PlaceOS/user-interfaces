@@ -781,6 +781,7 @@ export class MediaPlayerComponent
             if (resume_if_paused && this.state() === 'PAUSED')
                 this.togglePause();
             this._playPreparedPlugin(item);
+            this._clearInactiveInteractiveOutputs();
             return;
         }
         this._transition(resume_if_paused);
@@ -802,10 +803,12 @@ export class MediaPlayerComponent
         this._web_waiting_item_id = item.type === 'webpage' ? item.id : '';
         this._web_waiting_output = output;
         const output_item = this._output_items[output];
-        this._output_items[output] = item;
         if (output_item?.id !== item.id) {
-            this._ready_output_items.delete(this._outputKey(output, item));
+            this._clearOutput(output);
+        } else {
+            this._hideMediaElements(output);
         }
+        this._output_items[output] = item;
         this._item_start = time();
         this._item_progress = 0;
         this._item_real_start = Date.now();
@@ -816,7 +819,6 @@ export class MediaPlayerComponent
         this.progress.set(0);
         this.duration.set(0);
         this._plugin_finished = false;
-        this._hideMediaElements(output);
         this._last_video_speed.delete(output);
     }
 
@@ -826,6 +828,17 @@ export class MediaPlayerComponent
         this._web_element(output).nativeElement.classList.add('hidden');
         this._image_element(output).nativeElement.classList.add('hidden');
         this._setOutputPlugin(output, null);
+    }
+
+    private _clearOutput(output: 0 | 1) {
+        const item = this._output_items[output];
+        this._hideMediaElements(output);
+        this._web_element(output).nativeElement.removeAttribute('src');
+        if (item) {
+            this._item_output.delete(item.id);
+            this._ready_output_items.delete(this._outputKey(output, item));
+        }
+        this._output_items[output] = null;
     }
 
     private _showMediaItem(
@@ -1039,7 +1052,13 @@ export class MediaPlayerComponent
         if (item?.type === 'plugin' && this._item_output.get(item.id) !== output)
             return;
         log('MediaPlayer', `Plugin error: ${error.message}`, [error], 'error');
-        if (error.fatal) {
+        if (!error.fatal) return;
+        if (item?.type === 'plugin') {
+            this._handled_error_cycle = this._currentMediaCycle();
+            this._clearDeferredReveal();
+            this._clearOutput(output);
+            this._skipFailedMedia(this._item_start || time());
+        } else {
             this.nextItem();
         }
     }
@@ -1264,7 +1283,7 @@ export class MediaPlayerComponent
             return;
         }
         if (this._output_items[output]?.id === item.id) return;
-        this._hideMediaElements(output);
+        this._clearOutput(output);
         this._output_items[output] = item;
         this._item_output.set(item.id, output);
         this._ready_output_items.delete(this._outputKey(output, item));
@@ -1385,6 +1404,7 @@ export class MediaPlayerComponent
     private _onTransitionEnd(resume = true, swap_outputs = false) {
         if (swap_outputs) this.active_output.set(this.pending_output());
         this._resetTransitionState();
+        this._clearInactiveInteractiveOutputs();
         if (resume) this.togglePause();
     }
 
@@ -1397,6 +1417,17 @@ export class MediaPlayerComponent
             container_el.style.transform = 'translate(0, 0)';
         }
         this.in_animation.set(false);
+    }
+
+    private _clearInactiveInteractiveOutputs() {
+        const active_output = this.active_output();
+        for (const output of [0, 1] as const) {
+            if (output === active_output) continue;
+            const item = this._output_items[output];
+            if (item?.type === 'webpage' || item?.type === 'plugin') {
+                this._clearOutput(output);
+            }
+        }
     }
 
     private _shouldTransition(
