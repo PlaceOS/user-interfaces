@@ -5,7 +5,8 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
-import { IconComponent, MediaDurationPipe } from '@placeos/components';
+import { IconComponent, MediaDurationPipe, TranslatePipe } from '@placeos/components';
+import { i18n } from '@placeos/common';
 import {
     MediaAnimation,
     SignagePlaylist,
@@ -319,14 +320,14 @@ function nextSchedulePlaySessions(
                     [selectedIndex]="active_tab()"
                     (selectedIndexChange)="active_tab.set($event)"
                 >
-                    <mat-tab label="Details">
+                    <mat-tab [label]="'COMMON.DETAILS' | translate">
                         <div class="h-full overflow-auto">
                             <div class="space-y-4 p-4">
                                 <div>
                                     <div
                                         class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                     >
-                                        Name
+                                        {{ 'FORM.NAME' | translate }}
                                     </div>
                                     <div class="text-sm font-medium">
                                         {{ playlist().name }}
@@ -337,7 +338,7 @@ function nextSchedulePlaySessions(
                                         <div
                                             class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                         >
-                                            Description
+                                            {{ 'COMMON.DESCRIPTION' | translate }}
                                         </div>
                                         <div class="text-sm">
                                             {{ playlist().description }}
@@ -348,19 +349,19 @@ function nextSchedulePlaySessions(
                                     <div
                                         class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                     >
-                                        Status
+                                        {{ 'COMMON.STATUS' | translate }}
                                     </div>
                                     @if (playlist().enabled) {
                                         <span
                                             class="bg-success text-success-content rounded px-2 py-1 text-xs font-bold uppercase"
                                         >
-                                            Enabled
+                                            {{ 'COMMON.ENABLED' | translate }}
                                         </span>
                                     } @else {
                                         <span
                                             class="bg-warning text-warning-content rounded px-2 py-1 text-xs font-bold uppercase"
                                         >
-                                            Disabled
+                                            {{ 'COMMON.DISABLED' | translate }}
                                         </span>
                                     }
                                 </div>
@@ -368,13 +369,14 @@ function nextSchedulePlaySessions(
                                     <div
                                         class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                     >
-                                        Playback
+                                        {{ 'SIGNAGE_MANAGER.PLAYBACK' | translate }}
                                     </div>
                                     <div class="text-sm">
                                         {{
-                                            playlist().random
-                                                ? 'Shuffle'
-                                                : 'Sequential'
+                                            (playlist().random
+                                                ? 'SIGNAGE_MANAGER.SHUFFLE'
+                                                : 'SIGNAGE_MANAGER.SEQUENTIAL'
+                                            ) | translate
                                         }}
                                     </div>
                                 </div>
@@ -382,7 +384,7 @@ function nextSchedulePlaySessions(
                                     <div
                                         class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                     >
-                                        Default Duration
+                                        {{ 'SIGNAGE_MANAGER.DEFAULT_DURATION' | translate }}
                                     </div>
                                     <div class="font-mono text-sm">
                                         {{
@@ -395,10 +397,10 @@ function nextSchedulePlaySessions(
                                     <div
                                         class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                     >
-                                        Default Animation
+                                        {{ 'SIGNAGE_MANAGER.DEFAULT_ANIMATION' | translate }}
                                     </div>
                                     <div class="text-sm">
-                                        {{ animation_label() }}
+                                        {{ animation_label() | translate }}
                                     </div>
                                 </div>
                                 @if (playlist().orientation) {
@@ -406,12 +408,13 @@ function nextSchedulePlaySessions(
                                         <div
                                             class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                         >
-                                            Orientation
+                                            {{ 'SIGNAGE_MANAGER.ORIENTATION' | translate }}
                                         </div>
                                         <div class="text-sm capitalize">
                                             {{
                                                 playlist().orientation ||
-                                                    'Unspecified'
+                                                    ('COMMON.LOCATION_UNSPECIFIED'
+                                                        | translate)
                                             }}
                                         </div>
                                     </div>
@@ -420,7 +423,7 @@ function nextSchedulePlaySessions(
                                     <div
                                         class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                     >
-                                        Items
+                                        {{ 'SIGNAGE_MANAGER.TAB_ITEMS' | translate }}
                                     </div>
                                     <div class="text-sm">
                                         {{ item_count() }}
@@ -431,7 +434,7 @@ function nextSchedulePlaySessions(
                                         <div
                                             class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                         >
-                                            Valid From
+                                            {{ 'SIGNAGE_MANAGER.VALID_FROM' | translate }}
                                         </div>
                                         <div class="text-sm">
                                             {{
@@ -445,7 +448,7 @@ function nextSchedulePlaySessions(
                                         <div
                                             class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                         >
-                                            Valid Until
+                                            {{ 'FORM.EXPIRES_AT' | translate }}
                                         </div>
                                         <div class="text-sm">
                                             {{
@@ -458,7 +461,7 @@ function nextSchedulePlaySessions(
                                     <div
                                         class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                     >
-                                        Schedule
+                                        {{ 'SIGNAGE_MANAGER.SCHEDULE' | translate }}
                                     </div>
                                     <div class="space-y-1 text-sm">
                                         @for (
@@ -472,7 +475,7 @@ function nextSchedulePlaySessions(
                                         <div
                                             class="text-base-content/60 mb-1 text-xs font-medium tracking-wide uppercase"
                                         >
-                                            Next 5 Plays
+                                            {{ 'SIGNAGE_MANAGER.NEXT_5_PLAYS' | translate }}
                                         </div>
                                         <div
                                             class="text-base-content/80 space-y-0.5 font-mono text-xs leading-tight"
@@ -488,8 +491,10 @@ function nextSchedulePlaySessions(
                                                 <div
                                                     class="text-base-content/60"
                                                 >
-                                                    No upcoming play times
-                                                    found.
+                                                    {{
+                                                        'SIGNAGE_MANAGER.NO_UPCOMING_PLAY_TIMES'
+                                                            | translate
+                                                    }}
                                                 </div>
                                             }
                                         </div>
@@ -500,7 +505,7 @@ function nextSchedulePlaySessions(
                                         <div
                                             class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                         >
-                                            Play Count
+                                            {{ 'SIGNAGE_MANAGER.PLAY_COUNT' | translate }}
                                         </div>
                                         <div class="text-sm">
                                             {{ playlist().play_count }}
@@ -512,7 +517,12 @@ function nextSchedulePlaySessions(
                     </mat-tab>
                     <mat-tab>
                         <ng-template mat-tab-label>
-                            Displays ({{ playlist_displays().length }})
+                            {{
+                                'SIGNAGE_MANAGER.DISPLAYS_COUNT'
+                                    | translate
+                                        : { count: playlist_displays().length }
+                                        : playlist_displays().length
+                            }}
                         </ng-template>
                         <div class="flex h-full flex-col overflow-hidden">
                             <div
@@ -522,7 +532,12 @@ function nextSchedulePlaySessions(
                                     class="text-base-content/80 flex flex-1 items-center gap-2 font-medium tracking-wider uppercase"
                                 >
                                     <icon class="text-lg">tv</icon>
-                                    Displays ({{ playlist_displays().length }})
+                                    {{
+                                        'SIGNAGE_MANAGER.DISPLAYS_COUNT'
+                                            | translate
+                                                : { count: playlist_displays().length }
+                                                : playlist_displays().length
+                                    }}
                                 </h5>
                                 @if (can_update()) {
                                     <button
@@ -530,9 +545,15 @@ function nextSchedulePlaySessions(
                                         type="button"
                                         matRipple
                                         class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                                        matTooltip="Add display"
+                                        [matTooltip]="
+                                            'SIGNAGE_MANAGER.ADD_DISPLAY_TOOLTIP'
+                                                | translate
+                                        "
                                         (click)="addDisplay()"
-                                        aria-label="Add display to playlist"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.ADD_DISPLAY_TO_PLAYLIST_ARIA'
+                                                | translate
+                                        "
                                     >
                                         <icon>add</icon>
                                     </button>
@@ -555,9 +576,13 @@ function nextSchedulePlaySessions(
                                                     display.id,
                                                 ]"
                                                 [attr.aria-label]="
-                                                    'Open display ' +
-                                                    (display.display_name ||
-                                                        display.name)
+                                                    'SIGNAGE_MANAGER.OPEN_DISPLAY'
+                                                        | translate
+                                                            : {
+                                                                  name:
+                                                                      display.display_name ||
+                                                                      display.name,
+                                                              }
                                                 "
                                             >
                                                 <icon
@@ -590,7 +615,10 @@ function nextSchedulePlaySessions(
                                                     type="button"
                                                     matRipple
                                                     class="border-base-200 hover:bg-base-200 hover:border-base-300 mr-1 rounded-lg border hover:shadow-md"
-                                                    matTooltip="Remove display"
+                                                    [matTooltip]="
+                                                        'SIGNAGE_MANAGER.REMOVE_DISPLAY'
+                                                            | translate
+                                                    "
                                                     (click)="
                                                         removeDisplay(
                                                             $event,
@@ -598,10 +626,13 @@ function nextSchedulePlaySessions(
                                                         )
                                                     "
                                                     [attr.aria-label]="
-                                                        'Remove display ' +
-                                                        (display.display_name ||
-                                                            display.name) +
-                                                        ' from playlist'
+                                                        'SIGNAGE_MANAGER.REMOVE_DISPLAY_FROM_PLAYLIST'
+                                                            | translate
+                                                                : {
+                                                                      name:
+                                                                          display.display_name ||
+                                                                          display.name,
+                                                                  }
                                                     "
                                                 >
                                                     <icon class="text-error">
@@ -617,7 +648,10 @@ function nextSchedulePlaySessions(
                                     >
                                         <icon class="text-4xl">tv_off</icon>
                                         <p class="text-sm">
-                                            No displays use this playlist.
+                                            {{
+                                                'SIGNAGE_MANAGER.NO_DISPLAYS_USE_PLAYLIST'
+                                                    | translate
+                                            }}
                                         </p>
                                     </div>
                                 }
@@ -626,7 +660,12 @@ function nextSchedulePlaySessions(
                     </mat-tab>
                     <mat-tab>
                         <ng-template mat-tab-label>
-                            Zones ({{ playlist_zones().length }})
+                            {{
+                                'SIGNAGE_MANAGER.ZONES_COUNT'
+                                    | translate
+                                        : { count: playlist_zones().length }
+                                        : playlist_zones().length
+                            }}
                         </ng-template>
                         <div class="flex h-full flex-col overflow-hidden">
                             <div
@@ -636,7 +675,12 @@ function nextSchedulePlaySessions(
                                     class="text-base-content/80 flex flex-1 items-center gap-2 font-medium tracking-wider uppercase"
                                 >
                                     <icon class="text-lg">layers</icon>
-                                    Zones ({{ playlist_zones().length }})
+                                    {{
+                                        'SIGNAGE_MANAGER.ZONES_COUNT'
+                                            | translate
+                                                : { count: playlist_zones().length }
+                                                : playlist_zones().length
+                                    }}
                                 </h5>
                                 @if (can_update()) {
                                     <button
@@ -644,9 +688,15 @@ function nextSchedulePlaySessions(
                                         type="button"
                                         matRipple
                                         class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                                        matTooltip="Add zone"
+                                        [matTooltip]="
+                                            'SIGNAGE_MANAGER.ADD_ZONE_TOOLTIP'
+                                                | translate
+                                        "
                                         (click)="addZone()"
-                                        aria-label="Add zone to playlist"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.ADD_ZONE_TO_PLAYLIST_ARIA'
+                                                | translate
+                                        "
                                     >
                                         <icon>add</icon>
                                     </button>
@@ -669,9 +719,13 @@ function nextSchedulePlaySessions(
                                                     zone.id,
                                                 ]"
                                                 [attr.aria-label]="
-                                                    'Open zone ' +
-                                                    (zone.display_name ||
-                                                        zone.name)
+                                                    'SIGNAGE_MANAGER.OPEN_ZONE'
+                                                        | translate
+                                                            : {
+                                                                  name:
+                                                                      zone.display_name ||
+                                                                      zone.name,
+                                                              }
                                                 "
                                             >
                                                 <icon
@@ -704,15 +758,21 @@ function nextSchedulePlaySessions(
                                                     type="button"
                                                     matRipple
                                                     class="border-base-200 hover:bg-base-200 hover:border-base-300 mr-1 rounded-lg border hover:shadow-md"
-                                                    matTooltip="Remove zone"
+                                                    [matTooltip]="
+                                                        'SIGNAGE_MANAGER.REMOVE_ZONE'
+                                                            | translate
+                                                    "
                                                     (click)="
                                                         removeZone($event, zone)
                                                     "
                                                     [attr.aria-label]="
-                                                        'Remove zone ' +
-                                                        (zone.display_name ||
-                                                            zone.name) +
-                                                        ' from playlist'
+                                                        'SIGNAGE_MANAGER.REMOVE_ZONE_FROM_PLAYLIST'
+                                                            | translate
+                                                                : {
+                                                                      name:
+                                                                          zone.display_name ||
+                                                                          zone.name,
+                                                                  }
                                                     "
                                                 >
                                                     <icon class="text-error">
@@ -730,7 +790,10 @@ function nextSchedulePlaySessions(
                                             >location_off</icon
                                         >
                                         <p class="text-sm">
-                                            No zones use this playlist.
+                                            {{
+                                                'SIGNAGE_MANAGER.NO_ZONES_USE_PLAYLIST'
+                                                    | translate
+                                            }}
                                         </p>
                                     </div>
                                 }
@@ -744,7 +807,7 @@ function nextSchedulePlaySessions(
                 class="border-base-300 text-base-content/70 flex min-w-60 flex-1 flex-col items-center justify-center space-y-2 border-l p-8"
             >
                 <icon class="text-6xl">info</icon>
-                <p>Select a playlist to view details.</p>
+                <p>{{ 'SIGNAGE_MANAGER.SELECT_PLAYLIST_DETAILS' | translate }}</p>
             </div>
         }
     `,
@@ -765,6 +828,7 @@ function nextSchedulePlaySessions(
         IconComponent,
         DatePipe,
         MediaDurationPipe,
+        TranslatePipe,
     ],
 })
 export class PlaylistItemDetailsComponent {
@@ -800,22 +864,22 @@ export class PlaylistItemDetailsComponent {
 
     public readonly animation_label = computed(() => {
         const pl = this.playlist();
-        if (!pl) return 'Default';
+        if (!pl) return 'COMMON.DEFAULT';
         switch (pl.default_animation) {
             case MediaAnimation.Cut:
-                return 'Cut';
+                return 'SIGNAGE_MANAGER.ANIM_CUT';
             case MediaAnimation.CrossFade:
-                return 'Cross Fade';
+                return 'SIGNAGE_MANAGER.ANIM_CROSS_FADE';
             case MediaAnimation.SlideTop:
-                return 'Slide Top';
+                return 'SIGNAGE_MANAGER.ANIM_SLIDE_TOP';
             case MediaAnimation.SlideLeft:
-                return 'Slide Left';
+                return 'SIGNAGE_MANAGER.ANIM_SLIDE_LEFT';
             case MediaAnimation.SlideRight:
-                return 'Slide Right';
+                return 'SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT';
             case MediaAnimation.SlideBottom:
-                return 'Slide Bottom';
+                return 'SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM';
             default:
-                return 'Default';
+                return 'COMMON.DEFAULT';
         }
     });
 

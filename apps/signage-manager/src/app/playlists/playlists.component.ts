@@ -4,7 +4,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignageMedia } from '@placeos/ts-client';
 import { map } from 'rxjs/operators';
 import { NavFooterComponent } from '../shared/nav-footer.component';
@@ -48,7 +48,10 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                     matRipple
                                     class="sm:hidden"
                                     (click)="deselectPlaylist()"
-                                    aria-label="Back to playlists list"
+                                    [attr.aria-label]="
+                                        'SIGNAGE_MANAGER.BACK_TO_PLAYLISTS'
+                                            | translate
+                                    "
                                 >
                                     <icon>arrow_back</icon>
                                 </button>
@@ -67,9 +70,15 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                             type="button"
                                             matRipple
                                             class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                                            matTooltip="Approve playlist"
+                                            [matTooltip]="
+                                                'SIGNAGE_MANAGER.APPROVE_PLAYLIST_TOOLTIP'
+                                                    | translate
+                                            "
                                             (click)="approvePlaylist()"
-                                            aria-label="Approve selected playlist"
+                                            [attr.aria-label]="
+                                                'SIGNAGE_MANAGER.APPROVE_SELECTED_PLAYLIST'
+                                                    | translate
+                                            "
                                         >
                                             <icon class="text-warning"
                                                 >order_approve</icon
@@ -81,12 +90,18 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                             type="button"
                                             matRipple
                                             class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                                            matTooltip="Request playlist approval"
+                                            [matTooltip]="
+                                                'SIGNAGE_MANAGER.REQUEST_PLAYLIST_APPROVAL_TOOLTIP'
+                                                    | translate
+                                            "
                                             (click)="requestApproval()"
                                             [disabled]="
                                                 approval_request_loading()
                                             "
-                                            aria-label="Request approval for selected playlist"
+                                            [attr.aria-label]="
+                                                'SIGNAGE_MANAGER.REQUEST_APPROVAL_SELECTED'
+                                                    | translate
+                                            "
                                         >
                                             @if (approval_request_loading()) {
                                                 <mat-spinner diameter="20" />
@@ -104,9 +119,15 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                         type="button"
                                         matRipple
                                         class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                                        matTooltip="Edit playlist"
+                                        [matTooltip]="
+                                            'SIGNAGE_MANAGER.EDIT_PLAYLIST_TOOLTIP'
+                                                | translate
+                                        "
                                         (click)="editPlaylist()"
-                                        aria-label="Edit selected playlist"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.EDIT_SELECTED_PLAYLIST'
+                                                | translate
+                                        "
                                     >
                                         <icon>edit</icon>
                                     </button>
@@ -117,9 +138,15 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                         type="button"
                                         matRipple
                                         class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                                        matTooltip="Share playlist"
+                                        [matTooltip]="
+                                            'SIGNAGE_MANAGER.SHARE_PLAYLIST_TOOLTIP'
+                                                | translate
+                                        "
                                         (click)="sharePlaylist()"
-                                        aria-label="Share selected playlist"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.SHARE_SELECTED_PLAYLIST'
+                                                | translate
+                                        "
                                     >
                                         <icon>ios_share</icon>
                                     </button>
@@ -130,9 +157,15 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                         type="button"
                                         matRipple
                                         class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                                        matTooltip="Delete playlist"
+                                        [matTooltip]="
+                                            'SIGNAGE_MANAGER.DELETE_PLAYLIST_TOOLTIP'
+                                                | translate
+                                        "
                                         (click)="removePlaylist()"
-                                        aria-label="Delete selected playlist"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.DELETE_SELECTED_PLAYLIST'
+                                                | translate
+                                        "
                                     >
                                         <icon class="text-error">delete</icon>
                                     </button>
@@ -141,7 +174,10 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                             <div
                                 class="bg-base-100 border-base-300 mx-2 my-2 flex rounded-lg border lg:hidden"
                                 role="tablist"
-                                aria-label="Playlist details tabs"
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.PLAYLIST_DETAILS_TABS'
+                                        | translate
+                                "
                             >
                                 <button
                                     type="button"
@@ -162,7 +198,7 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                     aria-controls="playlist-items-panel"
                                     id="playlist-items-tab"
                                 >
-                                    Items
+                                    {{ 'SIGNAGE_MANAGER.TAB_ITEMS' | translate }}
                                 </button>
                                 <button
                                     type="button"
@@ -187,7 +223,7 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                     aria-controls="playlist-details-panel"
                                     id="playlist-details-tab"
                                 >
-                                    Details
+                                    {{ 'COMMON.DETAILS' | translate }}
                                 </button>
                             </div>
                         }
@@ -253,6 +289,7 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
         MatProgressSpinnerModule,
         MatTooltipModule,
         IconComponent,
+        TranslatePipe,
     ],
 })
 export class PlaylistsSectionComponent {

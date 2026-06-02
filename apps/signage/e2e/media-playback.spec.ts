@@ -143,7 +143,7 @@ test.describe('US-SIG-011: Animate Media Transitions', () => {
 
         await clickSkipNext(page);
 
-        const progress = page.locator('media-controls mat-progress-bar');
+        const progress = page.locator('media-controls media-progress-bar');
         await expect(progress).toBeVisible({ timeout: LOAD_TIMEOUT });
     });
 });

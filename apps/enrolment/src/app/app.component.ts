@@ -82,7 +82,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
             location.origin.includes('demo.place.tech');
         /** Wait for authentication details to load */
         await setupPlace(settings);
-        setupCache(this._cache);
+        setupCache(this._cache, this._settings.get('service_worker') || {});
         setInternalUserDomain(
             this._settings.get('app.internal_user_domain') ||
                 `@${currentUser()?.email?.split('@')[1]}`,

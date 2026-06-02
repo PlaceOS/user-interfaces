@@ -1,12 +1,14 @@
 import { Component, inject } from '@angular/core';
+import { TranslatePipe } from '@placeos/components';
 import { SignageService } from '../signage.service';
 
 @Component({
     selector: 'signage-group-tabs',
+    imports: [TranslatePipe],
     template: `
         <nav
             class="bg-base-100 border-base-300 mx-2 mt-2 flex overflow-hidden rounded-lg border"
-            aria-label="Group details tabs"
+            [attr.aria-label]="'SIGNAGE_MANAGER.GROUP_DETAILS_TABS' | translate"
         >
             @for (tab of tabs; track tab.id) {
                 <button
@@ -21,7 +23,7 @@ import { SignageService } from '../signage.service';
                     [attr.aria-controls]="'group-' + tab.id + '-panel'"
                     [id]="'group-' + tab.id + '-tab'"
                 >
-                    {{ tab.label }}
+                    {{ tab.label | translate }}
                 </button>
             }
         </nav>
@@ -32,7 +34,7 @@ export class SignageGroupTabsComponent {
 
     public readonly active_tab = this._service.managed_group_tab;
     public readonly tabs = [
-        { id: 'users' as const, label: 'Users' },
-        { id: 'zones' as const, label: 'Zones' },
+        { id: 'users' as const, label: 'SIGNAGE_MANAGER.TAB_USERS' },
+        { id: 'zones' as const, label: 'SIGNAGE_MANAGER.TAB_ZONES' },
     ];
 }

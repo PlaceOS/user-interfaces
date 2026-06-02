@@ -11,7 +11,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
-import { notifyError, notifySuccess } from '@placeos/common';
+import { i18n, notifyError, notifySuccess } from '@placeos/common';
 import {
     FullscreenModalShellComponent,
     MediaDurationPipe,
@@ -49,14 +49,14 @@ export interface PlaylistEditModalData {
         <fullscreen-modal-shell
             [heading]="
                 (playlist.id
-                    ? 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_EDIT'
-                    : 'APP.CONCIERGE.SIGNAGE_PLAYLISTS_NEW'
+                    ? 'SIGNAGE_MANAGER.PLAYLIST_EDIT'
+                    : 'SIGNAGE_MANAGER.NEW_PLAYLIST'
                 ) | translate
             "
             (confirm)="savePlaylist()"
             [loading]="
                 loading()
-                    ? ('APP.CONCIERGE.SIGNAGE_PLAYLISTS_SAVING' | translate)
+                    ? ('SIGNAGE_MANAGER.PLAYLIST_SAVING' | translate)
                     : ''
             "
         >
@@ -70,7 +70,7 @@ export interface PlaylistEditModalData {
                         name="name"
                         [placeholder]="'FORM.NAME' | translate"
                         formControlName="name"
-                        aria-label="Playlist name"
+                        [attr.aria-label]="'SIGNAGE_MANAGER.PLAYLIST_NAME_ARIA' | translate"
                     />
                     <mat-error>{{
                         'FORM.NAME_REQUIRED' | translate
@@ -85,10 +85,7 @@ export interface PlaylistEditModalData {
                     </settings-toggle>
                     <settings-toggle
                         class="flex-1"
-                        [name]="
-                            'APP.CONCIERGE.SIGNAGE_PLAYLISTS_SHUFFLE'
-                                | translate
-                        "
+                        [name]="'SIGNAGE_MANAGER.PLAYLIST_SHUFFLE' | translate"
                         formControlName="random"
                     >
                     </settings-toggle>
@@ -99,7 +96,12 @@ export interface PlaylistEditModalData {
                             for="default-duration"
                             class="bg-base-100 absolute top-0 left-2 m-0 flex w-auto min-w-0 -translate-y-1/2 items-center space-x-2 px-2"
                         >
-                            <div>Default Play Time</div>
+                            <div>
+                                {{
+                                    'SIGNAGE_MANAGER.DEFAULT_PLAY_TIME'
+                                        | translate
+                                }}
+                            </div>
                         </label>
                         <div class="flex items-center px-2 pt-2">
                             <mat-slider
@@ -126,34 +128,37 @@ export interface PlaylistEditModalData {
                 <div class="flex space-x-2">
                     <div class="flex-1">
                         <label for="orientation">{{
-                            'APP.CONCIERGE.SIGNAGE_ORIENTATION' | translate
+                            'SIGNAGE_MANAGER.ORIENTATION' | translate
                         }}</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="orientation"
                                 formControlName="orientation"
                                 [placeholder]="
-                                    'APP.CONCIERGE.SIGNAGE_ORIENTATION_NONE'
+                                    'COMMON.LOCATION_UNSPECIFIED'
                                         | translate
                                 "
-                                aria-label="Playlist orientation"
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.PLAYLIST_ORIENTATION_ARIA'
+                                        | translate
+                                "
                             >
                                 <mat-option value="unspecified">
                                     {{
-                                        'APP.CONCIERGE.SIGNAGE_ORIENTATION_NONE'
+                                        'COMMON.LOCATION_UNSPECIFIED'
                                             | translate
                                     }}
                                 </mat-option>
                                 <mat-option value="landscape">{{
-                                    'APP.CONCIERGE.SIGNAGE_ORIENTATION_LANDSCAPE'
+                                    'SIGNAGE_MANAGER.ORIENTATION_LANDSCAPE'
                                         | translate
                                 }}</mat-option>
                                 <mat-option value="portrait">{{
-                                    'APP.CONCIERGE.SIGNAGE_ORIENTATION_PORTRAIT'
+                                    'SIGNAGE_MANAGER.ORIENTATION_PORTRAIT'
                                         | translate
                                 }}</mat-option>
                                 <mat-option value="square">{{
-                                    'APP.CONCIERGE.SIGNAGE_ORIENTATION_SQUARE'
+                                    'SIGNAGE_MANAGER.ORIENTATION_SQUARE'
                                         | translate
                                 }}</mat-option>
                             </mat-select>
@@ -161,44 +166,47 @@ export interface PlaylistEditModalData {
                     </div>
                     <div class="flex-1">
                         <label for="animation">{{
-                            'APP.CONCIERGE.SIGNAGE_ANIMATION' | translate
+                            'SIGNAGE_MANAGER.ANIMATION' | translate
                         }}</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="animation"
                                 formControlName="default_animation"
                                 [placeholder]="
-                                    'APP.CONCIERGE.SIGNAGE_ANIMATION_DEFAULT'
+                                    'COMMON.DEFAULT'
                                         | translate
                                 "
-                                aria-label="Default animation"
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.DEFAULT_ANIMATION'
+                                        | translate
+                                "
                             >
                                 <mat-option [value]="0">{{
-                                    'APP.CONCIERGE.SIGNAGE_ANIMATION_DEFAULT'
+                                    'COMMON.DEFAULT'
                                         | translate
                                 }}</mat-option>
                                 <mat-option [value]="1">{{
-                                    'APP.CONCIERGE.SIGNAGE_ANIMATION_CUT'
+                                    'SIGNAGE_MANAGER.ANIM_CUT'
                                         | translate
                                 }}</mat-option>
                                 <mat-option [value]="2">{{
-                                    'APP.CONCIERGE.SIGNAGE_ANIMATION_CROSS_FADE'
+                                    'SIGNAGE_MANAGER.ANIM_CROSS_FADE'
                                         | translate
                                 }}</mat-option>
                                 <mat-option [value]="3">{{
-                                    'APP.CONCIERGE.SIGNAGE_ANIMATION_SLIDE_TOP'
+                                    'SIGNAGE_MANAGER.ANIM_SLIDE_TOP'
                                         | translate
                                 }}</mat-option>
                                 <mat-option [value]="4">{{
-                                    'APP.CONCIERGE.SIGNAGE_ANIMATION_SLIDE_LEFT'
+                                    'SIGNAGE_MANAGER.ANIM_SLIDE_LEFT'
                                         | translate
                                 }}</mat-option>
                                 <mat-option [value]="5">{{
-                                    'APP.CONCIERGE.SIGNAGE_ANIMATION_SLIDE_RIGHT'
+                                    'SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT'
                                         | translate
                                 }}</mat-option>
                                 <mat-option [value]="6">{{
-                                    'APP.CONCIERGE.SIGNAGE_ANIMATION_SLIDE_BOTTOM'
+                                    'SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM'
                                         | translate
                                 }}</mat-option>
                             </mat-select>
@@ -215,13 +223,16 @@ export interface PlaylistEditModalData {
                         [placeholder]="'COMMON.DESCRIPTION' | translate"
                         formControlName="description"
                         class="min-h-32"
-                        aria-label="Playlist description"
+                        [attr.aria-label]="
+                            'SIGNAGE_MANAGER.PLAYLIST_DESCRIPTION_ARIA'
+                                | translate
+                        "
                     ></textarea>
                 </mat-form-field>
                 <div class="flex space-x-4">
                     <div class="flex-1">
                         <label for="valid-from">{{
-                            'APP.CONCIERGE.VALID_FROM' | translate
+                            'SIGNAGE_MANAGER.VALID_FROM' | translate
                         }}</label>
                         <a-date-field
                             name="valid-from"
@@ -231,7 +242,7 @@ export interface PlaylistEditModalData {
                     </div>
                     <div class="flex-1">
                         <label for="valid-until">{{
-                            'APP.CONCIERGE.VALID_UNTIL' | translate
+                            'FORM.EXPIRES_AT' | translate
                         }}</label>
                         <a-date-field
                             name="valid-until"
@@ -242,7 +253,9 @@ export interface PlaylistEditModalData {
                     </div>
                 </div>
                 <div class="pt-2 pb-4" formArrayName="schedules">
-                    <label>Playlist Schedules</label>
+                    <label>{{
+                        'SIGNAGE_MANAGER.PLAYLIST_SCHEDULES' | translate
+                    }}</label>
                     <div class="mt-2 flex flex-col gap-4">
                         @for (
                             schedule of schedule_forms.controls;
@@ -263,7 +276,7 @@ export interface PlaylistEditModalData {
                             class="border-primary text-primary hover:bg-primary/10 rounded border px-3 py-2 text-sm font-medium"
                             (click)="addSchedule()"
                         >
-                            Add Schedule
+                            {{ 'SIGNAGE_MANAGER.ADD_SCHEDULE' | translate }}
                         </button>
                     </div>
                 </div>
@@ -388,11 +401,11 @@ export class PlaylistEditModalComponent {
             }
             this._dialog_ref.disableClose = false;
             this._dialog_ref.close(result);
-            notifySuccess('Playlist saved');
+            notifySuccess(i18n('SIGNAGE_MANAGER.PLAYLIST_SAVED'));
         } catch (e) {
             this._dialog_ref.disableClose = false;
             this.loading.set(false);
-            notifyError('Error saving playlist');
+            notifyError(i18n('SIGNAGE_MANAGER.PLAYLIST_SAVE_ERROR'));
             throw e;
         }
     }

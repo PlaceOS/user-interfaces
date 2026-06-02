@@ -3,6 +3,7 @@ import { Component, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
+    CustomTooltipComponent,
     IconComponent,
     MediaDurationPipe,
     TranslatePipe,
@@ -23,7 +24,7 @@ import { MediaPlayerItem } from './types';
                 >
                     <div class="text-info">
                         {{
-                            'APP.SIGNAGE.PLAYLIST_LENGTH'
+                            'COMMON.ITEM_COUNT'
                                 | translate
                                     : { count: playlist()?.length || 0 }
                                     : playlist()?.length || 0
@@ -32,7 +33,83 @@ import { MediaPlayerItem } from './types';
                 </div>
             </div>
             @if (playlist().length > 0) {
-                <div>
+                <div
+                    class="flex max-h-[calc(100vh-10rem)] flex-col overflow-auto"
+                >
+                    <ng-template #item_info_template let-item="data">
+                        @if (item) {
+                            @let is_valid = isValidMedia(item);
+                            <div
+                                class="bg-base-100 text-base-content border-base-300 w-72 rounded-lg border p-3 shadow-xl"
+                            >
+                                <div class="flex items-start gap-2">
+                                    <icon class="text-xl">{{
+                                        mediaTypeIcon(item)
+                                    }}</icon>
+                                    <div class="min-w-0 flex-1">
+                                        <h3 class="truncate font-medium">
+                                            {{ item.name }}
+                                        </h3>
+                                    </div>
+                                </div>
+                                <div
+                                    class="mt-3 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs"
+                                >
+                                    <div class="text-base-content/50">
+                                        Playlist
+                                    </div>
+                                    <div>
+                                        {{ item.playlist_name }}
+                                    </div>
+                                    <div class="text-base-content/50">Type</div>
+                                    <div class="capitalize">
+                                        {{ item.type || 'unknown' }}
+                                    </div>
+                                    <div class="text-base-content/50">
+                                        Duration
+                                    </div>
+                                    <div>
+                                        {{
+                                            item.duration / 1000 | mediaDuration
+                                        }}
+                                    </div>
+                                    <div class="text-base-content/50">
+                                        Status
+                                    </div>
+                                    <div
+                                        [class.text-success]="is_valid"
+                                        [class.text-error]="!is_valid"
+                                    >
+                                        {{ is_valid ? 'Ready' : 'Invalid' }}
+                                    </div>
+                                    <div class="text-base-content/50">
+                                        Cache
+                                    </div>
+                                    <div
+                                        [class.text-success]="
+                                            isCachedMedia(item)
+                                        "
+                                        [class.text-warning]="
+                                            isLoadingMedia(item)
+                                        "
+                                        [class.text-base-content/60]="
+                                            !isCachedMedia(item) &&
+                                            !isLoadingMedia(item)
+                                        "
+                                    >
+                                        {{ cacheStatus(item) }}
+                                    </div>
+                                </div>
+                                @if (!is_valid) {
+                                    <div
+                                        class="text-error bg-error/10 mt-3 rounded-sm p-2 text-xs"
+                                    >
+                                        {{ validateMedia(item) }}
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </ng-template>
                     @for (
                         item of playlist();
                         track item.id + i;
@@ -41,62 +118,80 @@ import { MediaPlayerItem } from './types';
                         @let is_valid = isValidMedia(item);
                         <button
                             matRipple
-                            class="hover:bg-base-200 flex w-[20rem] items-center space-x-2 rounded-lg p-2 text-left"
+                            class="hover:bg-base-200 w-[20rem] rounded-lg text-left"
                             [class.overflow-visible]="i === index()"
-                            [class.pointer-events-none]="i === index()"
                             (click)="setPlaylistItem(i)"
-                            [disabled]="!is_valid"
+                            [attr.aria-disabled]="!is_valid || i === index()"
+                            [matRippleDisabled]="!is_valid || i === index()"
                         >
                             <div
-                                class="flex h-10 w-10 items-center justify-center rounded-full"
-                                [class.bg-info]="i === index()"
-                                [class.text-info-content]="i === index()"
-                                [class.bg-base-300]="i !== index()"
-                                [class.bg-error!]="!is_valid"
-                                [class.text-error-content!]="!is_valid"
-                                [matTooltip]="validateMedia(item)"
-                                matTooltipPosition="left"
+                                class="relative flex w-full items-center gap-2 p-2"
+                                customTooltip
+                                [content]="item_info_template"
+                                [data]="{ data: item }"
+                                [hover]="true"
+                                xPosition="center"
                             >
                                 <div
-                                    class="relative flex h-7 w-7 items-center justify-center"
+                                    class="relative flex h-8 w-8 items-center justify-center rounded-full"
+                                    [class.bg-info]="i === index()"
+                                    [class.text-info-content]="i === index()"
+                                    [class.bg-base-300]="i !== index()"
+                                    [class.bg-error!]="!is_valid"
+                                    [class.text-error-content!]="!is_valid"
                                 >
                                     @if (is_valid && i === index()) {
                                         <span
-                                            class="bg-info absolute z-0 inline-flex h-full w-full animate-ping rounded-full opacity-75"
+                                            class="bg-info absolute inset-1 z-0 animate-ping rounded-full opacity-75"
                                         ></span>
                                     }
                                     <icon
-                                        class="relative z-10 text-2xl"
+                                        class="relative z-10 text-xl"
                                         [class.opacity-30]="i !== index()"
-                                        >{{
-                                            !is_valid
-                                                ? 'error'
-                                                : i === index()
-                                                  ? 'play_arrow'
-                                                  : 'not_started'
-                                        }}</icon
+                                        >{{ mediaTypeIcon(item) }}</icon
                                     >
                                 </div>
-                            </div>
-                            <div class="flex w-1/2 flex-1 flex-col">
-                                <div class="truncate">{{ item.name }}</div>
-                                <div class="text-xs opacity-30">
-                                    {{ item.playlist_name }}
+                                <div class="flex w-1/2 flex-1 flex-col">
+                                    <div class="truncate">
+                                        {{ item.name }}
+                                    </div>
+                                    <div
+                                        class="flex items-center gap-1 text-xs"
+                                    >
+                                        <div
+                                            class="text-base-300 flex-1 truncate"
+                                        >
+                                            {{ item.playlist_name }}
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div
-                                class="bg-info text-info-content rounded-sm px-2 py-1 font-mono text-xs"
-                            >
-                                {{ item.duration / 1000 | mediaDuration }}
+                                <div
+                                    class="bg-info text-info-content relative mr-4 rounded-sm px-2 py-1 font-mono text-xs"
+                                >
+                                    <div class="z-10">
+                                        {{
+                                            item.duration / 1000 | mediaDuration
+                                        }}
+                                    </div>
+                                </div>
+                                @if (isCachedMedia(item)) {
+                                    <icon
+                                        data-testid="cached-media-icon"
+                                        class="text-success absolute top-1/2 right-0 -translate-y-1/2 text-xl"
+                                        matTooltip="Cached"
+                                        matTooltipPosition="right"
+                                        >offline_pin</icon
+                                    >
+                                }
                             </div>
                         </button>
                     }
-                </div>
-                <div class="flex flex-col justify-end">
-                    <div
-                        class="bg-base-300 rounded-lg p-2 text-center text-xs opacity-30"
-                    >
-                        {{ 'APP.SIGNAGE.MEDIA_LIST_END' | translate }}
+                    <div class="mt-2 flex flex-col justify-end">
+                        <div
+                            class="bg-base-300 rounded-lg p-2 text-center text-xs opacity-30"
+                        >
+                            {{ 'APP.SIGNAGE.MEDIA_LIST_END' | translate }}
+                        </div>
                     </div>
                 </div>
             } @else {
@@ -117,6 +212,7 @@ import { MediaPlayerItem } from './types';
         MatTooltipModule,
         MediaDurationPipe,
         MatRippleModule,
+        CustomTooltipComponent,
     ],
 })
 export class PlaylistDisplayComponent {
@@ -127,11 +223,41 @@ export class PlaylistDisplayComponent {
     public readonly validateMedia = (item: MediaPlayerItem) =>
         validateMedia(item);
 
+    public mediaTypeIcon(item: MediaPlayerItem): string {
+        switch (item.type) {
+            case 'video':
+                return 'video_library';
+            case 'webpage':
+                return 'http';
+            case 'plugin':
+                return 'extension';
+            case 'image':
+                return 'image';
+            default:
+                return 'draft';
+        }
+    }
+
     public isValidMedia(item: MediaPlayerItem): boolean {
         return validateMedia(item) === '';
     }
 
+    public isCachedMedia(item: MediaPlayerItem): boolean {
+        return item.isCached?.() || false;
+    }
+
+    public isLoadingMedia(item: MediaPlayerItem): boolean {
+        return item.isLoading?.() || false;
+    }
+
+    public cacheStatus(item: MediaPlayerItem): string {
+        if (this.isLoadingMedia(item)) return 'Caching';
+        return this.isCachedMedia(item) ? 'Cached' : 'Not cached';
+    }
+
     public setPlaylistItem(index: number) {
+        const item = this.playlist()[index];
+        if (!item || !this.isValidMedia(item) || index === this.index()) return;
         this.selected.emit(index);
     }
 }

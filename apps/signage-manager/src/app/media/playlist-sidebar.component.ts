@@ -8,8 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { RouterLink } from '@angular/router';
 import {
     AuthenticatedImageDirective,
-    IconComponent,
-} from '@placeos/components';
+    IconComponent, TranslatePipe } from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
 import { SignageService } from '../signage.service';
 
@@ -27,9 +26,9 @@ type PlaylistStatus =
             class="border-base-300 bg-base-100 rounded-ld m-2 hidden h-[calc(100%-1rem)] w-72 shrink-0 flex-col rounded-lg border md:flex"
         >
             <div class="border-base-300 border-b px-4 py-3">
-                <h4 class="text-lg font-medium">Playlists</h4>
+                <h4 class="text-lg font-medium">{{ 'SIGNAGE_MANAGER.NAV_PLAYLISTS' | translate }}</h4>
                 <p class="mb-2 text-xs opacity-60">
-                    Drag media onto a playlist to add it
+                    {{ 'SIGNAGE_MANAGER.DRAG_MEDIA_HINT' | translate }}
                 </p>
                 <mat-form-field
                     appearance="outline"
@@ -37,10 +36,10 @@ type PlaylistStatus =
                 >
                     <input
                         matInput
-                        placeholder="Search playlists"
+                        [placeholder]="'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate"
                         [ngModel]="search()"
                         (ngModelChange)="search.set($event)"
-                        aria-label="Search playlists"
+                        [attr.aria-label]="'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate"
                     />
                 </mat-form-field>
             </div>
@@ -49,7 +48,10 @@ type PlaylistStatus =
                     @for (playlist of filtered_playlists(); track playlist.id) {
                         <a
                             [routerLink]="['/playlists', playlist.id]"
-                            [attr.aria-label]="'Open playlist ' + playlist.name"
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.OPEN_PLAYLIST'
+                                    | translate: { name: playlist.name }
+                            "
                         >
                             <div
                                 cdkDropList
@@ -116,7 +118,7 @@ type PlaylistStatus =
                                             <span
                                                 class="bg-base-200 shrink-0 rounded px-1.5 py-0.5 font-bold uppercase"
                                             >
-                                                Disabled
+                                                {{ 'COMMON.DISABLED' | translate }}
                                             </span>
                                         }
                                         @switch (getStatus(playlist)) {
@@ -124,28 +126,28 @@ type PlaylistStatus =
                                                 <span
                                                     class="bg-error text-error-content shrink-0 rounded px-1.5 py-0.5 font-bold uppercase"
                                                 >
-                                                    Expired
+                                                    {{ 'SIGNAGE_MANAGER.STATUS_EXPIRED' | translate }}
                                                 </span>
                                             }
                                             @case ('pending') {
                                                 <span
                                                     class="bg-info text-info-content shrink-0 rounded px-1.5 py-0.5 font-bold uppercase"
                                                 >
-                                                    Pending
+                                                    {{ 'COMMON.PENDING' | translate }}
                                                 </span>
                                             }
                                             @case ('awaiting_review') {
                                                 <span
                                                     class="bg-base-300 shrink-0 rounded px-1.5 py-0.5 font-bold uppercase"
                                                 >
-                                                    Awaiting Review
+                                                    {{ 'SIGNAGE_MANAGER.STATUS_AWAITING_REVIEW' | translate }}
                                                 </span>
                                             }
                                             @case ('awaiting_approval') {
                                                 <span
                                                     class="bg-warning text-warning-content shrink-0 rounded px-1.5 py-0.5 font-bold uppercase"
                                                 >
-                                                    Approval Required
+                                                    {{ 'COMMON.APPROVAL_REQUIRED' | translate }}
                                                 </span>
                                             }
                                         }
@@ -166,7 +168,7 @@ type PlaylistStatus =
                         class="text-base-content/70 flex flex-col items-center justify-center p-8"
                     >
                         <icon class="text-4xl">playlist_play</icon>
-                        <p class="mt-2 text-sm">No playlists</p>
+                        <p class="mt-2 text-sm">{{ 'SIGNAGE_MANAGER.NO_PLAYLISTS_SHORT' | translate }}</p>
                     </div>
                 }
             </div>
@@ -198,6 +200,7 @@ type PlaylistStatus =
         IconComponent,
         RouterLink,
         MatRippleModule,
+        TranslatePipe,
     ],
 })
 export class PlaylistSidebarComponent {

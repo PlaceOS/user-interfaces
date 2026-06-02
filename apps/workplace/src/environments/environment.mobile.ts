@@ -1,4 +1,4 @@
 export const environment = {
     production: true,
-    service_worker: true,
+    service_worker: false,
 };

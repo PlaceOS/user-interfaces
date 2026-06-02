@@ -131,6 +131,55 @@ describe('SignagePanelComponent', () => {
         expect(spectator.component.debug()).toBe(true);
     });
 
+    it('should show the build version when debug mode is enabled', () => {
+        build_component();
+
+        expect(spectator.element.textContent).not.toContain(
+            spectator.component.version_hash,
+        );
+
+        spectator.component.debug.set(true);
+        spectator.detectChanges();
+
+        expect(spectator.element.textContent).toContain(
+            spectator.component.version_hash,
+        );
+        expect(spectator.element.textContent).toContain(
+            new Date(spectator.component.version_date)
+                .getFullYear()
+                .toString(),
+        );
+    });
+
+    it('should persist muted state for the browser session', () => {
+        build_component();
+
+        spectator.component.setMuted(true);
+
+        expect(spectator.component.muted()).toBe(true);
+        expect(sessionStorage.getItem('SIGNAGE.muted')).toBe('true');
+    });
+
+    it('should default to muted media', () => {
+        build_component();
+
+        expect(spectator.component.muted()).toBe(true);
+    });
+
+    it('should restore muted state from session storage', () => {
+        sessionStorage.setItem('SIGNAGE.muted', 'true');
+        build_component();
+
+        expect(spectator.component.muted()).toBe(true);
+    });
+
+    it('should restore unmuted state from session storage', () => {
+        sessionStorage.setItem('SIGNAGE.muted', 'false');
+        build_component();
+
+        expect(spectator.component.muted()).toBe(false);
+    });
+
     it('should clear expired override playlists on the interval check', () => {
         jest.useFakeTimers();
         build_component();

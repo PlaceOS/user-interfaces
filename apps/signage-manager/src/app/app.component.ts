@@ -4,13 +4,16 @@ import { PlaceOS_Service, setMocks, UploadsService } from '@placeos/common';
 import {
     GlobalBannerComponent,
     GlobalLoadingComponent,
+    TranslatePipe,
 } from '@placeos/components';
 import { mocksInit } from '@placeos/mocks';
 
 @Component({
     selector: 'app-root',
     template: `
-        <a class="skip-link" href="#main-content">Skip to main content</a>
+        <a class="skip-link" href="#main-content">{{
+            'SIGNAGE_MANAGER.SKIP_TO_CONTENT' | translate
+        }}</a>
         <global-banner />
         <main
             id="main-content"
@@ -32,7 +35,12 @@ import { mocksInit } from '@placeos/mocks';
             }
         `,
     ],
-    imports: [GlobalBannerComponent, RouterOutlet, GlobalLoadingComponent],
+    imports: [
+        GlobalBannerComponent,
+        RouterOutlet,
+        GlobalLoadingComponent,
+        TranslatePipe,
+    ],
 })
 export class AppComponent implements OnInit {
     private _placeos = inject(PlaceOS_Service);

@@ -58,7 +58,7 @@
                     "fileReplacements": [
                         {
                             "replace": "apps/booking-panel/src/environments/environment.ts",
-                            "with": "apps/booking-panel/src/environments/environment.prod.ts"
+                            "with": "apps/booking-panel/src/environments/environment.mobile.ts"
                         },
                         {
                             "replace": "libs/common/src/lib/settings.ts",

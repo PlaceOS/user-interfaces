@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DomSanitizer } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 import {
@@ -10,7 +11,9 @@ import {
     MediaDurationPipe,
     PluginConfigPayload,
     PluginEmbedComponent,
+    TranslatePipe,
 } from '@placeos/components';
+import { i18n } from '@placeos/common';
 import {
     listSignagePlaylistMedia,
     MediaAnimation,
@@ -20,6 +23,7 @@ import {
 } from '@placeos/ts-client';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { SignageService } from '../signage.service';
+import { playlistMediaThumbnailUrl } from '../signage-playlist.util';
 
 interface MediaPreviewModalData {
     media: SignageMedia;
@@ -41,7 +45,9 @@ interface MediaPreviewModalData {
                     type="button"
                     matRipple
                     mat-dialog-close
-                    aria-label="Close media preview"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.CLOSE_MEDIA_PREVIEW' | translate
+                    "
                 >
                     <icon>close</icon>
                 </button>
@@ -50,14 +56,54 @@ interface MediaPreviewModalData {
                 class="bg-base-100 z-0 mx-2 mb-2 flex w-[calc(100%-1rem)] flex-1 gap-2 overflow-hidden rounded-sm max-md:flex-col"
             >
                 <section
-                    class="bg-base-200 border-base-300 flex flex-1 items-center justify-center overflow-hidden rounded-lg border"
+                    class="bg-base-200 border-base-300 relative flex flex-1 items-center justify-center overflow-hidden rounded-lg border"
                 >
+                    @if (thumbnail_url && (media_loading() || media_error())) {
+                        <img
+                            auth
+                            [source]="thumbnail_url"
+                            [alt]="item.name + ' thumbnail'"
+                            class="absolute inset-0 h-full w-full object-contain"
+                        />
+                    }
+                    @if (media_error()) {
+                        <div
+                            class="absolute inset-0 z-10 flex flex-col items-center justify-center space-y-2 bg-base-200/80 p-4 text-center"
+                            aria-live="assertive"
+                        >
+                            <icon class="text-error text-6xl">error</icon>
+                            <p class="text-base font-medium">
+                                Failed to load media preview.
+                            </p>
+                            <p class="text-base-content/70 max-w-sm text-sm">
+                                {{
+                                    'SIGNAGE_MANAGER.PREVIEW_UNAVAILABLE'
+                                        | translate
+                                }}
+                            </p>
+                        </div>
+                    } @else if (media_loading()) {
+                        <div
+                            class="absolute inset-0 z-10 flex items-center justify-center bg-base-200/60"
+                            aria-live="polite"
+                        >
+                            <mat-spinner [diameter]="48"></mat-spinner>
+                            <span class="sr-only">{{
+                                'COMMON.LOADING' | translate
+                            }}</span>
+                        </div>
+                    }
                     @if (item.media_type === 'image') {
                         <img
                             auth
                             [source]="media_url"
                             [alt]="item.name"
                             class="h-full max-h-full w-full max-w-full object-contain"
+                            [class.opacity-0]="
+                                media_loading() || media_error()
+                            "
+                            (load)="handleMediaLoaded()"
+                            (error)="handleMediaLoadError()"
                         />
                     } @else if (item.media_type === 'video') {
                         <video
@@ -66,12 +112,19 @@ interface MediaPreviewModalData {
                             controls
                             [attr.aria-label]="item.name"
                             class="h-full max-h-full w-full max-w-full object-contain"
+                            [class.opacity-0]="
+                                media_loading() || media_error()
+                            "
+                            (loadeddata)="handleMediaLoaded()"
+                            (error)="handleMediaLoadError()"
                         ></video>
                     } @else if (item.media_type === 'webpage') {
                         <iframe
                             [src]="safe_url()"
                             [title]="item.name"
                             class="h-full w-full border-0 bg-white"
+                            [class.opacity-0]="media_loading()"
+                            (load)="handleMediaLoaded()"
                         ></iframe>
                     } @else if (item.media_type === 'plugin' && plugin) {
                         <plugin-embed
@@ -85,7 +138,12 @@ interface MediaPreviewModalData {
                             class="text-base-content/70 flex flex-col items-center justify-center space-y-2"
                         >
                             <icon class="text-8xl">hide_image</icon>
-                            <p>Preview not available</p>
+                            <p>
+                                {{
+                                    'SIGNAGE_MANAGER.PREVIEW_UNAVAILABLE'
+                                        | translate
+                                }}
+                            </p>
                         </div>
                     }
                 </section>
@@ -98,7 +156,7 @@ interface MediaPreviewModalData {
                                 <div
                                     class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                 >
-                                    Description
+                                    {{ 'COMMON.DESCRIPTION' | translate }}
                                 </div>
                                 <div class="text-sm">
                                     {{ item.description }}
@@ -109,7 +167,7 @@ interface MediaPreviewModalData {
                             <div
                                 class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                             >
-                                Type
+                                {{ 'COMMON.TYPE' | translate }}
                             </div>
                             <span
                                 class="rounded-lg px-2 py-1 font-mono text-xs capitalize"
@@ -132,7 +190,7 @@ interface MediaPreviewModalData {
                                     item.media_type === 'plugin'
                                 "
                             >
-                                {{ type_label() }}
+                                {{ type_label() | translate }}
                             </span>
                         </div>
                         @if (item.play_time) {
@@ -140,7 +198,10 @@ interface MediaPreviewModalData {
                                 <div
                                     class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                 >
-                                    Duration
+                                    {{
+                                        'FORM.DURATION'
+                                            | translate
+                                    }}
                                 </div>
                                 <div class="font-mono text-sm">
                                     {{ item.play_time / 1000 | mediaDuration }}
@@ -151,31 +212,35 @@ interface MediaPreviewModalData {
                             <div
                                 class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                             >
-                                Animation
+                                {{ 'SIGNAGE_MANAGER.ANIMATION' | translate }}
                             </div>
                             <div class="text-sm">
-                                {{ animation_label() }}
+                                {{ animation_label() | translate }}
                             </div>
                         </div>
                         <div>
                             <div
                                 class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                             >
-                                Orientation
+                                {{ 'SIGNAGE_MANAGER.ORIENTATION' | translate }}
                             </div>
                             <div class="text-sm capitalize">
-                                {{ item.orientation || 'Unspecified' }}
+                                {{
+                                    item.orientation ||
+                                        ('COMMON.LOCATION_UNSPECIFIED'
+                                            | translate)
+                                }}
                             </div>
                         </div>
                         <div>
                             <div
                                 class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                             >
-                                Playlists
+                                {{ 'SIGNAGE_MANAGER.NAV_PLAYLISTS' | translate }}
                             </div>
                             @if (loading_playlists()) {
                                 <div class="text-base-content/70 text-sm">
-                                    Loading...
+                                    {{ 'COMMON.LOADING' | translate }}
                                 </div>
                             } @else if (containing_playlists().length > 0) {
                                 <div class="space-y-1">
@@ -208,7 +273,10 @@ interface MediaPreviewModalData {
                                 </div>
                             } @else {
                                 <div class="text-base-content/70 text-sm">
-                                    Not in any playlists
+                                    {{
+                                        'SIGNAGE_MANAGER.NOT_IN_PLAYLISTS'
+                                            | translate
+                                    }}
                                 </div>
                             }
                         </div>
@@ -217,7 +285,7 @@ interface MediaPreviewModalData {
                                 <div
                                     class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                 >
-                                    Play Count
+                                    {{ 'SIGNAGE_MANAGER.PLAY_COUNT' | translate }}
                                 </div>
                                 <div class="text-sm capitalize">
                                     {{ item.play_count || '0' }}
@@ -229,7 +297,7 @@ interface MediaPreviewModalData {
                                 <div
                                     class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                 >
-                                    Valid From
+                                    {{ 'SIGNAGE_MANAGER.VALID_FROM' | translate }}
                                 </div>
                                 <div class="text-sm capitalize">
                                     {{
@@ -244,7 +312,7 @@ interface MediaPreviewModalData {
                                 <div
                                     class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                 >
-                                    Valid Until
+                                    {{ 'FORM.EXPIRES_AT' | translate }}
                                 </div>
                                 <div class="text-sm capitalize">
                                     {{
@@ -271,12 +339,14 @@ interface MediaPreviewModalData {
     imports: [
         MatRippleModule,
         MatDialogModule,
+        MatProgressSpinnerModule,
         RouterLink,
         IconComponent,
         AuthenticatedImageDirective,
         DatePipe,
         MediaDurationPipe,
         PluginEmbedComponent,
+        TranslatePipe,
     ],
 })
 export class MediaPreviewModalComponent implements OnInit {
@@ -287,6 +357,9 @@ export class MediaPreviewModalComponent implements OnInit {
     public readonly item = this._data.media;
     public readonly plugin = this._data.plugin;
     public readonly media_url = this.item.media_url || this.item.media_uri;
+    public readonly thumbnail_url = playlistMediaThumbnailUrl(this.item);
+    public readonly media_loading = signal(this._hasLoadableMedia());
+    public readonly media_error = signal(false);
 
     public readonly containing_playlists = signal<SignagePlaylist[]>([]);
     public readonly loading_playlists = signal(true);
@@ -316,13 +389,13 @@ export class MediaPreviewModalComponent implements OnInit {
     public readonly type_label = computed(() => {
         switch (this.item.media_type) {
             case 'video':
-                return 'Video';
+                return 'COMMON.VIDEO';
             case 'image':
-                return 'Image';
+                return 'COMMON.IMAGE';
             case 'webpage':
-                return 'Webpage';
+                return 'COMMON.WEBPAGE';
             case 'plugin':
-                return 'Plugin';
+                return 'SIGNAGE_MANAGER.TYPE_PLUGIN';
             default:
                 return this.item.media_type;
         }
@@ -331,19 +404,19 @@ export class MediaPreviewModalComponent implements OnInit {
     public readonly animation_label = computed(() => {
         switch (this.item.animation) {
             case MediaAnimation.Cut:
-                return 'Cut';
+                return 'SIGNAGE_MANAGER.ANIM_CUT';
             case MediaAnimation.CrossFade:
-                return 'Cross Fade';
+                return 'SIGNAGE_MANAGER.ANIM_CROSS_FADE';
             case MediaAnimation.SlideTop:
-                return 'Slide Top';
+                return 'SIGNAGE_MANAGER.ANIM_SLIDE_TOP';
             case MediaAnimation.SlideLeft:
-                return 'Slide Left';
+                return 'SIGNAGE_MANAGER.ANIM_SLIDE_LEFT';
             case MediaAnimation.SlideRight:
-                return 'Slide Right';
+                return 'SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT';
             case MediaAnimation.SlideBottom:
-                return 'Slide Bottom';
+                return 'SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM';
             default:
-                return 'Default';
+                return 'COMMON.DEFAULT';
         }
     });
 
@@ -364,5 +437,22 @@ export class MediaPreviewModalComponent implements OnInit {
         }
         this.containing_playlists.set(matching);
         this.loading_playlists.set(false);
+    }
+
+    public handleMediaLoaded() {
+        this.media_loading.set(false);
+        this.media_error.set(false);
+    }
+
+    public handleMediaLoadError() {
+        this.media_loading.set(false);
+        this.media_error.set(true);
+    }
+
+    private _hasLoadableMedia() {
+        return (
+            !!this.media_url &&
+            ['image', 'video', 'webpage'].includes(this.item.media_type)
+        );
     }
 }

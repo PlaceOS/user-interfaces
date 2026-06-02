@@ -8,6 +8,7 @@ import { RouterLink } from '@angular/router';
 import {
     AuthenticatedImageDirective,
     IconComponent,
+    TranslatePipe,
 } from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
 import { SignageService } from '../signage.service';
@@ -34,10 +35,12 @@ type PlaylistStatus =
                 >
                     <input
                         matInput
-                        placeholder="Search playlists"
+                        [placeholder]="'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate"
                         [ngModel]="search()"
                         (ngModelChange)="search.set($event)"
-                        aria-label="Search playlists"
+                        [attr.aria-label]="
+                            'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate
+                        "
                     />
                 </mat-form-field>
             </div>
@@ -55,7 +58,10 @@ type PlaylistStatus =
                         "
                         [routerLink]="['/playlists', playlist.id]"
                         queryParamsHandling="merge"
-                        [attr.aria-label]="'Open playlist ' + playlist.name"
+                        [attr.aria-label]="
+                            'SIGNAGE_MANAGER.OPEN_PLAYLIST'
+                                | translate: { name: playlist.name }
+                        "
                     >
                         <div
                             class="relative h-12 w-12 shrink-0 overflow-hidden rounded-md"
@@ -112,7 +118,10 @@ type PlaylistStatus =
                                     <span
                                         class="bg-base-200 shrink-0 rounded px-1.5 py-0.5"
                                     >
-                                        Disabled
+                                        {{
+                                            'COMMON.DISABLED'
+                                                | translate
+                                        }}
                                     </span>
                                 }
                                 @switch (getStatus(playlist)) {
@@ -120,28 +129,40 @@ type PlaylistStatus =
                                         <span
                                             class="bg-error text-error-content shrink-0 rounded px-1.5 py-0.5"
                                         >
-                                            Expired
+                                            {{
+                                                'SIGNAGE_MANAGER.STATUS_EXPIRED'
+                                                    | translate
+                                            }}
                                         </span>
                                     }
                                     @case ('pending') {
                                         <span
                                             class="bg-info text-info-content shrink-0 rounded px-1.5 py-0.5"
                                         >
-                                            Pending
+                                            {{
+                                                'COMMON.PENDING'
+                                                    | translate
+                                            }}
                                         </span>
                                     }
                                     @case ('awaiting_review') {
                                         <span
                                             class="bg-warning text-warning-content shrink-0 rounded px-1.5 py-0.5"
                                         >
-                                            Awaiting Review
+                                            {{
+                                                'SIGNAGE_MANAGER.STATUS_AWAITING_REVIEW'
+                                                    | translate
+                                            }}
                                         </span>
                                     }
                                     @case ('awaiting_approval') {
                                         <span
                                             class="bg-base-300 shrink-0 rounded px-1.5 py-0.5"
                                         >
-                                            Approval Required
+                                            {{
+                                                'COMMON.APPROVAL_REQUIRED'
+                                                    | translate
+                                            }}
                                         </span>
                                     }
                                 }
@@ -167,7 +188,7 @@ type PlaylistStatus =
                     class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
                 >
                     <icon class="text-6xl">playlist_play</icon>
-                    <p>No playlists found.</p>
+                    <p>{{ 'SIGNAGE_MANAGER.NO_PLAYLISTS' | translate }}</p>
                 </div>
             }
         </div>
@@ -190,6 +211,7 @@ type PlaylistStatus =
         MatMenuModule,
         AuthenticatedImageDirective,
         IconComponent,
+        TranslatePipe,
     ],
 })
 export class PlaylistListComponent {

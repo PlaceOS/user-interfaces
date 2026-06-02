@@ -2,9 +2,10 @@ import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import * as ts_client from '@placeos/ts-client';
 import { MediaAnimation } from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
-import { firstValueFrom, of, skip, take } from 'rxjs';
+import { firstValueFrom, of, skip, take, throwError } from 'rxjs';
 
 import { MediaCacheService } from '../app/media-cache.service';
+import { setMockTime } from '../app/media-helpers';
 import { SignageService } from '../app/signage.service';
 
 jest.mock('@placeos/ts-client', () => {
@@ -12,6 +13,7 @@ jest.mock('@placeos/ts-client', () => {
     return {
         ...actual,
         showSignage: jest.fn(),
+        querySignagePlugins: jest.fn(),
         responseHeaders: jest.fn(),
         post: jest.fn(),
     };
@@ -100,31 +102,31 @@ describe('SignageService', () => {
                 id: 'media-1',
                 name: 'Welcome',
                 media_type: 'image',
-                media_url: '/media-1.jpg',
+                media_uri: '/media-1.jpg',
             },
             {
                 id: 'media-2',
                 name: 'Zone Video',
                 media_type: 'video',
-                media_url: '/media-2.mp4',
+                media_uri: '/media-2.mp4',
             },
             {
                 id: 'media-3',
                 name: 'Scheduled Notice',
                 media_type: 'image',
-                media_url: '/media-3.jpg',
+                media_uri: '/media-3.jpg',
             },
             {
                 id: 'media-4',
                 name: 'Triggered Notice',
                 media_type: 'webpage',
-                media_url: 'https://example.com',
+                media_uri: 'https://example.com',
             },
             {
                 id: 'media-5',
                 name: 'Random Notice',
                 media_type: 'image',
-                media_url: '/media-5.jpg',
+                media_uri: '/media-5.jpg',
             },
         ],
         plugins: [],
@@ -143,6 +145,9 @@ describe('SignageService', () => {
         (ts_client.showSignage as jest.Mock).mockReturnValue(
             of(create_display() as any),
         );
+        (ts_client.querySignagePlugins as jest.Mock).mockReturnValue(
+            of({ data: [] } as any),
+        );
         (ts_client.responseHeaders as jest.Mock).mockReturnValue({
             'last-modified': new Date().toUTCString(),
         } as any);
@@ -154,6 +159,7 @@ describe('SignageService', () => {
 
     afterEach(() => {
         if (spectator?.service) spectator.service.ngOnDestroy();
+        setMockTime(0);
         jest.useRealTimers();
         jest.restoreAllMocks();
     });
@@ -171,13 +177,300 @@ describe('SignageService', () => {
         const playlist = await playlist_promise;
 
         expect(playlist.map((_) => _.id)).toEqual(['media-1', 'media-2']);
+        expect(media_cache.availableFiles).toHaveBeenCalledWith('display-1');
         expect(media_cache.requestFilesToCache).toHaveBeenCalled();
-        expect(media_cache.requestFilesToCache.mock.calls[0][0]).toHaveLength(
-            4,
+        const cache_call = media_cache.requestFilesToCache.mock.calls.find(
+            ([urls]) => urls.length,
         );
+        expect(cache_call?.[0]).toEqual([
+            '/media-1.jpg',
+            '/media-2.mp4',
+            '/media-3.jpg',
+        ]);
+        expect(cache_call?.[1]).toBe('display-1');
+        expect(cache_call?.[2]).toEqual({ prune_other_owners: true });
         expect(media_cache.invalidateFile).toHaveBeenCalledWith(
             '/stale-file.jpg',
+            'display-1',
         );
+    });
+
+    it('should resolve plugin media URLs from the plugin catalogue', async () => {
+        (ts_client.showSignage as jest.Mock).mockReturnValue(
+            of(
+                create_display({
+                    playlist_mappings: {
+                        'display-1': ['base-playlist'],
+                        'zone-1': [],
+                        'trig-fire': ['trigger-playlist'],
+                    },
+                    playlist_config: {
+                        'base-playlist': [
+                            {
+                                id: 'base-playlist',
+                                name: 'Base Playlist',
+                                enabled: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 15000,
+                            },
+                            ['plugin-media'],
+                        ],
+                    },
+                    playlist_media: [
+                        {
+                            id: 'plugin-media',
+                            name: 'Weather Plugin',
+                            media_type: 'plugin',
+                            media_uri: '',
+                            plugin_id: 'weather-plugin',
+                            plugin_params: { theme: 'dark' },
+                        },
+                    ],
+                    plugins: [],
+                }) as any,
+            ),
+        );
+        (ts_client.querySignagePlugins as jest.Mock).mockReturnValue(
+            of({
+                data: [
+                    {
+                        id: 'weather-plugin',
+                        name: 'Weather',
+                        uri: '/plugins/weather/index.html',
+                        defaults: { units: 'metric' },
+                    },
+                ],
+            } as any),
+        );
+        const playlist_promise = firstValueFrom(
+            spectator.service.playlist.pipe(skip(1), take(1)),
+        );
+
+        spectator.service.setDisplay('display-1');
+        const [plugin_item] = await playlist_promise;
+
+        expect(plugin_item.plugin?.uri).toBe('/plugins/weather/index.html');
+        expect(plugin_item.plugin_params).toEqual({
+            units: 'metric',
+            theme: 'dark',
+        });
+        await expect(plugin_item.getURL()).resolves.toBe(
+            '/plugins/weather/index.html',
+        );
+    });
+
+    it('should track whether playlist or media validity controls the item window', async () => {
+        const now = Date.UTC(2026, 0, 1, 10, 0, 0);
+        setMockTime(now);
+        (ts_client.showSignage as jest.Mock).mockReturnValue(
+            of(
+                create_display({
+                    playlist_mappings: {
+                        'display-1': ['playlist-source', 'media-source'],
+                    },
+                    playlist_config: {
+                        'playlist-source': [
+                            {
+                                id: 'playlist-source',
+                                name: 'Playlist Source',
+                                enabled: true,
+                                valid_from: Math.floor(
+                                    (now + 60 * 60 * 1000) / 1000,
+                                ),
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 15000,
+                            },
+                            ['playlist-controlled-media'],
+                        ],
+                        'media-source': [
+                            {
+                                id: 'media-source',
+                                name: 'Media Source',
+                                enabled: true,
+                                valid_from: Math.floor(
+                                    (now + 60 * 60 * 1000) / 1000,
+                                ),
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 15000,
+                            },
+                            ['media-controlled-media'],
+                        ],
+                    },
+                    playlist_media: [
+                        {
+                            id: 'playlist-controlled-media',
+                            name: 'Playlist Controlled',
+                            media_type: 'image',
+                            media_uri: '/playlist-controlled.jpg',
+                        },
+                        {
+                            id: 'media-controlled-media',
+                            name: 'Media Controlled',
+                            media_type: 'image',
+                            media_uri: '/media-controlled.jpg',
+                            valid_from: Math.floor(
+                                (now + 2 * 60 * 60 * 1000) / 1000,
+                            ),
+                        },
+                    ],
+                }) as any,
+            ),
+        );
+        const playlist_promise = firstValueFrom(
+            spectator.service.playlist.pipe(skip(1), take(1)),
+        );
+
+        spectator.service.setDisplay('display-1');
+        const playlist = await playlist_promise;
+
+        expect(
+            playlist.find((_) => _.id === 'playlist-controlled-media')
+                ?.validity?.valid_from_source,
+        ).toBe('playlist');
+        expect(
+            playlist.find((_) => _.id === 'media-controlled-media')?.validity
+                ?.valid_from_source,
+        ).toBe('media');
+    });
+
+    it('should not allow embedded players to prune other display caches', async () => {
+        jest.spyOn(
+            spectator.service as any,
+            '_isNestedPlayerWindow',
+        ).mockReturnValue(true);
+
+        spectator.service.setDisplay('display-1');
+        await firstValueFrom(spectator.service.playlist.pipe(skip(1), take(1)));
+
+        const cache_call = media_cache.requestFilesToCache.mock.calls.find(
+            ([urls]) => urls.length,
+        );
+        expect(cache_call?.[2]).toEqual({ prune_other_owners: false });
+    });
+
+    it('should not clear another display cache when display loading fails', async () => {
+        localStorage.setItem(
+            'PlaceOS.SIGNAGE.display_details.display-1',
+            JSON.stringify(create_display()),
+        );
+        (ts_client.showSignage as jest.Mock).mockReturnValue(
+            throwError(() => new Error('display unavailable')),
+        );
+        const display_promise = firstValueFrom(
+            spectator.service.display.pipe(take(1)),
+        );
+
+        spectator.service.setDisplay('display-2');
+        const display = await display_promise;
+
+        expect(display).toEqual(
+            expect.objectContaining({
+                playlist_media: [],
+                plugins: [],
+            }),
+        );
+        expect(
+            JSON.parse(
+                localStorage.getItem(
+                    'PlaceOS.SIGNAGE.display_details.display-1',
+                ) || '{}',
+            ).id,
+        ).toBe('display-1');
+        expect(
+            localStorage.getItem('PlaceOS.SIGNAGE.display_details.display-2'),
+        ).toBeNull();
+    });
+
+    it('should not include signage media that embeds the same display', async () => {
+        (ts_client.showSignage as jest.Mock).mockReturnValue(
+            of(
+                create_display({
+                    playlist_mappings: {
+                        'display-1': ['base-playlist'],
+                        'zone-1': [],
+                        'trig-fire': ['trigger-playlist'],
+                    },
+                    playlist_config: {
+                        ...create_display().playlist_config,
+                        'base-playlist': [
+                            {
+                                id: 'base-playlist',
+                                name: 'Base Playlist',
+                                enabled: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 15000,
+                            },
+                            ['media-1', 'self-signage'],
+                        ],
+                    },
+                    playlist_media: [
+                        ...create_display().playlist_media,
+                        {
+                            id: 'self-signage',
+                            name: 'Self Signage',
+                            media_type: 'webpage',
+                            media_uri: '/#/signage/display-1',
+                        },
+                    ],
+                }) as any,
+            ),
+        );
+        const playlist_promise = firstValueFrom(
+            spectator.service.playlist.pipe(skip(1), take(1)),
+        );
+
+        spectator.service.setDisplay('display-1');
+        const playlist = await playlist_promise;
+
+        expect(playlist.map((_) => _.id)).toEqual(['media-1']);
+    });
+
+    it('should not include signage media inside an embedded signage player', async () => {
+        jest.spyOn(
+            spectator.service as any,
+            '_isNestedPlayerWindow',
+        ).mockReturnValue(true);
+        (ts_client.showSignage as jest.Mock).mockReturnValue(
+            of(
+                create_display({
+                    playlist_mappings: {
+                        'display-1': ['base-playlist'],
+                        'zone-1': [],
+                        'trig-fire': ['trigger-playlist'],
+                    },
+                    playlist_config: {
+                        ...create_display().playlist_config,
+                        'base-playlist': [
+                            {
+                                id: 'base-playlist',
+                                name: 'Base Playlist',
+                                enabled: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 15000,
+                            },
+                            ['media-1', 'nested-signage'],
+                        ],
+                    },
+                    playlist_media: [
+                        ...create_display().playlist_media,
+                        {
+                            id: 'nested-signage',
+                            name: 'Nested Signage',
+                            media_type: 'webpage',
+                            media_uri: '/#/signage/display-2',
+                        },
+                    ],
+                }) as any,
+            ),
+        );
+        const playlist_promise = firstValueFrom(
+            spectator.service.playlist.pipe(skip(1), take(1)),
+        );
+
+        spectator.service.setDisplay('display-1');
+        const playlist = await playlist_promise;
+
+        expect(playlist.map((_) => _.id)).toEqual(['media-1']);
     });
 
     it('should activate scheduled override playlists', async () => {
@@ -255,6 +548,60 @@ describe('SignageService', () => {
         expect(playlists.at(-1)).toEqual(['media-1']);
 
         jest.advanceTimersByTime(15_000);
+        await Promise.resolve();
+
+        expect(playlists.at(-1)).toEqual(['media-1', 'media-3']);
+        subscription.unsubscribe();
+    });
+
+    it('should update scheduled playlists quickly while debug time is fast-forwarding', async () => {
+        const now = new Date('2026-01-01T10:00:00Z');
+        jest.setSystemTime(now);
+        setMockTime(now.getTime(), 64);
+        (ts_client.showSignage as jest.Mock).mockReturnValue(
+            of(
+                create_display({
+                    playlist_mappings: {
+                        'display-1': ['base-playlist', 'future-playlist'],
+                        'zone-1': [],
+                        'trig-fire': ['trigger-playlist'],
+                    },
+                    playlist_config: {
+                        ...create_display().playlist_config,
+                        'future-playlist': [
+                            {
+                                id: 'future-playlist',
+                                name: 'Future Playlist',
+                                enabled: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 10000,
+                                schedules: [
+                                    {
+                                        play_at: Math.floor(
+                                            (now.getTime() + 15_000) / 1000,
+                                        ),
+                                        play_cron: '',
+                                        play_period: 1,
+                                        play_takeover: false,
+                                    },
+                                ],
+                            },
+                            ['media-3'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+        const playlists: string[][] = [];
+        const subscription = spectator.service.playlist.subscribe((playlist) =>
+            playlists.push(playlist.map((_) => _.id)),
+        );
+
+        spectator.service.setDisplay('display-1');
+        await Promise.resolve();
+        expect(playlists.at(-1)).toEqual(['media-1']);
+
+        jest.advanceTimersByTime(250);
         await Promise.resolve();
 
         expect(playlists.at(-1)).toEqual(['media-1', 'media-3']);

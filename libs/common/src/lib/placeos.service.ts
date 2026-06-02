@@ -299,7 +299,7 @@ export class PlaceOS_Service extends AsyncHandler {
             this._locale.zone_id = this._org.organisation.id;
             this._locale.init();
         }
-        setupCache(this._cache);
+        setupCache(this._cache, this._settings.get('service_worker') || {});
         if (!settings.local_login) {
             this.timeout('wait_for_user', () => this.onInitError(), 30 * 1000);
         }

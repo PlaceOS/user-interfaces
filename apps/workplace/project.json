@@ -63,7 +63,7 @@
                     "fileReplacements": [
                         {
                             "replace": "apps/workplace/src/environments/environment.ts",
-                            "with": "apps/workplace/src/environments/environment.prod.ts"
+                            "with": "apps/workplace/src/environments/environment.mobile.ts"
                         },
                         {
                             "replace": "libs/common/src/lib/settings.ts",

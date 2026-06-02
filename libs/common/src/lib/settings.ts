@@ -5,10 +5,17 @@ export interface SettingsOptions {
     debug: boolean;
     /** Settings for initialising composer service */
     composer: ComposerSettings;
+    /** Settings for service worker update handling */
+    service_worker: ServiceWorkerSettings;
     /** Settings for the application */
     app: ApplicationSettings;
     /** Whether to use mock systems and services */
     mock?: boolean;
+}
+
+export interface ServiceWorkerSettings {
+    /** Whether to reload the app as soon as a new service worker version is ready */
+    auto_reload: boolean;
 }
 
 export interface ComposerSettings {
@@ -74,6 +81,9 @@ export const DEFAULT_SETTINGS: SettingsOptions = {
         port: '',
         use_domain: false,
         local_login: false,
+    },
+    service_worker: {
+        auto_reload: false,
     },
     app,
 };

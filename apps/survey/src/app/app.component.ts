@@ -146,7 +146,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
             this._locale.zone_id = this._org.organisation.id;
             this._locale.init();
         }
-        setupCache(this._cache);
+        setupCache(this._cache, this._settings.get('service_worker') || {});
         await firstTruthyValueFrom(current_user);
         this.clearTimeout('wait_for_user');
         this._initLocale();

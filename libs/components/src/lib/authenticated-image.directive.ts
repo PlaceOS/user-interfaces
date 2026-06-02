@@ -62,6 +62,10 @@ export class AuthenticatedImageDirective
                 source,
                 cookie_path,
             );
-        } catch {}
+        } catch (error) {
+            this._element.nativeElement.dispatchEvent(
+                new ErrorEvent('error', { error }),
+            );
+        }
     }
 }

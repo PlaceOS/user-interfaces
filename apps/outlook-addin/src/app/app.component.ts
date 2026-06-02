@@ -111,7 +111,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
     }
 
     private async _finishInitialise() {
-        setupCache(this._cache);
+        setupCache(this._cache, this._settings.get('service_worker') || {});
         if (!this._settings.get('composer.local_login')) {
             this.timeout('wait_for_user', () => this.onInitError(), 30 * 1000);
         }

@@ -1,10 +1,22 @@
 export const NAV_ITEMS = [
-    { route: '/media', icon: 'stock_media', label: 'Media' },
-    { route: '/playlists', icon: 'playlist_play', label: 'Playlists' },
-    { route: '/zones', icon: 'layers', label: 'Zones' },
-    { route: '/schedules', icon: 'calendar_view_day', label: 'Schedules' },
-    { route: '/displays', icon: 'display_settings', label: 'Displays' },
-    { route: '/groups', icon: 'groups', label: 'Groups' },
+    { route: '/media', icon: 'stock_media', label: 'SIGNAGE_MANAGER.NAV_MEDIA' },
+    {
+        route: '/playlists',
+        icon: 'playlist_play',
+        label: 'SIGNAGE_MANAGER.NAV_PLAYLISTS',
+    },
+    { route: '/zones', icon: 'layers', label: 'SIGNAGE_MANAGER.NAV_ZONES' },
+    {
+        route: '/schedules',
+        icon: 'calendar_view_day',
+        label: 'SIGNAGE_MANAGER.NAV_SCHEDULES',
+    },
+    {
+        route: '/displays',
+        icon: 'display_settings',
+        label: 'SIGNAGE_MANAGER.NAV_DISPLAYS',
+    },
+    { route: '/groups', icon: 'groups', label: 'COMMON.GROUPS' },
 ];
 
 export type NavItem = (typeof NAV_ITEMS)[number];

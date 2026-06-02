@@ -198,7 +198,7 @@ export class SettingsService extends AsyncHandler {
 
     /** Whether settings service has initialised */
     public get app_name() {
-        return this._app_name;
+        return this._app_name.replace(/ /g, '-');
     }
 
     public get time_format(): string {

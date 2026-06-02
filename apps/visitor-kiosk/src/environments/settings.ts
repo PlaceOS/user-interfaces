@@ -64,7 +64,7 @@ const app = {
         { id: 'es', name: 'LANGUAGE.SPANISH', local: 'Español', flag: '🇪🇸' },
         {
             id: 'pt',
-            name: 'LANGUAGE.PORTUGESE',
+            name: 'LANGUAGE.PORTUGUESE',
             local: 'Português',
             flag: '🇵🇹',
         },
@@ -87,6 +87,9 @@ export const DEFAULT_SETTINGS: any = {
         port: '',
         use_domain: false,
         local_login: false,
+    },
+    service_worker: {
+        auto_reload: true,
     },
     app,
     mock: false,

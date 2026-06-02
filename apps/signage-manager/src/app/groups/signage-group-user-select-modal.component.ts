@@ -4,7 +4,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceUser } from '@placeos/ts-client';
 import { lastValueFrom } from 'rxjs';
 import { SignageService } from '../signage.service';
@@ -15,13 +15,15 @@ import { SignageService } from '../signage.service';
         <header
             class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
-            <h2 class="px-2 text-xl font-medium">Add User</h2>
+            <h2 class="px-2 text-xl font-medium">
+                {{ 'SIGNAGE_MANAGER.GROUP_ADD_USER' | translate }}
+            </h2>
             <button
                 icon
                 type="button"
                 matRipple
                 mat-dialog-close
-                aria-label="Close add user dialog"
+                [attr.aria-label]="'SIGNAGE_MANAGER.CLOSE_ADD_USER' | translate"
             >
                 <icon>close</icon>
             </button>
@@ -37,8 +39,8 @@ import { SignageService } from '../signage.service';
                     matInput
                     [ngModel]="search()"
                     (ngModelChange)="setSearch($event)"
-                    placeholder="Search users"
-                    aria-label="Search users"
+                    [placeholder]="'SIGNAGE_MANAGER.SEARCH_USERS' | translate"
+                    [attr.aria-label]="'SIGNAGE_MANAGER.SEARCH_USERS' | translate"
                 />
             </mat-form-field>
             @if (users().length > 0) {
@@ -71,7 +73,9 @@ import { SignageService } from '../signage.service';
                     class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center space-y-4 rounded-lg p-16"
                 >
                     <icon class="text-base-content/70 text-8xl">group_off</icon>
-                    <div class="text-base-content/70">No users found</div>
+                    <div class="text-base-content/70">
+                        {{ 'FORM.USER_EMPTY' | translate }}
+                    </div>
                 </div>
             }
         </main>
@@ -83,6 +87,7 @@ import { SignageService } from '../signage.service';
         MatFormFieldModule,
         MatInputModule,
         IconComponent,
+        TranslatePipe,
     ],
 })
 export class SignageGroupUserSelectModalComponent {

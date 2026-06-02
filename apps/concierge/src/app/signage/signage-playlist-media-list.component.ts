@@ -469,7 +469,7 @@ export class SignagePlaylistMediaListComponent {
     }
 
     public isScheduled(item: SignagePlaylist): boolean {
-        return item && (!!item.play_at || !!item.play_cron);
+        return !!item;
     }
 
     public animation_name(value: MediaAnimation) {

@@ -3,7 +3,8 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterModule } from '@angular/router';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
+import { i18n } from '@placeos/common';
 import { lastValueFrom } from 'rxjs';
 import { SignageService } from '../signage.service';
 import { GroupSelectModalComponent } from './group-select-modal.component';
@@ -13,7 +14,7 @@ import { filterManageNavItems } from './nav-items';
     selector: 'nav-footer',
     template: `
         <nav
-            aria-label="Primary navigation"
+            [attr.aria-label]="'SIGNAGE_MANAGER.PRIMARY_NAV' | translate"
             class="bg-secondary text-secondary-content border-base-100 border-t px-2 py-2 shadow-[0_-8px_24px_rgba(0,0,0,0.18)] sm:hidden"
         >
             <div
@@ -25,13 +26,15 @@ import { filterManageNavItems } from './nav-items';
                         class="hover:bg-base-100/30 focus-visible:bg-base-100/30 relative flex h-14 min-w-0 flex-1 flex-col items-center justify-center rounded-lg px-1 text-xs"
                         [routerLink]="item.route"
                         routerLinkActive="active bg-primary/30"
-                        [attr.aria-label]="item.label"
+                        [attr.aria-label]="item.label | translate"
                         [attr.aria-current]="
                             route_active.isActive ? 'page' : null
                         "
                     >
                         <icon class="text-2xl">{{ item.icon }}</icon>
-                        <div class="truncate font-medium">{{ item.label }}</div>
+                        <div class="truncate font-medium">
+                            {{ item.label | translate }}
+                        </div>
                         <div
                             active
                             class="bg-base-100 absolute inset-x-2 -top-2 left-1 h-1 rounded-b"
@@ -44,10 +47,14 @@ import { filterManageNavItems } from './nav-items';
                     matRipple
                     class="hover:bg-base-100/30 focus-visible:bg-base-100/30 relative flex h-14 min-w-0 flex-1 flex-col items-center justify-center rounded-lg px-1 text-xs"
                     [matMenuTriggerFor]="more_menu"
-                    aria-label="More navigation options"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.MORE_NAV_OPTIONS' | translate
+                    "
                 >
                     <icon class="text-2xl">more_horiz</icon>
-                    <div class="truncate font-medium">More</div>
+                    <div class="truncate font-medium">
+                        {{ 'SIGNAGE_MANAGER.MORE' | translate }}
+                    </div>
                 </button>
                 <mat-menu #more_menu="matMenu">
                     @for (item of more_nav_items(); track item.route) {
@@ -56,7 +63,7 @@ import { filterManageNavItems } from './nav-items';
                                 <icon class="mr-2 text-2xl">{{
                                     item.icon
                                 }}</icon>
-                                <span>{{ item.label }}</span>
+                                <span>{{ item.label | translate }}</span>
                             </div>
                         </a>
                     }
@@ -68,17 +75,21 @@ import { filterManageNavItems } from './nav-items';
                         <button
                             type="button"
                             mat-menu-item
-                            aria-label="Select signage group"
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.SELECT_SIGNAGE_GROUP' | translate
+                            "
                             (click)="selectGroup()"
                         >
                             <div class="flex items-center gap-2 py-1">
                                 <icon class="mr-2 text-2xl">group</icon>
                                 <div class="min-w-0 leading-tight">
-                                    <div class="font-medium">Select Group</div>
+                                    <div class="font-medium">
+                                        {{ 'SIGNAGE_MANAGER.SELECT_GROUP' | translate }}
+                                    </div>
                                     <div
                                         class="text-base-content/70 truncate text-xs"
                                     >
-                                        {{ selected_label() }}
+                                        {{ selected_label() | translate }}
                                     </div>
                                 </div>
                             </div>
@@ -103,7 +114,13 @@ import { filterManageNavItems } from './nav-items';
             }
         `,
     ],
-    imports: [RouterModule, MatMenuModule, MatRippleModule, IconComponent],
+    imports: [
+        RouterModule,
+        MatMenuModule,
+        MatRippleModule,
+        IconComponent,
+        TranslatePipe,
+    ],
 })
 export class NavFooterComponent {
     private readonly _service = inject(SignageService);
@@ -129,13 +146,15 @@ export class NavFooterComponent {
     public readonly selected_group = this._service.selected_group;
     public readonly is_sys_admin = this._service.is_sys_admin;
     public readonly selected_label = computed(
-        () => this.selected_group()?.group.name || 'All Groups',
+        () =>
+            this.selected_group()?.group.name ||
+            'SIGNAGE_MANAGER.ALL_GROUPS',
     );
 
     public async selectGroup() {
         const ref = this._dialog.open(GroupSelectModalComponent, {
             data: {
-                title: 'Select signage group',
+                title: i18n('SIGNAGE_MANAGER.SELECT_SIGNAGE_GROUP'),
                 groups: this.groups(),
                 selected_group_id: this.selected_group_id(),
                 show_all_groups: this.is_sys_admin(),

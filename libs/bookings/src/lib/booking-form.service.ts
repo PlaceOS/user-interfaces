@@ -497,7 +497,7 @@ export class BookingFormService extends AsyncHandler {
             ),
             { emitEvent: false },
         );
-        this._applyDurationSettings();
+        this.applyDurationSettings();
         this.subscription(
             'form_change',
             this.form.valueChanges.subscribe(() => {
@@ -555,12 +555,12 @@ export class BookingFormService extends AsyncHandler {
             'settings_change',
             (this._settings.overrides$ || of([]))
                 .pipe(filter((_) => !!_?.length))
-                .subscribe(() => this._applyDurationSettings()),
+                .subscribe(() => this.applyDurationSettings()),
         );
     }
 
     /** Push the current building's duration and bookable-hours settings into the time sync. */
-    private _applyDurationSettings() {
+    public applyDurationSettings() {
         const handle = getFormTimeSyncHandle(this.form);
         const period = this.setting('all_day_period');
         handle?.updateOptions({
@@ -697,7 +697,7 @@ export class BookingFormService extends AsyncHandler {
             [null, undefined, ''],
         );
         this.form.patchValue(booking_data, { emitEvent: false });
-        this._applyDurationSettings();
+        this.applyDurationSettings();
         this._syncWindowIfUnchanged(
             'load-date',
             initial_date,

@@ -2,6 +2,7 @@ import {
     SignagePlaylist,
     type SignagePlaylistSchedule,
 } from '@placeos/ts-client';
+import { i18n } from '@placeos/common';
 import { isSameDay, startOfDay } from 'date-fns';
 
 const BLOCK_PALETTE = [
@@ -17,7 +18,6 @@ const BLOCK_PALETTE = [
 export const DAY_COUNT = 7;
 export const MINUTES_PER_DAY = 1440;
 const DEFAULT_PLAYLIST_DURATION = 24 * 60;
-export const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 export interface ScheduleBlock {
     playlist: SignagePlaylist;
@@ -224,7 +224,7 @@ function getCronBlocksForDay(
                 all_day: duration >= MINUTES_PER_DAY,
                 label: duration
                     ? formatTimeRange(start_minutes, duration)
-                    : 'Play through once',
+                    : i18n('SIGNAGE_MANAGER.PLAY_THROUGH_ONCE'),
             });
         }
     }
@@ -344,7 +344,7 @@ export function buildDisplayScheduleAssignments(
         assignments.push({
             playlist,
             source_type: 'display',
-            source_label: 'Display',
+            source_label: i18n('SIGNAGE_MANAGER.SOURCE_DISPLAY'),
         });
     }
 
@@ -357,7 +357,9 @@ export function buildDisplayScheduleAssignments(
                 zone_playlist_sources[playlist_id] = [];
             }
             zone_playlist_sources[playlist_id].push(
-                zone.display_name || zone.name || 'Zone',
+                zone.display_name ||
+                    zone.name ||
+                    i18n('COMMON.ZONE'),
             );
         }
     }
@@ -370,7 +372,11 @@ export function buildDisplayScheduleAssignments(
             playlist,
             source_type: 'zone',
             source_label:
-                labels.length > 1 ? `${labels.length} zones` : labels[0],
+                labels.length > 1
+                    ? i18n('SIGNAGE_MANAGER.ZONE_COUNT_LABEL', {
+                          count: labels.length,
+                      }, labels.length)
+                    : labels[0],
         });
     }
 
@@ -393,6 +399,9 @@ export function buildZoneScheduleAssignments(
         .map((playlist) => ({
             playlist,
             source_type: 'zone' as const,
-            source_label: zone.display_name || zone.name || 'Zone',
+            source_label:
+                zone.display_name ||
+                zone.name ||
+                i18n('COMMON.ZONE'),
         }));
 }

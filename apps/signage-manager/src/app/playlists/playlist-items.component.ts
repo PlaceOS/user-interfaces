@@ -13,6 +13,7 @@ import {
     AuthenticatedImageDirective,
     IconComponent,
     MediaDurationPipe,
+    TranslatePipe,
 } from '@placeos/components';
 import { SignageMedia } from '@placeos/ts-client';
 import { SignageService } from '../signage.service';
@@ -37,9 +38,15 @@ import { SignageService } from '../signage.service';
                             type="button"
                             matRipple
                             class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                            matTooltip="Approve playlist"
+                            [matTooltip]="
+                                'SIGNAGE_MANAGER.APPROVE_PLAYLIST_TOOLTIP'
+                                    | translate
+                            "
                             (click)="approvePlaylist()"
-                            aria-label="Approve selected playlist"
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.APPROVE_SELECTED_PLAYLIST'
+                                    | translate
+                            "
                         >
                             <icon class="text-warning">order_approve</icon>
                         </button>
@@ -49,10 +56,16 @@ import { SignageService } from '../signage.service';
                             type="button"
                             matRipple
                             class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                            matTooltip="Request playlist approval"
+                            [matTooltip]="
+                                'SIGNAGE_MANAGER.REQUEST_PLAYLIST_APPROVAL_TOOLTIP'
+                                    | translate
+                            "
                             (click)="requestApproval()"
                             [disabled]="approval_request_loading()"
-                            aria-label="Request approval for selected playlist"
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.REQUEST_APPROVAL_SELECTED'
+                                    | translate
+                            "
                         >
                             @if (approval_request_loading()) {
                                 <mat-spinner diameter="20" />
@@ -67,10 +80,14 @@ import { SignageService } from '../signage.service';
                         icon
                         type="button"
                         matRipple
-                        matTooltip="Edit playlist"
+                        [matTooltip]="
+                            'SIGNAGE_MANAGER.EDIT_PLAYLIST_TOOLTIP' | translate
+                        "
                         class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                         (click)="editPlaylist()"
-                        aria-label="Edit selected playlist"
+                        [attr.aria-label]="
+                            'SIGNAGE_MANAGER.EDIT_SELECTED_PLAYLIST' | translate
+                        "
                     >
                         <icon>edit</icon>
                     </button>
@@ -80,10 +97,14 @@ import { SignageService } from '../signage.service';
                         icon
                         type="button"
                         matRipple
-                        matTooltip="Share playlist"
+                        [matTooltip]="
+                            'SIGNAGE_MANAGER.SHARE_PLAYLIST_TOOLTIP' | translate
+                        "
                         class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                         (click)="sharePlaylist()"
-                        aria-label="Share selected playlist"
+                        [attr.aria-label]="
+                            'SIGNAGE_MANAGER.SHARE_SELECTED_PLAYLIST' | translate
+                        "
                     >
                         <icon>ios_share</icon>
                     </button>
@@ -93,10 +114,14 @@ import { SignageService } from '../signage.service';
                         icon
                         type="button"
                         matRipple
-                        matTooltip="Delete playlist"
+                        [matTooltip]="
+                            'SIGNAGE_MANAGER.DELETE_PLAYLIST_TOOLTIP' | translate
+                        "
                         class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                         (click)="removePlaylist()"
-                        aria-label="Delete selected playlist"
+                        [attr.aria-label]="
+                            'SIGNAGE_MANAGER.DELETE_SELECTED_PLAYLIST' | translate
+                        "
                     >
                         <icon class="text-error">delete</icon>
                     </button>
@@ -107,7 +132,7 @@ import { SignageService } from '../signage.service';
                     class="flex flex-1 flex-col items-center justify-center space-y-3 p-8 opacity-70"
                 >
                     <mat-spinner diameter="32" />
-                    <p>Loading playlist items...</p>
+                    <p>{{ 'SIGNAGE_MANAGER.LOADING_PLAYLIST_ITEMS' | translate }}</p>
                 </div>
             } @else if (items().length > 0) {
                 <div
@@ -136,7 +161,10 @@ import { SignageService } from '../signage.service';
                             (keydown.space)="
                                 selectItemWithKeyboard($event, item)
                             "
-                            [attr.aria-label]="'Select media item ' + item.name"
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.SELECT_MEDIA_ITEM'
+                                    | translate: { name: item.name }
+                            "
                         >
                             <icon
                                 cdkDragHandle
@@ -222,7 +250,9 @@ import { SignageService } from '../signage.service';
                                 matRipple
                                 [matMenuTriggerFor]="item_menu"
                                 (click)="$event.stopPropagation()"
-                                aria-label="Item Actions"
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.ITEM_ACTIONS' | translate
+                                "
                             >
                                 <icon>more_vert</icon>
                             </button>
@@ -234,7 +264,9 @@ import { SignageService } from '../signage.service';
                                 >
                                     <div class="flex items-center space-x-2">
                                         <icon class="text-2xl">visibility</icon>
-                                        <div class="pr-2">Preview</div>
+                                        <div class="pr-2">
+                                            {{ 'COMMON.PREVIEW' | translate }}
+                                        </div>
                                     </div>
                                 </button>
                                 @if (can_update()) {
@@ -250,7 +282,10 @@ import { SignageService } from '../signage.service';
                                                 delete
                                             </icon>
                                             <div class="pr-2">
-                                                Remove from Playlist
+                                                {{
+                                                    'SIGNAGE_MANAGER.REMOVE_FROM_PLAYLIST'
+                                                        | translate
+                                                }}
                                             </div>
                                         </div>
                                     </button>
@@ -264,7 +299,7 @@ import { SignageService } from '../signage.service';
                     class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
                 >
                     <icon class="text-6xl">queue_music</icon>
-                    <p>No items in this playlist.</p>
+                    <p>{{ 'SIGNAGE_MANAGER.NO_PLAYLIST_ITEMS' | translate }}</p>
                 </div>
             }
         } @else {
@@ -272,7 +307,7 @@ import { SignageService } from '../signage.service';
                 class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
             >
                 <icon class="text-6xl">playlist_play</icon>
-                <p>Select a playlist to view its items.</p>
+                <p>{{ 'SIGNAGE_MANAGER.SELECT_PLAYLIST_ITEMS' | translate }}</p>
             </div>
         }
     `,
@@ -302,6 +337,7 @@ import { SignageService } from '../signage.service';
         IconComponent,
         AuthenticatedImageDirective,
         MediaDurationPipe,
+        TranslatePipe,
     ],
 })
 export class PlaylistItemsComponent {

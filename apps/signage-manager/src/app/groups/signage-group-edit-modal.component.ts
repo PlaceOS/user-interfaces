@@ -9,7 +9,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { FullscreenModalShellComponent } from '@placeos/components';
+import { FullscreenModalShellComponent , TranslatePipe } from '@placeos/components';
 import { PlaceGroup } from '@placeos/ts-client';
 import { SignageService } from '../signage.service';
 
@@ -17,32 +17,39 @@ import { SignageService } from '../signage.service';
     selector: 'signage-group-edit-modal',
     template: `
         <fullscreen-modal-shell
-            [heading]="group.id ? 'Edit signage group' : 'New signage group'"
-            [loading]="loading() ? 'Saving signage group...' : ''"
+            [heading]="
+                (group.id
+                    ? 'SIGNAGE_MANAGER.GROUP_EDIT_HEADING'
+                    : 'SIGNAGE_MANAGER.GROUP_NEW_HEADING'
+                ) | translate
+            "
+            [loading]="
+                loading() ? ('SIGNAGE_MANAGER.GROUP_SAVING' | translate) : ''
+            "
             (confirm)="save()"
         >
             <form [formGroup]="form" class="flex flex-col">
                 <label for="signage-group-name"
-                    >Name<span required>*</span></label
+                    >{{ 'FORM.NAME' | translate }}<span required>*</span></label
                 >
                 <mat-form-field appearance="outline" class="w-full">
                     <input
                         matInput
                         id="signage-group-name"
                         name="signage-group-name"
-                        placeholder="Name"
+                        [placeholder]="'FORM.NAME' | translate"
                         formControlName="name"
                         required
                     />
-                    <mat-error>Name is required</mat-error>
+                    <mat-error>{{ 'SIGNAGE_MANAGER.NAME_REQUIRED' | translate }}</mat-error>
                 </mat-form-field>
-                <label for="signage-group-description">Description</label>
+                <label for="signage-group-description">{{ 'COMMON.DESCRIPTION' | translate }}</label>
                 <mat-form-field appearance="outline" class="w-full">
                     <textarea
                         matInput
                         id="signage-group-description"
                         name="signage-group-description"
-                        placeholder="Description"
+                        [placeholder]="'COMMON.DESCRIPTION' | translate"
                         formControlName="description"
                         class="min-h-32"
                     ></textarea>
@@ -57,12 +64,12 @@ import { SignageService } from '../signage.service';
                     <mat-select
                         id="signage-group-parent"
                         name="signage-group-parent"
-                        placeholder="Select parent group"
+                        [placeholder]="'SIGNAGE_MANAGER.SELECT_PARENT' | translate"
                         formControlName="parent_id"
                         [required]="!group.id"
                     >
                         @if (group.id) {
-                            <mat-option value="">No parent</mat-option>
+                            <mat-option value="">{{ 'SIGNAGE_MANAGER.NO_PARENT' | translate }}</mat-option>
                         }
                         @for (parent of parent_groups(); track parent.id) {
                             <mat-option [value]="parent.id">
@@ -70,7 +77,7 @@ import { SignageService } from '../signage.service';
                             </mat-option>
                         }
                     </mat-select>
-                    <mat-error>Parent group is required</mat-error>
+                    <mat-error>{{ 'SIGNAGE_MANAGER.PARENT_REQUIRED' | translate }}</mat-error>
                 </mat-form-field>
             </form>
         </fullscreen-modal-shell>
@@ -82,6 +89,7 @@ import { SignageService } from '../signage.service';
         MatFormFieldModule,
         MatInputModule,
         MatSelectModule,
+        TranslatePipe,
     ],
 })
 export class SignageGroupEditModalComponent {

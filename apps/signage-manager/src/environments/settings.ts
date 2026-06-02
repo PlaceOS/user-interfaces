@@ -1,11 +1,12 @@
 const app = {
-    name: 'Signage',
+    name: 'Signage Manager',
     title: 'PlaceOS',
-    description: 'Signage Panel',
-    short_name: 'PlaceOS',
+    description: 'Signage Manager UI',
+    short_name: 'Signage Manager',
     logo_light: 'assets/logo-light.svg',
     logo_dark: 'assets/logo-dark.svg',
     diagnostics: true,
+    show_locale_selector: false,
     default_animation_time: 1000,
     media_allow_extended_video_codecs: false,
 };
@@ -23,5 +24,6 @@ export const DEFAULT_SETTINGS = {
         use_domain: false,
         local_login: false,
     },
+    dont_load_metadata: true,
     app,
 };

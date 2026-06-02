@@ -4,11 +4,10 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { addDays, format, isSameDay, startOfWeek } from 'date-fns';
 import {
     DAY_COUNT,
-    DAY_NAMES,
     ScheduleBlock,
     buildScheduleBlocks,
 } from '../schedules/signage-schedule.util';
@@ -25,9 +24,9 @@ import { SignageService } from '../signage.service';
                     icon
                     type="button"
                     matRipple
-                    matTooltip="Previous week"
+                    [matTooltip]="'SIGNAGE_MANAGER.PREV_WEEK' | translate"
                     (click)="previousWeek()"
-                    aria-label="Show previous week"
+                    [attr.aria-label]="'SIGNAGE_MANAGER.PREV_WEEK_ARIA' | translate"
                 >
                     <icon>chevron_left</icon>
                 </button>
@@ -35,9 +34,9 @@ import { SignageService } from '../signage.service';
                     icon
                     type="button"
                     matRipple
-                    matTooltip="This week"
+                    [matTooltip]="'COMMON.WEEK_THIS' | translate"
                     (click)="goToToday()"
-                    aria-label="Show this week"
+                    [attr.aria-label]="'SIGNAGE_MANAGER.THIS_WEEK_ARIA' | translate"
                 >
                     <icon>today</icon>
                 </button>
@@ -48,9 +47,9 @@ import { SignageService } from '../signage.service';
                     icon
                     type="button"
                     matRipple
-                    matTooltip="Next week"
+                    [matTooltip]="'SIGNAGE_MANAGER.NEXT_WEEK' | translate"
                     (click)="nextWeek()"
-                    aria-label="Show next week"
+                    [attr.aria-label]="'SIGNAGE_MANAGER.NEXT_WEEK_ARIA' | translate"
                 >
                     <icon>chevron_right</icon>
                 </button>
@@ -62,7 +61,7 @@ import { SignageService } from '../signage.service';
                 >
                     <icon class="text-4xl">event_busy</icon>
                     <p class="text-sm">
-                        No playlists assigned to this display.
+                        {{ 'SIGNAGE_MANAGER.NO_PLAYLISTS_DISPLAY' | translate }}
                     </p>
                 </div>
             } @else {
@@ -81,7 +80,7 @@ import { SignageService } from '../signage.service';
                                     class="text-base-content/45 text-[10px] font-medium tracking-wide uppercase"
                                     [class.text-info]="isToday(day)"
                                 >
-                                    {{ dayNames[$index] }}
+                                    {{ day | date: 'EEE' }}
                                 </div>
                                 <div
                                     class="truncate text-sm"
@@ -148,7 +147,10 @@ import { SignageService } from '../signage.service';
                                                     <div
                                                         class="text-base-content/45 text-[11px]"
                                                     >
-                                                        All day
+                                                        {{
+                                                            'SIGNAGE_MANAGER.ALL_DAY'
+                                                                | translate
+                                                        }}
                                                     </div>
                                                 </div>
                                             </a>
@@ -211,7 +213,10 @@ import { SignageService } from '../signage.service';
                                             >event_busy</icon
                                         >
                                         <span class="text-[11px]">
-                                            No playlists
+                                            {{
+                                                'SIGNAGE_MANAGER.NO_PLAYLISTS_SHORT'
+                                                    | translate
+                                            }}
                                         </span>
                                     </div>
                                 }
@@ -250,6 +255,7 @@ import { SignageService } from '../signage.service';
         MatTooltipModule,
         RouterLink,
         IconComponent,
+        TranslatePipe,
     ],
 })
 export class DisplayScheduleComponent {
@@ -325,8 +331,6 @@ export class DisplayScheduleComponent {
         }
         return `${format(start, 'MMM d')} – ${format(end, 'd, yyyy')}`;
     });
-
-    public readonly dayNames = DAY_NAMES;
 
     public isToday(day: Date): boolean {
         return isSameDay(day, new Date());

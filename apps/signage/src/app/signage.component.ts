@@ -1,7 +1,8 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, viewChildren } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { Component, inject, OnInit, signal, viewChildren } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler, log, SettingsService } from '@placeos/common';
+import { AsyncHandler, log, SettingsService, VERSION } from '@placeos/common';
 import { time } from './media-helpers';
 import { MediaPlayerComponent } from './media-player.component';
 import { MediaEvent, SignageService } from './signage.service';
@@ -9,6 +10,7 @@ import { MediaEvent, SignageService } from './signage.service';
 /** PostMessage types accepted from a parent frame (e.g. wayfinder shell) */
 const REMOTE_PAUSE = 'signage:pause';
 const REMOTE_RESUME = 'signage:resume';
+const MUTE_STORAGE_KEY = 'SIGNAGE.muted';
 
 function isDebugEnabled(value: string | null) {
     return value !== null && value !== 'false';
@@ -18,12 +20,14 @@ function isDebugEnabled(value: string | null) {
     selector: 'signage-panel',
     template: `
         <media-player
-            [playlist]="playlist | async"
+            [playlist]="playlist()"
             [controls]="debug()"
+            [muted]="muted()"
             [override]="override_playlist().playlist.length > 0"
             [animation_time]="animation_time"
             (playing_id)="playing_id.set($event)"
             (event)="handlePlayerEvent($event)"
+            (mutedChange)="setMuted($event)"
             class="z-0"
         />
         @if (override_playlist().playlist.length > 0) {
@@ -31,16 +35,27 @@ function isDebugEnabled(value: string | null) {
                 [playlist]="override_playlist().playlist"
                 [controls]="debug()"
                 [can_close]="true"
+                [muted]="muted()"
                 [animation_time]="animation_time"
                 (playing_id)="playing_id.set($event)"
                 (event)="handlePlayerEvent($event, true)"
+                (mutedChange)="setMuted($event)"
                 (closed)="clearOverridePlaylist()"
                 class="absolute inset-0 z-10"
             />
         }
         @if (debug()) {
             <div
-                class="absolute right-2 bottom-2 text-xs text-white opacity-30"
+                stroke
+                class="text-base-400 absolute bottom-2 left-2 font-mono text-xs text-shadow-lg"
+            >
+                {{ version_hash }} <br />
+                {{ version_date | date: 'mediumDate' }} &ndash;
+                {{ version_date | date: 'shortTime' }}
+            </div>
+            <div
+                stroke
+                class="text-base-400 absolute right-2 bottom-2 font-mono text-xs text-shadow-lg"
             >
                 {{ playing_id() }}
             </div>
@@ -52,8 +67,12 @@ function isDebugEnabled(value: string | null) {
             height: 100%;
             width: 100%;
         }
+
+        .stroke {
+            -webkit-text-stroke: 1px #000;
+        }
     `,
-    imports: [CommonModule, MediaPlayerComponent],
+    imports: [DatePipe, MediaPlayerComponent],
 })
 export class SignagePanelComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
@@ -61,15 +80,23 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
     private _signage = inject(SignageService);
     private _settings = inject(SettingsService);
 
-    public readonly playlist = this._signage.playlist;
+    public readonly playlist = toSignal(this._signage.playlist);
     public readonly override_playlist = this._signage.override_playlist;
     public readonly debug = this._signage.debug;
     public readonly playing_id = this._signage.playing_id;
+    public readonly muted = signal(true);
+    public readonly version_hash = VERSION.hash;
+    public readonly version_date = VERSION.time;
 
     private readonly _players = viewChildren(MediaPlayerComponent);
 
     public readonly clearOverridePlaylist = () =>
         this._signage.clearPlaylistOverride();
+
+    public setMuted(muted: boolean) {
+        this.muted.set(muted);
+        sessionStorage.setItem(MUTE_STORAGE_KEY, `${muted}`);
+    }
 
     private readonly _remote_message_handler = (event: MessageEvent) => {
         const data = event?.data;
@@ -106,6 +133,8 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
         );
         const debug = sessionStorage.getItem('SIGNAGE.debug');
         if (debug !== null) this.debug.set(isDebugEnabled(debug));
+        const muted = sessionStorage.getItem(MUTE_STORAGE_KEY);
+        if (muted !== null) this.muted.set(muted === 'true');
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {

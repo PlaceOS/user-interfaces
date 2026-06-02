@@ -4,6 +4,7 @@ import { LocaleService } from 'libs/common/src/lib/locale.service';
 
 @Pipe({
     name: 'translate',
+    pure: false,
 })
 export class TranslatePipe implements PipeTransform {
     private _locale = inject(LocaleService);

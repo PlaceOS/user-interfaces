@@ -1,6 +1,8 @@
 import { MediaAnimation } from '@placeos/ts-client';
 import {
     findValidPlaylistIndex,
+    mockAwareInterval,
+    mockTimeState,
     setMockTime,
     time,
     validateMedia,
@@ -24,6 +26,16 @@ const create_item = (
     valid_until: 0,
     getURL: async () => '',
 });
+
+function formatTestTime(date: number) {
+    return new Intl.DateTimeFormat(undefined, {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+    }).format(new Date(date));
+}
 
 describe('findValidPlaylistIndex', () => {
     it('returns -1 when no other valid item exists', () => {
@@ -69,25 +81,120 @@ describe('time helpers', () => {
 
         expect(time()).toBe(1600);
     });
+
+    it('returns a progressing mocked time at the selected speed', () => {
+        jest.spyOn(Date, 'now').mockReturnValue(2000);
+        setMockTime(1000, 4);
+        jest.spyOn(Date, 'now').mockReturnValue(2600);
+
+        expect(time()).toBe(3400);
+    });
+
+    it('exposes the active mock time state', () => {
+        setMockTime(1000, 0.5);
+
+        expect(mockTimeState().active).toBe(true);
+        expect(mockTimeState().speed).toBe(0.5);
+    });
+
+    it('scales polling intervals while mock time is fast-forwarding', () => {
+        jest.useFakeTimers();
+        setMockTime(1000, 64);
+        const callback = jest.fn();
+        const subscription = mockAwareInterval(15_000).subscribe(callback);
+
+        expect(callback).toHaveBeenCalledTimes(1);
+
+        jest.advanceTimersByTime(249);
+        expect(callback).toHaveBeenCalledTimes(1);
+
+        jest.advanceTimersByTime(1);
+        expect(callback).toHaveBeenCalledTimes(2);
+
+        subscription.unsubscribe();
+        jest.useRealTimers();
+    });
 });
 
 describe('validateMedia', () => {
     afterEach(() => setMockTime(0));
 
     it('returns an error for future media', () => {
-        const item = create_item('future', false);
+        const now = Date.UTC(2026, 0, 1, 10, 0, 0);
+        const item = create_item('future', true);
+        item.valid_from = Math.floor((now + 60 * 60 * 1000) / 1000);
+        setMockTime(now);
 
-        expect(validateMedia(item)).toBe('Media not valid yet.');
+        expect(validateMedia(item)).toBe(
+            `Media not valid yet. Starts at ${formatTestTime(now + 60 * 60 * 1000)}. Current player time is ${formatTestTime(now)}.`,
+        );
     });
 
     it('returns an error for expired media', () => {
+        const now = Date.UTC(2026, 0, 1, 10, 0, 0);
         const item = create_item('expired', true, 'playlist-a');
-        item.valid_until = Math.floor(Date.now() / 1000) - 60;
+        item.valid_until = Math.floor((now - 60 * 1000) / 1000);
+        setMockTime(now);
 
-        expect(validateMedia(item)).toBe('Media expired.');
+        expect(validateMedia(item)).toBe(
+            `Media expired. Ended at ${formatTestTime(now - 60 * 1000)}. Current player time is ${formatTestTime(now)}.`,
+        );
     });
 
     it('returns an empty string for valid media', () => {
         expect(validateMedia(create_item('valid', true))).toBe('');
+    });
+
+    it('validates future media against the simulated time', () => {
+        const now = Date.now();
+        const item = create_item('future', true);
+        item.valid_from = Math.floor((now + 60 * 60 * 1000) / 1000);
+
+        setMockTime(now + 2 * 60 * 60 * 1000);
+
+        expect(validateMedia(item)).toBe('');
+    });
+
+    it('validates expired media against the simulated time', () => {
+        const now = Date.UTC(2026, 0, 1, 10, 0, 0);
+        const item = create_item('expired', true);
+        item.valid_until = Math.floor((now + 60 * 60 * 1000) / 1000);
+
+        setMockTime(now + 2 * 60 * 60 * 1000);
+
+        expect(validateMedia(item)).toBe(
+            `Media expired. Ended at ${formatTestTime(now + 60 * 60 * 1000)}. Current player time is ${formatTestTime(now + 2 * 60 * 60 * 1000)}.`,
+        );
+    });
+
+    it('identifies playlist validity as the invalid source', () => {
+        const now = Date.UTC(2026, 0, 1, 10, 0, 0);
+        const item = create_item('future', true);
+        item.valid_from = Math.floor((now + 60 * 60 * 1000) / 1000);
+        item.validity = { valid_from_source: 'playlist' };
+        setMockTime(now);
+
+        expect(validateMedia(item)).toBe(
+            `Playlist not valid yet. Starts at ${formatTestTime(now + 60 * 60 * 1000)}. Current player time is ${formatTestTime(now)}.`,
+        );
+    });
+
+    it('identifies media item validity as the invalid source', () => {
+        const now = Date.UTC(2026, 0, 1, 10, 0, 0);
+        const item = create_item('expired', true);
+        item.valid_until = Math.floor((now - 60 * 1000) / 1000);
+        item.validity = { valid_until_source: 'media' };
+        setMockTime(now);
+
+        expect(validateMedia(item)).toBe(
+            `Media item expired. Ended at ${formatTestTime(now - 60 * 1000)}. Current player time is ${formatTestTime(now)}.`,
+        );
+    });
+
+    it('returns detailed errors for missing media data', () => {
+        expect(validateMedia(null as any)).toBe(
+            'Invalid media: missing media data.',
+        );
+        expect(validateMedia({} as any)).toBe('Invalid media: missing media ID.');
     });
 });
