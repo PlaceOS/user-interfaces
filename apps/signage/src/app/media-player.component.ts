@@ -781,7 +781,7 @@ export class MediaPlayerComponent
             if (resume_if_paused && this.state() === 'PAUSED')
                 this.togglePause();
             this._playPreparedPlugin(item);
-            this._clearInactiveInteractiveOutputs();
+            this._cleanupInactiveOutputs();
             return;
         }
         this._transition(resume_if_paused);
@@ -833,6 +833,7 @@ export class MediaPlayerComponent
     private _clearOutput(output: 0 | 1) {
         const item = this._output_items[output];
         this._hideMediaElements(output);
+        this._pauseOutputVideo(output);
         this._web_element(output).nativeElement.removeAttribute('src');
         if (item) {
             this._item_output.delete(item.id);
@@ -1404,7 +1405,7 @@ export class MediaPlayerComponent
     private _onTransitionEnd(resume = true, swap_outputs = false) {
         if (swap_outputs) this.active_output.set(this.pending_output());
         this._resetTransitionState();
-        this._clearInactiveInteractiveOutputs();
+        this._cleanupInactiveOutputs();
         if (resume) this.togglePause();
     }
 
@@ -1419,15 +1420,22 @@ export class MediaPlayerComponent
         this.in_animation.set(false);
     }
 
-    private _clearInactiveInteractiveOutputs() {
+    private _cleanupInactiveOutputs() {
         const active_output = this.active_output();
         for (const output of [0, 1] as const) {
             if (output === active_output) continue;
             const item = this._output_items[output];
             if (item?.type === 'webpage' || item?.type === 'plugin') {
                 this._clearOutput(output);
+            } else if (item?.type === 'video') {
+                this._pauseOutputVideo(output);
             }
         }
+    }
+
+    private _pauseOutputVideo(output: 0 | 1) {
+        this._video_element(output).nativeElement.pause();
+        this._last_video_speed.delete(output);
     }
 
     private _shouldTransition(

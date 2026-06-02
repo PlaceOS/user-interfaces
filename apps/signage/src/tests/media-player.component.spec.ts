@@ -320,6 +320,29 @@ describe('MediaPlayerComponent', () => {
         expect(pause_spy).toHaveBeenCalled();
     });
 
+    it('should pause video playback when the video output is no longer active', () => {
+        const video_item = create_item('video-1', { type: 'video' });
+        const image_item = create_item('image-1');
+        load_playlist([video_item, image_item]);
+        spectator.component.active_output.set(1);
+        spectator.component['_output_items'] = [video_item, image_item];
+        spectator.component['_item_output'].set('video-1', 0);
+        spectator.component['_item_output'].set('image-1', 1);
+        const video_pause = jest.fn();
+        Object.defineProperty(
+            spectator.component['_video_element'](0).nativeElement,
+            'pause',
+            {
+                configurable: true,
+                value: video_pause,
+            },
+        );
+
+        spectator.component['_cleanupInactiveOutputs']();
+
+        expect(video_pause).toHaveBeenCalled();
+    });
+
     it('should emit playlist metrics when advancing from the last valid playlist item', async () => {
         const event_spy = jest.spyOn(spectator.component.event, 'emit');
         const items = [
