@@ -13,6 +13,7 @@ import { authority, isOnline, token } from '@placeos/ts-client';
 
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { NativeDomainOverlayComponent } from './native-domain-overlay.component';
+import { ServiceWorkerUpdateCardComponent } from './service-worker-update-card.component';
 import { TranslatePipe } from './translate.pipe';
 
 @Component({
@@ -51,6 +52,7 @@ import { TranslatePipe } from './translate.pipe';
                 </div>
             </div>
         }
+        <placeos-service-worker-update-card />
     `,
     styles: [
         `
@@ -70,6 +72,7 @@ import { TranslatePipe } from './translate.pipe';
     imports: [
         MatProgressBarModule,
         NativeDomainOverlayComponent,
+        ServiceWorkerUpdateCardComponent,
         TranslatePipe,
     ],
 })

@@ -487,7 +487,7 @@ export class MediaPlayerComponent
     }
 
     public nextItem() {
-        if (this._shouldHoldSingleWebpage(this.active_item)) return;
+        if (this._shouldHoldSingleInteractiveItem(this.active_item)) return;
         if (this.hold_over_item()) {
             const item = this._item_playlist.shift();
             if (this.progress() > 50 && this.isValidMedia(item)) {
@@ -645,7 +645,7 @@ export class MediaPlayerComponent
         }
         if (this._web_waiting_item_id === item?.id) return;
         if (now > this._item_start + playback_duration) {
-            if (this._shouldHoldSingleWebpage(item)) {
+            if (this._shouldHoldSingleInteractiveItem(item)) {
                 this.progress.set(100);
                 this.duration.set(Math.floor(playback_duration / 1000));
                 return;
@@ -1449,6 +1449,13 @@ export class MediaPlayerComponent
     private _shouldHoldSingleWebpage(item: MediaPlayerItem) {
         return (
             item?.type === 'webpage' && !this._hasMultipleActivePlaylistItems()
+        );
+    }
+
+    private _shouldHoldSingleInteractiveItem(item: MediaPlayerItem) {
+        return (
+            (item?.type === 'webpage' || item?.type === 'plugin') &&
+            !this._hasMultipleActivePlaylistItems()
         );
     }
 

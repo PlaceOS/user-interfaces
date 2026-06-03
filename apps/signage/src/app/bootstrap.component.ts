@@ -159,7 +159,9 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
             querySystems({
                 zone_id: this._org.organisation?.id,
                 limit: 500,
-                fields: ['id', 'name', 'display_name', 'email'].join(','),
+                fields: ['id', 'name', 'display_name', 'email', 'zones'].join(
+                    ',',
+                ),
                 signage: true,
             }).pipe(catchError(() => of({ data: [] }))),
         ),
@@ -174,11 +176,12 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     );
 
     public level(system: PlaceSystem) {
-        return this._org.levelWithID(system.zones as any);
+        return this._org.levelWithID((system.zones || []) as any);
     }
 
     public building(system: PlaceSystem) {
-        return this._org.buildings.find(({ id }) => system.zones.includes(id));
+        const zones = system.zones || [];
+        return this._org.buildings.find(({ id }) => zones.includes(id));
     }
 
     public async ngOnInit() {

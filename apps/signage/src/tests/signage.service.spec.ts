@@ -15,6 +15,7 @@ jest.mock('@placeos/ts-client', () => {
         showSignage: jest.fn(),
         querySignagePlugins: jest.fn(),
         responseHeaders: jest.fn(),
+        getModule: jest.fn(),
         post: jest.fn(),
     };
 });
@@ -22,6 +23,7 @@ jest.mock('@placeos/ts-client', () => {
 describe('SignageService', () => {
     let spectator: SpectatorService<SignageService>;
     let media_cache: any;
+    let trigger_binding: any;
 
     const create_service = createServiceFactory({
         service: SignageService,
@@ -151,6 +153,12 @@ describe('SignageService', () => {
         (ts_client.responseHeaders as jest.Mock).mockReturnValue({
             'last-modified': new Date().toUTCString(),
         } as any);
+        trigger_binding = {
+            bindThenSubscribe: jest.fn(() => ({ unsubscribe: jest.fn() })),
+        };
+        (ts_client.getModule as jest.Mock).mockReturnValue({
+            variable: jest.fn(() => trigger_binding),
+        });
         (ts_client.post as jest.Mock).mockReturnValue(of({} as any));
         spectator = create_service({
             providers: [MockProvider(MediaCacheService, media_cache)],
@@ -192,6 +200,23 @@ describe('SignageService', () => {
         expect(media_cache.invalidateFile).toHaveBeenCalledWith(
             '/stale-file.jpg',
             'display-1',
+        );
+    });
+
+    it('should bind trigger playlists when display data is loaded', async () => {
+        const display_promise = firstValueFrom(
+            spectator.service.display.pipe(take(1)),
+        );
+
+        spectator.service.setDisplay('display-1');
+        await display_promise;
+
+        expect(ts_client.getModule).toHaveBeenCalledWith(
+            'display-1',
+            '_TRIGGER__1',
+        );
+        expect(trigger_binding.bindThenSubscribe).toHaveBeenCalledWith(
+            expect.any(Function),
         );
     });
 
@@ -324,8 +349,8 @@ describe('SignageService', () => {
         const playlist = await playlist_promise;
 
         expect(
-            playlist.find((_) => _.id === 'playlist-controlled-media')
-                ?.validity?.valid_from_source,
+            playlist.find((_) => _.id === 'playlist-controlled-media')?.validity
+                ?.valid_from_source,
         ).toBe('playlist');
         expect(
             playlist.find((_) => _.id === 'media-controlled-media')?.validity
@@ -379,6 +404,57 @@ describe('SignageService', () => {
         expect(
             localStorage.getItem('PlaceOS.SIGNAGE.display_details.display-2'),
         ).toBeNull();
+    });
+
+    it('should not prune media cache when display loading has no matching fallback', async () => {
+        (ts_client.showSignage as jest.Mock).mockReturnValue(
+            throwError(() => new Error('display unavailable')),
+        );
+        (ts_client.responseHeaders as jest.Mock).mockReturnValue({});
+        media_cache.availableFiles.mockClear();
+        media_cache.requestFilesToCache.mockClear();
+        media_cache.invalidateFile.mockClear();
+        const display_promise = firstValueFrom(
+            spectator.service.display.pipe(take(1)),
+        );
+
+        spectator.service.setDisplay('display-2');
+        await display_promise;
+
+        expect(media_cache.availableFiles).not.toHaveBeenCalled();
+        expect(media_cache.requestFilesToCache).not.toHaveBeenCalled();
+        expect(media_cache.invalidateFile).not.toHaveBeenCalled();
+    });
+
+    it('should preserve last modified time when display loading falls back to cache', async () => {
+        const last_modified = Date.UTC(2026, 0, 1, 10, 0, 0);
+        (ts_client.responseHeaders as jest.Mock).mockReturnValueOnce({
+            'last-modified': new Date(last_modified).toUTCString(),
+        } as any);
+        const display_promise = firstValueFrom(
+            spectator.service.display.pipe(take(1)),
+        );
+        spectator.service.setDisplay('display-1');
+        await display_promise;
+
+        (ts_client.showSignage as jest.Mock).mockReturnValue(
+            throwError(() => new Error('display unavailable')),
+        );
+        (ts_client.responseHeaders as jest.Mock).mockReturnValue({});
+
+        spectator.service.setDisplay('display-1');
+        await Promise.resolve();
+
+        expect((spectator.service as any)._last_modified).toBe(last_modified);
+        expect(ts_client.showSignage).toHaveBeenLastCalledWith(
+            'display-1',
+            expect.any(Object),
+            {
+                headers: {
+                    'If-Modified-Since': new Date(last_modified).toUTCString(),
+                },
+            },
+        );
     });
 
     it('should not include signage media that embeds the same display', async () => {

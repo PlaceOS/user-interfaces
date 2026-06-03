@@ -1,14 +1,24 @@
+import { signal } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { Subscription } from 'rxjs';
 
 import { log } from './general';
-import { notifyInfo } from './notifications';
 
 let _timer: ReturnType<typeof setInterval> | undefined;
 let _version_subscription: Subscription | undefined;
 let _unrecoverable_subscription: Subscription | undefined;
 let _new_version = false;
 let _auto_reload = false;
+const SERVICE_WORKER_UPDATE = signal<ServiceWorkerUpdateState | null>(null);
+
+export interface ServiceWorkerUpdateState {
+    /** Short text to show in the update card. */
+    message: string;
+    /** Longer detail text to show in the update card. */
+    details: string;
+    /** Text to show on the reload action. */
+    action: string;
+}
 
 export interface CacheOptions {
     /** Whether to reload the app as soon as a new service worker version is ready. */
@@ -19,6 +29,10 @@ export interface CacheOptions {
 
 export function hasNewVersion() {
     return _new_version;
+}
+
+export function serviceWorkerUpdate() {
+    return SERVICE_WORKER_UPDATE;
 }
 
 function reloadApp() {
@@ -33,11 +47,11 @@ function handleNewVersion() {
     if (_new_version) return;
     _new_version = true;
     if (_auto_reload) return reloadApp();
-    notifyInfo(
-        'Newer version of the application is available',
-        'Refresh',
-        () => reloadApp(),
-    );
+    SERVICE_WORKER_UPDATE.set({
+        message: 'New application version available',
+        details: 'Refresh to use the latest version.',
+        action: 'Refresh',
+    });
 }
 
 /**
@@ -72,11 +86,11 @@ export function setupCache(
                     );
                     if (_auto_reload) return reloadApp();
                     _new_version = true;
-                    notifyInfo(
-                        'Application update failed to load',
-                        'Reload',
-                        () => reloadApp(),
-                    );
+                    SERVICE_WORKER_UPDATE.set({
+                        message: 'Application update failed to load',
+                        details: 'Reload the app to recover.',
+                        action: 'Reload',
+                    });
                 },
             );
         }

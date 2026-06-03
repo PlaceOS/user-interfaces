@@ -1,34 +1,122 @@
-/**
- * (Helper function - no changes from before)
- * Parses a single part of a CRON string and checks if it matches a given value.
- */
 function matchesCronPart(value: number, cron_part: string): boolean {
-    if (cron_part === '*') {
-        return true;
-    }
+    if (cron_part === '*') return true;
     if (cron_part.includes(',')) {
         return cron_part
             .split(',')
             .some((item) => matchesCronPart(value, item));
     }
+    if (cron_part.includes('/')) {
+        const [base, step] = cron_part.split('/');
+        const step_value = Number(step);
+        if (!step_value) return false;
+        if (base === '*') return value % step_value === 0;
+        if (base.includes('-')) {
+            const [start, end] = base.split('-').map(Number);
+            if (value < start || value > end) return false;
+            return (value - start) % step_value === 0;
+        }
+        return value % step_value === 0 && matchesCronPart(value, base);
+    }
     if (cron_part.includes('-')) {
         const [start, end] = cron_part.split('-').map(Number);
         return value >= start && value <= end;
     }
-    if (cron_part.includes('/')) {
-        const [, step] = cron_part.split('/');
-        return value % Number(step) === 0;
-    }
     return Number(cron_part) === value;
 }
 
+function cronNumber(value: string, min: number, max: number) {
+    if (!/^\d+$/.test(value || '')) return null;
+    const number_value = Number(value);
+    return number_value >= min && number_value <= max ? number_value : null;
+}
+
+function parseCronWeekdays(value: string) {
+    if (!value?.trim() || value === '*') return [];
+    const days = new Set<number>();
+    for (const part of value.split(',')) {
+        if (part.includes('-')) {
+            const [start, end] = part
+                .split('-')
+                .map((_) => cronNumber(_, 0, 6));
+            if (start === null || end === null || start > end) return [];
+            for (let day = start; day <= end; day++) days.add(day);
+        } else {
+            const day = cronNumber(part, 0, 6);
+            if (day === null) return [];
+            days.add(day);
+        }
+    }
+    return [...days];
+}
+
+function parseCronWeekOfMonthRange(value: string) {
+    const match = /^(\d+)-(\d+)$/.exec(value || '');
+    if (!match) return null;
+    const start = Number(match[1]);
+    const end = Number(match[2]);
+    if (start === 29 && end === 31) return 5;
+    if ((start - 1) % 7 !== 0 || end !== start + 6) return null;
+    const week = (start - 1) / 7 + 1;
+    return week >= 1 && week <= 4 ? week : null;
+}
+
+function parseCronWeeksOfMonth(value: string) {
+    if (!value?.trim() || value === '*') return [];
+    const weeks = new Set<number>();
+    for (const part of value.split(',')) {
+        const week = parseCronWeekOfMonthRange(part);
+        if (week === null) return [];
+        weeks.add(week);
+    }
+    return [...weeks];
+}
+
+function isCronMonthlyWeekday(
+    day_of_month_part: string,
+    day_of_week_part: string,
+) {
+    return (
+        !!parseCronWeeksOfMonth(day_of_month_part).length &&
+        !!parseCronWeekdays(day_of_week_part).length
+    );
+}
+
+function doesCronMatchDate(cron_parts: string[], date: Date) {
+    const [
+        minute_part,
+        hour_part,
+        day_of_month_part,
+        month_part,
+        day_of_week_part,
+    ] = cron_parts;
+    if (!matchesCronPart(date.getMinutes(), minute_part)) return false;
+    if (!matchesCronPart(date.getHours(), hour_part)) return false;
+    if (!matchesCronPart(date.getMonth() + 1, month_part)) return false;
+    const day_of_month_matches = matchesCronPart(
+        date.getDate(),
+        day_of_month_part,
+    );
+    const day_of_week_matches = matchesCronPart(
+        date.getDay(),
+        day_of_week_part,
+    );
+    if (day_of_month_part === '*' && day_of_week_part === '*') return true;
+    if (day_of_month_part !== '*' && day_of_week_part === '*') {
+        return day_of_month_matches;
+    }
+    if (day_of_month_part === '*' && day_of_week_part !== '*') {
+        return day_of_week_matches;
+    }
+    if (isCronMonthlyWeekday(day_of_month_part, day_of_week_part)) {
+        return day_of_month_matches && day_of_week_matches;
+    }
+    return day_of_month_matches || day_of_week_matches;
+}
+
 /**
- * Calculates the Unix timestamp for the next CRON run, but only if it
- * occurs within a specified time range.
- *
- * WARNING: This is a simplified implementation. It does NOT handle timezones
- * or special CRON characters (L, W, ?, #). It assumes a standard 5-field
- * CRON string. For production use, a robust library is recommended.
+ * Calculates the Unix timestamp for the next signage-manager-compatible cron
+ * run in the device's local timezone, but only if it occurs within a specified
+ * time range.
  *
  * @param cron_string The 5-field CRON string (e.g., "* * * * *").
  * @param search_limit_in_seconds The maximum number of seconds from now to search for a run.
@@ -41,54 +129,23 @@ export function getNextCronRunTimestampInRange(
     search_limit_in_seconds: number,
     now = Date.now(),
 ): number | null {
-    const parts = cron_string.split(' ');
+    const parts = cron_string.trim().split(/\s+/);
     if (parts.length !== 5) {
         throw new Error('Invalid CRON string: Must have 5 parts.');
     }
 
-    const [minutePart, hourPart, dayOfMonthPart, monthPart, dayOfWeekPart] =
-        parts;
-    // The absolute time when we should stop searching
     const searchLimitDate = new Date(now + search_limit_in_seconds * 1000);
-
-    // Start checking from the top of the next minute
     const start_time = new Date(now);
     start_time.setSeconds(0, 0);
     start_time.setMinutes(start_time.getMinutes() + 1);
 
     const current_date = new Date(start_time.getTime());
 
-    // Loop until we pass our search limit
     while (current_date <= searchLimitDate) {
-        const minute = current_date.getMinutes();
-        const hour = current_date.getHours();
-        const dayOfMonth = current_date.getDate();
-        const month = current_date.getMonth() + 1; // 0-11 -> 1-12
-        const dayOfWeek = current_date.getDay(); // 0-6 (Sun-Sat)
-
-        const minuteMatch = matchesCronPart(minute, minutePart);
-        const hourMatch = matchesCronPart(hour, hourPart);
-        const monthMatch = matchesCronPart(month, monthPart);
-        const dayOfMonthMatch = matchesCronPart(dayOfMonth, dayOfMonthPart);
-        const dayOfWeekMatch = matchesCronPart(dayOfWeek, dayOfWeekPart);
-
-        let dayMatch = false;
-        if (dayOfMonthPart === '*' && dayOfWeekPart === '*') {
-            dayMatch = true;
-        } else if (dayOfMonthPart !== '*' && dayOfWeekPart === '*') {
-            dayMatch = dayOfMonthMatch;
-        } else if (dayOfMonthPart === '*' && dayOfWeekPart !== '*') {
-            dayMatch = dayOfWeekMatch;
-        } else {
-            dayMatch = dayOfMonthMatch || dayOfWeekMatch;
-        }
-        if (minuteMatch && hourMatch && monthMatch && dayMatch) {
-            // Found a match within the range!
+        if (doesCronMatchDate(parts, current_date)) {
             return Math.floor(current_date.getTime() / 1000);
         }
-        // Increment by one minute and check again
         current_date.setMinutes(current_date.getMinutes() + 1);
     }
-    // If the loop completes, no match was found in the given time range
     return null;
 }

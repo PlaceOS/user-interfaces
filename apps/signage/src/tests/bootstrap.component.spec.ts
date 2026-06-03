@@ -4,7 +4,7 @@ import { OrganisationService } from '@placeos/common';
 import { VirtualKeyboardComponent } from '@placeos/components';
 import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, of } from 'rxjs';
 
 import { BootstrapComponent } from '../app/bootstrap.component';
 
@@ -77,6 +77,27 @@ describe('BootstrapComponent', () => {
 
         expect(spectator.component.level(system)?.id).toBe('level-1');
         expect(spectator.component.building(system)?.id).toBe('building-1');
+    });
+
+    it('should request zones for bootstrap display locations', async () => {
+        build_component();
+
+        await firstValueFrom(spectator.component.displays);
+
+        expect(ts_client.querySystems).toHaveBeenCalledWith(
+            expect.objectContaining({
+                fields: 'id,name,display_name,email,zones',
+            }),
+        );
+    });
+
+    it('should handle displays with no zones in bootstrap location helpers', () => {
+        build_component();
+        const system = { id: 'display-1' } as any;
+
+        expect(spectator.component.level(system)?.id).toBe('level-1');
+        expect(spectator.component.building(system)).toBeUndefined();
+        expect(org_service.levelWithID).toHaveBeenCalledWith([]);
     });
 
     it('should store the selected display and navigate to signage', async () => {

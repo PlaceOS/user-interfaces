@@ -19,12 +19,7 @@ import {
     SignagePlaylist,
     SignagePlugin,
 } from '@placeos/ts-client';
-import {
-    BehaviorSubject,
-    combineLatest,
-    lastValueFrom,
-    of,
-} from 'rxjs';
+import { BehaviorSubject, combineLatest, lastValueFrom, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -273,9 +268,12 @@ export class SignageService extends AsyncHandler {
                     const headers = responseHeaders(
                         `${location.origin}${path}`,
                     );
-                    this._last_modified =
-                        new Date(headers['last-modified']).valueOf() ||
-                        Date.now();
+                    const last_modified = new Date(
+                        headers['last-modified'],
+                    ).valueOf();
+                    if (Number.isFinite(last_modified) && last_modified > 0) {
+                        this._last_modified = last_modified;
+                    }
                     return [d, this._last_modified];
                 }),
             ),
@@ -295,9 +293,9 @@ export class SignageService extends AsyncHandler {
 
     public readonly triggers = this.display.pipe(
         tap((display) => {
-            const triggers = Object.keys(display.playlist_mappings).filter(
-                (_) => _.startsWith('trig-'),
-            );
+            const triggers = Object.keys(
+                display.playlist_mappings || {},
+            ).filter((_) => _.startsWith('trig-'));
             this.unsubWith('trigger_');
             const mod = getModule(display.id, '_TRIGGER__1');
             for (const id of triggers) {
@@ -385,6 +383,7 @@ export class SignageService extends AsyncHandler {
         ]).subscribe(([display]) => this._syncMediaCache(display));
         this.interval('poll', () => this._poll.next(Date.now()), 1 * MINUTES);
         this.interval('metrics', () => this._postMetrics(), 10 * MINUTES);
+        this.subscription('triggers', this.triggers.subscribe());
         this.subscription(
             'override_check',
             this.override_check.subscribe(([display, playlists]) => {
@@ -477,6 +476,7 @@ export class SignageService extends AsyncHandler {
     }
 
     private async _syncMediaCache(display: any) {
+        if (!display?.id) return;
         const cache_owner = display.id || '';
         const media = this._activeCacheableMediaURLs(display);
         const known_media = this._cacheableMediaURLs(display);
