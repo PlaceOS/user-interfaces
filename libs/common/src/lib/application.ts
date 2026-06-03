@@ -2,6 +2,7 @@ import { signal } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { Subscription } from 'rxjs';
 
+import { MINUTES, SECONDS } from './constants';
 import { log } from './general';
 
 let _timer: ReturnType<typeof setInterval> | undefined;
@@ -63,7 +64,7 @@ export function setupCache(
     cache: SwUpdate,
     options: CacheOptions | number = {},
 ) {
-    const { auto_reload = false, interval = 5 * 60 * 1000 } =
+    const { auto_reload = false, interval = 5 * MINUTES } =
         cacheOptions(options);
     _auto_reload = auto_reload;
     if (cache.isEnabled) {
@@ -94,6 +95,10 @@ export function setupCache(
                 },
             );
         }
+        setTimeout(() => {
+            log('CACHE', `Checking for updates...`);
+            checkForUpdate(cache);
+        }, 2 * SECONDS);
         _timer = setInterval(() => {
             log('CACHE', `Checking for updates...`);
             checkForUpdate(cache);
