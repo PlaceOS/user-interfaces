@@ -492,6 +492,56 @@ describe('MediaPlayerComponent', () => {
         expect(spectator.component.index()).toBe(0);
     });
 
+    it('should hold a single plugin without advancing or reloading it', () => {
+        const item = create_item('plugin-1', {
+            type: 'plugin',
+            duration: 10_000,
+            plugin: {
+                id: 'plugin-1',
+                name: 'Weather',
+                uri: 'https://plugins.example/weather',
+            } as any,
+        });
+        load_playlist([item]);
+        spectator.component.index.set(0);
+        spectator.component.hold_over_item.set(false);
+        const set_item_spy = jest.spyOn(spectator.component, 'setPlaylistItem');
+        const transition_spy = jest.spyOn(
+            spectator.component as any,
+            '_transition',
+        );
+
+        spectator.component.nextItem();
+
+        expect(set_item_spy).not.toHaveBeenCalled();
+        expect(transition_spy).not.toHaveBeenCalled();
+        expect(spectator.component.index()).toBe(0);
+    });
+
+    it('should keep a single plugin active after its scheduled duration', () => {
+        const item = create_item('plugin-1', {
+            type: 'plugin',
+            duration: 10_000,
+            plugin: {
+                id: 'plugin-1',
+                name: 'Weather',
+                uri: 'https://plugins.example/weather',
+            } as any,
+        });
+        load_playlist([item]);
+        spectator.component.index.set(0);
+        spectator.component.state.set('PLAYING');
+        spectator.component['_item_start'] = Date.now() - 10_001;
+        const next_item_spy = jest.spyOn(spectator.component, 'nextItem');
+
+        spectator.component['_updateItem']();
+
+        expect(next_item_spy).not.toHaveBeenCalled();
+        expect(spectator.component.index()).toBe(0);
+        expect(spectator.component.progress()).toBe(100);
+        expect(spectator.component.duration()).toBe(10);
+    });
+
     it('should wait for webpages to load and then delay hold timing by two seconds', () => {
         const items = [
             create_item('webpage-1', {
@@ -883,7 +933,7 @@ describe('MediaPlayerComponent', () => {
         });
         const next_item_spy = jest.spyOn(spectator.component, 'nextItem');
 
-        load_playlist([plugin_item]);
+        load_playlist([plugin_item, create_item('media-1')]);
         spectator.component.index.set(0);
         spectator.component.state.set('PLAYING');
         spectator.component['_item_start'] = 5_000;
