@@ -25,6 +25,7 @@ export * from './lib/popout-menu.component';
 export * from './lib/printable.component';
 export * from './lib/redirect.component';
 export * from './lib/schema-form.component';
+export * from './lib/service-worker-update-card.component';
 export * from './lib/settings-toggle.component';
 export * from './lib/simple-table.component';
 export * from './lib/status-overlay.component';

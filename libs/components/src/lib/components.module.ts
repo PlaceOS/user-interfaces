@@ -54,6 +54,7 @@ import { RedirectComponent } from './redirect.component';
 import { RegionSelectComponent } from './region-select.component';
 import { SafePipe } from './safe.pipe';
 import { SanitizePipe } from './sanitise.pipe';
+import { ServiceWorkerUpdateCardComponent } from './service-worker-update-card.component';
 import { SettingsToggleComponent } from './settings-toggle.component';
 import { SimpleTableComponent } from './simple-table.component';
 import { StatusOverlayComponent } from './status-overlay.component';
@@ -73,6 +74,7 @@ const STANDALONE_COMPONENTS = [
     ConfirmModalComponent,
     CustomTooltipComponent,
     SettingsToggleComponent,
+    ServiceWorkerUpdateCardComponent,
     GlobalBannerComponent,
     GlobalLoadingComponent,
     ChatComponent,
