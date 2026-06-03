@@ -1,6 +1,6 @@
 import { Injectable, InjectionToken, Type, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, lastValueFrom } from 'rxjs';
 
 import {
     humanReadableByteCount,
@@ -143,6 +143,50 @@ export class UploadsService extends AsyncHandler {
                     if (!resolved) reject(details);
                 },
                 complete: () => this._updateUploadHistory(),
+            });
+        });
+    }
+
+    public async uploadFileToCompletion(
+        file: File,
+        pub = false,
+        permissions: UploadPermissions = 'none',
+    ) {
+        const details = await lastValueFrom(
+            this.uploadFileWithProgress(file, pub, permissions),
+        );
+        const upload_id = details.upload_id || details.upload?.id || details.id;
+        if (!upload_id) throw new Error('Failed to get uploaded file ID');
+        return upload_id;
+    }
+
+    public uploadFileWithPermissionsToCompletion(
+        file: File,
+        default_public = false,
+    ) {
+        if (!this._permissions_modal) {
+            log(
+                'UPLOAD',
+                'Permissions modal not initialized',
+                undefined,
+                'warn',
+            );
+            return this.uploadFileToCompletion(file, default_public);
+        }
+        return new Promise<string>((resolve, reject) => {
+            const ref = this._dialog.open(this._permissions_modal, {
+                data: { file, is_public: default_public },
+            });
+            ref.afterClosed().subscribe((details) => {
+                if (!details) {
+                    reject(new Error('Upload cancelled'));
+                    return;
+                }
+                this.uploadFileToCompletion(
+                    details.file,
+                    details.is_public,
+                    details.permissions,
+                ).then(resolve, reject);
             });
         });
     }

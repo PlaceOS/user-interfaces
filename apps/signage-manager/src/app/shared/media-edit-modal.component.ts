@@ -70,6 +70,27 @@ export interface MediaEditModalData {
     preview: (item: any) => void;
 }
 
+function mediaSaveErrorMessage(error: unknown) {
+    if (error === undefined || error === null) {
+        return i18n('SIGNAGE_MANAGER.SVC_MEDIA_UPLOAD_CANCELLED');
+    }
+    if (error instanceof Error && error.message) return error.message;
+    if (typeof error === 'string') return error;
+    if (typeof error === 'number' || typeof error === 'boolean') {
+        return `${error}`;
+    }
+    if (typeof error === 'object') {
+        const details = error as Record<string, unknown>;
+        const value =
+            details.error ||
+            details.message ||
+            details.statusText ||
+            details.name;
+        if (value) return mediaSaveErrorMessage(value);
+    }
+    return i18n('SIGNAGE_MANAGER.SVC_MEDIA_UPLOAD_FAILED');
+}
+
 @Component({
     selector: 'media-edit-modal',
     template: `
@@ -552,26 +573,27 @@ export class MediaEditModalComponent implements OnDestroy {
         } else {
             new_media.valid_until = null;
         }
-        const onError = (e) => {
-            this._dialog_ref.disableClose = false;
-            this.loading.set(false);
-            notifyError(
-                i18n('SIGNAGE_MANAGER.MEDIA_SAVE_ERROR', { error: e }),
-            );
-            throw e;
-        };
-        if (this.item.id) {
-            await this._data.onEdit(this.item.id, new_media).catch(onError);
-        } else {
-            await this._data
-                .onAdd(
+        try {
+            if (this.item.id) {
+                await this._data.onEdit(this.item.id, new_media);
+            } else {
+                await this._data.onAdd(
                     this.file,
                     new SignageMedia(new_media),
                     this._data.file_metadata,
-                )
-                .catch(onError);
+                );
+            }
+        } catch (error) {
+            notifyError(
+                i18n('SIGNAGE_MANAGER.MEDIA_SAVE_ERROR', {
+                    error: mediaSaveErrorMessage(error),
+                }),
+            );
+            return;
+        } finally {
+            this._dialog_ref.disableClose = false;
+            this.loading.set(false);
         }
-        this._dialog_ref.disableClose = false;
         this._dialog_ref.close();
         notifySuccess(i18n('SIGNAGE_MANAGER.MEDIA_SAVE_SUCCESS'));
     }

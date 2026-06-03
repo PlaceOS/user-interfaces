@@ -1825,8 +1825,15 @@ export class SignageService {
             if (url_thumbnail) {
                 const name = `thumb+${(media_item.name || 'media').replace(/[^a-zA-Z0-9_-]/g, '_')}.jpg`;
                 thumbnail_id = await this._uploads
-                    .uploadFile(dataURLtoFile(url_thumbnail, name))
-                    .catch(() => '');
+                    .uploadFileToCompletion(dataURLtoFile(url_thumbnail, name))
+                    .catch(() => {
+                        notifyWarn(
+                            i18n(
+                                'SIGNAGE_MANAGER.SVC_THUMBNAIL_UPLOAD_FAILED',
+                            ),
+                        );
+                        return '';
+                    });
             }
             const data = {
                 ...new SignageMedia({
@@ -1878,7 +1885,9 @@ export class SignageService {
             720,
         ).catch(() => null);
         const media_id =
-            await this._uploads.uploadFileWithPermissions(upload_file);
+            await this._uploads.uploadFileWithPermissionsToCompletion(
+                upload_file,
+            );
         const media_url = `${
             location.origin
         }/api/engine/v2/uploads/${encodeURIComponent(media_id)}/url`;
@@ -1887,9 +1896,14 @@ export class SignageService {
             const name_parts = upload_file.name.split('.');
             name_parts.pop();
             const name = `thumb+${name_parts.join('.')}.jpg`;
-            thumbnail_id = await this._uploads.uploadFile(
-                dataURLtoFile(thumbnail_image, name),
-            );
+            thumbnail_id = await this._uploads
+                .uploadFileToCompletion(dataURLtoFile(thumbnail_image, name))
+                .catch(() => {
+                    notifyWarn(
+                        i18n('SIGNAGE_MANAGER.SVC_THUMBNAIL_UPLOAD_FAILED'),
+                    );
+                    return '';
+                });
         }
         const data = {
             ...new SignageMedia({
