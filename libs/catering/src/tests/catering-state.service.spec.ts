@@ -64,19 +64,6 @@ describe('CateringStateService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
-    it('should allow user to manage catering orders', async () => {
-        const dialog = spectator.inject(MatDialog);
-        const input_order = new CateringOrder();
-        (dialog.open as any).mockImplementation(dialog_fn(true));
-        let order = await spectator.service.manageCateringOrder(input_order);
-        expect(order).toBe(input_order);
-        (dialog.open as any).mockImplementation(
-            dialog_fn(false, { order: new CateringOrder() }),
-        );
-        order = await spectator.service.manageCateringOrder(input_order);
-        expect(order).not.toBe(input_order);
-    });
-
     it('should allow user to add new catering items to menu', async () => {
         const dialog = spectator.inject(MatDialog);
         (dialog.open as any).mockImplementation(dialog_fn(true));

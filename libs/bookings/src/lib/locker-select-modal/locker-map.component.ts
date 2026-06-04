@@ -92,10 +92,6 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
                 display: flex;
                 flex-direction: column;
             }
-
-            button {
-                border-radius: 0;
-            }
         `,
     ],
     imports: [

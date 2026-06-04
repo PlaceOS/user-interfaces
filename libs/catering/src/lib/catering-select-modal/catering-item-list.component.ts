@@ -4,10 +4,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CateringItem } from '@placeos/common';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { CateringOrderStateService } from '../catering-order-modal/catering-order-state.service';
-import { NewCateringItemListItemComponent } from './new-catering-item-list-item.component';
+import { CateringItemListItemComponent } from './catering-item-list-item.component';
 
 @Component({
-    selector: 'new-catering-item-list',
+    selector: 'catering-item-list',
     template: `
         <div class="h-full w-full py-2">
             @if (list().length) {
@@ -22,7 +22,7 @@ import { NewCateringItemListItemComponent } from './new-catering-item-list-item.
                 </p>
                 <ul class="list-style-none space-y-2 p-2">
                     @for (item of list(); track item) {
-                        <new-catering-item-list-item
+                        <catering-item-list-item
                             class="block"
                             [item]="item"
                             [active]="isActive(item)"
@@ -30,7 +30,7 @@ import { NewCateringItemListItemComponent } from './new-catering-item-list-item.
                             [favourite]="isFavourite(item.id)"
                             (toggleFav)="toggleFav.emit(item)"
                             (select)="selectItem(item, true)"
-                        ></new-catering-item-list-item>
+                        ></catering-item-list-item>
                     }
                 </ul>
             }
@@ -45,7 +45,7 @@ import { NewCateringItemListItemComponent } from './new-catering-item-list-item.
                 @if (item_list().length) {
                     <ul class="list-style-none space-y-2 p-2">
                         @for (item of item_list(); track item) {
-                            <new-catering-item-list-item
+                            <catering-item-list-item
                                 class="block"
                                 [item]="item"
                                 [active]="isActive(item)"
@@ -54,7 +54,7 @@ import { NewCateringItemListItemComponent } from './new-catering-item-list-item.
                                 [code]="code"
                                 (toggleFav)="toggleFav.emit(item)"
                                 (select)="selectItem(item, true)"
-                            ></new-catering-item-list-item>
+                            ></catering-item-list-item>
                         }
                     </ul>
                 } @else {
@@ -84,10 +84,10 @@ import { NewCateringItemListItemComponent } from './new-catering-item-list-item.
     imports: [
         TranslatePipe,
         MatProgressSpinnerModule,
-        NewCateringItemListItemComponent,
+        CateringItemListItemComponent,
     ],
 })
-export class NewCateringItemListComponent {
+export class CateringItemListComponent {
     private _state = inject(CateringOrderStateService);
 
     public readonly active = input('');

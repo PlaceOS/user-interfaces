@@ -9,7 +9,7 @@ import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticat
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BookingAsset } from './booking-form.service';
-import { NewParkingSelectModalComponent } from './new-parking-select-modal/new-parking-select-modal.component';
+import { ParkingSelectModalComponent } from './parking-select-modal/parking-select-modal.component';
 
 const EMPTY_FAVS: string[] = [];
 
@@ -148,7 +148,7 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
 
     public get favorites() {
         return this._settings.signal<string[]>(
-            'favourite_spaces',
+            SETTING_KEYS.FAVORITE_PARKING_SPACES,
             EMPTY_FAVS,
             true,
         )();
@@ -156,7 +156,7 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
 
     /** Add or edit selected spaces */
     public changeResources() {
-        const ref = this._dialog.open(NewParkingSelectModalComponent, {
+        const ref = this._dialog.open(ParkingSelectModalComponent, {
             data: {
                 spaces: this.spaces(),
                 options: {

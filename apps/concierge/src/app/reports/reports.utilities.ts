@@ -5,7 +5,7 @@ import {
     HashMap,
 } from '@placeos/common';
 
-export function isActiveReportBooking(booking: Booking): boolean {
+function isActiveReportBooking(booking: Booking): boolean {
     return !booking.deleted && !isDeclinedReportBooking(booking);
 }
 
@@ -39,7 +39,7 @@ export function formatReportPercentage(value = 0, total = 0): string {
     return `${value || 0} (${percent}%)`;
 }
 
-export function isActiveReportEvent(event: CalendarEvent): boolean {
+function isActiveReportEvent(event: CalendarEvent): boolean {
     return !event.deleted && !isDeclinedReportEvent(event);
 }
 
@@ -76,7 +76,7 @@ export function reportBookingDuration(
         : event.duration;
 }
 
-export function totalReportBookingDuration(
+function totalReportBookingDuration(
     bookings: CalendarEvent[],
     bookable_minutes = 8 * 60,
 ): number {
@@ -117,7 +117,7 @@ export function reportEventStatusStats(events: CalendarEvent[]) {
     };
 }
 
-export function isDeclinedReportBooking(booking: Booking): boolean {
+function isDeclinedReportBooking(booking: Booking): boolean {
     const state = (booking as any).state;
     return (
         booking.rejected === true ||

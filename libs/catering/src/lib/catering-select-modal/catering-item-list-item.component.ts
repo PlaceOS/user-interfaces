@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { CateringItem } from '@placeos/common';
+
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
@@ -14,7 +15,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             [class.ring-2]="active()"
             [class.ring-info]="active()"
             matRipple
-            class="border-base-200 bg-base-100 relative w-full rounded-lg border p-2 shadow-sm sm:w-[20rem]"
+            class="border-base-200 bg-base-100 relative w-full rounded-lg border p-2 shadow-sm"
         >
             <button
                 name="select-catering-item"

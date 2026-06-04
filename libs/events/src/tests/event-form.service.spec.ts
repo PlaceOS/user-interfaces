@@ -1,64 +1,132 @@
+import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
-import { MockProvider } from 'ng-mocks';
+import {
+    CalendarEvent,
+    currentUser,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { BehaviorSubject, of, Subject } from 'rxjs';
 
-import { CalendarEvent, OrganisationService } from '@placeos/common';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
-import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 
-import { OldEventFormService } from '../lib/event-form.service';
+import * as events_fn from '../lib/events.fn';
+import { EventFormService } from '../lib/event-form.service';
 
-jest.mock('libs/events/src/lib/events.fn');
-jest.mock('@placeos/ts-client');
-
-import * as ts_client from '@placeos/ts-client';
-import * as events_fn from 'libs/events/src/lib/events.fn';
+jest.mock('../lib/events.fn', () => ({
+    ...jest.requireActual('../lib/events.fn'),
+    findEventClashes: jest.fn(),
+}));
 
 describe('EventFormService', () => {
-    let spectator: SpectatorService<OldEventFormService>;
-    const createService = createServiceFactory({
-        service: OldEventFormService,
-        providers: [
-            MockProvider(OrganisationService, {
-                initialised: of(true),
-                building: { id: 'bld-1' },
-                building_list: new BehaviorSubject([]),
-                active_building: new BehaviorSubject({}),
-                active_region: new BehaviorSubject({}),
-            } as any),
-            MockProvider(Router, {
-                navigate: jest.fn(),
-                events: new Subject(),
-            }),
-            MockProvider(PaymentsService, {
-                makePayment: jest.fn(),
-                enabled: true,
-            }),
-            MockProvider(SettingsService, {
-                get: jest.fn(),
-                overrides$: new BehaviorSubject([]),
-            }),
-            MockProvider(AssetStateService, {}),
-            MockProvider(MatDialog, { open: jest.fn() }),
-        ],
-    });
+    let service: EventFormService;
+    let init_spy: jest.SpiedFunction<EventFormService['init']>;
 
     beforeEach(() => {
-        (events_fn as any).querySpaceAvailability = jest.fn(() => of([]));
-        (ts_client as any).querySystems = jest.fn(() => of({ data: [] }));
-        spectator = createService();
+        sessionStorage.clear();
+        init_spy = jest
+            .spyOn(EventFormService.prototype, 'init')
+            .mockResolvedValue(undefined);
+
+        TestBed.configureTestingModule({
+            providers: [
+                EventFormService,
+                {
+                    provide: OrganisationService,
+                    useValue: {
+                        building: { id: 'bld-1', timezone: 'Australia/Sydney' },
+                        building_list: new BehaviorSubject([]),
+                        active_building: new BehaviorSubject({}),
+                        active_region: new BehaviorSubject({}),
+                        initialised: new BehaviorSubject(true),
+                        organisation: { id: 'org-1' },
+                        region: { id: 'reg-1' },
+                    },
+                },
+                {
+                    provide: SettingsService,
+                    useValue: {
+                        get: jest.fn(() => undefined),
+                        overrides$: new BehaviorSubject([]),
+                    },
+                },
+                {
+                    provide: Router,
+                    useValue: {
+                        events: new Subject(),
+                    },
+                },
+                {
+                    provide: AssetStateService,
+                    useValue: {
+                        setOptions: jest.fn(),
+                    },
+                },
+                {
+                    provide: MatDialog,
+                    useValue: { open: jest.fn() },
+                },
+            ],
+        });
+
+        service = TestBed.inject(EventFormService);
+        jest.mocked(events_fn.findEventClashes).mockReset();
     });
 
-    afterEach(() => spectator.service.clearForm());
-
-    it('should create service', () => {
-        expect(spectator.service).toBeTruthy();
+    afterEach(() => {
+        init_spy.mockRestore();
+        sessionStorage.clear();
     });
 
-    it('should keep custom all-day events marked all-day when resetting the form', async () => {
+    it('should use the current user as booking rule host when enabled', async () => {
+        const settings = TestBed.inject(SettingsService) as any;
+        settings.get.mockImplementation((key: string) =>
+            key === 'app.events.force_current_user_for_booking_rules'
+                ? true
+                : undefined,
+        );
+        const user_pipe = (service as any)._user_pipe;
+        const transform_spy = jest
+            .spyOn(user_pipe, 'transform')
+            .mockResolvedValue({ email: 'other@example.com' });
+
+        const host = await (service as any)._bookingRulesHost(
+            'other@example.com',
+        );
+
+        expect(host.email).toBe(currentUser().email);
+        expect(transform_spy).not.toHaveBeenCalled();
+    });
+
+    it('should refresh last_success when saved event has same start time', () => {
+        const date = 1775527143000;
+        service.last_success.set(
+            new CalendarEvent({
+                id: 'event-1',
+                title: 'Previous booking',
+                date,
+                date_end: date + 30 * 60 * 1000,
+            }),
+        );
+        sessionStorage.setItem(
+            'PLACEOS.last_modified_event',
+            JSON.stringify({
+                id: 'event-2',
+                title: 'Updated booking',
+                date,
+                date_end: date + 60 * 60 * 1000,
+            }),
+        );
+
+        service.loadLastSuccess();
+
+        expect(service.last_success()?.id).toBe('event-2');
+        expect(service.last_success()?.title).toBe('Updated booking');
+        expect(service.last_success()?.date_end).toBe(date + 60 * 60 * 1000);
+    });
+
+    it('should keep custom all-day events marked all-day in the form', () => {
         const event = new CalendarEvent({
             id: 'event-1',
             all_day: false,
@@ -67,152 +135,301 @@ describe('EventFormService', () => {
             extension_data: { custom_all_day: true },
         });
 
-        await spectator.service.newForm(event);
+        service.newForm(event);
 
-        expect(spectator.service.form.getRawValue().all_day).toBe(true);
+        expect(service.form.getRawValue().all_day).toBe(true);
     });
 
-    /// TODO: Fix
-    // it('should handle view changes', fakeAsync(() => {
-    //     expect(spectator.service.view).toBe('form');
-    //     spectator.service.setView('find');
-    //     tick(301);
-    //     expect(spectator.service.view).toBe('find');
-    // }));
+    it('should keep custom all-day events marked all-day after reloading the form', () => {
+        const event = new CalendarEvent({
+            id: 'event-1',
+            all_day: false,
+            date: new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+            date_end: new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+            extension_data: { custom_all_day: true },
+        });
+        sessionStorage.setItem('PLACEOS.event', JSON.stringify(event.toJSON()));
 
-    // it('should handle form changes', () => {
-    //     spectator.service.newForm();
-    //     const form = spectator.service.form;
-    //     expect(spectator.service.form).toBeInstanceOf(FormGroup);
-    //     const spy = jest.spyOn(spectator.service, 'storeForm');
-    //     expect(spectator.service.storeForm).not.toBeCalled();
-    //     let date = endOfYear(Date.now()).valueOf();
-    //     spectator.service.form.patchValue({ date });
-    //     expect(spectator.service.storeForm).toBeCalled();
-    //     expect(spectator.service.form.value.date).toBe(date);
-    //     spectator.service.resetForm();
-    //     expect(form).toBe(spectator.service.form);
-    //     expect(spectator.service.form.value.date).not.toBe(date);
-    //     spectator.service.form.patchValue({ date });
-    //     expect(spectator.service.form.value.date).toBe(date);
-    //     spectator.service.clearForm();
-    //     expect(spectator.service.form.value.date).not.toBe(date);
-    //     spy.mockRestore();
-    // });
+        service.loadForm();
 
-    // it('should allow reloading previous form details', () => {
-    //     spectator.service.loadForm();
-    //     expect(spectator.service.form).toBeInstanceOf(FormGroup);
-    //     expect(spectator.service.form.value.title).toBe(null);
-    //     sessionStorage.setItem('PLACEOS.event_form', '{ "title": "Test" }');
-    //     spectator.service.loadForm();
-    //     expect(spectator.service.form.value.title).toBe('Test');
-    // });
+        expect(service.form.getRawValue().all_day).toBe(true);
+    });
 
-    // it('should list available spaces', async () => {
-    //     // const space_list = [{ id: 'space-1' }, { id: 'space-2' }];
-    //     // (ts_client.querySystems as any) = jest.fn(() => of(space_list));
-    //     // spectator.service.setView('find');
-    //     // spectator.service.newForm();
-    //     // spectator.service.form.patchValue({
-    //     //     date: addDays(Date.now(), 7).valueOf(),
-    //     // });
-    //     // let spaces = await nextValueFrom(spectator.service.available_spaces);
-    //     // expect(spaces).toEqual([]);
-    //     // (cal_mod.querySpaceAvailability as any).mockImplementation(() =>
-    //     //     of([...space_list])
-    //     // );
-    //     // spectator.service.setView('find');
-    //     // await timer(301).toPromise();
-    //     // spaces = await nextValueFrom(spectator.service.available_spaces
-    //     //     );
-    //     // TODO: Fix
-    //     // expect(spaces).toEqual(space_list);
-    // });
+    it('should allow multiday events ending exactly at the bookable-hours end', async () => {
+        const settings = TestBed.inject(SettingsService) as any;
+        settings.get.mockImplementation((key: string) =>
+            key === 'app.events.bookable_hours'
+                ? { start: 9, end: 17 }
+                : undefined,
+        );
+        const start = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
+        const end = new Date(2028, 5, 16, 17, 0, 0, 0).valueOf();
+        const perform_booking_spy = jest
+            .spyOn(service as any, '_performBooking')
+            .mockResolvedValue(
+                new CalendarEvent({
+                    id: 'event-1',
+                    host: 'host@test.com',
+                    organiser: { email: 'host@test.com' } as any,
+                    creator: 'host@test.com',
+                    title: 'Boundary booking',
+                    date: start,
+                    duration: Math.round((end - start) / 60000),
+                    date_end: end,
+                    attendees: [],
+                    resources: [],
+                }),
+            );
 
-    // it('should allow filtering of available spaces', async () => {
-    //     // TODO: Fix
-    //     // const space_list = [{ id: 'space-1' }, { id: 'space-2' }];
-    //     // (ts_client.querySystems as any) = jest.fn(() => of(space_list))
-    //     // spectator.service.setView('find');
-    //     // spectator.service.newForm(new CalendarEvent({ event_start: 1 }));
-    //     // await nextValueFrom(spectator.service.available_spaces);
-    //     // expect(cal_mod.querySpaceAvailability).toBeCalledWith(
-    //     //     {
-    //     //         period_start: 1,
-    //     //         period_end: 1801,
-    //     //         zone_ids: 'bld-1',
-    //     //         features: undefined,
-    //     //         capacity: undefined,
-    //     //     },
-    //     //     spectator.inject(OrganisationService)
-    //     // );
-    //     // spectator.service.setOptions({
-    //     //     features: ['VidConf'],
-    //     //     zone_ids: ['lvl-1', 'lvl-2'],
-    //     //     capacity: 32,
-    //     // });
-    //     // await timer(301).toPromise();
-    //     // await nextValueFrom(spectator.service.available_spaces);
-    //     // expect(cal_mod.querySpaceAvailability).toBeCalledWith(
-    //     //     {
-    //     //         period_start: 1,
-    //     //         period_end: 1801,
-    //     //         zone_ids: 'lvl-1,lvl-2',
-    //     //         features: 'VidConf',
-    //     //         capacity: 32,
-    //     //     },
-    //     //     spectator.inject(OrganisationService)
-    //     // );
-    // });
+        service.newForm();
+        service.form.patchValue({
+            host: 'host@test.com',
+            organiser: { email: 'host@test.com' },
+            creator: 'host@test.com',
+            title: 'Boundary booking',
+            date: start,
+            duration: Math.round((end - start) / 60000),
+            date_end: end,
+            attendees: [],
+            resources: [],
+        });
 
-    // it('should reject posting invalid form', async () => {
-    //     spectator.service.newForm();
-    //     await expect(spectator.service.postForm()).rejects.toBe(
-    //         'FORM.INVALID_FIELDS',
-    //     );
-    // });
+        await expect(service.postForm(true)).resolves.toBeTruthy();
+        expect(perform_booking_spy).toHaveBeenCalled();
+    });
 
-    // it('should reject posting unavailable spaces', async () => {
-    //     // TODO: Fix
-    //     // spectator.service.newForm();
-    //     // spectator.service.form.patchValue({
-    //     //     host: 'jim@place.tech',
-    //     //     creator: 'jim@place.tech',
-    //     //     title: 'Test Booking',
-    //     //     resources: [{} as any],
-    //     // });
-    //     // await expect(spectator.service.postForm()).rejects.toBe(
-    //     //     '1 space(s) are not available at the selected time'
-    //     // );
-    // });
+    it('should use the original calendar when changing host on an existing room booking', async () => {
+        const current_user = currentUser();
+        const new_host = 'new.host@example.com';
+        const date = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
+        const event = new CalendarEvent({
+            id: 'event-1',
+            host: current_user.email,
+            calendar: current_user.email,
+            creator: current_user.email,
+            title: 'Host change test',
+            date,
+            duration: 60,
+            attendees: [],
+            resources: [
+                {
+                    id: 'space-1',
+                    email: 'space-1@example.com',
+                    name: 'Boardroom',
+                    zones: ['bld-1'],
+                } as any,
+            ],
+        });
+        const perform_booking_spy = jest
+            .spyOn(service as any, '_performBooking')
+            .mockResolvedValue(
+                new CalendarEvent({
+                    id: 'event-1',
+                    host: new_host,
+                    calendar: new_host,
+                    creator: current_user.email,
+                    title: 'Host change test',
+                    date,
+                    duration: 60,
+                    attendees: [],
+                    resources: event.resources,
+                }),
+            );
 
-    // it('should allow posting event details', async () => {
-    //     // TODO: Fix
-    //     // (event_mod as any).saveEvent = jest.fn(() => of({}));
-    //     // spectator.service.newForm();
-    //     // spectator.service.form.patchValue({
-    //     //     host: 'jim@place.tech',
-    //     //     creator: 'jim@place.tech',
-    //     //     title: 'Test Booking',
-    //     //     resources: [],
-    //     // });
-    //     // await expect(spectator.service.postForm()).resolves.toBeTruthy();
-    //     // expect(spectator.service.view).toBe('success');
-    // });
+        service.newForm(event);
+        service.form.patchValue({
+            host: new_host,
+            organiser: { email: new_host, name: 'New Host' },
+        });
 
-    // it('should clear form on navigation away from form', () => {
-    //     const spy = jest.spyOn(spectator.service, 'clearForm');
-    //     expect(spectator.service.clearForm).not.toBeCalled();
-    //     const router = spectator.inject(Router);
-    //     (router.events as any).next(
-    //         new NavigationEnd(1, '/book/spaces/form', '/book/spaces/form'),
-    //     );
-    //     expect(spectator.service.clearForm).not.toBeCalled();
-    //     (router.events as any).next(
-    //         new NavigationEnd(1, '/schedule', '/schedule'),
-    //     );
-    //     expect(spectator.service.clearForm).toBeCalled();
-    //     spy.mockRestore();
-    // });
+        await expect(service.postForm(true)).resolves.toBeTruthy();
+        expect(perform_booking_spy).toHaveBeenCalledWith(
+            expect.objectContaining({ host: new_host }),
+            expect.objectContaining({
+                calendar: current_user.email,
+                system_id: 'space-1',
+            }),
+        );
+    });
+
+    it('should clear saved host changes after a permission error', async () => {
+        const current_user = currentUser();
+        const perform_booking_spy = jest
+            .spyOn(service as any, '_performBooking')
+            .mockRejectedValue({ status: 403, error: 'Forbidden' });
+
+        service.newForm();
+        service.form.patchValue({
+            host: 'unauthorised.user@example.com',
+            organiser: {
+                email: 'unauthorised.user@example.com',
+                name: 'Unauthorised User',
+            },
+            creator: 'unauthorised.user@example.com',
+            calendar: 'unauthorised.user@example.com',
+            title: 'Permission test',
+            date: new Date(2028, 5, 15, 10, 0, 0, 0).valueOf(),
+            duration: 60,
+            attendees: [],
+            resources: [],
+        });
+        sessionStorage.setItem(
+            'PLACEOS.event_form',
+            JSON.stringify(service.form.getRawValue()),
+        );
+
+        await expect(service.postForm(true)).rejects.toMatchObject({
+            status: 403,
+            error: 'Forbidden',
+        });
+
+        const saved_form = JSON.parse(
+            sessionStorage.getItem('PLACEOS.event_form'),
+        );
+        expect(perform_booking_spy).toHaveBeenCalled();
+        expect(saved_form.host).toBe(current_user.email);
+        expect(saved_form.organiser.email).toBe(current_user.email);
+        expect(saved_form.calendar).toBe(current_user.email);
+        expect(service.form.getRawValue().host).toBe(current_user.email);
+    });
+
+    it('should preserve the original start time for in-progress bookings', async () => {
+        const start = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
+        const end = new Date(2028, 5, 15, 11, 0, 0, 0).valueOf();
+        const event = new CalendarEvent({
+            id: 'event-1',
+            host: 'host@test.com',
+            calendar: 'host@test.com',
+            organiser: { email: 'host@test.com' } as any,
+            creator: 'host@test.com',
+            title: 'Standup',
+            date: start,
+            date_end: end,
+            attendees: [],
+            resources: [],
+        });
+        Object.defineProperty(event, 'state', { value: 'started' });
+        const perform_booking_spy = jest
+            .spyOn(service as any, '_performBooking')
+            .mockResolvedValue(
+                new CalendarEvent({
+                    id: 'event-1',
+                    host: 'host@test.com',
+                    calendar: 'host@test.com',
+                    organiser: { email: 'host@test.com' } as any,
+                    creator: 'host@test.com',
+                    title: 'Updated standup',
+                    date: start,
+                    date_end: end,
+                    attendees: [],
+                    resources: [],
+                }),
+            );
+
+        service.newForm(event);
+        service.form.patchValue({
+            host: 'host@test.com',
+            calendar: 'host@test.com',
+            creator: 'host@test.com',
+            title: 'Updated standup',
+        });
+
+        expect(service.form.get('date')?.disabled).toBe(true);
+
+        await expect(service.postForm(true)).resolves.toBeTruthy();
+        expect(perform_booking_spy).toHaveBeenCalledWith(
+            expect.objectContaining({
+                id: 'event-1',
+                date: start,
+            }),
+            expect.anything(),
+        );
+    });
+
+    it('should clamp current-day all-day meetings before posting', async () => {
+        jest.useFakeTimers();
+        jest.setSystemTime(new Date(2028, 5, 15, 10, 2, 0, 0));
+        try {
+            const settings = TestBed.inject(SettingsService) as any;
+            settings.get.mockImplementation((key: string) =>
+                key === 'app.events.all_day_period'
+                    ? { start: 9, end: 17 }
+                    : undefined,
+            );
+            const perform_booking_spy = jest
+                .spyOn(service as any, '_performBooking')
+                .mockResolvedValue(
+                    new CalendarEvent({
+                        id: 'event-1',
+                        host: 'host@test.com',
+                        organiser: { email: 'host@test.com' } as any,
+                        creator: 'host@test.com',
+                        title: 'All day meeting',
+                        date: new Date(2028, 5, 15, 10, 5, 0, 0).valueOf(),
+                        duration: 415,
+                        date_end: new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+                        attendees: [],
+                        resources: [],
+                    }),
+                );
+
+            service.newForm();
+            service.form.patchValue({
+                host: 'host@test.com',
+                organiser: { email: 'host@test.com' },
+                creator: 'host@test.com',
+                title: 'All day meeting',
+                date: new Date(2028, 5, 15, 8, 0, 0, 0).valueOf(),
+                attendees: [],
+                resources: [],
+            });
+            service.form.controls.all_day.setValue(true);
+
+            await expect(service.postForm(true)).resolves.toBeTruthy();
+            expect(perform_booking_spy).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    all_day: true,
+                    date: new Date(2028, 5, 15, 10, 5, 0, 0).valueOf(),
+                    duration: 415,
+                    date_end: new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+                }),
+                expect.anything(),
+            );
+        } finally {
+            jest.useRealTimers();
+        }
+    });
+
+    it('should block recurring room bookings that clash by default', async () => {
+        const date = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
+        jest.mocked(events_fn.findEventClashes).mockReturnValue(
+            of([
+                {
+                    asset_id: 'space-1',
+                    booking_start: Math.floor(date / 1000) + 24 * 60 * 60,
+                    booking_end:
+                        Math.floor(date / 1000) + 24 * 60 * 60 + 60 * 60,
+                },
+            ]) as any,
+        );
+
+        await expect(
+            (service as any)._checkRecurringClashes({
+                id: 'event-1',
+                date,
+                duration: 60,
+                recurring: true,
+                resources: [
+                    {
+                        id: 'space-1',
+                        email: 'space-1@example.com',
+                        name: 'Boardroom',
+                        zones: ['bld-1'],
+                    },
+                ] as any,
+            } as any),
+        ).rejects.toBeTruthy();
+        expect(events_fn.findEventClashes).toHaveBeenCalled();
+        expect(TestBed.inject(MatDialog).open).not.toHaveBeenCalled();
+    });
 });

@@ -37,9 +37,13 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
 @Component({
     selector: 'parking-space-map',
     template: `
-        <div class="border-base-200 bg-base-100 w-full border-b p-2">
-            @if (levels()?.length) {
-                <mat-form-field levels appearance="outline" class="w-full">
+        @if (levels()?.length) {
+            <div class="border-base-200 bg-base-100 w-full border-b p-2">
+                <mat-form-field
+                    levels
+                    appearance="outline"
+                    class="no-subscript w-full"
+                >
                     <mat-select
                         name="location"
                         [(ngModel)]="level"
@@ -67,8 +71,8 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                         }
                     </mat-select>
                 </mat-form-field>
-            }
-        </div>
+            </div>
+        }
         <div class="relative w-full flex-1">
             <interactive-map
                 [src]="map_url()"
@@ -89,10 +93,6 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                 display: flex;
                 flex-direction: column;
             }
-
-            button {
-                border-radius: 0;
-            }
         `,
     ],
     imports: [
@@ -104,7 +104,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
         BuildingPipe,
     ],
 })
-export class ParkingSpaceMapComponent implements OnInit {
+export class ParkingMapComponent implements OnInit {
     private _state = inject(BookingFormService);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
@@ -137,6 +137,9 @@ export class ParkingSpaceMapComponent implements OnInit {
             const viewable_levels = level_list.filter((lvl) =>
                 lvl.tags.includes('parking'),
             );
+            if (!this.level() && viewable_levels.length) {
+                this.level.set(viewable_levels[0]);
+            }
             return viewable_levels.sort(
                 (a, b) =>
                     a.parent_id.localeCompare(b.parent_id) ||
@@ -245,6 +248,7 @@ export class ParkingSpaceMapComponent implements OnInit {
         setTimeout(async () => {
             if (!this.level()) {
                 const list = await nextValueFrom(this._levels$);
+                if (list.length <= 0) return;
                 this._state.setOptions({ zone_id: list[0].id });
             }
         }, 300);

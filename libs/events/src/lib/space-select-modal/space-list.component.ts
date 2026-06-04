@@ -9,14 +9,19 @@ import { OrganisationService } from '@placeos/common';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
+import { EventFormService } from 'libs/events/src/lib/event-form.service';
 
 @Component({
     selector: `space-list`,
     template: `
-        <h3 class="font-bold">{{ 'COMMON.RESULTS' | translate }}</h3>
-        <p count class="mb-4 text-sm opacity-60">
-            {{ available_spaces()?.length || 0 }} result(s) found
+        <h3 class="px-2 font-bold">{{ 'COMMON.RESULTS' | translate }}</h3>
+        <p count class="mb-4 px-2 text-sm opacity-60">
+            {{
+                'COMMON.RESULTS_COUNT'
+                    | translate
+                        : { count: available_spaces()?.length || 0 }
+                        : available_spaces()?.length || 0
+            }}
         </p>
         @if (!loading()) {
             @if (available_spaces()?.length) {
@@ -49,7 +54,7 @@ import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
                                 >
                                     @if (selected().includes(space.id)) {
                                         <div
-                                            class="border-neutral bg-base-200 absolute top-1 left-1 flex h-6 w-6 items-center justify-center rounded-full border text-white"
+                                            class="border-neutral bg-base-200 absolute top-1 left-1 flex h-6 w-6 items-center justify-center rounded-full border"
                                         >
                                             <icon>done</icon>
                                         </div>
@@ -111,7 +116,7 @@ import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
                                         </div>
                                     }
                                 </div>
-                                <div class="space-y-2">
+                                <div class="w-full space-y-2">
                                     <div
                                         class="mr-10 truncate text-left font-medium"
                                     >
@@ -161,15 +166,18 @@ import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
                                 [class.text-info]="isFavourite(space.id)"
                                 (click)="toggleFav.emit(space)"
                             >
-                                <icon>{{
-                                    isFavourite(space.id)
-                                        ? 'favorite'
-                                        : 'favorite_border'
-                                }}</icon>
+                                <icon
+                                    [className]="
+                                        isFavourite(space.id)
+                                            ? 'material-symbols-rounded'
+                                            : 'material-symbols-outlined'
+                                    "
+                                    >favorite</icon
+                                >
                             </button>
                             @if (space.approval) {
                                 <div
-                                    class="bg-warning text-warning-content absolute right-1 bottom-1 rounded-sm px-2 py-1 text-[0.625rem] font-medium"
+                                    class="bg-warning text-warning-content absolute right-1 bottom-1 w-14 rounded-sm px-2 py-1 text-center text-[0.625rem] leading-tight font-medium"
                                 >
                                     {{ 'COMMON.APPROVAL_REQUIRED' | translate }}
                                 </div>
@@ -199,16 +207,7 @@ import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
             </div>
         }
     `,
-    styles: [
-        `
-            :host {
-                width: 100%;
-                height: 100%;
-                padding: 0.5rem;
-                overflow: auto;
-            }
-        `,
-    ],
+    styles: [``],
     imports: [
         MatRippleModule,
         TranslatePipe,
@@ -230,6 +229,7 @@ export class SpaceListComponent {
     public readonly loading = toSignal(this._event_form.loading$, {
         initialValue: '',
     });
+
     public readonly available_spaces = toSignal(
         this._event_form.available_spaces,
         { initialValue: [] as Space[] },

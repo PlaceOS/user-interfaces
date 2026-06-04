@@ -1,6 +1,5 @@
-import { Component, inject, model, output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { SettingsService } from '@placeos/common';
 
 import { CommonModule } from '@angular/common';
@@ -9,7 +8,6 @@ import { endOfDay } from 'date-fns';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BookingFormService } from '../booking-form.service';
-import { DeskFiltersComponent } from './desk-filters.component';
 
 @Component({
     selector: 'desk-filters-display',
@@ -23,8 +21,8 @@ import { DeskFiltersComponent } from './desk-filters.component';
                 font-size: 0.875rem;
                 border: 1px solid rgba(0, 0, 0, 0.2);
                 border-radius: 1.25rem;
-                margin-right: 0.5rem;
-                margin-bottom: 0.5rem;
+                margin: 0.25rem;
+                background-color: var(--base-100);
             }
 
             [filter-item]:hover {
@@ -38,44 +36,8 @@ import { DeskFiltersComponent } from './desk-filters.component';
     ],
     template: `
         <section
-            actions
-            class="flex flex-row items-center space-x-2 p-2 sm:hidden"
-        >
-            <button
-                btn
-                matRipple
-                name="edit-desk-filters"
-                class="w-1/2 flex-1"
-                (click)="editFilter()"
-            >
-                {{ 'COMMON.FILTERS' | translate }}
-            </button>
-            <div class="flex items-center">
-                <button
-                    btn
-                    matRipple
-                    name="view-desk-map"
-                    class="rounded-l rounded-r-none"
-                    [class.inverse]="view() !== 'map'"
-                    (click)="view.set('map'); viewChange.emit(view())"
-                >
-                    {{ 'COMMON.MAP' | translate }}
-                </button>
-                <button
-                    btn
-                    matRipple
-                    name="view-desk-list"
-                    class="rounded-l-none rounded-r"
-                    [class.inverse]="view() !== 'list'"
-                    (click)="view.set('list'); viewChange.emit(view())"
-                >
-                    {{ 'COMMON.LIST' | translate }}
-                </button>
-            </div>
-        </section>
-        <section
             filters
-            class="flex w-140 max-w-full flex-wrap items-center p-2 sm:max-w-140"
+            class="border-base-300 bg-base-100 sticky -top-1 z-20 -mx-1 mb-4! flex w-[calc(100%+0.5rem)] flex-wrap items-center rounded-sm border p-1 pr-10! sm:pr-1!"
         >
             <!-- TODO: filter chips -->
             <div filter-item date>{{ start | date: 'mediumDate' }}</div>
@@ -98,7 +60,7 @@ import { DeskFiltersComponent } from './desk-filters.component';
                         class="-mr-4"
                         (click)="setFeature(feat, false)"
                     >
-                        <icon>close</icon>
+                        <icon class="text-base">close</icon>
                     </button>
                 </div>
             }
@@ -112,7 +74,7 @@ import { DeskFiltersComponent } from './desk-filters.component';
                         class="-mr-4"
                         (click)="setOptions({ show_fav: false })"
                     >
-                        <icon>close</icon>
+                        <icon class="text-base">close</icon>
                     </button>
                 </div>
             }
@@ -121,11 +83,10 @@ import { DeskFiltersComponent } from './desk-filters.component';
     imports: [CommonModule, IconComponent, TranslatePipe, MatRippleModule],
 })
 export class DeskFiltersDisplayComponent {
-    private _bsheet = inject(MatBottomSheet);
     private _state = inject(BookingFormService);
     private _settings = inject(SettingsService);
 
-    public readonly view = model<'map' | 'list'>('list');
+    public readonly view = input<'map' | 'list'>('list');
     public readonly viewChange = output<'map' | 'list'>();
     public readonly options = toSignal(this._state.options, {
         initialValue: {} as any,
@@ -150,6 +111,4 @@ export class DeskFiltersDisplayComponent {
     public get time_format() {
         return this._settings.time_format_signal();
     }
-
-    public readonly editFilter = () => this._bsheet.open(DeskFiltersComponent);
 }

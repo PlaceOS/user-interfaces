@@ -20,7 +20,7 @@ import { endOfDay, startOfDay } from 'date-fns';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { AssetStateService } from './asset-state.service';
-import { NewAssetSelectModalComponent } from './new-asset-select-modal/new-asset-select-modal.component';
+import { AssetSelectModalComponent } from './asset-select-modal/asset-select-modal.component';
 
 const EMPTY_FAVS: string[] = [];
 
@@ -342,7 +342,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
         }
         const options = this.options();
         const optionsValue = this.options();
-        const ref = this._dialog.open(NewAssetSelectModalComponent, {
+        const ref = this._dialog.open(AssetSelectModalComponent, {
             data: {
                 items: order.items,
                 details: {

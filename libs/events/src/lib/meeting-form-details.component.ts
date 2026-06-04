@@ -38,7 +38,7 @@ import {
 import { lastValueFrom } from 'rxjs';
 
 import { queryCalendarPermission } from './calendar.fn';
-import { EventFormService } from './new-event-form.service';
+import { EventFormService } from './event-form.service';
 
 const MINUTES_IN_DAY = 24 * 60;
 

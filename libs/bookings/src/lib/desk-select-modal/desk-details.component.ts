@@ -14,71 +14,67 @@ import { BookingAsset } from '../booking-form.service';
     styles: [
         `
             :host {
-                display: flex;
-                flex-direction: column;
-                width: 30%;
-                min-width: 20rem;
-                height: 100%;
-                min-height: 65vh;
-                background: white;
+                position: relative;
             }
         `,
     ],
     template: `
         @if (desk()) {
-            <section
-                image
-                class="bg-base-300 relative w-full"
-                [class.sm:h-64]="desk().images?.length"
-                [class.h-40]="desk().images?.length"
-                [class.sm:h-0]="!desk().images?.length"
-                [class.h-12]="!desk().images?.length"
-                [class.bg-transparent!]="!desk().images?.length"
+            @if (desk().images?.length) {
+                <section class="relative h-40 w-full">
+                    @if (desk().images?.length) {
+                        <image-carousel
+                            [images]="desk().images"
+                            class="absolute inset-0"
+                        ></image-carousel>
+                    }
+                </section>
+            } @else {
+                <section class="h-10 w-full lg:hidden"></section>
+            }
+            <button
+                icon
+                matRipple
+                name="close-desk-details"
+                (click)="close.emit()"
+                class="bg-base-200 text-base-content absolute top-2 left-2 z-20 lg:hidden"
             >
-                @if (desk().images?.length) {
-                    <image-carousel
-                        [images]="desk().images"
-                        class="absolute inset-0"
-                    ></image-carousel>
+                <icon>arrow_back</icon>
+            </button>
+            <button
+                icon
+                matRipple
+                name="toggle-desk-favourite-details"
+                class="bg-base-200 absolute top-2 right-2 z-20"
+                [class.text-info-content]="fav()"
+                [class.bg-info!]="fav()"
+                (click)="toggleFav.emit()"
+            >
+                <icon
+                    [className]="
+                        fav()
+                            ? 'material-symbols-rounded'
+                            : 'material-symbols-outlined'
+                    "
+                    >favorite</icon
+                >
+            </button>
+            <div class="space-y-2 px-2 pt-0 pb-2">
+                @if (!desk().images?.length) {
+                    <div class="h-8 w-full"></div>
                 }
-                <button
-                    icon
-                    matRipple
-                    name="close-desk-details"
-                    (click)="close.emit()"
-                    class="bg-base-200 text-base-content absolute top-2 left-2 sm:hidden"
-                >
-                    <icon>arrow_back</icon>
-                </button>
-                <button
-                    icon
-                    matRipple
-                    name="toggle-desk-favourite-details"
-                    [class.text-info-content]="fav()"
-                    [class.bg-info!]="fav()"
-                    (click)="toggleFav.emit()"
-                    class="bg-base-200 absolute top-2 right-2"
-                >
-                    <icon
-                        [className]="
-                            fav()
-                                ? 'material-symbols-rounded'
-                                : 'material-symbols-outlined'
-                        "
-                        >favorite</icon
-                    >
-                </button>
-            </section>
-            <div
-                class="h-[calc(100%-19.75rem)] flex-1 space-y-2 overflow-auto p-2"
-            >
-                <section actions class="z-0 border-b pb-2">
-                    <h2 class="mt-4 mb-2 text-xl font-medium">
+                <section actions class="z-0 p-2">
+                    <h2 class="mt-4 mb-2 text-2xl font-medium">
                         {{ desk().display_name || desk().name || desk().id }}
                     </h2>
                 </section>
-                <section details class="space-y-2 border-b pb-2">
-                    <h2 class="text-xl font-medium">
+                <section
+                    details
+                    class="border-base-400 relative space-y-2 rounded-sm border px-3 pt-4 pb-2"
+                >
+                    <h2
+                        class="bg-base-100 absolute top-0 left-2 -translate-y-1/2 px-2 text-lg font-medium"
+                    >
                         {{ 'BOOKINGS.DETAILS' | translate }}
                     </h2>
                     <div class="flex items-center space-x-2">
@@ -101,13 +97,21 @@ import { BookingAsset } from '../booking-form.service';
                     </div>
                 </section>
                 @if (desk().features?.length) {
-                    <section facilities class="space-y-2 border-b pb-2">
-                        <h2 class="text-xl font-medium">
+                    <section
+                        facilities
+                        class="border-base-400 relative mt-4! space-y-2 rounded-sm border px-2 pt-1 pb-1"
+                    >
+                        <h2
+                            class="bg-base-100 absolute top-0 left-2 -translate-y-1/2 px-2 text-lg font-medium"
+                        >
                             {{ 'COMMON.FEATURES' | translate }}
                         </h2>
                         @for (feat of desk().features || []; track feat) {
-                            <div class="flex flex-wrap items-center space-x-2">
-                                <div for="feat" class="w-1/2 flex-1">
+                            <div class="flex flex-wrap items-center">
+                                <div
+                                    for="feat"
+                                    class="border-base-300 m-1 rounded-full border px-4 py-2 text-sm capitalize"
+                                >
                                     {{ feat }}
                                 </div>
                             </div>
@@ -117,7 +121,7 @@ import { BookingAsset } from '../booking-form.service';
                 @if (!hide_map()) {
                     <section
                         map
-                        class="border-base-200 relative mx-auto h-64 w-full overflow-hidden rounded-sm border sm:h-48"
+                        class="bg-base-200 relative mx-auto h-64 w-full overflow-hidden rounded-sm sm:h-48"
                     >
                         <interactive-map
                             class="pointer-events-none"
@@ -132,42 +136,10 @@ import { BookingAsset } from '../booking-form.service';
                     </section>
                 }
             </div>
-            <div
-                class="border-base-200 border-t px-2 pt-2 pb-22 shadow-sm sm:hidden"
-            >
-                <button
-                    btn
-                    matRipple
-                    name="toggle-desk-details"
-                    [class.inverse]="!single_select() && active()"
-                    class="w-full"
-                    (click)="activeChange.emit()"
-                >
-                    <div class="flex items-center justify-center">
-                        <icon class="text-2xl">{{
-                            single_select()
-                                ? 'done'
-                                : active()
-                                  ? 'remove'
-                                  : 'add'
-                        }}</icon>
-                        <p>
-                            {{
-                                single_select()
-                                    ? 'Select Item'
-                                    : ((active()
-                                          ? 'COMMON.REMOVE_FROM'
-                                          : 'COMMON.ADD_TO'
-                                      ) | translate)
-                            }}
-                        </p>
-                    </div>
-                </button>
-            </div>
         } @else {
             <div
                 empty
-                class="flex flex-col items-center justify-center space-y-2 p-16"
+                class="flex h-full w-full flex-col items-center justify-center space-y-2"
             >
                 <p class="text-center opacity-30">
                     {{ 'BOOKINGS.DESK_SELECT_MSG' | translate }}
@@ -187,7 +159,6 @@ export class DeskDetailsComponent {
     public readonly desk = input<BookingAsset>(undefined);
     public readonly fav = input(false);
     public readonly active = input(false);
-    public readonly single_select = input(false);
     public readonly hide_map = input(false);
 
     public readonly close = output<void>();

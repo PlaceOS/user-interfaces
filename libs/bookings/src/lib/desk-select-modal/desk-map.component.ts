@@ -8,6 +8,7 @@ import {
     OnInit,
     output,
     signal,
+    WritableSignal,
 } from '@angular/core';
 import {
     takeUntilDestroyed,
@@ -124,6 +125,7 @@ export class DeskMapComponent implements OnInit {
     public center = { x: 0.5, y: 0.5 };
     public readonly level = signal<BuildingLevel | undefined>(undefined);
     public readonly coordinates = signal<any>(undefined);
+    public readonly statuses: Record<string, WritableSignal<string>> = {};
 
     private readonly _change = signal(0);
     private readonly _change$ = toObservable(this._change);
@@ -190,6 +192,7 @@ export class DeskMapComponent implements OnInit {
                               map_id: desk.name,
                               name: desk.name || desk.map_id,
                               user: this._state.resourceUserName(desk.id),
+                              status: this.statuses[desk.id],
                           },
                           z_index: 20,
                       }));
@@ -208,6 +211,8 @@ export class DeskMapComponent implements OnInit {
                 desks.reduce((styles, desk) => {
                     const colours =
                         this._settings.get('app.explore.colors') || {};
+                    if (!(desk.id in this.statuses))
+                        this.statuses[desk.id] = signal('not-bookable');
                     const status =
                         this.active() === desk.id
                             ? 'active'
@@ -216,6 +221,7 @@ export class DeskMapComponent implements OnInit {
                               : this._state.resourceUserName(desk.id)
                                 ? 'busy'
                                 : 'not-bookable';
+                    this.statuses[desk.id].set(status);
                     styles[`#${desk.map_id || desk.id}`] = {
                         fill:
                             status === 'active'

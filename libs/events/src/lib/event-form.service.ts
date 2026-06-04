@@ -5,35 +5,39 @@ import {
     AsyncHandler,
     BookingClash,
     BookingRuleset,
+    CalendarEvent,
+    current_user,
     currentUser,
     filterResourcesFromRules,
+    firstTruthyValueFrom,
     flatten,
     getAllDayTimeRange,
     getFormTimeSyncHandle,
     getInvalidFields,
+    getTimeInTimezone,
     i18n,
-    notifyError,
+    isWithinBookableHours,
+    nextValueFrom,
+    rulesForResource,
+    setDefaultCreator,
     SETTING_KEYS,
+    SettingsService,
+    Space,
     unique,
     User,
 } from '@placeos/common';
-import { getModule, showMetadata } from '@placeos/ts-client';
-import { differenceInDays } from 'date-fns';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { showMetadata } from '@placeos/ts-client';
 import {
     BehaviorSubject,
     combineLatest,
     forkJoin,
     lastValueFrom,
-    merge,
     Observable,
     of,
-    timer,
 } from 'rxjs';
 import {
     catchError,
     debounceTime,
-    distinctUntilChanged,
     distinctUntilKeyChanged,
     filter,
     map,
@@ -43,12 +47,8 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import {
-    AssetRequest,
-    CalendarEvent,
-    OrganisationService,
-    Space,
-} from '@placeos/common';
+import { AssetRequest, OrganisationService } from '@placeos/common';
+import { UserPipe } from '@placeos/users';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import { validateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
 import { newBookingFromCalendarEvent } from 'libs/bookings/src/lib/booking.utilities';
@@ -57,22 +57,17 @@ import {
     queryResourceAvailability,
     saveBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
-
+import { openRecurringClashModal } from 'libs/components/src/lib/recurring-clash-modal.component';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { requestSpacesForZone } from 'libs/events/src/lib/space.utilities';
-import { PaymentsService } from 'libs/payments/src/lib/payments.service';
+import { EventLinkModalComponent } from './event-link-modal.component';
 import {
     findEventClashes,
     querySpaceAvailability,
     removeEvent,
     saveEvent,
-    showEvent,
 } from './events.fn';
-import { periodInFreeTimeSlot } from './helpers';
 import { generateEventForm, newCalendarEventFromBooking } from './utilities';
-
-import { openRecurringClashModal } from 'libs/components/src/lib/recurring-clash-modal.component';
-import { EventLinkModalComponent } from './event-link-modal.component';
 
 const BOOKING_URLS = [
     'book/rooms',
@@ -82,336 +77,48 @@ const BOOKING_URLS = [
     'confirm/success',
     'upcoming',
 ];
+const PERSISTED_EVENT_CONTEXT_URLS = ['landing'];
 
-const MINUTES = 60 * 1000;
+enum Tags {
+    Availability = 'AVAILABILITY',
+    BookingRules = 'BOOKING_RULES',
+    ListingRooms = 'LIST_ROOMS',
+    PostBooking = 'MAKING_BOOKING',
+}
 
-export type EventFlowView =
-    | 'form'
-    | 'find'
-    | 'catering'
-    | 'confirm'
-    | 'success';
+const ROOM_CAPACITY_RANGES: Record<number, { min: number; max: number }> = {
+    1: { min: 1, max: 2 },
+    3: { min: 3, max: 4 },
+    5: { min: 5, max: 8 },
+    9: { min: 9, max: 999 },
+};
 
-export interface EventFlowOptions {
-    /** Calendar to associate event with */
-    calendar_id?: string;
-    /** List of features to filter spaces on */
-    features: string[];
-    /** List of zones to filter spaces on */
-    zone_ids?: string[];
-    /** Minimum number of attendees to filter space on */
+type EventFlowView = 'form' | 'find' | 'catering' | 'confirm' | 'success';
+
+export interface EventFormOptions {
+    zones?: string[];
+    date?: number;
+    duration?: number;
+    all_day?: boolean;
+}
+
+export interface EventFormFilters {
     capacity?: number;
     /** Whether to only show favourite rooms */
     show_fav?: boolean;
+    features?: string[];
 }
 
 @Injectable({
     providedIn: 'root',
 })
-export class OldEventFormService extends AsyncHandler {
+export class EventFormService extends AsyncHandler {
     private _org = inject(OrganisationService);
-    private _router = inject(Router);
-    private _payments = inject(PaymentsService);
     private _settings = inject(SettingsService);
+    private _router = inject(Router);
     private _assets = inject(AssetStateService);
     private _dialog = inject(MatDialog);
-
-    private _view = new BehaviorSubject<EventFlowView>('form');
-    private _options = new BehaviorSubject<EventFlowOptions>({
-        zone_ids: [],
-        features: [],
-    });
-    private _form = generateEventForm(undefined, this._settings);
-    private _date = new BehaviorSubject(Date.now());
-    private _event = new BehaviorSubject<CalendarEvent>(null);
-    private _loading = new BehaviorSubject<string>('');
-    private _changed = new BehaviorSubject<number>(0);
-    private _space_pipe: SpacePipe;
-
-    public readonly last_success = signal<CalendarEvent>(
-        new CalendarEvent(
-            JSON.parse(
-                sessionStorage?.getItem('PLACEOS.last_booked_event') || '{}',
-            ),
-        ),
-    );
-    public readonly loading = this._loading.asObservable();
-    public readonly options = this._options.asObservable();
-
-    public get options_value() {
-        return this._options.getValue();
-    }
-
-    public get is_multiday() {
-        return this._event.getValue()?.duration > 24 * 60;
-    }
-
-    public readonly booking_rules: Observable<
-        Record<string, BookingRuleset[]>
-    > = this._org.building_list.pipe(
-        switchMap((list) =>
-            Promise.all(
-                list.map((bld) =>
-                    showMetadata(bld.id, 'room_booking_rules')
-                        .pipe(
-                            catchError(() => of({ details: [] })),
-                            map((_) => ({
-                                id: bld.id,
-                                details:
-                                    _.details instanceof Array ? _.details : [],
-                            })),
-                        )
-                        ?.toPromise(),
-                ),
-            ),
-        ),
-        map((building_rules) => {
-            const mapping = {};
-            for (const rules of building_rules) {
-                mapping[rules.id] = rules.details;
-            }
-            return mapping;
-        }),
-        shareReplay(1),
-    );
-
-    public readonly spaces: Observable<Space[]> = combineLatest([
-        this._options.pipe(distinctUntilKeyChanged('zone_ids')),
-        this._org.active_region.pipe(distinctUntilKeyChanged('id')),
-        this._org.active_building.pipe(
-            filter((_) => !!_),
-            distinctUntilKeyChanged('id'),
-        ),
-    ]).pipe(
-        debounceTime(300),
-        tap((_) => this.unsubWith('bind:')),
-        switchMap(([{ zone_ids }]) => {
-            this._loading.next(i18n('CALENDAR_EVENT.SPACE_LOADING'));
-            const use_region = this._settings.get('app.use_region');
-            if (!zone_ids?.length) {
-                zone_ids = [
-                    (use_region
-                        ? this._org.region?.id
-                        : this._org.building?.id) || this._org.building?.id,
-                ];
-            }
-            return forkJoin(
-                zone_ids.map((id) =>
-                    requestSpacesForZone(id).pipe(catchError(() => of([]))),
-                ),
-            );
-        }),
-        map((l) => flatten(l)),
-        tap((_) => this._loading.next('')),
-        shareReplay(1),
-    );
-
-    public readonly features = this.spaces.pipe(
-        map((l) => unique(flatten(l.map((_) => _.features)))),
-    );
-
-    public readonly room_alerts = this._changed.pipe(
-        switchMap((_) =>
-            showMetadata(this._org.organisation.id, 'room_alerts'),
-        ),
-        map((r) => r.details as Record<string, [string, string]>),
-        startWith({}),
-        shareReplay(1),
-    );
-
-    public readonly filtered_spaces = combineLatest([
-        this.spaces,
-        this.options,
-    ]).pipe(
-        map(([spaces, { show_fav, features, capacity }]) =>
-            spaces
-                .filter((s: Space) => {
-                    const domain = (currentUser()?.email || '@').split('@')[1];
-                    const zone = (this._settings.get(
-                        'app.events.restrict_spaces',
-                    ) || {})[domain];
-                    const limit_map =
-                        this._settings.get('app.events.limit_spaces') || {};
-                    const limited_zones = Object.keys(limit_map);
-                    const zone_limit = s.zones.find((_) =>
-                        limited_zones.includes(_),
-                    );
-                    return (
-                        s.bookable &&
-                        (!zone || s.zones.includes(zone)) &&
-                        (!zone_limit || limit_map[zone_limit] === domain) &&
-                        (!show_fav || this.favorite_spaces.includes(s.id)) &&
-                        features.every((f) => s.features.includes(f)) &&
-                        s.capacity >= Math.max(0, capacity || 0)
-                    );
-                })
-                .slice(0, Math.min(100, spaces.length)),
-        ),
-        shareReplay(1),
-    );
-
-    private _space_bookings = combineLatest([
-        this.spaces,
-        this.filtered_spaces,
-    ]).pipe(
-        distinctUntilChanged(([s1], [s2]) => s1 !== s2),
-        switchMap(([_, list]) => {
-            return combineLatest(
-                (list || []).map((_) => {
-                    const binding = getModule(_.id, 'Bookings').variable(
-                        'bookings',
-                    );
-                    const obs = binding
-                        .listen()
-                        .pipe(
-                            map((_) =>
-                                (_ || []).map((i) => new CalendarEvent(i)),
-                            ),
-                        );
-                    if (!this.hasSubscription(`bind:${_.id}`)) {
-                        this.subscription(`bind:${_.id}`, binding.bind());
-                    }
-                    return obs;
-                }),
-            );
-        }),
-        shareReplay(1),
-    );
-
-    public readonly current_available_spaces = combineLatest([
-        this.filtered_spaces,
-        this._space_bookings,
-        this.booking_rules,
-        merge(this.form.valueChanges, timer(1000)),
-        this._changed,
-    ]).pipe(
-        debounceTime(300),
-        map(([list, bookings, booking_rules]) => {
-            this._loading.next(i18n('CALENDAR_EVENT.SPACE_STATUS_LOADING'));
-            const { ical_uid, date, duration, all_day } =
-                this._form.getRawValue();
-            const period = all_day
-                ? this._allDayTimeRange(date)
-                : { date, duration };
-            list = filterResourcesFromRules(
-                list,
-                {
-                    date: period.date,
-                    duration: period.duration,
-                    resource: null,
-                    host: currentUser(),
-                },
-                booking_rules[this._org.building?.id] || [],
-            ) as any;
-            return (list || [])
-                .filter((_, idx) => {
-                    const start = period.date;
-                    const end = start + period.duration * MINUTES;
-                    let booking_list = bookings[idx] || [];
-                    if (this.last_success()?.system?.id === _.id) {
-                        booking_list = [...booking_list, this.last_success()];
-                    }
-                    return periodInFreeTimeSlot(
-                        start,
-                        end,
-                        booking_list.filter((_) => _.ical_uid !== ical_uid),
-                    );
-                })
-                .sort((a, b) => a.capacity - b.capacity);
-        }),
-        tap(() => this._loading.next('')),
-        shareReplay(1),
-    );
-
-    public readonly future_available_spaces: Observable<Space[]> =
-        combineLatest([
-            this.filtered_spaces,
-            this.booking_rules,
-            this.form.valueChanges.pipe(debounceTime(400), startWith({})),
-        ]).pipe(
-            filter(() => !this._loading.getValue()),
-            debounceTime(500),
-            switchMap(([spaces, booking_rules]) => {
-                if (!spaces.length) return of([]);
-                this._loading.next(i18n('CALENDAR_EVENT.SPACE_STATUS_LOADING'));
-                const { date, duration, all_day } = this._form.getRawValue();
-                const period = all_day
-                    ? this._allDayTimeRange(date)
-                    : { date, duration };
-                const availability_method = this.has_calendar
-                    ? querySpaceAvailability
-                    : queryResourceAvailability;
-                spaces = filterResourcesFromRules(
-                    spaces,
-                    {
-                        date: period.date,
-                        duration: period.duration,
-                        resource: null,
-                        host: currentUser(),
-                    },
-                    booking_rules[this._org.building?.id] || [],
-                ) as any;
-                return availability_method(
-                    spaces.map(({ id }) => id),
-                    period.date,
-                    period.duration,
-                    this?.event?.resources[0]?.id ||
-                        this.event?.system?.id ||
-                        this.event?.id ||
-                        undefined,
-                    undefined,
-                    [this.event?.date, this.event?.duration],
-                ).pipe(
-                    map((availability) => {
-                        let list = spaces.filter((_, i) => availability[i]);
-                        list = filterResourcesFromRules(
-                            list,
-                            {
-                                date: period.date,
-                                duration: period.duration,
-                                resource: null,
-                                host: currentUser(),
-                            },
-                            booking_rules[this._org.building?.id] || [],
-                        ) as any;
-                        return list;
-                    }),
-                    catchError(() => of([])),
-                );
-            }),
-            tap(() => this._loading.next('')),
-            shareReplay(1),
-        );
-
-    public readonly available_spaces = this._date.pipe(
-        switchMap((d) => {
-            const diff = Math.abs(differenceInDays(d, Date.now()));
-            const cache_length =
-                this._settings.get('app.events.cache_duration_in_days') || 14;
-            return diff < cache_length
-                ? this.current_available_spaces
-                : this.future_available_spaces;
-        }),
-        shareReplay(1),
-    );
-
-    public get view() {
-        return this._view.getValue();
-    }
-    public get form() {
-        return this._form;
-    }
-    public get event() {
-        return this._event.getValue();
-    }
-
-    public get favorite_spaces() {
-        return this._settings.get<string[]>(SETTING_KEYS.FAVORITE_ROOMS) || [];
-    }
-
-    public get has_calendar() {
-        return this._settings.get('app.events.use_bookings') !== true;
-    }
+    private _user_pipe = new UserPipe();
 
     private get timezone() {
         return this._settings.get('app.events.use_building_timezone')
@@ -419,49 +126,316 @@ export class OldEventFormService extends AsyncHandler {
             : '';
     }
 
+    private _view = new BehaviorSubject<EventFlowView>('form');
+    private _options = new BehaviorSubject<EventFormOptions>({
+        date: Date.now(),
+        zones: [],
+    });
+    private _filters = new BehaviorSubject<EventFormFilters>({
+        capacity: -1,
+        features: [],
+    });
+    private _loading = new BehaviorSubject('');
+    private _changed = new BehaviorSubject(0);
+    private _event = new BehaviorSubject(new CalendarEvent());
+    private _form = generateEventForm(undefined, this._settings);
+    private _space_pipe = new SpacePipe();
+
+    private removeLoadingTag = (t) =>
+        this._loading.next(
+            this._loading.getValue().replace(`[${t}]`, '').trim(),
+        );
+    private addLoadingTag = (t) =>
+        t
+            ? this._loading.next(
+                  `${this._loading.getValue().replace(`[${t}]`, '')}[${t}]`.trim(),
+              )
+            : '';
+    private _overflow = (id = '') =>
+        id
+            ? this._settings.get(`app.events.overflow.${id}`) || {}
+            : {
+                  setup: this._settings.get(`app.events.setup`) || 0,
+                  breakdown: this._settings.get(`app.events.breakdown`) || 0,
+              };
+    private _host = (host, space) =>
+        this._settings.get('app.events.force_host') ||
+        (this._settings.get('app.events.room_as_host') ? space : '') ||
+        host;
+
+    public readonly options$ = this._options.asObservable();
+    public readonly filters$ = this._filters.asObservable();
+    public readonly loading$ = this._loading.asObservable();
+    // List of all the booking rules for the available buildings
+    public readonly booking_rules$: Observable<
+        Record<string, BookingRuleset[]>
+    > = this._org.building_list.pipe(
+        switchMap((list) => {
+            this.addLoadingTag(Tags.BookingRules);
+            return forkJoin(
+                list.map((bld) =>
+                    showMetadata(bld.id, 'room_booking_rules').pipe(
+                        map((_) => ({
+                            id: bld.id,
+                            details:
+                                _.details instanceof Array ? _.details : [],
+                        })),
+                        catchError(() => of({ id: bld.id, details: [] })),
+                    ),
+                ),
+            );
+        }),
+        map((building_rules) => {
+            const mapping = {};
+            for (const rules of building_rules) {
+                mapping[rules.id] = rules?.details;
+            }
+            return mapping;
+        }),
+        tap(() => this.removeLoadingTag(Tags.BookingRules)),
+        shareReplay(1),
+    );
+    public readonly spaces$: Observable<Space[]> =
+        this._org.active_building.pipe(
+            switchMap(() =>
+                this._settings.get('app.use_region')
+                    ? this._org.active_region.pipe(filter((_) => !!_))
+                    : this._org.active_building.pipe(filter((_) => !!_)),
+            ),
+            distinctUntilKeyChanged('id'),
+            switchMap((zone) => {
+                if (!zone) return of([]);
+                this.addLoadingTag(Tags.ListingRooms);
+                return requestSpacesForZone(zone.id).pipe(
+                    catchError(() => of([])),
+                );
+            }),
+            map((list: Space[]) =>
+                list.filter(
+                    (_) => _.bookable && _.email && !_.room_booking_url,
+                ),
+            ),
+            tap(() => this.removeLoadingTag(Tags.ListingRooms)),
+            startWith([]),
+            shareReplay(1),
+        );
+    public readonly features = this.spaces$.pipe(
+        map((l) => unique(flatten(l.map((_) => _.features)))),
+    );
+    public readonly room_alerts = this._changed.pipe(
+        switchMap(() => showMetadata(this._org.organisation.id, 'room_alerts')),
+        map((r) => r.details as Record<string, [string, string]>),
+        startWith({}),
+        shareReplay(1),
+    );
+    public readonly filtered_spaces = combineLatest([
+        this.spaces$,
+        this._options,
+        this._filters,
+        this._org.initialised.pipe(filter((_) => _)),
+    ]).pipe(
+        map(([list, { zones }, filters]) => {
+            if (!list.length) return list;
+            if (!zones?.length) {
+                zones = this._settings.get('app.use_region')
+                    ? [this._org.region.id]
+                    : [this._org.building.id];
+            }
+            if (zones.length) {
+                list = list.filter((space) =>
+                    zones.find((id) => space.zones.includes(id)),
+                );
+            }
+            if (filters.show_fav) {
+                list = list.filter(({ id }) =>
+                    this.favorite_spaces.includes(id),
+                );
+            }
+            if (filters.capacity > 0) {
+                const range = ROOM_CAPACITY_RANGES[filters.capacity] || {
+                    min: filters.capacity,
+                    max: 999,
+                };
+                list = list.filter(
+                    ({ capacity }) =>
+                        capacity < 0 ||
+                        (capacity >= range.min && capacity <= range.max),
+                );
+            }
+            if (filters.features) {
+                list = list.filter(({ features }) =>
+                    filters.features.every((f) => features.includes(f)),
+                );
+            }
+            return list.sort((a, b) => {
+                const cap_diff = (a.capacity || 0) - (b.capacity || 0);
+                if (cap_diff !== 0) return cap_diff;
+                return (a.display_name || a.name).localeCompare(
+                    b.display_name || b.name,
+                );
+            });
+        }),
+    );
+    public readonly available_spaces = combineLatest([
+        this.filtered_spaces,
+        this.booking_rules$,
+        this._event,
+        this._options,
+    ]).pipe(
+        debounceTime(300),
+        switchMap(([spaces, rules, event, { date, duration, all_day }]) => {
+            this.addLoadingTag(Tags.Availability);
+            const period = all_day
+                ? this._allDayTimeRange(date)
+                : { date, duration };
+            const method = this.book_internal
+                ? queryResourceAvailability
+                : querySpaceAvailability;
+            spaces = filterResourcesFromRules(
+                spaces,
+                {
+                    date: period.date,
+                    duration: period.duration,
+                    resource: null,
+                    host: currentUser(),
+                },
+                rules[this._org.building?.id] || [],
+            ) as Space[];
+
+            return method(
+                spaces.map(({ id }) => id),
+                period.date || 60,
+                period.duration || 60,
+                event?.resources[0]?.id || event?.system?.id || event?.id,
+                undefined,
+                [event?.date, event?.duration],
+            ).pipe(
+                map((availability) => {
+                    let list = spaces.filter((_, i) => availability[i]);
+                    list = filterResourcesFromRules(
+                        list,
+                        {
+                            date: period.date,
+                            duration: period.duration,
+                            resource: null,
+                            host: currentUser(),
+                        },
+                        rules[this._org.building?.id] || [],
+                    ) as Space[];
+                    return list;
+                }),
+                catchError(() => of([] as Space[])),
+            );
+        }),
+        tap(() => this.removeLoadingTag(Tags.Availability)),
+        startWith([]),
+        shareReplay(1),
+    );
+
+    public readonly view$ = this._view.asObservable();
+    public readonly last_success = signal<CalendarEvent | null>(null);
+
+    public loadLastSuccess() {
+        const event = new CalendarEvent(
+            JSON.parse(
+                sessionStorage?.getItem('PLACEOS.last_modified_event') || '{}',
+            ),
+        );
+        this.last_success.set(event);
+        return event;
+    }
+
+    public get form() {
+        return this._form;
+    }
+
+    public get view() {
+        return this._view.getValue();
+    }
+
+    public get options() {
+        return this._options.getValue();
+    }
+
+    public get filters() {
+        return this._filters.getValue();
+    }
+    public get event() {
+        return this._event.getValue();
+    }
+
+    public get is_multiday() {
+        return this._event.getValue()?.duration > 24 * 60;
+    }
+
+    public get favorite_spaces() {
+        return this._settings.get<string[]>(SETTING_KEYS.FAVORITE_ROOMS) || [];
+    }
+
+    public get book_internal() {
+        return this._settings.get('app.events.use_bookings') === true;
+    }
+
+    public get lone_space() {
+        return this._settings.get('app.events.no_space_resource');
+    }
+
     constructor() {
         super();
-        const space_pipe = new SpacePipe();
-        space_pipe.org = this._org;
-        this._space_pipe = space_pipe;
+        this._space_pipe.org = this._org;
+        this.init();
+    }
+
+    public async init() {
+        await firstTruthyValueFrom(current_user);
+        setDefaultCreator(currentUser());
+        this.form.controls.date.valueChanges.subscribe((date) =>
+            this.setOptions({ date }),
+        );
+        this.form.controls.duration.valueChanges.subscribe((duration) =>
+            this.setOptions({ duration }),
+        );
+        this.form.controls.all_day.valueChanges.subscribe((all_day) =>
+            this.setOptions({ all_day }),
+        );
         this.subscription(
             'router.events',
             this._router.events.subscribe((event: Event) => {
                 if (
                     event instanceof NavigationEnd &&
-                    !BOOKING_URLS.some((_) => event.url.includes(_))
+                    !BOOKING_URLS.some((_) => event.url.includes(_)) &&
+                    !PERSISTED_EVENT_CONTEXT_URLS.some((_) =>
+                        event.url.includes(_),
+                    )
                 ) {
                     this.clearForm();
                 }
             }),
         );
         const previous = {};
-        this.subscription(
-            'form_change',
-            this._form.valueChanges.subscribe(({ date, duration }) => {
-                if (
-                    (date && date !== previous['date']) ||
-                    (duration && duration !== previous['duration'])
-                ) {
-                    this._assets.setOptions({
-                        date: this.form.value.date,
-                        duration: this.form.value.duration,
-                    });
-                    previous['date'] = date;
-                    previous['duration'] = duration;
-                }
-                if (date && date !== this._date.getValue()) {
-                    this._date.next(date);
-                }
-                this.storeForm();
-            }),
-        );
+        this.form.valueChanges.subscribe(({ date, duration }) => {
+            const { date: raw_date, duration: raw_duration } =
+                this.form.getRawValue();
+            if (
+                (raw_date && raw_date !== previous['date']) ||
+                (raw_duration && raw_duration !== previous['duration'])
+            ) {
+                this._assets.setOptions({
+                    date: raw_date,
+                    duration: raw_duration,
+                });
+                previous['date'] = raw_date;
+                previous['duration'] = raw_duration;
+            }
+            this.storeForm();
+        });
         this.subscription(
             'settings_change',
-            this._settings.overrides$
+            (this._settings.overrides$ || of([]))
                 .pipe(filter((_) => !!_?.length))
                 .subscribe(() => this._applyDurationSettings()),
         );
+        this.loadLastSuccess();
     }
 
     /** Push the current building's duration and bookable-hours settings into the time sync. */
@@ -498,142 +472,76 @@ export class OldEventFormService extends AsyncHandler {
         );
     }
 
-    public listenForStatusChanges() {
-        this.subscription('status:rooms', this.available_spaces.subscribe());
-    }
-
     public setView(value: EventFlowView) {
         this.timeout('set_view', () => this._view.next(value), 50);
     }
 
-    public setOptions(value: Partial<EventFlowOptions>) {
-        this._options.next({ ...this._options.getValue(), ...value });
+    public setFilters(filters: Partial<EventFormFilters>) {
+        this._filters.next({ ...this._filters.getValue(), ...filters });
     }
 
-    public async newForm(
-        event: CalendarEvent = new CalendarEvent({
-            all_day: this._settings.get('app.events.all_day_default'),
-        }),
-    ) {
+    public setOptions(options: Partial<EventFormOptions>) {
+        this._options.next({ ...this._options.getValue(), ...options });
+    }
+
+    public newForm(event = new CalendarEvent()) {
+        this._loading.next('');
         const lock_start_time =
             !!event.id &&
             (event.state === 'started' || event.state === 'in_progress');
         (this._form as any)._lock_start_time = lock_start_time;
-        this._event.next(event);
-        if (event.recurring_event_id) {
-            const master = await showEvent(event.recurring_event_id)
-                ?.toPromise()
-                .catch(() => null);
-            if (master) {
-                (this._event.getValue() as any).recurrence = {
-                    ...master.recurrence,
-                    _pattern: master.recurrence.pattern,
-                };
-            }
-        }
-        this._assets.setOptions({
-            ignore: flatten(
-                event.linked_bookings?.map(
-                    (_) => _.asset_ids || [_.asset_id],
-                ) || [],
-            ),
-        });
-        for (const idx in event.resources) {
-            const space = event.resources[idx];
-            event.resources[idx] = await this._space_pipe.transform(
-                space.id || space.email,
-            );
-        }
-        this._date.next(event.date);
-        this.timeout(
-            'post-event-form',
-            () => {
-                this._form.patchValue({
-                    date: event.date || this._form.value.date,
-                });
-            },
-            1000,
-        );
-        this.resetForm();
-    }
-
-    public resetForm() {
-        this._form.reset();
-        const event =
-            this._event.getValue() ||
-            ({ extension_data: {} } as Partial<CalendarEvent>);
-
-        this._assets.setOptions({
-            ignore: flatten(
-                event.linked_bookings?.map(
-                    (_) => _.asset_ids || [_.asset_id],
-                ) || [],
-            ),
-        });
-        const has_catering = !!event.extension_data.catering[0];
-        this._form.patchValue({
-            ...event.extension_data,
+        this._form.reset({
             ...event,
-            duration: event.duration >= 12 * 60 ? 30 : event.duration,
-            organiser:
-                event?.organiser ||
-                currentUser() ||
-                new User({ email: event?.host }),
+            catering: event.extension_data.catering,
             catering_charge_code:
-                event.extension_data.catering[0]?.charge_code ||
-                (event.id && has_catering ? ' ' : ''),
+                event.extension_data.catering?.[0]?.charge_code,
+            catering_notes: event.extension_data.catering?.[0]?.notes,
             assets: (event.extension_data.assets || []).map(
                 (_) => new AssetRequest({ ..._, event }),
             ),
         });
-        this._form.patchValue({
-            date: event.date || this._form.value.date,
-            date_end: event.date_end || this._form.value.date_end,
+        this._form.controls.date[lock_start_time ? 'disable' : 'enable']({
+            emitEvent: false,
         });
-        this._form.controls.date[
-            (this._form as any)._lock_start_time ? 'disable' : 'enable'
-        ]({ emitEvent: false });
-        this._options.next({ features: [] });
-        this.storeForm();
+        this._applyDurationSettings();
+        if (!event.id) return;
+        sessionStorage.setItem(
+            'PLACEOS.event',
+            JSON.stringify(event?.toJSON() || {}),
+        );
+        this._event.next(event);
     }
 
-    public clearForm() {
-        sessionStorage.removeItem('PLACEOS.event_form');
-        this.unsubWith('status:');
-        this.unsubWith('bind:');
-        this.newForm();
+    public resetForm() {
+        this._form.reset(this._event.getValue() || {});
     }
 
     public storeForm() {
-        sessionStorage.setItem(
-            'PLACEOS.event_form',
-            JSON.stringify(this._form.getRawValue() || {}),
-        );
+        this.timeout('store', () => {
+            sessionStorage.setItem(
+                'PLACEOS.event_form',
+                JSON.stringify(this._form.getRawValue() || {}),
+            );
+        });
     }
 
     public loadForm() {
-        if (!sessionStorage.getItem('PLACEOS.event_form')) {
-            return this.newForm();
-        }
+        const event_data = JSON.parse(
+            sessionStorage.getItem('PLACEOS.event') || '{}',
+        );
+        const event = new CalendarEvent(event_data);
+        this._event.next(event);
         const form_data = JSON.parse(
             sessionStorage.getItem('PLACEOS.event_form') || '{}',
         );
-        if (form_data.id && form_data.id !== this._event.getValue()?.id) {
-            showEvent(form_data.id).subscribe((event) => {
-                this._event.next(event);
-                this._assets.setOptions({
-                    ignore: flatten(
-                        event.linked_bookings?.map(
-                            (_) => _.asset_ids || [_.asset_id],
-                        ) || [],
-                    ),
-                });
-            });
-        }
-        this._form.patchValue({ ...form_data });
+        this._form.patchValue({ ...event, ...form_data });
     }
 
-    public readonly cancelPostForm = () => this.unsub('post-event-form');
+    public clearForm() {
+        sessionStorage.removeItem('PLACEOS.event');
+        sessionStorage.removeItem('PLACEOS.event_form');
+        this.newForm();
+    }
 
     public openEventLinkModal(force = false) {
         const form = this._form;
@@ -646,260 +554,281 @@ export class OldEventFormService extends AsyncHandler {
         );
     }
 
-    public postForm(
+    public cancelPostForm() {}
+
+    public async postForm(
         force = false,
         ignore_space_check: string[] = [],
         ignore_owner = false,
+        force_calendar = false,
     ) {
-        return new Promise<CalendarEvent>(async (resolve, reject) => {
-            this._loading.next('Creating event...');
-            const form = this._form;
-            form.markAllAsTouched();
-            const event = this.event || new CalendarEvent();
-            if (!form.valid && !force) {
-                this._loading.next('');
-                return reject(
-                    i18n('FORM.INVALID_FIELDS', {
-                        field_list: getInvalidFields(form).join(', '),
-                    }),
-                );
+        this.form.markAllAsTouched();
+        if (this.form.invalid && !force) {
+            throw i18n('FORM.INVALID_FIELDS', {
+                field_list: getInvalidFields(this.form).join(', '),
+            });
+        }
+        const on_error = (e) => {
+            this.removeLoadingTag(Tags.PostBooking);
+            throw e;
+        };
+        this.addLoadingTag(Tags.PostBooking);
+        try {
+            const event = this._event.getValue();
+            const space_list = this.form.value.resources || [];
+            let spaces = space_list.filter(
+                (_) => !ignore_space_check.includes(_.id),
+            );
+            const recurr = this.form.value.recurrence;
+            const raw_value = this.form.getRawValue();
+            this.form.patchValue({
+                recurring: recurr?._pattern && recurr?._pattern !== 'none',
+            });
+            if (!this.form.value.recurring) {
+                this.form.patchValue({ recurrence: null });
             }
-            const ical_uid = this.event?.ical_uid;
-            let value = this._form.getRawValue();
-            const {
-                id,
-                host,
-                date,
-                duration,
-                creator,
-                all_day,
-                assets,
-                recurrence,
-            } = value;
-            value.timezone = this.timezone || value.timezone;
-            const all_day_period = all_day
-                ? this._allDayTimeRange(date)
-                : { date, duration, date_end: value.date_end };
-            let spaces = form.get('resources')?.value || [];
-            if (ignore_space_check.length) {
-                spaces = spaces.filter(
-                    (_) =>
-                        !ignore_space_check.includes(_.email) &&
-                        !ignore_space_check.includes(_.id),
-                );
-            }
-            const catering = form.get('catering')?.value || [];
-            if (recurrence?._pattern && recurrence?._pattern !== 'none') {
-                this.form.patchValue({ recurring: true });
-                value = this._form.getRawValue();
-            }
-            let changed_times = false;
-            const changed_spaces = spaces.some(
-                (s) => !event.resources?.find((_) => _.id === s.id),
+            const changed_spaces = spaces.filter(
+                (_) => !event.resources.find((s) => s.id === _.id),
+            );
+            const all_day_period = raw_value.all_day
+                ? this._allDayTimeRange(raw_value.date)
+                : {
+                      date: raw_value.date,
+                      duration: raw_value.duration,
+                      date_end: raw_value.date_end,
+                  };
+            const has_time_changed =
+                !event.id ||
+                event.date !== raw_value.date ||
+                event.duration !== raw_value.duration;
+            this.form.patchValue(
+                { timezone: this.timezone || raw_value.timezone },
+                { emitEvent: false },
+            );
+            const bookable_hours = this._settings.get(
+                'app.events.bookable_hours',
             );
             if (
-                (!id || date !== event.date || duration !== event.duration) &&
-                spaces.length
+                !isWithinBookableHours(
+                    raw_value.date,
+                    bookable_hours,
+                    raw_value.timezone,
+                )
             ) {
-                changed_times = true;
-                await this.checkSelectedSpacesAreAvailable(
-                    spaces,
-                    all_day_period.date,
-                    all_day_period.duration,
-                    ical_uid || id || '',
-                ).catch((_) => {
-                    this._loading.next('');
-                    reject(_);
-                    throw _;
-                });
+                throw i18n('FORM.BOOKABLE_HOURS_ERROR');
+            }
+            // For multiday bookings, also validate the end time.
+            // The end wall-clock may land exactly on the configured
+            // closing hour, which is valid even though start times use
+            // an exclusive end bound.
+            if (
+                raw_value.date_end &&
+                raw_value.duration > 24 * 60 &&
+                bookable_hours
+            ) {
+                const { hours, minutes } = getTimeInTimezone(
+                    raw_value.date_end,
+                    raw_value.timezone,
+                );
+                const end_minutes = hours * 60 + minutes;
+                const within_end_window =
+                    end_minutes >= bookable_hours.start * 60 &&
+                    end_minutes <= bookable_hours.end * 60;
+                if (!within_end_window) {
+                    throw i18n('FORM.BOOKABLE_HOURS_ERROR');
+                }
+            }
+
+            // Validate that all selected room resource are available
+            if (spaces.length && has_time_changed) {
+                const space_list = await Promise.all(
+                    changed_spaces.map((_) =>
+                        this._space_pipe.transform(_.email),
+                    ),
+                );
+                const date = raw_value.all_day
+                    ? all_day_period.date
+                    : raw_value.date;
+                const duration = raw_value.all_day
+                    ? all_day_period.duration
+                    : raw_value.duration;
+                await this._checkResourcesAvailable(
+                    space_list,
+                    date,
+                    duration,
+                    event.ical_uid || event.id || '',
+                ).catch(on_error);
+                await this._checkResourceRules(
+                    space_list,
+                    date,
+                    duration,
+                    this._host(this.form.value.host, spaces[0]?.email),
+                ).catch(on_error);
+            } else if (!space_list.length && this.lone_space) {
+                spaces = [await this._space_pipe.transform(this.lone_space)];
+                this.form.patchValue({ resources: spaces });
             }
             // Check for clashing events in recurring series
-            if (value.recurring && spaces.length) {
+            if (this.form.value.recurring && spaces.length) {
                 await this._checkRecurringClashes(
                     new CalendarEvent({
-                        ...value,
+                        ...this.form.getRawValue(),
                         date: all_day_period.date,
                         duration: all_day_period.duration,
                         date_end: all_day_period.date_end,
                         resources: spaces,
                     }),
-                ).catch((_) => {
-                    this._loading.next('');
-                    reject(_);
-                    throw _;
-                });
+                ).catch(on_error);
             }
-            spaces = form.get('resources')?.value || [];
-            const is_owner =
-                host === currentUser()?.email ||
-                creator === currentUser()?.email;
+            // Make sure host is an attendee
+            this.form.patchValue({
+                attendees: unique(
+                    [
+                        ...this.form.value.attendees,
+                        this.form.value.organiser || currentUser(),
+                    ],
+                    'email',
+                ),
+            });
+            // Prevent meeting with external users without a space set
             if (
                 !spaces.length &&
-                this._settings.get('app.events.no_space_resource')
+                this.form.value.attendees.find((_) => _.is_external)
             ) {
-                const space = await this._space_pipe.transform(
-                    this._settings.get('app.events.no_space_resource'),
-                );
-                spaces.push(space);
+                this.removeLoadingTag(Tags.PostBooking);
+                throw i18n('CALENDAR_EVENT.SPACE_EXTERNALS_ERROR');
             }
-            const attendees = unique(
-                [...value.attendees, value.organiser || currentUser()],
-                'email',
-            );
-            if (!spaces.length && attendees.find((_) => _.is_external)) {
-                this._loading.next('');
-                const message = i18n('CALENDAR_EVENT.SPACE_EXTERNALS_ERROR');
-                reject(message);
-                throw message;
+            // Handle setup and breakdown times
+            const default_oflow = this._overflow();
+            let [setup, breakdown] = [
+                this.form.value.setup_time || default_oflow.setup,
+                this.form.value.breakdown_time || default_oflow.breakdown,
+            ];
+            for (const space of spaces) {
+                const overflow = this._overflow(space.id);
+                setup = Math.max(overflow.setup || 0, setup);
+                breakdown = Math.max(overflow.breakdown || 0, breakdown);
             }
-            const space_id = spaces[0]?.id;
-            const query: any = id
+            this.form.patchValue({
+                setup_time: setup,
+                breakdown_time: breakdown,
+            });
+            // Apply shared catering fields to all orders
+            for (const order of this.form.value.catering || []) {
+                order.notes = this.form.value.catering_notes;
+                order.charge_code = this.form.value.catering_charge_code;
+            }
+            // Perform Booking
+            const query: any = event.id
                 ? {
                       system_id:
-                          this.event?.resources[0]?.id ||
-                          this.event?.system?.id ||
-                          space_id,
+                          event?.resources[0]?.id ||
+                          event?.system?.id ||
+                          spaces[0]?.id,
                   }
                 : {};
-            if (is_owner && !ignore_owner) query.calendar = host || creator;
-            if (this._payments.enabled && spaces.length) {
-                const receipt = await this._payments.makePayment({
-                    type: 'space',
-                    resource_name: spaces[0].display_name || spaces[0].name,
-                    date,
-                    duration,
-                    all_day,
-                });
-                if (!receipt?.success) return this._loading.next('');
-                (value as any).extension_data = {
-                    invoice: receipt,
-                    invoice_id: receipt.invoice_id,
-                };
-            }
-            if (all_day) {
-                value.date = all_day_period.date;
-                value.duration = all_day_period.duration;
-                value.date_end = all_day_period.date_end;
-            }
-            for (const order of catering) {
-                order.notes = value.catering_notes;
-                order.charge_code = value.catering_charge_code;
-            }
-            if (spaces.length) {
-                let [setup, breakdown] = [0, 0];
-                for (const space of spaces) {
-                    const overflow = this._settings.get(
-                        `app.events.overflow.${space.id}`,
-                    );
-                    if (overflow?.setup) {
-                        setup = Math.max(setup, overflow.setup);
-                    }
-                    if (overflow?.breakdown) {
-                        breakdown = Math.max(breakdown, overflow.breakdown);
-                    }
-                }
-                (value as any).setup = value.setup_time || setup;
-                (value as any).breakdown = value.breakdown_time || breakdown;
-                (value as any).setup_time = value.setup_time || setup;
-                (value as any).breakdown_time =
-                    value.breakdown_time || breakdown;
-            }
-            const processed_assets = (assets || []).map((_) =>
+            const user_email = currentUser()?.email?.toLowerCase() || '';
+            const source_calendar =
+                event.calendar ||
+                event.host ||
+                event.creator ||
+                raw_value.calendar ||
+                raw_value.creator;
+            const target_calendar = raw_value.host || raw_value.creator;
+            const query_calendar = event.id ? source_calendar : target_calendar;
+            const owner_fields = event.id
+                ? [event.host, event.creator, event.calendar]
+                : [raw_value.host, raw_value.creator, raw_value.calendar];
+            const is_owner = owner_fields.some(
+                (_) => _?.toLowerCase?.() === user_email,
+            );
+            if (
+                ((is_owner && !ignore_owner) || force_calendar) &&
+                query_calendar
+            )
+                query.calendar = query_calendar;
+            if (force_calendar) delete query.system_id;
+            const processed_assets = (this.form.value.assets || []).map((_) =>
                 new AssetRequest(_).toJSON(),
             );
-            const result = await this._makeBooking(
+            const host = this._host(this.form.value.host, spaces[0]?.email);
+            const ext: any = {
+                department:
+                    this.form.value.organiser?.department ||
+                    currentUser()?.department,
+            };
+            if (this.form.value.host !== host)
+                ext.host_override = this.form.value.host;
+            const value = this.form.getRawValue();
+            const created_event = await this._performBooking(
                 new CalendarEvent({
-                    ...value,
-                    old_system: this.event?.system,
-                    host:
-                        this._settings.get('app.events.force_host') ||
-                        (this._settings.get('app.events.room_as_host')
-                            ? value.resources[0].email
-                            : '') ||
-                        value.host,
-                    title: value.title || 'Space Booking',
-                    attendees: attendees.map((_) => {
-                        const v = { ..._ };
+                    ...this.form.getRawValue(),
+                    date: all_day_period.date,
+                    duration: all_day_period.duration,
+                    date_end: all_day_period.date_end,
+                    old_system: event?.system,
+                    host,
+                    title: this.form.value.title || 'Space Booking',
+                    attendees: this.form.value.attendees.map((_: any) => {
+                        const v: any = { ..._ };
                         delete v.visit_expected;
+                        delete v.extension_data;
                         return v;
                     }),
-                    catering,
                     assets: processed_assets,
-                    extension_data:
-                        this._settings.get('app.events.force_host') ||
-                        this._settings.get('app.events.room_as_host')
-                            ? {
-                                  host_override: value.host,
-                                  department:
-                                      value.organiser?.department ||
-                                      currentUser()?.department,
-                              }
-                            : {
-                                  department:
-                                      value.organiser?.department ||
-                                      currentUser()?.department,
-                              },
+                    extension_data: ext,
                 }),
                 query,
-            ).catch((e) => {
-                reject(e);
-                this._loading.next('');
-                throw e;
-            });
+            ).catch(on_error);
+            // Create visitor bookings for external attendees
             const domain = (currentUser()?.email || '@').split('@')[1];
-            const visitors = attendees.filter(
+            const visitors = this.form.value.attendees.filter(
                 (user) =>
                     user.is_external &&
                     user.email !== event.host &&
                     !user.email.includes(domain) &&
                     user.visit_expected,
             );
-            let creating_assets = false;
-            const on_error = async (e) => {
-                if (!this.form.value.id) {
-                    await removeEvent(
-                        result.id,
-                        spaces.length
-                            ? {
-                                  calendar:
-                                      this.form.value.host ||
-                                      currentUser()?.email,
-                                  system_id: spaces[0].id,
-                              }
-                            : {},
-                    )?.toPromise();
-                    console.warn("Couldn't update asset requests", e);
-                    if (e?.status === 409) {
-                        notifyError(i18n('CALENDAR_EVENT.ASSETS_CLASH_ERROR'));
-                    } else notifyError(i18n('CALENDAR_EVENT.ASSETS_ERROR'));
-                } else if (creating_assets) {
-                    notifyError(
-                        i18n('CALENDAR_EVENT.ASSETS_PARTIAL_ERROR', {
-                            error: e,
-                        }),
-                    );
-                    return;
-                }
-                this._loading.next('');
-                throw e;
-            };
             if (visitors.length) {
                 await createBookingsForEvent(
-                    result,
+                    created_event,
                     'visitor',
                     visitors as any,
-                ).catch(on_error);
+                ).catch((e) =>
+                    this._removeBookingAfterError(
+                        !event.id,
+                        created_event,
+                        false,
+                        e,
+                    ),
+                );
             }
-
-            if (assets?.length || event.extension_data.assets?.length) {
-                creating_assets = true;
+            // Create bookings for each catering order in the event
+            if (this.form.value.catering?.length) {
+                await createBookingsForEvent(
+                    created_event,
+                    'catering-order',
+                    this.form.value.catering as any,
+                ).catch((e) =>
+                    this._removeBookingAfterError(
+                        !event.id,
+                        created_event,
+                        false,
+                        e,
+                    ),
+                );
+            }
+            // Create asset bookings for each request in the event
+            const assets =
+                this.form.value.assets || event.extension_data.assets || [];
+            if (assets.length) {
                 const requests = await validateAssetRequestsForResource(
-                    result,
+                    created_event,
                     {
-                        date: value.date,
-                        duration: value.duration,
-                        host,
-                        all_day,
+                        date: all_day_period.date,
+                        duration: all_day_period.duration,
+                        host: value.host,
+                        all_day: value.all_day,
                         location_name:
                             spaces[0]?.display_name || spaces[0]?.name || '',
                         location_id: spaces[0]?.id || '',
@@ -909,104 +838,151 @@ export class OldEventFormService extends AsyncHandler {
                             this._org.building?.id,
                             ...(spaces[0]?.zones || []),
                         ]).filter((_) => !!_),
-                        reset_state: changed_times,
+                        reset_state: has_time_changed,
                     },
                     assets,
-                    changed_spaces || changed_times,
-                ).catch(on_error);
+                    changed_spaces.length > 0 || has_time_changed,
+                ).catch((e) =>
+                    this._removeBookingAfterError(
+                        !event.id,
+                        created_event,
+                        true,
+                        e,
+                    ),
+                );
                 if (!requests)
                     throw i18n('CALENDAR_EVENT.ASSETS_INVALID_ERROR');
                 await requests();
-                creating_assets = false;
             }
             this.clearForm();
-            this.last_success.set(result);
             sessionStorage.setItem(
-                'PLACEOS.last_booked_event',
-                JSON.stringify(result),
+                'PLACEOS.last_modified_event',
+                JSON.stringify(created_event.toJSON()),
             );
-            this.setView('success');
-            this.timeout('post_finshed', () => this._changed.next(Date.now()));
-            resolve(result);
-            this._loading.next('');
-        });
-    }
-
-    private async _makeBooking(
-        event: CalendarEvent,
-        query: Record<string, any>,
-    ) {
-        this._updateVisitorList(event.attendees);
-        const old_system =
-            event.old_system?.id ||
-            event.old_system?.email ||
-            event.resources[0]?.email;
-        const system_id =
-            event.system?.id ||
-            event.system?.email ||
-            event.resources[0]?.email;
-        if (old_system !== system_id) {
-            (event as any).attendees = event.attendees.filter(
-                (_) => _.email !== old_system || _.id !== old_system,
-            );
+            this.loadLastSuccess();
+            return true;
+        } catch (e) {
+            this.removeLoadingTag(Tags.PostBooking);
+            if (this._isPermissionError(e)) this._clearSavedHostChange();
+            throw e;
         }
-        return (
-            !this.has_calendar
-                ? saveBooking(
-                      newBookingFromCalendarEvent({
-                          ...event.toJSON(),
-                          status:
-                              this._settings.get('app.bookings.no_approval') ===
-                              true
-                                  ? 'approved'
-                                  : 'tentative',
-                      } as any),
-                  ).pipe(map((_) => newCalendarEventFromBooking(_)))
-                : saveEvent(event, query)
-        )?.toPromise();
     }
 
-    private async checkSelectedSpacesAreAvailable(
+    private _isPermissionError(error: any) {
+        const status = error?.status || error?.error?.status;
+        if (status === 403) return true;
+        const message = this._errorMessage(error).toLowerCase();
+        return /forbidden|permission|authori[sz]ed|not permitted/.test(message);
+    }
+
+    private _errorMessage(error: any) {
+        if (typeof error === 'string') return error;
+        if (error instanceof Error && error.message) return error.message;
+        if (typeof error?.error === 'string') return error.error;
+        if (typeof error?.message === 'string') return error.message;
+        if (typeof error?.error?.message === 'string')
+            return error.error.message;
+        return '';
+    }
+
+    private _clearSavedHostChange() {
+        const user = currentUser();
+        if (!user) return;
+        const host_data = {
+            host: user.email,
+            organiser: user,
+            creator: user.email,
+            calendar: user.email,
+        };
+        this.form.patchValue(host_data, { emitEvent: false });
+        const saved_form = JSON.parse(
+            sessionStorage.getItem('PLACEOS.event_form') || '{}',
+        );
+        sessionStorage.setItem(
+            'PLACEOS.event_form',
+            JSON.stringify({ ...saved_form, ...host_data }),
+        );
+    }
+
+    private async _checkResourcesAvailable(
         spaces: Space[],
         date: number,
         duration: number,
         ignore?: string,
     ) {
         if (!spaces?.length) return true;
-        if (this.has_calendar) {
-            const response = await querySpaceAvailability(
-                spaces.map(({ id }) => id),
-                date,
-                duration,
-                this?.event?.resources[0]?.id ||
-                    this.event?.system?.id ||
-                    this.event?.id ||
-                    undefined,
-                undefined,
-                [this.event?.date, this.event?.duration],
-            ).toPromise();
-            if (!response.every((_) => _)) {
-                throw i18n(
-                    spaces.length > 1
-                        ? 'CALENDAR_EVENT.SPACES_UNAVAILABLE'
-                        : 'CALENDAR_EVENT.SPACE_UNAVAILABLE',
-                );
-            }
-        } else {
-            const availability = await queryResourceAvailability(
-                spaces.map((_) => _.id),
-                date,
-                duration,
-                ignore,
-            )?.toPromise();
-            if (!availability.every((_) => _))
-                throw i18n(
-                    spaces.length > 1
-                        ? 'CALENDAR_EVENT.SPACES_UNAVAILABLE'
-                        : 'CALENDAR_EVENT.SPACE_UNAVAILABLE',
-                );
+        const event = this._event.getValue();
+        const id_list = spaces.map((_) => _.id);
+        const response = await lastValueFrom(
+            this.book_internal
+                ? queryResourceAvailability(id_list, date, duration, ignore)
+                : querySpaceAvailability(
+                      id_list,
+                      date,
+                      duration,
+                      event?.resources[0]?.id ||
+                          event?.system?.id ||
+                          event?.id ||
+                          undefined,
+                      undefined,
+                      [event?.date, event?.duration],
+                  ),
+        );
+        if (!response.every((_) => _)) {
+            throw i18n(
+                spaces.length > 1
+                    ? 'CALENDAR_EVENT.SPACES_UNAVAILABLE'
+                    : 'CALENDAR_EVENT.SPACE_UNAVAILABLE',
+            );
         }
         return true;
+    }
+
+    private async _checkResourceRules(
+        spaces: Space[],
+        date: number,
+        duration: number,
+        host: string,
+    ) {
+        const user = await this._bookingRulesHost(host);
+        const rules = await nextValueFrom(this.booking_rules$);
+        const space_rules = spaces.map((space) => {
+            const bld = this._org.buildings.find((b) =>
+                space.zones.includes(b.id),
+            );
+            return rulesForResource(
+                {
+                    date,
+                    duration,
+                    host: new User(user),
+                    resource: space,
+                },
+                rules[bld.id],
+            );
+        });
+        if (!space_rules.every((_) => !_.hidden)) {
+            throw i18n(
+                'CALENDAR_EVENT.SPACE_BOOKING_RULES_HIDDEN',
+                undefined,
+                spaces.length,
+            );
+        }
+        return true;
+    }
+
+    private async _bookingRulesHost(host: string) {
+        const current_user = currentUser();
+        if (
+            this._settings.get(
+                'app.events.force_current_user_for_booking_rules',
+            ) === true ||
+            host === current_user.email
+        ) {
+            return current_user;
+        }
+        return this._user_pipe
+            .transform(host)
+            .catch(() => ({ email: host, name: host }));
     }
 
     /**
@@ -1045,7 +1021,7 @@ export class OldEventFormService extends AsyncHandler {
 
         const allow_clashes =
             this._settings.get('app.events.allow_recurring_instance_clashes') ??
-            true;
+            false;
 
         if (!allow_clashes) {
             throw i18n('CALENDAR_EVENT.RECURRING_CLASHES_NOT_ALLOWED', {
@@ -1063,6 +1039,71 @@ export class OldEventFormService extends AsyncHandler {
         }
 
         return true;
+    }
+
+    private async _performBooking(
+        event: CalendarEvent,
+        query: Record<string, string | number>,
+    ) {
+        this._updateVisitorList(event.attendees);
+        const old_system =
+            event.old_system?.id ||
+            event.old_system?.email ||
+            event.resources[0]?.email;
+        const system_id =
+            event.system?.id ||
+            event.system?.email ||
+            event.resources[0]?.email;
+        if (old_system !== system_id) {
+            (event as any).attendees = event.attendees.filter(
+                (_) => _.email !== old_system || _.id !== old_system,
+            );
+        }
+        return lastValueFrom(
+            this.book_internal
+                ? saveBooking(
+                      newBookingFromCalendarEvent({
+                          ...event.toJSON(),
+                          status:
+                              this._settings.get('app.bookings.no_approval') ===
+                              true
+                                  ? 'approved'
+                                  : 'tentative',
+                      } as any),
+                  ).pipe(map((_) => newCalendarEventFromBooking(_)))
+                : saveEvent(event, query),
+        );
+    }
+
+    private async _removeBookingAfterError(
+        is_new: boolean,
+        event: CalendarEvent,
+        assets = false,
+        e,
+    ) {
+        if (is_new) {
+            await lastValueFrom(
+                removeEvent(
+                    event.id,
+                    event.resources.length
+                        ? {
+                              calendar:
+                                  this.form.value.host || currentUser()?.email,
+                              system_id: event.resources[0].id,
+                          }
+                        : {},
+                ),
+            );
+            throw e?.status === 409
+                ? i18n('CALENDAR_EVENT.ASSETS_CLASH_ERROR')
+                : i18n('CALENDAR_EVENT.ASSETS_ERROR');
+        } else if (assets) {
+            throw i18n('CALENDAR_EVENT.ASSETS_PARTIAL_ERROR', {
+                error: e,
+            });
+        }
+        this.removeLoadingTag(Tags.PostBooking);
+        throw e;
     }
 
     private _updateVisitorList(attendees: User[]) {

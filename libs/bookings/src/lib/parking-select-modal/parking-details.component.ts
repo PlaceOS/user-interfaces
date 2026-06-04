@@ -49,7 +49,7 @@ import { BookingAsset } from '../booking-form.service';
                     <icon>{{ fav() ? 'favorite' : 'favorite_border' }}</icon>
                 </button>
             </section>
-            <div class="h-1/2 flex-1 space-y-2 overflow-auto p-2">
+            <div class="h-1/2 flex-1 space-y-2 p-2">
                 <section actions class="z-0">
                     <h2 class="mt-4 mb-2 text-xl font-medium">
                         {{ space().display_name || space().name }}
@@ -78,7 +78,7 @@ import { BookingAsset } from '../booking-form.service';
                     </div>
                 </section>
                 <hr />
-                @if (!map_open()) {
+                @if (!hide_map()) {
                     <section
                         map
                         class="border-base-200 relative mx-auto h-64 w-full overflow-hidden rounded-sm border sm:h-48"
@@ -96,33 +96,10 @@ import { BookingAsset } from '../booking-form.service';
                     </section>
                 }
             </div>
-            <div class="border-base-200 border-t p-2 shadow-sm sm:hidden">
-                <button
-                    btn
-                    matRipple
-                    [class.inverse]="active()"
-                    class="w-full"
-                    (click)="activeChange.emit(!active())"
-                >
-                    <div class="flex items-center justify-center">
-                        <icon class="text-2xl">{{
-                            active() ? 'remove' : 'add'
-                        }}</icon>
-                        <p>
-                            {{
-                                (active()
-                                    ? 'BOOKINGS.SPACE_REMOVE'
-                                    : 'BOOKINGS.SPACE_ADD_TO'
-                                ) | translate
-                            }}
-                        </p>
-                    </div>
-                </button>
-            </div>
         } @else {
             <div
                 empty
-                class="flex flex-col items-center justify-center space-y-2 p-16"
+                class="flex h-full w-full flex-col items-center justify-center space-y-2 p-16"
             >
                 <p class="text-center opacity-30">
                     {{ 'BOOKINGS.PARKING_SELECT_MSG' | translate }}
@@ -130,18 +107,7 @@ import { BookingAsset } from '../booking-form.service';
             </div>
         }
     `,
-    styles: [
-        `
-            :host {
-                display: flex;
-                flex-direction: column;
-                width: 30%;
-                min-width: 20rem;
-                height: 100%;
-                min-height: 65vh;
-            }
-        `,
-    ],
+    styles: [``],
     imports: [
         TranslatePipe,
         MatRippleModule,
@@ -150,10 +116,10 @@ import { BookingAsset } from '../booking-form.service';
         ImageCarouselComponent,
     ],
 })
-export class ParkingSpaceDetailsComponent {
+export class ParkingDetailsComponent {
     private _org = inject(OrganisationService);
 
-    public readonly map_open = input(false);
+    public readonly hide_map = input(false);
     public readonly space = input<BookingAsset>(undefined);
     public readonly fav = input(false);
     public readonly active = input(false);

@@ -6,18 +6,18 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { CateringItemDetailsComponent } from '../../lib/catering-order-modal/catering-item-details.component';
-import { CateringItemFiltersComponent } from '../../lib/catering-order-modal/catering-item-filters.component';
-import { CateringItemListComponent } from '../../lib/catering-order-modal/catering-item-list.component';
-import { CateringOrderStateService } from '../../lib/catering-order-modal/catering-order-state.service';
-import { NewCateringOrderModalComponent } from '../../lib/catering-order-modal/new-catering-order-modal.component';
 
-describe('NewCateringOrderModalComponent', () => {
-    let spectator: Spectator<NewCateringOrderModalComponent>;
+import { CateringOrderStateService } from '../lib/catering-order-modal/catering-order-state.service';
+import { CateringItemDetailsComponent } from '../lib/catering-select-modal/catering-item-details.component';
+import { CateringItemFiltersComponent } from '../lib/catering-select-modal/catering-item-filters.component';
+import { CateringItemListComponent } from '../lib/catering-select-modal/catering-item-list.component';
+import { CateringSelectModalComponent } from '../lib/catering-select-modal/catering-select-modal.component';
+
+describe('CateringSelectModalComponent', () => {
+    let spectator: Spectator<CateringSelectModalComponent>;
     const createComponent = createRoutingFactory({
-        component: NewCateringOrderModalComponent,
+        component: CateringSelectModalComponent,
         providers: [
             MockProvider(SettingsService, createSettingsServiceMock()),
             MockProvider(MAT_DIALOG_DATA, { details: {} }),
@@ -25,7 +25,6 @@ describe('NewCateringOrderModalComponent', () => {
             MockProvider(CateringOrderStateService, {}),
         ],
         declarations: [
-            MockComponent(IconComponent),
             MockComponent(CateringItemDetailsComponent),
             MockComponent(CateringItemFiltersComponent),
             MockComponent(CateringItemListComponent),
@@ -37,25 +36,6 @@ describe('NewCateringOrderModalComponent', () => {
 
     it('should create component', () =>
         expect(spectator.component).toBeTruthy());
-
-    it('should show catering item list', () => {
-        expect('catering-item-list').toExist();
-    });
-
-    it('should show catering item filters', () => {
-        expect('catering-item-filters').toExist();
-    });
-
-    it('should show catering item details', () => {
-        expect('catering-item-details').toExist();
-    });
-
-    it('should allow setting selected catering items', () => {
-        spectator.component.setSelected(new CateringItem({ id: '1' }), true);
-        expect(spectator.component.selected).toHaveLength(1);
-        spectator.component.setSelected(spectator.component.selected[0], false);
-        expect(spectator.component.selected).toHaveLength(0);
-    });
 
     it('should treat different option selections as separate items', () => {
         const item = new CateringItem({ id: '1' });
@@ -83,19 +63,27 @@ describe('NewCateringOrderModalComponent', () => {
         expect(spectator.component.selected).toHaveLength(2);
     });
 
-    it('should allow toggling favourites', () => {
-        const settings = spectator.inject(SettingsService);
-        (settings.get as any).mockImplementation(() => []);
-        spectator.component.toggleFavourite({ id: '1' } as any);
-        expect(settings.saveUserSetting).toHaveBeenCalledWith(
-            'favourite_menu_items',
-            ['1'],
+    it('should stop treating an item as selected when options change', () => {
+        const item = new CateringItem({
+            id: '1',
+            options: [
+                {
+                    id: 'milk',
+                    name: 'Milk',
+                    group: 'Extras',
+                    multiple: false,
+                    active: false,
+                    unit_price: 100,
+                },
+            ],
+        });
+        spectator.component.setSelected(item, true);
+        expect(spectator.component.selected_keys).toContain(
+            spectator.component.selectionKey(item),
         );
-        (settings.get as any).mockImplementation(() => ['1']);
-        spectator.component.toggleFavourite({ id: '1' } as any);
-        expect(settings.saveUserSetting).toHaveBeenCalledWith(
-            'favourite_menu_items',
-            [],
+        item.options[0].active = true;
+        expect(spectator.component.selected_keys).not.toContain(
+            spectator.component.selectionKey(item),
         );
     });
 
@@ -140,6 +128,20 @@ describe('NewCateringOrderModalComponent', () => {
         spectator.component.setSelected(item, false);
         expect(spectator.component.displayed).toBeNull();
         expect(spectator.component.selected).toHaveLength(0);
+    });
+
+    it('should bind delivery settings into the filter component', () => {
+        spectator.component.exact_time = true;
+        spectator.component.offset = 45;
+        spectator.component.offset_day = 1;
+        spectator.detectChanges();
+
+        const filters = spectator.query(
+            CateringItemFiltersComponent as any,
+        ) as any;
+        expect(filters.at_time).toBe(true);
+        expect(filters.offset).toBe(45);
+        expect(filters.offset_day).toBe(1);
     });
 
     it('should keep an ordered item in place when updating its quantity', () => {

@@ -4,19 +4,19 @@ import {
     OnChanges,
     SimpleChanges,
     input,
-    model,
     output,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatRadioModule } from '@angular/material/radio';
-import { CateringItem, CateringOption, unique } from '@placeos/common';
+import { OrderCateringItem, unique } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
+import { CateringOption } from '../catering.interfaces';
 
 interface CateringOptionGroup {
     name: string;
@@ -38,7 +38,7 @@ interface CateringOptionGroup {
                     matRipple
                     name="close-catering-item-details"
                     (click)="close.emit()"
-                    class="bg-neutral absolute top-2 left-2 text-white sm:hidden"
+                    class="bg-base-100 absolute top-2 left-2 lg:hidden"
                 >
                     <icon>arrow_back</icon>
                 </button>
@@ -46,10 +46,9 @@ interface CateringOptionGroup {
                     icon
                     matRipple
                     name="toggle-catering-item-favourite-details"
-                    [class.text-white]="!fav()"
                     [class.text-info]="fav()"
                     (click)="toggleFav.emit()"
-                    class="absolute top-2 right-2"
+                    class="bg-base-100 absolute top-2 right-2"
                 >
                     <icon
                         [className]="
@@ -61,7 +60,7 @@ interface CateringOptionGroup {
                     >
                 </button>
             </section>
-            <div class="h-1/2 flex-1 space-y-2 overflow-auto p-2">
+            <div class="flex-1 space-y-4 p-2">
                 <section actions class="z-0 flex items-center justify-between">
                     <div>
                         <h2 class="mt-4 mb-2 text-xl font-medium">
@@ -75,7 +74,9 @@ interface CateringOptionGroup {
                     </div>
                     <a-counter
                         [(ngModel)]="item().quantity"
-                        (ngModelChange)="active() ? active.set(active()) : ''"
+                        (ngModelChange)="
+                            active() ? activeChange.emit(active()) : ''
+                        "
                         [min]="1"
                         [max]="item().count || 10"
                     ></a-counter>
@@ -89,18 +90,19 @@ interface CateringOptionGroup {
                         </div>
                     }
                 </section>
-                <hr />
                 <section details class="space-y-2">
-                    <div class="flex flex-col flex-wrap">
+                    <div class="flex flex-col space-y-4">
                         @for (group of groups; track group) {
                             <div
-                                class="min-w-1/2 flex-1"
                                 [attr.group]="group.name"
+                                class="border-base-400 relative space-y-2 rounded-sm border px-3 pt-4 pb-2"
                             >
-                                <div class="p-2 font-medium capitalize">
+                                <h3
+                                    class="text-md bg-base-100 absolute top-0 left-2 -translate-y-1/2 px-2 font-medium"
+                                >
                                     {{ group.name }}
-                                </div>
-                                <div class="flex flex-col pl-4">
+                                </h3>
+                                <div class="flex flex-col">
                                     @if (!group.multiple) {
                                         <mat-radio-group
                                             class="flex flex-col"
@@ -205,32 +207,6 @@ interface CateringOptionGroup {
                     </div>
                 </section>
             </div>
-            <div
-                class="border-base-200 border-t px-2 pt-2 pb-22 shadow-sm sm:hidden"
-            >
-                <button
-                    btn
-                    matRipple
-                    name="select-catering-item-details"
-                    [class.inverse]="active()"
-                    class="w-full"
-                    (click)="active.set(!active())"
-                >
-                    <div class="flex items-center justify-center">
-                        <icon class="text-2xl">{{
-                            active() ? 'remove' : 'add'
-                        }}</icon>
-                        <p>
-                            {{
-                                (active()
-                                    ? 'CATERING.ORDER_ITEM_REMOVE'
-                                    : 'CATERING.ORDER_ITEM_ADD'
-                                ) | translate
-                            }}
-                        </p>
-                    </div>
-                </button>
-            </div>
         } @else {
             <div
                 empty
@@ -242,18 +218,7 @@ interface CateringOptionGroup {
             </div>
         }
     `,
-    styles: [
-        `
-            :host {
-                display: flex;
-                flex-direction: column;
-                width: 30%;
-                min-width: 20rem;
-                height: 100%;
-                min-height: 65vh;
-            }
-        `,
-    ],
+    styles: [``],
     imports: [
         CommonModule,
         TranslatePipe,
@@ -267,12 +232,13 @@ interface CateringOptionGroup {
     ],
 })
 export class CateringItemDetailsComponent implements OnChanges {
-    public readonly item = input<CateringItem>(undefined);
-    public readonly active = model(false);
+    public readonly item = input<OrderCateringItem>(undefined);
+    public readonly active = input(false);
     public readonly fav = input(false);
     public readonly code = input('USD');
 
     public readonly toggleFav = output<void>();
+    public readonly activeChange = output<boolean>();
     public readonly close = output<void>();
 
     public option_state: Record<string, boolean> = {};

@@ -1,54 +1,26 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, model, output } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    input,
+    output,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
 import { OrganisationService, settingSignal } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
-import { map } from 'rxjs/operators';
-import { SpaceFiltersComponent } from './space-filters.component';
+import { EventFormService } from 'libs/events/src/lib/event-form.service';
 
 @Component({
     selector: `space-filters-display`,
     template: `
-        <section actions class="flex items-center space-x-2 p-2 sm:hidden">
-            <button
-                btn
-                matRipple
-                name="edit-space-filters"
-                class="w-1/2 flex-1"
-                (click)="editFilters()"
-            >
-                {{ 'COMMON.FILTERS' | translate }}
-            </button>
-            <div class="flex items-center">
-                <button
-                    btn
-                    matRipple
-                    name="view-space-map"
-                    class="rounded-l rounded-r-none"
-                    [class.inverse]="view() !== 'map'"
-                    (click)="view.set('map'); viewChange.emit(view())"
-                >
-                    {{ 'COMMON.MAP' | translate }}
-                </button>
-                <button
-                    btn
-                    matRipple
-                    name="view-space-list"
-                    class="rounded-l-none rounded-r"
-                    [class.inverse]="view() !== 'list'"
-                    (click)="view.set('list'); viewChange.emit(view())"
-                >
-                    {{ 'COMMON.LIST' | translate }}
-                </button>
-            </div>
-        </section>
         <section
             filters
-            class="flex w-140 max-w-full flex-wrap items-center p-2 sm:max-w-140"
+            class="border-base-300 bg-base-100 sticky -top-1 z-20 -mx-1 mb-4! flex w-[calc(100%+0.5rem)] flex-wrap items-center rounded-sm border p-1 pr-10! sm:pr-1!"
         >
             @if (filters()?.features?.length > 1) {
                 <button
@@ -110,8 +82,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
                 font-size: 0.875rem;
                 border: 1px solid rgba(0, 0, 0, 0.2);
                 border-radius: 1.25rem;
-                margin-right: 0.5rem;
-                margin-bottom: 0.5rem;
+                margin: 0.25rem;
                 max-width: 100%;
                 text-align: center;
             }
@@ -128,23 +99,13 @@ import { SpaceFiltersComponent } from './space-filters.component';
     imports: [CommonModule, MatRippleModule, TranslatePipe, IconComponent],
 })
 export class SpaceFiltersDisplayComponent {
-    private _bsheet = inject(MatBottomSheet);
     private _event_form = inject(EventFormService);
     private _org = inject(OrganisationService);
-    public readonly view = model<'map' | 'list'>('list');
+    public readonly view = input<'map' | 'list'>('list');
     public readonly viewChange = output<'map' | 'list'>();
+    public readonly options = toSignal(this._event_form.options$);
     public readonly filters = toSignal(this._event_form.filters$);
-
-    public readonly location = toSignal(
-        this._event_form.options$.pipe(
-            map(({ zones }) => {
-                const level = this._org.levelWithID(zones);
-                const item = level || this._org.building;
-                return item?.display_name || item?.name || '';
-            }),
-        ),
-        { initialValue: '' },
-    );
+    public readonly location = signal('');
 
     public readonly all_day = computed(
         () => this._event_form.form.value.all_day,
@@ -165,17 +126,27 @@ export class SpaceFiltersDisplayComponent {
         this._use_24_hour() ? 'HH:mm' : 'h:mm a',
     );
 
-    public readonly editFilters = () =>
-        this._bsheet.open(SpaceFiltersComponent);
+    constructor() {
+        effect(() => {
+            const zones = this.options()?.zones;
+            this._updateLocation(zones);
+        });
+    }
 
-    public removeFeature(feat: string) {
+    public async removeFeature(feat: string) {
         const { features } = this._event_form.filters || {};
         this._event_form.setFilters({
             features: (features || []).filter((_) => _ !== feat),
         });
     }
 
-    public removeAllFeatures() {
+    public async removeAllFeatures() {
         this._event_form.setFilters({ features: [] });
+    }
+
+    private _updateLocation(zone_ids: string[] = []) {
+        const level = this._org.levelWithID(zone_ids);
+        const item = level || this._org.building;
+        this.location.set(item?.display_name || item?.name || '');
     }
 }

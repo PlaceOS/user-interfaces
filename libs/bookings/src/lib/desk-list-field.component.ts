@@ -11,7 +11,7 @@ import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticat
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BookingAsset } from './booking-form.service';
-import { NewDeskSelectModalComponent } from './new-desk-select-modal/new-desk-select-modal.component';
+import { DeskSelectModalComponent } from './desk-select-modal/desk-select-modal.component';
 
 const EMPTY_FAVS: string[] = [];
 
@@ -182,8 +182,7 @@ export class DeskListFieldComponent implements ControlValueAccessor {
 
     /** Add or edit selected items */
     public changeResources() {
-        // const ref = this._dialog.open(DeskSelectModalComponent, {
-        const ref = this._dialog.open(NewDeskSelectModalComponent, {
+        const ref = this._dialog.open(DeskSelectModalComponent, {
             data: {
                 items: this.items,
                 options: { capacity: this.room_size() },

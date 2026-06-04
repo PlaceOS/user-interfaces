@@ -27,7 +27,7 @@ import { Router } from '@angular/router';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
+import { EventFormService } from 'libs/events/src/lib/event-form.service';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
 

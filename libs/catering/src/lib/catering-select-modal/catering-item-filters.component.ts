@@ -3,6 +3,7 @@ import {
     Component,
     inject,
     input,
+    model,
     OnInit,
     output,
     signal,
@@ -23,10 +24,11 @@ import {
     startOfDay,
 } from 'date-fns';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { of } from 'rxjs';
-import { CateringOrderStateService } from './catering-order-state.service';
+import { CateringOrderStateService } from '../catering-order-modal/catering-order-state.service';
 
 const ICONS = {
     coffee: `<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -81,7 +83,14 @@ const ICONS = {
 @Component({
     selector: 'catering-item-filters',
     template: `
-        <div class="mt-2 mb-2 px-2" [class.sm:hidden]="!search()">
+        <div
+            class="border-base-300 bg-base-100 sticky top-0 z-10 flex items-center border-b px-4 py-4"
+        >
+            <h3 class="text-xl font-medium">
+                {{ 'COMMON.FILTERS' | translate }}
+            </h3>
+        </div>
+        <div class="mt-2 mb-2 px-2">
             <mat-form-field appearance="outline" class="h-14 w-full">
                 <icon matPrefix class="text-xl">search</icon>
                 <input
@@ -115,14 +124,13 @@ const ICONS = {
             </h3>
         }
         @if (!search()) {
-            <div class="flex flex-col px-2">
-                <mat-checkbox
+            <div class="flex flex-col space-y-2 px-2">
+                <settings-toggle
+                    [name]="'CATERING.ORDERS_DELIVER_EXACT' | translate"
                     [ngModel]="at_time()"
                     (ngModelChange)="at_timeChange.emit($event)"
                     [matTooltip]="exact_tooltip()"
-                >
-                    {{ 'CATERING.ORDERS_DELIVER_EXACT' | translate }}
-                </mat-checkbox>
+                ></settings-toggle>
                 @if (day_options().length > 1) {
                     <label>{{
                         'CATERING.ORDERS_DELIVER_DATE' | translate
@@ -146,7 +154,9 @@ const ICONS = {
                 <label>{{ 'CATERING.ORDERS_DELIVER_AFTER' | translate }}</label>
                 <a-duration-field
                     [ngModel]="offset()"
-                    (ngModelChange)="offsetChange.emit($event)"
+                    (ngModelChange)="
+                        offsetChange.emit($event); offset.set($event)
+                    "
                     [time]="offset_day() > 0 ? start_of_date : filters().date"
                     [step]="step_interval"
                     [min]="min_offset"
@@ -166,24 +176,16 @@ const ICONS = {
             [class.sm:pt-1]="!search()"
         >
             @for (item of categories(); track item) {
-                <mat-checkbox
+                <settings-toggle
+                    [name]="item"
                     [attr.name]="item"
                     [ngModel]="filters().categories?.includes(item)"
                     (ngModelChange)="toggleCategory(item)"
-                >
-                    {{ item }}
-                </mat-checkbox>
+                ></settings-toggle>
             }
         </div>
     `,
-    styles: [
-        `
-            :host {
-                min-width: 16rem;
-                overflow: auto;
-            }
-        `,
-    ],
+    styles: [``],
     imports: [
         CommonModule,
         TranslatePipe,
@@ -194,6 +196,7 @@ const ICONS = {
         MatSelectModule,
         MatInputModule,
         FormsModule,
+        SettingsToggleComponent,
         MatTooltipModule,
     ],
 })
@@ -208,7 +211,7 @@ export class CateringItemFiltersComponent
 
     public readonly at_time = input(false);
     public readonly at_timeChange = output<boolean>();
-    public readonly offset = input(0);
+    public readonly offset = model(0);
     public readonly offsetChange = output<number>();
     public readonly offset_day = input(0);
     public readonly offset_dayChange = output<number>();

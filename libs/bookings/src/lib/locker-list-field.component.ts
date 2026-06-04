@@ -12,7 +12,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { LevelPipe } from 'libs/components/src/lib/level.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BookingAsset } from './booking-form.service';
-import { NewLockerSelectModalComponent } from './new-locker-select-modal/new-locker-select-modal.component';
+import { LockerSelectModalComponent } from './locker-select-modal/locker-select-modal.component';
 
 const EMPTY_FAVS: string[] = [];
 
@@ -184,7 +184,7 @@ export class LockerListFieldComponent implements ControlValueAccessor {
 
     /** Add or edit selected items */
     public changeResources() {
-        const ref = this._dialog.open(NewLockerSelectModalComponent, {
+        const ref = this._dialog.open(LockerSelectModalComponent, {
             data: {
                 items: this.items,
                 options: { capacity: this.room_size() },

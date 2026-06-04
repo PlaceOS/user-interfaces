@@ -91,6 +91,26 @@ function mediaSaveErrorMessage(error: unknown) {
     return i18n('SIGNAGE_MANAGER.SVC_MEDIA_UPLOAD_FAILED');
 }
 
+function objectHasKeys(value: Record<string, unknown> | null | undefined) {
+    return !!value && !!Object.keys(value).length;
+}
+
+function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
+    const properties = schema?.properties as
+        | Record<string, Record<string, unknown>>
+        | undefined;
+    if (!properties) return {};
+    return Object.entries(properties).reduce(
+        (defaults, [key, property]) => {
+            if (property && 'default' in property) {
+                defaults[key] = property.default;
+            }
+            return defaults;
+        },
+        {} as Record<string, unknown>,
+    );
+}
+
 @Component({
     selector: 'media-edit-modal',
     template: `
@@ -137,6 +157,7 @@ function mediaSaveErrorMessage(error: unknown) {
                                 [plugin]="plugin()"
                                 [config]="plugin_preview_config()"
                                 [auto_play]="true"
+                                [(schema)]="plugin_embed_schema"
                             ></plugin-embed>
                         } @else if (media_type === 'webpage') {
                             <iframe
@@ -339,13 +360,13 @@ function mediaSaveErrorMessage(error: unknown) {
                                 }}
                             </p>
                         </div>
-                    } @else if (plugin_schema()) {
+                    } @else if (active_plugin_schema()) {
                         <label>{{
                             'SIGNAGE_MANAGER.PLUGIN_PARAMETERS' | translate
                         }}</label>
                         <div class="bg-base-200/60 mb-2 rounded-lg p-4">
                             <schema-form
-                                [schema]="plugin_schema()"
+                                [schema]="active_plugin_schema()"
                                 [formControlName]="'plugin_params'"
                             ></schema-form>
                         </div>
@@ -422,7 +443,11 @@ export class MediaEditModalComponent implements OnDestroy {
     );
     public readonly thumbnail =
         this._data.file_thumbnail || this._data.media.thumbnail_url;
-    public readonly plugin_schema = computed(() => this._resolvePluginSchema());
+    public readonly plugin_embed_schema =
+        signal<Record<string, unknown> | null>(null);
+    public readonly active_plugin_schema = computed(() =>
+        this._resolvePluginSchema(),
+    );
     public readonly preview_url = signal('');
 
     public readonly form = new FormGroup({
@@ -455,6 +480,7 @@ export class MediaEditModalComponent implements OnDestroy {
 
     public readonly plugin_config = computed(() => ({
         ...(this.plugin()?.defaults || {}),
+        ...schemaDefaults(this.active_plugin_schema()),
         ...(this.form_value()?.plugin_params || {}),
     }));
 
@@ -523,9 +549,11 @@ export class MediaEditModalComponent implements OnDestroy {
     }
 
     private _resolvePluginSchema(): Record<string, unknown> | null {
-        const plugin = this.plugin();
-        if (!plugin?.params || !Object.keys(plugin.params).length) return null;
-        return plugin.params;
+        const embed_schema = this.plugin_embed_schema();
+        if (objectHasKeys(embed_schema)) return embed_schema;
+        const plugin_params = this.plugin()?.params;
+        if (!objectHasKeys(plugin_params)) return null;
+        return plugin_params;
     }
 
     private async _loadPluginDetails() {
@@ -554,7 +582,14 @@ export class MediaEditModalComponent implements OnDestroy {
         if (this.plugin()) {
             new_media.plugin_id = this.item.plugin_id || this.plugin().id;
         }
-        if (form_value.plugin_params) {
+        if (this.media_type === 'plugin') {
+            const plugin_config = this.plugin_config();
+            if (objectHasKeys(plugin_config)) {
+                new_media.plugin_params = plugin_config;
+            } else {
+                delete new_media.plugin_params;
+            }
+        } else if (form_value.plugin_params) {
             new_media.plugin_params = form_value.plugin_params;
         } else {
             delete new_media.plugin_params;

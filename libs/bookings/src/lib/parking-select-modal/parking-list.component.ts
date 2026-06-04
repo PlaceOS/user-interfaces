@@ -13,11 +13,13 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
 @Component({
     selector: `parking-space-list`,
     template: `
-        <h3 class="font-bold">{{ 'COMMON.RESULTS' | translate }}</h3>
-        <p count class="mb-4 text-sm opacity-60">
+        <h3 class="px-2 font-bold">{{ 'COMMON.RESULTS' | translate }}</h3>
+        <p count class="mb-4 px-2 text-sm opacity-60">
             {{
                 'COMMON.RESULTS_COUNT'
-                    | translate: { count: assets()?.length || 0 }
+                    | translate
+                        : { count: assets()?.length || 0 }
+                        : assets()?.length || 0
             }}
         </p>
         @if (!loading()) {
@@ -120,16 +122,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
             </div>
         }
     `,
-    styles: [
-        `
-            :host {
-                width: 100%;
-                height: 100%;
-                padding: 0.5rem;
-                overflow: auto;
-            }
-        `,
-    ],
+    styles: [``],
     imports: [
         TranslatePipe,
         IconComponent,
@@ -138,7 +131,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
         AuthenticatedImageDirective,
     ],
 })
-export class ParkingSpaceListComponent {
+export class ParkingListComponent {
     private _form = inject(BookingFormService);
 
     public readonly active = input('');

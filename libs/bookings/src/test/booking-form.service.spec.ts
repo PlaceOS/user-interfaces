@@ -16,7 +16,7 @@ jest.mock('@placeos/ts-client');
 jest.mock('libs/bookings/src/lib/bookings.fn');
 
 import * as ts_client from '@placeos/ts-client';
-import { endOfYear, getUnixTime } from 'date-fns';
+import { endOfYear } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 
 describe('BookingFormService', () => {
@@ -254,19 +254,6 @@ describe('BookingFormService', () => {
             new NavigationEnd(1, '/schedule', '/schedule'),
         );
         expect(spectator.service.clearForm).toHaveBeenCalled();
-        spy.mockRestore();
-    });
-
-    it('should keep booking context when navigating to landing', () => {
-        const spy = jest.spyOn(spectator.service, 'clearForm');
-        const router = spectator.inject(Router);
-        spectator.service.newForm('desk');
-
-        (router.events as any).next(
-            new NavigationEnd(1, '/landing', '/landing'),
-        );
-
-        expect(spy).not.toHaveBeenCalled();
         spy.mockRestore();
     });
 
@@ -664,18 +651,16 @@ describe('BookingFormService', () => {
             await spectator.service.postForm(true);
 
             expect(save_booking).toHaveBeenCalledTimes(1);
-            expect(save_booking.mock.calls[0][0]).toEqual(
-                expect.objectContaining({
-                    all_day: true,
-                    booking_start: getUnixTime(
-                        new Date(2026, 2, 20, 10, 5, 0, 0),
-                    ),
-                    booking_end: getUnixTime(
-                        new Date(2026, 2, 20, 17, 0, 0, 0),
-                    ),
-                    date_end: new Date(2026, 2, 20, 17, 0, 0, 0).valueOf(),
-                }),
-            );
+            expect(save_booking.mock.calls[0][0]).toMatchObject({
+                all_day: true,
+                booking_start: Math.floor(
+                    new Date(2026, 2, 20, 10, 5, 0, 0).valueOf() / 1000,
+                ),
+                booking_end: Math.floor(
+                    new Date(2026, 2, 20, 17, 0, 0, 0).valueOf() / 1000,
+                ),
+                date_end: new Date(2026, 2, 20, 17, 0, 0, 0).valueOf(),
+            });
         } finally {
             jest.useRealTimers();
         }

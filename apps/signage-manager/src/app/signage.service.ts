@@ -1692,7 +1692,6 @@ export class SignageService {
             media_uri: plugin.uri,
             media_type: 'plugin',
             plugin_id: plugin.id,
-            plugin_params: { ...plugin.defaults },
             orientation: 'landscape',
         });
         await this.editMedia(media, undefined, '', undefined, plugin);

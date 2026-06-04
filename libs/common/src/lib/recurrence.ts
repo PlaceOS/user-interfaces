@@ -300,7 +300,16 @@ export function fromEventRecurrence(r: RecurrenceDetails): Recurrence {
         }
     }
 
-    if (r.pattern === 'month_day') {
+    if (r.pattern === 'month_day' && r.days_of_week?.length) {
+        recurr.type = 'monthly';
+        recurr.monthly_type = 'day_of_week';
+        recurr.weekdays = new Set(r.days_of_week as DayIndex[]);
+        if (r.nth_of_month) {
+            recurr.week = r.nth_of_month as WeekIndex;
+        } else if (r.start) {
+            recurr.week = weekOfMonth(r.start);
+        }
+    } else if (r.pattern === 'month_day') {
         recurr.type = 'monthly';
         recurr.monthly_type = 'day_of_month';
     }

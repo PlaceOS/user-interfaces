@@ -27,7 +27,7 @@ import { endOfDay, startOfDay } from 'date-fns';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { NewCateringSelectModalComponent } from './new-catering-order-modal/new-catering-select-modal.component';
+import { CateringSelectModalComponent } from './catering-select-modal/catering-select-modal.component';
 
 const EMPTY_FAVS = [];
 
@@ -412,7 +412,7 @@ export class CateringListFieldComponent
     public editOrder(order: CateringOrder = new CateringOrder()) {
         const options = this.options();
         const optionsValue = this.options();
-        const ref = this._dialog.open(NewCateringSelectModalComponent, {
+        const ref = this._dialog.open(CateringSelectModalComponent, {
             data: {
                 caterer: order.items[0]?.caterer,
                 items: order.items,

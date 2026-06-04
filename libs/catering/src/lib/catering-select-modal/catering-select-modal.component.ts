@@ -1,127 +1,120 @@
 import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     CateringItem,
     OrganisationService,
+    SETTING_KEYS,
     SettingsService,
 } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { CateringOrderStateService } from '../catering-order-modal/catering-order-state.service';
 import { CateringItemDetailsComponent } from './catering-item-details.component';
 import { CateringItemFiltersComponent } from './catering-item-filters.component';
 import { CateringItemListComponent } from './catering-item-list.component';
-import { CateringOrderStateService } from './catering-order-state.service';
 
 const EMPTY_FAVS: string[] = [];
 
 @Component({
-    selector: 'new-catering-order-modal',
+    selector: 'catering-select-modal',
     template: `
         <div
-            class="bg-base-100 flex h-screen w-screen flex-col sm:relative sm:h-auto sm:w-auto"
+            class="bg-base-100 flex h-screen w-screen flex-col space-y-2 overflow-hidden p-2 sm:h-auto sm:w-auto"
         >
-            <header class="flex w-full items-center justify-between space-x-4">
-                <h3>{{ 'CATERING.ORDER' | translate }}</h3>
-                <button icon matRipple [mat-dialog-close]="selected">
+            <header
+                class="bg-base-200 flex h-14 w-full items-center space-x-2 rounded-sm border-none p-2"
+            >
+                <h2 class="flex-1 px-2 text-xl font-medium capitalize">
+                    {{ 'CATERING.ORDER' | translate }}
+                </h2>
+                <button icon matRipple mat-dialog-close>
                     <icon>close</icon>
                 </button>
             </header>
             <main
-                class="divide-base-200 flex h-[65vh] min-h-[65vh] w-full flex-1 items-center divide-x overflow-hidden sm:max-h-[65vh] sm:max-w-[95vw]"
+                class="relative flex h-1/2 flex-1 sm:h-[65vh] sm:flex-none sm:space-x-2"
             >
-                <catering-item-filters
-                    class="hidden h-full sm:block sm:h-[65vh] sm:max-h-full sm:max-w-48"
-                    [(at_time)]="exact_time"
-                    [(offset)]="offset"
-                    [(offset_day)]="offset_day"
-                ></catering-item-filters>
                 <div
-                    class="flex h-full w-1/2 flex-1 flex-col items-center sm:h-[65vh]"
+                    class="border-base-300 h-full w-full overflow-x-hidden overflow-y-auto rounded-sm border shadow-sm sm:block sm:w-[20rem]"
+                    [class.hidden]="!show_filters"
                 >
                     <catering-item-filters
-                        class="border-base-200 w-full border-b"
-                        [search]="true"
+                        [(at_time)]="exact_time"
+                        [(offset)]="offset"
+                        [(offset_day)]="offset_day"
                     ></catering-item-filters>
+                </div>
+                <div
+                    class="border-base-300 bg-base-200 h-full w-full overflow-auto rounded-sm border sm:w-[20rem] lg:block"
+                    [class.hidden]="show_filters || displayed"
+                    [class.sm:hidden]="displayed"
+                    [class.md:block]="!displayed"
+                >
                     <catering-item-list
                         [active]="displayed?.custom_id"
                         [selected]="selected_keys"
                         [selected_items]="selected"
                         [favorites]="favorites"
-                        (toggleFav)="toggleFavourite($event)"
+                        (toggleFav)="toggleFavourite($event.id)"
                         (onSelect)="displayed = $event"
-                        class="h-1/2 w-full flex-1 overflow-hidden"
                     ></catering-item-list>
                 </div>
-                <catering-item-details
-                    [item]="displayed!"
-                    class="bg-base-100 absolute z-20 h-full w-full sm:relative sm:flex sm:h-[65vh] sm:max-w-[16rem]"
-                    [class.hidden]="!displayed"
-                    [class.inset-0]="displayed"
-                    [active]="displayed?.in_order"
-                    (activeChange)="setSelected(displayed!, $event)"
-                    [code]="code"
-                    [fav]="
-                        !!displayed &&
-                        this.favorites.includes(displayed?.id || '')
-                    "
-                    (toggleFav)="toggleFavourite(displayed!)"
-                    (close)="displayed = null"
-                ></catering-item-details>
-            </main>
-            <footer
-                class="border-base-200 flex w-full flex-col-reverse items-center justify-end border-t px-2 pt-2 pb-22 sm:hidden"
-            >
-                @if (displayed) {
+                <div
+                    class="border-base-300 h-full w-full overflow-auto rounded-sm border shadow-sm sm:w-[20rem] lg:block"
+                    [class.hidden]="show_filters || !displayed"
+                    [class.sm:hidden]="!displayed"
+                    [class.md:block]="displayed"
+                >
+                    <catering-item-details
+                        [item]="displayed!"
+                        [active]="displayed?.in_order"
+                        (activeChange)="setSelected(displayed!, $event)"
+                        [code]="code"
+                        [fav]="
+                            !!displayed &&
+                            this.favorites.includes(displayed?.id || '')
+                        "
+                        (toggleFav)="toggleFavourite(displayed!.id)"
+                        (close)="displayed = null"
+                    ></catering-item-details>
+                </div>
+                @if (!displayed) {
                     <button
-                        btn
+                        icon
                         matRipple
-                        name="catering-item-return"
-                        class="inverse w-full sm:hidden sm:w-auto"
-                        (click)="displayed = null"
+                        class="border-base-200 bg-base-100 absolute top-3 right-2 z-20 border sm:hidden"
+                        (click)="show_filters = !show_filters"
                     >
-                        {{ 'COMMON.BACK' | translate }}
+                        <icon>{{
+                            show_filters ? 'close' : 'filter_list'
+                        }}</icon>
                     </button>
                 }
-                <button
-                    btn
-                    matRipple
-                    name="save-catering-item"
-                    [mat-dialog-close]="selected"
-                    [class.mb-2]="displayed"
-                    class="w-full sm:mb-0 sm:w-auto"
-                >
-                    {{ 'COMMON.VIEW_LIST' | translate }}
-                </button>
-            </footer>
+            </main>
             <footer
-                class="border-base-200 hidden w-full items-center justify-between border-t p-2 sm:flex"
+                class="bg-base-200 flex w-full items-center justify-between space-x-2 rounded-sm border-none p-2"
             >
                 <button
                     btn
                     matRipple
-                    name="catering-item-return"
+                    name="catering-return"
                     [mat-dialog-close]="selected"
-                    class="clear text-secondary"
+                    class="inverse bg-base-100 text-secondary"
                 >
-                    <div class="flex items-center">
+                    <div class="flex items-center space-x-2">
                         <icon class="text-xl">done</icon>
-                        <div class="mr-1 underline">
+                        <div class="pr-2">
                             {{ 'COMMON.CONFIRM_SELECTION' | translate }}
                         </div>
                     </div>
                 </button>
-                <p class="text-sm opacity-60">
-                    {{
-                        'CATERING.ORDER_ITEM_COUNT'
-                            | translate: { count: count }
-                    }}
-                </p>
                 <button
                     btn
                     matRipple
-                    name="toggle-catering-item"
+                    name="toggle-catering"
                     [disabled]="!displayed"
                     [class.inverse]="displayed?.in_order"
                     (click)="setSelected(displayed, !displayed?.in_order)"
@@ -133,8 +126,8 @@ const EMPTY_FAVS: string[] = [];
                         <div class="mr-1">
                             {{
                                 (displayed?.in_order
-                                    ? 'COMMON.REMOVE_FROM'
-                                    : 'COMMON.ADD_TO'
+                                    ? 'CATERING.ORDER_ITEM_REMOVE'
+                                    : 'CATERING.ORDER_ITEM_ADD'
                                 ) | translate
                             }}
                         </div>
@@ -149,12 +142,13 @@ const EMPTY_FAVS: string[] = [];
         IconComponent,
         MatRippleModule,
         MatDialogModule,
-        CateringItemDetailsComponent,
+        MatTooltipModule,
         CateringItemListComponent,
+        CateringItemDetailsComponent,
         CateringItemFiltersComponent,
     ],
 })
-export class NewCateringOrderModalComponent {
+export class CateringSelectModalComponent {
     private _settings = inject(SettingsService);
     private _order = inject(CateringOrderStateService);
     private _org = inject(OrganisationService);
@@ -180,11 +174,12 @@ export class NewCateringOrderModalComponent {
         'catering.end_offset',
         0,
     );
+    public show_filters = false;
 
     public get favorites() {
         return (
             this._settings.signal<string[]>(
-                'favourite_menu_items',
+                SETTING_KEYS.FAVORITE_DESKS,
                 EMPTY_FAVS,
                 true,
             )() || EMPTY_FAVS
@@ -283,18 +278,18 @@ export class NewCateringOrderModalComponent {
         }
     }
 
-    public toggleFavourite(item: CateringItem) {
+    public toggleFavourite(item: string) {
         const fav_list = this.favorites;
-        const new_state = !fav_list.includes(item.id);
+        const new_state = !fav_list.includes(item);
         if (new_state) {
-            this._settings.saveUserSetting('favourite_menu_items', [
+            this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_DESKS, [
                 ...fav_list,
-                item.id,
+                item,
             ]);
         } else {
             this._settings.saveUserSetting(
-                'favourite_menu_items',
-                fav_list.filter((_) => _ !== item.id),
+                SETTING_KEYS.FAVORITE_DESKS,
+                fav_list.filter((_) => _ !== item),
             );
         }
     }

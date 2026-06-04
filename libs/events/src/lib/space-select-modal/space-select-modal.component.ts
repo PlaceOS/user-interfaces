@@ -1,93 +1,119 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
+
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
+    isMobileSafari,
     SETTING_KEYS,
     settingSignal,
     SettingsService,
     Space,
 } from '@placeos/common';
+import { EventFormOptions, EventFormService } from '@placeos/events';
+
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import {
-    EventFormOptions,
-    EventFormService,
-} from 'libs/events/src/lib/new-event-form.service';
 import { SpaceDetailsComponent } from './space-details.component';
 import { SpaceFiltersDisplayComponent } from './space-filters-display.component';
 import { SpaceFiltersComponent } from './space-filters.component';
 import { SpaceListComponent } from './space-list.component';
-import { SpaceSelectMapComponent } from './space-map.component';
+import { SpaceMapComponent } from './space-map.component';
 
 @Component({
     selector: 'space-select-modal',
     template: `
         <div
-            class="bg-base-100 flex h-screen w-screen flex-col sm:relative sm:h-auto sm:w-auto"
+            class="bg-base-100 mb-18 flex h-[calc(100vh-4.5rem)] max-h-[calc(100vh-4.5rem)] w-screen flex-col space-y-2 overflow-hidden p-2 sm:m-0 sm:h-auto sm:w-auto"
+            [style.height]="is_safari() ? 'calc(100vh - 80px)' : ''"
         >
-            <header class="flex w-full items-center space-x-4">
-                <button icon matRipple mat-dialog-close class="bg-base-200">
-                    <icon>close</icon>
-                </button>
-                <h3>{{ 'CALENDAR_EVENT.SPACE_SELECT_FIND' | translate }}</h3>
-                <div class="hidden flex-1 items-center justify-end sm:flex">
+            <header
+                class="bg-base-200 flex h-14 w-full items-center space-x-2 rounded-sm border-none p-2"
+            >
+                <h2 class="flex-1 px-2 text-xl font-medium capitalize">
+                    {{ 'CALENDAR_EVENT.SPACE_SELECT_FIND' | translate }}
+                </h2>
+                <div
+                    class="divide-secondary border-secondary flex divide-x rounded-sm border"
+                >
                     <button
-                        btn
+                        icon
                         matRipple
-                        map
                         class="rounded-l rounded-r-none"
-                        [class.inverse]="view() !== 'map'"
-                        (click)="view.set('map')"
-                    >
-                        {{ 'COMMON.MAP' | translate }}
-                    </button>
-                    <button
-                        btn
-                        matRipple
-                        list
-                        class="rounded-l-none rounded-r"
-                        [class.inverse]="view() !== 'list'"
+                        [class.bg-base-100]="view() !== 'list'"
+                        [class.bg-secondary]="view() === 'list'"
+                        [class.text-secondary-content]="view() === 'list'"
+                        [matTooltip]="'COMMON.LIST' | translate"
                         (click)="view.set('list')"
                     >
-                        {{ 'COMMON.LIST' | translate }}
+                        <icon>list</icon>
+                    </button>
+                    <button
+                        icon
+                        matRipple
+                        class="rounded-l-none rounded-r"
+                        [class.bg-base-100]="view() !== 'map'"
+                        [class.bg-secondary]="view() === 'map'"
+                        [class.text-secondary-content]="view() === 'map'"
+                        [matTooltip]="'COMMON.MAP' | translate"
+                        (click)="view.set('map')"
+                    >
+                        <icon>map</icon>
                     </button>
                 </div>
+                <button icon matRipple mat-dialog-close>
+                    <icon>close</icon>
+                </button>
             </header>
             <main
-                class="divide-base-200 flex h-[65vh] min-h-[65vh] w-full flex-1 items-center divide-x overflow-hidden sm:max-h-[65vh] sm:max-w-[95vw]"
+                class="relative flex h-1/2 max-h-[calc(100vh-7rem)] flex-1 sm:h-[65vh] sm:flex-none sm:space-x-2"
             >
-                <space-filters
-                    class="hidden h-full max-w-[20rem] sm:flex sm:h-[65vh] sm:max-h-full"
-                    [multiday]="multiday"
-                    [hide_levels]="view() !== 'list'"
-                    [viewing_map]="view() === 'map'"
-                ></space-filters>
                 <div
-                    class="flex h-full w-1/2 flex-1 flex-col items-center sm:h-[65vh]"
+                    filters
+                    class="border-base-300 h-full w-full overflow-x-hidden overflow-y-auto rounded-sm border shadow-sm sm:block sm:w-80"
+                    [class.hidden]="!show_filters()"
                 >
-                    <space-filters-display
-                        class="border-base-200 w-full border-b"
-                        [(view)]="view"
-                    ></space-filters-display>
-
+                    <space-filters
+                        [hide_levels]="view() !== 'list'"
+                    ></space-filters>
+                </div>
+                <div
+                    list
+                    class="border-base-300 bg-base-200 h-full w-full overflow-auto rounded-sm border sm:w-80 md:w-112 lg:block"
+                    [class.hidden]="show_filters() || displayed()"
+                    [class.sm:hidden]="displayed()"
+                    [class.md:block]="!displayed()"
+                    [class.p-2]="view() === 'list'"
+                    [style.width]="
+                        view() !== 'list'
+                            ? displayed()
+                                ? 'calc(100vw - 44rem)'
+                                : 'calc(100vw - 24rem)'
+                            : ''
+                    "
+                >
+                    @if (view() === 'list') {
+                        <space-filters-display
+                            [(view)]="view"
+                        ></space-filters-display>
+                    }
                     @if (view() === 'list') {
                         <space-list
+                            list
                             [active]="displayed()?.id"
                             [selected]="selected_ids()"
                             [favorites]="favorites()"
                             (toggleFav)="toggleFavourite($event)"
                             (onSelect)="displayed.set($event)"
-                            class="bg-base-200 h-1/2 flex-1"
                         ></space-list>
                     } @else {
                         <space-map
-                            class="h-1/2 w-full flex-1"
-                            [selected]="selected_ids_list()"
+                            map
+                            class="h-full min-h-[60vh] w-full"
                             [is_displayed]="!!displayed()"
                             [active]="displayed()?.id"
                             (onSelect)="displayed.set($event)"
@@ -95,71 +121,70 @@ import { SpaceSelectMapComponent } from './space-map.component';
                         </space-map>
                     }
                 </div>
-                <space-details
-                    [space]="displayed()"
-                    [alert]="room_alerts()[displayed()?.id]"
-                    class="bg-base-100 absolute z-20 flex h-full w-full min-w-[20rem] sm:relative sm:h-[65vh] sm:max-w-[20rem] sm:flex-col"
-                    [class.hidden]="!displayed()"
-                    [class.inset-0]="displayed()"
-                    [hide_map]="view() === 'map'"
-                    [active]="selected_ids().includes(displayed()?.id)"
-                    [single_select]="!allow_multiple()"
-                    (activeChange)="setSelected(displayed(), $event)"
-                    [fav]="displayed() && favorites().includes(displayed()?.id)"
-                    (toggleFav)="toggleFavourite(displayed())"
-                    (close)="displayed.set(null)"
-                ></space-details>
-            </main>
-            <footer
-                class="border-base-200 flex w-full flex-col-reverse items-center justify-end border-t px-2 pt-2 pb-22 sm:hidden"
-            >
-                @if (displayed()) {
+                <div
+                    class="border-base-300 relative h-full w-full overflow-auto rounded-sm border shadow-sm sm:w-[20rem]"
+                    [class.hidden]="show_filters() || !displayed()"
+                    [class.sm:hidden]="!displayed()"
+                    [class.md:block]="displayed()"
+                    [class.lg:block]="view() === 'list'"
+                >
+                    @if (displayed()) {
+                        <button
+                            icon
+                            matRipple
+                            class="border-base-300 bg-base-100 absolute top-2 left-2 z-20 hidden border md:flex"
+                            (click)="displayed.set(null)"
+                        >
+                            <icon>close</icon>
+                        </button>
+                    }
+                    <space-details
+                        details
+                        [space]="displayed()"
+                        [active]="selected_ids().includes(displayed()?.id)"
+                        [hide_map]="view() === 'map'"
+                        (activeChange)="setSelected(displayed(), $event)"
+                        [fav]="
+                            displayed() && favorites().includes(displayed()?.id)
+                        "
+                        (toggleFav)="toggleFavourite(displayed())"
+                        (close)="displayed.set(null)"
+                    ></space-details>
+                </div>
+                @if (!displayed()) {
                     <button
-                        btn
+                        icon
                         matRipple
-                        name="spaces-return"
-                        class="inverse w-full sm:hidden"
-                        (click)="displayed.set(null)"
+                        class="border-base-200 bg-base-100 absolute top-3 right-2 z-20 border sm:hidden"
+                        (click)="toggleFilters()"
                     >
-                        {{ 'COMMON.BACK' | translate }}
+                        <icon>{{
+                            show_filters() ? 'close' : 'filter_list'
+                        }}</icon>
                     </button>
                 }
-                <button
-                    btn
-                    matRipple
-                    name="save-spaces"
-                    [mat-dialog-close]="selected()"
-                    [class.mb-2]="displayed()"
-                    class="w-full sm:mb-0 sm:w-32"
-                >
-                    {{ 'COMMON.VIEW_LIST' | translate }}
-                </button>
-            </footer>
+            </main>
             <footer
-                class="border-base-200 hidden w-full items-center justify-between border-t p-2 sm:flex"
+                class="bg-base-200 flex w-full items-center space-x-2 rounded-sm border-none p-2"
+                [class.justify-between]="allow_multiple()"
+                [class.justify-end]="!allow_multiple()"
             >
                 @if (allow_multiple()) {
                     <button
                         btn
                         matRipple
-                        name="spaces-return"
+                        name="space-return"
                         [mat-dialog-close]="selected()"
-                        class="clear text-secondary"
+                        class="inverse bg-base-100 text-secondary"
                     >
-                        <div class="flex items-center">
+                        <div class="flex items-center space-x-2">
                             <icon class="text-xl">done</icon>
-                            <div class="mr-1 underline">
+                            <div class="pr-2">
                                 {{ 'COMMON.CONFIRM_SELECTION' | translate }}
                             </div>
                         </div>
                     </button>
                 }
-                <p class="text-sm opacity-60">
-                    {{
-                        'CALENDAR_EVENT.SPACE_SELECT_COUNT'
-                            | translate: { count: selected().length }
-                    }}
-                </p>
                 <button
                     btn
                     matRipple
@@ -193,17 +218,26 @@ import { SpaceSelectMapComponent } from './space-map.component';
             </footer>
         </div>
     `,
-    styles: [``],
+    styles: [
+        `
+            @media screen and (max-width: 640px) {
+                [list] {
+                    width: 100% !important;
+                }
+            }
+        `,
+    ],
     imports: [
-        MatRippleModule,
         TranslatePipe,
-        SpaceDetailsComponent,
+        IconComponent,
+        MatRippleModule,
+        MatDialogModule,
+        MatTooltipModule,
+        SpaceMapComponent,
         SpaceListComponent,
+        SpaceDetailsComponent,
         SpaceFiltersComponent,
         SpaceFiltersDisplayComponent,
-        IconComponent,
-        MatDialogModule,
-        SpaceSelectMapComponent,
     ],
 })
 export class SpaceSelectModalComponent {
@@ -217,22 +251,19 @@ export class SpaceSelectModalComponent {
         multiday?: boolean;
     }>(MAT_DIALOG_DATA);
 
-    public readonly displayed = signal<Space | null>(null);
+    public readonly show_filters = signal(false);
     public readonly selected = signal<Space[]>([]);
-    public readonly view = signal<'map' | 'list'>('list');
+    public readonly view = signal<'list' | 'map'>('list');
+    public readonly displayed = signal<Space | null>(null);
     public readonly multiday = !!this._data.multiday;
-    public readonly room_alerts = toSignal(this._event_form.room_alerts, {
-        initialValue: {} as Record<string, [string, string]>,
-    });
+    public readonly room_alerts = this._event_form.room_alerts;
+
+    public readonly is_safari = computed(() => isMobileSafari());
 
     public readonly selected_ids = computed(() =>
         this.selected()
             .map((_) => _.id)
             .join(','),
-    );
-
-    public readonly selected_ids_list = computed<string[]>(() =>
-        this.selected().map((_) => _.id),
     );
 
     public readonly favorites = settingSignal<string[]>(
@@ -254,6 +285,10 @@ export class SpaceSelectModalComponent {
         this._event_form.setFilters(_data.options as any);
     }
 
+    public toggleFilters() {
+        this.show_filters.update((v) => !v);
+    }
+
     public isSelected(id: string) {
         return id && this.selected_ids().includes(id);
     }
@@ -269,15 +304,17 @@ export class SpaceSelectModalComponent {
     }
 
     public toggleDisplayedSpace() {
-        const current = this.displayed();
-        if (!current) return;
+        if (!this.displayed()) return;
         this.setSelected(
-            current,
-            this.allow_multiple() ? !this.isSelected(current.id) : true,
+            this.displayed(),
+            this.allow_multiple()
+                ? !this.isSelected(this.displayed()?.id)
+                : true,
         );
     }
 
-    public toggleFavourite(item: Space) {
+    public toggleFavourite(item: Space | null) {
+        if (!item?.id) return;
         const fav_list = this.favorites();
         const new_state = !fav_list.includes(item.id);
         const updated = new_state

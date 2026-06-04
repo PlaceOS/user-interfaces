@@ -14,17 +14,7 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
 
 @Component({
     selector: 'locker-bank-list',
-    styles: [
-        `
-            :host {
-                width: 100%;
-                height: 100%;
-                padding: 0.5rem;
-                background: rgba(0, 0, 0, 0.05);
-                overflow-y: auto;
-            }
-        `,
-    ],
+    styles: [``],
     template: `
         <h3 class="font-bold">{{ 'COMMON.RESULTS' | translate }}</h3>
         <p count class="mb-4 text-sm opacity-60">
@@ -73,16 +63,16 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
                                         />
                                     }
                                 </div>
-                                <div class="flex-1 space-y-2 pt-2 text-left">
-                                    <span class="font-medium">
+                                <div class="flex-1pt-2 text-left">
+                                    <h3 class="mb-2 font-medium">
                                         {{
                                             locker_bank.name ||
                                                 locker_bank.id ||
                                                 'Locker_bank'
                                         }}
-                                    </span>
+                                    </h3>
                                     <div
-                                        class="flex items-center space-x-2 text-sm"
+                                        class="mb-1 flex items-center space-x-2 text-sm"
                                     >
                                         <icon class="text-blue-500">place</icon>
                                         <p class="text-xs">

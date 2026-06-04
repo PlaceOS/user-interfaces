@@ -1,7 +1,6 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, effect, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,45 +9,32 @@ import {
     Building,
     flatten,
     MapsPeopleService,
+    OrganisationService,
     Region,
     settingSignal,
     unique,
 } from '@placeos/common';
 import { addDays, endOfDay, startOfDay } from 'date-fns';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
-
-import { OrganisationService } from '@placeos/common';
 import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
+import { EventFormService } from 'libs/events/src/lib/event-form.service';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
+import { combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { SpacesService } from '../spaces.service';
 
 @Component({
     selector: `space-filters`,
     template: `
-        <div class="border-base-200 flex items-center border-b pb-2 sm:hidden">
-            <div class="flex-1 pl-2">
-                @if (can_close) {
-                    <button
-                        icon
-                        matRipple
-                        name="close-space-filters"
-                        (click)="close()"
-                    >
-                        <icon>keyboard_arrow_left</icon>
-                    </button>
-                }
-            </div>
-            <h3 class="flex-2 text-center text-xl font-medium">
+        <div
+            class="border-base-300 bg-base-100 sticky top-0 z-10 flex items-center border-b px-4 py-4"
+        >
+            <h3 class="text-xl font-medium">
                 {{ 'COMMON.FILTERS' | translate }}
             </h3>
-            <div class="flex-1"></div>
         </div>
         <form
             class="divide-base-200 max-h-[65vh] w-full max-w-[100vw] divide-y overflow-x-hidden overflow-y-auto p-2"
@@ -59,7 +45,11 @@ import { SpacesService } from '../spaces.service';
                     {{ 'CALENDAR_EVENT.DETAILS' | translate }}
                 </h2>
                 <div class="flex min-w-32 flex-1 flex-col">
-                    @if (show_location_filters()) {
+                    @if (
+                        show_level_select() &&
+                        !(use_region() && regions()?.length) &&
+                        !(!use_region() && buildings()?.length > 1)
+                    ) {
                         <label for="location">
                             {{ 'CALENDAR_EVENT.SPACE_LOCATION' | translate }}
                         </label>
@@ -71,10 +61,7 @@ import { SpacesService } from '../spaces.service';
                                 [ngModel]="region()"
                                 (ngModelChange)="setRegion($event)"
                                 [ngModelOptions]="{ standalone: true }"
-                                [placeholder]="
-                                    'CALENDAR_EVENT.SPACE_REGION_ANY'
-                                        | translate
-                                "
+                                [placeholder]="'COMMON.REGION_ANY' | translate"
                             >
                                 @for (reg of regions(); track reg) {
                                     <mat-option [value]="reg">
@@ -88,11 +75,11 @@ import { SpacesService } from '../spaces.service';
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="building"
-                                [ngModel]="bld()"
+                                [ngModel]="building()"
                                 (ngModelChange)="setBuilding($event)"
                                 [ngModelOptions]="{ standalone: true }"
                                 [placeholder]="
-                                    bld()?.display_name || bld()?.name
+                                    building()?.display_name || building()?.name
                                 "
                             >
                                 @for (bld of buildings(); track bld) {
@@ -110,9 +97,7 @@ import { SpacesService } from '../spaces.service';
                                 [ngModel]="options()?.zones"
                                 (ngModelChange)="setOptions({ zones: $event })"
                                 [ngModelOptions]="{ standalone: true }"
-                                [placeholder]="
-                                    'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate
-                                "
+                                [placeholder]="'COMMON.LEVEL_ANY' | translate"
                                 [multiple]="true"
                             >
                                 @for (lvl of levels(); track lvl) {
@@ -122,7 +107,7 @@ import { SpacesService } from '../spaces.service';
                                                 <div class="text-xs opacity-30">
                                                     {{
                                                         (
-                                                            lvl.parent_id
+                                                            lvl?.parent_id
                                                             | building
                                                         )?.display_name
                                                     }}
@@ -187,7 +172,13 @@ import { SpacesService } from '../spaces.service';
                 <!-- All Day -->
                 @if (allow_all_day()) {
                     <div class="-mt-2 mb-2 flex justify-end">
-                        <mat-checkbox formControlName="all_day">
+                        <mat-checkbox
+                            [ngModel]="form.value.all_day"
+                            (ngModelChange)="
+                                form.patchValue({ all_day: $event })
+                            "
+                            [ngModelOptions]="{ standalone: true }"
+                        >
                             {{ 'COMMON.ALL_DAY' | translate }}
                         </mat-checkbox>
                     </div>
@@ -266,7 +257,7 @@ import { SpacesService } from '../spaces.service';
                             class="w-full"
                             [name]="'COMMON.FAVOURITES_ONLY' | translate"
                             [ngModel]="filters()?.show_fav"
-                            (ngModelChange)="setOptions({ show_fav: $event })"
+                            (ngModelChange)="setFilters({ show_fav: $event })"
                             [ngModelOptions]="{ standalone: true }"
                         ></settings-toggle>
                     </div>
@@ -335,15 +326,10 @@ import { SpacesService } from '../spaces.service';
         MatSelectModule,
         FormsModule,
         ReactiveFormsModule,
-        IconComponent,
         BuildingPipe,
     ],
 })
 export class SpaceFiltersComponent {
-    private _bsheet_ref = inject<MatBottomSheetRef<SpaceFiltersComponent>>(
-        MatBottomSheetRef,
-        { optional: true },
-    );
     private _event_form = inject(EventFormService);
     private _org = inject(OrganisationService);
     private _spaces = inject(SpacesService);
@@ -353,12 +339,18 @@ export class SpaceFiltersComponent {
     public readonly hide_levels = input<boolean>(undefined);
     public readonly viewing_map = input<boolean>(undefined);
     public can_close = false;
-    public readonly options = toSignal(this._event_form.options$);
-    public readonly filters = toSignal(this._event_form.filters$);
+    public readonly options = toSignal(this._event_form.options$, {
+        initialValue: null,
+    });
+    public readonly filters = toSignal(this._event_form.filters$, {
+        initialValue: null,
+    });
 
     public readonly use_region = settingSignal<boolean>('use_region', false);
 
-    public readonly building = this._org.active_building;
+    public readonly building = toSignal(this._org.active_building, {
+        initialValue: null,
+    });
     public readonly buildings = toSignal(this._org.active_buildings, {
         initialValue: [],
     });
@@ -367,13 +359,18 @@ export class SpaceFiltersComponent {
         combineLatest([
             this._org.active_region,
             this._org.active_building,
+            this._event_form.spaces$,
         ]).pipe(
-            map(([region, bld]) => {
+            map(([region, bld, spaces]) => {
                 const level_list = this.use_region()
                     ? this._org.levelsForRegion(region)
                     : this._org.levelsForBuilding(bld);
+                const level_ids = new Set(
+                    flatten(spaces.map((space) => space.zones || [])),
+                );
                 const viewable_levels = level_list.filter(
-                    (lvl) => !lvl.tags.includes('parking'),
+                    (lvl) =>
+                        !lvl.tags.includes('parking') && level_ids.has(lvl.id),
                 );
                 return viewable_levels.sort(
                     (a, b) =>
@@ -390,12 +387,18 @@ export class SpaceFiltersComponent {
     public readonly show_level_select = computed(
         () => !this.hide_levels() && this.levels().length > 1,
     );
-    public readonly show_location_filters = computed(
-        () =>
-            (this.use_region() && !!this.regions()?.length) ||
-            (!this.use_region() && this.buildings()?.length > 1) ||
-            this.show_level_select(),
-    );
+
+    private readonly _clear_invalid_levels = effect(() => {
+        const levels = this.levels();
+        const zones = this.options()?.zones || [];
+        if (!zones.length) return;
+        const valid_zones = zones.filter((zone) =>
+            levels.some((lvl) => lvl.id === zone),
+        );
+        if (valid_zones.length !== zones.length) {
+            this._event_form.setOptions({ zones: valid_zones });
+        }
+    });
 
     public readonly regions = toSignal(this._org.region_list, {
         initialValue: [],
@@ -426,15 +429,16 @@ export class SpaceFiltersComponent {
         'events.use_building_timezone',
         false,
     );
-    private readonly _active_building = toSignal(this._org.active_building);
+
     public readonly timezone = computed(() =>
-        this._use_building_tz() ? this._active_building()?.timezone || '' : '',
+        this._use_building_tz()
+            ? this._org.building_signal()?.timezone || ''
+            : '',
     );
 
-    public readonly close = () => this._bsheet_ref.dismiss();
     public readonly setOptions = (o) => this._event_form.setOptions(o);
+    public readonly setFilters = (f) => this._event_form.setFilters(f);
 
-    public readonly bld = this._active_building;
     public readonly region = toSignal(this._org.active_region, {
         initialValue: null,
     });
@@ -495,14 +499,15 @@ export class SpaceFiltersComponent {
         'events.allowed_future_days',
         180,
     );
+
     public readonly end_date = computed(() =>
         endOfDay(
             addDays(Date.now(), this._allowed_future_days() || 180),
         ).valueOf(),
     );
 
-    constructor() {
-        this.can_close = !!this._bsheet_ref;
+    public close() {
+        // No-op for inline filters
     }
 
     public setBuilding(bld: Building) {

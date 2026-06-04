@@ -1,13 +1,5 @@
-import {
-    Component,
-    OnInit,
-    computed,
-    inject,
-    input,
-    signal,
-} from '@angular/core';
+import { Component, OnInit, computed, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { addDays, endOfDay } from 'date-fns';
 
@@ -18,7 +10,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { OrganisationService } from '@placeos/common';
 import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
@@ -42,28 +33,14 @@ import { BookingFormService } from '../booking-form.service';
     ],
     template: `
         <div
-            class="border-base-200 flex items-center rounded-t-md border-b pb-2 sm:hidden"
+            class="border-base-300 bg-base-100 sticky top-0 z-10 flex items-center border-b px-4 py-4"
         >
-            <div class="flex-1 pl-2">
-                @if (can_close()) {
-                    <button
-                        icon
-                        matRipple
-                        name="close-locker-filters"
-                        class="sm:hidden"
-                        (click)="close()"
-                    >
-                        <icon>keyboard_arrow_left</icon>
-                    </button>
-                }
-            </div>
-            <h3 class="flex-2 text-center font-medium">
+            <h3 class="text-xl font-medium">
                 {{ 'COMMON.FILTERS' | translate }}
             </h3>
-            <div class="flex-1"></div>
         </div>
         <form
-            class="divide-base-200 max-h-[65vh] w-full divide-y overflow-x-hidden overflow-y-auto p-2"
+            class="divide-base-200 relative z-0 w-full divide-y p-2"
             [formGroup]="form"
         >
             <section details>
@@ -260,7 +237,7 @@ import { BookingFormService } from '../booking-form.service';
                 </section>
             }
         </form>
-        @if (can_close()) {
+        @if (can_close) {
             <div class="border-base-200 w-full border-t px-2 py-2">
                 <button
                     btn
@@ -277,7 +254,6 @@ import { BookingFormService } from '../booking-form.service';
     imports: [
         TranslatePipe,
         MatRippleModule,
-        IconComponent,
         SettingsToggleComponent,
         DurationFieldComponent,
         TimeFieldComponent,
@@ -291,17 +267,13 @@ import { BookingFormService } from '../booking-form.service';
     ],
 })
 export class LockerFiltersComponent extends AsyncHandler implements OnInit {
-    private _bsheet_ref = inject<MatBottomSheetRef<LockerFiltersComponent>>(
-        MatBottomSheetRef,
-        { optional: true },
-    );
     private _state = inject(BookingFormService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
     public readonly hide_levels = input<boolean>(undefined);
 
-    public readonly can_close = signal(!!this._bsheet_ref);
+    public can_close = false;
     public readonly options = toSignal(this._state.options, {
         initialValue: {} as any,
     });
@@ -351,7 +323,6 @@ export class LockerFiltersComponent extends AsyncHandler implements OnInit {
         this._org.region = reg;
     }
 
-    public readonly close = () => this._bsheet_ref.dismiss();
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
     public readonly setLevel = (l) => {};
@@ -409,6 +380,10 @@ export class LockerFiltersComponent extends AsyncHandler implements OnInit {
         return endOfDay(
             addDays(Date.now(), this._available_period()),
         ).valueOf();
+    }
+
+    public close() {
+        // No-op for inline filters
     }
 
     public readonly use_24hr = this._use_24hr;
