@@ -651,14 +651,16 @@ describe('BookingFormService', () => {
             await spectator.service.postForm(true);
 
             expect(save_booking).toHaveBeenCalledTimes(1);
-            expect(save_booking.mock.calls[0][0]).toEqual(
-                expect.objectContaining({
-                    all_day: true,
-                    date: new Date(2026, 2, 20, 10, 5, 0, 0).valueOf(),
-                    duration: 415,
-                    date_end: new Date(2026, 2, 20, 17, 0, 0, 0).valueOf(),
-                }),
-            );
+            expect(save_booking.mock.calls[0][0]).toMatchObject({
+                all_day: true,
+                booking_start: Math.floor(
+                    new Date(2026, 2, 20, 10, 5, 0, 0).valueOf() / 1000,
+                ),
+                booking_end: Math.floor(
+                    new Date(2026, 2, 20, 17, 0, 0, 0).valueOf() / 1000,
+                ),
+                date_end: new Date(2026, 2, 20, 17, 0, 0, 0).valueOf(),
+            });
         } finally {
             jest.useRealTimers();
         }
