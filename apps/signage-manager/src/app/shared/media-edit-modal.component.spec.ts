@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { notifyError, notifySuccess } from '@placeos/common';
-import { SignageMedia } from '@placeos/ts-client';
+import { SignageMedia, SignagePlugin } from '@placeos/ts-client';
 import {
     MediaEditModalComponent,
     MediaEditModalData,
@@ -80,5 +80,77 @@ describe('MediaEditModalComponent', () => {
         expect(notifyError).toHaveBeenCalledWith(
             'Failed to save media item. Error: Media upload was cancelled.',
         );
+    });
+
+    it('uses plugin-reported schema ahead of catalogue params', () => {
+        modal_data.media = new SignageMedia({
+            media_type: 'plugin',
+            plugin_id: 'weather',
+        });
+        modal_data.file = undefined;
+        modal_data.file_metadata = undefined;
+        modal_data.plugin = new SignagePlugin({
+            id: 'weather',
+            params: {
+                type: 'object',
+                properties: {
+                    theme: { type: 'string' },
+                },
+            },
+        });
+        const fixture = TestBed.createComponent(MediaEditModalComponent);
+        const component = fixture.componentInstance;
+        const plugin_schema = {
+            type: 'object',
+            properties: {
+                units: { type: 'string', default: 'metric' },
+            },
+        };
+
+        expect(component.active_plugin_schema()).toEqual(
+            modal_data.plugin.params,
+        );
+
+        component.plugin_embed_schema.set(plugin_schema);
+
+        expect(component.active_plugin_schema()).toEqual(plugin_schema);
+    });
+
+    it('saves plugin config using defaults from the plugin schema', async () => {
+        modal_data.media = new SignageMedia({
+            media_type: 'plugin',
+            media_uri: '/plugins/weather/index.html',
+            plugin_id: 'weather',
+        });
+        modal_data.file = undefined;
+        modal_data.file_metadata = undefined;
+        modal_data.plugin = new SignagePlugin({
+            id: 'weather',
+            defaults: { units: 'imperial', size: 'large' },
+        });
+        const fixture = TestBed.createComponent(MediaEditModalComponent);
+        const component = fixture.componentInstance;
+
+        component.plugin_embed_schema.set({
+            type: 'object',
+            properties: {
+                units: { type: 'string', default: 'metric' },
+                theme: { type: 'string', default: 'light' },
+            },
+        });
+        component.form.patchValue({
+            name: 'Weather',
+            plugin_params: { theme: 'dark' },
+        });
+
+        await component.saveMedia();
+
+        expect(onAdd).toHaveBeenCalled();
+        const media = onAdd.mock.calls[0][1] as SignageMedia;
+        expect(media.plugin_params).toEqual({
+            units: 'metric',
+            size: 'large',
+            theme: 'dark',
+        });
     });
 });
