@@ -46,10 +46,6 @@ import {
     CateringItemOptionModalData,
 } from './catering-option-modal.component';
 import {
-    CateringOrderModalComponent,
-    CateringOrderModalData,
-} from './catering-order-modal.component';
-import {
     CateringOrderOptionsModalComponent,
     CateringOrderOptionsModalData,
 } from './catering-order-options-modal.component';
@@ -183,34 +179,6 @@ export class CateringStateService extends AsyncHandler {
                 }
             }),
         );
-    }
-
-    /**
-     * Create/Edit catering order
-     * @param order Order to manipulate
-     */
-    public async manageCateringOrder(order: CateringOrder) {
-        const ref = this._dialog.open<
-            CateringOrderModalComponent,
-            CateringOrderModalData
-        >(CateringOrderModalComponent, {
-            data: {
-                code: this._currency.getValue(),
-                order,
-                menu: this.menu,
-                loading: this.loading,
-                getCateringConfig: (_) => this.getCateringConfig(_),
-                selectOptions: (_) => this.selectOptions(_),
-            },
-        });
-        const details = await Promise.race([
-            ref.componentInstance.event
-                .pipe(first((_) => _.reason === 'done'))
-                .toPromise(),
-            ref.afterClosed().toPromise(),
-        ]);
-        ref.close();
-        return details?.metadata?.order || order;
     }
 
     public async addItem(item: CateringItem = new CateringItem()) {

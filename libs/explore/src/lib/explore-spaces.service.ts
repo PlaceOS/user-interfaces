@@ -26,7 +26,7 @@ import {
     Space,
 } from '@placeos/common';
 import { notifyError } from 'libs/common/src/lib/notifications';
-import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
+import { EventFormService } from 'libs/events/src/lib/event-form.service';
 
 import { ExploreBookQrComponent } from './explore-book-qr.component';
 import { ExploreBookingModalComponent } from './explore-booking-modal.component';

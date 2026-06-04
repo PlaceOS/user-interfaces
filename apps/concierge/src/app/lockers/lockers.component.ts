@@ -18,7 +18,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
 import { LockersTopbarComponent } from './locker-topbar.component';
 
 @Component({
-    selector: '[app-new-lockers]',
+    selector: '[app-lockers]',
     template: `
         <app-topbar />
         <div class="flex h-px flex-1">

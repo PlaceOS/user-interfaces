@@ -14,7 +14,7 @@ import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { CateringTopbarComponent } from './catering-topbar.component';
 
 @Component({
-    selector: '[app-new-catering]',
+    selector: '[app-catering]',
     template: `
         <app-topbar />
         <div class="flex h-px flex-1">
