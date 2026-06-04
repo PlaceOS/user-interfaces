@@ -249,7 +249,6 @@ export class SpaceListFieldComponent
     /** Add or edit selected spaces */
     public changeSpaces() {
         this._dialog_ref = this._dialog.open(NewSpaceSelectModalComponent, {
-            // this._dialog_ref = this._dialog.open(SpaceSelectModalComponent, {
             data: {
                 spaces: this.spaces(),
                 options: { capacity: this.room_size() },

@@ -339,7 +339,6 @@ export async function removeAssetRequests(id: string) {
 export function differenceBetweenAssetRequests(
     new_assets: AssetRequest[],
     old_assets: AssetRequest[],
-    reset_state = false,
 ): string[] {
     if ((!new_assets || new_assets?.length <= 0) && old_assets?.length)
         return [];
@@ -406,7 +405,6 @@ export async function validateAssetRequestsForResource(
         : differenceBetweenAssetRequests(
               new_assets,
               booking_list.map(([_, r]) => r),
-              reset_state,
           );
     if (reset_state) {
         const has_state = bookings.filter((_) => _.approved || _.rejected);

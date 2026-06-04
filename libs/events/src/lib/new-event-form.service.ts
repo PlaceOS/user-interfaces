@@ -675,8 +675,6 @@ export class EventFormService extends AsyncHandler {
                 this.removeLoadingTag(Tags.PostBooking);
                 throw i18n('CALENDAR_EVENT.SPACE_EXTERNALS_ERROR');
             }
-            // Handle payments for room resources
-            // if (false) await this._handlePayments().catch(on_error);
             // Handle setup and breakdown times
             const default_oflow = this._overflow();
             let [setup, breakdown] = [
@@ -881,10 +879,6 @@ export class EventFormService extends AsyncHandler {
             'PLACEOS.event_form',
             JSON.stringify({ ...saved_form, ...host_data }),
         );
-    }
-
-    private async _handlePayments() {
-        return 'INV-000_001';
     }
 
     private async _checkResourcesAvailable(

@@ -182,7 +182,6 @@ export class DeskListFieldComponent implements ControlValueAccessor {
 
     /** Add or edit selected items */
     public changeResources() {
-        // const ref = this._dialog.open(DeskSelectModalComponent, {
         const ref = this._dialog.open(NewDeskSelectModalComponent, {
             data: {
                 items: this.items,
