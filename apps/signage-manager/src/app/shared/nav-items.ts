@@ -1,4 +1,4 @@
-export const NAV_ITEMS = [
+const NAV_ITEMS = [
     { route: '/media', icon: 'stock_media', label: 'SIGNAGE_MANAGER.NAV_MEDIA' },
     {
         route: '/playlists',
