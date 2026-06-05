@@ -15,7 +15,7 @@ import { IconComponent } from './icon.component';
             >
                 <div class="min-w-0 flex-1">
                     <h2 class="m-0 text-sm leading-tight font-medium">
-                        {{ update_state.message || 'New version is available' }}
+                        {{ update_state.message || 'Update available' }}
                     </h2>
                     <p class="m-0 mt-1 text-xs opacity-70">
                         {{
