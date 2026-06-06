@@ -292,13 +292,17 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
         );
         if (!nearby)
             return notifyError(i18n('APP.WORKPLACE.MEETING_DESK_ERROR'));
-        const resource = resources.find((_) => _.map_id === nearby);
+        const resource = resources.find(
+            (_) => _.map_id === nearby || _.id === nearby,
+        );
+        if (!resource)
+            return notifyError(i18n('APP.WORKPLACE.MEETING_DESK_ERROR'));
         this._booking_form.form.patchValue({
             date: set(event_date, { hours: 8, minutes: 0 }).valueOf(),
             duration: 10 * 60,
             all_day: true,
             booking_type: 'desk',
-            asset_id: nearby,
+            asset_id: resource.id,
             asset_name: resource.name,
             resources: [resource],
         });

@@ -1,21 +1,33 @@
 import { FormControl, FormGroup } from '@angular/forms';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { ActivatedRoute } from '@angular/router';
-import { BookingFormService } from '@placeos/bookings';
+import { BookingFormService, findNearbyFeature } from '@placeos/bookings';
 import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 import { signal } from '@angular/core';
-import { listChildMetadata } from '@placeos/ts-client';
+import {
+    listChildMetadata,
+    querySystemsWithEmails,
+    showSystem,
+} from '@placeos/ts-client';
 import { DeskFlowNewComponent } from '../../app/book/desk-flow-new/desk-flow.component';
 
 jest.mock('@placeos/ts-client', () => ({
     listChildMetadata: jest.fn(),
+    querySystemsWithEmails: jest.fn(),
+    showSystem: jest.fn(),
+}));
+
+jest.mock('@placeos/bookings', () => ({
+    ...jest.requireActual('@placeos/bookings'),
+    findNearbyFeature: jest.fn(),
 }));
 
 describe('DeskFlowNewComponent', () => {
     let spectator: Spectator<DeskFlowNewComponent>;
     let form: FormGroup;
+    let query_params: Record<string, string>;
     const desk_resource = {
         id: 'desk-123',
         name: 'Desk 123',
@@ -38,6 +50,7 @@ describe('DeskFlowNewComponent', () => {
                 options: of({ type: 'desk' }),
                 loading: of(false),
                 resources: resources.asObservable(),
+                available_resources: resources.asObservable(),
                 form: (() => {
                     form = new FormGroup({
                         booking_type: new FormControl('desk'),
@@ -53,16 +66,21 @@ describe('DeskFlowNewComponent', () => {
                     get: (key: string) => (key === 'step' ? 'form' : null),
                 }),
                 queryParamMap: of({
-                    has: (key: string) => key === 'asset_id',
-                    get: (key: string) =>
-                        key === 'asset_id' ? 'desk-123' : null,
+                    has: (key: string) => key in query_params,
+                    get: (key: string) => query_params[key] || null,
                 }),
             } as any),
             MockProvider(OrganisationService, {
+                initialised: of(true),
                 buildings: [
                     { id: 'building-1' },
                     { id: 'building-2' },
                 ],
+                levelWithID: jest.fn((zones = []) =>
+                    zones.includes('level-1')
+                        ? { id: 'level-1', map_id: 'level-map-1' }
+                        : null,
+                ),
                 find: jest.fn((id: string) =>
                     ['building-1', 'building-2'].includes(id) ? { id } : null,
                 ),
@@ -71,8 +89,21 @@ describe('DeskFlowNewComponent', () => {
     });
 
     beforeEach(() => {
+        jest.clearAllMocks();
         jest.mocked(listChildMetadata).mockReturnValue(of([]) as any);
+        jest.mocked(showSystem).mockReturnValue(
+            of({
+                id: 'room-1',
+                email: 'room@example.com',
+                map_id: 'room-map-1',
+                zones: ['level-1'],
+            }) as any,
+        );
+        jest.mocked(querySystemsWithEmails).mockReturnValue(
+            of({ data: [] }) as any,
+        );
         resources.next([desk_resource]);
+        query_params = { asset_id: 'desk-123' };
         form?.patchValue({ booking_type: 'desk', resources: [], asset_id: '' });
     });
 
@@ -155,20 +186,9 @@ describe('DeskFlowNewComponent', () => {
         );
 
         spectator = createComponent({
-            providers: [
-                MockProvider(ActivatedRoute, {
-                    paramMap: of({
-                        has: (key: string) => key === 'step',
-                        get: (key: string) => (key === 'step' ? 'form' : null),
-                    }),
-                    queryParamMap: of({
-                        has: (key: string) => key === 'asset_id',
-                        get: (key: string) =>
-                            key === 'asset_id' ? 'desk-456' : null,
-                    }),
-                } as any),
-            ],
+            providers: [],
         });
+        query_params = { asset_id: 'desk-456' };
 
         await spectator.component.ngOnInit();
         await new Promise((resolve) => setTimeout(resolve, 75));
@@ -186,6 +206,44 @@ describe('DeskFlowNewComponent', () => {
                 },
             ],
             asset_id: 'desk-456',
+        });
+    });
+
+    it('should select a nearby desk by resource id when no map id is available', async () => {
+        const desk_without_map_id = {
+            id: 'desk-nearby',
+            name: 'Nearby Desk',
+            zone: { id: 'level-1', parent_id: 'building-1' },
+        };
+        jest.mocked(findNearbyFeature).mockResolvedValue('desk-nearby');
+        resources.next([desk_without_map_id]);
+        query_params = {};
+
+        spectator = createComponent();
+        (spectator.component as any)._space_pipe = {
+            transform: jest.fn(() =>
+                Promise.resolve({
+                    id: 'room-1',
+                    map_id: 'room-map-1',
+                    zones: ['level-1'],
+                }),
+            ),
+        };
+
+        await (spectator.component as any)._initNearbyDeskBooking(
+            'room-1',
+            Date.now(),
+        );
+
+        expect(findNearbyFeature).toHaveBeenCalledWith(
+            'level-map-1',
+            'room-map-1',
+            ['desk-nearby'],
+        );
+        expect(form.getRawValue()).toEqual({
+            booking_type: 'desk',
+            resources: [desk_without_map_id],
+            asset_id: 'desk-nearby',
         });
     });
 });
