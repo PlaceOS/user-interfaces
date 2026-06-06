@@ -41,6 +41,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     BuildingPipe,
     IconComponent,
+    SafePipe,
     TranslatePipe,
 } from '@placeos/components';
 import { showMetadata } from '@placeos/ts-client';
@@ -296,6 +297,23 @@ import { DesksStateService } from './desks-state.service';
                 }
             </main>
         </div>
+        @if (print_desk(); as desk) {
+            <div class="desk-qr-print-preview print-only fixed top-0 left-0">
+                <a
+                    [href]="desk.qr_link | safe: 'url'"
+                    target="_blank"
+                    ref="noopener noreferrer"
+                    class="border-base-200 bg-base-100 m-2 block rounded-lg border p-2"
+                >
+                    <img class="w-48" [src]="desk.qr_code" />
+                </a>
+                <div
+                    class="bg-base-200 mx-2 mt-2 w-48 rounded-sm p-2 text-center font-mono text-sm"
+                >
+                    {{ desk.name || desk.id }}
+                </div>
+            </div>
+        }
     `,
     styles: [
         `
@@ -326,6 +344,7 @@ import { DesksStateService } from './desks-state.service';
         SearchbarComponent,
         TranslatePipe,
         BuildingPipe,
+        SafePipe,
     ],
 })
 export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
@@ -341,6 +360,7 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     public readonly downloading = signal(false);
     public readonly path = signal('');
     public readonly manage = computed(() => this.path() === 'manage');
+    public readonly print_desk = this._state.print_desk;
     private readonly _desk_levels_loaded = signal(false);
     /** Signal for filters */
     public readonly filters = this._state.filters;

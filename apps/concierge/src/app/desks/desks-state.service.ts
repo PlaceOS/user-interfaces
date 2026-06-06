@@ -89,6 +89,13 @@ export interface DeskFilters {
     view?: DeskView;
 }
 
+export interface DeskQrItem {
+    id: string;
+    name?: string;
+    qr_code?: string;
+    qr_link?: string;
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -104,6 +111,7 @@ export class DesksStateService extends AsyncHandler {
 
     public readonly loading = this._loading.asReadonly();
     public readonly filters = this._filters.asReadonly();
+    public readonly print_desk = signal<DeskQrItem | null>(null);
 
     public get tz_offset() {
         const tz = this._settings.get('app.bookings.use_building_timezone')
