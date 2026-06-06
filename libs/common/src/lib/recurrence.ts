@@ -353,7 +353,10 @@ export function toEventRecurrence(
     }
     if ((r.type === 'weekly' || r.type === 'monthly') && r.weekdays) {
         details.days_of_week = Array.from(r.weekdays);
-        if (r.type === 'monthly') details.pattern = 'monthly';
+        if (r.type === 'monthly') {
+            details.pattern = 'monthly';
+            if (r.week) details.nth_of_month = r.week;
+        }
     } else if (r.type === 'monthly') {
         details.days_of_week = [];
         if (r.monthly_type === 'day_of_month') details.pattern = 'month_day';

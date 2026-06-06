@@ -170,6 +170,7 @@ describe('formatRecurrence', () => {
 
         expect(raw.pattern).toBe('monthly');
         expect(raw.days_of_week).toEqual([3]);
+        expect(raw.nth_of_month).toBe(WeekOfMonth.Second);
         expect(raw.start).toBe(new Date(2026, 4, 13, 9).valueOf());
     });
 
