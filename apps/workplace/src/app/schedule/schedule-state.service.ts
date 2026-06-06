@@ -800,9 +800,14 @@ export class ScheduleStateService extends AsyncHandler {
                 ).find((_) => _.ical_uid === event.ical_uid) || event;
         }
         // Load full space details for resources
-        if (event.resources?.length) {
+        const resources = event.resources?.length
+            ? event.resources
+            : event.system
+              ? [event.system]
+              : [];
+        if (resources.length) {
             const full_resources = await Promise.all(
-                event.resources.map(async (resource) => {
+                resources.map(async (resource) => {
                     // Use email or id as the lookup key
                     const lookup_key = resource.email || resource.id;
                     if (!lookup_key) return resource;
