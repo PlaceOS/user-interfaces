@@ -11,7 +11,10 @@ import { MatSelectModule } from '@angular/material/select';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { BehaviorSubject } from 'rxjs';
-import { DesksStateService } from '../../app/desks/desks-state.service';
+import {
+    DeskQrItem,
+    DesksStateService,
+} from '../../app/desks/desks-state.service';
 import { DesksTopbarComponent } from '../../app/desks/desks-topbar.component';
 import { DesksComponent } from '../../app/desks/desks.component';
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
@@ -24,6 +27,7 @@ describe('DesksComponent', () => {
     let active_region: BehaviorSubject<any>;
     let current_building: any;
     let filters_signal: ReturnType<typeof signal<any>>;
+    let print_desk_signal: ReturnType<typeof signal<DeskQrItem | null>>;
     const organisation_service: any = {
         buildings: [
             { id: 'bld-1', parent_id: 'region-1' },
@@ -58,6 +62,7 @@ describe('DesksComponent', () => {
             MockProvider(DesksStateService, {
                 refresh: jest.fn(),
                 filters: signal({}),
+                print_desk: signal(null),
                 loading: signal(false),
                 setFilters: jest.fn(),
                 rejectAllDesks: jest.fn(),
@@ -84,11 +89,13 @@ describe('DesksComponent', () => {
         organisation_service.active_building = active_building;
         organisation_service.active_region = active_region;
         filters_signal = signal({ zones: ['level-a'] });
+        print_desk_signal = signal<DeskQrItem | null>(null);
         spectator = createComponent({
             providers: [
                 MockProvider(DesksStateService, {
                     refresh: jest.fn(),
                     filters: filters_signal,
+                    print_desk: print_desk_signal,
                     loading: signal(false),
                     setFilters: jest.fn((filters) =>
                         filters_signal.set({
@@ -141,6 +148,25 @@ describe('DesksComponent', () => {
             view: 'events',
             search: '',
         });
+    });
+
+    it('should render selected desk QR code outside the print-hidden content', () => {
+        print_desk_signal.set({
+            id: 'desk-1',
+            name: 'Desk 1',
+            qr_code: 'data:image/png;base64,qr-code',
+            qr_link: 'http://localhost/workplace/#/book/code?asset_id=desk-1',
+        });
+        spectator.detectChanges();
+
+        const print_content = spectator.query('.desk-qr-print-preview');
+
+        expect(print_content).toBeTruthy();
+        expect(print_content.closest('.print\\:hidden')).toBeFalsy();
+        expect(print_content.querySelector('img')?.getAttribute('src')).toBe(
+            'data:image/png;base64,qr-code',
+        );
+        expect(print_content.textContent).toContain('Desk 1');
     });
 
     it.todo('should handle routing events');

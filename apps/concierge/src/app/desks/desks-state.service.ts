@@ -11,6 +11,7 @@ import {
     queryBookings,
     queryPagedBookings,
     rejectBooking,
+    rejectBookingInstance,
     removeBooking,
     saveBooking,
     updateBooking,
@@ -88,6 +89,13 @@ export interface DeskFilters {
     view?: DeskView;
 }
 
+export interface DeskQrItem {
+    id: string;
+    name?: string;
+    qr_code?: string;
+    qr_link?: string;
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -103,6 +111,7 @@ export class DesksStateService extends AsyncHandler {
 
     public readonly loading = this._loading.asReadonly();
     public readonly filters = this._filters.asReadonly();
+    public readonly print_desk = signal<DeskQrItem | null>(null);
 
     public get tz_offset() {
         const tz = this._settings.get('app.bookings.use_building_timezone')
@@ -487,7 +496,7 @@ export class DesksStateService extends AsyncHandler {
     }
 
     public async rejectDesk(desk: Booking) {
-        const status: any = await rejectBooking(desk.id)
+        const status: any = await this._rejectDeskBooking(desk)
             .toPromise()
             .catch((_) => ({ failed: true, error: _ }));
         if (status.failed) {
@@ -582,17 +591,26 @@ export class DesksStateService extends AsyncHandler {
         );
         if (resp.reason !== 'done') return;
         resp.loading(i18n('APP.CONCIERGE.DESKS_REJECT_ALL_LOADING'));
-        await Promise.all(
-            list.map((desk) => rejectBooking(desk.id).toPromise()),
-        ).catch((e) => {
+        try {
+            await Promise.all(
+                list.map((desk) => this._rejectDeskBooking(desk).toPromise()),
+            );
+        } catch (e) {
             notifyError(
                 i18n('APP.CONCIERGE.DESKS_REJECT_ALL_ERROR', { error: e }),
             );
             throw e;
-        });
+        } finally {
+            resp.close();
+        }
         notifySuccess(i18n('APP.CONCIERGE.DESKS_REJECT_ALL_SUCCESS'));
         this.setFilters({});
-        resp.close();
+    }
+
+    private _rejectDeskBooking(desk: Booking) {
+        return desk.instance
+            ? rejectBookingInstance(desk.id, desk.instance)
+            : rejectBooking(desk.id);
     }
 
     private async _checkAssignedDeskLimit(

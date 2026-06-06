@@ -38,10 +38,19 @@ export function ensureWorkspace(app_name) {
     mkdirSync(resources_root, { recursive: true });
     mkdirSync(getArtifactsRoot(app_name), { recursive: true });
 
+    // Declare the Capacitor plugins the auth flow depends on so `cap sync`
+    // builds their native code into the generated app. Without these, the
+    // custom-scheme deep link reopens the app but `App.appUrlOpen` never fires
+    // in JS, so the OAuth redirect (and code exchange) is never handled.
     const package_json = {
         name: `${app_name}-capacitor`,
         private: true,
         type: 'module',
+        dependencies: {
+            '@capacitor/core': '8.2.0',
+            '@capacitor/app': '8.1.0',
+            '@capacitor/browser': '8.0.3',
+        },
     };
     writeFileSync(
         path.join(app_root, 'package.json'),

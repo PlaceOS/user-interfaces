@@ -67,6 +67,8 @@ describe('DesksStateService', () => {
         (booking_mod as any).queryBookings = jest.fn(() => of([]));
         (booking_mod as any).saveBooking = jest.fn(() => of({}));
         (booking_mod as any).removeBooking = jest.fn(() => of(undefined));
+        (booking_mod as any).rejectBooking = jest.fn(() => of({}));
+        (booking_mod as any).rejectBookingInstance = jest.fn(() => of({}));
         (booking_mod as any).updateBooking = jest.fn(() => of({}));
         jest.spyOn(ts_client_mod, 'updateMetadata').mockReturnValue(
             of({}) as any,
@@ -82,6 +84,7 @@ describe('DesksStateService', () => {
         (common_mod as any).nextValueFrom = jest.fn((obs) =>
             lastValueFrom(obs),
         );
+        (common_mod as any).i18n = jest.fn((key) => key);
         (common_mod as any).notifySuccess = jest.fn();
         (common_mod as any).notifyError = jest.fn();
         (common_mod as any).setTimeInTimezone = jest.fn((date) => date);
@@ -378,5 +381,71 @@ describe('DesksStateService', () => {
     it.todo('should allow approving of bookings');
     it.todo('should allow rejection of bookings');
     it.todo('should allow toggling of access state for booking users');
-    it.todo('should allow rejection of all displayed bookings');
+
+    it('should reject all displayed desk bookings with the instance endpoint where needed', async () => {
+        const confirm_ref = {
+            reason: 'done',
+            loading: jest.fn(),
+            close: jest.fn(),
+        };
+        (component_mod.openConfirmModal as jest.Mock).mockResolvedValue(
+            confirm_ref,
+        );
+        Object.defineProperty(spectator.service, 'paged_bookings', {
+            value: () => ({
+                list: [
+                    { id: 'booking-1' },
+                    { id: 'booking-2', instance: 1_740_000_000 },
+                ],
+                total: 2,
+                has_next: false,
+            }),
+        });
+
+        await spectator.service.rejectAllDesks();
+
+        expect(booking_mod.rejectBooking).toHaveBeenCalledWith('booking-1');
+        expect(booking_mod.rejectBookingInstance).toHaveBeenCalledWith(
+            'booking-2',
+            1_740_000_000,
+        );
+        expect(confirm_ref.loading).toHaveBeenCalledWith(
+            'APP.CONCIERGE.DESKS_REJECT_ALL_LOADING',
+        );
+        expect(confirm_ref.close).toHaveBeenCalled();
+        expect(common_mod.notifySuccess).toHaveBeenCalledWith(
+            'APP.CONCIERGE.DESKS_REJECT_ALL_SUCCESS',
+        );
+    });
+
+    it('should close the reject all confirmation when a desk rejection fails', async () => {
+        const confirm_ref = {
+            reason: 'done',
+            loading: jest.fn(),
+            close: jest.fn(),
+        };
+        (component_mod.openConfirmModal as jest.Mock).mockResolvedValue(
+            confirm_ref,
+        );
+        Object.defineProperty(spectator.service, 'paged_bookings', {
+            value: () => ({
+                list: [{ id: 'booking-1', instance: 1_740_000_000 }],
+                total: 1,
+                has_next: false,
+            }),
+        });
+        (booking_mod.rejectBookingInstance as jest.Mock).mockReturnValue(
+            throwError(() => '405 Method Not Allowed'),
+        );
+
+        await expect(spectator.service.rejectAllDesks()).rejects.toBe(
+            '405 Method Not Allowed',
+        );
+
+        expect(common_mod.notifyError).toHaveBeenCalledWith(
+            'APP.CONCIERGE.DESKS_REJECT_ALL_ERROR',
+        );
+        expect(confirm_ref.close).toHaveBeenCalled();
+        expect(common_mod.notifySuccess).not.toHaveBeenCalled();
+    });
 });

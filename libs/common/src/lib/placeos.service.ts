@@ -134,12 +134,13 @@ export class PlaceOS_Service extends AsyncHandler {
 
     private async _handleNativeAuthRedirect(url: string): Promise<void> {
         const callback_url = new URL(url);
-        localStorage.setItem('TESTING.callback_url', callback_url.toString());
         const search = callback_url.searchParams.toString();
         if (!search) return;
         await closeNativeBrowser();
+        // Reload the webview with the OAuth params on the main URL so the
+        // ts-client auth_code flow can pick up the `code` + `state` and
+        // exchange them (using the PKCE verifier stored before sign-in).
         location.replace(`${location.origin}${location.pathname}?${search}`);
-        setTimeout(() => console.log('NATIVE CALLBACK URL', url), 10 * 1000);
     }
 
     public get debug() {
