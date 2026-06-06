@@ -95,13 +95,17 @@ export function log(
 }
 
 export function scoped_log(scope: string) {
-    return {
-        debug: (msg, ...args) => log(scope, msg, args, 'debug'),
-        info: (msg, ...args) => log(scope, msg, args, 'info'),
-        error: (msg, ...args) => log(scope, msg, args, 'error'),
-        warn: (msg, ...args) => log(scope, msg, args, 'warn'),
-        log: (msg, ...args) => log(scope, msg, args, 'log'),
-    };
+    const logger = (msg: string, ...args: any) =>
+        log(scope, msg, args, 'debug');
+    ((logger.debug = (msg: string, ...args: any) =>
+        log(scope, msg, args, 'debug')),
+        (logger.info = (msg: string, ...args: any) =>
+            log(scope, msg, args, 'info')));
+    logger.error = (msg: string, ...args: any) =>
+        log(scope, msg, args, 'error');
+    logger.warn = (msg: string, ...args: any) => log(scope, msg, args, 'warn');
+    logger.log = (msg: string, ...args: any) => log(scope, msg, args, 'log');
+    return logger;
 }
 
 /**
