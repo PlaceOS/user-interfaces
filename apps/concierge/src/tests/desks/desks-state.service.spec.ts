@@ -363,6 +363,7 @@ describe('DesksStateService', () => {
                 has_next: false,
             }),
         });
+        const refresh_spy = jest.spyOn(spectator.service, 'refresh');
 
         await spectator.service.rejectAllDesks();
 
@@ -378,6 +379,7 @@ describe('DesksStateService', () => {
         expect(common_mod.notifySuccess).toHaveBeenCalledWith(
             'APP.CONCIERGE.DESKS_REJECT_ALL_SUCCESS',
         );
+        expect(refresh_spy).toHaveBeenCalled();
     });
 
     it('should close the reject all confirmation when a desk rejection fails', async () => {
@@ -399,6 +401,7 @@ describe('DesksStateService', () => {
         (booking_mod.rejectBookingInstance as jest.Mock).mockReturnValue(
             throwError(() => '405 Method Not Allowed'),
         );
+        const refresh_spy = jest.spyOn(spectator.service, 'refresh');
 
         await expect(spectator.service.rejectAllDesks()).rejects.toBe(
             '405 Method Not Allowed',
@@ -409,5 +412,6 @@ describe('DesksStateService', () => {
         );
         expect(confirm_ref.close).toHaveBeenCalled();
         expect(common_mod.notifySuccess).not.toHaveBeenCalled();
+        expect(refresh_spy).not.toHaveBeenCalled();
     });
 });
