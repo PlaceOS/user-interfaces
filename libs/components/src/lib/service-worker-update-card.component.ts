@@ -27,7 +27,7 @@ import { IconComponent } from './icon.component';
                 <button
                     icon
                     default
-                    matTooltip="Reload App"
+                    [matTooltip]="update_state.action || 'Reload App'"
                     (click)="reloadApp()"
                 >
                     <icon>refresh</icon>
