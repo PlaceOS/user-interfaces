@@ -218,6 +218,7 @@ import {
                         <mat-select
                             [(ngModel)]="zones"
                             (ngModelChange)="updateZones($event)"
+                            [disabled]="disable_level_selector_on_booking_list"
                             [placeholder]="
                                 (section() === 'manage'
                                     ? 'COMMON.LEVEL_SELECT'
@@ -496,7 +497,10 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     public readonly updateZones = (z) => {
         let zones = (z || []).filter((_) => !!_);
         if (!this._router.url.includes('parking')) return;
-        if (this.hide_level_selector_on_booking_list) {
+        if (
+            this.hide_level_selector_on_booking_list ||
+            this.disable_level_selector_on_booking_list
+        ) {
             zones = [];
         } else if (this.section() === 'events' && this.view() === 'map') {
             zones = zones.slice(0, 1);
@@ -507,13 +511,26 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
             const first = this.levels()[0]?.id;
             if (first) zones = [first];
         }
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: { zone_ids: zones.length ? zones.join(',') : null },
-            queryParamsHandling: 'merge',
-        });
-        this.zones.set(zones);
-        this._state.setOptions({ zones });
+        const zone_param = zones.length ? zones.join(',') : null;
+        const query_zone_param = this._query_params().get('zone_ids') || null;
+        const query_matches = zone_param === query_zone_param;
+        const selected_zones_match = this._sameZones(zones, this.zones());
+        const option_zones_match = this._sameZones(
+            zones,
+            this.options().zones || [],
+        );
+        if (query_matches && selected_zones_match && option_zones_match) {
+            return;
+        }
+        if (!query_matches) {
+            this._router.navigate([], {
+                relativeTo: this._route,
+                queryParams: { zone_ids: zone_param },
+                queryParamsHandling: 'merge',
+            });
+        }
+        if (!selected_zones_match) this.zones.set(zones);
+        if (!option_zones_match) this._state.setOptions({ zones });
         persistZones(
             this.section() === 'manage' ? 'parking-manage' : 'parking',
             this._persistScopeId(),
@@ -544,6 +561,16 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
             !!this._settings.get(
                 'app.parking.hide_level_selector_on_booking_list',
             )
+        );
+    }
+
+    public get disable_level_selector_on_booking_list() {
+        const request_filter = this.options().request_filter;
+        return (
+            this.section() === 'events' &&
+            this.view() === 'list' &&
+            request_filter !== 'all' &&
+            request_filter !== 'bookings'
         );
     }
 
@@ -586,7 +613,10 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
                     params.get('period') === 'week' ? 'week' : 'day',
                 );
             }
-            if (this.hide_level_selector_on_booking_list) {
+            if (
+                this.hide_level_selector_on_booking_list ||
+                this.disable_level_selector_on_booking_list
+            ) {
                 if (params.has('zone_ids') || this.zones().length) {
                     this.updateZones([]);
                 }
@@ -604,18 +634,14 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
                 this.updateZones(zones);
                 return;
             }
-            this.zones.set(zones);
-            if (!zones.length) return;
-            const level = this._org.levelWithID(zones);
-            if (!level) return;
-            this._org.building = this._org.buildings.find(
-                (bld) => bld.id === level.parent_id,
-            );
-            this._state.setOptions({ zones });
+            this._applyQueryZones(zones);
         });
         effect(() => {
             if (!this._ready() || this.use_region) return;
-            if (this.hide_level_selector_on_booking_list) {
+            if (
+                this.hide_level_selector_on_booking_list ||
+                this.disable_level_selector_on_booking_list
+            ) {
                 if (this.zones().length) this.updateZones([]);
                 return;
             }
@@ -646,6 +672,23 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         return this.use_region
             ? this._org.region?.id || ''
             : this._org.building?.id || '';
+    }
+
+    private _applyQueryZones(zones: string[]) {
+        if (
+            this._sameZones(zones, this.zones()) &&
+            this._sameZones(zones, this.options().zones || [])
+        ) {
+            return;
+        }
+        this.zones.set(zones);
+        if (!zones.length) return;
+        const level = this._org.levelWithID(zones);
+        if (!level) return;
+        this._org.building = this._org.buildings.find(
+            (bld) => bld.id === level.parent_id,
+        );
+        this._state.setOptions({ zones });
     }
 
     public async ngOnInit() {
@@ -729,7 +772,11 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
                 this.can_view_requests ? 'requests' : 'bookings',
             );
         }
-        if (this.hide_level_selector_on_booking_list && this.zones().length) {
+        if (
+            (this.hide_level_selector_on_booking_list ||
+                this.disable_level_selector_on_booking_list) &&
+            this.zones().length
+        ) {
             this.updateZones([]);
         }
         this.selectDefaultZoneForManage();

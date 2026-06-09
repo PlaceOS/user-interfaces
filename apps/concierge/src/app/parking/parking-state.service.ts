@@ -278,11 +278,7 @@ export class ParkingStateService extends AsyncHandler {
                 period_start: getUnixTime(period_start),
                 period_end: getUnixTime(period_end),
                 type: 'parking',
-                zones: options.zones?.length
-                    ? options.zones.join(',')
-                    : (this._settings.get('app.use_region')
-                          ? this._org.region?.id
-                          : '') || bld?.id,
+                zones: this._bookingQueryZone(options, bld),
                 include_checked_out: true,
             }).pipe(
                 map((list) => {
@@ -341,6 +337,19 @@ export class ParkingStateService extends AsyncHandler {
 
     public setPeriod(period: 'day' | 'week') {
         this.setOptions({ period });
+    }
+
+    private _bookingQueryZone(options: ParkingOptions, bld?: { id?: string }) {
+        const allow_level_filter =
+            options.request_filter === 'all' ||
+            options.request_filter === 'bookings';
+        if (allow_level_filter && options.zones?.length) {
+            return options.zones.join(',');
+        }
+        return (
+            (this._settings.get('app.use_region') ? this._org.region?.id : '') ||
+            bld?.id
+        );
     }
 
     public isRequest(booking: Booking) {

@@ -139,6 +139,46 @@ describe('ParkingStateService', () => {
         jest.useRealTimers();
     });
 
+    it('should filter booking listings by selected levels for all bookings', async () => {
+        jest.useFakeTimers();
+        const subscription = spectator.service.bookings.subscribe();
+
+        spectator.service.setOptions({
+            request_filter: 'all',
+            zones: ['lvl-1', 'lvl-2'],
+        });
+        await jest.advanceTimersByTimeAsync(1100);
+
+        expect(booking_mod.queryBookings).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+                zones: 'lvl-1,lvl-2',
+            }),
+        );
+
+        subscription.unsubscribe();
+        jest.useRealTimers();
+    });
+
+    it('should filter request listings by the building zone when levels are disabled', async () => {
+        jest.useFakeTimers();
+        const subscription = spectator.service.bookings.subscribe();
+
+        spectator.service.setOptions({
+            request_filter: 'requests',
+            zones: ['lvl-1', 'lvl-2'],
+        });
+        await jest.advanceTimersByTimeAsync(1100);
+
+        expect(booking_mod.queryBookings).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+                zones: 'bld-1',
+            }),
+        );
+
+        subscription.unsubscribe();
+        jest.useRealTimers();
+    });
+
     it('should use the building timezone for assigned parking bookings', async () => {
         const mock_now = new Date('2026-06-15T12:00:00Z').valueOf();
         const assigned_start = common_mod.setTimeInTimezone(
