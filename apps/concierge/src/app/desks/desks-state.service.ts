@@ -199,7 +199,8 @@ export class DesksStateService extends AsyncHandler {
         shareReplay(1),
     );
 
-    private _next_page = new Subject<() => QueryResponse<Booking>>();
+    private _first_page: (() => QueryResponse<Booking>) | null = null;
+    private _next_page = new Subject<(() => QueryResponse<Booking>) | null>();
     private _call_next_page = new Subject<string>();
     private _all_zones_keys = ['All', -1, '-1', ''];
     public readonly setup_paging = combineLatest([
@@ -224,7 +225,7 @@ export class DesksStateService extends AsyncHandler {
                     ? this._org.buildingsForRegion().map((_) => _.id)
                     : [this._org.building.id]
                 : filters.zones;
-            this._next_page.next(() =>
+            this._first_page = () =>
                 queryPagedBookings({
                     period_start: getUnixTime(period_start),
                     period_end: getUnixTime(period_end),
@@ -235,8 +236,8 @@ export class DesksStateService extends AsyncHandler {
                     limit: 500,
                 } as any).pipe(
                     catchError((_) => of({ data: [], total: 0, next: null })),
-                ),
-            );
+                );
+            this._next_page.next(this._first_page);
             this._call_next_page.next(`RESET_${Date.now()}`);
         }),
     );
@@ -328,6 +329,7 @@ export class DesksStateService extends AsyncHandler {
 
     public refresh() {
         this._loading.set(true);
+        if (this._first_page) this._next_page.next(this._first_page);
         this._call_next_page.next(`RESET_${Date.now()}`);
     }
 
@@ -492,6 +494,7 @@ export class DesksStateService extends AsyncHandler {
         notifySuccess(i18n('APP.CONCIERGE.DESKS_APPROVE_SUCCESS'));
         (desk as any).approved = true;
         (desk as any).rejected = false;
+        (desk as any).status = 'approved';
         this.setFilters({});
     }
 
@@ -509,6 +512,7 @@ export class DesksStateService extends AsyncHandler {
         notifySuccess(i18n('APP.CONCIERGE.DESKS_REJECT_SUCCESS'));
         (desk as any).approved = false;
         (desk as any).rejected = true;
+        (desk as any).status = 'declined';
         this.setFilters({});
     }
 
@@ -595,6 +599,11 @@ export class DesksStateService extends AsyncHandler {
             await Promise.all(
                 list.map((desk) => this._rejectDeskBooking(desk).toPromise()),
             );
+            list.forEach((desk) => {
+                (desk as any).approved = false;
+                (desk as any).rejected = true;
+                (desk as any).status = 'declined';
+            });
         } catch (e) {
             notifyError(
                 i18n('APP.CONCIERGE.DESKS_REJECT_ALL_ERROR', { error: e }),

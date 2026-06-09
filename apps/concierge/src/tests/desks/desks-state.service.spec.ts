@@ -344,6 +344,38 @@ describe('DesksStateService', () => {
     it.todo('should allow rejection of bookings');
     it.todo('should allow toggling of access state for booking users');
 
+    it('should mark a rejected desk booking as declined', async () => {
+        const booking = {
+            id: 'booking-1',
+            approved: true,
+            rejected: false,
+            status: 'approved',
+        } as any;
+
+        await spectator.service.rejectDesk(booking);
+
+        expect(booking_mod.rejectBooking).toHaveBeenCalledWith('booking-1');
+        expect(booking.approved).toBe(false);
+        expect(booking.rejected).toBe(true);
+        expect(booking.status).toBe('declined');
+        expect(common_mod.notifySuccess).toHaveBeenCalledWith(
+            'APP.CONCIERGE.DESKS_REJECT_SUCCESS',
+        );
+    });
+
+    it('should reset desk bookings with the first page query on refresh', () => {
+        const first_page = jest.fn(() => of({ data: [], total: 0, next: null }));
+        const next_pages: any[] = [];
+        (spectator.service as any)._first_page = first_page;
+        (spectator.service as any)._next_page.subscribe((next_page) =>
+            next_pages.push(next_page),
+        );
+
+        spectator.service.refresh();
+
+        expect(next_pages).toContain(first_page);
+    });
+
     it('should reject all displayed desk bookings with the instance endpoint where needed', async () => {
         const confirm_ref = {
             reason: 'done',
@@ -353,12 +385,17 @@ describe('DesksStateService', () => {
         (component_mod.openConfirmModal as jest.Mock).mockResolvedValue(
             confirm_ref,
         );
+        const list = [
+            { id: 'booking-1', status: 'approved' },
+            {
+                id: 'booking-2',
+                instance: 1_740_000_000,
+                status: 'approved',
+            },
+        ];
         Object.defineProperty(spectator.service, 'paged_bookings', {
             value: () => ({
-                list: [
-                    { id: 'booking-1' },
-                    { id: 'booking-2', instance: 1_740_000_000 },
-                ],
+                list,
                 total: 2,
                 has_next: false,
             }),
@@ -379,6 +416,7 @@ describe('DesksStateService', () => {
         expect(common_mod.notifySuccess).toHaveBeenCalledWith(
             'APP.CONCIERGE.DESKS_REJECT_ALL_SUCCESS',
         );
+        expect(list.every((desk) => desk.status === 'declined')).toBe(true);
         expect(refresh_spy).toHaveBeenCalled();
     });
 
