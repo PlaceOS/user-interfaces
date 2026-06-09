@@ -238,7 +238,6 @@ export function parseRecurrence(data: RecurrenceDetails) {
             data.days_of_week?.map((_) =>
                 typeof _ === 'number' ? DAYS_OF_WEEK[_] : _,
             ) || [],
-        nth_of_month: data.nth_of_month,
     };
 }
 
