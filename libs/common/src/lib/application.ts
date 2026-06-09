@@ -6,6 +6,7 @@ import { MINUTES, SECONDS } from './constants';
 import { log } from './general';
 
 let _timer: ReturnType<typeof setInterval> | undefined;
+let _initial_check: ReturnType<typeof setTimeout> | undefined;
 let _version_subscription: Subscription | undefined;
 let _unrecoverable_subscription: Subscription | undefined;
 let _new_version = false;
@@ -33,11 +34,19 @@ export function hasNewVersion() {
 }
 
 export function serviceWorkerUpdate() {
-    return SERVICE_WORKER_UPDATE;
+    return SERVICE_WORKER_UPDATE.asReadonly();
 }
 
 function reloadApp() {
     location.reload();
+}
+
+/** Stop the periodic and initial update checks. */
+function stopUpdateChecks() {
+    if (_timer) clearInterval(_timer);
+    if (_initial_check) clearTimeout(_initial_check);
+    _timer = undefined;
+    _initial_check = undefined;
 }
 
 function cacheOptions(options: CacheOptions | number = {}): CacheOptions {
@@ -47,6 +56,8 @@ function cacheOptions(options: CacheOptions | number = {}): CacheOptions {
 function handleNewVersion() {
     if (_new_version) return;
     _new_version = true;
+    // A new version is ready, no need to keep polling for one.
+    stopUpdateChecks();
     if (_auto_reload) return reloadApp();
     SERVICE_WORKER_UPDATE.set({
         message: 'New application version available',
@@ -68,7 +79,7 @@ export function setupCache(
         cacheOptions(options);
     _auto_reload = auto_reload;
     if (cache.isEnabled) {
-        if (_timer) clearInterval(_timer);
+        stopUpdateChecks();
         if (!_version_subscription) {
             _version_subscription = cache.versionUpdates.subscribe((event) => {
                 if (event.type !== 'VERSION_READY' || _new_version) return;
@@ -85,8 +96,9 @@ export function setupCache(
                         undefined,
                         'error',
                     );
-                    if (_auto_reload) return reloadApp();
                     _new_version = true;
+                    stopUpdateChecks();
+                    if (_auto_reload) return reloadApp();
                     SERVICE_WORKER_UPDATE.set({
                         message: 'Application update failed to load',
                         details: 'Reload the app to recover.',
@@ -95,7 +107,7 @@ export function setupCache(
                 },
             );
         }
-        setTimeout(() => {
+        _initial_check = setTimeout(() => {
             log('CACHE', `Checking for updates...`);
             checkForUpdate(cache);
         }, 2 * SECONDS);
@@ -107,8 +119,7 @@ export function setupCache(
 }
 
 export function clearCacheCheck() {
-    if (_timer) clearInterval(_timer);
-    _timer = undefined;
+    stopUpdateChecks();
     _version_subscription?.unsubscribe();
     _unrecoverable_subscription?.unsubscribe();
     _version_subscription = undefined;

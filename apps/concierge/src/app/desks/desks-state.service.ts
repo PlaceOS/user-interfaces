@@ -328,7 +328,7 @@ export class DesksStateService extends AsyncHandler {
 
     public refresh() {
         this._loading.set(true);
-        this.timeout('poll', () => this.setFilters(this._filters()));
+        this._call_next_page.next(`RESET_${Date.now()}`);
     }
 
     public async addDesks(list: Desk[]) {
@@ -604,7 +604,7 @@ export class DesksStateService extends AsyncHandler {
             resp.close();
         }
         notifySuccess(i18n('APP.CONCIERGE.DESKS_REJECT_ALL_SUCCESS'));
-        this.setFilters({});
+        this.refresh();
     }
 
     private _rejectDeskBooking(desk: Booking) {
