@@ -16,6 +16,7 @@ import { SearchbarComponent } from '../../app/ui/searchbar.component';
 describe('ParkingTopbarComponent', () => {
     let spectator: SpectatorRouting<ParkingTopbarComponent>;
     let hide_level_selector_on_booking_list = false;
+    let request_filter = 'all';
 
     const createComponent = createRoutingFactory({
         component: ParkingTopbarComponent,
@@ -31,7 +32,7 @@ describe('ParkingTopbarComponent', () => {
                     search: '',
                     zones: [],
                     period: 'day',
-                    request_filter: 'all',
+                    request_filter,
                 }),
                 spaces: of([]),
                 bookings: of([]),
@@ -72,7 +73,33 @@ describe('ParkingTopbarComponent', () => {
 
     beforeEach(() => {
         hide_level_selector_on_booking_list = false;
+        request_filter = 'all';
     });
+
+    function setRequestFilter(filter: string) {
+        Object.defineProperty(spectator.component, 'options', {
+            value: () => ({
+                date: Date.now(),
+                search: '',
+                zones: [],
+                period: 'day',
+                request_filter: filter,
+            }),
+            configurable: true,
+        });
+    }
+
+    function setOptions(options: { request_filter: string; zones: string[] }) {
+        Object.defineProperty(spectator.component, 'options', {
+            value: () => ({
+                date: Date.now(),
+                search: '',
+                period: 'day',
+                ...options,
+            }),
+            configurable: true,
+        });
+    }
 
     it('should show the level selector on the booking list by default', () => {
         spectator = createComponent();
@@ -87,6 +114,7 @@ describe('ParkingTopbarComponent', () => {
     it('should hide the level selector on the booking list when enabled', () => {
         hide_level_selector_on_booking_list = true;
         spectator = createComponent();
+        setOptions({ request_filter: 'all', zones: ['lvl-1'] });
         spectator.component.section.set('events');
         spectator.component.view.set('list');
 
@@ -104,6 +132,42 @@ describe('ParkingTopbarComponent', () => {
         expect(spectator.component.hide_level_selector_on_booking_list).toBe(
             false,
         );
+    });
+
+    it('should disable the booking list level selector for request filters', () => {
+        request_filter = 'requests';
+        spectator = createComponent();
+        setOptions({ request_filter: 'requests', zones: ['lvl-1'] });
+        spectator.component.section.set('events');
+        spectator.component.view.set('list');
+
+        expect(
+            spectator.component.disable_level_selector_on_booking_list,
+        ).toBe(true);
+    });
+
+    it('should keep the booking list level selector enabled for all bookings', () => {
+        request_filter = 'all';
+        spectator = createComponent();
+        setRequestFilter('all');
+        spectator.component.section.set('events');
+        spectator.component.view.set('list');
+
+        expect(
+            spectator.component.disable_level_selector_on_booking_list,
+        ).toBe(false);
+    });
+
+    it('should keep the booking list level selector enabled for allocated bookings', () => {
+        request_filter = 'bookings';
+        spectator = createComponent();
+        setRequestFilter('bookings');
+        spectator.component.section.set('events');
+        spectator.component.view.set('list');
+
+        expect(
+            spectator.component.disable_level_selector_on_booking_list,
+        ).toBe(false);
     });
 
     it('should only allow one selected level on the parking map', () => {
@@ -131,11 +195,66 @@ describe('ParkingTopbarComponent', () => {
         });
     });
 
+    it('should not resync the same query level selection repeatedly', () => {
+        spectator = createComponent();
+        setOptions({ request_filter: 'all', zones: [] });
+        spectator.component.section.set('events');
+        spectator.component.view.set('list');
+        (spectator.inject(OrganisationService) as any).levelWithID = jest.fn(
+            () => ({
+                id: 'lvl-1',
+                parent_id: 'bld-1',
+            }),
+        );
+        (spectator.inject(OrganisationService) as any).buildings = [
+            { id: 'bld-1' },
+        ];
+        (
+            spectator.inject(ParkingStateService).setOptions as jest.Mock
+        ).mockClear();
+
+        (spectator.component as any)._applyQueryZones(['lvl-1']);
+        setOptions({ request_filter: 'all', zones: ['lvl-1'] });
+        (spectator.component as any)._applyQueryZones(['lvl-1']);
+
+        expect(
+            spectator.inject(ParkingStateService).setOptions,
+        ).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not navigate when level selection is already synced', () => {
+        spectator = createComponent();
+        setOptions({ request_filter: 'all', zones: ['lvl-1'] });
+        spectator.component.section.set('events');
+        spectator.component.view.set('list');
+        spectator.component.zones.set(['lvl-1']);
+        (spectator.component as any)._query_params = () =>
+            new Map([['zone_ids', 'lvl-1']]);
+        const router = spectator.inject(Router);
+        Object.defineProperty(router, 'url', {
+            value: '/parking/events/list?zone_ids=lvl-1',
+            configurable: true,
+        });
+        jest.spyOn(router, 'navigate').mockResolvedValue(true);
+        (
+            spectator.inject(ParkingStateService).setOptions as jest.Mock
+        ).mockClear();
+
+        spectator.component.updateZones(['lvl-1']);
+
+        expect(router.navigate).not.toHaveBeenCalled();
+        expect(
+            spectator.inject(ParkingStateService).setOptions,
+        ).not.toHaveBeenCalled();
+    });
+
     it('should clear selected levels when the booking list selector is hidden', () => {
         hide_level_selector_on_booking_list = true;
         spectator = createComponent();
         spectator.component.section.set('events');
         spectator.component.view.set('list');
+        (spectator.component as any)._query_params = () =>
+            new Map([['zone_ids', 'lvl-1']]);
         const router = spectator.inject(Router);
         Object.defineProperty(router, 'url', {
             value: '/parking/events/list',
@@ -146,9 +265,31 @@ describe('ParkingTopbarComponent', () => {
         spectator.component.updateZones(['lvl-1']);
 
         expect(spectator.component.zones()).toEqual([]);
-        expect(
-            spectator.inject(ParkingStateService).setOptions,
-        ).toHaveBeenCalledWith({ zones: [] });
+        expect(router.navigate).toHaveBeenCalledWith([], {
+            relativeTo: expect.anything(),
+            queryParams: { zone_ids: null },
+            queryParamsHandling: 'merge',
+        });
+    });
+
+    it('should clear selected levels when the booking list selector is disabled', () => {
+        request_filter = 'requests';
+        spectator = createComponent();
+        setRequestFilter('requests');
+        spectator.component.section.set('events');
+        spectator.component.view.set('list');
+        (spectator.component as any)._query_params = () =>
+            new Map([['zone_ids', 'lvl-1']]);
+        const router = spectator.inject(Router);
+        Object.defineProperty(router, 'url', {
+            value: '/parking/events/list',
+            configurable: true,
+        });
+        jest.spyOn(router, 'navigate').mockResolvedValue(true);
+
+        spectator.component.updateZones(['lvl-1']);
+
+        expect(spectator.component.zones()).toEqual([]);
         expect(router.navigate).toHaveBeenCalledWith([], {
             relativeTo: expect.anything(),
             queryParams: { zone_ids: null },
