@@ -280,6 +280,26 @@ describe('CalendarEvent', () => {
         );
     });
 
+    it('should preserve monthly weekday recurrence metadata', () => {
+        event = new CalendarEvent({
+            date: new Date(2026, 4, 12, 9).valueOf(),
+            date_end: new Date(2026, 4, 12, 10).valueOf(),
+            recurring: true,
+            recurrence: {
+                start: new Date(2026, 4, 13, 9).valueOf(),
+                end: new Date(2026, 10, 30).valueOf(),
+                interval: 1,
+                pattern: 'monthly',
+                days_of_week: [3],
+                nth_of_month: WeekOfMonth.Second,
+            },
+        });
+
+        const json = event.toJSON();
+
+        expect(json.recurrence.nth_of_month).toBe(WeekOfMonth.Second);
+    });
+
     it('should clear custom all-day metadata when updating an existing event', () => {
         event = new CalendarEvent({
             id: 'event-1',
