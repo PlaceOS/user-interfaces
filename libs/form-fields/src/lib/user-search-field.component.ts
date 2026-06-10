@@ -37,7 +37,10 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import { UserAvatarComponent } from '@placeos/components';
+import {
+    UserAvatarComponent,
+    VirtualKeyboardComponent,
+} from '@placeos/components';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { searchGuests } from 'libs/users/src/lib/guests.fn';
@@ -67,6 +70,7 @@ import { searchStaff } from 'libs/users/src/lib/staff.fn';
                 </div>
                 <input
                     #input
+                    keyboard
                     matInput
                     [ngModel]="search_term()"
                     (ngModelChange)="search_term.set($event)"
@@ -197,6 +201,7 @@ import { searchStaff } from 'libs/users/src/lib/staff.fn';
         IconComponent,
         TranslatePipe,
         UserAvatarComponent,
+        VirtualKeyboardComponent,
     ],
 })
 export class UserSearchFieldComponent

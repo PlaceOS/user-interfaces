@@ -23,7 +23,11 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    TranslatePipe,
+    VirtualKeyboardComponent,
+} from '@placeos/components';
 import { CheckinStateService } from './checkin-state.service';
 
 @Component({
@@ -42,6 +46,7 @@ import { CheckinStateService } from './checkin-state.service';
                     class="no-subscript w-px flex-1"
                 >
                     <input
+                        keyboard
                         matInput
                         [(ngModel)]="email"
                         placeholder="Enter email..."
@@ -135,6 +140,7 @@ import { CheckinStateService } from './checkin-state.service';
         MatFormFieldModule,
         MatInputModule,
         FormsModule,
+        VirtualKeyboardComponent,
     ],
 })
 export class CheckinQRScanComponent

@@ -26,6 +26,7 @@ import {
     AuthenticatedImageDirective,
     IconComponent,
     TranslatePipe,
+    VirtualKeyboardComponent,
 } from '@placeos/components';
 import {
     DurationFieldComponent,
@@ -69,6 +70,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                         >
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                keyboard
                                 matInput
                                 name="name"
                                 formControlName="asset_name"
@@ -86,6 +88,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             class="mb-0 w-full"
                         >
                             <input
+                                keyboard
                                 matInput
                                 name="email"
                                 formControlName="asset_id"
@@ -105,6 +108,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                         >
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                keyboard
                                 matInput
                                 name="phone"
                                 type="tel"
@@ -121,6 +125,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                         >
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                keyboard
                                 matInput
                                 name="org"
                                 formControlName="company"
@@ -137,6 +142,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             class="no-subscript mb-4 w-full"
                         >
                             <input
+                                keyboard
                                 matInput
                                 name="reason"
                                 formControlName="title"
@@ -155,6 +161,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                                 class="no-subscript mb-4 w-full"
                             >
                                 <input
+                                    keyboard
                                     matInput
                                     name="pass"
                                     formControlName="pass_number"
@@ -226,6 +233,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
         DurationFieldComponent,
         RouterModule,
         AuthenticatedImageDirective,
+        VirtualKeyboardComponent,
     ],
 })
 export class VisitorRegistrationComponent

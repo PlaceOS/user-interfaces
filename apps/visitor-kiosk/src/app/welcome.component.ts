@@ -24,6 +24,7 @@ import {
     IconComponent,
     SanitizePipe,
     TranslatePipe,
+    VirtualKeyboardComponent,
 } from '@placeos/components';
 
 @Component({
@@ -238,6 +239,15 @@ export class WelcomeComponent
                 if (params.has('level')) {
                     this.level.set(params.get('level'));
                 }
+            }),
+        );
+        this.subscription(
+            'route.query',
+            this.route.queryParamMap.subscribe((params) => {
+                if (!params.has('osk')) return;
+                const osk_enabled = params.get('osk') === 'true';
+                localStorage.setItem('OSK.enabled', `${osk_enabled}`);
+                VirtualKeyboardComponent.enabled = osk_enabled;
             }),
         );
         this.timeout('check', () => this._cdr.detectChanges(), 1000);

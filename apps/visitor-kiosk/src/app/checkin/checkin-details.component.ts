@@ -6,7 +6,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterModule } from '@angular/router';
 import { nextValueFrom, settingSignal } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    TranslatePipe,
+    VirtualKeyboardComponent,
+} from '@placeos/components';
 import { first } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
 
@@ -25,6 +29,7 @@ import { CheckinStateService } from './checkin-state.service';
                     }}</label>
                     <mat-form-field appearance="outline">
                         <input
+                            keyboard
                             matInput
                             name="host"
                             formControlName="host"
@@ -41,6 +46,7 @@ import { CheckinStateService } from './checkin-state.service';
                     }}</label>
                     <mat-form-field appearance="outline">
                         <input
+                            keyboard
                             matInput
                             name="name"
                             formControlName="name"
@@ -55,6 +61,7 @@ import { CheckinStateService } from './checkin-state.service';
                     }}</label>
                     <mat-form-field appearance="outline">
                         <input
+                            keyboard
                             matInput
                             name="email"
                             formControlName="email"
@@ -73,6 +80,7 @@ import { CheckinStateService } from './checkin-state.service';
                     }}</label>
                     <mat-form-field appearance="outline">
                         <input
+                            keyboard
                             matInput
                             name="phone"
                             type="tel"
@@ -89,6 +97,7 @@ import { CheckinStateService } from './checkin-state.service';
                     }}</label>
                     <mat-form-field appearance="outline">
                         <input
+                            keyboard
                             matInput
                             name="org"
                             formControlName="organisation"
@@ -105,6 +114,7 @@ import { CheckinStateService } from './checkin-state.service';
                         </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                keyboard
                                 matInput
                                 name="pass"
                                 formControlName="pass_number"
@@ -168,6 +178,7 @@ import { CheckinStateService } from './checkin-state.service';
         MatFormFieldModule,
         MatInputModule,
         ReactiveFormsModule,
+        VirtualKeyboardComponent,
     ],
 })
 export class CheckinDetailsComponent implements OnInit {
