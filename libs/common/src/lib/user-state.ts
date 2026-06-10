@@ -3,6 +3,7 @@ import { currentGroups, PlaceCurrentGroup, showUser } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, lastValueFrom, of, timer } from 'rxjs';
 import { catchError, map, retry } from 'rxjs/operators';
 import { isPublicMode } from './public-mode';
+import { setDefaultCreator } from './types/event.class';
 import { StaffUser } from './types/user.class';
 
 declare let jest;
@@ -18,14 +19,23 @@ export enum GroupPermission {
     Operate = 1 << 4,
     Approve = 1 << 5,
     Manage = 1 << 6,
-    Share = 1 << 7
+    Share = 1 << 7,
 }
 
 const EMPTY_USER = {
     name: '<empty>',
     email: '<empty>@dev.place.tech',
 } as StaffUser;
-const ALL_PERMISSIONS = [GroupPermission.Read, GroupPermission.Create, GroupPermission.Update, GroupPermission.Delete, GroupPermission.Operate, GroupPermission.Approve, GroupPermission.Manage, GroupPermission.Share]
+const ALL_PERMISSIONS = [
+    GroupPermission.Read,
+    GroupPermission.Create,
+    GroupPermission.Update,
+    GroupPermission.Delete,
+    GroupPermission.Operate,
+    GroupPermission.Approve,
+    GroupPermission.Manage,
+    GroupPermission.Share,
+];
 
 const _current_user = new BehaviorSubject<StaffUser>(EMPTY_USER);
 const _change = new BehaviorSubject(0);
@@ -55,7 +65,7 @@ export const user_permissions = computed<UserPermissions>(() => {
         operate: [],
         approve: [],
         manage: [],
-        share: []
+        share: [],
     };
     const permission_sets = PERMISSION_VALUES.reduce(
         (sets, [permission_name]) => {
@@ -67,7 +77,10 @@ export const user_permissions = computed<UserPermissions>(() => {
 
     for (const { group, permissions: group_permissions } of user_groups()) {
         for (const subsystem of group.subsystems || []) {
-            for (const [permission_name, permission_value] of PERMISSION_VALUES) {
+            for (const [
+                permission_name,
+                permission_value,
+            ] of PERMISSION_VALUES) {
                 if (group_permissions & permission_value) {
                     permission_sets[permission_name].add(subsystem);
                 }
@@ -76,7 +89,9 @@ export const user_permissions = computed<UserPermissions>(() => {
     }
 
     for (const [permission_name] of PERMISSION_VALUES) {
-        permissions[permission_name] = [...permission_sets[permission_name]].sort();
+        permissions[permission_name] = [
+            ...permission_sets[permission_name],
+        ].sort();
     }
 
     return permissions;
@@ -151,7 +166,8 @@ function initialiseUser() {
             }),
         )
         .subscribe((user) => {
-            _current_user.next(user)
+            _current_user.next(user);
+            setDefaultCreator(user);
             loadUserGroups();
         });
 }
@@ -186,13 +202,16 @@ export function userSignal() {
     return user_signal;
 }
 
-export function hasPermission(subsystem: string, permissions: GroupPermission): boolean {
+export function hasPermission(
+    subsystem: string,
+    permissions: GroupPermission,
+): boolean {
     if (user_signal().groups?.includes('placeos_admin')) return true;
     return (getPermissionMask(subsystem) & permissions) === permissions;
 }
 
 export function getPermissions(subsystem: string): GroupPermission[] {
-    if (user_signal().groups?.includes('placeos_admin')) return ALL_PERMISSIONS
+    if (user_signal().groups?.includes('placeos_admin')) return ALL_PERMISSIONS;
     const permissions = getPermissionMask(subsystem);
     return PERMISSION_VALUES.filter(
         ([, permission]) => permissions & permission,
