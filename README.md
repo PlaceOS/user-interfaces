@@ -34,6 +34,48 @@ The command takes the arguments `--prod` to minify the resulting build and `--ao
 
 Default application/runtime settings can be found in `projects/<project>/app/settings.ts`
 
+## Mobile Apps
+
+Some frontends can also be packaged as native mobile apps with Capacitor. The supported mobile app names are listed in [`tools/capacitor/apps.json`](./tools/capacitor/apps.json). At the time of writing these are `workplace`, `booking-panel` and `control`.
+
+Mobile commands are exposed as Nx targets on each supported app:
+
+```bash
+# Build the Angular app with its mobile configuration
+npx nx build workplace --configuration=mobile
+
+# Generate/update the native project and copy web assets
+npx nx run workplace:mobile:sync:ios
+npx nx run workplace:mobile:sync:android
+
+# Open the generated native project in Xcode or Android Studio
+npx nx run workplace:mobile:open:ios
+npx nx run workplace:mobile:open:android
+
+# Build native debug artifacts
+npx nx run workplace:mobile:build:ios
+npx nx run workplace:mobile:build:android
+
+# Build, install and launch on a booted simulator or emulator
+npx nx run workplace:mobile:run:ios
+npx nx run workplace:mobile:run:android
+```
+
+Replace `workplace` with another supported app name when needed. The `mobile:*` targets always run the mobile Angular build before syncing native assets.
+
+Generated native projects and artifacts are written to `.capacitor/<app>/`. Build artifacts are written to `.capacitor/<app>/artifacts/`, for example `.capacitor/workplace/artifacts/workplace-ios-simulator.zip` or `.capacitor/workplace/artifacts/workplace-android-debug.apk`.
+
+### Mobile prerequisites
+
+- Install dependencies with `npm install` before running mobile targets.
+- iOS sync/open/build/run requires macOS and Xcode. `mobile:run:ios` also requires a booted iOS Simulator.
+- Android build/run requires a Java runtime, Android Studio/SDK and an emulator or connected device. `mobile:run:android` uses `adb` to launch the app.
+- If `nx` is not installed globally, use `npx nx ...` as shown above.
+
+### What the mobile helper does
+
+The helper in [`tools/capacitor/run.mjs`](./tools/capacitor/run.mjs) creates the generated Capacitor workspace, installs the required Capacitor app/browser plugins, generates icons and splash screens from the configured app icon, copies the Angular output into the native project, and patches the native auth callback scheme.
+
 ## Tests
 
 Unit tests can be run using `nx test <project>` e.g. `nx test kiosk`
