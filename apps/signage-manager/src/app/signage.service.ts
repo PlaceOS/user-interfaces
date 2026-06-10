@@ -3,8 +3,8 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import {
     current_user,
-    i18n,
     currentUser,
+    i18n,
     notifyError,
     notifyInfo,
     notifySuccess,
@@ -295,11 +295,13 @@ export class SignageService {
             ),
             catchError(() => of([] as PlaceGroup[])),
             map((groups) => this._sortGroups(groups)),
+            shareReplay(1),
         ),
         { initialValue: [] as PlaceGroup[] },
     );
     public readonly root_manageable_signage_groups = toSignal(
         combineLatest([this._active_user$, this._groups_change]).pipe(
+            debounceTime(300),
             switchMap(() =>
                 this.can_manage_all_groups()
                     ? this._queryManageableGroups({
@@ -321,6 +323,7 @@ export class SignageService {
             ),
             catchError(() => of([] as PlaceGroup[])),
             map((groups) => this._sortGroups(groups)),
+            shareReplay(1),
         ),
         { initialValue: [] as PlaceGroup[] },
     );
@@ -584,15 +587,17 @@ export class SignageService {
                     limit: 2500,
                     include_children_count: true,
                     ...(group_id ? { group_id } : { parent_id: 'root' }),
-                } as any).pipe(catchError(() => of({ data: [] }))),
+                } as any).pipe(
+                    catchError(() => of({ data: [] })),
+                    map((result: any) => {
+                        const zones = result.data || [];
+                        const org_zone_id = this._org.organisation?.id;
+                        return org_zone_id && !group_id
+                            ? zones.filter((zone) => zone.id === org_zone_id)
+                            : zones;
+                    }),
+                ),
             ),
-            map((result: any) => {
-                const zones = result.data || [];
-                const org_zone_id = this._org.organisation?.id;
-                return org_zone_id
-                    ? zones.filter((zone) => zone.id === org_zone_id)
-                    : zones;
-            }),
             startWith([]),
         ),
         this._zone_overrides$,
@@ -616,9 +621,7 @@ export class SignageService {
         filter(([initialised]) => !!initialised),
         debounceTime(300),
         switchMap(() =>
-            querySignagePlugins(
-                this._orgZoneQueryParams({ limit: 500 }),
-            ).pipe(
+            querySignagePlugins(this._orgZoneQueryParams({ limit: 500 })).pipe(
                 catchError(() => of({ data: [] })),
             ),
         ),
@@ -868,7 +871,9 @@ export class SignageService {
         const result = await openConfirmModal(
             {
                 title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_PLAYLIST_TITLE'),
-                content: i18n('SIGNAGE_MANAGER.SVC_DELETE_NAMED', { name: playlist.name }),
+                content: i18n('SIGNAGE_MANAGER.SVC_DELETE_NAMED', {
+                    name: playlist.name,
+                }),
                 icon: { content: 'delete' },
             },
             this._dialog,
@@ -918,9 +923,7 @@ export class SignageService {
         try {
             const groups = await this._playlistApprovalGroups(playlist);
             if (!groups.length) {
-                notifyWarn(
-                    i18n('SIGNAGE_MANAGER.SVC_NO_GROUPS_FOR_PLAYLIST'),
-                );
+                notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_GROUPS_FOR_PLAYLIST'));
                 return;
             }
             const selected_group_id = this._api_group_id();
@@ -1053,7 +1056,9 @@ export class SignageService {
         const result = await openConfirmModal(
             {
                 title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_GROUP_TITLE'),
-                content: i18n('SIGNAGE_MANAGER.SVC_DELETE_NAMED', { name: group.name }),
+                content: i18n('SIGNAGE_MANAGER.SVC_DELETE_NAMED', {
+                    name: group.name,
+                }),
                 icon: { content: 'delete' },
             },
             this._dialog,
@@ -1127,7 +1132,9 @@ export class SignageService {
         const result = await openConfirmModal(
             {
                 title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_USER_TITLE'),
-                content: i18n('SIGNAGE_MANAGER.SVC_REMOVE_NAMED_FROM_GROUP', { name: item.user?.name || item.user_id }),
+                content: i18n('SIGNAGE_MANAGER.SVC_REMOVE_NAMED_FROM_GROUP', {
+                    name: item.user?.name || item.user_id,
+                }),
                 icon: { content: 'delete' },
             },
             this._dialog,
@@ -1179,7 +1186,9 @@ export class SignageService {
         const result = await openConfirmModal(
             {
                 title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_ZONE_TITLE'),
-                content: i18n('SIGNAGE_MANAGER.SVC_REMOVE_NAMED_FROM_GROUP', { name: item.zone?.name || item.zone_id }),
+                content: i18n('SIGNAGE_MANAGER.SVC_REMOVE_NAMED_FROM_GROUP', {
+                    name: item.zone?.name || item.zone_id,
+                }),
                 icon: { content: 'delete' },
             },
             this._dialog,
@@ -1318,7 +1327,9 @@ export class SignageService {
                   });
         await lastValueFrom(request);
         notifySuccess(
-            item_type === 'media' ? i18n('SIGNAGE_MANAGER.SVC_MEDIA_SHARED') : i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_SHARED'),
+            item_type === 'media'
+                ? i18n('SIGNAGE_MANAGER.SVC_MEDIA_SHARED')
+                : i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_SHARED'),
         );
         return true;
     }
@@ -1408,8 +1419,7 @@ export class SignageService {
             const result = await openConfirmModal(
                 {
                     title: i18n('SIGNAGE_MANAGER.SVC_ADD_DUPLICATE_TITLE'),
-                    content:
-                        i18n('SIGNAGE_MANAGER.SVC_ADD_DUPLICATE_CONTENT'),
+                    content: i18n('SIGNAGE_MANAGER.SVC_ADD_DUPLICATE_CONTENT'),
                     icon: { content: 'playlist_add' },
                 },
                 this._dialog,
@@ -1582,9 +1592,8 @@ export class SignageService {
             const cached_items = cached_state[playlist_id]?.item_ids;
             const current_items =
                 cached_items ||
-                (
-                    await lastValueFrom(listSignagePlaylistMedia(playlist_id))
-                ).items ||
+                (await lastValueFrom(listSignagePlaylistMedia(playlist_id)))
+                    .items ||
                 [];
             const updated_items = current_items.filter(
                 (id) => !removed_ids.has(id),
@@ -1827,9 +1836,7 @@ export class SignageService {
                     .uploadFileToCompletion(dataURLtoFile(url_thumbnail, name))
                     .catch(() => {
                         notifyWarn(
-                            i18n(
-                                'SIGNAGE_MANAGER.SVC_THUMBNAIL_UPLOAD_FAILED',
-                            ),
+                            i18n('SIGNAGE_MANAGER.SVC_THUMBNAIL_UPLOAD_FAILED'),
                         );
                         return '';
                     });
@@ -1957,7 +1964,10 @@ export class SignageService {
         try {
             const converted_file = await this._convertImageToWebp(file);
             notifyInfo(
-                i18n('SIGNAGE_MANAGER.SVC_CONVERTED_MEDIA', { from: file.name, to: converted_file.name }),
+                i18n('SIGNAGE_MANAGER.SVC_CONVERTED_MEDIA', {
+                    from: file.name,
+                    to: converted_file.name,
+                }),
             );
             return converted_file;
         } catch {
@@ -1977,7 +1987,9 @@ export class SignageService {
         const result = await openConfirmModal(
             {
                 title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_MEDIA_TITLE'),
-                content: i18n('SIGNAGE_MANAGER.SVC_DELETE_NAMED_PLAIN', { name: item.name }),
+                content: i18n('SIGNAGE_MANAGER.SVC_DELETE_NAMED_PLAIN', {
+                    name: item.name,
+                }),
                 icon: { content: 'delete' },
             },
             this._dialog,
@@ -2003,7 +2015,11 @@ export class SignageService {
         const result = await openConfirmModal(
             {
                 title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_MEDIA_TITLE'),
-                content: i18n('SIGNAGE_MANAGER.SVC_DELETE_SELECTED_MEDIA', { count: media_items.length }, media_items.length),
+                content: i18n(
+                    'SIGNAGE_MANAGER.SVC_DELETE_SELECTED_MEDIA',
+                    { count: media_items.length },
+                    media_items.length,
+                ),
                 icon: { content: 'delete' },
             },
             this._dialog,
@@ -2413,12 +2429,14 @@ export class SignageService {
         canvas.width = image.width;
         canvas.height = image.height;
         const ctx = canvas.getContext('2d');
-        if (!ctx) throw new Error(i18n('SIGNAGE_MANAGER.SVC_ERR_CONVERT_IMAGE'));
+        if (!ctx)
+            throw new Error(i18n('SIGNAGE_MANAGER.SVC_ERR_CONVERT_IMAGE'));
         ctx.drawImage(image, 0, 0);
         const blob = await new Promise<Blob | null>((resolve) =>
             canvas.toBlob(resolve, 'image/webp', 0.92),
         );
-        if (!blob) throw new Error(i18n('SIGNAGE_MANAGER.SVC_ERR_CONVERT_IMAGE'));
+        if (!blob)
+            throw new Error(i18n('SIGNAGE_MANAGER.SVC_ERR_CONVERT_IMAGE'));
         return new File([blob], this._replaceFileExtension(file.name, 'webp'), {
             type: 'image/webp',
             lastModified: file.lastModified,
