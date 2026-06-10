@@ -2,6 +2,8 @@ import { PlaceAuthOptions, setup } from '@placeos/ts-client';
 import { getNativeRedirectUri, isNativeApp } from './native-app';
 import { notifyInfo } from './notifications';
 
+const NATIVE_CREDENTIAL_FETCH_KEY = '__placeos_native_credential_fetch__';
+
 export interface PlaceSettings {
     /** Protocol used by the application server */
     protocol: 'http:' | 'https:';
@@ -42,6 +44,44 @@ async function sha256Base64Url(value: string): Promise<string> {
         .replace(/=/g, '')
         .replace(/\+/g, '-')
         .replace(/\//g, '_');
+}
+
+function requestOrigin(input: Parameters<typeof fetch>[0]): string {
+    const request_url =
+        typeof input === 'string'
+            ? input
+            : input instanceof URL
+              ? input.toString()
+              : input?.url;
+    return request_url ? new URL(request_url, location.href).origin : '';
+}
+
+function setupNativeCredentialedFetch(urls: string[]): void {
+    if (typeof window.fetch !== 'function') return;
+    const window_state = window as unknown as {
+        [NATIVE_CREDENTIAL_FETCH_KEY]?: {
+            origins: Set<string>;
+            fetch: typeof fetch;
+        };
+    };
+    const origins = urls.map((url) => new URL(url, location.href).origin);
+    if (window_state[NATIVE_CREDENTIAL_FETCH_KEY]) {
+        for (const origin of origins) {
+            window_state[NATIVE_CREDENTIAL_FETCH_KEY].origins.add(origin);
+        }
+        return;
+    }
+    const state = {
+        origins: new Set(origins),
+        fetch: window.fetch.bind(window),
+    };
+    window_state[NATIVE_CREDENTIAL_FETCH_KEY] = state;
+    window.fetch = (input, init) => {
+        if (!state.origins.has(requestOrigin(input))) {
+            return state.fetch(input, init);
+        }
+        return state.fetch(input, { ...init, credentials: 'include' });
+    };
 }
 
 export async function createNativeAuthUrl(
@@ -103,11 +143,14 @@ export async function setupPlace(settings: PlaceSettings): Promise<void> {
         redirect_uri: native
             ? await getNativeRedirectUri(settings.app_name, settings.domain)
             : `${location.origin}${route}oauth-resp.html`,
+        storage: native ? 'local' : settings.storage,
         handle_login: native ? false : !settings.local_login,
         use_iframe: !native,
         mock,
         delay: 300,
     };
+    if (native)
+        setupNativeCredentialedFetch([config.auth_uri, config.token_uri]);
     if (localStorage) {
         localStorage.setItem(
             'mock',

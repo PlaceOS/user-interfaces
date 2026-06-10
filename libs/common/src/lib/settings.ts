@@ -31,6 +31,8 @@ export interface ComposerSettings {
     local_login?: boolean;
     /** Whether composer should use the settings domain instead of the origin */
     use_domain?: boolean;
+    /** Which browser keystore ts-client should use for auth credentials */
+    storage?: 'local' | 'session';
 }
 
 export interface ApplicationSettings {
