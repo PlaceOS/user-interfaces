@@ -1,6 +1,6 @@
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { recurrenceEndDate } from '@placeos/common';
+import { Recurrence, recurrenceEndDate } from '@placeos/common';
 import { addDays, addWeeks, endOfDay } from 'date-fns';
 
 import { RecurrenceModalComponent } from '../lib/recurrence-modal.component';
@@ -12,28 +12,42 @@ describe('RecurrenceModalComponent', () => {
     const default_end_date = endOfDay(
         addDays(Date.now(), available_days),
     ).valueOf();
+    const dialog_data: {
+        value: Recurrence;
+        iom: number;
+        date: number;
+        available_days: number;
+    } = {
+        value: {
+            _custom: true,
+            type: 'daily',
+            interval: 1,
+            end_type: 'date',
+        },
+        iom: 1,
+        date: booking_date,
+        available_days,
+    };
 
     const createComponent = createComponentFactory({
         component: RecurrenceModalComponent,
         providers: [
             {
                 provide: MAT_DIALOG_DATA,
-                useValue: {
-                    value: {
-                        _custom: true,
-                        type: 'daily',
-                        interval: 1,
-                        end_type: 'date',
-                    },
-                    iom: 1,
-                    date: booking_date,
-                    available_days,
-                },
+                useValue: dialog_data,
             },
         ],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        dialog_data.value = {
+            _custom: true,
+            type: 'daily',
+            interval: 1,
+            end_type: 'date',
+        };
+        spectator = createComponent();
+    });
 
     it('should default end_date when none is passed in', () => {
         expect(spectator.component.form.controls.end_date.value).toBe(
@@ -66,7 +80,7 @@ describe('RecurrenceModalComponent', () => {
         spectator.component.form.patchValue({
             type: 'weekly',
             interval: 1,
-            weekdays: new Set([4 as any]),
+            weekdays: new Set([4]),
             end_type: 'instances',
             end_instances: 3,
         });
@@ -109,6 +123,36 @@ describe('RecurrenceModalComponent', () => {
                 booking_date,
             ),
         ).toBeLessThanOrEqual(default_end_date);
+    });
+
+    it('should create monthly custom recurrence on weekday instance', () => {
+        spectator.component.form.patchValue({ type: 'monthly' });
+
+        expect(spectator.component.form.value.monthly_type).toBe(
+            'day_of_week',
+        );
+        expect(spectator.component.form.value.week).toBe(1);
+        expect(spectator.component.form.value.weekdays?.has(2)).toBe(true);
+    });
+
+    it('should normalise legacy monthly day-of-month recurrence to weekday instance', () => {
+        dialog_data.value = {
+            _custom: true,
+            type: 'monthly',
+            interval: 1,
+            monthly_type: 'day_of_month',
+            end_type: 'never',
+        };
+
+        spectator = createComponent();
+
+        expect(spectator.component.form.value.monthly_type).toBe(
+            'day_of_week',
+        );
+        expect(spectator.component.confirmValue().monthly_type).toBe(
+            'day_of_week',
+        );
+        expect(spectator.component.confirmValue().week).toBe(1);
     });
 
     it('should clamp instance count when recurrence settings reduce the limit', () => {

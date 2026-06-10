@@ -97,9 +97,6 @@ import { DateFieldComponent } from './date-field.component';
             @if (form.value.type === 'monthly') {
                 <mat-form-field appearance="outline">
                     <mat-select formControlName="monthly_type">
-                        <mat-option value="day_of_month"
-                            >Monthly on day {{ date | date: 'd' }}</mat-option
-                        >
                         <mat-option value="day_of_week"
                             >Monthly on {{ month_instance }}
                             {{ date | date: 'EEEE' }}</mat-option
@@ -219,10 +216,10 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
         type: new FormControl<RecurrType>('daily'),
         interval: new FormControl(1),
         weekdays: new FormControl(
-            new Set<DayIndex>([new Date(this.date).getDay() as any]),
+            new Set<DayIndex>([new Date(this.date).getDay() as DayIndex]),
         ),
         week: new FormControl(0),
-        monthly_type: new FormControl<MonthlyType>('day_of_month'),
+        monthly_type: new FormControl<MonthlyType>('day_of_week'),
         end_type: new FormControl<RecurrEndType>('never'),
         end_date: new FormControl(this._defaultEndDate()),
         end_instances: new FormControl(13),
@@ -236,9 +233,9 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
             ),
         );
         this.subscription(
-            'month_type',
-            this.form.controls.monthly_type.valueChanges.subscribe((type) =>
-                this._onMonthlyTypeChange(type),
+            'type',
+            this.form.controls.type.valueChanges.subscribe((type) =>
+                this._onTypeChange(type),
             ),
         );
         this.subscription(
@@ -264,11 +261,8 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
             this.form.patchValue({ end_date: this.end_date });
         }
         this._onEndTypeChange(this.form.value.end_type);
-        if (this.form.value.type === 'monthly' && this.form.value.week) {
-            const set = this.form.value.weekdays;
-            set.clear();
-            set.add(new Date(this.date).getDay() as any);
-            this.form.patchValue({ weekdays: set });
+        if (this.form.value.type === 'monthly') {
+            this._setMonthlyWeekday();
         }
         if (this.available_days < 14) {
             this.form.controls.type.disable();
@@ -337,15 +331,19 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
             : this.form.controls.end_instances.enable();
     }
 
-    private _onMonthlyTypeChange(type: 'day_of_month' | 'day_of_week') {
-        if (type === 'day_of_month') {
-            this.form.patchValue({ week: 0 });
-        } else {
-            const set = this.form.value.weekdays;
-            set.clear();
-            set.add(new Date(this.date).getDay() as any);
-            this.form.patchValue({ week: this.week, weekdays: set });
-        }
+    private _onTypeChange(type: RecurrType) {
+        if (type === 'monthly') this._setMonthlyWeekday();
+    }
+
+    private _setMonthlyWeekday() {
+        const set = this.form.value.weekdays || new Set<DayIndex>();
+        set.clear();
+        set.add(new Date(this.date).getDay() as DayIndex);
+        this.form.patchValue({
+            monthly_type: 'day_of_week',
+            week: this.week,
+            weekdays: set,
+        });
     }
 
     private _clampEndInstances() {
