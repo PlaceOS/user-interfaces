@@ -242,7 +242,7 @@ export class ExploreSearchService {
                                         email: a.other_data?.email || '',
                                         phone: a.other_data?.phone || '',
                                         roles: a.other_data?.roles || [],
-                                        zone: zone.id,
+                                        zone: zone?.id,
                                         zone_name:
                                             zone?.display_name || zone?.name,
                                     };

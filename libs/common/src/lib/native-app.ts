@@ -3,6 +3,8 @@ const EMAIL_STORAGE_KEY = 'PlaceOS.native.email';
 const APP_ID_STORAGE_KEY = 'PlaceOS.native.app_id';
 const LAST_AUTH_URL_STORAGE_KEY = 'PlaceOS.native.last_auth_url';
 const CONSUMED_AUTH_URL_STORAGE_KEY = 'PlaceOS.native.consumed_auth_url';
+const PKCE_STORAGE_KEY = 'PlaceOS.native.pkce';
+const AUTH_ERROR_STORAGE_KEY = 'PlaceOS.native.auth_error';
 const LOOKUP_HOST = 'au.placeos.run';
 
 const NATIVE_APP_IDS: Record<string, string> = {
@@ -19,33 +21,78 @@ interface NativePluginHandle {
     remove: () => Promise<void>;
 }
 
-interface NativeAppPlugin {
-    addListener: (
-        event_name: 'appUrlOpen',
-        listener: (event: { url?: string }) => void,
-    ) => Promise<NativePluginHandle>;
-    getLaunchUrl?: () => Promise<{ url?: string }>;
-}
-
-interface NativeBrowserPlugin {
-    open?: (options: { url: string }) => Promise<void>;
-    close?: () => Promise<void>;
+/**
+ * The shape of `window.Capacitor` injected by the native shell. The bridge
+ * only exposes `Plugins` proxies and the raw `addListener`/`nativePromise`
+ * primitives — `registerPlugin` is an `@capacitor/core` JS export that only
+ * exists when the web bundle ships the Capacitor runtime (this one doesn't).
+ */
+interface CapacitorBridge {
+    isNativePlatform?: () => boolean;
+    registerPlugin?: (name: string) => Record<string, any>;
+    Plugins?: Record<string, Record<string, any> | undefined>;
+    addListener?: (
+        plugin_name: string,
+        event_name: string,
+        listener: (event: any) => void,
+    ) => NativePluginHandle;
+    nativePromise?: (
+        plugin_name: string,
+        method_name: string,
+        options?: Record<string, any>,
+    ) => Promise<any>;
 }
 
 let _native_url_listener: Promise<NativePluginHandle> | null = null;
 
-function capacitor() {
-    return (window as any).Capacitor;
+function capacitor(): CapacitorBridge | null {
+    return (window as any).Capacitor || null;
 }
 
-function nativeAppPlugin(): NativeAppPlugin | null {
-    const register_plugin = capacitor()?.registerPlugin;
-    return register_plugin ? register_plugin('App') : null;
+function nativePluginProxy(name: string): Record<string, any> | null {
+    const cap = capacitor();
+    if (cap?.Plugins?.[name]) return cap.Plugins[name];
+    try {
+        return cap?.registerPlugin?.(name) || null;
+    } catch {
+        return null;
+    }
 }
 
-function nativeBrowserPlugin(): NativeBrowserPlugin | null {
-    const register_plugin = capacitor()?.registerPlugin;
-    return register_plugin ? register_plugin('Browser') : null;
+/** Listen to a native plugin event. Returns null when no bridge is found. */
+function listenToNativeEvent(
+    plugin_name: string,
+    event_name: string,
+    listener: (event: any) => void,
+): Promise<NativePluginHandle> | null {
+    const proxy = nativePluginProxy(plugin_name);
+    if (proxy?.addListener) {
+        return Promise.resolve(proxy.addListener(event_name, listener));
+    }
+    const cap = capacitor();
+    if (cap?.addListener) {
+        return Promise.resolve(
+            cap.addListener(plugin_name, event_name, listener),
+        );
+    }
+    return null;
+}
+
+/** Call a native plugin method. Returns null when no bridge is found. */
+function callNativeMethod(
+    plugin_name: string,
+    method_name: string,
+    options?: Record<string, any>,
+): Promise<any> | null {
+    const proxy = nativePluginProxy(plugin_name);
+    if (typeof proxy?.[method_name] === 'function') {
+        return proxy[method_name](options);
+    }
+    const cap = capacitor();
+    if (cap?.nativePromise) {
+        return cap.nativePromise(plugin_name, method_name, options);
+    }
+    return null;
 }
 
 /**
@@ -58,15 +105,17 @@ export function isNativeApp(): boolean {
 }
 
 export async function getNativeAppId(app_name?: string): Promise<string> {
-    const cached_app_id = localStorage.getItem(APP_ID_STORAGE_KEY);
-    if (cached_app_id) return cached_app_id;
     const normalised_name = `${app_name || ''}`.trim().toLowerCase();
     const app_id = NATIVE_APP_IDS[normalised_name];
-    if (!app_id) {
+    if (app_id) {
+        localStorage.setItem(APP_ID_STORAGE_KEY, app_id);
+        return app_id;
+    }
+    const cached_app_id = localStorage.getItem(APP_ID_STORAGE_KEY);
+    if (!cached_app_id) {
         throw new Error(`Unsupported native app: ${app_name || 'unknown'}.`);
     }
-    localStorage.setItem(APP_ID_STORAGE_KEY, app_id);
-    return app_id;
+    return cached_app_id;
 }
 
 export async function getNativeRedirectUri(
@@ -81,9 +130,13 @@ export async function getNativeRedirectUri(
 export async function isNativeAuthRedirect(url: string): Promise<boolean> {
     const app_id = await getNativeAppId();
     const callback_url = new URL(url);
+    // With no domain the redirect is `app-id://oauth-resp`, which parses
+    // with `oauth-resp` as the host instead of the path.
     return (
         callback_url.protocol === `${app_id}:` &&
-        callback_url.pathname === '/oauth-resp'
+        (callback_url.pathname === '/oauth-resp' ||
+            (callback_url.hostname === 'oauth-resp' &&
+                !callback_url.pathname.replace(/^\/+/, '')))
     );
 }
 
@@ -91,51 +144,121 @@ export async function bindNativeAuthRedirects(
     listener: NativeUrlListener,
 ): Promise<void> {
     if (!isNativeApp() || _native_url_listener) return;
-    const app_plugin = nativeAppPlugin();
-    if (!app_plugin?.addListener) return;
-    _native_url_listener = app_plugin.addListener(
+    const handle = listenToNativeEvent(
+        'App',
         'appUrlOpen',
-        async ({ url }) => {
-            if (!url) return;
-            if (!(await isNativeAuthRedirect(url))) return;
-            localStorage.setItem(CONSUMED_AUTH_URL_STORAGE_KEY, url);
-            localStorage.setItem(LAST_AUTH_URL_STORAGE_KEY, url);
-            listener(url);
+        async ({ url }: { url?: string }) => {
+            try {
+                if (!url) return;
+                console.warn(`[AUTH] App opened with URL: ${url}`);
+                if (!(await isNativeAuthRedirect(url))) {
+                    console.warn('[AUTH] URL is not an auth redirect.');
+                    return;
+                }
+                localStorage.setItem(LAST_AUTH_URL_STORAGE_KEY, url);
+                listener(url);
+            } catch (error) {
+                console.warn('[AUTH] Error handling app URL.', error);
+            }
         },
     );
+    if (!handle) {
+        console.warn('[AUTH] Capacitor App plugin is unavailable.');
+        return;
+    }
+    _native_url_listener = handle;
+    await handle.catch((error) => {
+        _native_url_listener = null;
+        console.warn('[AUTH] Failed to listen for app URLs.', error);
+    });
+}
+
+/**
+ * Mark an auth redirect as handled so it isn't re-processed after the
+ * webview reloads. Called at the point of consumption (not on receipt), so
+ * a redirect interrupted before handling is retried on the next launch.
+ */
+export function markNativeAuthRedirectConsumed(url: string): void {
+    localStorage.setItem(CONSUMED_AUTH_URL_STORAGE_KEY, url);
+    localStorage.removeItem(LAST_AUTH_URL_STORAGE_KEY);
 }
 
 export async function consumeNativeAuthRedirect(): Promise<string | null> {
     if (!isNativeApp()) return null;
-    const app_plugin = nativeAppPlugin();
-    const launch_url = await app_plugin?.getLaunchUrl?.().catch(() => null);
+    const launch_url = await callNativeMethod('App', 'getLaunchUrl')?.catch(
+        () => null,
+    );
     const url =
         launch_url?.url ||
         localStorage.getItem(LAST_AUTH_URL_STORAGE_KEY) ||
         '';
     if (!url) return null;
-    if (!(await isNativeAuthRedirect(url))) return null;
+    const is_redirect = await isNativeAuthRedirect(url).catch((error) => {
+        console.warn('[AUTH] Error checking launch URL.', error);
+        return false;
+    });
+    if (!is_redirect) return null;
     if (url === localStorage.getItem(CONSUMED_AUTH_URL_STORAGE_KEY)) {
+        console.warn('[AUTH] Launch URL already consumed.');
         return null;
     }
-    localStorage.setItem(CONSUMED_AUTH_URL_STORAGE_KEY, url);
-    localStorage.removeItem(LAST_AUTH_URL_STORAGE_KEY);
+    console.warn(`[AUTH] Consuming auth redirect from launch URL: ${url}`);
     return url;
 }
 
+/**
+ * Store the PKCE verifier in sessionStorage (where ts-client reads it during
+ * the auth code exchange) and back it up to localStorage, as the OS can kill
+ * the app while the user is signing in via the external browser — which
+ * wipes sessionStorage and would otherwise break the exchange on relaunch.
+ */
+export function storeNativePkceVerifier(key: string, verifier: string): void {
+    sessionStorage.setItem(key, verifier);
+    localStorage.setItem(PKCE_STORAGE_KEY, JSON.stringify({ key, verifier }));
+}
+
+/** Re-seed the sessionStorage PKCE verifier from the localStorage backup. */
+export function restoreNativePkceVerifier(): void {
+    const raw = localStorage.getItem(PKCE_STORAGE_KEY);
+    if (!raw) return;
+    try {
+        const { key, verifier } = JSON.parse(raw);
+        if (key && verifier && !sessionStorage.getItem(key)) {
+            sessionStorage.setItem(key, verifier);
+        }
+    } catch {
+        localStorage.removeItem(PKCE_STORAGE_KEY);
+    }
+}
+
+/** Remove the PKCE verifier backup once sign-in has completed. */
+export function clearNativePkceVerifier(): void {
+    localStorage.removeItem(PKCE_STORAGE_KEY);
+}
+
+/** Persist an OAuth error so it can be shown after the webview reloads. */
+export function setNativeAuthError(message: string): void {
+    localStorage.setItem(AUTH_ERROR_STORAGE_KEY, message);
+}
+
+/** Retrieve and clear the stored OAuth error message. */
+export function consumeNativeAuthError(): string {
+    const message = localStorage.getItem(AUTH_ERROR_STORAGE_KEY) || '';
+    localStorage.removeItem(AUTH_ERROR_STORAGE_KEY);
+    return message;
+}
+
 export async function closeNativeBrowser(): Promise<void> {
-    await nativeBrowserPlugin()
-        ?.close?.()
-        .catch(() => null);
+    await callNativeMethod('Browser', 'close')?.catch(() => null);
 }
 
 export async function openNativeBrowser(url: string): Promise<void> {
-    const browser = nativeBrowserPlugin();
-    if (browser?.open) {
-        await browser.open({ url });
+    const opened = callNativeMethod('Browser', 'open', { url });
+    if (!opened) {
+        location.assign(url);
         return;
     }
-    location.assign(url);
+    await opened.catch(() => location.assign(url));
 }
 
 /** Retrieve the stored API domain, or null if none has been saved. */
