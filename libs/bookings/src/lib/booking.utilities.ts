@@ -10,15 +10,11 @@ import {
     currentUser,
     fromEventRecurrence,
     OrganisationService,
+    Point,
     setupFormTimeSync,
     toBookingRecurrence,
 } from '@placeos/common';
-import {
-    createViewer,
-    getViewer,
-    Point,
-    removeViewer,
-} from '@placeos/svg-viewer';
+import { getMapDetails } from '@placeos/components';
 import { PlaceAsset } from '@placeos/ts-client';
 import { endInFuture } from 'libs/events/src/lib/validators';
 import { combineLatest, Observable, of } from 'rxjs';
@@ -288,24 +284,20 @@ export async function findNearbyFeature(
     centered_at: Point | string,
     desk_ids: string[] = [],
 ): Promise<string> {
-    const element = document.createElement('div');
-    element.style.position = 'absolute';
-    element.style.top = '-9999px';
-    element.style.width = '1000px';
-    element.style.height = '1000px';
-    document.body.appendChild(element);
-    const id = await createViewer({
-        url: map_url,
-        element,
-    });
-    const viewer = getViewer(id);
+    const details = await getMapDetails(map_url);
+    const centerOf = (id: string) => {
+        const bounds = details.element_bounds.get(id);
+        return bounds
+            ? { x: bounds.x + bounds.w / 2, y: bounds.y + bounds.h / 2 }
+            : null;
+    };
     const point = (typeof centered_at === 'string'
-        ? viewer.mappings[centered_at]
+        ? centerOf(centered_at)
         : centered_at) || { x: 0.5, y: 0.5 };
     let dist = 10;
     let closest = '';
     for (const desk of desk_ids) {
-        const { x, y } = viewer.mappings[desk] || { x: 2, y: 2 };
+        const { x, y } = centerOf(desk) || { x: 2, y: 2 };
         const d = Math.sqrt(
             (x - point.x) * (x - point.x) + (y - point.y) * (y - point.y),
         );
@@ -314,8 +306,6 @@ export async function findNearbyFeature(
             closest = desk;
         }
     }
-    document.body.removeChild(element);
-    removeViewer(id);
     return closest;
 }
 
@@ -348,7 +338,9 @@ export function loadLockerBanks(
     return obs.pipe(
         filter(([bld, region]) => !!(useRegion() ? region || org.region : bld)),
         switchMap(([bld, region]) => {
-            const scope_id = useRegion() ? region?.id || org.region?.id : bld?.id;
+            const scope_id = useRegion()
+                ? region?.id || org.region?.id
+                : bld?.id;
             return queryLockerBankAssetsForZones([scope_id]).pipe(
                 catchError(() => of([])),
             );
@@ -373,7 +365,9 @@ export function loadLockers(
     return obs.pipe(
         filter(([bld, region]) => !!(useRegion() ? region || org.region : bld)),
         switchMap(([bld, region]) => {
-            const scope_id = useRegion() ? region?.id || org.region?.id : bld?.id;
+            const scope_id = useRegion()
+                ? region?.id || org.region?.id
+                : bld?.id;
             return combineLatest([
                 queryLockerAssetsForZones([scope_id]).pipe(
                     catchError(() => of([])),

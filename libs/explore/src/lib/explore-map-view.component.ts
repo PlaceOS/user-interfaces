@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Point } from '@placeos/svg-viewer';
+import { Point } from '@placeos/common';
 
 import { MatRippleModule } from '@angular/material/core';
 import { MatSlideToggle } from '@angular/material/slide-toggle';

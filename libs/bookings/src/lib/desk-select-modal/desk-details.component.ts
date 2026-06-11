@@ -1,5 +1,5 @@
 import { Component, computed, input, output } from '@angular/core';
-import { ViewerFeature } from '@placeos/svg-viewer';
+import { ViewerFeature } from '@placeos/common';
 
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent } from 'libs/components/src/lib/icon.component';

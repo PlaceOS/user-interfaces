@@ -7,7 +7,7 @@ import {
     signal,
 } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
+import { ViewerFeature, ViewerStyles } from '@placeos/common';
 
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';

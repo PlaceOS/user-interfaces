@@ -7,6 +7,7 @@ export * from './lib/google-analytics.service';
 export * from './lib/keep-alive.service';
 export * from './lib/lazy-route-reload';
 export * from './lib/locale.service';
+export * from './lib/map.interfaces';
 export * from './lib/mapspeople.service';
 export * from './lib/org/building.utilities';
 export * from './lib/org/organisation.service';

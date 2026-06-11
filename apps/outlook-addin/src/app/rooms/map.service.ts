@@ -7,7 +7,7 @@ import {
     nextValueFrom,
 } from '@placeos/common';
 import { MapPinComponent } from '@placeos/components';
-import { ViewAction, ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
+import { ViewAction, ViewerFeature, ViewerStyles } from '@placeos/common';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 import { RoomConfirmService } from './room-confirm.service';

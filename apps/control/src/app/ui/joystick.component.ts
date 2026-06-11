@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
-import { Point } from '@placeos/svg-viewer';
+import { Point } from '@placeos/common';
 
 /**
  * Grab point details from mouse or touch event

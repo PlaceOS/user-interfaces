@@ -16,88 +16,60 @@ import {
     viewChild,
     viewChildren,
 } from '@angular/core';
-import { MatRippleModule } from '@angular/material/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
+    MAP_FEATURE_DATA,
+    MapElementBounds,
+    MapOptions,
+    Point,
+    unique,
     ViewAction,
     ViewerFeature,
     ViewerLabel,
     ViewerStyles,
-} from '@placeos/svg-viewer';
+} from '@placeos/common';
 
-import { MAP_FEATURE_DATA } from '@placeos/common';
-import {
-    IconComponent,
-    SanitizePipe,
-    TranslatePipe,
-} from '@placeos/components';
-import { BehaviorSubject } from 'rxjs';
-import { map } from 'rxjs/operators';
 import {
     MapAction,
     MapOverlay,
     MapViewChangeEvent,
     MapViewer,
-    MapViewerMode,
-    Vec2,
 } from './map-viewer.class';
-
-export interface MapOptions {
-    disable_zoom?: boolean;
-    disable_pan?: boolean;
-    controls?: boolean;
-}
-
-export interface MapMetadata {
-    styles?: ViewerStyles;
-    features?: ViewerFeature[];
-    labels?: ViewerLabel[];
-    actions?: ViewAction[];
-}
+import { MapZoomControlsComponent } from './map-zoom-controls.component';
+import { SanitizePipe } from './sanitise.pipe';
+import { TranslatePipe } from './translate.pipe';
 
 @Component({
     selector: 'dynamic-map',
     template: `
-        <div #mapContainer class="absolute inset-0 z-20"></div>
+        <div
+            #mapContainer
+            tabindex="0"
+            role="map"
+            class="absolute inset-0"
+            [class.hidden]="!src()"
+        ></div>
+        @if (src()) {
+            @if (loading()) {
+                <mat-spinner class="absolute z-30" [diameter]="48" />
+            }
+            @if (error()) {
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="opacity-30">
+                        {{ 'EXPLORE.MAP_FAILED_TO_LOAD' | translate }}
+                    </div>
+                </div>
+            }
+        } @else {
+            <div class="absolute inset-0 flex items-center justify-center">
+                <div class="opacity-30">
+                    {{ 'EXPLORE.MAP_EMPTY' | translate }}
+                </div>
+            </div>
+        }
         <ng-content />
         @if (options()?.controls) {
-            <div
-                zoom
-                class="divide-base-200 border-base-200 bg-base-100 text-base-content absolute right-1 bottom-16 z-40 flex flex-col divide-y overflow-hidden rounded-sm border shadow-sm"
-            >
-                <button
-                    icon
-                    matRipple
-                    [matTooltip]="'EXPLORE.ZOOM_IN' | translate"
-                    matTooltipPosition="left"
-                    class="rounded-none"
-                    (click)="zoom.set(zoom() * 1.1); $event.stopPropagation()"
-                >
-                    <icon>add</icon>
-                </button>
-                <button
-                    icon
-                    matRipple
-                    [matTooltip]="'EXPLORE.ZOOM_OUT' | translate"
-                    matTooltipPosition="left"
-                    class="rounded-none"
-                    (click)="
-                        zoom.set(zoom() * (10 / 11)); $event.stopPropagation()
-                    "
-                >
-                    <icon>remove</icon>
-                </button>
-                <button
-                    icon
-                    matRipple
-                    [matTooltip]="'EXPLORE.ZOOM_RESET' | translate"
-                    matTooltipPosition="left"
-                    class="rounded-none"
-                    (click)="reset.set(reset() + 1); $event.stopPropagation()"
-                >
-                    <icon>refresh</icon>
-                </button>
-            </div>
+            <map-zoom-controls [(zoom)]="zoom" [(reset)]="reset" />
         }
         @if (injectors?.length) {
             <div hidden>
@@ -110,7 +82,7 @@ export interface MapMetadata {
                         <div>
                             <div
                                 #feature
-                                class="z-20 h-full w-full"
+                                class="pointer-events-none h-full w-full"
                                 [attr.el-id]="element.location"
                                 [attr.track-id]="$any(element).track_id"
                             >
@@ -154,20 +126,27 @@ export interface MapMetadata {
                 width: 100%;
                 height: 100%;
             }
+
+            mat-spinner {
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
         `,
     ],
     imports: [
         CommonModule,
-        IconComponent,
         TranslatePipe,
         SanitizePipe,
-        MatRippleModule,
-        MatTooltipModule,
+        MatProgressSpinnerModule,
+        MapZoomControlsComponent,
     ],
 })
 export class DynamicMapComponent implements OnInit, OnDestroy {
     private _injector = inject(Injector);
     private _map_viewer: MapViewer | null = null;
+    /** Previously loaded map URL, used to reset the view on map changes */
+    private _last_src = '';
     private _map_container =
         viewChild<ElementRef<HTMLDivElement>>('mapContainer');
     private _feature_elements = viewChildren<ElementRef<HTMLDivElement>>(
@@ -177,49 +156,44 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
 
     public src = input('');
     public zoom = model(1);
-    public center = model<Vec2>({ x: 0, y: 0 });
-    public rotation = model(0);
-    public mode = input<MapViewerMode>('3d');
+    public center = model<Point>({ x: 0.5, y: 0.5 });
     public highResolution = input(false);
     public reset = model(0);
-    public metadata = model({} as MapMetadata);
     public styles = input<ViewerStyles>({});
     public features = input<ViewerFeature[]>([]);
     public labels = input<ViewerLabel[]>([]);
     public actions = input<ViewAction[]>([]);
     public options = input({} as MapOptions);
     public focus = input('');
-    public mapInfo = output();
+    public mapInfo = output<Record<string, MapElementBounds>>();
 
     public injectors: Injector[] = [];
     public loading = signal(false);
+    public error = signal(false);
 
-    private _view_changes = new BehaviorSubject<{
-        zoom: number;
-        center: Vec2;
-        rotation: number;
-    }>({ zoom: 1, center: { x: 0, y: 0 }, rotation: 0 });
-    /** Flag to prevent feedback loop when syncing view changes */
-    private _syncing_from_viewer = false;
-
-    private _extra_data = {
-        zoom$: this._view_changes.pipe(map((_) => _.zoom)),
-        center$: this._view_changes.pipe(map((_) => _.center)),
-        rotation$: this._view_changes.pipe(map((_) => _.rotation)),
-    };
+    /** Normalised SVG bounds of map elements, keyed by element ID */
+    private _element_mappings = signal<Record<string, MapElementBounds> | null>(
+        null,
+    );
 
     constructor() {
         // Effect to load map when src changes
         effect(() => {
             const src = this.src();
             if (src && this._map_viewer) {
-                this._map_viewer.setMap(src);
+                // Reset the view when changing to a different map
+                if (this._last_src && this._last_src !== src) {
+                    this.zoom.set(1);
+                    this.center.set({ x: 0.5, y: 0.5 });
+                }
+                this._last_src = src;
+                this._loadMap(src);
             }
         });
 
-        // Effect to update styles when styles or metadata changes
+        // Effect to update styles when styles change
         effect(() => {
-            const styles = this.styles() || this.metadata()?.styles || {};
+            const styles = this.styles() || {};
             if (this._map_viewer && Object.keys(styles).length > 0) {
                 this._applyStyles(styles);
             }
@@ -227,8 +201,8 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
 
         // Effect to update overlays when features or labels change
         effect(() => {
-            const features = this.features() || this.metadata()?.features || [];
-            const labels = this.labels() || this.metadata()?.labels || [];
+            const features = this.features() || [];
+            const labels = this.labels() || [];
             // Read feature elements to create dependency
             const feature_elements = this._feature_elements();
             if (this._map_viewer) {
@@ -242,9 +216,9 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
             this._updateInjectors();
         });
 
-        // Effect to update actions when actions or metadata changes
+        // Effect to update actions when actions change
         effect(() => {
-            const actions = this.actions() || this.metadata()?.actions || [];
+            const actions = this.actions() || [];
             if (this._map_viewer) {
                 this._applyActions(actions);
             }
@@ -253,108 +227,60 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
         // Effect to sync zoom to MapViewer
         effect(() => {
             const zoom_val = this.zoom() ?? 1;
-            if (this._map_viewer && !this._syncing_from_viewer) {
-                this._map_viewer.setZoom(zoom_val);
-            }
+            this._map_viewer?.setZoom(zoom_val);
         });
 
         // Effect to sync center to MapViewer
         effect(() => {
-            const center_val = this.center();
-            if (this._map_viewer && !this._syncing_from_viewer) {
-                this._map_viewer.setCenter(
-                    center_val ? { ...center_val } : { x: 0, y: 0 },
-                );
-            }
-        });
-
-        // Effect to sync rotation to MapViewer
-        effect(() => {
-            const rotation_val = this.rotation() ?? 0;
-            if (this._map_viewer && !this._syncing_from_viewer) {
-                this._map_viewer.setRotation(rotation_val);
-            }
-        });
-
-        // Effect to sync mode to MapViewer
-        effect(() => {
-            const mode_val = this.mode() ?? '3d';
-            if (this._map_viewer) {
-                this._map_viewer.setMode(mode_val);
-            }
+            const center_val = this.center() ?? { x: 0.5, y: 0.5 };
+            this._map_viewer?.setCenter({ ...center_val });
         });
 
         // Effect to sync high resolution to MapViewer
         effect(() => {
             const high_res = this.highResolution() ?? false;
-            if (this._map_viewer) {
-                this._map_viewer.setHighResolution(high_res);
-            }
+            this._map_viewer?.setHighResolution(high_res);
+        });
+
+        // Effect to sync interaction options to MapViewer
+        effect(() => {
+            const options = this.options();
+            this._map_viewer?.setOptions(options || {});
         });
 
         // Effect to handle reset
         effect(() => {
-            const reset_val = this.reset();
-            if (reset_val > 0 && this._map_viewer) {
-                this._syncing_from_viewer = true;
+            if (this.reset() > 0) {
                 this.zoom.set(1);
-                this.center.set({ x: 0, y: 0 });
-                this.rotation.set(0);
-                this._map_viewer.setZoom(1);
-                this._map_viewer.setCenter({ x: 0, y: 0 });
-                this._map_viewer.setRotation(0);
-                this._syncing_from_viewer = false;
+                this.center.set({ x: 0.5, y: 0.5 });
             }
         });
 
-        // Effect to update view changes observable
+        // Effect to focus the view on a map element
         effect(() => {
-            const zoom_val = this.zoom() ?? 1;
-            const center_val = this.center() ?? { x: 0, y: 0 };
-            const rotation_val = this.rotation() ?? 0;
-            this._view_changes.next({
-                zoom: zoom_val,
-                center: center_val,
-                rotation: rotation_val,
-            });
+            const focus = this.focus();
+            if (focus && this._element_mappings()) {
+                this._map_viewer?.focusOn(focus);
+            }
         });
     }
 
     public ngOnInit() {
         const container = this._map_container()?.nativeElement;
-        if (container) {
-            this._map_viewer = new MapViewer(container);
+        if (!container) return;
+        this._map_viewer = new MapViewer(container);
 
-            // Set up callback to sync view changes from user interaction
-            this._map_viewer.onViewChange = (event: MapViewChangeEvent) => {
-                this._syncing_from_viewer = true;
-                this.zoom.set(event.zoom);
-                this.center.set(event.center);
-                this.rotation.set(event.rotation);
-                this._syncing_from_viewer = false;
-            };
-
-            // Apply initial view state (use defaults if values are undefined)
-            this._map_viewer.setMode(this.mode() ?? '3d');
-            this._map_viewer.setHighResolution(this.highResolution() ?? false);
-            this._map_viewer.setZoom(this.zoom() ?? 1);
-            this._map_viewer.setCenter(
-                this.center() ? { ...this.center() } : { x: 0, y: 0 },
-            );
-            this._map_viewer.setRotation(this.rotation() ?? 0);
-
-            const src = this.src();
-            if (src) {
-                this._map_viewer.setMap(src);
-            }
-        }
+        // Sync view changes from user interaction back to the models.
+        // The constructor effects apply all other initial state.
+        this._map_viewer.onViewChange = (event: MapViewChangeEvent) => {
+            this.zoom.set(event.zoom);
+            this.center.set(event.center);
+        };
     }
 
     public ngOnDestroy() {
-        if (this._map_viewer) {
-            this._map_viewer.destroy();
-            this._map_viewer = null;
-        }
+        this._map_viewer?.destroy();
+        this._map_viewer = null;
     }
 
     /**
@@ -370,17 +296,37 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
               : 'component';
     }
 
+    private _loadMap(src: string) {
+        const simp_url = src.toLowerCase();
+        if (!simp_url.includes('svg') && !simp_url.includes('upload')) return;
+        this.loading.set(true);
+        this.error.set(false);
+        this._map_viewer
+            .setMap(src)
+            .then(() => {
+                if (this.src() !== src || !this._map_viewer) return;
+                this.loading.set(false);
+                const mappings = Object.fromEntries(
+                    this._map_viewer.map?.element_bounds || [],
+                );
+                this._element_mappings.set(mappings);
+                this.mapInfo.emit(mappings);
+            })
+            .catch((e) => {
+                console.warn('[MAP] Failed to load map.', e);
+                if (this.src() !== src) return;
+                this.loading.set(false);
+                this.error.set(true);
+            });
+    }
+
     private _applyStyles(styles: ViewerStyles) {
         if (!this._map_viewer) return;
 
-        // Convert ViewerStyles to Map<string, CSSStyleDeclaration>
-        const style_map = new Map<string, CSSStyleDeclaration>();
-        for (const [id, style_obj] of Object.entries(styles)) {
-            // Create a minimal CSSStyleDeclaration-like object
-            const css_style = {
-                cssText: this._objectToCssText(style_obj),
-            } as CSSStyleDeclaration;
-            style_map.set(id, css_style);
+        // Convert each selector's style object to CSS declaration text
+        const style_map: Record<string, string> = {};
+        for (const [selector, style_obj] of Object.entries(styles)) {
+            style_map[selector] = this._objectToCssText(style_obj);
         }
 
         this._map_viewer.setStyles(style_map);
@@ -432,12 +378,17 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
                 continue;
             }
 
+            // Features are only sized to their reference element when shown
+            // on hover or explicitly marked as full size, otherwise they
+            // render at their natural size centered on the reference
+            const fill_bounds = feature.hover || feature.full_size;
             overlays.push({
                 ref: feature.location,
-                type: 'box',
+                type: fill_bounds ? 'box' : 'point',
                 contents,
-                scale_with_zoom: false,
-                box_scale: 1,
+                scale_with_zoom: !fill_bounds,
+                hover: feature.hover,
+                z_index: feature.z_index,
             });
         }
 
@@ -445,11 +396,14 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
         for (const label of labels) {
             if (!label.location || !label.content) continue;
 
+            const classes = ['map-label', ...(label.css_class || [])].join(' ');
             overlays.push({
                 ref: label.location,
                 type: 'point',
-                contents: label.content,
+                contents: `<label class="${classes}">${label.content}</label>`,
                 scale_with_zoom: true,
+                min_zoom: label.zoom_level,
+                z_index: label.z_index,
             });
         }
 
@@ -470,8 +424,8 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
 
             // Wrap the callback to adapt the signature
             // ViewAction callback: (e: Event, p?: Point) => void
-            // MapAction callback: (p: Vec2) => void
-            const callback = (p: Vec2) => {
+            // MapAction callback: (p: Point) => void
+            const callback = (p: Point) => {
                 // Create a minimal synthetic event for compatibility
                 const synthetic_event = new CustomEvent('mapaction', {
                     detail: { point: p },
@@ -482,6 +436,7 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
             map_actions.push({
                 ref: action.id,
                 events,
+                priority: action.priority,
                 callback,
             });
         }
@@ -529,28 +484,24 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
             }
         }
 
-        // Remove duplicates
-        return [...new Set(events)];
+        return unique(events);
     }
 
     private _updateInjectors() {
-        const old_injectors = this.injectors || [];
+        const old_injectors = new Map(
+            (this.injectors || []).map((injector) => [
+                injector.get(MAP_FEATURE_DATA)?.track_id,
+                injector,
+            ]),
+        );
         this.injectors = (this.features() || []).map(
             (f: any) =>
-                old_injectors.find(
-                    (_) =>
-                        _.get(MAP_FEATURE_DATA)?.track_id &&
-                        _.get(MAP_FEATURE_DATA)?.track_id === f.track_id,
-                ) ||
+                (f.track_id && old_injectors.get(f.track_id)) ||
                 Injector.create({
                     providers: [
                         {
                             provide: MAP_FEATURE_DATA,
-                            useValue: {
-                                track_id: f.track_id,
-                                ...f.data,
-                                ...this._extra_data,
-                            },
+                            useValue: { track_id: f.track_id, ...f.data },
                         },
                     ],
                     parent: this._injector,

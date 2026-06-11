@@ -1011,12 +1011,6 @@ a[icon] {
         max-width: none !important;
     }
 
-    .svg-viewer__label {
-        top: -200%;
-        left: -200%;
-        line-height: 1.1;
-    }
-
     .mdc-datepicker-toggle {
         button {
             position: relative;
@@ -1591,10 +1585,6 @@ a[link] {
 }
 
 #placeos {
-    .svg-viewer__label {
-        min-width: 12rem;
-    }
-
     ::placeholder,
     .mat-form-field-label,
     .mat-mdc-select-placeholder {
@@ -1604,6 +1594,30 @@ a[link] {
     input {
         caret-color: var(--primary);
     }
+}
+
+/* Map viewer overlays */
+
+.map-label {
+    display: block;
+    text-shadow: black 1px 1px;
+    color: white;
+    white-space: pre-line;
+    text-align: center;
+    min-width: 10em;
+    line-height: 1.1;
+}
+
+.map-overlay-hover {
+    pointer-events: auto;
+}
+
+.map-overlay-hover > * {
+    display: none;
+}
+
+.map-overlay-hover:hover > * {
+    display: revert;
 }
 
 /* Utility Classes */

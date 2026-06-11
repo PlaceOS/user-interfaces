@@ -45,7 +45,7 @@ import { MapLocateModalComponent } from './map-locate-modal.component';
 import { MapPinComponent } from './map-pin.component';
 import { MapPolygonComponent } from './map-polygon.component';
 import { MapRadiusComponent } from './map-radius.component';
-import { MapRendererComponent } from './map-renderer.component';
+import { DynamicMapComponent } from './dynamic-map.component';
 import { MapsIndoorsComponent } from './maps-indoors.component';
 import { MediaDurationPipe } from './media-duration.pipe';
 import { MisconfiguredComponent } from './misconfigured.component';
@@ -79,7 +79,7 @@ const STANDALONE_COMPONENTS = [
     GlobalLoadingComponent,
     ChatComponent,
     InteractiveMapComponent,
-    MapRendererComponent,
+    DynamicMapComponent,
     MapsIndoorsComponent,
     VirtualKeyboardComponent,
     SimpleTableComponent,

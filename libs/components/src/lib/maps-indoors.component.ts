@@ -27,7 +27,7 @@ import {
     randomString,
 } from '@placeos/common';
 import { IconComponent } from './icon.component';
-import { MapMetadata } from './interactive-map.component';
+import { MapMetadata } from '@placeos/common';
 
 declare let mapsindoors: any;
 declare let google: any;

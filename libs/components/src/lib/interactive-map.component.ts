@@ -4,49 +4,30 @@ import {
     inject,
     input,
     model,
-    OnChanges,
-    OnInit,
     output,
-    SimpleChanges,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MatRippleModule } from '@angular/material/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
+
 import {
-    setCustomHeaders,
+    MapElementBounds,
+    MapMetadata,
+    MapOptions,
+    OrganisationService,
     ViewAction,
     ViewerFeature,
     ViewerLabel,
     ViewerStyles,
-} from '@placeos/svg-viewer';
-
-import { OrganisationService } from '@placeos/common';
-import { apiKey, token } from '@placeos/ts-client';
-import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
-import { isMobileSafari, log } from 'libs/common/src/lib/general';
+} from '@placeos/common';
+import { log } from 'libs/common/src/lib/general';
 import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { ExploreStateService } from 'libs/explore/src/lib/explore-state.service';
 import { CiscoMapComponent } from './cisco-map.component';
-import { IconComponent } from './icon.component';
-import { MapRendererComponent } from './map-renderer.component';
+import { DynamicMapComponent } from './dynamic-map.component';
+import { MapZoomControlsComponent } from './map-zoom-controls.component';
 import { MapsIndoorsComponent } from './maps-indoors.component';
-import { TranslatePipe } from './translate.pipe';
 
-export interface MapOptions {
-    disable_zoom?: boolean;
-    disable_pan?: boolean;
-    controls?: boolean;
-}
-
-export interface MapMetadata {
-    styles?: ViewerStyles;
-    features?: ViewerFeature[];
-    labels?: ViewerLabel[];
-    actions?: ViewAction[];
-}
-
-let _initialized = false;
+export type { MapMetadata, MapOptions };
 
 @Component({
     selector: 'interactive-map',
@@ -69,73 +50,37 @@ let _initialized = false;
                 <ng-content />
             </cisco-map>
         } @else {
-            <map-renderer
+            <dynamic-map
                 [src]="src()"
                 [zoom]="zoom()"
                 (zoomChange)="zoom.set($event)"
+                [center]="center()"
+                (centerChange)="center.set($event)"
                 [reset]="reset()"
-                [styles]="styles() || metadata()?.styles"
-                [features]="features() || metadata()?.features"
-                [actions]="actions() || metadata()?.actions"
-                [labels]="labels() || metadata()?.labels"
+                [styles]="styles()"
+                [features]="features()"
+                [actions]="actions()"
+                [labels]="labels()"
+                [options]="renderer_options()"
+                [focus]="focus()"
                 (mapInfo)="mapInfo.emit($event)"
             >
                 <ng-content />
-            </map-renderer>
+            </dynamic-map>
         }
         @if (options()?.controls) {
-            <div
-                zoom
-                class="divide-base-200 border-base-200 bg-base-100 text-base-content absolute right-1 bottom-16 flex flex-col divide-y overflow-hidden rounded-sm border shadow-sm"
-            >
-                <button
-                    icon
-                    matRipple
-                    [matTooltip]="'EXPLORE.ZOOM_IN' | translate"
-                    matTooltipPosition="left"
-                    class="rounded-none"
-                    (click)="zoom.set(zoom() * 1.1)"
-                >
-                    <icon>add</icon>
-                </button>
-                <button
-                    icon
-                    matRipple
-                    [matTooltip]="'EXPLORE.ZOOM_OUT' | translate"
-                    matTooltipPosition="left"
-                    class="rounded-none"
-                    (click)="zoom.set(zoom() * (10 / 11))"
-                >
-                    <icon>remove</icon>
-                </button>
-                <button
-                    icon
-                    matRipple
-                    [matTooltip]="'EXPLORE.ZOOM_RESET' | translate"
-                    matTooltipPosition="left"
-                    class="rounded-none"
-                    (click)="reset.set(reset() + 1)"
-                >
-                    <icon>refresh</icon>
-                </button>
-            </div>
+            <map-zoom-controls [(zoom)]="zoom" [(reset)]="reset" />
         }
     `,
     styles: [``],
     imports: [
-        IconComponent,
-        TranslatePipe,
-        MatRippleModule,
-        MatTooltipModule,
         MapsIndoorsComponent,
-        MapRendererComponent,
+        DynamicMapComponent,
         CiscoMapComponent,
+        MapZoomControlsComponent,
     ],
 })
-export class InteractiveMapComponent
-    extends AsyncHandler
-    implements OnChanges, OnInit
-{
+export class InteractiveMapComponent {
     private _settings = inject(SettingsService);
     private _mapspeople = inject(MapsPeopleService);
     private _org = inject(OrganisationService);
@@ -145,20 +90,31 @@ export class InteractiveMapComponent
     public zoom = model(1);
     public center = model({ x: 0.5, y: 0.5 });
     public reset = model(0);
-    public metadata = model({} as MapMetadata);
     public styles = input<ViewerStyles>({});
     public features = input<ViewerFeature[]>([]);
     public labels = input<ViewerLabel[]>([]);
-    public actions = input([]);
+    public actions = input<ViewAction[]>([]);
     public options = input({} as MapOptions);
     public focus = input('');
-    public mapInfo = output();
+    public mapInfo = output<Record<string, MapElementBounds>>();
 
     public readonly use_mapsindoors = toSignal(this._mapspeople.available$);
+
+    public readonly metadata = computed<MapMetadata>(() => ({
+        actions: this.actions() || [],
+        labels: this.labels() || [],
+        styles: this.styles() || {},
+        features: this.features() || [],
+    }));
 
     public readonly location = computed(() =>
         this._org.levels.find((_) => _.map_id === this.src()),
     );
+    /** Map controls are rendered by this component, so disable them on the renderer */
+    public readonly renderer_options = computed(() => ({
+        ...(this.options() || {}),
+        controls: false,
+    }));
     private readonly _use_cisco_maps = this._settings.signal(
         'explore.cisco_maps.enabled',
         false,
@@ -168,26 +124,6 @@ export class InteractiveMapComponent
         return this._use_cisco_maps();
     }
 
-    public ngOnInit() {
-        if (!_initialized) this._setSafariHeaders();
-    }
-
-    public ngOnChanges(changes: SimpleChanges) {
-        if (
-            changes.actions ||
-            changes.labels ||
-            changes.styles ||
-            changes.features
-        ) {
-            this.metadata.set({
-                actions: this.actions() || [],
-                labels: this.labels() || [],
-                styles: this.styles() || {},
-                features: this.features() || [],
-            });
-        }
-    }
-
     public onLevelChange(zone: any) {
         log(
             'Map',
@@ -195,16 +131,5 @@ export class InteractiveMapComponent
             zone?.display_name || zone?.name || zone,
         );
         this._explore.setLevel(zone.id);
-    }
-
-    private _setSafariHeaders() {
-        _initialized = true;
-        if (isMobileSafari()) return;
-        const tkn = token();
-        setCustomHeaders(
-            tkn === 'x-api-key'
-                ? { 'x-api-key': apiKey() }
-                : { Authorization: `Bearer ${tkn}` },
-        );
     }
 }

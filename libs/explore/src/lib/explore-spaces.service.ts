@@ -1,6 +1,6 @@
 import { inject, Injectable, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ViewAction, ViewerFeature } from '@placeos/svg-viewer';
+import { ViewAction, ViewerFeature } from '@placeos/common';
 import { getModule, showMetadata } from '@placeos/ts-client';
 import { combineLatest, Observable } from 'rxjs';
 import { filter, map, shareReplay, switchMap } from 'rxjs/operators';

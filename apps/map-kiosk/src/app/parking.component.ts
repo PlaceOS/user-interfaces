@@ -12,7 +12,7 @@ import {
 } from '@placeos/common';
 import { SpacesService } from '@placeos/events';
 import { ExploreParkingService, ExploreStateService } from '@placeos/explore';
-import { Point } from '@placeos/svg-viewer';
+import { Point } from '@placeos/common';
 
 import {
     IconComponent,

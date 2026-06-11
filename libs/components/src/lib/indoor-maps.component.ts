@@ -22,7 +22,7 @@ import {
     log,
     notifyError,
 } from '@placeos/common';
-import { ViewAction, ViewerStyles } from '@placeos/svg-viewer';
+import { ViewAction, ViewerStyles } from '@placeos/common';
 import { MapService } from 'libs/common/src/lib/mapspeople.service';
 import { combineLatest } from 'rxjs';
 import { filter, first, map } from 'rxjs/operators';

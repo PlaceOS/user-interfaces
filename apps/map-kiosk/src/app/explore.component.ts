@@ -20,7 +20,6 @@ import {
     nextValueFrom,
     notifyError,
     OrganisationService,
-    settingSignal,
     SettingsService,
     unique,
     User,
@@ -42,13 +41,13 @@ import {
     ExploreStateService,
     ExploreZonesService,
 } from '@placeos/explore';
-import { Point } from '@placeos/svg-viewer';
+import { Point } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
 import { MapLocation, showStaff } from '@placeos/users';
 import { combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 import { AccessibilityControlsComponent } from './accessibility-controls.component';
-import { DynamicMapComponent } from './map-viewer/dynamic-map.component';
+import { DynamicMapComponent } from '@placeos/components';
 
 @Component({
     selector: '[app-explore]',
@@ -251,7 +250,6 @@ import { DynamicMapComponent } from './map-viewer/dynamic-map.component';
                         [labels]="labels()"
                         [options]="{ controls: true }"
                         [focus]="locate()"
-                        [mode]="isometric() ? '3d' : '2d'"
                     />
                 </div>
             </div>
@@ -387,7 +385,6 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     public readonly options = this._state.options;
 
     public readonly locate = signal('');
-    public isometric = settingSignal('show_isometric');
 
     @HostListener('window:mousedown') public onMouse = () =>
         this.timeout('reset', () => this.resetKiosk(), this.reset_delay * 1000);
@@ -595,10 +592,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         if ((document.activeElement as any)?.blur)
             (document.activeElement as any)?.blur();
         const level = localStorage.getItem('KIOSK.level');
-        this._state.setPositions(
-            1,
-            this.isometric() ? { x: 0, y: 0 } : { x: 0.5, y: 0.5 },
-        );
+        this._state.setPositions(1, { x: 0.5, y: 0.5 });
         if (level) this._state.setLevel(level);
         this._dialog.closeAll();
         if (navigate) this._router.navigate(['/']);

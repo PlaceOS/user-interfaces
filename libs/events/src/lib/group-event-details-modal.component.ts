@@ -29,7 +29,7 @@ import {
     unique,
 } from '@placeos/common';
 import { MapLocateModalComponent, MapPinComponent } from '@placeos/components';
-import { ViewerFeature } from '@placeos/svg-viewer';
+import { ViewerFeature } from '@placeos/common';
 import { lastValueFrom } from 'rxjs';
 
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
