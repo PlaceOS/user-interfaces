@@ -4,8 +4,11 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import {
+    getNativeDomain,
     getNativeEmail,
     lookupNativeDomainByEmail,
+    normaliseNativeDomain,
+    setNativeApiKey,
     setNativeDomain,
     setNativeEmail,
 } from '@placeos/common';
@@ -27,8 +30,13 @@ import { IconComponent } from './icon.component';
                 </header>
                 <main class="flex flex-col space-y-4 p-4">
                     <p class="text-sm opacity-60">
-                        Enter your work email to find your PlaceOS server and
-                        connect this app.
+                        @if (manual_entry()) {
+                            Enter the address of your PlaceOS server to connect
+                            this app.
+                        } @else {
+                            Enter your work email to find your PlaceOS server
+                            and connect this app.
+                        }
                     </p>
                     @if (error()) {
                         <p
@@ -37,24 +45,78 @@ import { IconComponent } from './icon.component';
                             {{ error() }}
                         </p>
                     }
-                    <div class="flex w-full flex-col">
-                        <label for="email">Work Email</label>
-                        <mat-form-field appearance="outline" class="w-full">
-                            <icon matPrefix>mail</icon>
-                            <input
-                                matInput
-                                name="email"
-                                [(ngModel)]="email"
-                                placeholder="name@company.com"
-                                type="email"
-                                autocapitalize="off"
-                                autocomplete="email"
-                                spellcheck="false"
-                                required
-                                [disabled]="loading()"
-                            />
-                        </mat-form-field>
-                    </div>
+                    @if (manual_entry()) {
+                        <div class="flex w-full flex-col">
+                            <label for="server-address">Server Address</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <icon matPrefix>dns</icon>
+                                <input
+                                    matInput
+                                    name="server-address"
+                                    [(ngModel)]="server_address"
+                                    placeholder="placeos.company.com"
+                                    type="text"
+                                    autocapitalize="off"
+                                    autocomplete="url"
+                                    spellcheck="false"
+                                    required
+                                    [disabled]="loading()"
+                                />
+                            </mat-form-field>
+                        </div>
+                        <div class="flex w-full flex-col">
+                            <label for="api-key">API Key (optional)</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <icon matPrefix>key</icon>
+                                <input
+                                    matInput
+                                    name="api-key"
+                                    [(ngModel)]="api_key"
+                                    placeholder="Leave empty to sign in"
+                                    type="password"
+                                    autocapitalize="off"
+                                    autocomplete="off"
+                                    spellcheck="false"
+                                    [disabled]="loading()"
+                                />
+                            </mat-form-field>
+                            <p class="text-xs opacity-60">
+                                When set, the app authenticates with this key
+                                instead of asking you to sign in.
+                            </p>
+                        </div>
+                    } @else {
+                        <div class="flex w-full flex-col">
+                            <label for="email">Work Email</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <icon matPrefix>mail</icon>
+                                <input
+                                    matInput
+                                    name="email"
+                                    [(ngModel)]="email"
+                                    placeholder="name@company.com"
+                                    type="email"
+                                    autocapitalize="off"
+                                    autocomplete="email"
+                                    spellcheck="false"
+                                    required
+                                    [disabled]="loading()"
+                                />
+                            </mat-form-field>
+                        </div>
+                    }
+                    <button
+                        type="button"
+                        class="self-start text-sm underline opacity-60"
+                        [disabled]="loading()"
+                        (click)="toggleManualEntry()"
+                    >
+                        @if (manual_entry()) {
+                            Find my server using my work email
+                        } @else {
+                            Enter a server address manually
+                        }
+                    </button>
                 </main>
                 <footer
                     class="bg-base-200 m-2 flex items-center justify-center space-x-2 rounded-sm border-none p-2"
@@ -84,6 +146,9 @@ export class NativeDomainOverlayComponent {
     public readonly serverError = input('');
     public readonly domainSet = output<string>();
     public readonly email = signal(getNativeEmail() ?? '');
+    public readonly server_address = signal(getNativeDomain() ?? '');
+    public readonly api_key = signal('');
+    public readonly manual_entry = signal(false);
     public readonly error = signal('');
     public readonly loading = signal(false);
 
@@ -94,8 +159,15 @@ export class NativeDomainOverlayComponent {
         });
     }
 
+    public toggleManualEntry() {
+        if (this.loading()) return;
+        this.manual_entry.update((manual) => !manual);
+        this.error.set('');
+    }
+
     public async submit() {
         if (this.loading()) return;
+        if (this.manual_entry()) return this.submitManual();
         const raw = this.email().trim();
         if (!raw) {
             this.error.set('A work email is required.');
@@ -107,11 +179,24 @@ export class NativeDomainOverlayComponent {
             const domain = await lookupNativeDomainByEmail(raw);
             setNativeEmail(raw);
             setNativeDomain(domain);
+            setNativeApiKey('');
             this.domainSet.emit(domain);
         } catch {
             this.error.set('Unable to find a server for this email address.');
         } finally {
             this.loading.set(false);
         }
+    }
+
+    private submitManual() {
+        const domain = normaliseNativeDomain(this.server_address());
+        if (!domain) {
+            this.error.set('A valid server address is required.');
+            return;
+        }
+        this.error.set('');
+        setNativeDomain(domain);
+        setNativeApiKey(this.api_key());
+        this.domainSet.emit(domain);
     }
 }

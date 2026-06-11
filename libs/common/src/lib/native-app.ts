@@ -1,5 +1,6 @@
 const DOMAIN_STORAGE_KEY = 'PlaceOS.native.domain';
 const EMAIL_STORAGE_KEY = 'PlaceOS.native.email';
+const API_KEY_STORAGE_KEY = 'PlaceOS.native.api_key';
 const APP_ID_STORAGE_KEY = 'PlaceOS.native.app_id';
 const LAST_AUTH_URL_STORAGE_KEY = 'PlaceOS.native.last_auth_url';
 const CONSUMED_AUTH_URL_STORAGE_KEY = 'PlaceOS.native.consumed_auth_url';
@@ -284,6 +285,42 @@ export function setNativeEmail(email: string): void {
 /** Clear the stored API domain. */
 export function clearNativeDomain(): void {
     localStorage.removeItem(DOMAIN_STORAGE_KEY);
+}
+
+/** Retrieve the stored API key, or null if none has been saved. */
+export function getNativeApiKey(): string | null {
+    return localStorage.getItem(API_KEY_STORAGE_KEY);
+}
+
+/** Persist an API key to use for auth instead of the OAuth flow. */
+export function setNativeApiKey(api_key: string): void {
+    const value = `${api_key || ''}`.trim();
+    if (!value) return clearNativeApiKey();
+    localStorage.setItem(API_KEY_STORAGE_KEY, value);
+}
+
+/** Clear the stored API key. */
+export function clearNativeApiKey(): void {
+    localStorage.removeItem(API_KEY_STORAGE_KEY);
+}
+
+/**
+ * Normalise a user-entered server address to a bare `host[:port]` — the
+ * form expected by `setNativeDomain`. Accepts full URLs or bare hosts.
+ * Returns an empty string when the address can't be parsed.
+ */
+export function normaliseNativeDomain(address: string): string {
+    let value = `${address || ''}`.trim();
+    if (!value) return '';
+    if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(value)) value = `https://${value}`;
+    try {
+        const url = new URL(value);
+        if (url.protocol !== 'https:' && url.protocol !== 'http:') return '';
+        if (!url.hostname) return '';
+        return url.port ? `${url.hostname}:${url.port}` : url.hostname;
+    } catch {
+        return '';
+    }
 }
 
 export async function lookupNativeDomainByEmail(
