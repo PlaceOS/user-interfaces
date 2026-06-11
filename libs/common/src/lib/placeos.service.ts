@@ -36,11 +36,16 @@ import { MapsPeopleService } from './mapspeople.service';
 import {
     bindNativeAuthRedirects,
     clearNativeDomain,
+    clearNativePkceVerifier,
     closeNativeBrowser,
+    consumeNativeAuthError,
     consumeNativeAuthRedirect,
     getNativeDomain,
     isNativeApp,
+    markNativeAuthRedirectConsumed,
     openNativeBrowser,
+    restoreNativePkceVerifier,
+    setNativeAuthError,
 } from './native-app';
 import { notifySuccess, setNotifyOutlet } from './notifications';
 import { OrganisationService } from './org/organisation.service';
@@ -134,13 +139,36 @@ export class PlaceOS_Service extends AsyncHandler {
 
     private async _handleNativeAuthRedirect(url: string): Promise<void> {
         const callback_url = new URL(url);
-        const search = callback_url.searchParams.toString();
-        if (!search) return;
+        const params = callback_url.searchParams;
         await closeNativeBrowser();
+        markNativeAuthRedirectConsumed(url);
+        const error = params.get('error');
+        if (error || !params.get('code')) {
+            const message =
+                params.get('error_description') ||
+                error ||
+                'Sign in failed. Please try again.';
+            console.warn('[AUTH] Native sign in failed.', message);
+            setNativeAuthError(message);
+            location.replace(`${location.origin}${location.pathname}`);
+            return;
+        }
+        // Stash the params where ts-client checks when the URL has none, in
+        // case routing rewrites the URL before the auth flow reads it.
+        sessionStorage.setItem(
+            'ENGINE.auth.params',
+            JSON.stringify({
+                code: params.get('code'),
+                state: params.get('state'),
+            }),
+        );
+        console.warn('[AUTH] Reloading webview with auth code...');
         // Reload the webview with the OAuth params on the main URL so the
         // ts-client auth_code flow can pick up the `code` + `state` and
         // exchange them (using the PKCE verifier stored before sign-in).
-        location.replace(`${location.origin}${location.pathname}?${search}`);
+        location.replace(
+            `${location.origin}${location.pathname}?${params.toString()}`,
+        );
     }
 
     public get debug() {
@@ -168,14 +196,20 @@ export class PlaceOS_Service extends AsyncHandler {
     /** Called by the native domain overlay once the user has set a domain. */
     public onNativeDomainSet(): void {
         NEEDS_DOMAIN.set(false);
+        DOMAIN_ERROR.set('');
         this._domain_resolve?.();
         this._domain_resolve = null;
     }
 
     public async init() {
         if (isNativeApp()) {
+            // Re-seed the PKCE verifier in case the OS killed the app (and
+            // its sessionStorage) while the user was signing in externally.
+            restoreNativePkceVerifier();
             await bindNativeAuthRedirects((url) => {
-                void this._handleNativeAuthRedirect(url);
+                this._handleNativeAuthRedirect(url).catch((error) =>
+                    console.warn('[AUTH] Error handling redirect.', error),
+                );
             });
             const launch_url = await consumeNativeAuthRedirect();
             if (launch_url) {
@@ -283,14 +317,43 @@ export class PlaceOS_Service extends AsyncHandler {
             log('APP', 'Auth failed, resetting domain.', auth_error, 'warn');
             clearNativeDomain();
             DOMAIN_ERROR.set(
-                'Unable to connect to your server. Check the email address and try again.',
+                `Unable to connect to "${domain}". The server may be unavailable, or the email address may be for a different server. Try again.`,
             );
         }
-        if (isNativeApp() && !token(false) && authority()) {
+        if (isNativeApp() && !token(false)) {
+            const boot_params = new URLSearchParams(START_QUERY);
+            if (boot_params.has('code')) {
+                // The exchange runs inside setupPlace — landing here with a
+                // code in the URL means it was dropped or failed. ts-client
+                // silently discards the code when state and nonce differ.
+                console.warn(
+                    '[AUTH] Auth code was present on load but the token exchange did not complete.',
+                    `State: "${boot_params.get('state')}"`,
+                    `Nonce: "${localStorage.getItem(`${clientId()}_nonce`)}"`,
+                );
+            }
+        }
+        // Only open the sign-in browser when there is no valid token AND no
+        // refresh token — with a refresh token ts-client renews it silently.
+        if (
+            isNativeApp() &&
+            !token(false) &&
+            !refreshToken() &&
+            authority()
+        ) {
+            const auth_error = consumeNativeAuthError();
+            if (auth_error) {
+                // Wait for the user to confirm via the overlay so a failed or
+                // denied sign-in can't endlessly re-open the browser.
+                setLoadingMessage('Waiting for sign in...');
+                DOMAIN_ERROR.set(auth_error);
+                NEEDS_DOMAIN.set(true);
+                await new Promise<void>((r) => (this._domain_resolve = r));
+            }
             setLoadingMessage('Opening sign in...');
-            await openNativeBrowser(
-                await createNativeAuthUrl(settings, clientId()),
-            );
+            const auth_url = await createNativeAuthUrl(settings, clientId());
+            console.warn(`[AUTH] Opening sign in: ${auth_url}`);
+            await openNativeBrowser(auth_url);
             return;
         }
         if (!isNativeApp()) {
@@ -309,6 +372,7 @@ export class PlaceOS_Service extends AsyncHandler {
         }
         await lastValueFrom(current_user.pipe(first((_) => !!_)));
         this.clearTimeout('wait_for_user');
+        clearNativePkceVerifier();
         this._initLocale();
         setInternalUserDomain(
             this._settings.get('app.internal_user_domain') ||
@@ -331,7 +395,9 @@ export class PlaceOS_Service extends AsyncHandler {
 
     private onInitError() {
         if (isMock() || currentUser()?.is_logged_in) return;
-        invalidateToken();
+        // Keep a valid token on slow networks — the user fetch timing out
+        // doesn't mean the token is bad, so just retry with a reload.
+        if (!token(false)) invalidateToken();
         location.reload();
     }
 

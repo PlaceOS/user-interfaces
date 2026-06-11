@@ -1,5 +1,9 @@
 import { PlaceAuthOptions, setup } from '@placeos/ts-client';
-import { getNativeRedirectUri, isNativeApp } from './native-app';
+import {
+    getNativeRedirectUri,
+    isNativeApp,
+    storeNativePkceVerifier,
+} from './native-app';
 import { notifyInfo } from './notifications';
 
 const NATIVE_CREDENTIAL_FETCH_KEY = '__placeos_native_credential_fetch__';
@@ -100,10 +104,10 @@ export async function createNativeAuthUrl(
         settings.domain,
     );
     const nonce = randomString(16);
-    const challenge = randomString();
-    const verify = await sha256Base64Url(challenge);
+    const verifier = randomString();
+    const challenge = await sha256Base64Url(verifier);
     localStorage.setItem(`${client_id}_nonce`, nonce);
-    sessionStorage.setItem(`${client_id}_challenge`, challenge);
+    storeNativePkceVerifier(`${client_id}_challenge`, verifier);
     return (
         `${url}/auth/oauth/authorize?response_type=code` +
         `&client_id=${encodeURIComponent(client_id)}` +
@@ -111,7 +115,7 @@ export async function createNativeAuthUrl(
         `&redirect_uri=${encodeURIComponent(redirect_uri)}` +
         `&scope=${encodeURIComponent('public')}` +
         '&code_challenge_method=S256' +
-        `&code_challenge=${encodeURIComponent(verify)}`
+        `&code_challenge=${encodeURIComponent(challenge)}`
     );
 }
 
@@ -149,8 +153,12 @@ export async function setupPlace(settings: PlaceSettings): Promise<void> {
         mock,
         delay: 300,
     };
-    if (native)
+    if (native) {
+        // ts-client only persists access/refresh tokens for trusted devices —
+        // without this flag every cold start requires a full browser sign-in.
+        localStorage.setItem('trust', 'true');
         setupNativeCredentialedFetch([config.auth_uri, config.token_uri]);
+    }
     if (localStorage) {
         localStorage.setItem(
             'mock',
