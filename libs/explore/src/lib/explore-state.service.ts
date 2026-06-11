@@ -100,20 +100,20 @@ export class ExploreStateService extends AsyncHandler {
     );
     /** Currently center and zoom positions for map */
     public readonly map_positions = this._positions.asObservable();
-    /** Currently center and zoom positions for map */
+    /** Currently visible features for the map */
     public readonly map_features = combineLatest([
         this._features,
         this._options,
+        this._settings.overrides$?.pipe(startWith([])) || of([]),
     ]).pipe(
         debounceTime(200),
         map(([features, options]) => {
+            const disable = this._disabledGroups(options, 'features');
             let list = [];
             for (const key in features) {
                 if (
-                    options.disable?.includes(key) ||
-                    options.disable_features?.includes(key) ||
-                    (key === 'zones-canvas' &&
-                        options.disable?.includes('zones'))
+                    disable.includes(key) ||
+                    (key === 'zones-canvas' && disable.includes('zones'))
                 )
                     continue;
                 list = list.concat(features[key]);
@@ -121,39 +121,35 @@ export class ExploreStateService extends AsyncHandler {
             return list;
         }),
     );
-    /** Currently center and zoom positions for map */
+    /** Currently active user actions for the map */
     public readonly map_actions = combineLatest([
         this._actions,
         this._options,
+        this._settings.overrides$?.pipe(startWith([])) || of([]),
     ]).pipe(
         debounceTime(200),
         map(([actions, options]) => {
+            const disable = this._disabledGroups(options, 'actions');
             let list = [];
             for (const key in actions) {
-                if (
-                    options.disable?.includes(key) ||
-                    options.disable_actions?.includes(key)
-                )
-                    continue;
+                if (disable.includes(key)) continue;
                 list = list.concat(actions[key]);
             }
             return list;
         }),
     );
-    /** Currently center and zoom positions for map */
+    /** Currently visible labels for the map */
     public readonly map_labels = combineLatest([
         this._labels,
         this._options,
+        this._settings.overrides$?.pipe(startWith([])) || of([]),
     ]).pipe(
         debounceTime(200),
         map(([labels, options]) => {
+            const disable = this._disabledGroups(options, 'labels');
             let list = [];
             for (const key in labels) {
-                if (
-                    options.disable?.includes(key) ||
-                    options.disable_labels?.includes(key)
-                )
-                    continue;
+                if (disable.includes(key)) continue;
                 list = list.concat(labels[key]);
             }
             return list;
@@ -167,18 +163,10 @@ export class ExploreStateService extends AsyncHandler {
     ]).pipe(
         debounceTime(200),
         map(([styles, options]) => {
-            const disable = unique([
-                ...this._normaliseDisabledOption(options.disable),
-                ...this._normaliseDisabledSetting('app.explore.disable'),
-            ]);
-            const disable_styles = unique([
-                ...this._normaliseDisabledOption(options.disable_styles),
-                ...this._normaliseDisabledSetting('app.explore.disable_styles'),
-            ]);
+            const disable = this._disabledGroups(options, 'styles');
             let style_mappings = { text: { display: 'none' } };
             for (const key in styles) {
-                if (disable.includes(key) || disable_styles.includes(key))
-                    continue;
+                if (disable.includes(key)) continue;
                 style_mappings = { ...style_mappings, ...styles[key] };
             }
             if (disable.includes('zones')) {
@@ -337,6 +325,22 @@ export class ExploreStateService extends AsyncHandler {
             }
         }
         return false;
+    }
+
+    /**
+     * Combined list of disabled groups for the given resource type, merging
+     * the current map options with the `app.explore.disable*` settings
+     */
+    private _disabledGroups(
+        options: MapOptions,
+        type: 'features' | 'actions' | 'labels' | 'styles',
+    ): string[] {
+        return unique([
+            ...this._normaliseDisabledOption(options.disable),
+            ...this._normaliseDisabledSetting('app.explore.disable'),
+            ...this._normaliseDisabledOption(options[`disable_${type}`]),
+            ...this._normaliseDisabledSetting(`app.explore.disable_${type}`),
+        ]);
     }
 
     private _normaliseDisabledSetting(name: string): string[] {
