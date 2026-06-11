@@ -46,7 +46,7 @@ export class ExplorePointOfInterestService extends AsyncHandler {
         this._explore.level,
     ]).pipe(
         map(([features, level]) =>
-            features.filter((poi) => poi.zone_id === level.id),
+            level ? features.filter((poi) => poi.zone_id === level.id) : [],
         ),
         shareReplay(1),
     );
@@ -76,7 +76,6 @@ export class ExplorePointOfInterestService extends AsyncHandler {
                             action: event,
                             priority: 10,
                             callback: () => {
-                                console.log('Mouse down or touch start');
                                 can_act = true;
                                 this.timeout('act', () => (can_act = false));
                             },
@@ -88,8 +87,7 @@ export class ExplorePointOfInterestService extends AsyncHandler {
                             action: event,
                             priority: 10,
                             callback: () => {
-                                console.log('Mouse up or touch end');
-                                can_act ? this.viewDetails(item) : null;
+                                if (can_act) this.viewDetails(item);
                             },
                         }),
                     );

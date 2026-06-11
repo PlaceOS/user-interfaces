@@ -1,5 +1,4 @@
 import { inject, Injectable } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import {
     alignDateToBookableHours,
     AsyncHandler,
@@ -17,7 +16,6 @@ import {
 } from '@placeos/common';
 import { PlaceAsset, showMetadata } from '@placeos/ts-client';
 import {
-    addDays,
     endOfDay,
     endOfMinute,
     getUnixTime,
@@ -43,7 +41,6 @@ import { ParkingService } from 'libs/bookings/src/lib/parking.service';
 import { ExploreParkingInfoComponent } from './explore-parking-info.component';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
 import { ExploreStateService } from './explore-state.service';
-import { SetDatetimeModalComponent } from './set-datetime-modal.component';
 
 export type ParkingSpace = PlaceAsset;
 
@@ -65,7 +62,6 @@ export class ExploreParkingService extends AsyncHandler {
     private _settings = inject(SettingsService);
     private _bookings = inject(BookingFormService);
     private _parking = inject(ParkingService);
-    private _dialog = inject(MatDialog);
 
     private _options = new BehaviorSubject<ParkingOptions>({});
     private _poll = new BehaviorSubject<number>(0);
@@ -142,7 +138,9 @@ export class ExploreParkingService extends AsyncHandler {
         this.spaces,
         this._state.level,
     ]).pipe(
-        map(([spaces, level]) => spaces.filter((_) => _.zone_id === level.id)),
+        map(([spaces, level]) =>
+            level ? spaces.filter((_) => _.zone_id === level.id) : [],
+        ),
     );
 
     private _users: Record<string, string> = {};
@@ -175,12 +173,11 @@ export class ExploreParkingService extends AsyncHandler {
                         host: currentUser(),
                         resource: {
                             id: space.id,
-                            zones: [level.parent_id, level.id],
+                            zones: [level?.parent_id, level?.id],
                         },
                     },
                     rules,
                 )?.hidden;
-                console.log('Assigned:', assigned, space.id);
                 this._users[space.id] = assigned;
                 this._plate_numbers[space.id] =
                     event?.extension_data?.plate_number ||
@@ -286,7 +283,6 @@ export class ExploreParkingService extends AsyncHandler {
                         }),
                     );
                 }
-                console.log('Booked Space:', booked_space);
                 if (assigned_space && booked_space) {
                     return notifyError(
                         i18n('EXPLORE.PARKING_ASSIGNED_ERROR', {
@@ -358,8 +354,8 @@ export class ExploreParkingService extends AsyncHandler {
                     zones: [
                         this._org.organisation.id,
                         this._org.region?.id,
-                        zone.parent_id,
-                        zone.id,
+                        zone?.parent_id,
+                        zone?.id,
                     ],
                 });
                 await this._bookings.confirmPost().catch((e) => {
@@ -392,32 +388,5 @@ export class ExploreParkingService extends AsyncHandler {
         );
         this._state.setStyles('parking', styles);
         this._state.setFeatures('parking', features);
-    }
-
-    private async _setBookingTime(
-        date: number,
-        duration: number,
-        host: boolean = false,
-        resource: any = null,
-        bookable_hours: BookableHoursRange | null = null,
-    ) {
-        let user = null;
-        if (!!this._settings.get('app.parking.allow_time_changes')) {
-            const until = endOfDay(
-                addDays(
-                    Date.now(),
-                    this._settings.get('app.parking.available_period') || 90,
-                ),
-            );
-            const ref = this._dialog.open(SetDatetimeModalComponent, {
-                data: { date, duration, until, host, resource, bookable_hours },
-            });
-            const details = await ref.afterClosed().toPromise();
-            if (!details) throw 'User cancelled';
-            date = details.date;
-            duration = details.duration;
-            user = details.user;
-        }
-        return { date, duration, user };
     }
 }

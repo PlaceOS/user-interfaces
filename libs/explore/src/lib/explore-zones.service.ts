@@ -101,7 +101,9 @@ export class ExploreZonesService extends AsyncHandler {
     public async init() {
         await firstTruthyValueFrom(this._org.initialised);
         const zone_metadata = await Promise.all(
-            this._org.levels.map((bld) => showMetadata(bld.id, 'map_regions')),
+            this._org.levels.map((bld) =>
+                showMetadata(bld.id, 'map_regions').catch(() => null),
+            ),
         );
         this._area_list = [];
         for (const zone of zone_metadata) {
@@ -192,11 +194,11 @@ export class ExploreZonesService extends AsyncHandler {
                 });
             if (zone.queue_size)
                 content += i18n('EXPLORE.SENSORS_QUEUE', {
-                    value: `${zone.humidity}\n`,
+                    value: `${zone.queue_size}\n`,
                 });
             if (zone.counter)
                 content += i18n('EXPLORE.SENSORS_COUNT', {
-                    value: `${zone.humidity}\n`,
+                    value: `${zone.counter}\n`,
                 });
             if (
                 this._label_location[id] &&
