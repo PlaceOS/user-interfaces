@@ -92,6 +92,9 @@ export class AppComponent extends AsyncHandler implements OnInit {
     public async ngOnInit() {
         setNotifyOutlet(this._snackbar);
         setTranslationService(this._locale);
+        // Listen for service worker events before any async setup so update
+        // notifications emitted during initialisation are not missed.
+        setupCache(this._cache);
         this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyD'], () => {
             this._settings.saveUserSetting(
                 'dark_mode',

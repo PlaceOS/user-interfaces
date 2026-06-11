@@ -79,7 +79,6 @@ export function setupCache(
         cacheOptions(options);
     _auto_reload = auto_reload;
     if (cache.isEnabled) {
-        stopUpdateChecks();
         if (!_version_subscription) {
             _version_subscription = cache.versionUpdates.subscribe((event) => {
                 if (event.type !== 'VERSION_READY' || _new_version) return;
@@ -107,14 +106,24 @@ export function setupCache(
                 },
             );
         }
+        if (_new_version) {
+            // An update was already found, apply the new reload preference
+            // instead of restarting the polling.
+            if (_auto_reload) reloadApp();
+            return;
+        }
+        stopUpdateChecks();
         _initial_check = setTimeout(() => {
             log('CACHE', `Checking for updates...`);
             checkForUpdate(cache);
         }, 2 * SECONDS);
-        _timer = setInterval(() => {
-            log('CACHE', `Checking for updates...`);
-            checkForUpdate(cache);
-        }, interval);
+        _timer = setInterval(
+            () => {
+                log('CACHE', `Checking for updates...`);
+                checkForUpdate(cache);
+            },
+            Math.max(interval, 1 * MINUTES),
+        );
     }
 }
 

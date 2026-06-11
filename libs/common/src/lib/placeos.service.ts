@@ -183,6 +183,9 @@ export class PlaceOS_Service extends AsyncHandler {
                 return;
             }
         }
+        // Listen for service worker events before any async setup so update
+        // notifications emitted during initialisation are not missed.
+        setupCache(this._cache);
         log('APP', 'MOCKS:', _mocks);
         if (_mocks) {
             setLoadingMessage('Initializing mocks...');

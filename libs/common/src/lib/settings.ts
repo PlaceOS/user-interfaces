@@ -16,6 +16,8 @@ export interface SettingsOptions {
 export interface ServiceWorkerSettings {
     /** Whether to reload the app as soon as a new service worker version is ready */
     auto_reload: boolean;
+    /** Time between checks for new versions, in milliseconds. Minimum of 1 minute */
+    interval?: number;
 }
 
 export interface ComposerSettings {

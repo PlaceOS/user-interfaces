@@ -71,6 +71,9 @@ export class AppComponent extends AsyncHandler implements OnInit {
     public async ngOnInit() {
         log('APP', 'MOCKS:', MOCKS);
         setNotifyOutlet(this._snackbar);
+        // Listen for service worker events before any async setup so update
+        // notifications emitted during initialisation are not missed.
+        setupCache(this._cache);
         const authority: PlaceAuthority = await (
             await fetch('/auth/authority')
         ).json();
