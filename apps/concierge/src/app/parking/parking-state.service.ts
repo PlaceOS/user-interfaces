@@ -372,7 +372,11 @@ export class ParkingStateService extends AsyncHandler {
     }
 
     public isWaitlisted(booking: Booking) {
-        if (!this.isRequest(booking) || booking.status !== 'tentative') {
+        if (
+            !this.isRequest(booking) ||
+            booking.status !== 'tentative' ||
+            booking.process_state === 'waiting_approval'
+        ) {
             return false;
         }
         const now = Date.now();

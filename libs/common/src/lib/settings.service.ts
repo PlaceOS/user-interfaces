@@ -8,7 +8,7 @@ import {
 import { Title } from '@angular/platform-browser';
 import { showMetadata, updateMetadata, updateUser } from '@placeos/ts-client';
 import { format, isSameDay } from 'date-fns';
-import { BehaviorSubject, Observable, filter, lastValueFrom } from 'rxjs';
+import { BehaviorSubject, Observable, filter } from 'rxjs';
 
 import { AsyncHandler } from './async-handler.class';
 import {
@@ -181,7 +181,7 @@ export class SettingsService extends AsyncHandler {
         const user = await firstTruthyValueFrom(
             current_user.pipe(filter((_) => !!_.id)),
         );
-        const data = await lastValueFrom(showMetadata(user.id, 'settings'));
+        const data = await showMetadata(user.id, 'settings');
         this._user_settings.next(data.details || {});
         this.timeout(
             'init',
@@ -236,9 +236,7 @@ export class SettingsService extends AsyncHandler {
     }
 
     public async updateLocatable(locatable: boolean) {
-        await lastValueFrom(
-            updateUser(currentUser().id, { locatable }, 'patch'),
-        );
+        await updateUser(currentUser().id, { locatable }, 'patch');
         reloadUserData();
     }
 
@@ -281,16 +279,14 @@ export class SettingsService extends AsyncHandler {
         const user = currentUser();
         if (!user?.id || !Object.keys(this._pending_settings).length) return;
         this._updateSignals();
-        await lastValueFrom(
-            updateMetadata(user.id, {
-                name: 'settings',
-                description: '',
-                details: {
-                    ...this._user_settings.getValue(),
-                    ...this._pending_settings,
-                },
-            }),
-        );
+        await updateMetadata(user.id, {
+            name: 'settings',
+            description: '',
+            details: {
+                ...this._user_settings.getValue(),
+                ...this._pending_settings,
+            },
+        });
         this._user_settings.next({
             ...this._user_settings.getValue(),
             ...this._pending_settings,

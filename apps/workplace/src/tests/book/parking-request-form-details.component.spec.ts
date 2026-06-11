@@ -44,7 +44,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
             MockProvider(ParkingService, {
                 spaces: of([]),
             }),
-            MockProvider(SettingsService, {
+            MockProvider(SettingsService as any, {
                 get: jest.fn(
                     (key: string) =>
                         key === 'app.bookings.use_building_timezone' ||
@@ -52,7 +52,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
                 ),
                 time_format: 'h:mm a',
             }),
-            MockProvider(OrganisationService, {
+            MockProvider(OrganisationService as any, {
                 initialised: of(true),
                 active_building: of({ id: 'bld-1', timezone: 'UTC' }),
                 active_buildings: of([]),

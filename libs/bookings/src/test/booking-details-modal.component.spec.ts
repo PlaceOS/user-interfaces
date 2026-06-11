@@ -44,11 +44,11 @@ describe('BookingDetailsModalComponent', () => {
                 end_fn,
                 refresh_fn,
             }),
-            MockProvider(OrganisationService, {
+            MockProvider(OrganisationService as any, {
                 levelWithID: jest.fn(),
                 buildings: [],
             }),
-            MockProvider(SettingsService, createSettingsServiceMock()),
+            MockProvider(SettingsService as any, createSettingsServiceMock()),
             MockProvider(MapsPeopleService, {
                 use_mapsindoors$: new BehaviorSubject(false),
             } as any),
@@ -147,9 +147,24 @@ describe('BookingDetailsModalComponent', () => {
         expect(spectator.component.booking_status()).toBe('info');
     });
 
+    it('should not show waiting approval parking requests as waitlisted', () => {
+        (spectator.component as any).booking.set(
+            new Booking({
+                booking_type: 'parking',
+                type: 'parking',
+                asset_id: 'unallocated-1',
+                date: Date.now(),
+                status: 'tentative',
+                process_state: 'waiting_approval',
+            } as any),
+        );
+
+        expect(spectator.component.booking_status()).toBe('warning');
+    });
+
     it('should hide waitlisted status for parking requests when waitlist display is disabled', () => {
         const settings = spectator.inject(SettingsService);
-        settings.get.mockImplementation((name: string) =>
+        (settings.get as jest.Mock).mockImplementation((name: string) =>
             name === 'app.parking.show_waitlist' ? false : undefined,
         );
         spectator = createComponent();
@@ -168,7 +183,7 @@ describe('BookingDetailsModalComponent', () => {
 
     it('should hide selected parking space when enabled', () => {
         const settings = spectator.inject(SettingsService);
-        settings.get.mockImplementation((name: string) =>
+        (settings.get as jest.Mock).mockImplementation((name: string) =>
             name === 'app.parking.hide_selected_space' ? true : undefined,
         );
         spectator = createComponent();
@@ -246,7 +261,10 @@ describe('BookingDetailsModalComponent', () => {
                     extension_data: {
                         group_resource_type: 'desk',
                         group_members: [
-                            { email: '<empty>@dev.place.tech', name: '<empty>' },
+                            {
+                                email: '<empty>@dev.place.tech',
+                                name: '<empty>',
+                            },
                             { email: 'two@example.com', name: 'Two' },
                         ],
                     },

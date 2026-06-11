@@ -1,10 +1,14 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     AsyncHandler,
     getInvalidFields,
@@ -13,6 +17,13 @@ import {
     UploadsService,
 } from '@placeos/common';
 import {
+    FullscreenModalShellComponent,
+    IconComponent,
+    SettingsToggleComponent,
+} from '@placeos/components';
+import { validateURL } from '@placeos/events';
+import { DurationFieldComponent } from '@placeos/form-fields';
+import {
     addSettings,
     EncryptionLevel,
     PlaceSettings,
@@ -20,20 +31,6 @@ import {
     querySettings,
     updateSettings,
 } from '@placeos/ts-client';
-import { lastValueFrom, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
-
-import { MatRippleModule } from '@angular/material/core';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import {
-    FullscreenModalShellComponent,
-    IconComponent,
-    SettingsToggleComponent,
-} from '@placeos/components';
-import { validateURL } from '@placeos/events';
-import { DurationFieldComponent } from '@placeos/form-fields';
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 
 @Component({
@@ -364,12 +361,11 @@ export class BookingPanelSettingsModalComponent
         );
         this._defaults = { ...this.form.getRawValue() };
         this.loading.set('Loading existing panel settings...');
-        const settings = await lastValueFrom(
-            querySettings({ parent_id: this.zone.id }).pipe(
-                catchError(() => of({ data: [] as PlaceSettings[] })),
-                map((_) => _.data),
-            ),
-        );
+        let settings: PlaceSettings[] = [];
+        try {
+            const response = await querySettings({ parent_id: this.zone.id });
+            settings = response?.data || [];
+        } catch {}
         const unencrypted_settings = settings.find(
             (block) => block.encryption_level === EncryptionLevel.None,
         );
@@ -420,12 +416,11 @@ export class BookingPanelSettingsModalComponent
         const form_value = this.form.getRawValue();
         this._dialog_ref.disableClose = true;
         this.loading.set('Loading existing booking panel settings...');
-        const settings = await lastValueFrom(
-            querySettings({ parent_id: this.zone.id }).pipe(
-                catchError(() => of({ data: [] as PlaceSettings[] })),
-                map((_) => _.data),
-            ),
-        );
+        let settings: PlaceSettings[] = [];
+        try {
+            const response = await querySettings({ parent_id: this.zone.id });
+            settings = response?.data || [];
+        } catch {}
         let unencrypted_settings = settings.find(
             (block) => block.encryption_level === EncryptionLevel.None,
         );
@@ -454,12 +449,14 @@ export class BookingPanelSettingsModalComponent
         const update = unencrypted_settings.id
             ? updateSettings(unencrypted_settings.id, new_setting)
             : addSettings(new_setting);
-        await lastValueFrom(update).catch((e) => {
+        try {
+            await update;
+        } catch (e) {
             this._dialog_ref.disableClose = false;
             this.loading.set('');
             notifyError('Error saving changes to booking panel settings');
             throw e;
-        });
+        }
         this._dialog_ref.close();
         notifySuccess(
             `Successfully updated booking panel settings for "${this.zone.display_name}"`,

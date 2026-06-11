@@ -42,11 +42,15 @@ describe('ParkingRequestsListComponent', () => {
                 },
                 week_start: 1,
             } as any),
-            MockProvider(SettingsService, {
+            MockProvider(SettingsService as any, {
                 get: jest.fn((name: string) =>
-                    name === 'app.parking.show_waitlist' ? show_waitlist : false,
+                    name === 'app.parking.show_waitlist'
+                        ? show_waitlist
+                        : false,
                 ),
-                signal: jest.fn((_: string, initial: boolean) => signal(initial)),
+                signal: jest.fn((_: string, initial: boolean) =>
+                    signal(initial),
+                ),
                 time_format: 'h:mm a',
             }),
         ],

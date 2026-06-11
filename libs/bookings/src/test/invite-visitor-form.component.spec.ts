@@ -35,48 +35,19 @@ describe('InviteVisitorFormComponent', () => {
                 loadGroupSiblings: jest.fn(async () => []),
                 editFormForGroup: jest.fn(async () => new Booking()),
             }),
-            MockProvider(OrganisationService, {
-                initialised: of(true),
-                active_buildings: new BehaviorSubject([
-                    {
-                        id: 'bld-1',
-                        name: 'Building One',
-                        parent_id: 'reg-1',
-                        zone_id: 'zone-bld-1',
-                    },
-                ]),
-                building_list: new BehaviorSubject([
-                    {
-                        id: 'bld-1',
-                        name: 'Building One',
-                        parent_id: 'reg-1',
-                        zone_id: 'zone-bld-1',
-                    },
-                    {
-                        id: 'bld-2',
-                        name: 'Building Two',
-                        parent_id: 'reg-1',
-                        zone_id: 'zone-bld-2',
-                    },
-                ]),
-                buildings: [
-                    {
-                        id: 'bld-1',
-                        name: 'Building One',
-                        parent_id: 'reg-1',
-                        zone_id: 'zone-bld-1',
-                    },
-                    {
-                        id: 'bld-2',
-                        name: 'Building Two',
-                        parent_id: 'reg-1',
-                        zone_id: 'zone-bld-2',
-                    },
-                ],
-                building: { id: 'bld-1', name: 'Building One' },
-                organisation: { id: 'org-1' },
-                find: jest.fn((id: string) =>
-                    [
+            MockProvider(
+                OrganisationService as any,
+                {
+                    initialised: of(true),
+                    active_buildings: new BehaviorSubject([
+                        {
+                            id: 'bld-1',
+                            name: 'Building One',
+                            parent_id: 'reg-1',
+                            zone_id: 'zone-bld-1',
+                        },
+                    ]),
+                    building_list: new BehaviorSubject([
                         {
                             id: 'bld-1',
                             name: 'Building One',
@@ -89,15 +60,47 @@ describe('InviteVisitorFormComponent', () => {
                             parent_id: 'reg-1',
                             zone_id: 'zone-bld-2',
                         },
-                    ].find((building) => building.id === id),
-                ),
-                levelWithID: jest.fn((id_list: string[]) =>
-                    id_list?.includes('lvl-2')
-                        ? { id: 'lvl-2', parent_id: 'bld-2' }
-                        : null,
-                ),
-            } as any),
-            MockProvider(SettingsService, createSettingsServiceMock()),
+                    ]),
+                    buildings: [
+                        {
+                            id: 'bld-1',
+                            name: 'Building One',
+                            parent_id: 'reg-1',
+                            zone_id: 'zone-bld-1',
+                        },
+                        {
+                            id: 'bld-2',
+                            name: 'Building Two',
+                            parent_id: 'reg-1',
+                            zone_id: 'zone-bld-2',
+                        },
+                    ],
+                    building: { id: 'bld-1', name: 'Building One' },
+                    organisation: { id: 'org-1' },
+                    find: jest.fn((id: string) =>
+                        [
+                            {
+                                id: 'bld-1',
+                                name: 'Building One',
+                                parent_id: 'reg-1',
+                                zone_id: 'zone-bld-1',
+                            },
+                            {
+                                id: 'bld-2',
+                                name: 'Building Two',
+                                parent_id: 'reg-1',
+                                zone_id: 'zone-bld-2',
+                            },
+                        ].find((building) => building.id === id),
+                    ),
+                    levelWithID: jest.fn((id_list: string[]) =>
+                        id_list?.includes('lvl-2')
+                            ? { id: 'lvl-2', parent_id: 'bld-2' }
+                            : null,
+                    ),
+                } as any,
+            ),
+            MockProvider(SettingsService as any, createSettingsServiceMock()),
         ],
         imports: [
             ReactiveFormsModule,

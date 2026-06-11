@@ -44,6 +44,7 @@ const app = {
         disable_styles: false,
         hide_bay_number: false,
         hide_level_selector_on_booking_list: false,
+        hide_users_and_vehicles: false,
         hide_availability_counter: false,
         hide_assign_space: false,
         allow_deleting: false,

@@ -245,9 +245,7 @@ export class SignageMediaComponent extends AsyncHandler {
         event: CdkDragDrop<SignagePlaylist[]>,
     ) {
         const media = event.previousContainer.data[event.previousIndex];
-        const media_list = await listSignagePlaylistMedia(
-            playlist.id,
-        ).toPromise();
+        const media_list = await listSignagePlaylistMedia(playlist.id);
         const new_media_list = [...media_list.items, media.id];
         await this._state.updatePlaylistMedia(playlist.id, new_media_list);
     }

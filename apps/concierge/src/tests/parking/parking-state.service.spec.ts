@@ -356,6 +356,38 @@ describe('ParkingStateService', () => {
         ]);
     });
 
+    it('should not treat waiting approval parking requests as waitlisted', () => {
+        const request = {
+            id: 'pending-approval',
+            asset_id: 'unallocated-1',
+            status: 'tentative',
+            process_state: 'waiting_approval',
+            date: Date.now(),
+            extension_data: {},
+        } as any;
+
+        expect(spectator.service.isWaitlisted(request)).toBe(false);
+    });
+
+    it('should keep waiting approval parking requests in pending filtering', () => {
+        settings_map['app.parking.show_requests'] = true;
+        const request = {
+            id: 'pending-approval',
+            asset_id: 'unallocated-1',
+            status: 'tentative',
+            process_state: 'waiting_approval',
+            date: Date.now(),
+            extension_data: {},
+        } as any;
+
+        expect(spectator.service.filterEventList([request], 'waitlist')).toEqual(
+            [],
+        );
+        expect(spectator.service.filterEventList([request], 'pending')).toEqual([
+            request,
+        ]);
+    });
+
     it('should only allow approval for matching approver groups', () => {
         const restricted_request = {
             asset_id: 'unallocated-1',

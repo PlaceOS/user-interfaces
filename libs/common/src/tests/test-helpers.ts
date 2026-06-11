@@ -155,7 +155,7 @@ export const createSettingsServiceMock = (
     overrides: Record<string, any> = {},
 ) => {
     const version = signal(0);
-    const get = jest.fn((_: string) => undefined);
+    const get = jest.fn(<T = any>(_: string): T => undefined as T);
     const bump = () => version.update((value) => value + 1);
     const mock_implementation = get.mockImplementation.bind(get);
     const mock_return_value = get.mockReturnValue.bind(get);
@@ -183,5 +183,5 @@ export const createSettingsServiceMock = (
         ),
         theme_signal: jest.fn(() => get('theme') || 'light'),
         ...overrides,
-    };
+    } as any;
 };

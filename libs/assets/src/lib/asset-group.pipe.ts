@@ -2,7 +2,6 @@ import { Pipe } from '@angular/core';
 
 import { AssetGroup } from '@placeos/common';
 import { showAssetType } from '@placeos/ts-client';
-import { lastValueFrom } from 'rxjs';
 
 const ASSET_GROUP_LIST: AssetGroup[] = [];
 
@@ -28,9 +27,7 @@ export class AssetGroupPipe {
         if (!group_id) return EMPTY_ASSET_GROUP;
         let asset_group = ASSET_GROUP_LIST.find(({ id }) => id === group_id);
         if (asset_group) return asset_group;
-        const group = await lastValueFrom(showAssetType(group_id)).catch(
-            () => null,
-        );
+        const group = await showAssetType(group_id).catch(() => null);
         if (group) {
             asset_group = { ...group };
             ASSET_GROUP_LIST.push(asset_group);

@@ -26,7 +26,7 @@ import {
     SignagePlaylist,
 } from '@placeos/ts-client';
 import { getUnixTime, startOfMinute } from 'date-fns';
-import { combineLatest, of } from 'rxjs';
+import { combineLatest, from, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -443,7 +443,7 @@ export class SignagePlaylistMediaListComponent {
             debounceTime(300),
             tap(() => this.loading.set(true)),
             switchMap((playlist) =>
-                listSignagePlaylistMedia(playlist.id).pipe(
+                from(listSignagePlaylistMedia(playlist.id)).pipe(
                     catchError(() => of({ id: '', items: [], approved: 0 })),
                 ),
             ),

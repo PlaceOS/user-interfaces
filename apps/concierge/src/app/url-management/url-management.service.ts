@@ -71,17 +71,15 @@ export class UrlManagementService {
         );
         if (ref.reason !== 'done') return ref.close();
         ref.loading(i18n('APP.CONCIERGE.URLS_REMOVE_LOADING'));
-        await deleteShortURL(url.id)
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    i18n('APP.CONCIERGE.URLS_REMOVE_ERROR', {
-                        error: e.message || e,
-                    }),
-                );
-                ref.close();
-                throw e;
-            });
+        await deleteShortURL(url.id).catch((e) => {
+            notifyError(
+                i18n('APP.CONCIERGE.URLS_REMOVE_ERROR', {
+                    error: e.message || e,
+                }),
+            );
+            ref.close();
+            throw e;
+        });
         notifySuccess(i18n('APP.CONCIERGE.URLS_REMOVE_SUCCESS'));
         ref.close();
         this._change.next(Date.now());

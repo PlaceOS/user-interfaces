@@ -30,7 +30,7 @@ describe('SearchbarComponent', () => {
             'Desk 1',
         );
 
-        spectator.hostComponent.search.set('');
+        (spectator.hostComponent as any).search.set('');
         spectator.detectChanges();
         await spectator.fixture.whenStable();
 

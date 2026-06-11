@@ -346,22 +346,21 @@ export class AppSettingsModalComponent implements OnInit {
         this.loading.set('Loading settings...');
         this._dialog_ref.disableClose = true;
         const zone_settings: any = (
-            await showMetadata(this.zone.id, `${this.workplace_key}`)
-                .toPromise()
-                .catch(() => ({ details: {} }))
+            await showMetadata(this.zone.id, `${this.workplace_key}`).catch(
+                () => ({ details: {} }),
+            )
         ).details;
         const parent_settings: any = (
-            await showMetadata(this.zone.parent_id, `${this.workplace_key}`)
-                .toPromise()
-                .catch(() => ({ details: {} }))
+            await showMetadata(
+                this.zone.parent_id,
+                `${this.workplace_key}`,
+            ).catch(() => ({ details: {} }))
         ).details;
         const org_settings: any = (
             await showMetadata(
                 this._org.organisation.id,
                 `${this.workplace_key}`,
-            )
-                .toPromise()
-                .catch(() => ({ details: {} }))
+            ).catch(() => ({ details: {} }))
         ).details;
         const combined_settings = {
             ...org_settings,
@@ -413,21 +412,21 @@ export class AppSettingsModalComponent implements OnInit {
         this.updateFormValues();
         this.loading.set('Saving settings...');
         this._dialog_ref.disableClose = true;
-        await updateMetadata(this.zone.id, {
-            name: `${this.workplace_key}`,
-            details: this.form.value,
-            description: 'Workplace Application Settings',
-        })
-            .toPromise()
-            .catch((e) => {
-                console.error(e);
-                this._dialog_ref.disableClose = false;
-                this.loading.set('');
-                notifyError(
-                    `Failed to save settings: ${e.message || e.error || e}`,
-                );
-                throw e;
+        try {
+            await updateMetadata(this.zone.id, {
+                name: `${this.workplace_key}`,
+                details: this.form.value,
+                description: 'Workplace Application Settings',
             });
+        } catch (e) {
+            console.error(e);
+            this._dialog_ref.disableClose = false;
+            this.loading.set('');
+            notifyError(
+                `Failed to save settings: ${e.message || e.error || e}`,
+            );
+            throw e;
+        }
         this._dialog_ref.disableClose = false;
         this._dialog_ref.close();
         notifySuccess('Successfully saved settings');

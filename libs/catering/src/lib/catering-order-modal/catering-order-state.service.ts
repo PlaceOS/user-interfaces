@@ -60,8 +60,8 @@ export class CateringOrderStateService {
     public readonly settings = this._org.active_building.pipe(
         filter((_) => !!_),
         switchMap((_) =>
-            showMetadata(_.id, 'catering-settings').pipe(
-                catchError((_) => of({} as PlaceMetadata)),
+            showMetadata(_.id, 'catering-settings').catch(
+                () => ({}) as PlaceMetadata,
             ),
         ),
         map((_) => _.details as CateringSettings),
@@ -137,8 +137,7 @@ export class CateringOrderStateService {
                 },
                 l,
             ]) => {
-                const rules =
-                    await getCateringRulesForZone(zone_id).toPromise();
+                const rules = await getCateringRulesForZone(zone_id);
                 search = search.toLowerCase();
                 let list = search
                     ? l.filter((_) => _.name.toLowerCase().includes(search))

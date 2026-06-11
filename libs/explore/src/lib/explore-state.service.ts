@@ -9,7 +9,6 @@ import {
 import { querySystems } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
-    catchError,
     debounceTime,
     filter,
     map,
@@ -89,10 +88,9 @@ export class ExploreStateService extends AsyncHandler {
             querySystems({
                 zone_id: level?.id || this._org.organisation.id,
                 limit: 50,
-            }).pipe(
-                map(({ data }) => data.map((_) => new Space(_ as any))),
-                catchError((_) => of([] as Space[])),
-            ),
+            })
+                .then(({ data }) => data.map((_) => new Space(_ as any)))
+                .catch((_) => [] as Space[]),
         ),
         shareReplay(1),
     );
@@ -175,9 +173,7 @@ export class ExploreStateService extends AsyncHandler {
             ]);
             const disable_styles = unique([
                 ...this._normaliseDisabledOption(options.disable_styles),
-                ...this._normaliseDisabledSetting(
-                    'app.explore.disable_styles',
-                ),
+                ...this._normaliseDisabledSetting('app.explore.disable_styles'),
             ]);
             let style_mappings = { text: { display: 'none' } };
             for (const key in styles) {

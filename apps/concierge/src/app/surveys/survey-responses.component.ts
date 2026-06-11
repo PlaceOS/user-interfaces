@@ -14,7 +14,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
 import { DateRangeFieldComponent } from '@placeos/form-fields';
 import { queryAnswers, Survey } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { combineLatest, of } from 'rxjs';
+import { combineLatest, from, of } from 'rxjs';
 import {
     catchError,
     filter,
@@ -201,7 +201,7 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
                 q.created_after = getUnixTime(startOfDay(start || Date.now()));
                 q.created_before = getUnixTime(endOfDay(end || Date.now()));
             }
-            return queryAnswers(q).pipe(catchError(() => of([])));
+            return from(queryAnswers(q)).pipe(catchError(() => of([])));
         }),
         tap(() => this.loading.set(removeStringKey(this.loading(), 'ANSWERS'))),
         shareReplay(1),

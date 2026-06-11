@@ -30,14 +30,7 @@ import { queryZones } from '@placeos/ts-client';
 import { endOfDay, set, startOfDay } from 'date-fns';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { of } from 'rxjs';
-import {
-    catchError,
-    filter,
-    map,
-    shareReplay,
-    switchMap,
-} from 'rxjs/operators';
+import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
 import { DateFieldComponent } from './date-field.component';
 import { DurationFieldComponent } from './duration-field.component';
 import {
@@ -45,12 +38,7 @@ import {
     uniqueChipItems,
 } from './item-list-field.component';
 
-const ITEM_LIST_CONDITIONS = [
-    'groups',
-    'locations',
-    'tags',
-    'resource_ids',
-];
+const ITEM_LIST_CONDITIONS = ['groups', 'locations', 'tags', 'resource_ids'];
 
 @Component({
     selector: 'booking-rules-form',
@@ -462,9 +450,7 @@ export class BookingRulesFormComponent implements OnChanges {
     public readonly building_zones = this._org.active_building.pipe(
         filter((_) => !!_),
         switchMap((bld) =>
-            queryZones({ parent_id: bld.id }).pipe(
-                catchError(() => of({ data: [] })),
-            ),
+            queryZones({ parent_id: bld.id }).catch(() => ({ data: [] })),
         ),
         map((res) => res.data),
         shareReplay(1),

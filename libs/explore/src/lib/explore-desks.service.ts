@@ -11,6 +11,7 @@ import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import {
     BehaviorSubject,
     combineLatest,
+    from,
     lastValueFrom,
     Observable,
     of,
@@ -96,7 +97,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         this._org.active_building.pipe(
             filter((bld) => !!bld),
             switchMap((bld) =>
-                showMetadata(bld.id, `desk_booking_rules`).pipe(
+                from(showMetadata(bld.id, `desk_booking_rules`)).pipe(
                     catchError(() => of({ details: [] })),
                 ),
             ),
@@ -107,15 +108,14 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
     public readonly desk_list = this._state.level.pipe(
         debounceTime(50),
         switchMap((lvl) =>
-            showMetadata(lvl.id, 'desks').pipe(
-                catchError(() => of({ details: [] })),
-                map((i) =>
+            showMetadata(lvl.id, 'desks')
+                .catch(() => ({ details: [] }))
+                .then((i) =>
                     (i?.details instanceof Array ? i.details : []).map(
                         (j: Record<string, any>) =>
                             new Desk({ ...j, zone: lvl as any }),
                     ),
                 ),
-            ),
         ),
         catchError((e) => []),
         shareReplay(1),

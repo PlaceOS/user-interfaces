@@ -2,23 +2,20 @@ import { CalendarEvent, CateringItem, stringToMinutes } from '@placeos/common';
 import { AttachedResourceRuleset } from '@placeos/components';
 import { showMetadata } from '@placeos/ts-client';
 import { isAfter, isBefore, setHours, subMinutes } from 'date-fns';
-import { Observable, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
 
-const RULE_REQUESTS: Record<string, Observable<AttachedResourceRuleset[]>> = {};
+const RULE_REQUESTS: Record<string, Promise<AttachedResourceRuleset[]>> = {};
 
 export function getCateringRulesForZone(zone_id: string, fresh = false) {
-    if (!zone_id) return of([] as AttachedResourceRuleset[]);
+    if (!zone_id) return Promise.resolve([] as AttachedResourceRuleset[]);
     if (!RULE_REQUESTS[zone_id] || fresh)
-        RULE_REQUESTS[zone_id] = showMetadata(zone_id, 'catering_config').pipe(
-            map(
+        RULE_REQUESTS[zone_id] = showMetadata(zone_id, 'catering_config')
+            .then(
                 (_) =>
                     (_.details instanceof Array
                         ? _.details
                         : []) as AttachedResourceRuleset[],
-            ),
-            catchError((e) => of([] as AttachedResourceRuleset[])),
-        );
+            )
+            .catch(() => [] as AttachedResourceRuleset[]);
     return RULE_REQUESTS[zone_id];
 }
 

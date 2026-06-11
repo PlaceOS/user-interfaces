@@ -19,7 +19,6 @@ import {
 import { isValidUrl } from '@placeos/events';
 import { listSignagePlaylistMedia, SignageMedia } from '@placeos/ts-client';
 import { getUnixTime, startOfMinute } from 'date-fns';
-import { lastValueFrom } from 'rxjs';
 import { SignageStateService } from './signage-state.service';
 
 @Component({
@@ -426,9 +425,7 @@ export class SignageMediaListComponent {
     }
 
     public async addToPlaylist(media_id: string, playlist: any) {
-        const media_list = await lastValueFrom(
-            listSignagePlaylistMedia(playlist.id),
-        );
+        const media_list = await listSignagePlaylistMedia(playlist.id);
         const new_media_list = [...media_list.items, media_id];
         await this._state.updatePlaylistMedia(playlist.id, new_media_list);
     }

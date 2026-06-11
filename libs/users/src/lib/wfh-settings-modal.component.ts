@@ -12,7 +12,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { showUser, updateUser } from '@placeos/ts-client';
 import { addDays, set, startOfMinute, startOfWeek } from 'date-fns';
-import { lastValueFrom } from 'rxjs';
 
 import {
     currentUser,
@@ -393,16 +392,12 @@ export class WFHSettingsModalComponent implements OnInit {
             }
         }
         if (!this._data?.local) {
-            const user = await lastValueFrom(showUser('current'));
-            await lastValueFrom(
-                updateUser(user.id, {
-                    ...user,
-                    groups: user.groups.filter(
-                        (_) => !_.startsWith('placeos_'),
-                    ),
-                    work_preferences: new_settings,
-                } as any),
-            ).catch((e) => {
+            const user = await showUser('current');
+            await updateUser(user.id, {
+                ...user,
+                groups: user.groups.filter((_) => !_.startsWith('placeos_')),
+                work_preferences: new_settings,
+            } as any).catch((e) => {
                 this.loading = false;
                 this._dialog_ref.disableClose = false;
                 notifyError('Unable to save user work preferences.');

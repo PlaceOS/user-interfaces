@@ -15,7 +15,7 @@ import {
     updateTrigger,
     updateZone,
 } from '@placeos/ts-client';
-import { map, of, switchMap, tap } from 'rxjs';
+import { from, map, of, switchMap, tap } from 'rxjs';
 import { SearchOverlayComponent } from './search-overlay.component';
 import { SignageItemPlaylistsComponent } from './signage-item-playlists.component';
 import { SignageStateService } from './signage-state.service';
@@ -192,7 +192,7 @@ export class SignageZonesComponent {
         toObservable(this.selected).pipe(
             switchMap((id) => {
                 if (!id) return of([]);
-                return listZoneTriggers(id).pipe(
+                return from(listZoneTriggers(id)).pipe(
                     map((_) => _.data),
                     tap(() => setTimeout(() => this.switching.set(false), 100)),
                 );

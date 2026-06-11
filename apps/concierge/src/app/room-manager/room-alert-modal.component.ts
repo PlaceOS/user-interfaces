@@ -123,17 +123,15 @@ export class RoomAlertModalComponent {
         const metadata = await showMetadata(
             this._org.organisation.id,
             'room_alerts',
-        )
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    i18n('APP.CONCIERGE.ROOMS_ALERT_LOAD_ERROR', {
-                        error: e.message || e,
-                    }),
-                );
-                this.loading.set(false);
-                throw e;
-            });
+        ).catch((e) => {
+            notifyError(
+                i18n('APP.CONCIERGE.ROOMS_ALERT_LOAD_ERROR', {
+                    error: e.message || e,
+                }),
+            );
+            this.loading.set(false);
+            throw e;
+        });
         const alert = this.form.getRawValue();
         if (alert.status === '') {
             delete metadata.details[this.room.id];
@@ -145,17 +143,15 @@ export class RoomAlertModalComponent {
             details: metadata.details,
             editors: metadata.editors || [],
             description: 'Details for room alerts',
-        })
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    i18n('APP.CONCIERGE.ROOMS_ALERT_SAVE_ERROR', {
-                        error: e.message || e,
-                    }),
-                );
-                this.loading.set(false);
-                throw e;
-            });
+        }).catch((e) => {
+            notifyError(
+                i18n('APP.CONCIERGE.ROOMS_ALERT_SAVE_ERROR', {
+                    error: e.message || e,
+                }),
+            );
+            this.loading.set(false);
+            throw e;
+        });
         notifySuccess(i18n('APP.CONCIERGE.ROOMS_ALERT_SAVE_SUCCESS'));
         this._dialog_ref.close(true);
     }

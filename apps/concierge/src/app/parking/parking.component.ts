@@ -39,36 +39,38 @@ import { ParkingTopbarComponent } from './parking-topbar.component';
                                         | translate
                                 }}
                             </a>
-                            <a
-                                mat-tab-link
-                                [routerLink]="[
-                                    '/book',
-                                    'parking',
-                                    'manage',
-                                    'users',
-                                ]"
-                                [active]="view() === 'users'"
-                            >
-                                {{
-                                    'APP.CONCIERGE.PARKING_TAB_USERS'
-                                        | translate
-                                }}
-                            </a>
-                            <a
-                                mat-tab-link
-                                [routerLink]="[
-                                    '/book',
-                                    'parking',
-                                    'manage',
-                                    'fleet',
-                                ]"
-                                [active]="view() === 'fleet'"
-                            >
-                                {{
-                                    'APP.CONCIERGE.PARKING_TAB_FLEET'
-                                        | translate
-                                }}
-                            </a>
+                            @if (!hide_users_and_vehicles) {
+                                <a
+                                    mat-tab-link
+                                    [routerLink]="[
+                                        '/book',
+                                        'parking',
+                                        'manage',
+                                        'users',
+                                    ]"
+                                    [active]="view() === 'users'"
+                                >
+                                    {{
+                                        'APP.CONCIERGE.PARKING_TAB_USERS'
+                                            | translate
+                                    }}
+                                </a>
+                                <a
+                                    mat-tab-link
+                                    [routerLink]="[
+                                        '/book',
+                                        'parking',
+                                        'manage',
+                                        'fleet',
+                                    ]"
+                                    [active]="view() === 'fleet'"
+                                >
+                                    {{
+                                        'APP.CONCIERGE.PARKING_TAB_FLEET'
+                                            | translate
+                                    }}
+                                </a>
+                            }
                             <a
                                 mat-tab-link
                                 [routerLink]="[
@@ -158,6 +160,10 @@ export class ParkingComponent extends AsyncHandler implements OnInit {
         return !!this._settings.get('app.parking.show_requests');
     }
 
+    public get hide_users_and_vehicles() {
+        return !!this._settings.get('app.parking.hide_users_and_vehicles');
+    }
+
     public get is_admin() {
         const groups = currentUser().groups || [];
         const admin_group = this._settings.get('app.admin_group') || 'admin';
@@ -196,6 +202,18 @@ export class ParkingComponent extends AsyncHandler implements OnInit {
         const [section = 'events', view = 'list'] = parts.slice(-2);
         const current_view = view.split('?')[0] as any;
         this.section.set(section as any);
+        if (
+            section === 'manage' &&
+            this.hide_users_and_vehicles &&
+            ['fleet', 'users'].includes(current_view)
+        ) {
+            this.view.set('spaces');
+            void this._router.navigate(
+                ['/book', 'parking', 'manage', 'spaces'],
+                { replaceUrl: true },
+            );
+            return;
+        }
         if (section === 'events' && current_view === 'requests') {
             if (!this.can_view_requests) {
                 this._state.setOptions({ request_filter: 'bookings' });

@@ -385,7 +385,7 @@ export class POIModalComponent extends AsyncHandler implements OnInit {
                 uri: `${
                     window.location.origin
                 }/auth/login?continue=${encodeURIComponent(uri)}`,
-            } as any).toPromise();
+            } as any);
             data.short_link_id = id;
         } else {
             await updateShortURL(data.short_link_id, {
@@ -395,13 +395,13 @@ export class POIModalComponent extends AsyncHandler implements OnInit {
                 uri: `${
                     window.location.origin
                 }/auth/login?continue=${encodeURIComponent(uri)}`,
-            } as any).toPromise();
+            } as any);
         }
         this.loading.set(true);
         const old_metadata = await showMetadata(
             this._org.organisation.id,
             'points-of-interest',
-        ).toPromise();
+        );
         const metadata = old_metadata.details || {};
         if (!metadata[data.level_id]) metadata[data.level_id] = [];
         if (this._data?.id) {
@@ -420,9 +420,7 @@ export class POIModalComponent extends AsyncHandler implements OnInit {
             name: 'points-of-interest',
             details: metadata,
             description: 'Point of Interests for maps',
-        })
-            .toPromise()
-            .catch((e) => notifyError(e));
+        }).catch((e) => notifyError(e));
         if ((resp as any).id) this._dialog_ref.close(resp);
         this.loading.set(false);
     }

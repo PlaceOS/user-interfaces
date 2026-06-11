@@ -182,9 +182,9 @@ export class AssetGroupFormComponent extends AsyncHandler implements OnInit {
             this._route.queryParamMap.subscribe(async (params) => {
                 if (params.get('id')) {
                     this.loading.set('Loading Product Details...');
-                    const product = await lastValueFrom(
-                        showAssetType(params.get('id')),
-                    ).catch(() => null);
+                    const product = await showAssetType(params.get('id')).catch(
+                        () => null,
+                    );
                     if (!product) {
                         notifyError('Unable to load product details.');
                         this._router.navigate([this.base_route]);

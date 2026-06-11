@@ -28,7 +28,6 @@ import {
 } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
-    catchError,
     debounceTime,
     filter,
     map,
@@ -83,9 +82,9 @@ export class ExploreParkingService extends AsyncHandler {
         this._org.active_building.pipe(
             filter((bld) => !!bld),
             switchMap((bld) =>
-                showMetadata(bld.id, `parking_booking_rules`).pipe(
-                    catchError(() => of({ details: [] })),
-                ),
+                showMetadata(bld.id, `parking_booking_rules`).catch(() => ({
+                    details: [],
+                })),
             ),
             map((_) => (_?.details instanceof Array ? _.details : [])),
             shareReplay(1),

@@ -471,7 +471,7 @@ export class DashboardAlertManageComponent
         const method = new_alert.id
             ? updateAlert(new_alert.id, new_alert)
             : addAlert(new_alert);
-        const result = await lastValueFrom(method).catch((_) => null);
+        const result = await method.catch((_) => null);
         this.loading.set('');
         if (result?.id) {
             this._service.setDashboard(dashboard.id);

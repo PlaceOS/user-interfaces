@@ -10,9 +10,8 @@ import {
     showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, lastValueFrom, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, lastValueFrom } from 'rxjs';
 import {
-    catchError,
     filter,
     first,
     map,
@@ -96,8 +95,8 @@ export class CateringStateService extends AsyncHandler {
     ]).pipe(
         filter(([_]) => !!_),
         switchMap(([_]) =>
-            showMetadata(_.id, 'catering-settings').pipe(
-                catchError((_) => of({} as PlaceMetadata)),
+            showMetadata(_.id, 'catering-settings').catch(
+                () => ({}) as PlaceMetadata,
             ),
         ),
         map((_) => (_.details as CateringSettings) || {}),
@@ -310,24 +309,20 @@ export class CateringStateService extends AsyncHandler {
         );
         if (details.reason !== 'done') return;
         details.loading(i18n('CATERING.ITEM_REMOVE_LOADING'));
-        deleteCateringItem(item.id)
-            .toPromise()
-            .then(
-                () => {
-                    const menu = this._menu
-                        .getValue()
-                        .filter((itm) => item.id !== itm.id);
-                    this._menu.next([...menu]);
-                    notifySuccess(i18n('CATERING.ITEM_REMOVE_SUCCESS'));
-                    details.close();
-                },
-                (e) => {
-                    notifyError(
-                        i18n('CATERING.ITEM_REMOVE_ERROR', { error: e }),
-                    );
-                    details.loading('');
-                },
-            );
+        lastValueFrom(deleteCateringItem(item.id)).then(
+            () => {
+                const menu = this._menu
+                    .getValue()
+                    .filter((itm) => item.id !== itm.id);
+                this._menu.next([...menu]);
+                notifySuccess(i18n('CATERING.ITEM_REMOVE_SUCCESS'));
+                details.close();
+            },
+            (e) => {
+                notifyError(i18n('CATERING.ITEM_REMOVE_ERROR', { error: e }));
+                details.loading('');
+            },
+        );
     }
 
     public async deleteOption(item: CateringItem, option: CateringOption) {
@@ -445,14 +440,12 @@ export class CateringStateService extends AsyncHandler {
 
     public async saveSettings(settings: CateringSettings) {
         const old_settings = await nextValueFrom(this.settings);
-        const result = await lastValueFrom(
-            updateMetadata(this._org.building.id, {
-                id: this._org.building.id,
-                name: 'catering-settings',
-                details: { ...old_settings, ...settings },
-                description: `Catering settings for ${this._org.building.id}`,
-            }),
-        );
+        const result = await updateMetadata(this._org.building.id, {
+            id: this._org.building.id,
+            name: 'catering-settings',
+            details: { ...old_settings, ...settings },
+            description: `Catering settings for ${this._org.building.id}`,
+        });
         this._change.next(Date.now());
         return result;
     }
@@ -460,9 +453,7 @@ export class CateringStateService extends AsyncHandler {
     public async getCateringConfig(
         zone_id: string = this._org.building.id,
     ): Promise<AttachedResourceRuleset[]> {
-        const rules = (
-            await showMetadata(zone_id, 'catering_config').toPromise()
-        ).details;
+        const rules = (await showMetadata(zone_id, 'catering_config')).details;
         return rules instanceof Array ? (rules as any) : [];
     }
 
@@ -472,7 +463,7 @@ export class CateringStateService extends AsyncHandler {
             name: 'catering_config',
             details: config,
             description: `Catering menu config for ${zone_id}`,
-        }).toPromise();
+        });
     }
 
     public addItemToOrder(order: CateringOrder, new_item: CateringItem) {

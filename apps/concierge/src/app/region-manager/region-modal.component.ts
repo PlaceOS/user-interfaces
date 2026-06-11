@@ -150,9 +150,7 @@ export class RegionModalComponent extends AsyncHandler {
                           data.display_name
                       }`,
                   })
-        )
-            .toPromise()
-            .catch();
+        ).catch();
         if (resp.id) this._dialog_ref.close(resp);
         this.loading.set(false);
     }

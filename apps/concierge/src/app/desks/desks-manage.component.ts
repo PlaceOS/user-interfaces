@@ -316,17 +316,15 @@ export class DesksManageComponent extends AsyncHandler {
             name: 'desks',
             description: 'desks',
             details: updated_desks,
-        })
-            .toPromise()
-            .catch((e) => {
-                this.loading.set('');
-                notifyError(
-                    i18n('APP.CONCIERGE.DESKS_REMOVE_ERROR', {
-                        error: e.message || e,
-                    }),
-                );
-                throw e;
-            });
+        }).catch((e) => {
+            this.loading.set('');
+            notifyError(
+                i18n('APP.CONCIERGE.DESKS_REMOVE_ERROR', {
+                    error: e.message || e,
+                }),
+            );
+            throw e;
+        });
         notifySuccess(i18n('APP.CONCIERGE.DESKS_REMOVE_SUCCESS'));
         this._state.setFilters({});
         this.loading.set('');

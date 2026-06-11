@@ -23,7 +23,15 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SpacePipe } from '@placeos/events';
 import { listChildMetadata } from '@placeos/ts-client';
 import { set } from 'date-fns';
-import { catchError, filter, firstValueFrom, map, of, timeout } from 'rxjs';
+import {
+    catchError,
+    filter,
+    firstValueFrom,
+    from,
+    map,
+    of,
+    timeout,
+} from 'rxjs';
 import { DeskFlowAutoAssignComponent } from './desk-flow-auto-assign.component';
 import { DeskFlowDetailsComponent } from './desk-flow-details.component';
 import { DeskFlowSelectComponent } from './desk-flow-select.component';
@@ -244,7 +252,7 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
     ): Promise<BookingAsset | null> {
         for (const building of this._org.buildings || []) {
             const resources = await firstValueFrom(
-                listChildMetadata(building.id, { name: 'desks' }).pipe(
+                from(listChildMetadata(building.id, { name: 'desks' })).pipe(
                     map((data) =>
                         flatten<BookingAsset>(
                             data.map((metadata) =>

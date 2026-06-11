@@ -25,7 +25,7 @@ describe('DeskBookModalComponent', () => {
                 postForm: jest.fn(async () => null),
             }),
             MockProvider(MatDialogRef, { close: jest.fn() }),
-            MockProvider(SettingsService, {
+            MockProvider(SettingsService as any, {
                 get: jest.fn((key: string) => settings[key]),
             }),
         ],

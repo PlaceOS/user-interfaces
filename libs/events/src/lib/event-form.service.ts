@@ -174,14 +174,13 @@ export class EventFormService extends AsyncHandler {
             this.addLoadingTag(Tags.BookingRules);
             return forkJoin(
                 list.map((bld) =>
-                    showMetadata(bld.id, 'room_booking_rules').pipe(
-                        map((_) => ({
+                    showMetadata(bld.id, 'room_booking_rules')
+                        .then((_) => ({
                             id: bld.id,
                             details:
                                 _.details instanceof Array ? _.details : [],
-                        })),
-                        catchError(() => of({ id: bld.id, details: [] })),
-                    ),
+                        }))
+                        .catch(() => ({ id: bld.id, details: [] })),
                 ),
             );
         }),

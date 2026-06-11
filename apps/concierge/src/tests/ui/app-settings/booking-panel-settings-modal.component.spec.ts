@@ -13,7 +13,7 @@ import {
 } from '@placeos/components';
 import { DurationFieldComponent } from '@placeos/form-fields';
 import { MockProvider } from 'ng-mocks';
-import { of, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 
 import { BookingPanelSettingsModalComponent } from '../../../app/ui/app-settings/booking-panel-settings-modal.component';
 
@@ -70,11 +70,11 @@ describe('BookingPanelSettingsModalComponent', () => {
     });
 
     beforeEach(() => {
-        jest.spyOn(ts_client, 'querySettings').mockReturnValue(
-            of({ data: [] }) as any,
-        );
-        jest.spyOn(ts_client, 'addSettings').mockReturnValue(of({}) as any);
-        jest.spyOn(ts_client, 'updateSettings').mockReturnValue(of({}) as any);
+        jest.spyOn(ts_client, 'querySettings').mockResolvedValue({
+            data: [],
+        } as never);
+        jest.spyOn(ts_client, 'addSettings').mockResolvedValue({} as never);
+        jest.spyOn(ts_client, 'updateSettings').mockResolvedValue({} as never);
         (common_mod as any).notifySuccess = jest.fn();
         (common_mod as any).notifyError = jest.fn();
         (common_mod as any).getInvalidFields = jest.fn(() => []);
@@ -161,43 +161,39 @@ describe('BookingPanelSettingsModalComponent', () => {
 
     it('should save new settings via addSettings when no existing settings', async () => {
         // querySettings returns empty on both init load and save load
-        jest.spyOn(ts_client, 'querySettings').mockReturnValue(
-            of({ data: [] }) as any,
-        );
+        (ts_client.querySettings as jest.Mock).mockResolvedValueOnce({
+            data: [],
+        });
         await spectator.component.ngOnInit();
         await spectator.component.save();
         expect(ts_client.addSettings).toHaveBeenCalled();
     });
 
     it('should save existing settings via updateSettings when settings exist', async () => {
-        jest.spyOn(ts_client, 'querySettings').mockReturnValue(
-            of({
-                data: [
-                    {
-                        id: 'setting-1',
-                        encryption_level: 0,
-                        settings_string: MOCK_SETTINGS_STRING,
-                    },
-                ],
-            }) as any,
-        );
+        (ts_client.querySettings as jest.Mock).mockResolvedValue({
+            data: [
+                {
+                    id: 'setting-1',
+                    encryption_level: 0,
+                    settings_string: MOCK_SETTINGS_STRING,
+                },
+            ],
+        });
         await spectator.component.ngOnInit();
         await spectator.component.save();
         expect(ts_client.updateSettings).toHaveBeenCalled();
     });
 
     it('should close dialog after save with existing settings', async () => {
-        jest.spyOn(ts_client, 'querySettings').mockReturnValue(
-            of({
-                data: [
-                    {
-                        id: 'setting-1',
-                        encryption_level: 0,
-                        settings_string: MOCK_SETTINGS_STRING,
-                    },
-                ],
-            }) as any,
-        );
+        (ts_client.querySettings as jest.Mock).mockResolvedValue({
+            data: [
+                {
+                    id: 'setting-1',
+                    encryption_level: 0,
+                    settings_string: MOCK_SETTINGS_STRING,
+                },
+            ],
+        });
         await spectator.component.ngOnInit();
         await spectator.component.save();
         const dialog_ref = spectator.inject(MatDialogRef);
@@ -205,20 +201,17 @@ describe('BookingPanelSettingsModalComponent', () => {
     });
 
     it('should show error when save fails', async () => {
-        jest.spyOn(ts_client, 'querySettings').mockReturnValue(
-            of({
-                data: [
-                    {
-                        id: 'setting-1',
-                        encryption_level: 0,
-                        settings_string: MOCK_SETTINGS_STRING,
-                    },
-                ],
-            }) as any,
-        );
-        const { throwError } = await import('rxjs');
-        jest.spyOn(ts_client, 'updateSettings').mockReturnValue(
-            throwError(() => new Error('Save failed')) as any,
+        (ts_client.querySettings as jest.Mock).mockResolvedValue({
+            data: [
+                {
+                    id: 'setting-1',
+                    encryption_level: 0,
+                    settings_string: MOCK_SETTINGS_STRING,
+                },
+            ],
+        });
+        (ts_client.updateSettings as jest.Mock).mockRejectedValueOnce(
+            new Error('Save failed') as never,
         );
         await spectator.component.ngOnInit();
         await spectator.component.save().catch(() => {});

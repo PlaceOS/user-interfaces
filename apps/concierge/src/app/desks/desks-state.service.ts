@@ -49,7 +49,14 @@ import {
     startOfDay,
     subDays,
 } from 'date-fns';
-import { combineLatest, lastValueFrom, of, Subject } from 'rxjs';
+import {
+    combineLatest,
+    from,
+    lastValueFrom,
+    Observable,
+    of,
+    Subject,
+} from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -137,15 +144,17 @@ export class DesksStateService extends AsyncHandler {
             const zones = this._getActiveZones(filters.zones);
             const fetch$ =
                 zones && !zones.includes('All')
-                    ? showMetadata(zones[0], 'desks').pipe(
+                    ? from(showMetadata(zones[0], 'desks')).pipe(
                           map((m) =>
                               m.details instanceof Array ? m.details : [],
                           ),
                           catchError((_) => of([])),
                       )
-                    : listChildMetadata(this._org.building?.id, {
-                          name: 'desks',
-                      }).pipe(
+                    : from(
+                          listChildMetadata(this._org.building?.id, {
+                              name: 'desks',
+                          }),
+                      ).pipe(
                           map((m) =>
                               m
                                   .map((i) => i.metadata?.desks?.details || [])
@@ -181,7 +190,7 @@ export class DesksStateService extends AsyncHandler {
             }
             return combineLatest(
                 levels.map((level) =>
-                    showMetadata(level.id, 'desks').pipe(
+                    from(showMetadata(level.id, 'desks')).pipe(
                         map((metadata) => ({
                             level,
                             has_bookable:
@@ -194,13 +203,17 @@ export class DesksStateService extends AsyncHandler {
             );
         }),
         map((levels) =>
-            levels.filter((item) => item.has_bookable).map((item) => item.level),
+            levels
+                .filter((item) => item.has_bookable)
+                .map((item) => item.level),
         ),
         shareReplay(1),
     );
 
-    private _first_page: (() => QueryResponse<Booking>) | null = null;
-    private _next_page = new Subject<(() => QueryResponse<Booking>) | null>();
+    private _first_page: (() => Observable<any>) | null = null;
+    private _next_page = new Subject<
+        (() => Observable<any> | QueryResponse<Booking>) | null
+    >();
     private _call_next_page = new Subject<string>();
     private _all_zones_keys = ['All', -1, '-1', ''];
     public readonly setup_paging = combineLatest([
@@ -260,12 +273,12 @@ export class DesksStateService extends AsyncHandler {
             }
             // If reset is true, start over
             if (action.includes('RESET')) {
-                return next_page().pipe(
+                return from(next_page() as any).pipe(
                     map((data: any) => ({ ...data, reset: true })),
                     catchError((_) => of({ data: [], total: 0, next: null })),
                 );
             }
-            return next_page().pipe(
+            return from(next_page() as any).pipe(
                 map((data: any) => ({ ...data, reset: false })),
                 catchError((_) => of({ data: [], total: 0, next: null })),
             );
@@ -345,7 +358,7 @@ export class DesksStateService extends AsyncHandler {
             name: 'desks',
             details: desk_list,
             description: 'List of available desks',
-        }).toPromise();
+        });
         this._change.set(Date.now());
     }
 
@@ -391,17 +404,17 @@ export class DesksStateService extends AsyncHandler {
                 throw error;
             }
         }
-        await lastValueFrom(
-            updateMetadata(zone, {
+        try {
+            await updateMetadata(zone, {
                 name: 'desks',
                 details: desk_list,
                 description: 'List of available desks',
-            }),
-        ).catch((e) => {
+            });
+        } catch (e) {
             notifyError(i18n('APP.CONCIERGE.DESKS_SAVE_ERROR', { error: e }));
             ref.componentInstance.loading.set(false);
             throw e;
-        });
+        }
         let recreate = false;
         if (
             desk.assigned_to &&
@@ -635,16 +648,13 @@ export class DesksStateService extends AsyncHandler {
         const assigned_count = (
             await Promise.all(
                 this._currentLevelList().map((level) =>
-                    lastValueFrom(
-                        showMetadata(level.id, 'desks').pipe(
-                            map((metadata) =>
-                                metadata.details instanceof Array
-                                    ? metadata.details
-                                    : [],
-                            ),
-                            catchError(() => of([])),
-                        ),
-                    ),
+                    showMetadata(level.id, 'desks')
+                        .then((metadata) =>
+                            metadata.details instanceof Array
+                                ? metadata.details
+                                : [],
+                        )
+                        .catch(() => []),
                 ),
             )
         )
@@ -668,13 +678,11 @@ export class DesksStateService extends AsyncHandler {
 
     private async _rollbackMetadata(zone: string, original_desk_list: any[]) {
         try {
-            await lastValueFrom(
-                updateMetadata(zone, {
-                    name: 'desks',
-                    details: original_desk_list,
-                    description: 'List of available desks',
-                }),
-            );
+            await updateMetadata(zone, {
+                name: 'desks',
+                details: original_desk_list,
+                description: 'List of available desks',
+            });
         } catch (rollback_err) {
             console.error(
                 'Failed to rollback desk metadata after error',
@@ -684,7 +692,9 @@ export class DesksStateService extends AsyncHandler {
     }
 
     private _createAssignedBooking(desk: Desk, zone?: string) {
-        const timezone = this._settings.get('app.bookings.use_building_timezone')
+        const timezone = this._settings.get(
+            'app.bookings.use_building_timezone',
+        )
             ? this._org.building?.timezone
             : '';
         const date = setTimeInTimezone(Date.now(), 1, 0, timezone);
@@ -725,7 +735,9 @@ export class DesksStateService extends AsyncHandler {
 
     private async _restoreAssignedBooking(desk: Desk, zone?: string) {
         if (!desk.assigned_to) return;
-        await lastValueFrom(saveBooking(this._createAssignedBooking(desk, zone)));
+        await lastValueFrom(
+            saveBooking(this._createAssignedBooking(desk, zone)),
+        );
     }
 
     private async _clearAssignedBooking(desk: Desk) {

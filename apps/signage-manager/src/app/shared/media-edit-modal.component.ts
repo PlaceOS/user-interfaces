@@ -1,6 +1,7 @@
 import {
     Component,
     computed,
+    effect,
     inject,
     OnDestroy,
     signal,
@@ -546,6 +547,21 @@ export class MediaEditModalComponent implements OnDestroy {
         if (this.plugin_loading()) {
             this._loadPluginDetails();
         }
+        // Plugin and embed schema resolve asynchronously, so seed the form
+        // with their default values whenever they change
+        effect(() => {
+            const defaults = {
+                ...(this.plugin()?.defaults || {}),
+                ...schemaDefaults(this.active_plugin_schema()),
+            };
+            if (!objectHasKeys(defaults)) return;
+            this.form.patchValue({
+                plugin_params: {
+                    ...defaults,
+                    ...(this.form.value.plugin_params || {}),
+                },
+            });
+        });
     }
 
     private _resolvePluginSchema(): Record<string, unknown> | null {

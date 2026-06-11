@@ -1,6 +1,6 @@
 import { computed, signal } from '@angular/core';
 import { currentGroups, PlaceCurrentGroup, showUser } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, lastValueFrom, of, timer } from 'rxjs';
+import { BehaviorSubject, combineLatest, of, timer } from 'rxjs';
 import { catchError, map, retry } from 'rxjs/operators';
 import { isPublicMode } from './public-mode';
 import { setDefaultCreator } from './types/event.class';
@@ -115,7 +115,7 @@ async function loadUserGroups() {
         return;
     }
     try {
-        const groups = await lastValueFrom(currentGroups({}));
+        const groups = await currentGroups({});
         user_groups.set(groups);
         console.log('Permissions:', user_permissions());
     } catch (error) {
@@ -175,7 +175,7 @@ function initialiseUser() {
 export function reloadUserData() {
     setTimeout(async () => {
         try {
-            const p_user = await lastValueFrom(showUser('current'));
+            const p_user = await showUser('current');
             const user = new StaffUser(p_user);
             _current_user.next(user);
             loadUserGroups();

@@ -33,6 +33,7 @@ import {
 import {
     BehaviorSubject,
     combineLatest,
+    from,
     lastValueFrom,
     Observable,
     of,
@@ -132,13 +133,16 @@ export class SignageStateService extends AsyncHandler {
     ]).pipe(
         filter(([, bld]) => !!bld?.id),
         switchMap(([region, bld]) =>
-            querySystems({
-                zone_id:
-                    (this._settings.get('app.use_region') ? region?.id : '') ||
-                    bld?.id,
-                limit: 500,
-                signage: true,
-            }).pipe(
+            from(
+                querySystems({
+                    zone_id:
+                        (this._settings.get('app.use_region')
+                            ? region?.id
+                            : '') || bld?.id,
+                    limit: 500,
+                    signage: true,
+                }),
+            ).pipe(
                 map((_) =>
                     (_.data || [])
                         .sort((a, b) =>
@@ -159,10 +163,12 @@ export class SignageStateService extends AsyncHandler {
         this._change,
     ]).pipe(
         switchMap(() =>
-            queryZones({
-                limit: 250,
-                tags: 'signage',
-            } as any).pipe(catchError(() => of({ data: [] }))),
+            from(
+                queryZones({
+                    limit: 250,
+                    tags: 'signage',
+                } as any),
+            ).pipe(catchError(() => of({ data: [] }))),
         ),
         map((_) =>
             (_.data || []).sort((a, b) =>
@@ -243,13 +249,11 @@ export class SignageStateService extends AsyncHandler {
         if (result.reason !== 'done') return;
         result.loading(i18n('APP.CONCIERGE.SIGNAGE_DISPLAYS_REMOVE_LOADING'));
         if (display.map_id || display.email || display.module_list.length > 0) {
-            await lastValueFrom(
-                updateSystem(display.id, {
-                    signage: false,
-                } as any),
-            );
+            await updateSystem(display.id, {
+                signage: false,
+            } as any);
         } else {
-            await lastValueFrom(removeSystem(display.id));
+            await removeSystem(display.id);
         }
         this._change.next(Date.now());
         notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_DISPLAYS_REMOVE_SUCCESS'));
@@ -258,15 +262,9 @@ export class SignageStateService extends AsyncHandler {
 
     public async savePlaylist(playlist: Partial<SignagePlaylist>) {
         const clean_playlist = cleanPlaylistPayload(playlist);
-        const call = lastValueFrom(
-            clean_playlist.id
-                ? updateSignagePlaylist(
-                      clean_playlist.id,
-                      clean_playlist,
-                      'put',
-                  )
-                : addSignagePlaylist(clean_playlist),
-        );
+        const call = clean_playlist.id
+            ? updateSignagePlaylist(clean_playlist.id, clean_playlist, 'put')
+            : addSignagePlaylist(clean_playlist);
         const new_playlist = await call;
         notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_SAVE_SUCCESS'));
         this._change.next(Date.now());
@@ -285,14 +283,14 @@ export class SignageStateService extends AsyncHandler {
             this._dialog,
         );
         if (result.reason !== 'done') return;
-        await lastValueFrom(removeSignagePlaylist(playlist.id));
+        await removeSignagePlaylist(playlist.id);
         notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_REMOVE_SUCCESS'));
         this._change.next(Date.now());
         result.close();
     }
 
     public async updatePlaylistMedia(playlist_id: string, list: string[]) {
-        await lastValueFrom(updateSignagePlaylistMedia(playlist_id, list));
+        await updateSignagePlaylistMedia(playlist_id, list);
         notifySuccess(
             i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_MEDIA_SAVE_SUCCESS'),
         );
@@ -300,9 +298,7 @@ export class SignageStateService extends AsyncHandler {
     }
 
     public async getPlaylistMedia(playlist_id: string) {
-        const { items } = await lastValueFrom(
-            listSignagePlaylistMedia(playlist_id),
-        );
+        const { items } = await listSignagePlaylistMedia(playlist_id);
         return items;
     }
 
@@ -348,13 +344,9 @@ export class SignageStateService extends AsyncHandler {
                 throw e;
             });
             if (playlist_id && new_media.id) {
-                const media_list = await lastValueFrom(
-                    listSignagePlaylistMedia(playlist_id),
-                );
+                const media_list = await listSignagePlaylistMedia(playlist_id);
                 const new_media_list = [...media_list.items, new_media.id];
-                await lastValueFrom(
-                    updateSignagePlaylistMedia(playlist_id, new_media_list),
-                );
+                await updateSignagePlaylistMedia(playlist_id, new_media_list);
             }
             ref.close();
         });
@@ -377,7 +369,7 @@ export class SignageStateService extends AsyncHandler {
         for (const key in data) {
             if (!data[key]) delete data[key];
         }
-        const result = await lastValueFrom(addSignageMedia(data));
+        const result = await addSignageMedia(data);
         this._active_upload.next(null);
         this._change.next(Date.now());
         notifySuccess('Successfully added media from link');
@@ -456,7 +448,7 @@ export class SignageStateService extends AsyncHandler {
         for (const key in data) {
             if (!data[key]) delete data[key];
         }
-        const result = await lastValueFrom(addSignageMedia(data));
+        const result = await addSignageMedia(data);
         this._active_upload.next(null);
         this.timeout('changed', () => this._change.next(Date.now()), 500);
         return result;
@@ -464,7 +456,7 @@ export class SignageStateService extends AsyncHandler {
 
     public async updateMedia(item: SignageMedia) {
         if (!item?.id) return;
-        await lastValueFrom(updateSignageMedia(item.id, item));
+        await updateSignageMedia(item.id, item);
     }
 
     public async approvePlaylist(playlist: SignagePlaylist) {
@@ -487,7 +479,7 @@ export class SignageStateService extends AsyncHandler {
         );
         if (result.reason !== 'done') return;
         result.loading(i18n('APP.CONCIERGE.SIGNAGE_MEDIA_REMOVE_LOADING'));
-        await removeSignageMedia(item.id).toPromise();
+        await removeSignageMedia(item.id);
         this._change.next(Date.now());
         notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_MEDIA_REMOVE_SUCCESS'));
         result.close();

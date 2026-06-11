@@ -15,7 +15,14 @@ import {
     FormsModule,
     NG_VALUE_ACCESSOR,
 } from '@angular/forms';
-import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs';
+import {
+    BehaviorSubject,
+    combineLatest,
+    from,
+    Observable,
+    of,
+    Subject,
+} from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -230,7 +237,7 @@ export class SystemSearchFieldComponent
     public readonly loading = model<boolean>(false);
     /** Service used for searching items */
     public readonly query_fn = input<(_: string) => Observable<PlaceSystem[]>>(
-        (_) => querySystems({ q: _ }).pipe(map((resp) => resp.data)),
+        (_) => from(querySystems({ q: _ })).pipe(map((resp) => resp.data)),
     );
     /** Currently selected item */
     public active_item = signal(null);

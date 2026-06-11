@@ -37,7 +37,7 @@ import {
     IconComponent,
     SettingsToggleComponent,
 } from '@placeos/components';
-import { lastValueFrom } from 'rxjs';
+import { firstValueFrom, from } from 'rxjs';
 import {
     AVAILABLE_PERIOD_EXTENDED_OPTIONS,
     BANNER_TYPE_OPTIONS,
@@ -2299,20 +2299,20 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
                   ? 'Support'
                   : 'User',
         };
-        await lastValueFrom(
-            updateMetadata(zone.id, {
+        try {
+            await updateMetadata(zone.id, {
                 name: `${this.settings_key}`,
                 details: new_settings,
                 description: `[${VERSION.hash}|C] Workplace Application Settings`,
-            }),
-        ).catch((e) => {
+            });
+        } catch (e) {
             console.error(e);
             this.loading.set('');
             notifyError(
                 `Failed to save settings: ${e.message || e.error || e}`,
             );
             throw e;
-        });
+        }
         this.loading.set('');
         notifySuccess('Successfully saved workplace app settings');
         this._dialog_ref.close();
@@ -2328,9 +2328,9 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
     }
 
     private _getMetadata(id: string) {
-        return lastValueFrom(
-            showMetadata(id, this.settings_key).pipe(
-                map((m) => m.details as Record<string, any>),
+        return firstValueFrom(
+            from(showMetadata(id, this.settings_key) as any).pipe(
+                map((m: any) => m.details as Record<string, any>),
             ),
         );
     }

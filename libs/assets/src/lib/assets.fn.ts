@@ -15,7 +15,7 @@ import {
     PlaceAssetCategory,
     PlaceAssetPurchaseOrder,
     queryAssetCategories as queryAssetCategoriesAPI,
-    queryAssetPurchaseOrders,
+    queryAssetPurchaseOrders as queryAssetPurchaseOrdersAPI,
     queryAssets as queryAssetsAPI,
     queryAssetTypes as queryAssetTypesAPI,
     showAssetType,
@@ -33,10 +33,12 @@ import {
     queryBookings,
     removeBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
-import { combineLatest, EMPTY, Observable, of } from 'rxjs';
-import { expand, map, reduce, tap } from 'rxjs/operators';
+import { combineLatest, from, Observable, of } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 
-export { queryAssetPurchaseOrders } from '@placeos/ts-client';
+export function queryAssetPurchaseOrders(query: any = {}) {
+    return from(queryAssetPurchaseOrdersAPI(query));
+}
 
 function filter_hidden_items<T extends { data: any[] }>(response: T): T {
     return {
@@ -45,27 +47,21 @@ function filter_hidden_items<T extends { data: any[] }>(response: T): T {
     };
 }
 
-function visible_category_ids() {
-    return queryAssetCategoriesAPI({}).pipe(
-        map(
-            (response) =>
-                new Set(
-                    response.data
-                        .filter((item) => !item?.hidden)
-                        .map((item) => item.id),
-                ),
-        ),
+async function visible_category_ids() {
+    const response = await queryAssetCategoriesAPI({});
+    return new Set(
+        response.data.filter((item) => !item?.hidden).map((item) => item.id),
     );
 }
 
 export function queryAssetCategories(query: any = {}) {
-    if (query.hidden === true) return queryAssetCategoriesAPI(query);
+    if (query.hidden === true) return from(queryAssetCategoriesAPI(query));
     const { hidden, ...rest } = query;
-    return queryAssetCategoriesAPI(rest).pipe(map(filter_hidden_items));
+    return from(queryAssetCategoriesAPI(rest)).pipe(map(filter_hidden_items));
 }
 
 export function queryAssetTypes(query: any = {}) {
-    if (query.hidden === true) return queryAssetTypesAPI(query);
+    if (query.hidden === true) return from(queryAssetTypesAPI(query));
     const { hidden, ...rest } = query;
     return combineLatest([
         queryAssetTypesAPI(rest),
@@ -82,7 +78,7 @@ export function queryAssetTypes(query: any = {}) {
 }
 
 export function queryAssets(query: any = {}) {
-    if (query.hidden === true) return queryAssetsAPI(query);
+    if (query.hidden === true) return from(queryAssetsAPI(query));
     const { hidden, ...rest } = query;
     return combineLatest([
         queryAssetsAPI(rest),
@@ -110,9 +106,11 @@ export function queryAssets(query: any = {}) {
 ////////////////////////////////
 
 export function saveAssetCategory(category: Partial<PlaceAssetCategory>) {
-    return category.id
-        ? updateAssetCategory(category.id, category)
-        : addAssetCategory(category);
+    return from(
+        category.id
+            ? updateAssetCategory(category.id, category)
+            : addAssetCategory(category),
+    );
 }
 
 //////////////////////////////
@@ -122,25 +120,21 @@ export function saveAssetCategory(category: Partial<PlaceAssetCategory>) {
 const _GROUPS_CACHE = new Map<string, AssetGroup[]>();
 const REMOVE_QUERY_KEYS = ['period_start', 'period_end', 'type', 'rejected'];
 
-function queryAllAssetPages(query: any = {}) {
-    return queryAssetsAPI({ ...query, limit: query.limit || 500 }).pipe(
-        expand((response) =>
-            typeof response.next === 'function'
-                ? response.next() || EMPTY
-                : EMPTY,
-        ),
-        reduce(
-            (state, response) => ({
-                total: response.total,
-                data: [...state.data, ...response.data],
-            }),
-            {
-                total: 0,
-                data: [] as PlaceAsset[],
-            },
-        ),
-        map(({ total, data }) => ({ total, next: () => null, data })),
-    );
+async function queryAllAssetPages(query: any = {}) {
+    let response = await queryAssetsAPI({
+        ...query,
+        limit: query.limit || 500,
+    });
+    let total = response.total;
+    const data: PlaceAsset[] = [...response.data];
+    while (typeof response.next === 'function') {
+        const next = response.next();
+        if (!next) break;
+        response = await next;
+        total = response.total;
+        data.push(...response.data);
+    }
+    return { total, next: () => null, data };
 }
 
 export function queryAssetGroupsExtended(
@@ -197,9 +191,11 @@ export function queryAssetGroupsExtended(
 }
 
 export function saveAssetType(product: Partial<AssetGroup>) {
-    return product.id
-        ? updateAssetType(product.id, product)
-        : addAssetType(product);
+    return from(
+        product.id
+            ? updateAssetType(product.id, product)
+            : addAssetType(product),
+    );
 }
 
 ////////////////////////////////
@@ -207,7 +203,7 @@ export function saveAssetType(product: Partial<AssetGroup>) {
 ////////////////////////////////
 //
 export function saveAsset(asset: Partial<PlaceAsset>) {
-    return asset.id ? updateAsset(asset.id, asset) : addAsset(asset);
+    return from(asset.id ? updateAsset(asset.id, asset) : addAsset(asset));
 }
 
 ////////////////////////////////
@@ -216,9 +212,11 @@ export function saveAsset(asset: Partial<PlaceAsset>) {
 
 export function saveAssetsInBulk(assets: Partial<PlaceAsset>[]) {
     if (!assets?.length) return of([]);
-    return assets.every((item) => item?.id)
-        ? updateAssets(assets)
-        : addAssets(assets);
+    return from(
+        assets.every((item) => item?.id)
+            ? updateAssets(assets)
+            : addAssets(assets),
+    );
 }
 
 /////////////////////////////////
@@ -228,9 +226,11 @@ export function saveAssetsInBulk(assets: Partial<PlaceAsset>[]) {
 export function saveAssetPurchaseOrder(
     order: Partial<PlaceAssetPurchaseOrder>,
 ) {
-    return order.id
-        ? updateAssetPurchaseOrder(order.id, order)
-        : addAssetPurchaseOrder(order);
+    return from(
+        order.id
+            ? updateAssetPurchaseOrder(order.id, order)
+            : addAssetPurchaseOrder(order),
+    );
 }
 
 //////////////////////////////////////
@@ -332,7 +332,7 @@ export async function removeAssetRequests(id: string) {
     return Promise.all(
         requests
             .filter((_) => _.asset_id === id || _.asset_ids?.includes(id))
-            .map((request) => removeBooking(request.id).toPromise()),
+            .map((request) => removeBooking(request.id)),
     );
 }
 
@@ -507,9 +507,7 @@ export async function validateAssetRequestsForResource(
         });
     });
     return async () => {
-        await Promise.all(
-            changed_requests.map(([id]) => removeBooking(id).toPromise()),
-        );
+        await Promise.all(changed_requests.map(([id]) => removeBooking(id)));
         await Promise.all(processed_requests.map((r) => r.toPromise()));
     };
 }

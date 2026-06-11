@@ -22,7 +22,6 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
-import { lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'induction-settings-modal',
@@ -112,13 +111,9 @@ export class InductionSettingsModalComponent implements OnInit {
         const visitor_kiosk_app =
             this._settings.get('app.visitor_kiosk_app') || 'visitor-kiosk_app';
         const [bld_metadata, org_metadata, org_settings] = await Promise.all([
-            await lastValueFrom(showMetadata(this._zone_id, visitor_kiosk_app)),
-            await lastValueFrom(
-                showMetadata(this._org.organisation.id, visitor_kiosk_app),
-            ),
-            await lastValueFrom(
-                showMetadata(this._org.organisation.id, 'settings'),
-            ),
+            showMetadata(this._zone_id, visitor_kiosk_app),
+            showMetadata(this._org.organisation.id, visitor_kiosk_app),
+            showMetadata(this._org.organisation.id, 'settings'),
         ]);
         const settings: Record<string, any> = {
             ...org_settings.details,
@@ -138,12 +133,8 @@ export class InductionSettingsModalComponent implements OnInit {
         const concierge_app =
             this._settings.get('app.concierge_app') || 'concierge_app';
         this._dialog_ref.disableClose = true;
-        const metadata = await lastValueFrom(
-            showMetadata(this._zone_id, visitor_kiosk_app),
-        );
-        const con_metadata = await lastValueFrom(
-            showMetadata(this._zone_id, concierge_app),
-        );
+        const metadata = await showMetadata(this._zone_id, visitor_kiosk_app);
+        const con_metadata = await showMetadata(this._zone_id, concierge_app);
         const visitor_metadata = {
             ...metadata.details,
             induction_details: this.induction_details(),
@@ -154,23 +145,19 @@ export class InductionSettingsModalComponent implements OnInit {
             induction_details: this.induction_details(),
             induction_enabled: this.is_enabled(),
         };
-        const result_visitor = await lastValueFrom(
-            updateMetadata(this._zone_id, {
-                name: metadata.name || visitor_kiosk_app,
-                description: metadata.description || '',
-                details: visitor_metadata,
-            }),
-        ).catch((err) => {
+        const result_visitor = await updateMetadata(this._zone_id, {
+            name: metadata.name || visitor_kiosk_app,
+            description: metadata.description || '',
+            details: visitor_metadata,
+        }).catch((err) => {
             console.error(err);
             notifyError(i18n('APP.CONCIERGE.INDUCTION_ERROR', { error: err }));
         });
-        const result_concierge = await lastValueFrom(
-            updateMetadata(this._zone_id, {
-                name: con_metadata.name || concierge_app,
-                description: con_metadata.description || '',
-                details: concierge_metadata,
-            }),
-        ).catch((err) => {
+        const result_concierge = await updateMetadata(this._zone_id, {
+            name: con_metadata.name || concierge_app,
+            description: con_metadata.description || '',
+            details: concierge_metadata,
+        }).catch((err) => {
             console.error(err);
             notifyError(i18n('APP.CONCIERGE.INDUCTION_ERROR', { error: err }));
         });

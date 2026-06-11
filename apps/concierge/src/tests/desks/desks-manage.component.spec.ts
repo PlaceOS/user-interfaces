@@ -44,7 +44,7 @@ describe('DesksManageComponent', () => {
                 initialised: of(true),
                 levelWithID: jest.fn(() => ({ id: 'lvl-1' })),
                 buildings: [],
-            } as Partial<OrganisationService>),
+            } as unknown as Partial<OrganisationService>),
             MockProvider(MatDialog, { open: jest.fn() }),
         ],
         declarations: [

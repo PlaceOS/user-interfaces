@@ -8,7 +8,7 @@ import {
     UrlTree,
 } from '@angular/router';
 import { current_user } from '@placeos/common';
-import { onlineState } from '@placeos/ts-client';
+import { onlineState, waitForSignal } from '@placeos/ts-client';
 import { first } from 'rxjs/operators';
 
 @Injectable({
@@ -32,9 +32,7 @@ export class AuthorisedAdminGuard {
     }
 
     private async checkUser() {
-        await onlineState()
-            .pipe(first((_) => _))
-            .toPromise();
+        await waitForSignal(onlineState(), (_) => _);
         const user = await current_user.pipe(first((_) => !!_)).toPromise();
         const can_activate = user && user.groups.includes('placeos_admin');
         if (!can_activate) {

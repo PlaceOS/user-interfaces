@@ -1,6 +1,5 @@
 import { Pipe } from '@angular/core';
 import { PlaceAsset, showAsset } from '@placeos/ts-client';
-import { lastValueFrom } from 'rxjs';
 
 const PARKING_SPACE_LIST: PlaceAsset[] = [];
 
@@ -27,9 +26,7 @@ export class ParkingSpacePipe {
             return EMPTY_PARKING_SPACE;
         const cached = PARKING_SPACE_LIST.find(({ id }) => id === asset_id);
         if (cached) return cached;
-        const space = await lastValueFrom(showAsset(asset_id)).catch(
-            () => null,
-        );
+        const space = await showAsset(asset_id).catch(() => null);
         if (space) {
             PARKING_SPACE_LIST.push(space);
             return space;

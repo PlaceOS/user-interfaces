@@ -66,7 +66,7 @@ export class SpacesService {
     }
 
     public async loadSpace(space_id: string) {
-        const system = await lastValueFrom(showSystem(space_id));
+        const system = await showSystem(space_id);
         const space = new Space({
             ...(system as any),
             level: this._org.levelWithID([...system.zones]),
@@ -85,12 +85,12 @@ export class SpacesService {
     }
 
     private async loadSpaces(): Promise<void> {
-        const systems = await lastValueFrom(
-            querySystems({
+        const systems = (
+            await querySystems({
                 zone_id: this._org.organisation?.id,
                 limit: 5000,
-            })?.pipe(map((i) => i.data)),
-        );
+            })
+        ).data;
         const space_list = systems.map(
             (sys) =>
                 new Space({

@@ -449,7 +449,7 @@ describe('BookingFormService', () => {
                 email: 'driver@example.com',
                 name: 'Driver One',
                 groups: ['PlaceOS P1 Parking', 'After Hours Parking'],
-            },
+            } as any,
         });
 
         await spectator.service.postForm(true);
@@ -561,7 +561,7 @@ describe('BookingFormService', () => {
                 email: 'other.user@example.com',
                 name: 'Other User',
                 id: 'other-user',
-            },
+            } as any,
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
             resources: [
@@ -604,7 +604,7 @@ describe('BookingFormService', () => {
                 email: 'unauthorised.user@example.com',
                 name: 'Unauthorised User',
                 id: 'unauthorised-user',
-            },
+            } as any,
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
         });

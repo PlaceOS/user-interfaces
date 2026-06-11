@@ -9,9 +9,8 @@ import {
     PlaceSystem,
     showSystem,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, interval, Observable, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, interval, Observable } from 'rxjs';
 import {
-    catchError,
     debounceTime,
     filter,
     first,
@@ -31,6 +30,7 @@ import {
     notifyError,
     notifySuccess,
     notifyWarn,
+    observableFromSignal,
     SettingsService,
     Space,
     timePeriodsIntersect,
@@ -152,25 +152,23 @@ export class PanelStateService extends AsyncHandler {
         debounceTime(1000),
         tap((id) => log('Panel', `Loading system "${id}"...`)),
         switchMap((id) =>
-            showSystem(id).pipe(
-                catchError(({ status, message }) => {
-                    log(
-                        'Panel',
-                        'Error loading system details:',
-                        [status, message],
-                        'error',
+            showSystem(id).catch(({ status, message }) => {
+                log(
+                    'Panel',
+                    'Error loading system details:',
+                    [status, message],
+                    'error',
+                );
+                if (status === 404) this._router.navigate(['/bootstrap']);
+                else {
+                    this.timeout(
+                        'reload_system',
+                        () => this._system.next(id),
+                        2000 + randomInt(3000),
                     );
-                    if (status === 404) this._router.navigate(['/bootstrap']);
-                    else {
-                        this.timeout(
-                            'reload_system',
-                            () => this._system.next(id),
-                            2000 + randomInt(3000),
-                        );
-                    }
-                    return of(new PlaceSystem());
-                }),
-            ),
+                }
+                return new PlaceSystem();
+            }),
         ),
         map((_) => new Space(_ as any)),
         shareReplay(1),
@@ -650,6 +648,6 @@ export class PanelStateService extends AsyncHandler {
         if (window.debug) window.panel_module = mod;
         const binding = mod.variable(name);
         this.subscription(`binding:${mod_name}:${name}`, binding.bind());
-        return binding.listen();
+        return observableFromSignal(binding.listen());
     }
 }

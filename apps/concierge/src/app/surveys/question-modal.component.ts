@@ -12,7 +12,6 @@ import {
     SurveyQuestion,
     updateQuestion,
 } from '@placeos/ts-client';
-import { lastValueFrom } from 'rxjs';
 import { QuestionComponent } from './question.component';
 
 @Component({
@@ -82,7 +81,7 @@ export class QuestionModalComponent implements OnInit {
         const call = this.is_edit()
             ? updateQuestion(`${this.question().id}`, question_el.question())
             : addQuestion(question_el.question());
-        await lastValueFrom(call);
+        await call;
         this._dialog_ref.close(true);
         notifySuccess('Successfully updated question bank.');
     }

@@ -10,9 +10,7 @@ const EMPTY_ZONE = new PlaceZone();
 export class ZonePipe implements PipeTransform {
     public async transform(id: string): Promise<PlaceZone> {
         if (ZONE_LIST[id]) return ZONE_LIST[id];
-        const zone = await showZone(id)
-            .toPromise()
-            .catch((_) => null);
+        const zone = await showZone(id).catch((_) => null);
         if (!zone) return EMPTY_ZONE;
         ZONE_LIST[id] = zone;
         return zone;

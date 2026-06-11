@@ -10,7 +10,7 @@ import {
 } from '@placeos/common';
 import { listChildMetadata, PlaceAsset } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, forkJoin, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, forkJoin, from, of } from 'rxjs';
 import {
     catchError,
     filter,
@@ -160,7 +160,7 @@ export class ParkingService extends AsyncHandler {
                 ).map((d) => new Desk({ ...d, zone: meta.zone }));
             return forkJoin(
                 buildings.map((bld) =>
-                    listChildMetadata(bld.id, { name: 'desks' }).pipe(
+                    from(listChildMetadata(bld.id, { name: 'desks' })).pipe(
                         map((data) => ({
                             building_id: bld.id,
                             desks: flatten<Desk>(data.map(map_metadata)),

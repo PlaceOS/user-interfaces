@@ -16,7 +16,6 @@ import {
     nextValueFrom,
 } from '@placeos/common';
 import {
-    PlaceMetadata,
     PlaceZoneMetadata,
     authority,
     get,
@@ -30,6 +29,7 @@ import {
     Observable,
     ReplaySubject,
     combineLatest,
+    from,
     of,
     timer,
 } from 'rxjs';
@@ -67,15 +67,15 @@ interface EmergencyContactFromAsset {
 /** Query asset categories directly to avoid circular dependency */
 function queryAssetCategoriesLocal(query: Record<string, unknown> = {}) {
     const q = toQueryString(query);
-    return get(`${BASE_ENDPOINT}/asset_categories${q ? '?' + q : ''}`).pipe(
-        map((_) => _ as AssetCategory[]),
-    );
+    return from(
+        get(`${BASE_ENDPOINT}/asset_categories${q ? '?' + q : ''}`),
+    ).pipe(map((_) => _ as AssetCategory[]));
 }
 
 /** Query asset types/groups directly to avoid circular dependency */
 function queryAssetTypesLocal(query: Record<string, unknown> = {}) {
     const q = toQueryString(query);
-    return get(`${BASE_ENDPOINT}/asset_types${q ? '?' + q : ''}`).pipe(
+    return from(get(`${BASE_ENDPOINT}/asset_types${q ? '?' + q : ''}`)).pipe(
         map((_) => _ as AssetGroup[]),
     );
 }
@@ -83,7 +83,7 @@ function queryAssetTypesLocal(query: Record<string, unknown> = {}) {
 /** Query assets directly to avoid circular dependency */
 function queryAssetsLocal(query: Record<string, unknown> = {}) {
     const q = toQueryString(query);
-    return get(`${BASE_ENDPOINT}/assets${q ? '?' + q : ''}`).pipe(
+    return from(get(`${BASE_ENDPOINT}/assets${q ? '?' + q : ''}`)).pipe(
         map((_) => _ as Asset[]),
     );
 }
@@ -259,11 +259,9 @@ export class ExploreSearchService {
     private _legacy_metadata_contacts = this._org.active_building.pipe(
         filter((bld) => !!bld),
         switchMap((bld) =>
-            showMetadata(bld.id, 'emergency_contacts').pipe(
-                catchError(() =>
-                    of({ details: { contacts: [], migrated: false } }),
-                ),
-            ),
+            showMetadata(bld.id, 'emergency_contacts').catch(() => ({
+                details: { contacts: [], migrated: false },
+            })),
         ),
         map(({ details }) => {
             const data = details as any;
@@ -306,8 +304,8 @@ export class ExploreSearchService {
         tap(() => this._loading.next(true)),
         switchMap((q) =>
             q?.length > 2
-                ? querySystems({ q, zone_id: this._org.organisation.id }).pipe(
-                      map(({ data }) =>
+                ? querySystems({ q, zone_id: this._org.organisation.id }).then(
+                      ({ data }) =>
                           data
                               .filter((_) => _.map_id)
                               .map(
@@ -319,7 +317,6 @@ export class ExploreSearchService {
                                           ),
                                       } as any),
                               ),
-                      ),
                   )
                 : of([]),
         ),
@@ -333,9 +330,9 @@ export class ExploreSearchService {
         tap(() => this._loading.next(true)),
         switchMap(([bld]) =>
             bld
-                ? listChildMetadata(bld.id, { name: 'desks' }).pipe(
-                      catchError(() => of([] as PlaceMetadata[])),
-                      map((i) =>
+                ? listChildMetadata(bld.id, { name: 'desks' })
+                      .catch(() => [] as PlaceZoneMetadata[])
+                      .then((i) =>
                           flatten(
                               i.map((j) =>
                                   (j.metadata.desks?.details || []).map(
@@ -343,8 +340,7 @@ export class ExploreSearchService {
                                   ),
                               ),
                           ),
-                      ),
-                  )
+                      )
                 : of([]),
         ),
         catchError(() => []),
@@ -390,7 +386,7 @@ export class ExploreSearchService {
             switchMap(() =>
                 listChildMetadata(this._org.building.id, {
                     name: 'map_features',
-                }).pipe(catchError(() => of({ details: [] }))),
+                }).catch(() => [] as PlaceZoneMetadata[]),
             ),
             map((data: PlaceZoneMetadata[]) => {
                 const list = [];
@@ -418,8 +414,8 @@ export class ExploreSearchService {
     private _poi_metadata = this._org.initialised.pipe(
         filter((_) => _),
         switchMap(() =>
-            showMetadata(this._org.organisation.id, 'points-of-interest').pipe(
-                catchError((_) => of({ details: {} })),
+            showMetadata(this._org.organisation.id, 'points-of-interest').catch(
+                (_) => ({ details: {} }),
             ),
         ),
         shareReplay(1),
@@ -689,7 +685,7 @@ export class ExploreSearchService {
     /** Function used to query for users */
     public search_fn = (q: string) =>
         this._settings.get('app.basic_user_search')
-            ? queryUsers({ q, authority_id: authority()?.id }).pipe(
+            ? from(queryUsers({ q, authority_id: authority()?.id })).pipe(
                   map((_) => _.data),
               )
             : searchStaff(q);

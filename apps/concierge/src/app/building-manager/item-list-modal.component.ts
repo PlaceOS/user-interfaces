@@ -92,10 +92,7 @@ export class ItemListModalComponent implements OnInit {
     public async ngOnInit() {
         const metadata_key =
             this._settings.get('app.workplace_metadata_key') || 'workplace_app';
-        const metadata: any = await showMetadata(
-            this._bld_id,
-            metadata_key,
-        ).toPromise();
+        const metadata: any = await showMetadata(this._bld_id, metadata_key);
         const items = metadata?.details?.support_issue_types || [];
         this.item_list.set(items);
     }
@@ -123,20 +120,15 @@ export class ItemListModalComponent implements OnInit {
             this._settings.get('app.concierge_metadata_key') || 'concierge_app';
         this.loading.set(true);
         const items = this.item_list().filter((_) => _);
-        const metadata: any = await showMetadata(
-            this._bld_id,
-            metadata_key,
-        ).toPromise();
+        const metadata: any = await showMetadata(this._bld_id, metadata_key);
         metadata.details.support_issue_types = items;
         let resp = await updateMetadata(this._bld_id, {
             name: metadata_key,
             details: metadata.details,
             description: metadata.description || '',
-        })
-            .toPromise()
-            .catch((_) => {
-                notifyError(`Failed to save issue types. ${_}`);
-            });
+        }).catch((_) => {
+            notifyError(`Failed to save issue types. ${_}`);
+        });
         if (!resp) {
             this.loading.set(false);
             return;
@@ -144,17 +136,15 @@ export class ItemListModalComponent implements OnInit {
         const concierge_metadata: any = await showMetadata(
             this._bld_id,
             metadata_key,
-        ).toPromise();
+        );
         concierge_metadata.details.support_issue_types = items;
         resp = await updateMetadata(this._bld_id, {
             name: concierge_key,
             details: concierge_metadata.details,
             description: concierge_metadata.description || '',
-        })
-            .toPromise()
-            .catch((_) => {
-                notifyError(`Failed to save issue types. ${_}`);
-            });
+        }).catch((_) => {
+            notifyError(`Failed to save issue types. ${_}`);
+        });
         this.loading.set(false);
         if (resp) this._dialog_ref.close();
     }

@@ -26,7 +26,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AsyncHandler, settingSignal, User } from '@placeos/common';
 import { authority, queryUsers, showUser } from '@placeos/ts-client';
-import { forkJoin, lastValueFrom, Observable, of } from 'rxjs';
+import { forkJoin, from, Observable, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -57,7 +57,7 @@ import { searchStaff } from 'libs/users/src/lib/staff.fn';
             >
                 <div
                     matPrefix
-                    class="-ml-1 mr-2 flex h-8 w-8 items-center justify-center"
+                    class="mr-2 -ml-1 flex h-8 w-8 items-center justify-center"
                 >
                     @if (selected_user(); as user) {
                         <a-user-avatar [user]="user" />
@@ -245,7 +245,7 @@ export class UserSearchFieldComponent
     /** Function for querying the user list */
     public readonly query_fn = input<(_: string) => Observable<User[]>>((q) => {
         const staff_query = this.use_basic_search()
-            ? queryUsers({ q, authority_id: authority()?.id }).pipe(
+            ? from(queryUsers({ q, authority_id: authority()?.id })).pipe(
                   map((_) => _.data.map((_) => new User(_))),
                   catchError(() => of([])),
               )
@@ -311,7 +311,7 @@ export class UserSearchFieldComponent
             !this.use_basic_search() &&
             (value?.id || value?.email)
         ) {
-            lastValueFrom(showUser(value.email || value.id))
+            showUser(value.email || value.id)
                 .then((details) => {
                     if (!details) return;
                     const updated = new User({

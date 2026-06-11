@@ -129,8 +129,9 @@ describe('ExploreStateService', () => {
     });
 
     it('should retain disabled styles after reset', async () => {
-        spectator.inject(SettingsService).get = jest.fn((name: string) =>
-            name === 'app.explore.disable_styles' ? 'parking' : undefined,
+        (spectator.inject(SettingsService) as any).get = jest.fn(
+            (name: string) =>
+                name === 'app.explore.disable_styles' ? 'parking' : undefined,
         );
         spectator.service.reset();
         spectator.service.setStyles('parking', { parking1: {} });
@@ -147,8 +148,11 @@ describe('ExploreStateService', () => {
 
     it('should apply disabled styles when settings overrides change', async () => {
         let disable_styles;
-        spectator.inject(SettingsService).get = jest.fn((name: string) =>
-            name === 'app.explore.disable_styles' ? disable_styles : undefined,
+        (spectator.inject(SettingsService) as any).get = jest.fn(
+            (name: string) =>
+                name === 'app.explore.disable_styles'
+                    ? disable_styles
+                    : undefined,
         );
         spectator.service.reset();
         spectator.service.setStyles('parking', { parking1: {} });

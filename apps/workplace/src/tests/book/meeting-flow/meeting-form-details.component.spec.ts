@@ -30,14 +30,16 @@ describe('MeetingFormDetailsComponent', () => {
     const createComponent = createRoutingFactory({
         component: MeetingFormDetailsComponent,
         providers: [
-            MockProvider(SettingsService, {
+            MockProvider(SettingsService as any, {
                 get: jest.fn((key: string) => lookup_setting(key)),
                 signal: jest.fn(
                     (key: string, fallback?) => () =>
                         lookup_setting(key, fallback),
                 ),
             }),
-            MockProvider(OrganisationService, { building: { timezone: '' } }),
+            MockProvider(OrganisationService as any, {
+                building: { timezone: '' },
+            }),
             MockProvider(EventFormService, {
                 is_multiday: false,
                 storeForm: store_form,

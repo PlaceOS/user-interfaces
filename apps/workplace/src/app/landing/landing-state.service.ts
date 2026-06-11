@@ -10,13 +10,7 @@ import {
     showUser,
     updateMetadata,
 } from '@placeos/ts-client';
-import {
-    BehaviorSubject,
-    combineLatest,
-    lastValueFrom,
-    Observable,
-    of,
-} from 'rxjs';
+import { BehaviorSubject, combineLatest, from, Observable, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -35,6 +29,7 @@ import {
     filterResourcesFromRules,
     firstTruthyValueFrom,
     HashMap,
+    observableFromSignal,
     OrganisationService,
     SettingsService,
     StaffUser,
@@ -74,7 +69,7 @@ export class LandingStateService extends AsyncHandler {
         this._org.active_building.pipe(
             filter((bld) => !!bld),
             switchMap((bld) =>
-                showMetadata(bld.id, `room_booking_rules`).pipe(
+                from(showMetadata(bld.id, `room_booking_rules`)).pipe(
                     catchError(() => of({ details: [] })),
                 ),
             ),
@@ -115,7 +110,7 @@ export class LandingStateService extends AsyncHandler {
                     const binding = getModule(_.id, 'Bookings').variable(
                         'status',
                     );
-                    const obs = binding.listen();
+                    const obs = observableFromSignal(binding.listen());
                     this.subscription(`bind:${_.id}`, binding.bind());
                     return obs;
                 }),
@@ -157,7 +152,7 @@ export class LandingStateService extends AsyncHandler {
     public search_fn = (q: string) =>
         this._settings.get('app.basic_user_search') ||
         this._settings.get('app.colleagues_require_auth') !== false
-            ? queryUsers({ q, authority_id: authority()?.id }).pipe(
+            ? from(queryUsers({ q, authority_id: authority()?.id })).pipe(
                   map(({ data }) => data.map((_) => new StaffUser(_ as any))),
               )
             : searchStaff(q);
@@ -222,14 +217,13 @@ export class LandingStateService extends AsyncHandler {
     }
 
     public async updateContacts() {
-        const metadata: PlaceMetadata = (await lastValueFrom(
-            showMetadata(currentUser().id, 'contacts'),
+        const metadata: PlaceMetadata = (await showMetadata(
+            currentUser().id,
+            'contacts',
         )) as any;
         const list = metadata.details instanceof Array ? metadata.details : [];
         const users = await Promise.all(
-            list.map((_) =>
-                lastValueFrom(showUser(_.email).pipe(catchError(() => of(_)))),
-            ),
+            list.map((_) => showUser(_.email).catch(() => _)),
         );
         this._contacts.next(users.map((i) => new StaffUser(i as any)));
     }
@@ -238,39 +232,33 @@ export class LandingStateService extends AsyncHandler {
         let users = [...this._contacts.getValue()];
         users.push(user);
         users = unique(users, 'email');
-        await lastValueFrom(
-            updateMetadata(currentUser().id, {
-                name: 'contacts',
-                description: 'Contacts for the User',
-                details: users,
-            }),
-        );
+        await updateMetadata(currentUser().id, {
+            name: 'contacts',
+            description: 'Contacts for the User',
+            details: users,
+        });
         this.updateContacts();
     }
 
     public async addContacts(user_list: User[]) {
         let users = [...this._contacts.getValue(), ...user_list];
         users = unique(users, 'email');
-        await lastValueFrom(
-            updateMetadata(currentUser().id, {
-                name: 'contacts',
-                description: 'Contacts for the User',
-                details: users,
-            }),
-        );
+        await updateMetadata(currentUser().id, {
+            name: 'contacts',
+            description: 'Contacts for the User',
+            details: users,
+        });
         this.updateContacts();
     }
 
     public async removeContact(user: User) {
         let users = [...this._contacts.getValue()];
         users = users.filter((u) => u.email !== user.email);
-        await lastValueFrom(
-            updateMetadata(currentUser().id, {
-                name: 'contacts',
-                description: 'Contacts for the User',
-                details: users,
-            }),
-        );
+        await updateMetadata(currentUser().id, {
+            name: 'contacts',
+            description: 'Contacts for the User',
+            details: users,
+        });
         this.updateContacts();
     }
 

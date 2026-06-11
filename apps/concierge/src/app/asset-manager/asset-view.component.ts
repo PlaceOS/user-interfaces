@@ -599,7 +599,7 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
         );
         if (resp.reason !== 'done') return;
         resp.loading('Deleting asset...');
-        await lastValueFrom(removeAsset(asset.id));
+        await removeAsset(asset.id);
         await removeAssetRequests(asset.id);
         const item = await lastValueFrom(
             this._state.active_product.pipe(first()),
@@ -624,7 +624,7 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
         );
         if (resp.reason !== 'done') return;
         resp.loading('Deleting purchase order...');
-        await lastValueFrom(removeAssetPurchaseOrder(asset.id));
+        await removeAssetPurchaseOrder(asset.id);
         const item = await lastValueFrom(
             this._state.active_product.pipe(first()),
         );

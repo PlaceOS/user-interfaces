@@ -8,8 +8,6 @@ import { OrganisationService, SettingsService } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { IconComponent } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
-
 import { AppSettingsModalComponent } from '../../app/ui/app-settings-modal.component';
 
 import * as common_mod from '@placeos/common';
@@ -54,10 +52,10 @@ describe('AppSettingsModalComponent', () => {
     });
 
     beforeEach(() => {
-        jest.spyOn(ts_client, 'showMetadata').mockReturnValue(
-            of({ details: {} }) as any,
-        );
-        jest.spyOn(ts_client, 'updateMetadata').mockReturnValue(of({}) as any);
+        jest.spyOn(ts_client, 'showMetadata').mockResolvedValue({
+            details: {},
+        } as never);
+        jest.spyOn(ts_client, 'updateMetadata').mockResolvedValue({} as never);
         (common_mod as any).notifySuccess = jest.fn();
         (common_mod as any).notifyError = jest.fn();
         spectator = createComponent();
@@ -156,14 +154,12 @@ describe('AppSettingsModalComponent', () => {
     });
 
     it('should populate active_features from loaded settings', async () => {
-        jest.spyOn(ts_client, 'showMetadata').mockReturnValue(
-            of({
-                details: {
-                    features: ['spaces', 'desks'],
-                    use_24_hour_time: true,
-                },
-            }) as any,
-        );
+        jest.spyOn(ts_client, 'showMetadata').mockResolvedValue({
+            details: {
+                features: ['spaces', 'desks'],
+                use_24_hour_time: true,
+            },
+        } as never);
         await spectator.component.ngOnInit();
         expect(spectator.component.active_features['spaces']).toBe(true);
         expect(spectator.component.active_features['desks']).toBe(true);
@@ -200,9 +196,9 @@ describe('AppSettingsModalComponent', () => {
     });
 
     it('should show error notification when save fails', async () => {
-        jest.spyOn(ts_client, 'updateMetadata').mockReturnValue({
-            toPromise: () => Promise.reject({ message: 'Network error' }),
-        } as any);
+        jest.spyOn(ts_client, 'updateMetadata').mockRejectedValue({
+            message: 'Network error',
+        } as never);
         await spectator.component.ngOnInit();
         await spectator.component.save().catch(() => {});
         expect(common_mod.notifyError).toHaveBeenCalled();

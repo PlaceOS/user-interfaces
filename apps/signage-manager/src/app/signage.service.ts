@@ -11,6 +11,7 @@ import {
     notifyWarn,
     OrganisationService,
     SettingsService,
+    UploadPermissions,
     UploadsService,
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
@@ -62,7 +63,7 @@ import {
     updateSystem,
     updateZone,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, lastValueFrom, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, from, lastValueFrom, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -73,6 +74,11 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
+import {
+    BulkMediaUploadItem,
+    BulkMediaUploadModalComponent,
+    BulkMediaUploadModalData,
+} from './shared/bulk-media-upload-modal.component';
 import { DisplaySelectModalComponent } from './shared/display-select-modal.component';
 import { GroupSelectModalComponent } from './shared/group-select-modal.component';
 import { MediaEditModalComponent } from './shared/media-edit-modal.component';
@@ -112,6 +118,11 @@ interface PreparedUploadMedia {
     file: File;
     media_type: 'image' | 'video';
     metadata: SignageMediaMetadata;
+}
+
+interface SignageUploadOptions {
+    permissions: UploadPermissions;
+    on_progress?: (progress: number) => void;
 }
 
 interface PlaylistMetaState {
@@ -247,7 +258,7 @@ export class SignageService {
                               ),
                           ),
                       )
-                    : currentGroups({ subsystem: 'signage' })
+                    : from(currentGroups({ subsystem: 'signage' }))
                 ).pipe(
                     catchError(() => of([] as PlaceCurrentGroup[])),
                     map((groups) =>
@@ -351,12 +362,14 @@ export class SignageService {
     }
 
     private _queryManageableGroups(params: Record<string, any> = {}) {
-        return queryGroups({
-            limit: 1000,
-            fields: SIGNAGE_GROUP_FIELDS,
-            subsystem: 'signage',
-            ...params,
-        } as any).pipe(
+        return from(
+            queryGroups({
+                limit: 1000,
+                fields: SIGNAGE_GROUP_FIELDS,
+                subsystem: 'signage',
+                ...params,
+            } as any),
+        ).pipe(
             map(({ data }) =>
                 this._sortGroups(
                     (data || []).filter((group) =>
@@ -368,7 +381,7 @@ export class SignageService {
     }
 
     private _currentManageableGroups() {
-        return currentGroups({ subsystem: 'signage' }).pipe(
+        return from(currentGroups({ subsystem: 'signage' })).pipe(
             map((groups) =>
                 groups
                     .filter(
@@ -392,7 +405,7 @@ export class SignageService {
     ]).pipe(
         filter(([group_id]) => !!group_id),
         switchMap(([group_id]) =>
-            queryGroupUsers({ group_id, limit: 1000 }).pipe(
+            from(queryGroupUsers({ group_id, limit: 1000 })).pipe(
                 catchError(() => of({ data: [] })),
             ),
         ),
@@ -411,7 +424,7 @@ export class SignageService {
     ]).pipe(
         filter(([group_id]) => !!group_id),
         switchMap(([group_id]) =>
-            queryGroupZones({ group_id, limit: 1000 }).pipe(
+            from(queryGroupZones({ group_id, limit: 1000 })).pipe(
                 catchError(() => of({ data: [] })),
             ),
         ),
@@ -461,8 +474,10 @@ export class SignageService {
         ),
         debounceTime(300),
         switchMap(([, , group_id]) =>
-            querySignageMedia(
-                this._orgZoneQueryParams({ limit: 2500 }, group_id),
+            from(
+                querySignageMedia(
+                    this._orgZoneQueryParams({ limit: 2500 }, group_id),
+                ),
             ).pipe(catchError(() => of({ data: [] }))),
         ),
         map((result: any) =>
@@ -499,8 +514,10 @@ export class SignageService {
         ),
         debounceTime(300),
         switchMap(([, , group_id]) =>
-            querySignagePlaylists(
-                this._orgZoneQueryParams({ limit: 500 }, group_id),
+            from(
+                querySignagePlaylists(
+                    this._orgZoneQueryParams({ limit: 500 }, group_id),
+                ),
             ).pipe(catchError(() => of({ data: [] }))),
         ),
         map((result: any) =>
@@ -516,11 +533,13 @@ export class SignageService {
             switchMap(() => this._api_group_id$),
             filter((group_id) => this.is_sys_admin() || !!group_id),
             switchMap((group_id) =>
-                querySystems({
-                    ...this._orgZoneQueryParams({}, group_id),
-                    limit: 500,
-                    signage: true,
-                } as any).pipe(catchError(() => of({ data: [] }))),
+                from(
+                    querySystems({
+                        ...this._orgZoneQueryParams({}, group_id),
+                        limit: 500,
+                        signage: true,
+                    } as any),
+                ).pipe(catchError(() => of({ data: [] }))),
             ),
             map((result: any) => (result.data || []).filter((s) => s.signage)),
             startWith([]),
@@ -538,11 +557,13 @@ export class SignageService {
             switchMap(() => this._api_group_id$),
             filter((group_id) => this.is_sys_admin() || !!group_id),
             switchMap((group_id) =>
-                queryZones({
-                    limit: 250,
-                    tags: 'signage',
-                    ...(group_id ? { group_id } : {}),
-                } as any).pipe(catchError(() => of({ data: [] }))),
+                from(
+                    queryZones({
+                        limit: 250,
+                        tags: 'signage',
+                        ...(group_id ? { group_id } : {}),
+                    } as any),
+                ).pipe(catchError(() => of({ data: [] }))),
             ),
             map((result: any) => result.data || []),
             startWith([]),
@@ -560,10 +581,12 @@ export class SignageService {
             switchMap(() => this._api_group_id$),
             filter((group_id) => this.is_sys_admin() || !!group_id),
             switchMap((group_id) =>
-                queryZones(
-                    this._groupQueryParams(
-                        { limit: 2500, include_children_count: true },
-                        group_id,
+                from(
+                    queryZones(
+                        this._groupQueryParams(
+                            { limit: 2500, include_children_count: true },
+                            group_id,
+                        ),
                     ),
                 ).pipe(catchError(() => of({ data: [] }))),
             ),
@@ -583,11 +606,13 @@ export class SignageService {
             switchMap(() => this._api_group_id$),
             filter((group_id) => this.is_sys_admin() || !!group_id),
             switchMap((group_id) =>
-                queryZones({
-                    limit: 2500,
-                    include_children_count: true,
-                    ...(group_id ? { group_id } : { parent_id: 'root' }),
-                } as any).pipe(
+                from(
+                    queryZones({
+                        limit: 2500,
+                        include_children_count: true,
+                        ...(group_id ? { group_id } : { parent_id: 'root' }),
+                    } as any),
+                ).pipe(
                     catchError(() => of({ data: [] })),
                     map((result: any) => {
                         const zones = result.data || [];
@@ -607,11 +632,13 @@ export class SignageService {
     );
 
     public zoneChildren(parent_id: string) {
-        return queryZones({
-            parent_id,
-            limit: 2500,
-            include_children_count: true,
-        } as any).pipe(map(({ data }) => data || []));
+        return from(
+            queryZones({
+                parent_id,
+                limit: 2500,
+                include_children_count: true,
+            } as any),
+        ).pipe(map(({ data }) => data || []));
     }
 
     public readonly plugins = combineLatest([
@@ -621,9 +648,9 @@ export class SignageService {
         filter(([initialised]) => !!initialised),
         debounceTime(300),
         switchMap(() =>
-            querySignagePlugins(this._orgZoneQueryParams({ limit: 500 })).pipe(
-                catchError(() => of({ data: [] })),
-            ),
+            from(
+                querySignagePlugins(this._orgZoneQueryParams({ limit: 500 })),
+            ).pipe(catchError(() => of({ data: [] }))),
         ),
         map((result: any) =>
             (result.data || [])
@@ -749,7 +776,7 @@ export class SignageService {
                 return of([]);
             }
             this.playlist_media_loading.set(true);
-            return listSignagePlaylistMedia(playlist.id).pipe(
+            return from(listSignagePlaylistMedia(playlist.id)).pipe(
                 map((result) => {
                     this.playlist_media_loading.set(false);
                     this._setPlaylistMediaState(
@@ -813,7 +840,7 @@ export class SignageService {
             data: {
                 playlist: new SignagePlaylist({}),
                 onAdd: (data: Partial<SignagePlaylist>) =>
-                    lastValueFrom(this._addSignagePlaylist(data)),
+                    this._addSignagePlaylist(data),
             },
             panelClass: 'mobile-fullscreen',
         });
@@ -846,7 +873,7 @@ export class SignageService {
             data: {
                 playlist,
                 onEdit: (id: string, data: Partial<SignagePlaylist>) =>
-                    lastValueFrom(updateSignagePlaylist(id, data)),
+                    updateSignagePlaylist(id, data),
             },
             panelClass: 'mobile-fullscreen',
         });
@@ -879,7 +906,7 @@ export class SignageService {
             this._dialog,
         );
         if (result.reason !== 'done') return;
-        await lastValueFrom(removeSignagePlaylist(playlist.id));
+        await removeSignagePlaylist(playlist.id);
         if (this.selected_playlist()?.id === playlist.id) {
             this.selected_playlist.set(null);
             this.selected_playlist_item.set(null);
@@ -931,8 +958,8 @@ export class SignageService {
                 groups.find((item) => item.group.id === selected_group_id) ||
                 groups[0];
             approvers =
-                ((await lastValueFrom(
-                    listSignagePlaylistApprovers(group.group.id),
+                ((await listSignagePlaylistApprovers(
+                    group.group.id,
                 )) as SignagePlaylistApprover[]) || [];
         } catch {
             notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_APPROVERS'));
@@ -950,13 +977,11 @@ export class SignageService {
         const result: PlaylistRequestApprovalModalResult | undefined =
             await lastValueFrom(ref.afterClosed());
         if (!result) return;
-        await lastValueFrom(
-            requestApprovalSignagePlaylist(
-                playlist.id,
-                group.group.id,
-                result.message || '',
-                result.approver_id || '',
-            ),
+        await requestApprovalSignagePlaylist(
+            playlist.id,
+            group.group.id,
+            result.message || '',
+            result.approver_id || '',
         );
         this.setPlaylistApprovalStatus(playlist.id, false, true);
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_APPROVAL_REQUESTED'));
@@ -974,9 +999,7 @@ export class SignageService {
             )
         )
             return;
-        const media_list = await lastValueFrom(
-            listSignagePlaylistMedia(playlist_id),
-        );
+        const media_list = await listSignagePlaylistMedia(playlist_id);
         const new_items = [...(media_list.items || [])];
         if (
             typeof item_index === 'number' &&
@@ -988,7 +1011,7 @@ export class SignageService {
             if (index < 0) return;
             new_items.splice(index, 1);
         }
-        await lastValueFrom(updateSignagePlaylistMedia(playlist_id, new_items));
+        await updateSignagePlaylistMedia(playlist_id, new_items);
         this._setPlaylistMediaState(playlist_id, new_items, false);
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_ITEM_REMOVED'));
         this._playlist_change.next(Date.now());
@@ -1003,7 +1026,7 @@ export class SignageService {
             )
         )
             return;
-        await lastValueFrom(updateSignagePlaylistMedia(playlist_id, items));
+        await updateSignagePlaylistMedia(playlist_id, items);
         this._setPlaylistMediaState(playlist_id, items, false);
         this._playlist_change.next(Date.now());
     }
@@ -1036,8 +1059,8 @@ export class SignageService {
                 new Set([...(group.subsystems || []), 'signage']),
             ),
         };
-        const result = await lastValueFrom(
-            group.id ? updateGroup(group.id, payload) : addGroup(payload),
+        const result = await (
+            group.id ? updateGroup(group.id, payload) : addGroup(payload)
         ).catch((error) => {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_SAVE_GROUP'));
             throw error;
@@ -1064,7 +1087,7 @@ export class SignageService {
             this._dialog,
         );
         if (result.reason !== 'done') return;
-        await lastValueFrom(removeGroup(group.id)).catch((error) => {
+        await removeGroup(group.id).catch((error) => {
             result.close();
             notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_REMOVE_GROUP'));
             throw error;
@@ -1079,32 +1102,38 @@ export class SignageService {
 
     public searchGroupUsers(search = '') {
         const group = this.managed_group();
-        return queryUsers({
-            q: search,
-            limit: 20,
-            ...(group?.authority_id
-                ? { authority_id: group.authority_id }
-                : {}),
-        }).pipe(map(({ data }) => data));
+        return from(
+            queryUsers({
+                q: search,
+                limit: 20,
+                ...(group?.authority_id
+                    ? { authority_id: group.authority_id }
+                    : {}),
+            }),
+        ).pipe(map(({ data }) => data));
     }
 
     public searchGroupZones(search = '') {
         const group = this.managed_group();
-        return queryZones({
-            q: search,
-            limit: 20,
-            ...(group?.authority_id
-                ? { authority_id: group.authority_id }
-                : {}),
-        } as Record<string, unknown>).pipe(map(({ data }) => data));
+        return from(
+            queryZones({
+                q: search,
+                limit: 20,
+                ...(group?.authority_id
+                    ? { authority_id: group.authority_id }
+                    : {}),
+            } as Record<string, unknown>),
+        ).pipe(map(({ data }) => data));
     }
 
     public async addManagedGroupUser(user: PlaceUser) {
         const group_id = this.managed_group_id();
         if (!user?.id || !this.canManageSignageGroup(group_id)) return;
-        await lastValueFrom(
-            addGroupUser({ group_id, user_id: user.id, permissions: 0 }),
-        ).catch((error) => {
+        await addGroupUser({
+            group_id,
+            user_id: user.id,
+            permissions: 0,
+        }).catch((error) => {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_ADD_USER'));
             throw error;
         });
@@ -1117,9 +1146,9 @@ export class SignageService {
         permissions: number,
     ) {
         if (!this.canManageSignageGroup(item.group_id)) return;
-        await lastValueFrom(
-            updateGroupUser(item.user_id, item.group_id, { permissions }),
-        ).catch((error) => {
+        await updateGroupUser(item.user_id, item.group_id, {
+            permissions,
+        }).catch((error) => {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_UPDATE_USER'));
             throw error;
         });
@@ -1140,13 +1169,11 @@ export class SignageService {
             this._dialog,
         );
         if (result.reason !== 'done') return;
-        await lastValueFrom(removeGroupUser(item.user_id, item.group_id)).catch(
-            (error) => {
-                result.close();
-                notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_REMOVE_USER'));
-                throw error;
-            },
-        );
+        await removeGroupUser(item.user_id, item.group_id).catch((error) => {
+            result.close();
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_REMOVE_USER'));
+            throw error;
+        });
         result.close();
         this._groups_change.next(Date.now());
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_USER_REMOVED'));
@@ -1155,9 +1182,11 @@ export class SignageService {
     public async addManagedGroupZone(zone: PlaceZone) {
         const group_id = this.managed_group_id();
         if (!zone?.id || !this.canManageSignageGroup(group_id)) return;
-        await lastValueFrom(
-            addGroupZone({ group_id, zone_id: zone.id, permissions: 0 }),
-        ).catch((error) => {
+        await addGroupZone({
+            group_id,
+            zone_id: zone.id,
+            permissions: 0,
+        }).catch((error) => {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_ADD_ZONE'));
             throw error;
         });
@@ -1171,9 +1200,10 @@ export class SignageService {
         deny: boolean,
     ) {
         if (!this.canManageSignageGroup(item.group_id)) return;
-        await lastValueFrom(
-            updateGroupZone(item.group_id, item.zone_id, { permissions, deny }),
-        ).catch((error) => {
+        await updateGroupZone(item.group_id, item.zone_id, {
+            permissions,
+            deny,
+        }).catch((error) => {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_UPDATE_ZONE'));
             throw error;
         });
@@ -1194,13 +1224,11 @@ export class SignageService {
             this._dialog,
         );
         if (result.reason !== 'done') return;
-        await lastValueFrom(removeGroupZone(item.group_id, item.zone_id)).catch(
-            (error) => {
-                result.close();
-                notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_REMOVE_ZONE'));
-                throw error;
-            },
-        );
+        await removeGroupZone(item.group_id, item.zone_id).catch((error) => {
+            result.close();
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_REMOVE_ZONE'));
+            throw error;
+        });
         result.close();
         this._groups_change.next(Date.now());
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_ZONE_REMOVED'));
@@ -1275,7 +1303,7 @@ export class SignageService {
         return post(
             `${apiEndpoint()}/signage/media?group_id=${encodeURIComponent(group_id)}`,
             form_data,
-        ).pipe(map((resp: any) => new SignageMedia(resp)));
+        ).then((resp: any) => new SignageMedia(resp));
     }
 
     private _addSignagePlaylist(form_data: Partial<SignagePlaylist>) {
@@ -1284,7 +1312,7 @@ export class SignageService {
         return post(
             `${apiEndpoint()}/signage/playlists?group_id=${encodeURIComponent(group_id)}`,
             form_data,
-        ).pipe(map((resp: any) => new SignagePlaylist(resp)));
+        ).then((resp: any) => new SignagePlaylist(resp));
     }
 
     private async _shareSignageItems(
@@ -1325,7 +1353,7 @@ export class SignageService {
                       items: item_ids.join(','),
                       to: group_id,
                   });
-        await lastValueFrom(request);
+        await request;
         notifySuccess(
             item_type === 'media'
                 ? i18n('SIGNAGE_MANAGER.SVC_MEDIA_SHARED')
@@ -1345,12 +1373,10 @@ export class SignageService {
                 continue;
             }
             try {
-                const result = await lastValueFrom(
-                    querySignagePlaylists({
-                        group_id: group.group.id,
-                        limit: 500,
-                    } as any),
-                );
+                const result = await querySignagePlaylists({
+                    group_id: group.group.id,
+                    limit: 500,
+                } as any);
                 if (
                     (result.data || []).some((item) => item.id === playlist.id)
                 ) {
@@ -1397,7 +1423,7 @@ export class SignageService {
             )
         )
             return;
-        await lastValueFrom(updateSignagePlaylistMedia(playlist_id, list));
+        await updateSignagePlaylistMedia(playlist_id, list);
         this._setPlaylistMediaState(playlist_id, list, false);
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_UPDATED'));
         this._playlist_change.next(Date.now());
@@ -1412,9 +1438,7 @@ export class SignageService {
             )
         )
             return;
-        const media_list = await lastValueFrom(
-            listSignagePlaylistMedia(playlist_id),
-        );
+        const media_list = await listSignagePlaylistMedia(playlist_id);
         if (media_list.items?.includes(media_id)) {
             const result = await openConfirmModal(
                 {
@@ -1444,9 +1468,7 @@ export class SignageService {
             return false;
         const unique_media_ids = [...new Set(media_ids)].filter(Boolean);
         if (!playlist_id || !unique_media_ids.length) return false;
-        const media_list = await lastValueFrom(
-            listSignagePlaylistMedia(playlist_id),
-        );
+        const media_list = await listSignagePlaylistMedia(playlist_id);
         const existing_items = media_list.items || [];
         const new_media_ids = unique_media_ids.filter(
             (id) => !existing_items.includes(id),
@@ -1492,8 +1514,8 @@ export class SignageService {
                     [next_playlist.id]: true,
                 }));
                 try {
-                    const media = await lastValueFrom(
-                        listSignagePlaylistMedia(next_playlist.id),
+                    const media = await listSignagePlaylistMedia(
+                        next_playlist.id,
                     );
                     const media_ids = media.items || [];
                     this._setPlaylistMeta(next_playlist.id, {
@@ -1592,16 +1614,13 @@ export class SignageService {
             const cached_items = cached_state[playlist_id]?.item_ids;
             const current_items =
                 cached_items ||
-                (await lastValueFrom(listSignagePlaylistMedia(playlist_id)))
-                    .items ||
+                (await listSignagePlaylistMedia(playlist_id)).items ||
                 [];
             const updated_items = current_items.filter(
                 (id) => !removed_ids.has(id),
             );
             if (updated_items.length === current_items.length) continue;
-            await lastValueFrom(
-                updateSignagePlaylistMedia(playlist_id, updated_items),
-            );
+            await updateSignagePlaylistMedia(playlist_id, updated_items);
             this._setPlaylistMediaState(playlist_id, updated_items, false);
         }
         const selected_item = this.selected_playlist_item();
@@ -1658,6 +1677,9 @@ export class SignageService {
             return;
         if (!files) return;
         const upload_files = Array.from(files);
+        if (upload_files.length > 1) {
+            return this.bulkUploadMedia(upload_files, playlist_id);
+        }
         for (const file of upload_files) {
             const prepared = await this._prepareUploadMedia(file);
             if (!prepared) continue;
@@ -1668,6 +1690,40 @@ export class SignageService {
                 prepared.metadata,
             );
         }
+    }
+
+    public async bulkUploadMedia(files: File[], playlist_id = '') {
+        if (
+            !this._requirePermission(
+                this.can_create(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_CREATE_MEDIA'),
+            )
+        )
+            return;
+        const items: BulkMediaUploadItem[] = [];
+        for (const file of files) {
+            const prepared = await this._prepareUploadMedia(file);
+            if (prepared) items.push(prepared);
+        }
+        if (!items.length) return;
+        const data: BulkMediaUploadModalData = {
+            items,
+            onUpload: (item, permissions, on_progress) =>
+                this._addMedia(
+                    item.file,
+                    new SignageMedia({}),
+                    playlist_id,
+                    item.metadata,
+                    undefined,
+                    { permissions, on_progress },
+                ),
+        };
+        const ref = this._dialog.open(BulkMediaUploadModalComponent, {
+            data,
+            panelClass: 'mobile-fullscreen',
+        });
+        await lastValueFrom(ref.afterClosed());
+        this.changed();
     }
 
     public async addMediaFromLink(url: string) {
@@ -1797,7 +1853,7 @@ export class SignageService {
             )
         )
             return;
-        await lastValueFrom(updateSignageMedia(id, data));
+        await updateSignageMedia(id, data);
         this.changed();
     }
 
@@ -1806,11 +1862,9 @@ export class SignageService {
     ): Promise<SignagePlugin | undefined> {
         if (!plugin_id) return undefined;
         try {
-            const result = await lastValueFrom(
-                querySignagePlugins({ limit: 500 } as any).pipe(
-                    catchError(() => of({ data: [] })),
-                ),
-            );
+            const result = await querySignagePlugins({
+                limit: 500,
+            } as any).catch(() => ({ data: [] }));
             const all_plugins = result.data || [];
             return all_plugins.find((p: SignagePlugin) => p.id === plugin_id);
         } catch {
@@ -1824,10 +1878,16 @@ export class SignageService {
         playlist_id = '',
         file_metadata?: SignageMediaMetadata,
         url_thumbnail?: string,
+        upload_options?: SignageUploadOptions,
     ) {
         let result: SignageMedia;
         if (file) {
-            result = await this.addMedia(file, media_item, file_metadata);
+            result = await this.addMedia(
+                file,
+                media_item,
+                file_metadata,
+                upload_options,
+            );
         } else {
             let thumbnail_id = '';
             if (url_thumbnail) {
@@ -1850,12 +1910,10 @@ export class SignageService {
             for (const key in data) {
                 if (!data[key]) delete data[key];
             }
-            result = await lastValueFrom(this._addSignageMedia(data));
+            result = await this._addSignageMedia(data);
         }
         if (playlist_id && result?.id) {
-            const media_list = await lastValueFrom(
-                listSignagePlaylistMedia(playlist_id),
-            );
+            const media_list = await listSignagePlaylistMedia(playlist_id);
             const new_media_list = [...media_list.items, result.id];
             await this.updatePlaylistMedia(playlist_id, new_media_list);
         }
@@ -1867,6 +1925,7 @@ export class SignageService {
         file: File,
         media_item: SignageMedia = new SignageMedia({}),
         file_metadata?: SignageMediaMetadata,
+        upload_options?: SignageUploadOptions,
     ) {
         if (
             !this._requirePermission(
@@ -1890,10 +1949,27 @@ export class SignageService {
             1280,
             720,
         ).catch(() => null);
-        const media_id =
-            await this._uploads.uploadFileWithPermissionsToCompletion(
-                upload_file,
+        let media_id: string;
+        if (upload_options) {
+            const details = await lastValueFrom(
+                this._uploads
+                    .uploadFileWithProgress(
+                        upload_file,
+                        false,
+                        upload_options.permissions,
+                    )
+                    .pipe(tap((d) => upload_options.on_progress?.(d.progress))),
             );
+            media_id = details.upload_id || details.upload?.id || details.id;
+            if (!media_id) {
+                throw new Error('Failed to get uploaded file ID');
+            }
+        } else {
+            media_id =
+                await this._uploads.uploadFileWithPermissionsToCompletion(
+                    upload_file,
+                );
+        }
         const media_url = `${
             location.origin
         }/api/engine/v2/uploads/${encodeURIComponent(media_id)}/url`;
@@ -1925,7 +2001,7 @@ export class SignageService {
         for (const key in data) {
             if (!data[key]) delete data[key];
         }
-        const result = await lastValueFrom(this._addSignageMedia(data));
+        const result = await this._addSignageMedia(data);
         return result;
     }
 
@@ -1996,7 +2072,7 @@ export class SignageService {
         );
         if (result.reason !== 'done') return;
         await this._removeMediaFromCachedPlaylists([item.id]);
-        await lastValueFrom(removeSignageMedia(item.id));
+        await removeSignageMedia(item.id);
         this.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_MEDIA_REMOVED'));
         result.close();
@@ -2029,9 +2105,7 @@ export class SignageService {
             media_items.map((item) => item.id),
         );
         await Promise.all(
-            media_items.map((item) =>
-                lastValueFrom(removeSignageMedia(item.id)),
-            ),
+            media_items.map((item) => removeSignageMedia(item.id)),
         );
         this.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_MEDIA_REMOVED'));
@@ -2089,8 +2163,10 @@ export class SignageService {
             return;
         }
         const playlists = [...(zone.playlists || []), playlist_id];
-        const updated = await lastValueFrom(
-            updateZone(zone.id, { playlists, version: zone.version }, 'patch'),
+        const updated = await updateZone(
+            zone.id,
+            { playlists, version: zone.version },
+            'patch',
         );
         this._cacheZone(updated);
         this.selected_zone.set(updated);
@@ -2109,8 +2185,10 @@ export class SignageService {
         const playlists = (zone.playlists || []).filter(
             (id: string) => id !== playlist_id,
         );
-        const updated = await lastValueFrom(
-            updateZone(zone.id, { playlists, version: zone.version }, 'patch'),
+        const updated = await updateZone(
+            zone.id,
+            { playlists, version: zone.version },
+            'patch',
         );
         this._cacheZone(updated);
         this.selected_zone.set(updated);
@@ -2140,12 +2218,10 @@ export class SignageService {
             return;
         }
         const zones = [...(display.zones || []), zone.id];
-        const updated = await lastValueFrom(
-            updateSystem(
-                display.id,
-                { zones, version: display.version } as any,
-                'patch',
-            ),
+        const updated = await updateSystem(
+            display.id,
+            { zones, version: display.version } as any,
+            'patch',
         );
         this._cacheDisplay(updated);
         this.changed();
@@ -2166,12 +2242,10 @@ export class SignageService {
         const zones = (display.zones || []).filter(
             (id: string) => id !== zone.id,
         );
-        const updated = await lastValueFrom(
-            updateSystem(
-                display.id,
-                { zones, version: display.version } as any,
-                'patch',
-            ),
+        const updated = await updateSystem(
+            display.id,
+            { zones, version: display.version } as any,
+            'patch',
         );
         this._cacheDisplay(updated);
         this.changed();
@@ -2197,12 +2271,10 @@ export class SignageService {
             return;
         }
         const playlists = [...(display.playlists || []), playlist_id];
-        const updated = await lastValueFrom(
-            updateSystem(
-                display.id,
-                { playlists, version: display.version } as any,
-                'patch',
-            ),
+        const updated = await updateSystem(
+            display.id,
+            { playlists, version: display.version } as any,
+            'patch',
         );
         this._cacheDisplay(updated);
         this.selected_display.set(updated);
@@ -2232,12 +2304,10 @@ export class SignageService {
             return;
         }
         const playlists = [...(display.playlists || []), playlist.id];
-        const updated = await lastValueFrom(
-            updateSystem(
-                display.id,
-                { playlists, version: display.version } as any,
-                'patch',
-            ),
+        const updated = await updateSystem(
+            display.id,
+            { playlists, version: display.version } as any,
+            'patch',
         );
         this._cacheDisplay(updated);
         if (this.selected_display()?.id === display.id) {
@@ -2269,8 +2339,10 @@ export class SignageService {
             return;
         }
         const playlists = [...(zone.playlists || []), playlist.id];
-        const updated = await lastValueFrom(
-            updateZone(zone.id, { playlists, version: zone.version }, 'patch'),
+        const updated = await updateZone(
+            zone.id,
+            { playlists, version: zone.version },
+            'patch',
         );
         this._cacheZone(updated);
         if (this.selected_zone()?.id === zone.id) {
@@ -2294,12 +2366,10 @@ export class SignageService {
         const playlists = (display.playlists || []).filter(
             (id: string) => id !== playlist.id,
         );
-        const updated = await lastValueFrom(
-            updateSystem(
-                display.id,
-                { playlists, version: display.version } as any,
-                'patch',
-            ),
+        const updated = await updateSystem(
+            display.id,
+            { playlists, version: display.version } as any,
+            'patch',
         );
         this._cacheDisplay(updated);
         if (this.selected_display()?.id === display.id) {
@@ -2320,8 +2390,10 @@ export class SignageService {
         const playlists = (zone.playlists || []).filter(
             (id: string) => id !== playlist.id,
         );
-        const updated = await lastValueFrom(
-            updateZone(zone.id, { playlists, version: zone.version }, 'patch'),
+        const updated = await updateZone(
+            zone.id,
+            { playlists, version: zone.version },
+            'patch',
         );
         this._cacheZone(updated);
         if (this.selected_zone()?.id === zone.id) {
@@ -2342,12 +2414,10 @@ export class SignageService {
         const playlists = (display.playlists || []).filter(
             (id: string) => id !== playlist_id,
         );
-        const updated = await lastValueFrom(
-            updateSystem(
-                display.id,
-                { playlists, version: display.version } as any,
-                'patch',
-            ),
+        const updated = await updateSystem(
+            display.id,
+            { playlists, version: display.version } as any,
+            'patch',
         );
         this._cacheDisplay(updated);
         this.selected_display.set(updated);

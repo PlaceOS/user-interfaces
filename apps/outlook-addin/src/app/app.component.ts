@@ -60,6 +60,9 @@ export class AppComponent extends AsyncHandler implements OnInit {
         setTranslationService(this._locales);
 
         setNotifyOutlet(this._snackbar);
+        // Listen for service worker events before any async setup so update
+        // notifications emitted during initialisation are not missed.
+        setupCache(this._cache);
         console.info(`Waiting for application settings...`);
         await firstTruthyValueFrom(this._settings.initialised);
         log('Outlook', `Waiting for library initialisation...`);

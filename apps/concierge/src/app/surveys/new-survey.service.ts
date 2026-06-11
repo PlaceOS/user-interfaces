@@ -17,7 +17,7 @@ import {
     BehaviorSubject,
     combineLatest,
     forkJoin,
-    lastValueFrom,
+    from,
     map,
     Observable,
     of,
@@ -119,9 +119,11 @@ export class NewSurveyService {
         shareReplay(1),
     );
 
-    public readonly questions$: Observable<SurveyQuestion[]> = queryQuestions({
-        limit: 1000,
-    } as any).pipe(
+    public readonly questions$: Observable<SurveyQuestion[]> = from(
+        queryQuestions({
+            limit: 1000,
+        } as any),
+    ).pipe(
         // tap((l) => updateQuestionMap(l)),
         shareReplay(1),
     );
@@ -189,10 +191,10 @@ export class NewSurveyService {
             );
             if (result.reason !== 'done') return;
             result.loading('Removing survey...');
-            await lastValueFrom(removeSurvey(`${survey.id}`));
+            await removeSurvey(`${survey.id}`);
             result.close();
         } else {
-            await lastValueFrom(removeSurvey(`${survey.id}`));
+            await removeSurvey(`${survey.id}`);
         }
         notifySuccess('Successfully removed survey.');
         this._change.next(Date.now());
@@ -220,10 +222,10 @@ export class NewSurveyService {
             );
             if (result.reason !== 'done') return;
             result.loading('Removing survey question...');
-            await lastValueFrom(removeQuestion(`${question.id}`));
+            await removeQuestion(`${question.id}`);
             result.close();
         } else {
-            await lastValueFrom(removeQuestion(`${question.id}`));
+            await removeQuestion(`${question.id}`);
         }
         notifySuccess('Successfully removed survey question.');
         this._change.next(Date.now());

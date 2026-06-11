@@ -9,7 +9,7 @@ import {
     setToken,
     token,
 } from '@placeos/ts-client';
-import { lastValueFrom } from 'rxjs';
+import {} from 'rxjs';
 import { isSystemEvent } from './public-event.helpers';
 
 declare global {
@@ -129,9 +129,10 @@ export class PublicEventsService {
         this.loading.set('Checking guest access...');
         try {
             const captcha = await this._runRecaptcha('public_events');
-            const token = await lastValueFrom(
-                publicEventGuestToken(system_id, { ...details, captcha }),
-            );
+            const token = await publicEventGuestToken(system_id, {
+                ...details,
+                captcha,
+            });
             if (!token) throw new Error('Guest access response was invalid.');
             setStorage(remember ? 'local' : 'session');
             setToken(token, Date.now() + 2 * 60 * 60 * 1000);
@@ -151,11 +152,9 @@ export class PublicEventsService {
         await this._ensureGuestAccess(system_id);
         this.loading.set('Loading public events...');
         try {
-            const events = await lastValueFrom(
-                listPublicEvents(system_id, {
-                    limit: 100,
-                } satisfies PublicEventQueryOptions),
-            );
+            const events = await listPublicEvents(system_id, {
+                limit: 100,
+            } satisfies PublicEventQueryOptions);
             this.events.set(
                 (events || []).filter((event) => !isSystemEvent(event)),
             );
@@ -173,9 +172,10 @@ export class PublicEventsService {
         await this._ensureGuestAccess(system_id);
         this.loading.set('Registering for event...');
         try {
-            return await lastValueFrom(
-                registerPublicEvent(system_id, { event_id, ...guest }),
-            );
+            return await registerPublicEvent(system_id, {
+                event_id,
+                ...guest,
+            });
         } catch (err) {
             this.error.set(this._message(err));
             throw err;

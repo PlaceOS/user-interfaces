@@ -20,7 +20,6 @@ import {
     BehaviorSubject,
     filter,
     firstValueFrom,
-    lastValueFrom,
     map,
     shareReplay,
     switchMap,
@@ -157,11 +156,9 @@ export class PlaylistApproveModalComponent implements OnInit {
         this.loading.set(i18n('SIGNAGE_MANAGER.UNDOING_CHANGES'));
         this._dialog_ref.disableClose = true;
         try {
-            await lastValueFrom(
-                updateSignagePlaylistMedia(
-                    this._data.playlist.id,
-                    previous_version.items,
-                ),
+            await updateSignagePlaylistMedia(
+                this._data.playlist.id,
+                previous_version.items,
             );
             this._service.setPlaylistApprovalStatus(
                 this._data.playlist.id,
@@ -182,7 +179,7 @@ export class PlaylistApproveModalComponent implements OnInit {
         this.loading.set(i18n('SIGNAGE_MANAGER.APPROVING_PLAYLIST'));
         this._dialog_ref.disableClose = true;
         try {
-            await lastValueFrom(approveSignagePlaylist(this._data.playlist.id));
+            await approveSignagePlaylist(this._data.playlist.id);
             this._service.setPlaylistApprovalStatus(
                 this._data.playlist.id,
                 true,

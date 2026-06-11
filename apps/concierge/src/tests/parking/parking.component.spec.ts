@@ -44,6 +44,7 @@ describe('ParkingComponent', () => {
     beforeEach(() => {
         settings_map = {
             'app.parking.show_requests': true,
+            'app.parking.hide_users_and_vehicles': false,
             'app.feature_groups': { 'parking-requests': ['parking-team'] },
             'app.admin_group': 'admin',
         };
@@ -93,6 +94,24 @@ describe('ParkingComponent', () => {
         expect(spectator.component.view()).toBe('list');
         expect(router.navigate).toHaveBeenCalledWith(
             ['/book', 'parking', 'events', 'list'],
+            { replaceUrl: true },
+        );
+    });
+
+    it('should redirect hidden user and vehicle management tabs to spaces', () => {
+        const router = spectator.inject(Router);
+        jest.spyOn(router, 'navigate').mockResolvedValue(true);
+        settings_map['app.parking.hide_users_and_vehicles'] = true;
+        Object.defineProperty(router, 'url', {
+            value: '/book/parking/manage/fleet',
+            configurable: true,
+        });
+
+        (spectator.component as any)._updatePath();
+
+        expect(spectator.component.view()).toBe('spaces');
+        expect(router.navigate).toHaveBeenCalledWith(
+            ['/book', 'parking', 'manage', 'spaces'],
             { replaceUrl: true },
         );
     });

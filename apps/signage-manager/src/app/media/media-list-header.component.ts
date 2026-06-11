@@ -178,6 +178,7 @@ function isValidUrl(url: string): boolean {
                 <input
                     #upload_input
                     type="file"
+                    multiple
                     class="sr-only"
                     [attr.accept]="file_accept"
                     [attr.aria-label]="'SIGNAGE_MANAGER.UPLOAD_MEDIA_ARIA' | translate"

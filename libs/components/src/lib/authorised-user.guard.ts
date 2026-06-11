@@ -12,9 +12,10 @@ import {
     firstTruthyValueFrom,
     GroupPermission,
     hasPermission,
+    observableFromSignal,
     user_groups_loaded,
 } from '@placeos/common';
-import { authority, onlineState } from '@placeos/ts-client';
+import { authority, onlineState, waitForSignal } from '@placeos/ts-client';
 import { combineLatest, lastValueFrom } from 'rxjs';
 import { first } from 'rxjs/operators';
 
@@ -62,16 +63,17 @@ export class AuthorisedUserGuard {
         const use_group_subsystem_access = await this.useGroupSubsystemAccess();
         let can_activate = false;
         if (use_group_subsystem_access) {
-            await lastValueFrom(onlineState().pipe(first(Boolean)));
+            await waitForSignal(onlineState(), Boolean);
             const user = await firstTruthyValueFrom(current_user);
             can_activate = await this.checkSubsystemAccess(user);
         } else if (!groups.length) {
             can_activate = true;
         } else {
             await lastValueFrom(
-                combineLatest([onlineState(), this._org.initialised]).pipe(
-                    first(([online, org_init]) => online && org_init),
-                ),
+                combineLatest([
+                    observableFromSignal(onlineState()),
+                    this._org.initialised,
+                ]).pipe(first(([online, org_init]) => online && org_init)),
             );
             const user = await firstTruthyValueFrom(current_user);
             can_activate = !!(
