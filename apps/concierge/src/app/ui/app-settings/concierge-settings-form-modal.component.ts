@@ -1527,6 +1527,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                         formControlName="hide_level_selector_on_booking_list"
                                     ></settings-toggle>
                                     <settings-toggle
+                                        name="Hide users and vehicle tabs"
+                                        formControlName="hide_users_and_vehicles"
+                                    ></settings-toggle>
+                                    <settings-toggle
                                         name="Hide assign space action"
                                         formControlName="hide_assign_space"
                                     ></settings-toggle>
@@ -1878,6 +1882,7 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
             show_waitlist: new FormControl(true),
             hide_bay_number: new FormControl(false),
             hide_level_selector_on_booking_list: new FormControl(false),
+            hide_users_and_vehicles: new FormControl(false),
             hide_assign_space: new FormControl(false),
             allow_deleting: new FormControl(false),
             assign_space_on_approve: new FormControl(false),
