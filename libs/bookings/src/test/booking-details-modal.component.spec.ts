@@ -147,6 +147,21 @@ describe('BookingDetailsModalComponent', () => {
         expect(spectator.component.booking_status()).toBe('info');
     });
 
+    it('should not show waiting approval parking requests as waitlisted', () => {
+        (spectator.component as any).booking.set(
+            new Booking({
+                booking_type: 'parking',
+                type: 'parking',
+                asset_id: 'unallocated-1',
+                date: Date.now(),
+                status: 'tentative',
+                process_state: 'waiting_approval',
+            } as any),
+        );
+
+        expect(spectator.component.booking_status()).toBe('warning');
+    });
+
     it('should hide waitlisted status for parking requests when waitlist display is disabled', () => {
         const settings = spectator.inject(SettingsService);
         (settings.get as jest.Mock).mockImplementation((name: string) =>

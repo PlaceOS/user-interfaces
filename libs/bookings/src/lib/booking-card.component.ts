@@ -259,6 +259,7 @@ export class BookingCardComponent {
             this.show_waitlist() &&
             booking?.booking_type === 'parking' &&
             booking?.status === 'tentative' &&
+            booking?.process_state !== 'waiting_approval' &&
             !!booking?.asset_id?.startsWith('unallocated') &&
             isSameWeek(Date.now(), booking.date)
         );

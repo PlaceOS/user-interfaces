@@ -134,6 +134,21 @@ describe('BookingCardComponent', () => {
         expect(spectator.component.status()).toBe('info');
     });
 
+    it('should not show waiting approval parking requests as waitlisted', () => {
+        spectator.setInput({
+            booking: new Booking({
+                booking_type: 'parking',
+                type: 'parking',
+                asset_id: 'unallocated-1',
+                date: Date.now(),
+                status: 'tentative',
+                process_state: 'waiting_approval',
+            } as any),
+        });
+
+        expect(spectator.component.status()).toBe('warning');
+    });
+
     it('should hide waitlisted status for parking requests when waitlist display is disabled', () => {
         settings_service.get.mockImplementation((name: string) =>
             name === 'app.parking.show_waitlist' ? false : undefined,
