@@ -116,6 +116,60 @@ describe('MediaEditModalComponent', () => {
         expect(component.active_plugin_schema()).toEqual(plugin_schema);
     });
 
+    it('populates plugin params with default values for new plugin media', () => {
+        modal_data.media = new SignageMedia({
+            media_type: 'plugin',
+            plugin_id: 'weather',
+        });
+        modal_data.file = undefined;
+        modal_data.file_metadata = undefined;
+        modal_data.plugin = new SignagePlugin({
+            id: 'weather',
+            defaults: { size: 'large' },
+            params: {
+                type: 'object',
+                properties: {
+                    units: { type: 'string', default: 'metric' },
+                    label: { type: 'string' },
+                },
+            },
+        });
+        const fixture = TestBed.createComponent(MediaEditModalComponent);
+        fixture.detectChanges();
+
+        expect(fixture.componentInstance.form.value.plugin_params).toEqual({
+            size: 'large',
+            units: 'metric',
+        });
+    });
+
+    it('keeps existing plugin params when seeding defaults', () => {
+        modal_data.media = new SignageMedia({
+            media_type: 'plugin',
+            plugin_id: 'weather',
+            plugin_params: { units: 'imperial' },
+        });
+        modal_data.file = undefined;
+        modal_data.file_metadata = undefined;
+        modal_data.plugin = new SignagePlugin({
+            id: 'weather',
+            params: {
+                type: 'object',
+                properties: {
+                    units: { type: 'string', default: 'metric' },
+                    theme: { type: 'string', default: 'light' },
+                },
+            },
+        });
+        const fixture = TestBed.createComponent(MediaEditModalComponent);
+        fixture.detectChanges();
+
+        expect(fixture.componentInstance.form.value.plugin_params).toEqual({
+            units: 'imperial',
+            theme: 'light',
+        });
+    });
+
     it('saves plugin config using defaults from the plugin schema', async () => {
         modal_data.media = new SignageMedia({
             media_type: 'plugin',
