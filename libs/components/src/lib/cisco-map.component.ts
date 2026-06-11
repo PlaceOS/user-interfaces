@@ -14,7 +14,7 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { MapMetadata } from './interactive-map.component';
+import { MapMetadata } from '@placeos/common';
 
 declare class SpacesDigitalMap {}
 

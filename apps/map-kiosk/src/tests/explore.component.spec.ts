@@ -28,7 +28,7 @@ import { SpacePipe, SpacesService } from '@placeos/events';
 import { AccessibilityControlsComponent } from '../app/accessibility-controls.component';
 import { ExploreLevelSelectComponent } from '../app/explore-level-select.component';
 import { ExploreComponent } from '../app/explore.component';
-import { DynamicMapComponent } from '../app/map-viewer/dynamic-map.component';
+import { DynamicMapComponent } from '@placeos/components';
 
 describe('ExploreComponent', () => {
     let spectator: SpectatorRouting<ExploreComponent>;

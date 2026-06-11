@@ -5,7 +5,7 @@ import {
     ViewerFeature,
     ViewerLabel,
     ViewerStyles,
-} from '@placeos/svg-viewer';
+} from '@placeos/common';
 import { querySystems } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {

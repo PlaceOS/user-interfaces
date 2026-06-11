@@ -33,7 +33,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { EventFormService, SpacesService } from '@placeos/events';
-import { ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
+import { ViewerFeature, ViewerStyles } from '@placeos/common';
 import { Observable, combineLatest, of } from 'rxjs';
 import { filter, first, map } from 'rxjs/operators';
 import { FeaturesFilterService } from './features-filter.service';

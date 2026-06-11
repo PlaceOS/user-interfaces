@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { Point, ViewerFeature } from '@placeos/svg-viewer';
+import { Point, ViewerFeature } from '@placeos/common';
 import { showMetadata } from '@placeos/ts-client';
 import { debounceTime, filter, map } from 'rxjs/operators';
 

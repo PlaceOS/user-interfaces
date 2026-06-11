@@ -14,19 +14,19 @@ import {
     OrganisationService,
     nextValueFrom,
     unique,
+    MapElementBounds,
 } from '@placeos/common';
 import {
     IconComponent,
     InteractiveMapComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { Rect } from '@placeos/svg-viewer/dist/types';
 import { combineLatest, of } from 'rxjs';
 import { debounceTime, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { MapShowElementComponent } from '../poi-manager/map-show-element.component';
 import { PointOfInterest } from '../poi-manager/poi-management.service';
 
-type BoundsMap = Record<string, Rect>;
+type BoundsMap = Record<string, MapElementBounds>;
 
 declare let mapsindoors: any;
 

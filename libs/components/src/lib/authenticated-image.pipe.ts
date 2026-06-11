@@ -71,7 +71,7 @@ async function storeSessionCachedResponse(source: string, response: Response) {
     } catch {}
 }
 
-function setAuthCookie(cookie_path: string) {
+export function setAuthCookie(cookie_path: string) {
     const tkn = token();
     document.cookie = `${
         tkn === 'x-api-key'

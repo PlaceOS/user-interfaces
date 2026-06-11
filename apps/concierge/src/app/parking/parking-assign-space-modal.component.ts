@@ -35,14 +35,14 @@ import {
     notifySuccess,
     OrganisationService,
     unique,
+    MapElementBounds,
 } from '@placeos/common';
 import {
     IconComponent,
     InteractiveMapComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
-import { Rect } from '@placeos/svg-viewer/dist/types';
+import { ViewerFeature, ViewerStyles } from '@placeos/common';
 import { PlaceAsset } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { ExploreParkingInfoComponent } from 'libs/explore/src/lib/explore-parking-info.component';
@@ -50,7 +50,7 @@ import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 import { of } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 
-type BoundsMap = Record<string, Rect>;
+type BoundsMap = Record<string, MapElementBounds>;
 
 export function bookingZonesForLevel(
     org: Pick<OrganisationService, 'organisation' | 'region'>,
