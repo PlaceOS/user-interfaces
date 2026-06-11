@@ -98,7 +98,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                     <button
                                         btn
                                         matRipple
-                                        class="h-10 flex-1 border-none"
+                                        class="h-10 min-w-40 flex-1 border-none"
                                         [class.bg-success]="
                                             booking().checked_in
                                         "
@@ -110,14 +110,18 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                     >
                                         @if (!checking_in()) {
                                             <div
-                                                class="flex items-center justify-center space-x-2"
+                                                class="flex items-center justify-center gap-1"
                                             >
-                                                <icon>{{
-                                                    booking().checked_in
-                                                        ? 'done'
-                                                        : 'arrow_back'
-                                                }}</icon>
-                                                <div class="mr-4">
+                                                @if (booking().checked_in) {
+                                                    <icon class="text-xl"
+                                                        >done</icon
+                                                    >
+                                                }
+                                                <div
+                                                    [class.mr-4]="
+                                                        booking().checked_in
+                                                    "
+                                                >
                                                     {{
                                                         (booking().checked_in
                                                             ? 'COMMON.CHECKED_IN'
@@ -229,14 +233,20 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                             </div>
                             @if (group.resource_type) {
                                 <div class="flex items-center space-x-2">
-                                    <icon matTooltip="Resource Type">category</icon>
+                                    <icon matTooltip="Resource Type"
+                                        >category</icon
+                                    >
                                     <div>{{ group.resource_type }}</div>
                                 </div>
                             }
                             @if (group.name) {
                                 <div class="flex items-center space-x-2">
-                                    <icon matTooltip="Group Reference">tag</icon>
-                                    <div class="break-all">{{ group.name }}</div>
+                                    <icon matTooltip="Group Reference"
+                                        >tag</icon
+                                    >
+                                    <div class="break-all">
+                                        {{ group.name }}
+                                    </div>
                                 </div>
                             }
                         </div>
@@ -428,7 +438,10 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                 </div>
             </button>
             @if (can_manage_group()) {
-                <button mat-menu-item (click)="remove(group_parent_booking(), false)">
+                <button
+                    mat-menu-item
+                    (click)="remove(group_parent_booking(), false)"
+                >
                     <div class="flex items-center space-x-2 text-base">
                         <icon class="text-error">delete</icon>
                         <div>Delete group</div>
@@ -618,7 +631,8 @@ export class BookingDetailsModalComponent {
         return booking.title || booking.asset_name || booking.asset_id;
     });
     public readonly resource_details_label = computed(() => {
-        const level_name = this.level()?.display_name || this.level()?.name || '';
+        const level_name =
+            this.level()?.display_name || this.level()?.name || '';
         if (this.hide_selected_parking_space()) {
             return level_name || i18n('RESOURCE.PARKING');
         }
@@ -781,8 +795,7 @@ export class BookingDetailsModalComponent {
             formatRecurrence(
                 fromBookingRecurrence(this.booking()),
                 this.booking()?.date,
-            ) ||
-            i18n('CALENDAR_EVENT.RECURRING_TOOLTIP')
+            ) || i18n('CALENDAR_EVENT.RECURRING_TOOLTIP')
         );
     }
 
