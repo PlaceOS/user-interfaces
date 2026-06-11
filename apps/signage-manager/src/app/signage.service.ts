@@ -11,6 +11,7 @@ import {
     notifyWarn,
     OrganisationService,
     SettingsService,
+    UploadPermissions,
     UploadsService,
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
@@ -73,6 +74,11 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
+import {
+    BulkMediaUploadItem,
+    BulkMediaUploadModalComponent,
+    BulkMediaUploadModalData,
+} from './shared/bulk-media-upload-modal.component';
 import { DisplaySelectModalComponent } from './shared/display-select-modal.component';
 import { GroupSelectModalComponent } from './shared/group-select-modal.component';
 import { MediaEditModalComponent } from './shared/media-edit-modal.component';
@@ -112,6 +118,11 @@ interface PreparedUploadMedia {
     file: File;
     media_type: 'image' | 'video';
     metadata: SignageMediaMetadata;
+}
+
+interface SignageUploadOptions {
+    permissions: UploadPermissions;
+    on_progress?: (progress: number) => void;
 }
 
 interface PlaylistMetaState {
@@ -1658,6 +1669,9 @@ export class SignageService {
             return;
         if (!files) return;
         const upload_files = Array.from(files);
+        if (upload_files.length > 1) {
+            return this.bulkUploadMedia(upload_files, playlist_id);
+        }
         for (const file of upload_files) {
             const prepared = await this._prepareUploadMedia(file);
             if (!prepared) continue;
@@ -1668,6 +1682,40 @@ export class SignageService {
                 prepared.metadata,
             );
         }
+    }
+
+    public async bulkUploadMedia(files: File[], playlist_id = '') {
+        if (
+            !this._requirePermission(
+                this.can_create(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_CREATE_MEDIA'),
+            )
+        )
+            return;
+        const items: BulkMediaUploadItem[] = [];
+        for (const file of files) {
+            const prepared = await this._prepareUploadMedia(file);
+            if (prepared) items.push(prepared);
+        }
+        if (!items.length) return;
+        const data: BulkMediaUploadModalData = {
+            items,
+            onUpload: (item, permissions, on_progress) =>
+                this._addMedia(
+                    item.file,
+                    new SignageMedia({}),
+                    playlist_id,
+                    item.metadata,
+                    undefined,
+                    { permissions, on_progress },
+                ),
+        };
+        const ref = this._dialog.open(BulkMediaUploadModalComponent, {
+            data,
+            panelClass: 'mobile-fullscreen',
+        });
+        await lastValueFrom(ref.afterClosed());
+        this.changed();
     }
 
     public async addMediaFromLink(url: string) {
@@ -1824,10 +1872,16 @@ export class SignageService {
         playlist_id = '',
         file_metadata?: SignageMediaMetadata,
         url_thumbnail?: string,
+        upload_options?: SignageUploadOptions,
     ) {
         let result: SignageMedia;
         if (file) {
-            result = await this.addMedia(file, media_item, file_metadata);
+            result = await this.addMedia(
+                file,
+                media_item,
+                file_metadata,
+                upload_options,
+            );
         } else {
             let thumbnail_id = '';
             if (url_thumbnail) {
@@ -1867,6 +1921,7 @@ export class SignageService {
         file: File,
         media_item: SignageMedia = new SignageMedia({}),
         file_metadata?: SignageMediaMetadata,
+        upload_options?: SignageUploadOptions,
     ) {
         if (
             !this._requirePermission(
@@ -1890,10 +1945,29 @@ export class SignageService {
             1280,
             720,
         ).catch(() => null);
-        const media_id =
-            await this._uploads.uploadFileWithPermissionsToCompletion(
-                upload_file,
+        let media_id: string;
+        if (upload_options) {
+            const details = await lastValueFrom(
+                this._uploads
+                    .uploadFileWithProgress(
+                        upload_file,
+                        false,
+                        upload_options.permissions,
+                    )
+                    .pipe(
+                        tap((d) => upload_options.on_progress?.(d.progress)),
+                    ),
             );
+            media_id = details.upload_id || details.upload?.id || details.id;
+            if (!media_id) {
+                throw new Error('Failed to get uploaded file ID');
+            }
+        } else {
+            media_id =
+                await this._uploads.uploadFileWithPermissionsToCompletion(
+                    upload_file,
+                );
+        }
         const media_url = `${
             location.origin
         }/api/engine/v2/uploads/${encodeURIComponent(media_id)}/url`;
