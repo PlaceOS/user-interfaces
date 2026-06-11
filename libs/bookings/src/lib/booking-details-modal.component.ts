@@ -399,9 +399,10 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
             </div>
             <button
                 icon
+                default
                 matRipple
                 mat-dialog-close
-                class="bg-neutral absolute top-0 left-2 text-white"
+                class="absolute top-2 left-2"
             >
                 <icon>close</icon>
             </button>

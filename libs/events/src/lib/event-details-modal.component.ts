@@ -659,9 +659,10 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                 }
                 <button
                     icon
+                    default
                     matRipple
                     mat-dialog-close
-                    class="bg-neutral absolute top-2 left-2 text-white print:hidden"
+                    class="absolute top-2 left-2 print:hidden"
                 >
                     <icon>close</icon>
                 </button>
@@ -955,8 +956,7 @@ export class EventDetailsModalComponent implements OnInit {
             formatRecurrence(
                 fromEventRecurrence(this.event().recurrence),
                 this.event()?.date,
-            ) ||
-            i18n('CALENDAR_EVENT.RECURRING_TOOLTIP'),
+            ) || i18n('CALENDAR_EVENT.RECURRING_TOOLTIP'),
     );
 
     public async checkin() {
