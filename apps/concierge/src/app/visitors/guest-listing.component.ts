@@ -895,11 +895,13 @@ export class GuestListingComponent extends AsyncHandler implements OnInit {
                 const visitor_kiosk_app =
                     this._settings.get('app.visitor_kiosk_app') ||
                     'visitor-kiosk_app';
-                const metadata: any = await lastValueFrom(
-                    showMetadata(bld.id, visitor_kiosk_app),
+                const metadata: any = await showMetadata(
+                    bld.id,
+                    visitor_kiosk_app,
                 );
-                const org_metadata: any = await lastValueFrom(
-                    showMetadata(this._org.organisation.id, visitor_kiosk_app),
+                const org_metadata: any = await showMetadata(
+                    this._org.organisation.id,
+                    visitor_kiosk_app,
                 );
                 const data = {
                     ...(org_metadata.details || {}),

@@ -971,6 +971,7 @@
         "GROUPS": "User groups",
         "GROUPS_ALLOW": "Allow booking for groups",
         "GROUPS_DENY": "Prevent booking for groups",
+        "REQUEST_SPACE_FOR": "Request space for",
         "MIN_LENGTH_ALLOW": "Allow booking with a minimum length of",
         "MIN_LENGTH_DENY": "Prevent booking with a minimum length of",
         "MAX_LENGTH_ALLOW": "Allow booking with a maximum length of",

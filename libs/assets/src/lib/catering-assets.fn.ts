@@ -38,8 +38,7 @@ async function query_hidden_categories() {
             hidden: true,
             limit: 500,
         })
-            .pipe(map((_) => _.data))
-            .toPromise()
+            .then((_) => _.data)
             .catch(() => []);
     }
     return _hidden_categories_promise;
@@ -231,13 +230,11 @@ export function queryCateringItems(
                         zone_id,
                         type_id: type.id,
                         limit: 500,
-                    }).pipe(
-                        map((assets) =>
-                            assets.data.map((asset) =>
-                                toCateringItem(
-                                    asset,
-                                    fromCateringTypeName(type.name),
-                                ),
+                    }).then((assets) =>
+                        assets.data.map((asset) =>
+                            toCateringItem(
+                                asset,
+                                fromCateringTypeName(type.name),
                             ),
                         ),
                     ),
@@ -284,5 +281,5 @@ export function saveCateringItem(
 }
 
 export function deleteCateringItem(id: string) {
-    return removeAsset(id);
+    return from(removeAsset(id));
 }

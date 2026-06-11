@@ -5,13 +5,11 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent } from 'ng-mocks';
 import { ItemListFieldComponent } from '../lib/item-list-field.component';
 
-const chipEvent = (
-    input: HTMLInputElement,
-    value: string,
-): MatChipInputEvent => ({ input, value }) as unknown as MatChipInputEvent;
+const chipEvent = (input: HTMLInputElement, value: string): MatChipInputEvent =>
+    ({ input, value }) as unknown as MatChipInputEvent;
 
 describe('ItemListFieldComponent', () => {
-    let spectator: Spectator<ItemListFieldComponent>;
+    let spectator: Spectator<ItemListFieldComponent<any>>;
     const createComponent = createComponentFactory({
         component: ItemListFieldComponent,
         declarations: [MockComponent(IconComponent)],

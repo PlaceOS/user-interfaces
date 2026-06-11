@@ -37,7 +37,6 @@ import {
 } from '@placeos/ts-client';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { catchError, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
 
 @Component({
     selector: `survey-outlet`,
@@ -424,7 +423,7 @@ export class SurveyOutletComponent
                 });
             }
         }
-        await lastValueFrom(addAnswer(answers));
+        await addAnswer(answers);
         notifySuccess('Successfully submitted survey answers.');
         this.success.set(true);
         this.loading.set('');
@@ -436,9 +435,7 @@ export class SurveyOutletComponent
         this.timeout('not_found', () => this.not_found.emit(true), 5000);
         if (!this.survey_id()) return;
         this.loading.set('Loading survey details...');
-        const survey = await lastValueFrom(
-            showSurvey(this.survey_id()).pipe(catchError((_) => of(null))),
-        );
+        const survey = await showSurvey(this.survey_id()).catch((_) => null);
         if (!survey) return this.not_found.emit(true);
         this.survey.set(survey);
         await this._loadQuestions();
@@ -448,14 +445,14 @@ export class SurveyOutletComponent
     private async _loadQuestions() {
         if (!this.survey()?.pages.length) return;
         this.loading.set('Loading survey questions...');
-        const requests: Observable<SurveyQuestion>[] = [];
+        const requests: Promise<SurveyQuestion>[] = [];
         for (const page of this.survey().pages) {
             for (const question_id of page.question_order) {
                 requests.push(showQuestion(`${question_id}`));
             }
         }
         if (!requests.length) return;
-        const questions = await lastValueFrom(forkJoin(requests));
+        const questions = await Promise.all(requests);
         for (const q of questions) {
             this.questions[q.id] = q;
             if (q.type === 'rating') {

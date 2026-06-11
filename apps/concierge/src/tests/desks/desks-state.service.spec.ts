@@ -70,12 +70,12 @@ describe('DesksStateService', () => {
         (booking_mod as any).rejectBooking = jest.fn(() => of({}));
         (booking_mod as any).rejectBookingInstance = jest.fn(() => of({}));
         (booking_mod as any).updateBooking = jest.fn(() => of({}));
-        jest.spyOn(ts_client_mod, 'updateMetadata').mockReturnValue(
-            of({}) as any,
+        jest.spyOn(ts_client_mod, 'updateMetadata').mockResolvedValue(
+            {} as never,
         );
-        jest.spyOn(ts_client_mod, 'showMetadata').mockReturnValue(
-            of({ details: [] }) as any,
-        );
+        jest.spyOn(ts_client_mod, 'showMetadata').mockResolvedValue({
+            details: [],
+        } as never);
         (component_mod as any).openConfirmModal = jest.fn(async () => ({
             reason: 'done',
             loading: jest.fn(),
@@ -207,26 +207,22 @@ describe('DesksStateService', () => {
         expect(booking_mod.saveBooking).toHaveBeenCalledWith(
             expect.objectContaining({
                 booking_start: getUnixTime(assigned_start),
-                booking_end: getUnixTime(
-                    assigned_start + 22 * 60 * 60 * 1000,
-                ),
+                booking_end: getUnixTime(assigned_start + 22 * 60 * 60 * 1000),
             }),
         );
     });
 
     it('should block assignments when the desk limit is reached', async () => {
         settings_map['app.desks.max_assigned_count'] = 1;
-        (ts_client_mod.showMetadata as jest.Mock).mockReturnValue(
-            of({
-                details: [
-                    {
-                        id: 'desk-existing',
-                        assigned_to: 'staff@example.com',
-                        assigned_name: 'Staff Name',
-                    },
-                ],
-            }) as any,
-        );
+        (ts_client_mod.showMetadata as jest.Mock).mockResolvedValue({
+            details: [
+                {
+                    id: 'desk-existing',
+                    assigned_to: 'staff@example.com',
+                    assigned_name: 'Staff Name',
+                },
+            ],
+        } as never);
         const dialog_ref = {
             afterClosed: () =>
                 of({
@@ -247,7 +243,9 @@ describe('DesksStateService', () => {
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
         spectator.service.setFilters({ zones: ['level-1'] });
 
-        await spectator.service.editDesk({ id: 'desk-new-2' } as any).catch(() => undefined);
+        await spectator.service
+            .editDesk({ id: 'desk-new-2' } as any)
+            .catch(() => undefined);
 
         expect(common_mod.notifyError).toHaveBeenCalledWith(
             'Users can only have 1 assigned desk at a time.',
@@ -364,7 +362,9 @@ describe('DesksStateService', () => {
     });
 
     it('should reset desk bookings with the first page query on refresh', () => {
-        const first_page = jest.fn(() => of({ data: [], total: 0, next: null }));
+        const first_page = jest.fn(() =>
+            of({ data: [], total: 0, next: null }),
+        );
         const next_pages: any[] = [];
         (spectator.service as any)._first_page = first_page;
         (spectator.service as any)._next_page.subscribe((next_page) =>

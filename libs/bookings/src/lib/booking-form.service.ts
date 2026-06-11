@@ -38,6 +38,7 @@ import {
     BehaviorSubject,
     combineLatest,
     forkJoin,
+    from,
     lastValueFrom,
     merge,
     Observable,
@@ -207,9 +208,7 @@ export class BookingFormService extends AsyncHandler {
         switchMap(([list, { type }]) =>
             Promise.all(
                 list.map((bld) =>
-                    lastValueFrom(
-                        showMetadata(bld.id, `${type}_booking_rules`),
-                    ),
+                    showMetadata(bld.id, `${type}_booking_rules`),
                 ),
             ),
         ),
@@ -236,7 +235,9 @@ export class BookingFormService extends AsyncHandler {
                 ).map((desk) => new Desk({ ...desk, zone: meta.zone }));
             return forkJoin(
                 buildings.map((building) =>
-                    listChildMetadata(building.id, { name: 'desks' }).pipe(
+                    from(
+                        listChildMetadata(building.id, { name: 'desks' }),
+                    ).pipe(
                         map((data) => flatten<Desk>(data.map(map_metadata))),
                         catchError(() => of([] as Desk[])),
                     ),
@@ -1791,7 +1792,7 @@ export class BookingFormService extends AsyncHandler {
         ) {
             return current_user;
         }
-        return lastValueFrom(showUser(host)).catch(() => ({ email: host }));
+        return showUser(host).catch(() => ({ email: host }));
     }
 
     /**
@@ -1928,15 +1929,17 @@ export class BookingFormService extends AsyncHandler {
             );
             return forkJoin(
                 buildings.map((_) =>
-                    listChildMetadata(_.id, { name: type }).pipe(
+                    from(listChildMetadata(_.id, { name: type })).pipe(
                         map((data) => flatten(data.map(map_metadata))),
                     ),
                 ),
             ).pipe(map((_) => flatten(_)));
         }
-        return listChildMetadata(id, {
-            name: type,
-        }).pipe(map((data) => flatten(data.map(map_metadata))));
+        return from(
+            listChildMetadata(id, {
+                name: type,
+            }),
+        ).pipe(map((data) => flatten(data.map(map_metadata))));
     }
 
     private async _getNearbyResources(

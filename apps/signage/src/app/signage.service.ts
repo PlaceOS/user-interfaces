@@ -19,9 +19,8 @@ import {
     SignagePlaylist,
     SignagePlugin,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, lastValueFrom, of } from 'rxjs';
+import { BehaviorSubject, combineLatest } from 'rxjs';
 import {
-    catchError,
     debounceTime,
     distinctUntilKeyChanged,
     filter,
@@ -246,9 +245,9 @@ export class SignageService extends AsyncHandler {
                         ).toUTCString(),
                     },
                 },
-            ).pipe(
-                catchError((_) => of(null)),
-                map((d: any) => {
+            )
+                .catch((_) => null)
+                .then((d: any) => {
                     if (!d) {
                         const display_key = displayCacheKey(id);
                         d = JSON.parse(
@@ -276,17 +275,14 @@ export class SignageService extends AsyncHandler {
                     }
                     return [d, this._last_modified];
                 }),
-            ),
         ),
         distinctUntilKeyChanged(1),
         map(([value]) => this._parseDisplay(value)),
         switchMap((display) =>
-            this._resolveDisplayPlugins(display).pipe(
-                map((plugins) => {
-                    display.plugins = plugins;
-                    return display;
-                }),
-            ),
+            this._resolveDisplayPlugins(display).then((plugins) => {
+                display.plugins = plugins;
+                return display;
+            }),
         ),
         shareReplay(1),
     );
@@ -433,11 +429,9 @@ export class SignageService extends AsyncHandler {
             async () => {
                 if (EMPTY_METRICS === JSON.stringify(this._metrics)) return;
                 const display_id = this._display.getValue();
-                await lastValueFrom(
-                    post(
-                        `/api/engine/v2/signage/${encodeURIComponent(display_id)}/metrics`,
-                        this._metrics,
-                    ),
+                await post(
+                    `/api/engine/v2/signage/${encodeURIComponent(display_id)}/metrics`,
+                    this._metrics,
                 );
                 log.debug('Posted metrics:', this._metrics);
                 this._metrics = {
@@ -645,10 +639,10 @@ export class SignageService extends AsyncHandler {
                     (plugin: SignagePlugin) => plugin.id === id && plugin.uri,
                 ),
         );
-        if (!unresolved_plugin) return of(display_plugins);
-        return querySignagePlugins({ limit: 500 } as any).pipe(
-            catchError(() => of({ data: [] })),
-            map((result: any) => {
+        if (!unresolved_plugin) return Promise.resolve(display_plugins);
+        return querySignagePlugins({ limit: 500 } as any)
+            .catch(() => ({ data: [] }))
+            .then((result: any) => {
                 const plugins = new Map<string, SignagePlugin>();
                 for (const plugin of result.data || []) {
                     if (plugin?.id) plugins.set(plugin.id, plugin);
@@ -657,8 +651,7 @@ export class SignageService extends AsyncHandler {
                     if (plugin?.id) plugins.set(plugin.id, plugin);
                 }
                 return [...plugins.values()];
-            }),
-        );
+            });
     }
 
     private _playlistConfig(display: any, id: string) {

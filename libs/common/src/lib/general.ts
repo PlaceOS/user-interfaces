@@ -1,4 +1,5 @@
 import { FormGroup } from '@angular/forms';
+import { Signal as TSSignal } from '@placeos/ts-client';
 import {
     addDays,
     addHours,
@@ -679,6 +680,21 @@ export function firstTruthyValueFrom<T = any>(obs: Observable<T>): Promise<T> {
     return obs
         ? lastValueFrom(obs.pipe(first((_) => !!_)))
         : Promise.resolve(null);
+}
+
+/**
+ * Convert a ts-client signal into an rxjs observable.
+ * Emits the signal's current value on subscription, like a BehaviorSubject.
+ * @param signal Signal to convert
+ */
+export function observableFromSignal<T>(signal: TSSignal<T>): Observable<T> {
+    if (typeof signal !== 'function' && (signal as any)?.subscribe) {
+        return signal as unknown as Observable<T>;
+    }
+    return new Observable<T>((observer) => {
+        observer.next(signal());
+        return signal.subscribe((value) => observer.next(value));
+    });
 }
 
 export interface BookableHoursRange {

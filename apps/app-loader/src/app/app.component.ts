@@ -132,11 +132,9 @@ export class AppComponent implements OnInit {
             const active_authority = authority();
             if (!active_authority?.id) return;
 
-            const response = await lastValueFrom(
-                queryApplications({
-                    authority_id: active_authority.id,
-                } as Record<string, unknown>),
-            );
+            const response = await queryApplications({
+                authority_id: active_authority.id,
+            } as Record<string, unknown>);
             const restrictions = (this._settings.get(
                 'app.application_restrictions',
             ) || []) as ApplicationRestriction[];

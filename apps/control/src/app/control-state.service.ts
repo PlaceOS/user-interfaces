@@ -3,7 +3,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { getModule, PlaceSystem, showSystem } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
-    catchError,
     debounceTime,
     distinct,
     filter,
@@ -23,6 +22,7 @@ import {
     HashMap,
     log,
     nextValueFrom,
+    observableFromSignal,
     Space,
 } from '@placeos/common';
 import { CalendarService, queryEvents, SpacesService } from '@placeos/events';
@@ -143,18 +143,16 @@ export class ControlStateService extends AsyncHandler {
         debounceTime(1000),
         tap((id) => log('Panel', `Loading system "${id}"...`)),
         switchMap((id) =>
-            showSystem(id).pipe(
-                catchError(({ status, message }) => {
-                    log(
-                        'Control',
-                        'Error loading system details:',
-                        [status, message],
-                        'error',
-                    );
-                    status === 404 ? this._router.navigate(['/bootstrap']) : '';
-                    return of(new PlaceSystem());
-                }),
-            ),
+            showSystem(id).catch(({ status, message }) => {
+                log(
+                    'Control',
+                    'Error loading system details:',
+                    [status, message],
+                    'error',
+                );
+                status === 404 ? this._router.navigate(['/bootstrap']) : '';
+                return new PlaceSystem();
+            }),
         ),
         map((_) => new Space(_ as any)),
         shareReplay(1),
@@ -653,6 +651,6 @@ export class ControlStateService extends AsyncHandler {
         const binding = mod.variable(name);
         const unbind = binding.bind();
         this.subscription(`binding:${name}`, unbind);
-        return binding.listen();
+        return observableFromSignal(binding.listen());
     }
 }

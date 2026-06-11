@@ -40,6 +40,7 @@ import {
     BehaviorSubject,
     combineLatest,
     forkJoin,
+    from,
     Observable,
     of,
     Subject,
@@ -59,9 +60,9 @@ import {
     activeReportEvents,
     generateReportForBookings,
     generateReportForDeskBookings,
-    reportBookedTimeUtilisationPercent,
     isDeclinedReportEvent,
     reportBookableMinutes,
+    reportBookedTimeUtilisationPercent,
     reportBookingStatusStats,
     reportEventStatusStats,
 } from './reports.utilities';
@@ -362,7 +363,7 @@ export class ReportsStateService {
                     catchError(() => of([zone_id, 0] as [string, number])),
                 );
             case 'desks':
-                return showMetadata(zone_id, 'desks').pipe(
+                return from(showMetadata(zone_id, 'desks')).pipe(
                     catchError(() => of({ details: [] })),
                     map(
                         (metadata) =>

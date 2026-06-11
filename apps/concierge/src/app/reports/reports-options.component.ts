@@ -35,9 +35,9 @@ import {
 } from '@placeos/components';
 import { requestSpacesForZone } from '@placeos/events';
 import { DateRangeFieldComponent } from '@placeos/form-fields';
-import { listChildMetadata, showMetadata } from '@placeos/ts-client';
+import { listChildMetadata } from '@placeos/ts-client';
 import { endOfDay, startOfDay } from 'date-fns';
-import { combineLatest, forkJoin, Observable, of } from 'rxjs';
+import { combineLatest, forkJoin, from, Observable, of } from 'rxjs';
 import { ReportOptions } from './reports-state.service';
 
 type ReportResourceType = ReportOptions['type'];
@@ -278,7 +278,11 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
         if (!resource_level_cache.has(key)) {
             resource_level_cache.set(
                 key,
-                this._requestResourceZones(levels, resource_type, scope_id).pipe(
+                this._requestResourceZones(
+                    levels,
+                    resource_type,
+                    scope_id,
+                ).pipe(
                     map((zones) => {
                         sessionStorage.setItem(key, JSON.stringify([...zones]));
                         return zones;
@@ -298,7 +302,9 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
     ): Observable<Set<string>> {
         switch (resource_type) {
             case 'desks':
-                return listChildMetadata(scope_id, { name: 'desks' }).pipe(
+                return from(
+                    listChildMetadata(scope_id, { name: 'desks' }),
+                ).pipe(
                     map((list) => {
                         const zones = new Set<string>();
                         for (const meta of list) {

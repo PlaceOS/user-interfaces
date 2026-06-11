@@ -27,9 +27,11 @@ function normalise_name(name: string = '') {
 
 async function query_hidden_categories() {
     if (!_hidden_categories_promise) {
-        _hidden_categories_promise = queryAssetCategories({ hidden: true, limit: 500 })
-            .pipe(map((_) => _.data))
-            .toPromise()
+        _hidden_categories_promise = queryAssetCategories({
+            hidden: true,
+            limit: 500,
+        })
+            .then((_) => _.data)
             .catch(() => []);
     }
     return _hidden_categories_promise;
@@ -40,8 +42,7 @@ async function query_types_for_category(category_id: string) {
         _types_for_category_promises.set(
             category_id,
             queryAssetTypes({ category_id, limit: 500 })
-                .pipe(map((_) => _.data))
-                .toPromise()
+                .then((_) => _.data)
                 .catch(() => []),
         );
     }
@@ -59,7 +60,10 @@ async function ensure_hidden_category(name: string) {
         (_) => normalise_name(_.name) === match_name,
     );
     if (category) return category;
-    const created = await saveAssetCategory({ name, hidden: true } as any).toPromise();
+    const created = await saveAssetCategory({
+        name,
+        hidden: true,
+    } as any).toPromise();
     _hidden_categories_promise = null;
     return created;
 }
@@ -101,10 +105,12 @@ export function resolveLockerBankTypeId(): Observable<string> {
 export function resolveLockerTypeId(): Observable<string> {
     if (_locker_type_id) return of(_locker_type_id);
     if (!_locker_type_id_promise) {
-        _locker_type_id_promise = bootstrap_locker_type(LOCKER_TYPE_NAME).then((id) => {
-            _locker_type_id = id;
-            return id;
-        });
+        _locker_type_id_promise = bootstrap_locker_type(LOCKER_TYPE_NAME).then(
+            (id) => {
+                _locker_type_id = id;
+                return id;
+            },
+        );
     }
     return defer(() => from(_locker_type_id_promise));
 }
@@ -126,8 +132,8 @@ export function queryLockerBankAssetsForZones(
         switchMap((type_id) =>
             forkJoin(
                 zone_ids.map((zone_id) =>
-                    queryAssets({ zone_id, type_id, limit: 500 }).pipe(
-                        map((_) => _.data),
+                    queryAssets({ zone_id, type_id, limit: 500 }).then(
+                        (_) => _.data,
                     ),
                 ),
             ),
@@ -145,7 +151,7 @@ export function saveLockerBankAsset(
 }
 
 export function deleteLockerBankAsset(id: string) {
-    return removeAsset(id);
+    return from(removeAsset(id));
 }
 
 export function queryLockerAssets(zone_id: string): Observable<PlaceAsset[]> {
@@ -163,8 +169,8 @@ export function queryLockerAssetsForZones(
         switchMap((type_id) =>
             forkJoin(
                 zone_ids.map((zone_id) =>
-                    queryAssets({ zone_id, type_id, limit: 500 }).pipe(
-                        map((_) => _.data),
+                    queryAssets({ zone_id, type_id, limit: 500 }).then(
+                        (_) => _.data,
                     ),
                 ),
             ),
@@ -173,12 +179,16 @@ export function queryLockerAssetsForZones(
     );
 }
 
-export function saveLockerAsset(locker: Partial<PlaceAsset>): Observable<PlaceAsset> {
+export function saveLockerAsset(
+    locker: Partial<PlaceAsset>,
+): Observable<PlaceAsset> {
     return resolveLockerTypeId().pipe(
-        switchMap((type_id) => saveAsset({ ...locker, asset_type_id: type_id })),
+        switchMap((type_id) =>
+            saveAsset({ ...locker, asset_type_id: type_id }),
+        ),
     );
 }
 
 export function deleteLockerAsset(id: string) {
-    return removeAsset(id);
+    return from(removeAsset(id));
 }

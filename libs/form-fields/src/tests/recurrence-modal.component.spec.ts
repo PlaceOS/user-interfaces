@@ -119,7 +119,7 @@ describe('RecurrenceModalComponent', () => {
                 {
                     ...spectator.component.form.getRawValue(),
                     end_instances: max_instances,
-                },
+                } as any,
                 booking_date,
             ),
         ).toBeLessThanOrEqual(default_end_date);
@@ -128,9 +128,7 @@ describe('RecurrenceModalComponent', () => {
     it('should create monthly custom recurrence on weekday instance', () => {
         spectator.component.form.patchValue({ type: 'monthly' });
 
-        expect(spectator.component.form.value.monthly_type).toBe(
-            'day_of_week',
-        );
+        expect(spectator.component.form.value.monthly_type).toBe('day_of_week');
         expect(spectator.component.form.value.week).toBe(1);
         expect(spectator.component.form.value.weekdays?.has(2)).toBe(true);
     });
@@ -146,9 +144,7 @@ describe('RecurrenceModalComponent', () => {
 
         spectator = createComponent();
 
-        expect(spectator.component.form.value.monthly_type).toBe(
-            'day_of_week',
-        );
+        expect(spectator.component.form.value.monthly_type).toBe('day_of_week');
         expect(spectator.component.confirmValue().monthly_type).toBe(
             'day_of_week',
         );

@@ -7,7 +7,6 @@ import {
     setToken,
     token,
 } from '@placeos/ts-client';
-import { of } from 'rxjs';
 import { PublicEventsService } from '../app/public-events.service';
 
 jest.mock('@placeos/ts-client', () => ({
@@ -28,20 +27,18 @@ describe('PublicEventsService', () => {
         sessionStorage.clear();
         jest.clearAllMocks();
         jest.mocked(token).mockReturnValue('guest-token');
-        jest.mocked(publicEventGuestToken).mockReturnValue(of('new-token'));
-        jest.mocked(listPublicEvents).mockReturnValue(of([]));
-        jest.mocked(registerPublicEvent).mockReturnValue(of({}));
+        jest.mocked(publicEventGuestToken).mockResolvedValue('new-token');
+        jest.mocked(listPublicEvents).mockResolvedValue([]);
+        jest.mocked(registerPublicEvent).mockResolvedValue({});
     });
 
     it('should refresh guest access before loading events when the token is missing', async () => {
         sessionStorage.setItem('PLACEOS.public.guest', JSON.stringify(guest));
         jest.mocked(token).mockReturnValue('');
-        jest.mocked(listPublicEvents).mockReturnValue(
-            of([
-                { id: 'setup', is_system_event: true },
-                { id: 'event-1', title: 'Public Event' },
-            ]),
-        );
+        jest.mocked(listPublicEvents).mockResolvedValue([
+            { id: 'setup', is_system_event: true },
+            { id: 'event-1', title: 'Public Event' },
+        ]);
 
         const service = TestBed.inject(PublicEventsService);
 
@@ -52,10 +49,7 @@ describe('PublicEventsService', () => {
             captcha: '',
         });
         expect(setStorage).toHaveBeenLastCalledWith('session');
-        expect(setToken).toHaveBeenCalledWith(
-            'new-token',
-            expect.any(Number),
-        );
+        expect(setToken).toHaveBeenCalledWith('new-token', expect.any(Number));
         expect(service.events()).toEqual([
             { id: 'event-1', title: 'Public Event' },
         ]);

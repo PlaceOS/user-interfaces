@@ -171,9 +171,9 @@ export class AssetBulkFormComponent extends AsyncHandler implements OnInit {
                     this.loading.set(
                         i18n('APP.CONCIERGE.ASSETS_BULK_ASSET_LOADING'),
                     );
-                    const asset = await showAsset(params.get('id'))
-                        .toPromise()
-                        .catch(() => null);
+                    const asset = await showAsset(params.get('id')).catch(
+                        () => null,
+                    );
                     if (!asset) {
                         notifyError('Unable to load asset details.');
                         this._router.navigate([this.base_route]);
@@ -185,9 +185,9 @@ export class AssetBulkFormComponent extends AsyncHandler implements OnInit {
                     this.loading.set(
                         i18n('APP.CONCIERGE.ASSETS_BULK_PRODUCT_LOADING'),
                     );
-                    const product = await showAssetType(params.get('group_id'))
-                        .toPromise()
-                        .catch(() => null);
+                    const product = await showAssetType(
+                        params.get('group_id'),
+                    ).catch(() => null);
                     if (!product) {
                         notifyError(
                             'Unable to load associated product details.',
@@ -222,17 +222,15 @@ export class AssetBulkFormComponent extends AsyncHandler implements OnInit {
                 ...data,
                 zone_id: this._org.building.id,
             }),
-        )
-            .toPromise()
-            .catch((e) => {
-                this.loading.set('');
-                notifyError(
-                    i18n('APP.CONCIERGE.ASSETS_BULK_COUNT_ERROR', {
-                        error: e.message,
-                    }),
-                );
-                throw e;
-            });
+        ).catch((e) => {
+            this.loading.set('');
+            notifyError(
+                i18n('APP.CONCIERGE.ASSETS_BULK_COUNT_ERROR', {
+                    error: e.message,
+                }),
+            );
+            throw e;
+        });
         this._state.setExtraAssets(
             list.map((d) => ({ ...d, asset_type_id: this.product()?.id })),
         );

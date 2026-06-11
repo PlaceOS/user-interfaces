@@ -12,6 +12,7 @@ import {
     i18n,
     notifyError,
     notifySuccess,
+    observableFromSignal,
     timePeriodsIntersect,
 } from '@placeos/common';
 import {
@@ -341,15 +342,13 @@ export class EventsStateService extends AsyncHandler {
             const binding =
                 mod.binding<Partial<CalendarEvent>[]>('approval_required');
             this.subscription('pending', binding.bind());
-            return binding
-                .listen()
-                .pipe(
-                    map((_) =>
-                        flatten(Object.values(_ || {}))?.map(
-                            (i) => new CalendarEvent(i),
-                        ),
+            return observableFromSignal(binding.listen()).pipe(
+                map((_) =>
+                    flatten(Object.values(_ || {}))?.map(
+                        (i) => new CalendarEvent(i),
                     ),
-                );
+                ),
+            );
         }),
         shareReplay(1),
     );

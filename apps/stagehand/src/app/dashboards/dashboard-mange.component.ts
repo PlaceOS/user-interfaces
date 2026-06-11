@@ -19,7 +19,6 @@ import { addAlertDashboard, updateAlertDashboard } from '@placeos/ts-client';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { lastValueFrom } from 'rxjs';
 import { DashboardsService } from './dashboards.service';
 
 @Component({
@@ -161,7 +160,7 @@ export class DashboardManageComponent extends AsyncHandler implements OnInit {
         const method = new_dash.id
             ? updateAlertDashboard(new_dash.id, new_dash)
             : addAlertDashboard(new_dash);
-        const result = await lastValueFrom(method).catch((_) => null);
+        const result = await method.catch((_) => null);
         this.loading.set('');
         if (result) {
             this._service.loadDashboards();

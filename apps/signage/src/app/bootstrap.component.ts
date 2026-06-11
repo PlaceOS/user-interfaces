@@ -11,8 +11,7 @@ import {
     VERSION,
 } from '@placeos/common';
 import { PlaceSystem, querySystems } from '@placeos/ts-client';
-import { of } from 'rxjs';
-import { catchError, first, map, shareReplay, switchMap } from 'rxjs/operators';
+import { first, map, shareReplay, switchMap } from 'rxjs/operators';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -163,7 +162,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                     ',',
                 ),
                 signage: true,
-            }).pipe(catchError(() => of({ data: [] }))),
+            }).catch(() => ({ data: [] })),
         ),
         map((r) =>
             r.data.sort((a, b) =>

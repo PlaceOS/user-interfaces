@@ -7,13 +7,10 @@ import {
     UploadsService,
 } from '@placeos/common';
 import { addSignageMedia, SignageMedia } from '@placeos/ts-client';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { SignageService } from './signage.service';
 
-type SignageServiceTestAccess = SignageService & {
-    _requirePermission: jest.Mock;
-    _generateThumbnail: jest.Mock;
-};
+type SignageServiceTestAccess = SignageService & Record<string, jest.Mock>;
 
 jest.mock('@placeos/common', () => ({
     ...jest.requireActual('@placeos/common'),
@@ -46,7 +43,7 @@ describe('SignageService media uploads', () => {
         uploads.uploadFileToCompletion.mockResolvedValue('thumbnail-upload-1');
         settings.get.mockReturnValue(false);
         (addSignageMedia as jest.Mock).mockImplementation((data) =>
-            of(new SignageMedia({ id: 'media-1', ...data })),
+            Promise.resolve(new SignageMedia({ id: 'media-1', ...data })),
         );
         TestBed.configureTestingModule({
             providers: [
@@ -62,8 +59,8 @@ describe('SignageService media uploads', () => {
     function createService() {
         const service = TestBed.inject(SignageService);
         const test_service = service as unknown as SignageServiceTestAccess;
-        test_service._requirePermission = jest.fn(() => true);
-        test_service._generateThumbnail = jest.fn().mockResolvedValue('');
+        test_service['_requirePermission'] = jest.fn(() => true);
+        test_service['_generateThumbnail'] = jest.fn().mockResolvedValue('');
         return service;
     }
 
@@ -92,7 +89,7 @@ describe('SignageService media uploads', () => {
     it('saves media without a thumbnail when the thumbnail upload fails', async () => {
         const service = createService();
         const test_service = service as unknown as SignageServiceTestAccess;
-        test_service._generateThumbnail.mockResolvedValue(
+        (test_service['_generateThumbnail'] as jest.Mock).mockResolvedValue(
             'data:image/jpeg;base64,aW1hZ2U=',
         );
         uploads.uploadFileToCompletion.mockRejectedValue({

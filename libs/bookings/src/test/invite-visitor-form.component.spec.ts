@@ -35,20 +35,23 @@ describe('InviteVisitorFormComponent', () => {
                 loadGroupSiblings: jest.fn(async () => []),
                 editFormForGroup: jest.fn(async () => new Booking()),
             }),
-            MockProvider(OrganisationService, {
-                initialised: of(true),
-                building_list: new BehaviorSubject([]),
-                active_buildings: new BehaviorSubject([
-                    { id: 'bld-1', name: 'Building One' },
-                    { id: 'bld-2', name: 'Building Two' },
-                ]),
-                buildings: [
-                    { id: 'bld-1', name: 'Building One' },
-                    { id: 'bld-2', name: 'Building Two' },
-                ],
-                building: { id: 'bld-1', name: 'Building One' },
-            } as any),
-            MockProvider(SettingsService, createSettingsServiceMock()),
+            MockProvider(
+                OrganisationService as any,
+                {
+                    initialised: of(true),
+                    building_list: new BehaviorSubject([]),
+                    active_buildings: new BehaviorSubject([
+                        { id: 'bld-1', name: 'Building One' },
+                        { id: 'bld-2', name: 'Building Two' },
+                    ]),
+                    buildings: [
+                        { id: 'bld-1', name: 'Building One' },
+                        { id: 'bld-2', name: 'Building Two' },
+                    ],
+                    building: { id: 'bld-1', name: 'Building One' },
+                } as any,
+            ),
+            MockProvider(SettingsService as any, createSettingsServiceMock()),
         ],
         imports: [
             ReactiveFormsModule,

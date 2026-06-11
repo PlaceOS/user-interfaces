@@ -24,9 +24,11 @@ function normalise_name(name: string = '') {
 
 async function query_hidden_categories() {
     if (!_hidden_categories_promise) {
-        _hidden_categories_promise = queryAssetCategories({ hidden: true, limit: 500 })
-            .pipe(map((_) => _.data))
-            .toPromise()
+        _hidden_categories_promise = queryAssetCategories({
+            hidden: true,
+            limit: 500,
+        })
+            .then((_) => _.data)
             .catch(() => []);
     }
     return _hidden_categories_promise;
@@ -37,8 +39,7 @@ async function query_types_for_category(category_id: string) {
         _types_for_category_promises.set(
             category_id,
             queryAssetTypes({ category_id, limit: 500 })
-                .pipe(map((_) => _.data))
-                .toPromise()
+                .then((_) => _.data)
                 .catch(() => []),
         );
     }
@@ -57,7 +58,9 @@ function reset_types_cache(category_ids: string[]) {
 
 async function query_types_for_categories(category_ids: string[]) {
     const list = await Promise.all(
-        category_ids.map((category_id) => query_types_for_category(category_id)),
+        category_ids.map((category_id) =>
+            query_types_for_category(category_id),
+        ),
     );
     return list.flat();
 }
@@ -90,7 +93,11 @@ async function ensure_hidden_category(name: string) {
     }
 }
 
-async function move_type_to_category(type: any, category_id: string, name: string) {
+async function move_type_to_category(
+    type: any,
+    category_id: string,
+    name: string,
+) {
     if (
         type.category_id === category_id &&
         normalise_name(type.name) === normalise_name(name)
@@ -123,12 +130,12 @@ async function ensure_type(
     legacy_category_ids: string[] = [],
 ) {
     const match_name = normalise_name(name);
-    let type = (await query_types_for_categories([
-        category_id,
-        ...legacy_category_ids.filter((_) => _ !== category_id),
-    ])).find(
-        (_) => normalise_name(_.name) === match_name,
-    );
+    let type = (
+        await query_types_for_categories([
+            category_id,
+            ...legacy_category_ids.filter((_) => _ !== category_id),
+        ])
+    ).find((_) => normalise_name(_.name) === match_name);
     if (type) return move_type_to_category(type, category_id, name);
     try {
         const type = await saveAssetType({
@@ -140,12 +147,12 @@ async function ensure_type(
         return type;
     } catch (error) {
         reset_types_cache([category_id, ...legacy_category_ids]);
-        type = (await query_types_for_categories([
-            category_id,
-            ...legacy_category_ids.filter((_) => _ !== category_id),
-        ])).find(
-            (_) => normalise_name(_.name) === match_name,
-        );
+        type = (
+            await query_types_for_categories([
+                category_id,
+                ...legacy_category_ids.filter((_) => _ !== category_id),
+            ])
+        ).find((_) => normalise_name(_.name) === match_name);
         if (type) return move_type_to_category(type, category_id, name);
         throw error;
     }
@@ -193,8 +200,8 @@ export function queryParkingSpacesForZones(
         switchMap((type_id) =>
             forkJoin(
                 zone_ids.map((zone_id) =>
-                    queryAssets({ zone_id, type_id, limit: 500 }).pipe(
-                        map((_) => _.data),
+                    queryAssets({ zone_id, type_id, limit: 500 }).then(
+                        (_) => _.data,
                     ),
                 ),
             ),
@@ -214,7 +221,7 @@ export function saveParkingSpace(
 
 /** Delete a parking space asset by ID */
 export function deleteParkingSpace(id: string) {
-    return removeAsset(id);
+    return from(removeAsset(id));
 }
 
 export interface ParkingUser {
@@ -317,7 +324,7 @@ export function saveParkingUser(
 
 /** Delete a parking user asset by ID */
 export function deleteParkingUser(id: string) {
-    return removeAsset(id);
+    return from(removeAsset(id));
 }
 
 export interface ParkingFleetVehicle {
@@ -411,5 +418,5 @@ export function saveParkingFleetVehicle(
 
 /** Delete a fleet vehicle asset by ID */
 export function deleteParkingFleetVehicle(id: string) {
-    return removeAsset(id);
+    return from(removeAsset(id));
 }

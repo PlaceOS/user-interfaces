@@ -240,9 +240,9 @@ export class AssetPurchaseOrderFormComponent
                     this.loading.set(
                         i18n('APP.CONCIERGE.ASSETS_PURCHASE_LOADING'),
                     );
-                    const asset = await showAssetPurchaseOrder(params.get('id'))
-                        .toPromise()
-                        .catch(() => null);
+                    const asset = await showAssetPurchaseOrder(
+                        params.get('id'),
+                    ).catch(() => null);
                     if (!asset) {
                         notifyError(
                             i18n('APP.CONCIERGE.ASSETS_PURCHASE_LOAD_ERROR'),

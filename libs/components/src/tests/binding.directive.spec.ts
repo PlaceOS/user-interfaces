@@ -16,6 +16,9 @@ describe('BindingDirective', () => {
     const createDirective = createDirectiveFactory(BindingDirective);
 
     beforeEach(() => {
+        (ts_client as any).authority = jest.fn(() => true);
+        (ts_client as any).onlineState = jest.fn(() => of(true));
+        (ts_client as any).waitForSignal = jest.fn(() => Promise.resolve(true));
         spectator = createDirective(
             `
             <div 
@@ -40,8 +43,6 @@ describe('BindingDirective', () => {
                 },
             },
         );
-        (ts_client as any).authority = jest.fn(() => true);
-        (ts_client as any).onlineState = jest.fn(() => of(true));
     });
 
     it('should create an instance', () => {

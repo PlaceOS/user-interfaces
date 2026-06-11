@@ -7,7 +7,7 @@ import {
     listSignagePlaylistMediaRevisions,
     updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 import { SignageService } from '../signage.service';
 import { PlaylistApproveModalComponent } from './playlist-approve-modal.component';
 
@@ -82,8 +82,8 @@ describe('PlaylistApproveModalComponent', () => {
     });
 
     it('resets loading state when approval fails', async () => {
-        (approveSignagePlaylist as jest.Mock).mockReturnValue(
-            throwError(() => new Error('Approval failed')),
+        (approveSignagePlaylist as jest.Mock).mockRejectedValue(
+            new Error('Approval failed'),
         );
         const fixture = TestBed.createComponent(PlaylistApproveModalComponent);
         const component = fixture.componentInstance;

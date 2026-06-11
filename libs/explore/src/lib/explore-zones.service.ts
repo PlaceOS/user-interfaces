@@ -8,6 +8,7 @@ import {
     firstTruthyValueFrom,
     HashMap,
     i18n,
+    observableFromSignal,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
@@ -74,8 +75,8 @@ export class ExploreZonesService extends AsyncHandler {
             const bind_areas = mod.variable(`${lvl.id}:areas`);
             const bind_zone = mod.variable(`${lvl.id}`);
             const zones = combineLatest([
-                bind_areas.listen(),
-                bind_zone.listen(),
+                observableFromSignal(bind_areas.listen()),
+                observableFromSignal(bind_zone.listen()),
             ]).pipe(
                 debounceTime(100),
                 map(([a, z]) => [
@@ -100,9 +101,7 @@ export class ExploreZonesService extends AsyncHandler {
     public async init() {
         await firstTruthyValueFrom(this._org.initialised);
         const zone_metadata = await Promise.all(
-            this._org.levels.map((bld) =>
-                showMetadata(bld.id, 'map_regions').toPromise(),
-            ),
+            this._org.levels.map((bld) => showMetadata(bld.id, 'map_regions')),
         );
         this._area_list = [];
         for (const zone of zone_metadata) {

@@ -339,7 +339,7 @@ export class BookCodeFlowComponent
             this._router.navigate(['/book', 'code', 'success']);
             this.loading.set(false);
         } else {
-            const space = await lastValueFrom(showSystem(space_id));
+            const space = await showSystem(space_id);
             if (space) {
                 this._event_form.newForm(new CalendarEvent({ system: space }));
             }

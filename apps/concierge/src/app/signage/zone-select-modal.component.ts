@@ -8,7 +8,15 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { queryZones } from '@placeos/ts-client';
-import { catchError, debounceTime, map, of, startWith, switchMap } from 'rxjs';
+import {
+    catchError,
+    debounceTime,
+    from,
+    map,
+    of,
+    startWith,
+    switchMap,
+} from 'rxjs';
 
 @Component({
     selector: 'app-zone-select-modal',
@@ -94,7 +102,7 @@ export class ZoneSelectModalComponent {
         toObservable(this.search_term).pipe(
             debounceTime(300),
             switchMap((term) =>
-                queryZones({ ...this.query, q: term, limit: 100 }).pipe(
+                from(queryZones({ ...this.query, q: term, limit: 100 })).pipe(
                     map((_) => _.data),
                     catchError(() => of([])),
                 ),

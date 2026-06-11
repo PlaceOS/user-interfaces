@@ -8,18 +8,12 @@ import {
     isMock,
     onlineState,
     queryZones,
+    waitForSignal,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    filter,
-    first,
-    map,
-    shareReplay,
-} from 'rxjs/operators';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { debounceTime, filter, map, shareReplay } from 'rxjs/operators';
 
-import { log, mapLastValueFrom, unique } from '../general';
+import { log, unique } from '../general';
 import { notifyError } from '../notifications';
 import { setLoadingMessage } from '../placeos.service';
 import { isPublicMode } from '../public-mode';
@@ -259,9 +253,9 @@ export class OrganisationService {
     }
 
     constructor() {
-        onlineState()
-            .pipe(first((_) => _))
-            .subscribe(() => setTimeout(() => this.init(), 1000));
+        waitForSignal(onlineState(), (_) => _).then(() =>
+            setTimeout(() => this.init(), 1000),
+        );
         combineLatest([this.active_region, this.active_building])
             .pipe(
                 filter(([_, bld]) => !!bld),
@@ -806,14 +800,13 @@ export class OrganisationService {
         const cache_key = this._metadataCacheKey(name, ids);
         const cached_metadata = this._getCachedItem<MetadataMap>(cache_key);
         if (cached_metadata) return cached_metadata;
-        const metadata_details = await mapLastValueFrom(
-            bulkMetadata(name, { parent_ids }).pipe(catchError(() => of({}))),
-            (metadata) =>
-                ids.reduce((map, id) => {
-                    map[id] = metadata[id]?.details || {};
-                    return map;
-                }, {} as MetadataMap),
+        const metadata = await bulkMetadata(name, { parent_ids }).catch(
+            () => ({}) as Record<string, any>,
         );
+        const metadata_details = ids.reduce((map, id) => {
+            map[id] = metadata[id]?.details || {};
+            return map;
+        }, {} as MetadataMap);
         this._setCachedItem(cache_key, metadata_details);
         return metadata_details;
     }
@@ -822,10 +815,13 @@ export class OrganisationService {
         const cache_key = this._zoneCacheKey(params);
         const cached_zones = this._getCachedItem<PlaceZone[]>(cache_key);
         if (cached_zones) return cached_zones;
-        const zones = await mapLastValueFrom(
-            queryZones({ ...params, authority_id: authority().id } as any),
-            (i) => i.data || [],
-        );
+        const zones =
+            (
+                await queryZones({
+                    ...params,
+                    authority_id: authority().id,
+                } as any)
+            ).data || [];
         this._setCachedItem(cache_key, zones);
         return zones;
     }

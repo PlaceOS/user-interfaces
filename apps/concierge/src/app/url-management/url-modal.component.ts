@@ -155,9 +155,9 @@ export class ShortUrlModalComponent extends AsyncHandler {
         }
         const data: any = this.form.getRawValue();
         this.loading.set(true);
-        const resp = await saveShortURL(data)
-            .toPromise()
-            .catch((e) => notifyError(`Error saving Short URL: ${e.message}`));
+        const resp = await saveShortURL(data).catch((e) =>
+            notifyError(`Error saving Short URL: ${e.message}`),
+        );
         if ((resp as any).id) this._dialog_ref.close(resp);
         this.loading.set(false);
     }

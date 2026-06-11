@@ -2,14 +2,8 @@ import { inject, Injectable, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ViewAction, ViewerFeature } from '@placeos/svg-viewer';
 import { getModule, showMetadata } from '@placeos/ts-client';
-import { combineLatest, Observable, of } from 'rxjs';
-import {
-    catchError,
-    filter,
-    map,
-    shareReplay,
-    switchMap,
-} from 'rxjs/operators';
+import { combineLatest, Observable } from 'rxjs';
+import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
 
 import {
     AsyncHandler,
@@ -62,9 +56,9 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         this._org.active_building.pipe(
             filter((bld) => !!bld),
             switchMap((bld) =>
-                showMetadata(bld.id, `room_booking_rules`).pipe(
-                    catchError(() => of({ details: [] })),
-                ),
+                showMetadata(bld.id, `room_booking_rules`).catch(() => ({
+                    details: [],
+                })),
             ),
             map((_) => (_?.details instanceof Array ? _.details : [])),
             shareReplay(1),
@@ -73,8 +67,8 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
     public readonly room_alerts = this._org.active_building.pipe(
         filter((bld) => !!bld),
         switchMap(() =>
-            showMetadata(this._org.organisation.id, `room_alerts`).pipe(
-                catchError(() => of({ details: {} })),
+            showMetadata(this._org.organisation.id, `room_alerts`).catch(
+                () => ({ details: {} }),
             ),
         ),
         map((_) => _.details || {}),

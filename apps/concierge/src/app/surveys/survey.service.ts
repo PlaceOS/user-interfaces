@@ -97,7 +97,7 @@ export class SurveyService {
 
     public async setSurvey(id: string) {
         this.loading.set(`Loading survey "${id}"...`);
-        const survey = await lastValueFrom(showSurvey(id));
+        const survey = await showSurvey(id);
         this.survey.set(survey);
         this.building.set(survey.building_id);
         this.loading.set('');
@@ -115,10 +115,10 @@ export class SurveyService {
             );
             if (result.reason !== 'done') return;
             result.loading('Removing survey...');
-            await lastValueFrom(removeSurvey(`${survey.id}`));
+            await removeSurvey(`${survey.id}`);
             result.close();
         } else {
-            await lastValueFrom(removeSurvey(`${survey.id}`));
+            await removeSurvey(`${survey.id}`);
         }
         notifySuccess('Successfully removed survey.');
         this._load(LoadType.SURVEYS);
@@ -137,10 +137,10 @@ export class SurveyService {
             );
             if (result.reason !== 'done') return;
             result.loading('Removing survey question...');
-            await lastValueFrom(removeQuestion(`${question.id}`));
+            await removeQuestion(`${question.id}`);
             result.close();
         } else {
-            await lastValueFrom(removeQuestion(`${question.id}`));
+            await removeQuestion(`${question.id}`);
         }
         notifySuccess('Successfully removed survey question.');
         this._load(LoadType.QUESTIONS);
@@ -172,9 +172,7 @@ export class SurveyService {
             this.answer_list.set(answers.flat());
         }
         if (type === LoadType.ALL || type === LoadType.QUESTIONS) {
-            const questions = await lastValueFrom(
-                queryQuestions({ limit: 1000 } as any),
-            );
+            const questions = await queryQuestions({ limit: 1000 } as any);
             this.question_list.set(questions);
         }
         this.loading.set('');

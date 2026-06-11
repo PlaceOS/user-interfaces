@@ -100,11 +100,7 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                     } @else {
                                         <div
                                             class="bg-warning text-warning-content flex h-5 w-5 items-center justify-center rounded-full"
-                                        >
-                                            <icon class="text-xs"
-                                                >question_mark</icon
-                                            >
-                                        </div>
+                                        ></div>
                                     }
                                     <span class="flex-1 truncate font-medium">
                                         {{

@@ -15,7 +15,6 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { addSystem, PlaceSystem, updateSystem } from '@placeos/ts-client';
-import { lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'signage-display-modal',
@@ -159,7 +158,7 @@ export class SignageDisplayModalComponent {
         const method = this.display.id
             ? updateSystem(this.display.id, new_display)
             : addSystem(new_display);
-        const result = await lastValueFrom(method);
+        const result = await method;
         this._dialog_ref.close(result);
     }
 }

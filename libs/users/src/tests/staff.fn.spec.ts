@@ -1,4 +1,3 @@
-import { of } from 'rxjs';
 import { locateStaff, searchStaff, showStaff } from '../lib/staff.fn';
 
 jest.mock('@placeos/ts-client');
@@ -10,7 +9,7 @@ describe('[Staff API]', () => {
     describe('searchStaff', () => {
         it('should perform GET on guests endpoint', async () => {
             const spy = jest.spyOn(ts_client, 'get');
-            spy.mockImplementation(() => of([{ name: 'Jim' }]) as any);
+            spy.mockResolvedValue([{ name: 'Jim' }] as any);
             const list = await searchStaff('').toPromise();
             expect(list).toBeInstanceOf(Array);
             expect(spy).toHaveBeenCalledWith('/api/staff/v1/people');
@@ -18,7 +17,7 @@ describe('[Staff API]', () => {
 
         it('should return Guest objects', async () => {
             const spy = jest.spyOn(ts_client, 'get');
-            spy.mockImplementation(() => of([{ name: 'Jim' }]) as any);
+            spy.mockResolvedValue([{ name: 'Jim' }] as any);
             const list = await searchStaff('').toPromise();
             expect(list).toBeInstanceOf(Array);
             expect(list[0]).toBeInstanceOf(StaffUser);
@@ -26,7 +25,7 @@ describe('[Staff API]', () => {
 
         it('should allow filtering Guests', async () => {
             const spy = jest.spyOn(ts_client, 'get');
-            spy.mockImplementation(() => of([{ name: 'Jim' }]) as any);
+            spy.mockResolvedValue([{ name: 'Jim' }] as any);
             await searchStaff('Jim').toPromise();
             expect(spy).toHaveBeenCalledWith(
                 '/api/staff/v1/people?q=Jim&fields=id%2Cname%2Cemail%2Cusername%2Corganisation%2Cdepartment',
@@ -37,7 +36,7 @@ describe('[Staff API]', () => {
     describe('showStaff', () => {
         it('should GET guest', async () => {
             const spy = jest.spyOn(ts_client, 'get');
-            spy.mockImplementation(() => of({ name: 'Jim' }) as any);
+            spy.mockResolvedValue({ name: 'Jim' } as any);
             const item = await showStaff('jim').toPromise();
             expect(item).toBeInstanceOf(StaffUser);
             expect(spy).toHaveBeenCalledWith('/api/staff/v1/people/jim');
@@ -47,8 +46,8 @@ describe('[Staff API]', () => {
     describe('locateStaff', () => {
         it('should GET staff location', async () => {
             const spy = jest.spyOn(ts_client, 'get');
-            spy.mockImplementation(() => of({ name: 'Jim' }) as any);
-            const item = await locateStaff('jim').toPromise();
+            spy.mockResolvedValue({ name: 'Jim' } as any);
+            const item = await locateStaff('jim');
             expect(item).toBeInstanceOf(StaffUser);
             expect(spy).toHaveBeenCalledWith('/api/staff/v1/people/jim');
         });

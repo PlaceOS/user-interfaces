@@ -27,7 +27,7 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
-import { combineLatest, of } from 'rxjs';
+import { combineLatest, from, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -287,7 +287,7 @@ export class UserListFieldComponent
 
     private searchStaff(q: string) {
         return this._use_basic_user_search()
-            ? queryUsers({ q, authority_id: authority()?.id }).pipe(
+            ? from(queryUsers({ q, authority_id: authority()?.id })).pipe(
                   map((_) => _.data.map((u) => new User(u))),
               )
             : searchStaff(q);

@@ -1,7 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { firstTruthyValueFrom, Space } from '@placeos/common';
 import { querySystemsWithEmails, showSystem } from '@placeos/ts-client';
-import { lastValueFrom } from 'rxjs';
 import { first } from 'rxjs/operators';
 
 import { OrganisationService } from '@placeos/common';
@@ -64,9 +63,7 @@ export class SpacePipe implements PipeTransform {
         if (space) return space;
         if (ATTEMPT_COUNT[space_id]) return EMPTY_SPACE;
         if (!is_email) {
-            const system = await showSystem(space_id)
-                .toPromise()
-                .catch((_) => null);
+            const system = await showSystem(space_id).catch((_) => null);
             if (system) {
                 space = new Space({
                     ...(system as any),
@@ -77,11 +74,9 @@ export class SpacePipe implements PipeTransform {
             }
         }
         const systems = (
-            await lastValueFrom(
-                querySystemsWithEmails({
-                    in: space_id,
-                }),
-            )
+            await querySystemsWithEmails({
+                in: space_id,
+            })
         ).data;
         if (systems.length === 1) {
             space = new Space({

@@ -1,6 +1,6 @@
 import { Calendar, Space, toQueryString } from '@placeos/common';
 import { get } from '@placeos/ts-client';
-import { Observable } from 'rxjs';
+import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { OrganisationService } from '@placeos/common';
@@ -13,7 +13,7 @@ const CALENDAR_ENDPOINT = '/api/staff/v1/calendars';
 
 /** List calendars associated with the logged in user */
 export function queryCalendars(): Observable<Calendar[]> {
-    return get(CALENDAR_ENDPOINT).pipe(
+    return from(get(CALENDAR_ENDPOINT)).pipe(
         map((i) => i.map((c) => new Calendar(c))),
     );
 }
@@ -23,8 +23,8 @@ export function queryCalendarAvailability(
     q: CalendarAvailabilityQueryParams,
 ): Observable<Calendar[]> {
     const query = toQueryString(q);
-    return get(
-        `${CALENDAR_ENDPOINT}/availability${query ? '?' + query : ''}`,
+    return from(
+        get(`${CALENDAR_ENDPOINT}/availability${query ? '?' + query : ''}`),
     ).pipe(map((i) => i.map((c) => new Calendar(c))));
 }
 
@@ -53,8 +53,8 @@ export function querySpaceCalendarAvailability(
 
 export function queryUserFreeBusy(q: CalendarAvailabilityQueryParams) {
     const query = toQueryString(q);
-    return get(
-        `${CALENDAR_ENDPOINT}/free_busy${query ? '?' + query : ''}`,
+    return from(
+        get(`${CALENDAR_ENDPOINT}/free_busy${query ? '?' + query : ''}`),
     ).pipe(map((i) => i as Calendar[]));
 }
 
@@ -64,8 +64,8 @@ export function querySpaceFreeBusy(
     org?: OrganisationService,
 ): Observable<Space[]> {
     const query = toQueryString(q);
-    return get(
-        `${CALENDAR_ENDPOINT}/free_busy${query ? '?' + query : ''}`,
+    return from(
+        get(`${CALENDAR_ENDPOINT}/free_busy${query ? '?' + query : ''}`),
     ).pipe(
         map((i) => i.map((c) => new Calendar(c))),
         calendarsToSpaces(org),
@@ -76,7 +76,9 @@ export function querySpaceFreeBusy(
 export function queryCalendarPermission(
     user_email: string,
 ): Observable<CalendarPermission> {
-    return get(
-        `${CALENDAR_ENDPOINT}/${encodeURIComponent(user_email)}/permission`,
+    return from(
+        get(
+            `${CALENDAR_ENDPOINT}/${encodeURIComponent(user_email)}/permission`,
+        ),
     ).pipe(map((i) => i as CalendarPermission));
 }

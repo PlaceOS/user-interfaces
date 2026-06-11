@@ -20,9 +20,7 @@ export class PlaceUserPipe {
             ({ id, email }) => id === user_id || email === user_id,
         );
         if (user) return user;
-        user = await showUser(user_id)
-            .toPromise()
-            .catch(() => null);
+        user = await showUser(user_id).catch(() => null);
         if (user) {
             user = new StaffUser(user);
             USER_LIST.push(user);

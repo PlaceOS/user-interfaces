@@ -157,13 +157,19 @@ describe('EventsStateService', () => {
             date: Date.now(),
             duration: 60,
             resources: [
-                { email: 'room@example.com', response_status: 'tentative' },
+                {
+                    email: 'room@example.com',
+                    response_status: 'tentative',
+                } as any,
             ],
         });
         const updated = new CalendarEvent({
             ...original,
             resources: [
-                { email: 'room@example.com', response_status: 'accepted' },
+                {
+                    email: 'room@example.com',
+                    response_status: 'accepted',
+                } as any,
             ],
         });
         spectator.service.replace(original);

@@ -5,6 +5,7 @@ import {
     SettingsService,
     currentUser,
     log,
+    observableFromSignal,
     randomString,
 } from '@placeos/common';
 import { apiKey, getModule, token } from '@placeos/ts-client';
@@ -53,7 +54,7 @@ export class ChatService extends AsyncHandler {
             const mod = getModule(id, 'LLM');
             const binding = mod.variable('user_hint');
             this.subscription(`binding:LLM:user_hint`, binding.bind());
-            return binding.listen();
+            return observableFromSignal(binding.listen());
         }),
         shareReplay(1),
     );

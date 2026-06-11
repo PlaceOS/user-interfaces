@@ -201,18 +201,16 @@ export class BuildingFormComponent extends AsyncHandler {
         };
         const building = await (
             data.id ? updateZone(data.id, body) : addZone(body)
-        )
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    i18n('APP.CONCIERGE.BUILDINGS_SAVE_ERROR', {
-                        error: e.message || e.error || e,
-                    }),
-                );
-                this.loading.set(false);
-                this.loadingChange.emit(false);
-                throw e;
-            });
+        ).catch((e) => {
+            notifyError(
+                i18n('APP.CONCIERGE.BUILDINGS_SAVE_ERROR', {
+                    error: e.message || e.error || e,
+                }),
+            );
+            this.loading.set(false);
+            this.loadingChange.emit(false);
+            throw e;
+        });
         notifySuccess(i18n('APP.CONCIERGE.BUILDINGS_SAVE_SUCCESS'));
         this.loading.set(false);
         this.loadingChange.emit(false);

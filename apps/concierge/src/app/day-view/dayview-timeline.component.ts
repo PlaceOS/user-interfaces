@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AsyncHandler, OrganisationService, Space } from '@placeos/common';
 import { querySystems } from '@placeos/ts-client';
-import { combineLatest, of } from 'rxjs';
+import { combineLatest, from, of } from 'rxjs';
 import {
     catchError,
     filter,
@@ -138,7 +138,7 @@ export class DayviewTimelineComponent
     public readonly spaces = this._org.active_building.pipe(
         filter((_) => !!_),
         switchMap(({ id }) =>
-            querySystems({ zone_id: id, limit: 1000 }).pipe(
+            from(querySystems({ zone_id: id, limit: 1000 })).pipe(
                 catchError(() => of({ data: [] })),
             ),
         ),

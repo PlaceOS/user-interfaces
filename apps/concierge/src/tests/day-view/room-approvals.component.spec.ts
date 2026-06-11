@@ -119,7 +119,10 @@ describe('RoomBookingsApprovalsComponent', () => {
             id: 'event-1',
             mailbox: 'room@example.com',
             resources: [
-                { email: 'room@example.com', response_status: 'tentative' },
+                {
+                    email: 'room@example.com',
+                    response_status: 'tentative',
+                } as any,
             ],
         });
 
@@ -134,7 +137,10 @@ describe('RoomBookingsApprovalsComponent', () => {
             id: 'event-1',
             mailbox: 'room@example.com',
             resources: [
-                { email: 'room@example.com', response_status: 'tentative' },
+                {
+                    email: 'room@example.com',
+                    response_status: 'tentative',
+                } as any,
             ],
         });
 

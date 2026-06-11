@@ -437,7 +437,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                     @if (show_host_select()) {
                         <div class="border-base-300 space-y-3 border-t pt-3">
                             <h4 class="text-sm font-medium">
-                                {{ 'FORM.HOST' | translate }}
+                                {{ 'BOOKINGS.REQUEST_SPACE_FOR' | translate }}
                             </h4>
                             <a-user-search-field
                                 formControlName="user"

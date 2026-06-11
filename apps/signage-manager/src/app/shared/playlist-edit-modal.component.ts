@@ -26,7 +26,6 @@ import {
     updateSignagePlaylist,
 } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { lastValueFrom } from 'rxjs';
 import {
     createPlaylistScheduleForm,
     PlaylistScheduleFormComponent,
@@ -55,9 +54,7 @@ export interface PlaylistEditModalData {
             "
             (confirm)="savePlaylist()"
             [loading]="
-                loading()
-                    ? ('SIGNAGE_MANAGER.PLAYLIST_SAVING' | translate)
-                    : ''
+                loading() ? ('SIGNAGE_MANAGER.PLAYLIST_SAVING' | translate) : ''
             "
         >
             <form [formGroup]="form">
@@ -70,7 +67,9 @@ export interface PlaylistEditModalData {
                         name="name"
                         [placeholder]="'FORM.NAME' | translate"
                         formControlName="name"
-                        [attr.aria-label]="'SIGNAGE_MANAGER.PLAYLIST_NAME_ARIA' | translate"
+                        [attr.aria-label]="
+                            'SIGNAGE_MANAGER.PLAYLIST_NAME_ARIA' | translate
+                        "
                     />
                     <mat-error>{{
                         'FORM.NAME_REQUIRED' | translate
@@ -135,8 +134,7 @@ export interface PlaylistEditModalData {
                                 name="orientation"
                                 formControlName="orientation"
                                 [placeholder]="
-                                    'COMMON.LOCATION_UNSPECIFIED'
-                                        | translate
+                                    'COMMON.LOCATION_UNSPECIFIED' | translate
                                 "
                                 [attr.aria-label]="
                                     'SIGNAGE_MANAGER.PLAYLIST_ORIENTATION_ARIA'
@@ -172,30 +170,24 @@ export interface PlaylistEditModalData {
                             <mat-select
                                 name="animation"
                                 formControlName="default_animation"
-                                [placeholder]="
-                                    'COMMON.DEFAULT'
-                                        | translate
-                                "
+                                [placeholder]="'COMMON.DEFAULT' | translate"
                                 [attr.aria-label]="
                                     'SIGNAGE_MANAGER.DEFAULT_ANIMATION'
                                         | translate
                                 "
                             >
                                 <mat-option [value]="0">{{
-                                    'COMMON.DEFAULT'
-                                        | translate
+                                    'COMMON.DEFAULT' | translate
                                 }}</mat-option>
                                 <mat-option [value]="1">{{
-                                    'SIGNAGE_MANAGER.ANIM_CUT'
-                                        | translate
+                                    'SIGNAGE_MANAGER.ANIM_CUT' | translate
                                 }}</mat-option>
                                 <mat-option [value]="2">{{
                                     'SIGNAGE_MANAGER.ANIM_CROSS_FADE'
                                         | translate
                                 }}</mat-option>
                                 <mat-option [value]="3">{{
-                                    'SIGNAGE_MANAGER.ANIM_SLIDE_TOP'
-                                        | translate
+                                    'SIGNAGE_MANAGER.ANIM_SLIDE_TOP' | translate
                                 }}</mat-option>
                                 <mat-option [value]="4">{{
                                     'SIGNAGE_MANAGER.ANIM_SLIDE_LEFT'
@@ -391,13 +383,11 @@ export class PlaylistEditModalComponent {
             if (this.playlist.id) {
                 result = this._data.onEdit
                     ? await this._data.onEdit(this.playlist.id, data)
-                    : await lastValueFrom(
-                          updateSignagePlaylist(this.playlist.id, data),
-                      );
+                    : await updateSignagePlaylist(this.playlist.id, data);
             } else {
                 result = this._data.onAdd
                     ? await this._data.onAdd(data)
-                    : await lastValueFrom(addSignagePlaylist(data));
+                    : await addSignagePlaylist(data);
             }
             this._dialog_ref.disableClose = false;
             this._dialog_ref.close(result);

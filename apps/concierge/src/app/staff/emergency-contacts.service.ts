@@ -24,7 +24,7 @@ import {
     showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, firstValueFrom, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, firstValueFrom, from, of } from 'rxjs';
 import {
     catchError,
     filter,
@@ -65,7 +65,7 @@ export class EmergencyContactsService {
     ]).pipe(
         filter(([bld]) => !!bld),
         switchMap(([bld]) =>
-            queryAssetCategories({ zone_id: bld.id } as any).pipe(
+            from(queryAssetCategories({ zone_id: bld.id } as any)).pipe(
                 map((_) => _.data),
                 catchError(() => of([] as AssetCategory[])),
             ),
@@ -88,7 +88,9 @@ export class EmergencyContactsService {
         filter(([bld]) => !!bld),
         switchMap(([bld, category]) => {
             if (!category) return of(null as AssetGroup | null);
-            return queryAssetTypes({ zone_id: bld.id, q: category.name }).pipe(
+            return from(
+                queryAssetTypes({ zone_id: bld.id, q: category.name }),
+            ).pipe(
                 map((_) => _.data),
                 catchError(() => of([] as AssetGroup[])),
                 map(
@@ -154,7 +156,7 @@ export class EmergencyContactsService {
     private readonly legacyMetadata$ = this._org.active_building.pipe(
         filter((bld) => !!bld),
         switchMap((bld) =>
-            showMetadata(bld.id, 'emergency_contacts').pipe(
+            from(showMetadata(bld.id, 'emergency_contacts')).pipe(
                 catchError(() => of({ details: { contacts: [], roles: [] } })),
             ),
         ),
@@ -180,7 +182,7 @@ export class EmergencyContactsService {
         if (!bld) return null;
 
         const categories = await firstValueFrom(
-            queryAssetCategories({ zone_id: bld.id } as any).pipe(
+            from(queryAssetCategories({ zone_id: bld.id } as any)).pipe(
                 map((_) => _.data),
                 catchError(() => of([] as AssetCategory[])),
             ),
@@ -221,7 +223,7 @@ export class EmergencyContactsService {
         if (!bld || !category) return null;
 
         const groups = await firstValueFrom(
-            queryAssetTypes({ zone_id: bld.id, q: category.name }).pipe(
+            from(queryAssetTypes({ zone_id: bld.id, q: category.name })).pipe(
                 map((_) => _.data),
                 catchError(() => of([] as AssetGroup[])),
             ),
@@ -313,7 +315,7 @@ export class EmergencyContactsService {
                 name: 'emergency_contacts',
                 description: 'Emergency Contacts (migrated to Assets)',
                 details: { contacts: [], roles: [], migrated: true },
-            }).toPromise();
+            });
 
             this._change.next(Date.now());
             notifySuccess(
@@ -371,7 +373,7 @@ export class EmergencyContactsService {
     /** Delete an emergency contact */
     public async deleteContact(contact_id: string): Promise<boolean> {
         try {
-            await firstValueFrom(removeAsset(contact_id));
+            await removeAsset(contact_id);
             this._change.next(Date.now());
             notifySuccess(
                 i18n('APP.CONCIERGE.CONTACTS_DELETE_SUCCESS') ||

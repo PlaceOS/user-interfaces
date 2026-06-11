@@ -35,7 +35,7 @@ import {
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { lastValueFrom } from 'rxjs';
+import { firstValueFrom, from } from 'rxjs';
 import {
     AVAILABLE_PERIOD_EXTENDED_OPTIONS,
     AVAILABLE_PERIOD_SHORT_OPTIONS,
@@ -1072,8 +1072,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                         formControlName="all_visitors_action_window"
                                     />
                                     <mat-hint>
-                                        Minutes before and after the booking time
-                                        to show all visitor check-in/out actions
+                                        Minutes before and after the booking
+                                        time to show all visitor check-in/out
+                                        actions
                                     </mat-hint>
                                 </mat-form-field>
                                 <div class="-mx-2 flex flex-wrap items-center">
@@ -1996,20 +1997,20 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
                   ? 'Support'
                   : 'User',
         };
-        await lastValueFrom(
-            updateMetadata(zone.id, {
+        try {
+            await updateMetadata(zone.id, {
                 name: `${this.settings_key}`,
                 details: new_settings,
                 description: `[${VERSION.hash}|C] Concierge Application Settings`,
-            }),
-        ).catch((e) => {
+            });
+        } catch (e) {
             console.error(e);
             this.loading.set('');
             notifyError(
                 `Failed to save settings: ${e.message || e.error || e}`,
             );
             throw e;
-        });
+        }
         this.loading.set('');
         notifySuccess('Successfully saved concierge app settings');
         this._dialog_ref.close();
@@ -2025,9 +2026,9 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
     }
 
     private _getMetadata(id) {
-        return lastValueFrom(
-            showMetadata(id, this.settings_key).pipe(
-                map((m) => m.details as Record<string, any>),
+        return firstValueFrom(
+            from(showMetadata(id, this.settings_key) as any).pipe(
+                map((m: any) => m.details as Record<string, any>),
             ),
         );
     }

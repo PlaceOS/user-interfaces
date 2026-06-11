@@ -24,7 +24,7 @@ jest.mock('@placeos/ts-client', () => {
     return {
         __esModule: true,
         ...jest.requireActual('@placeos/ts-client'),
-        showUser: jest.fn(() => of(null)),
+        showUser: jest.fn(() => Promise.resolve(null)),
     };
 });
 
@@ -174,14 +174,12 @@ describe('UserSearchFieldComponent', () => {
             name: 'Photo User',
             email: 'photo@example.com',
         });
-        (showUser as jest.Mock).mockReturnValueOnce(
-            of({
-                id: 'user-1',
-                name: 'Photo User',
-                email: 'photo@example.com',
-                photo: 'photo.png',
-            }),
-        );
+        (showUser as jest.Mock).mockResolvedValueOnce({
+            id: 'user-1',
+            name: 'Photo User',
+            email: 'photo@example.com',
+            photo: 'photo.png',
+        });
         (spectator.component as any).use_basic_search.set(false);
 
         spectator.component.setValue(user);

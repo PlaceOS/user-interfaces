@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { PlaceSystem, querySystems, showMetadata } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, from, of } from 'rxjs';
 import {
     catchError,
     filter,
@@ -49,13 +49,15 @@ export class RoomManagementService {
         filter(([b, r]) => !!b?.id),
         switchMap(([bld, region]) =>
             combineLatest([
-                querySystems({
-                    zone_id:
-                        (this._settings.get('app.use_region')
-                            ? region.id
-                            : '') || bld.id,
-                    limit: 2500,
-                }).pipe(
+                from(
+                    querySystems({
+                        zone_id:
+                            (this._settings.get('app.use_region')
+                                ? region.id
+                                : '') || bld.id,
+                        limit: 2500,
+                    }),
+                ).pipe(
                     map(({ data }) => data),
                     catchError(() => of([])),
                 ),

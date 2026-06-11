@@ -1,5 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { AsyncHandler, nextValueFrom } from '@placeos/common';
+import {
+    AsyncHandler,
+    nextValueFrom,
+    observableFromSignal,
+} from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
 import { Observable } from 'rxjs';
 import {
@@ -151,6 +155,6 @@ export class VideoCallStateService extends AsyncHandler {
         const binding = mod.variable(name);
         const unbind = binding.bind();
         this.subscription(`binding:${name}`, unbind);
-        return binding.listen();
+        return observableFromSignal(binding.listen());
     }
 }

@@ -186,8 +186,8 @@ export class AssetStateService {
     public readonly settings = combineLatest([this._org.active_building]).pipe(
         filter(([_]) => !!_),
         switchMap(([_]) =>
-            showMetadata(_.id, 'assets-settings').pipe(
-                catchError((_) => of({} as PlaceMetadata)),
+            showMetadata(_.id, 'assets-settings').catch(
+                () => ({}) as PlaceMetadata,
             ),
         ),
         map((_) => (_.details as Record<string, any>) || {}),

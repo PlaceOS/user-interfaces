@@ -244,7 +244,7 @@ export class WorkLocationTooltipComponent implements OnInit {
         await updateUser(user.id, {
             ...user,
             work_overrides: new_overrides,
-        } as any).toPromise();
+        } as any);
         reloadUserData();
     }
 }

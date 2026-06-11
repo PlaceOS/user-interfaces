@@ -19,14 +19,7 @@ import {
     listSignagePlaylistMediaRevisions,
     updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
-import {
-    combineLatest,
-    filter,
-    lastValueFrom,
-    map,
-    switchMap,
-    tap,
-} from 'rxjs';
+import { combineLatest, filter, map, switchMap, tap } from 'rxjs';
 import { SignageStateService } from './signage-state.service';
 
 @Component({
@@ -280,9 +273,7 @@ export class SignageApprovePlaylistModalComponent {
             this._dialog_ref.disableClose = false;
             return;
         }
-        await lastValueFrom(
-            updateSignagePlaylistMedia(this._playlist?.id, previous.items),
-        );
+        await updateSignagePlaylistMedia(this._playlist?.id, previous.items);
         this.loading.set('');
         this._dialog_ref.disableClose = false;
         notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_UNDONE'));
@@ -293,7 +284,7 @@ export class SignageApprovePlaylistModalComponent {
     public async approve() {
         this.loading.set('Approving playlist...');
         this._dialog_ref.disableClose = true;
-        await lastValueFrom(approveSignagePlaylist(this._playlist?.id));
+        await approveSignagePlaylist(this._playlist?.id);
         this.loading.set('');
         this._dialog_ref.disableClose = false;
         notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_APPROVED'));

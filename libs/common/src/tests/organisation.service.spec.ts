@@ -23,6 +23,7 @@ describe('OrganisationService', () => {
     beforeEach(() => {
         sessionStorage.clear();
         (ts_client as any).onlineState = jest.fn(() => of(true));
+        (ts_client as any).waitForSignal = jest.fn(() => Promise.resolve(true));
         (ts_client as any).authority = jest.fn(() => ({ id: 'auth-1' }));
         spectator = createService();
     });
@@ -85,7 +86,7 @@ describe('OrganisationService', () => {
 
     it('should cache zone data for the browser session', async () => {
         (ts_client as any).queryZones = jest.fn(() =>
-            of({ data: [{ id: 'bld-1', tags: ['building'] }] }),
+            Promise.resolve({ data: [{ id: 'bld-1', tags: ['building'] }] }),
         );
 
         const first_list = await spectator.service.loadBuildings('org-1');
@@ -102,7 +103,7 @@ describe('OrganisationService', () => {
             config: { metadata_cache_duration: 0 },
         }));
         (ts_client as any).queryZones = jest.fn(() =>
-            of({ data: [{ id: 'bld-1', tags: ['building'] }] }),
+            Promise.resolve({ data: [{ id: 'bld-1', tags: ['building'] }] }),
         );
 
         await spectator.service.loadBuildings('org-1');
@@ -118,7 +119,7 @@ describe('OrganisationService', () => {
             config: { metadata_cache_id },
         }));
         (ts_client as any).queryZones = jest.fn(() =>
-            of({ data: [{ id: 'bld-1', tags: ['building'] }] }),
+            Promise.resolve({ data: [{ id: 'bld-1', tags: ['building'] }] }),
         );
 
         await spectator.service.loadBuildings('org-1');
@@ -131,7 +132,7 @@ describe('OrganisationService', () => {
 
     it('should cache bulk metadata for the browser session', async () => {
         (ts_client as any).bulkMetadata = jest.fn((name) =>
-            of({ bld_1: { details: { name } } }),
+            Promise.resolve({ bld_1: { details: { name } } }),
         );
 
         await spectator.service.loadBuildingData({ id: 'bld_1' } as any);
@@ -143,7 +144,7 @@ describe('OrganisationService', () => {
 
     it('should clear org caches when reloading metadata', async () => {
         (ts_client as any).queryZones = jest.fn(() =>
-            of({ data: [{ id: 'bld-1', tags: ['building'] }] }),
+            Promise.resolve({ data: [{ id: 'bld-1', tags: ['building'] }] }),
         );
         jest.spyOn(spectator.service as any, 'load').mockResolvedValue(
             undefined,
@@ -159,7 +160,7 @@ describe('OrganisationService', () => {
 
     it('should load building metadata in bulk', async () => {
         (ts_client as any).bulkMetadata = jest.fn((name) =>
-            of({ bld_1: { details: { name } } }),
+            Promise.resolve({ bld_1: { details: { name } } }),
         );
 
         await spectator.service.loadBuildingData({ id: 'bld_1' } as any);

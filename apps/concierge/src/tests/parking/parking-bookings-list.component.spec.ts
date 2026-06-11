@@ -59,7 +59,7 @@ describe('ParkingBookingsListComponent', () => {
                     return timezone;
                 },
             } as any),
-            MockProvider(SettingsService, {
+            MockProvider(SettingsService as any, {
                 get: jest.fn((name: string) =>
                     name === 'app.parking.show_requests'
                         ? show_requests
@@ -105,7 +105,7 @@ describe('ParkingBookingsListComponent', () => {
                 date: Date.now(),
                 date_end: Date.now() + 60 * 60 * 1000,
                 duration: 60,
-            } as Booking,
+            } as unknown as Booking,
         ];
         spectator = createComponent();
 
@@ -133,7 +133,7 @@ describe('ParkingBookingsListComponent', () => {
                 date: Date.now(),
                 date_end: Date.now() + 60 * 60 * 1000,
                 duration: 60,
-            } as Booking,
+            } as unknown as Booking,
         ];
         spectator = createComponent();
 
@@ -167,7 +167,7 @@ describe('ParkingBookingsListComponent', () => {
                     cost_code: 'CC-123',
                     vehicle: { colour: 'Blue' },
                 },
-            } as Booking,
+            } as unknown as Booking,
         ];
         spectator = createComponent();
 
@@ -215,7 +215,7 @@ describe('ParkingBookingsListComponent', () => {
                 date_end: Date.now() + 60 * 60 * 1000,
                 duration: 60,
                 extension_data: { notes: 'After hours access required' },
-            } as Booking,
+            } as unknown as Booking,
         ];
         spectator = createComponent();
 
@@ -239,7 +239,7 @@ describe('ParkingBookingsListComponent', () => {
                 date_end: Date.now() + 60 * 60 * 1000,
                 duration: 60,
                 extension_data: {},
-            } as Booking,
+            } as unknown as Booking,
         ];
         spectator = createComponent();
 
@@ -261,7 +261,7 @@ describe('ParkingBookingsListComponent', () => {
                 date: Date.now(),
                 date_end: Date.now() + 60 * 60 * 1000,
                 duration: 60,
-            } as Booking,
+            } as unknown as Booking,
         ];
         spectator = createComponent();
         spectator.component.can_edit.set(false);
@@ -284,7 +284,7 @@ describe('ParkingBookingsListComponent', () => {
                 date: Date.now(),
                 date_end: Date.now() + 60 * 60 * 1000,
                 duration: 60,
-            } as Booking,
+            } as unknown as Booking,
         ];
         settingSignal('parking.allow_deleting', false).set(true);
         spectator = createComponent();
@@ -352,7 +352,7 @@ describe('ParkingBookingsListComponent', () => {
             {
                 asset_id: 'bay-1',
                 extension_data: { vehicle_type: 'truck' },
-            } as Booking,
+            } as unknown as Booking,
         ];
         spectator = createComponent();
 
@@ -371,7 +371,7 @@ describe('ParkingBookingsListComponent', () => {
                 date: Date.now(),
                 date_end: Date.now() + 60 * 60 * 1000,
                 duration: 60,
-            } as Booking,
+            } as unknown as Booking,
         ];
         spectator = createComponent();
 
@@ -397,7 +397,7 @@ describe('ParkingBookingsListComponent', () => {
                 date_end: Date.now() + 60 * 60 * 1000,
                 duration: 60,
                 extension_data: { is_assigned: true },
-            } as Booking,
+            } as unknown as Booking,
         ];
         spectator = createComponent();
 
@@ -405,7 +405,7 @@ describe('ParkingBookingsListComponent', () => {
             asset_id: 'bay-1',
             status: 'tentative',
             extension_data: { is_assigned: true },
-        } as Booking;
+        } as unknown as Booking;
         const status_button = spectator
             .queryAll('button')
             .find(
@@ -442,7 +442,7 @@ describe('ParkingBookingsListComponent', () => {
                 date_end: Date.now() + 60 * 60 * 1000,
                 duration: 60,
                 extension_data: {},
-            } as Booking,
+            } as unknown as Booking,
         ];
         spectator = createComponent();
 
@@ -451,7 +451,7 @@ describe('ParkingBookingsListComponent', () => {
             status: 'approved',
             deleted: true,
             extension_data: {},
-        } as Booking;
+        } as unknown as Booking;
         const status_button = spectator
             .queryAll('button')
             .find(

@@ -191,10 +191,7 @@ export class LocaleService {
             }
             const locale_data = await resp.json();
             const locale_override_data = this.zone_id
-                ? await showMetadata(
-                      this.zone_id,
-                      `locale_${locale}`,
-                  ).toPromise()
+                ? await showMetadata(this.zone_id, `locale_${locale}`)
                 : { details: {} };
             const base_locale_values = removeNesting(locale_data);
             const override_locale_values = removeNesting(

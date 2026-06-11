@@ -24,7 +24,7 @@ import {
     isSameDay,
     startOfDay,
 } from 'date-fns';
-import { BehaviorSubject, forkJoin, of } from 'rxjs';
+import { BehaviorSubject, forkJoin, from, of } from 'rxjs';
 import { catchError, finalize, map, skip, takeUntil } from 'rxjs/operators';
 
 import { activeReportBookings, activeReportEvents } from '../reports.utilities';
@@ -320,7 +320,7 @@ export class SiteAttendanceReportService {
         if (!zones.length) return of(0);
         return forkJoin(
             zones.map((zone) =>
-                showMetadata(zone, 'desks').pipe(
+                from(showMetadata(zone, 'desks')).pipe(
                     catchError(() => of({ details: [] })),
                     map((metadata) => metadata.details?.length || 0),
                 ),
@@ -666,7 +666,9 @@ export class SiteAttendanceReportService {
             id: 'events',
             bookings: bookings.length,
             attendance,
-            daily_average: this.toFixed(attendance / Math.max(1, business_days)),
+            daily_average: this.toFixed(
+                attendance / Math.max(1, business_days),
+            ),
             average_length: this.getAverageLength(bookings),
             unique_people: new Set([
                 ...this.getEventPeople(bookings),
@@ -704,7 +706,9 @@ export class SiteAttendanceReportService {
             id,
             bookings: bookings.length,
             attendance,
-            daily_average: this.toFixed(attendance / Math.max(1, business_days)),
+            daily_average: this.toFixed(
+                attendance / Math.max(1, business_days),
+            ),
             average_length: this.getAverageLength(bookings),
             unique_people: new Set(this.getBookingPeople(bookings)).size,
             resource_summary: resource_count
@@ -730,7 +734,9 @@ export class SiteAttendanceReportService {
             id: 'visitors',
             bookings: bookings.length,
             attendance,
-            daily_average: this.toFixed(attendance / Math.max(1, business_days)),
+            daily_average: this.toFixed(
+                attendance / Math.max(1, business_days),
+            ),
             average_length: this.getAverageLength(bookings),
             unique_people: new Set(this.getVisitorPeople(bookings)).size,
             resource_summary: '-',
@@ -798,7 +804,10 @@ export class SiteAttendanceReportService {
     }
 
     private getEventAttendancePeople(booking: CalendarEvent) {
-        return [this.getEventPerson(booking), ...this.getEventAttendees(booking)];
+        return [
+            this.getEventPerson(booking),
+            ...this.getEventAttendees(booking),
+        ];
     }
 
     private getBookingAttendancePeople(booking: Booking) {

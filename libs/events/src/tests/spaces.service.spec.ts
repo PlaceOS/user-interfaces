@@ -35,7 +35,9 @@ describe('SpacesService', () => {
                     }),
                 ),
         );
-        (ts_client as any).querySystems = jest.fn(() => of({ data: spaces }));
+        (ts_client as any).querySystems = jest.fn(() =>
+            Promise.resolve({ data: spaces }),
+        );
         spectator = createService();
     });
 

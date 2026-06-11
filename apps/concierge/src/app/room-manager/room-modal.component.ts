@@ -48,7 +48,7 @@ import {
     DurationFieldComponent,
     ImageListFieldComponent,
 } from '@placeos/form-fields';
-import { lastValueFrom } from 'rxjs';
+import { from } from 'rxjs';
 import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
 
 @Component({
@@ -519,7 +519,7 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
     ];
     /** Function for querying zones */
     public readonly query_fn = (_: string) =>
-        queryZones({ q: _ }).pipe(map((resp) => resp.data));
+        from(queryZones({ q: _ })).pipe(map((resp) => resp.data));
     /** List of separator characters for features */
     public readonly separators: number[] = [ENTER, COMMA, SPACE];
 
@@ -531,7 +531,7 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
         const { details } = await showMetadata(
             this._org.organisation.id,
             'settings',
-        ).toPromise();
+        );
         const overflow = getItemWithKeys(['events', 'overflow'], details) || {};
         if (this._data.room.id && overflow[this._data.room.id]) {
             this.settings_form.patchValue(overflow[this._data.room.id]);
@@ -598,24 +598,20 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
         const { details } = (await showMetadata(
             this._org.organisation.id,
             'settings',
-        ).toPromise()) as any;
+        )) as any;
         const overflow = getItemWithKeys(['events', 'overflow'], details) || {};
         overflow[data.id] = this.settings_form.value;
-        await lastValueFrom(
-            updateMetadata(this._org.organisation.id, {
-                name: 'settings',
-                details: {
-                    ...details,
-                    events: { ...(details.events || {}), overflow },
-                },
-                description: '',
-            }),
-        ).catch((e) =>
+        await updateMetadata(this._org.organisation.id, {
+            name: 'settings',
+            details: {
+                ...details,
+                events: { ...(details.events || {}), overflow },
+            },
+            description: '',
+        }).catch((e) =>
             notifyWarn('Unable to save room setup and breakdown times'),
         );
-        await lastValueFrom(
-            data.id ? updateSystem(data.id, data) : addSystem(data),
-        );
+        await (data.id ? updateSystem(data.id, data) : addSystem(data));
         this._dialog_ref.disableClose = false;
         this._dialog_ref.close(true);
         this.loading = false;

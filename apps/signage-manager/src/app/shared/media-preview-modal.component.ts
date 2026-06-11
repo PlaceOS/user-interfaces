@@ -13,7 +13,6 @@ import {
     PluginEmbedComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { i18n } from '@placeos/common';
 import {
     listSignagePlaylistMedia,
     MediaAnimation,
@@ -21,9 +20,9 @@ import {
     SignagePlaylist,
     SignagePlugin,
 } from '@placeos/ts-client';
-import { firstValueFrom, lastValueFrom } from 'rxjs';
-import { SignageService } from '../signage.service';
+import { firstValueFrom } from 'rxjs';
 import { playlistMediaThumbnailUrl } from '../signage-playlist.util';
+import { SignageService } from '../signage.service';
 
 interface MediaPreviewModalData {
     media: SignageMedia;
@@ -68,7 +67,7 @@ interface MediaPreviewModalData {
                     }
                     @if (media_error()) {
                         <div
-                            class="absolute inset-0 z-10 flex flex-col items-center justify-center space-y-2 bg-base-200/80 p-4 text-center"
+                            class="bg-base-200/80 absolute inset-0 z-10 flex flex-col items-center justify-center space-y-2 p-4 text-center"
                             aria-live="assertive"
                         >
                             <icon class="text-error text-6xl">error</icon>
@@ -84,7 +83,7 @@ interface MediaPreviewModalData {
                         </div>
                     } @else if (media_loading()) {
                         <div
-                            class="absolute inset-0 z-10 flex items-center justify-center bg-base-200/60"
+                            class="bg-base-200/60 absolute inset-0 z-10 flex items-center justify-center"
                             aria-live="polite"
                         >
                             <mat-spinner [diameter]="48"></mat-spinner>
@@ -99,9 +98,7 @@ interface MediaPreviewModalData {
                             [source]="media_url"
                             [alt]="item.name"
                             class="h-full max-h-full w-full max-w-full object-contain"
-                            [class.opacity-0]="
-                                media_loading() || media_error()
-                            "
+                            [class.opacity-0]="media_loading() || media_error()"
                             (load)="handleMediaLoaded()"
                             (error)="handleMediaLoadError()"
                         />
@@ -112,9 +109,7 @@ interface MediaPreviewModalData {
                             controls
                             [attr.aria-label]="item.name"
                             class="h-full max-h-full w-full max-w-full object-contain"
-                            [class.opacity-0]="
-                                media_loading() || media_error()
-                            "
+                            [class.opacity-0]="media_loading() || media_error()"
                             (loadeddata)="handleMediaLoaded()"
                             (error)="handleMediaLoadError()"
                         ></video>
@@ -198,10 +193,7 @@ interface MediaPreviewModalData {
                                 <div
                                     class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                 >
-                                    {{
-                                        'FORM.DURATION'
-                                            | translate
-                                    }}
+                                    {{ 'FORM.DURATION' | translate }}
                                 </div>
                                 <div class="font-mono text-sm">
                                     {{ item.play_time / 1000 | mediaDuration }}
@@ -236,7 +228,9 @@ interface MediaPreviewModalData {
                             <div
                                 class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                             >
-                                {{ 'SIGNAGE_MANAGER.NAV_PLAYLISTS' | translate }}
+                                {{
+                                    'SIGNAGE_MANAGER.NAV_PLAYLISTS' | translate
+                                }}
                             </div>
                             @if (loading_playlists()) {
                                 <div class="text-base-content/70 text-sm">
@@ -285,7 +279,9 @@ interface MediaPreviewModalData {
                                 <div
                                     class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                 >
-                                    {{ 'SIGNAGE_MANAGER.PLAY_COUNT' | translate }}
+                                    {{
+                                        'SIGNAGE_MANAGER.PLAY_COUNT' | translate
+                                    }}
                                 </div>
                                 <div class="text-sm capitalize">
                                     {{ item.play_count || '0' }}
@@ -297,7 +293,9 @@ interface MediaPreviewModalData {
                                 <div
                                     class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                 >
-                                    {{ 'SIGNAGE_MANAGER.VALID_FROM' | translate }}
+                                    {{
+                                        'SIGNAGE_MANAGER.VALID_FROM' | translate
+                                    }}
                                 </div>
                                 <div class="text-sm capitalize">
                                     {{
@@ -425,9 +423,7 @@ export class MediaPreviewModalComponent implements OnInit {
         const matching: SignagePlaylist[] = [];
         for (const playlist of all_playlists) {
             try {
-                const media_list = await lastValueFrom(
-                    listSignagePlaylistMedia(playlist.id),
-                );
+                const media_list = await listSignagePlaylistMedia(playlist.id);
                 if (media_list.items?.includes(this.item.id)) {
                     matching.push(playlist);
                 }

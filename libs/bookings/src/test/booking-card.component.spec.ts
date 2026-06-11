@@ -22,14 +22,14 @@ describe('BookingCardComponent', () => {
             MockComponent(StatusPillComponent),
         ],
         providers: [
-            MockProvider(OrganisationService, {
+            MockProvider(OrganisationService as any, {
                 levelWithID: jest.fn(),
                 level_list: new BehaviorSubject([]),
                 building_list: new BehaviorSubject([]),
                 buildingsForRegion: jest.fn(() => []),
             }),
             MockProvider(MatDialog, { open: jest.fn() }),
-            MockProvider(SettingsService, settings_service),
+            MockProvider(SettingsService as any, settings_service),
         ],
     });
 

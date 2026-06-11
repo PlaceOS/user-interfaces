@@ -9,7 +9,6 @@ import {
     SettingsService,
     WorktimePreference,
     i18n,
-    nextValueFrom,
     notifyError,
     notifySuccess,
 } from '@placeos/common';
@@ -31,7 +30,6 @@ import {
     startOfMinute,
 } from 'date-fns';
 import { lastValueFrom } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 import { WFHSettingsModalComponent } from '@placeos/users';
 
@@ -395,9 +393,7 @@ export class AutoReleaseSettingsModalComponent implements OnInit {
     public async loadSettings(id: string) {
         this.loading.set(i18n('APP.CONCIERGE.AUTO_RELEASE_LOADING'));
         this.settings.set({ custom: [] });
-        const settings = await nextValueFrom(
-            querySettings({ parent_id: id }).pipe(map((_) => _.data)),
-        );
+        const settings = (await querySettings({ parent_id: id })).data;
         const unencrypted = settings.find(
             (_) => _.encryption_level === EncryptionLevel.None,
         );
@@ -422,9 +418,7 @@ export class AutoReleaseSettingsModalComponent implements OnInit {
 
     public async save() {
         this.loading.set(i18n('APP.CONCIERGE.AUTO_RELEASE_SAVING'));
-        const settings = await lastValueFrom(
-            querySettings({ parent_id: this.id }).pipe(map((_) => _.data)),
-        );
+        const settings = (await querySettings({ parent_id: this.id })).data;
         let unencrypted = settings.find(
             (_) => _.encryption_level === EncryptionLevel.None,
         );
@@ -450,25 +444,19 @@ export class AutoReleaseSettingsModalComponent implements OnInit {
             throw e;
         };
         unencrypted.id
-            ? await lastValueFrom(
-                  updateSettings(unencrypted.id, unencrypted),
-              ).catch(on_error)
-            : await lastValueFrom(addSettings(unencrypted)).catch(on_error);
+            ? await updateSettings(unencrypted.id, unencrypted).catch(on_error)
+            : await addSettings(unencrypted).catch(on_error);
 
         const metadata_key =
             this._settings.get('app.workplace_metadata_key') || 'workplace_app';
-        const metadata = await lastValueFrom(
-            showMetadata(this.id, metadata_key),
-        );
+        const metadata = await showMetadata(this.id, metadata_key);
         const details: any = metadata.details || {};
         details.auto_release = new_settings;
-        await nextValueFrom(
-            updateMetadata(this.id, {
-                name: metadata_key,
-                details,
-                description: '',
-            }),
-        ).catch(on_error);
+        await updateMetadata(this.id, {
+            name: metadata_key,
+            details,
+            description: '',
+        }).catch(on_error);
         notifySuccess(i18n('APP.CONCIERGE.AUTO_RELEASE_SUCCESS'));
         this.loading.set('');
         this._dialog_ref.close();

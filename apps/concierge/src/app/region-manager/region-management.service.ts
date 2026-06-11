@@ -90,14 +90,12 @@ export class RegionManagementService {
         );
         if (ref.reason !== 'done') return ref.close();
         ref.loading(i18n('APP.CONCIERGE.REGIONS_REMOVE_LOADING'));
-        await removeZone(region.id)
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    i18n('APP.CONCIERGE.REGIONS_REMOVE_ERROR', { error: e }),
-                );
-                throw e;
-            });
+        await removeZone(region.id).catch((e) => {
+            notifyError(
+                i18n('APP.CONCIERGE.REGIONS_REMOVE_ERROR', { error: e }),
+            );
+            throw e;
+        });
         this._org.removeZone({ id: region.id, tags: ['region'] } as any);
         notifySuccess(i18n('APP.CONCIERGE.REGIONS_REMOVE_SUCCESS'));
         ref.close();

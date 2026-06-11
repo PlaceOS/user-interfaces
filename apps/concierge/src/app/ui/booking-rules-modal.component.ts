@@ -32,7 +32,7 @@ import {
 } from '@placeos/components';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { BookingRulesFormComponent } from 'libs/form-fields/src/lib/booking-rules-form.component';
-import { combineLatest, of } from 'rxjs';
+import { combineLatest, from, of } from 'rxjs';
 import {
     catchError,
     filter,
@@ -388,7 +388,9 @@ import {
                                 btn
                                 matRipple
                                 class="w-36"
-                                (click)="activate_save.update((state) => !state)"
+                                (click)="
+                                    activate_save.update((state) => !state)
+                                "
                             >
                                 {{
                                     'APP.CONCIERGE.BOOKING_RULESET_SAVE'
@@ -433,9 +435,8 @@ export class BookingRulesModalComponent {
     ]).pipe(
         filter(([_]) => !!_),
         switchMap(([bld]) => {
-            return showMetadata(
-                bld.id,
-                `${this._data.type}_booking_rules`,
+            return from(
+                showMetadata(bld.id, `${this._data.type}_booking_rules`),
             ).pipe(catchError(() => of({ details: [] })));
         }),
         map(({ details }) => (details instanceof Array ? details : [])),
@@ -529,12 +530,10 @@ export class BookingRulesModalComponent {
                 name: `${this.type}_booking_rules`,
                 description: `${this.type} Booking Rules`,
                 details: rules,
-            })
-                .toPromise()
-                .catch((_) => {
-                    notifyError('Error removing booking rules.');
-                    throw _;
-                });
+            }).catch((_) => {
+                notifyError('Error removing booking rules.');
+                throw _;
+            });
             this.change.set(Date.now());
         }
         notifySuccess('Successfully removed booking rules.');
@@ -549,12 +548,10 @@ export class BookingRulesModalComponent {
             name: `${this.type}_booking_rules`,
             description: `${this.type} Booking Rules`,
             details: rules,
-        })
-            .toPromise()
-            .catch((_) => {
-                notifyError('Error saving booking rules order change.');
-                throw _;
-            });
+        }).catch((_) => {
+            notifyError('Error saving booking rules order change.');
+            throw _;
+        });
         notifySuccess('Successfully updated booking rules order.');
         this.change.set(Date.now());
     }
@@ -577,14 +574,12 @@ export class BookingRulesModalComponent {
             name: `${this.type}_booking_rules`,
             description: `${this.type} Booking Rules`,
             details: rules,
-        })
-            .toPromise()
-            .catch((_) => {
-                notifyError(
-                    i18n('APP.CONCIERGE.BOOKING_RULESET_ERROR', { error: _ }),
-                );
-                throw _;
-            });
+        }).catch((_) => {
+            notifyError(
+                i18n('APP.CONCIERGE.BOOKING_RULESET_ERROR', { error: _ }),
+            );
+            throw _;
+        });
         this.loading.set(false);
         this.view.set('list');
         notifySuccess(i18n('APP.CONCIERGE.BOOKING_RULESET_SUCCESS'));

@@ -97,7 +97,7 @@ export class AssetCategoryManagementModalComponent {
     public readonly edit = this._data.edit;
 
     public readonly remove = async (category: AssetCategory) => {
-        await removeAssetCategory(category.id).toPromise();
+        await removeAssetCategory(category.id);
         this.changed.emit();
     };
 }

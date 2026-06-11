@@ -19,9 +19,9 @@ describe('CateringSelectModalComponent', () => {
     const createComponent = createRoutingFactory({
         component: CateringSelectModalComponent,
         providers: [
-            MockProvider(SettingsService, createSettingsServiceMock()),
+            MockProvider(SettingsService as any, createSettingsServiceMock()),
             MockProvider(MAT_DIALOG_DATA, { details: {} }),
-            MockProvider(OrganisationService, {}),
+            MockProvider(OrganisationService as any, {}),
             MockProvider(CateringOrderStateService, {}),
         ],
         declarations: [

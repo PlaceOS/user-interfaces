@@ -34,21 +34,21 @@ describe('VisitorsComponent', () => {
                 startPolling: jest.fn(),
                 stopPolling: jest.fn(),
             }),
-            MockProvider(ActivatedRoute, {
+            MockProvider(ActivatedRoute as any, {
                 snapshot: {
                     queryParamMap: {
                         get: (key: string) => query_params.get(key),
                     },
                 },
             }),
-            MockProvider(Router, { navigate: jest.fn() }),
-            MockProvider(OrganisationService, {
+            MockProvider(Router as any, { navigate: jest.fn() }),
+            MockProvider(OrganisationService as any, {
                 active_building: of({}),
                 active_region: of({}),
                 levelsForBuilding: jest.fn(() => []),
                 levelsForRegion: jest.fn(() => []),
             }),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService as any, { get: jest.fn() }),
         ],
         declarations: [
             MockComponent(ApplicationTopbarComponent),

@@ -5,8 +5,8 @@ import {
     deleteLockerBankAsset,
     queryLockerAssetsForZones,
     queryLockerBankAssetsForZones,
-    saveLockerBankAsset,
     saveLockerAsset,
+    saveLockerBankAsset,
 } from '@placeos/assets';
 import {
     approveBooking,
@@ -49,6 +49,7 @@ import {
 import {
     BehaviorSubject,
     combineLatest,
+    from,
     lastValueFrom,
     Observable,
     of,
@@ -143,7 +144,10 @@ function lockerFromAsset(asset: PlaceAsset, banks: LockerBank[]): Locker {
     } as Locker;
 }
 
-function lockerToAsset(locker: Partial<Locker>, zone_id: string): Partial<PlaceAsset> {
+function lockerToAsset(
+    locker: Partial<Locker>,
+    zone_id: string,
+): Partial<PlaceAsset> {
     return {
         ...(locker.id ? { id: locker.id } : {}),
         identifier: locker.name || '',
@@ -245,7 +249,9 @@ export class LockerStateService extends AsyncHandler {
             if (!scope_id) return of([] as Locker[]);
             return queryLockerAssetsForZones([scope_id]).pipe(
                 map((assets) => {
-                    const lockers = assets.map((_) => lockerFromAsset(_, banks));
+                    const lockers = assets.map((_) =>
+                        lockerFromAsset(_, banks),
+                    );
                     for (const bank of banks) {
                         bank.lockers = lockers
                             .filter((_) => _.bank_id === bank.id)
@@ -265,8 +271,11 @@ export class LockerStateService extends AsyncHandler {
                 lockers.some(
                     (locker) =>
                         locker.bookable &&
-                        ((locker as any).zones || locker.bank?.zones || [])
-                            .includes(level.id),
+                        (
+                            (locker as any).zones ||
+                            locker.bank?.zones ||
+                            []
+                        ).includes(level.id),
                 ),
             ),
         ),
@@ -328,7 +337,9 @@ export class LockerStateService extends AsyncHandler {
         }),
     );
 
-    private _next_page = new Subject<() => QueryResponse<Booking>>();
+    private _next_page = new Subject<
+        () => Observable<any> | QueryResponse<Booking>
+    >();
     private _call_next_page = new Subject<string>();
     private _all_zones_keys = ['All', -1, '-1'];
     public readonly setup_paging = combineLatest([
@@ -384,11 +395,11 @@ export class LockerStateService extends AsyncHandler {
             }
             // If reset is true, start over
             if (action.includes('RESET')) {
-                return next_page().pipe(
+                return from(next_page() as any).pipe(
                     map((data: any) => ({ ...data, reset: true })),
                 );
             }
-            return next_page().pipe(
+            return from(next_page() as any).pipe(
                 map((data: any) => ({ ...data, reset: false })),
             );
         }),
@@ -641,7 +652,9 @@ export class LockerStateService extends AsyncHandler {
             ...state.metadata,
             id: bank.id,
         };
-        await saveLockerBankAsset(lockerBankToAsset(new_bank, zone_id)).toPromise();
+        await saveLockerBankAsset(
+            lockerBankToAsset(new_bank, zone_id),
+        ).toPromise();
         this._change.next(Date.now());
         ref.close();
     }

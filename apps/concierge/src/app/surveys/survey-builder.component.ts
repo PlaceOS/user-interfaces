@@ -37,7 +37,7 @@ import {
     SurveyQuestion,
     updateSurvey,
 } from '@placeos/ts-client';
-import { first, lastValueFrom } from 'rxjs';
+import { first } from 'rxjs';
 
 import {
     IconComponent,
@@ -735,7 +735,7 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
         const call = this.form.value.id
             ? addSurvey(survey as any)
             : updateSurvey(`${survey.id}`, survey as any);
-        await lastValueFrom(call).catch((error) => {
+        await call.catch((error) => {
             notifyError('Failed to save survey details. Error: ', error);
             throw error;
         });

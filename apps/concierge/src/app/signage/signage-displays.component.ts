@@ -22,7 +22,7 @@ import {
     updateSystem,
     updateTrigger,
 } from '@placeos/ts-client';
-import { lastValueFrom, map, of, switchMap, tap } from 'rxjs';
+import { from, lastValueFrom, map, of, switchMap, tap } from 'rxjs';
 import { SearchOverlayComponent } from './search-overlay.component';
 import { SignageItemPlaylistsComponent } from './signage-item-playlists.component';
 import { SignageStateService } from './signage-state.service';
@@ -374,7 +374,7 @@ export class SignageDisplaysComponent {
         toObservable(this.selected).pipe(
             switchMap((id) => {
                 if (!id) return of([]);
-                return listSystemTriggers(id).pipe(
+                return from(listSystemTriggers(id)).pipe(
                     map((_) => _.data),
                     tap(() => setTimeout(() => this.switching.set(false), 200)),
                 );
@@ -501,12 +501,10 @@ export class SignageDisplaysComponent {
     public async setOrientation(orientation: any) {
         const display = this.active_display();
         if (!display) return;
-        await lastValueFrom(
-            updateSystem(
-                display.id,
-                { orientation, version: display.version },
-                'patch',
-            ),
+        await updateSystem(
+            display.id,
+            { orientation, version: display.version },
+            'patch',
         ).catch((e) => {
             notifyError(
                 i18n('APP.CONCIERGE.SIGNAGE_ORIENTATION_ERROR', {
@@ -527,15 +525,13 @@ export class SignageDisplaysComponent {
         });
         const result = await lastValueFrom(ref.afterClosed());
         if (!result) return;
-        await lastValueFrom(
-            updateSystem(
-                display.id,
-                {
-                    zones: unique([...display.zones, result]),
-                    version: display.version,
-                },
-                'patch',
-            ),
+        await updateSystem(
+            display.id,
+            {
+                zones: unique([...display.zones, result]),
+                version: display.version,
+            },
+            'patch',
         ).catch((e) => {
             notifyError(
                 i18n('APP.CONCIERGE.SIGNAGE_ZONE_ERROR', {

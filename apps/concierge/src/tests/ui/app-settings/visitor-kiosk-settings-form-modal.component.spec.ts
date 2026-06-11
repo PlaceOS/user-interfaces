@@ -13,8 +13,6 @@ import {
     SettingsToggleComponent,
 } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
-
 import { UploadButtonComponent } from '../../../app/ui/app-settings/upload-button.component';
 import { VisitorKioskSettingsFormModalComponent } from '../../../app/ui/app-settings/visitor-kiosk-settings-form-modal.component';
 
@@ -63,10 +61,10 @@ describe('VisitorKioskSettingsFormModalComponent', () => {
     });
 
     beforeEach(() => {
-        jest.spyOn(ts_client, 'showMetadata').mockReturnValue(
-            of({ details: {} }) as any,
-        );
-        jest.spyOn(ts_client, 'updateMetadata').mockReturnValue(of({}) as any);
+        jest.spyOn(ts_client, 'showMetadata').mockResolvedValue({
+            details: {},
+        } as never);
+        jest.spyOn(ts_client, 'updateMetadata').mockResolvedValue({} as never);
         (common_mod as any).notifySuccess = jest.fn();
         (common_mod as any).notifyError = jest.fn();
         (common_mod as any).currentUser = jest.fn(() => ({
@@ -211,10 +209,9 @@ describe('VisitorKioskSettingsFormModalComponent', () => {
     });
 
     it('should show error notification when save fails', async () => {
-        const { throwError } = await import('rxjs');
-        jest.spyOn(ts_client, 'updateMetadata').mockReturnValue(
-            throwError(() => ({ message: 'Network error' })) as any,
-        );
+        (ts_client.updateMetadata as jest.Mock).mockRejectedValueOnce({
+            message: 'Network error',
+        } as never);
         await spectator.component.ngOnInit();
         await spectator.component.save().catch(() => {});
         expect(common_mod.notifyError).toHaveBeenCalled();

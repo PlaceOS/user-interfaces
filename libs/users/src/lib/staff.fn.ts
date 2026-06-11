@@ -1,6 +1,6 @@
 import { StaffUser, toQueryString } from '@placeos/common';
 import { get } from '@placeos/ts-client';
-import { Observable } from 'rxjs';
+import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 const STAFF_ENDPOINT = '/api/staff/v1/people';
@@ -21,7 +21,7 @@ export function searchStaff(q: string): Observable<StaffUser[]> {
             'department',
         ].join(','),
     });
-    return get(`${STAFF_ENDPOINT}${q ? '?' + query : ''}`).pipe(
+    return from(get(`${STAFF_ENDPOINT}${q ? '?' + query : ''}`)).pipe(
         map((list) =>
             list.map((item: Record<string, any>) => new StaffUser(item)),
         ),
@@ -33,7 +33,7 @@ export function searchStaff(q: string): Observable<StaffUser[]> {
  * @param id User ID or email
  */
 export function showStaff(id: string) {
-    return get(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`).pipe(
+    return from(get(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`)).pipe(
         map((item) => new StaffUser(item)),
     );
 }
@@ -42,8 +42,6 @@ export function showStaff(id: string) {
  * Get user with their location details
  * @param email User email
  */
-export function locateStaff(email: string) {
-    return get(`${STAFF_ENDPOINT}/${email}`).pipe(
-        map((item) => new StaffUser(item)),
-    );
+export async function locateStaff(email: string): Promise<StaffUser> {
+    return new StaffUser(await get(`${STAFF_ENDPOINT}/${email}`));
 }

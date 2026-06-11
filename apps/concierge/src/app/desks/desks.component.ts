@@ -45,7 +45,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { showMetadata } from '@placeos/ts-client';
-import { combineLatest, forkJoin, of } from 'rxjs';
+import { combineLatest, forkJoin, from, of } from 'rxjs';
 import { catchError, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
@@ -381,7 +381,7 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
             if (!levels.length) return of([]);
             return forkJoin(
                 levels.map((level) =>
-                    showMetadata(level.id, 'desks').pipe(
+                    from(showMetadata(level.id, 'desks')).pipe(
                         map((metadata) =>
                             metadata.details instanceof Array &&
                             metadata.details.length

@@ -1,14 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { AsyncHandler, flatten, OrganisationService } from '@placeos/common';
 import { showMetadata } from '@placeos/ts-client';
-import {
-    catchError,
-    combineLatest,
-    map,
-    of,
-    shareReplay,
-    switchMap,
-} from 'rxjs';
+import { combineLatest, map, shareReplay, switchMap } from 'rxjs';
 
 import { MatDialog } from '@angular/material/dialog';
 import { ExploreDeskInfoComponent } from './explore-desk-info.component';
@@ -28,8 +21,8 @@ export class ExplorePointOfInterestService extends AsyncHandler {
 
     private _features = this._org.active_building.pipe(
         switchMap(() =>
-            showMetadata(this._org.organisation.id, 'points-of-interest').pipe(
-                catchError((_) => of({ details: {} })),
+            showMetadata(this._org.organisation.id, 'points-of-interest').catch(
+                (_) => ({ details: {} }),
             ),
         ),
         map((_) => {

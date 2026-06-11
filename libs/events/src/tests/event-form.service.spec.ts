@@ -11,8 +11,8 @@ import { BehaviorSubject, of, Subject } from 'rxjs';
 
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 
-import * as events_fn from '../lib/events.fn';
 import { EventFormService } from '../lib/event-form.service';
+import * as events_fn from '../lib/events.fn';
 
 jest.mock('../lib/events.fn', () => ({
     ...jest.requireActual('../lib/events.fn'),
@@ -184,7 +184,7 @@ describe('EventFormService', () => {
         service.newForm();
         service.form.patchValue({
             host: 'host@test.com',
-            organiser: { email: 'host@test.com' },
+            organiser: { email: 'host@test.com' } as any,
             creator: 'host@test.com',
             title: 'Boundary booking',
             date: start,
@@ -239,7 +239,7 @@ describe('EventFormService', () => {
         service.newForm(event);
         service.form.patchValue({
             host: new_host,
-            organiser: { email: new_host, name: 'New Host' },
+            organiser: { email: new_host, name: 'New Host' } as any,
         });
 
         await expect(service.postForm(true)).resolves.toBeTruthy();
@@ -264,7 +264,7 @@ describe('EventFormService', () => {
             organiser: {
                 email: 'unauthorised.user@example.com',
                 name: 'Unauthorised User',
-            },
+            } as any,
             creator: 'unauthorised.user@example.com',
             calendar: 'unauthorised.user@example.com',
             title: 'Permission test',
@@ -376,7 +376,7 @@ describe('EventFormService', () => {
             service.newForm();
             service.form.patchValue({
                 host: 'host@test.com',
-                organiser: { email: 'host@test.com' },
+                organiser: { email: 'host@test.com' } as any,
                 creator: 'host@test.com',
                 title: 'All day meeting',
                 date: new Date(2028, 5, 15, 8, 0, 0, 0).valueOf(),
