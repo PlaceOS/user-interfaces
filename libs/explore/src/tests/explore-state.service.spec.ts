@@ -146,6 +146,53 @@ describe('ExploreStateService', () => {
         });
     });
 
+    it('should apply disabled actions from settings', async () => {
+        (spectator.inject(SettingsService) as any).get = jest.fn(
+            (name: string) =>
+                name === 'app.explore.disable_actions' ? 'parking' : undefined,
+        );
+        spectator.service.setActions('parking', [{ id: 'park-1' } as any]);
+        spectator.service.setActions('spaces', [{ id: 'space-1' } as any]);
+        const actions = await nextValueFrom(spectator.service.map_actions);
+        expect(actions).toEqual([{ id: 'space-1' }]);
+    });
+
+    it('should apply disabled features from settings', async () => {
+        (spectator.inject(SettingsService) as any).get = jest.fn(
+            (name: string) =>
+                name === 'app.explore.disable_features'
+                    ? 'parking'
+                    : undefined,
+        );
+        spectator.service.setFeatures('parking', [{ id: 'park-1' } as any]);
+        spectator.service.setFeatures('spaces', [{ id: 'space-1' } as any]);
+        const features = await nextValueFrom(spectator.service.map_features);
+        expect(features).toEqual([{ id: 'space-1' }]);
+    });
+
+    it('should apply disabled labels from settings', async () => {
+        (spectator.inject(SettingsService) as any).get = jest.fn(
+            (name: string) =>
+                name === 'app.explore.disable_labels' ? 'parking' : undefined,
+        );
+        spectator.service.setLabels('parking', [{ id: 'park-1' } as any]);
+        spectator.service.setLabels('spaces', [{ id: 'space-1' } as any]);
+        const labels = await nextValueFrom(spectator.service.map_labels);
+        expect(labels).toEqual([{ id: 'space-1' }]);
+    });
+
+    it('should retain disabled actions after reset', async () => {
+        (spectator.inject(SettingsService) as any).get = jest.fn(
+            (name: string) =>
+                name === 'app.explore.disable_actions' ? 'parking' : undefined,
+        );
+        spectator.service.reset();
+        spectator.service.setActions('parking', [{ id: 'park-1' } as any]);
+        spectator.service.setActions('spaces', [{ id: 'space-1' } as any]);
+        const actions = await nextValueFrom(spectator.service.map_actions);
+        expect(actions).toEqual([{ id: 'space-1' }]);
+    });
+
     it('should apply disabled styles when settings overrides change', async () => {
         let disable_styles;
         (spectator.inject(SettingsService) as any).get = jest.fn(

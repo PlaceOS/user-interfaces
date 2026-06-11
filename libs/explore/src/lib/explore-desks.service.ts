@@ -85,7 +85,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
 
     private _users: Record<string, WritableSignal<string>> = {};
     private _departments: Record<string, string> = {};
-    private _desk_bookings = new Map<string, WritableSignal<Booking[]>>();
+    private _desk_bookings: Record<string, WritableSignal<Booking[]>> = {};
 
     private _checked_in = new BehaviorSubject<string[]>([]);
 
@@ -106,6 +106,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         );
 
     public readonly desk_list = this._state.level.pipe(
+        filter((lvl) => !!lvl),
         debounceTime(50),
         switchMap((lvl) =>
             showMetadata(lvl.id, 'desks')
@@ -117,7 +118,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                     ),
                 ),
         ),
-        catchError((e) => []),
+        catchError(() => of([] as Desk[])),
         shareReplay(1),
     );
 
@@ -242,7 +243,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                             host: currentUser(),
                             resource: {
                                 id,
-                                zones: [level.parent_id, level.id],
+                                zones: [level?.parent_id, level?.id],
                             },
                         },
                         restrictions,

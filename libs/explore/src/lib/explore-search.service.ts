@@ -304,8 +304,8 @@ export class ExploreSearchService {
         tap(() => this._loading.next(true)),
         switchMap((q) =>
             q?.length > 2
-                ? querySystems({ q, zone_id: this._org.organisation.id }).then(
-                      ({ data }) =>
+                ? querySystems({ q, zone_id: this._org.organisation.id })
+                      .then(({ data }) =>
                           data
                               .filter((_) => _.map_id)
                               .map(
@@ -317,10 +317,11 @@ export class ExploreSearchService {
                                           ),
                                       } as any),
                               ),
-                  )
+                      )
+                      .catch(() => [] as Space[])
                 : of([]),
         ),
-        catchError(() => []),
+        catchError(() => of([] as Space[])),
     );
 
     private _desk_search: Observable<Desk[]> = combineLatest([
@@ -343,7 +344,7 @@ export class ExploreSearchService {
                       )
                 : of([]),
         ),
-        catchError(() => []),
+        catchError(() => of([] as Desk[])),
     );
 
     private _maps_people_search: Observable<SearchResult[]> = combineLatest([

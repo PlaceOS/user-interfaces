@@ -137,7 +137,9 @@ export class ExploreLockersService extends AsyncHandler {
                         system: this._org.binding('area_management'),
                     },
                 });
-                const in_use_percent = in_use_count / bank_lockers.length;
+                const in_use_percent = bank_lockers.length
+                    ? in_use_count / bank_lockers.length
+                    : 0;
                 const value =
                     in_use_percent > 0.8
                         ? 'busy'
