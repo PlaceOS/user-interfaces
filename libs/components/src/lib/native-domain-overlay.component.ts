@@ -4,6 +4,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import {
+    getNativeApiKey,
     getNativeDomain,
     getNativeEmail,
     lookupNativeDomainByEmail,
@@ -147,8 +148,10 @@ export class NativeDomainOverlayComponent {
     public readonly domainSet = output<string>();
     public readonly email = signal(getNativeEmail() ?? '');
     public readonly server_address = signal(getNativeDomain() ?? '');
-    public readonly api_key = signal('');
-    public readonly manual_entry = signal(false);
+    public readonly api_key = signal(getNativeApiKey() ?? '');
+    // Start in manual mode when a server is already known (e.g. pushed via
+    // MDM managed config) so the user only has to confirm the settings.
+    public readonly manual_entry = signal(!!getNativeDomain());
     public readonly error = signal('');
     public readonly loading = signal(false);
 

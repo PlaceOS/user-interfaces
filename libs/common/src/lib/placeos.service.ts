@@ -34,6 +34,7 @@ import { HotkeysService } from './hotkeys.service';
 import { LocaleService, setTranslationService } from './locale.service';
 import { MapsPeopleService } from './mapspeople.service';
 import {
+    applyNativeManagedConfig,
     bindNativeAuthRedirects,
     clearNativeApiKey,
     clearNativeDomain,
@@ -44,9 +45,11 @@ import {
     getNativeApiKey,
     getNativeDomain,
     isNativeApp,
+    loadNativeManagedConfig,
     markNativeAuthRedirectConsumed,
     openNativeBrowser,
     restoreNativePkceVerifier,
+    scheduleNativeRestart,
     setNativeAuthError,
 } from './native-app';
 import { notifySuccess, setNotifyOutlet } from './notifications';
@@ -203,7 +206,7 @@ export class PlaceOS_Service extends AsyncHandler {
         this._domain_resolve = null;
     }
 
-    public async init() {
+    public async init(options: { allow_mdm_restart?: boolean } = {}) {
         if (isNativeApp()) {
             // Enables the device safe-area padding in application.css so the
             // OS status/gesture bars don't overlap the edge-to-edge webview.
@@ -302,10 +305,29 @@ export class PlaceOS_Service extends AsyncHandler {
                 queryParams: query,
             });
         }
+        /** Apply any server settings pushed to the device via MDM. */
+        let confirm_managed = false;
+        if (isNativeApp()) {
+            setLoadingMessage('Checking managed configuration...');
+            const managed = await loadNativeManagedConfig().catch(() => null);
+            if (managed) {
+                const changed = applyNativeManagedConfig(managed);
+                if (options.allow_mdm_restart && managed.restart_enabled) {
+                    scheduleNativeRestart(managed.restart_time);
+                }
+                // New settings are shown to the user for validation before
+                // use, unless the MDM config opts out of interactive setup.
+                confirm_managed =
+                    changed &&
+                    !!managed.domain &&
+                    !managed.skip_interactive_setup;
+            }
+        }
         /** On native platforms, ensure we have a server domain before auth. */
         while (isNativeApp()) {
             let domain = getNativeDomain();
-            while (!domain) {
+            while (!domain || confirm_managed) {
+                confirm_managed = false;
                 setLoadingMessage('Waiting for server configuration...');
                 NEEDS_DOMAIN.set(true);
                 await new Promise<void>((r) => (this._domain_resolve = r));

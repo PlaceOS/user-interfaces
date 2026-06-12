@@ -5,7 +5,12 @@ import { querySystems } from '@placeos/ts-client';
 import { combineLatest, of } from 'rxjs';
 import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 
-import { AsyncHandler, OrganisationService, VERSION } from '@placeos/common';
+import {
+    AsyncHandler,
+    getNativeSystemId,
+    OrganisationService,
+    VERSION,
+} from '@placeos/common';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -229,6 +234,12 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
             this._event =
                 this._event ||
                 localStorage.getItem('PLACEOS.Bookings.event') === 'true';
+            // A system pushed via MDM managed config overrides the stored one
+            const mdm_system_id = getNativeSystemId();
+            if (mdm_system_id && mdm_system_id !== system_id) {
+                this.system_id.set(mdm_system_id);
+                return this.configure(mdm_system_id);
+            }
             if (system_id) {
                 this._router.navigate(
                     [this._event ? 'events' : 'panel', system_id],
