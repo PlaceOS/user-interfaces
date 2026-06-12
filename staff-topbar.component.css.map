@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["staff-topbar.component.ts"],
+  "sourcesContent": ["\n            mat-form-field {\n                height: 3.25em;\n                width: 8em;\n            }\n        "],
+  "mappings": ";AACY;AACI,UAAA;AACA,SAAA;AACJ;",
+  "names": []
+}
