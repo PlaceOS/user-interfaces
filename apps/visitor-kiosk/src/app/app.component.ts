@@ -8,7 +8,7 @@ import { parseTokenFromUrl } from './checkin/token-from-url';
     selector: 'app-root',
     template: `
         <global-banner />
-        <div class="relative h-1/2 w-full flex-1">
+        <div content class="relative h-1/2 w-full flex-1 overflow-hidden">
             <router-outlet></router-outlet>
         </div>
         @if (has_chat()) {
@@ -24,6 +24,11 @@ import { parseTokenFromUrl } from './checkin/token-from-url';
                 flex-direction: column;
                 height: 100%;
                 width: 100%;
+                overflow: hidden;
+            }
+
+            [content] > * {
+                overflow: hidden;
             }
         `,
     ],
