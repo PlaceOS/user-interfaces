@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["panel-view-details.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: block;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACJ;",
+  "names": []
+}
