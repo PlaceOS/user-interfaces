@@ -61,21 +61,6 @@
     --error: hsla(354, 75%, 53%, 1);
     --error-light: rgb(255, 235, 238);
     --error-content: hsl(0, 0%, 100%);
-
-    /* Device safe area. iOS reports these through env(); on Android 15+ the
-       Capacitor SystemBars plugin overrides them with inline styles on <html>
-       (the WebView always reports 0 for env() there). */
-    --safe-area-inset-top: env(safe-area-inset-top, 0px);
-    --safe-area-inset-right: env(safe-area-inset-right, 0px);
-    --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
-    --safe-area-inset-left: env(safe-area-inset-left, 0px);
-}
-
-/* Native shells render edge-to-edge, so keep app content clear of the
-   status bar and gesture bar. `native-app` is set in PlaceOS_Service.init. */
-html.native-app body {
-    padding: var(--safe-area-inset-top) var(--safe-area-inset-right)
-        var(--safe-area-inset-bottom) var(--safe-area-inset-left);
 }
 
 .theme-dark {

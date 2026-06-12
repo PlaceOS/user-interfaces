@@ -1,5 +1,4 @@
 import { Component, computed, inject, OnInit } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -8,11 +7,11 @@ import {
     firstTruthyValueFrom,
     log,
     OrganisationService,
+    Point,
     SettingsService,
 } from '@placeos/common';
 import { SpacesService } from '@placeos/events';
 import { ExploreParkingService, ExploreStateService } from '@placeos/explore';
-import { Point } from '@placeos/common';
 
 import {
     IconComponent,
@@ -78,40 +77,23 @@ export class ParkingComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
 
     /** Signal for the active map */
-    public readonly url = toSignal(this._explore.map_url, { initialValue: '' });
+    public readonly url = this._explore.map_url;
     /** Signal for the active map */
-    public readonly styles = toSignal(this._explore.map_styles, {
-        initialValue: { text: { display: 'none' } },
-    });
+    public readonly styles = this._explore.map_styles;
     /** Signal for the active map */
-    public readonly positions = toSignal(this._explore.map_positions, {
-        initialValue: this._explore.positions,
-    });
+    public readonly positions = this._explore.map_positions;
     /** Signal for the active map */
-    public readonly features = toSignal(this._explore.map_features, {
-        initialValue: [],
-    });
+    public readonly features = this._explore.map_features;
     /** Signal for the active map */
-    public readonly actions = toSignal(this._explore.map_actions, {
-        initialValue: [],
-    });
+    public readonly actions = this._explore.map_actions;
     /** Signal for the labels map */
-    public readonly labels = toSignal(this._explore.map_labels, {
-        initialValue: [],
-    });
-    /** Observable for the active map */
+    public readonly labels = this._explore.map_labels;
+    /** Signal for the active map */
     public readonly options = this._explore.options;
     /** Signal for the active parking spaces */
-    public readonly active_spaces = toSignal(this._parking.active_spaces, {
-        initialValue: [],
-    });
+    public readonly active_spaces = this._parking.active_spaces;
     /** Signal for the available parking spaces */
-    public readonly available_spaces = toSignal(
-        this._parking.available_spaces,
-        {
-            initialValue: [],
-        },
-    );
+    public readonly available_spaces = this._parking.available_spaces;
 
     public reset_delay = 180;
 

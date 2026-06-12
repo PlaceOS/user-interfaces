@@ -7,7 +7,6 @@ import {
     signal,
     viewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 
@@ -137,13 +136,9 @@ export class ExploreSearchComponent extends AsyncHandler implements OnInit {
     private readonly _show = signal(false);
     private readonly _search_str = signal('');
     private readonly _right_size = signal(false);
-    public readonly results = toSignal(this._search.search_results, {
-        initialValue: [],
-    });
+    public readonly results = this._search.search_results;
     public readonly results_list = computed(() => this.results() || []);
-    public readonly loading = toSignal(this._search.loading, {
-        initialValue: false,
-    });
+    public readonly loading = this._search.loading;
     public readonly setFilter = (value: string) => {
         this.search_str = value || '';
         this._search.setFilter(value);

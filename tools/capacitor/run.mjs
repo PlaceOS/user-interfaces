@@ -69,6 +69,8 @@ function ensurePlatform(app_name, platform) {
     }
     if (platform === 'android') {
         patchAndroidManifest(app_root, getAppConfig(app_name).bundle_id);
+        patchAndroidRestrictions(app_root);
+        patchAndroidFullscreen(app_root);
     }
     if (platform === 'ios') {
         patchIosPlist(app_root, getAppConfig(app_name).bundle_id);
@@ -103,6 +105,109 @@ function patchAndroidManifest(app_root, bundle_id) {
     console.log('Patched AndroidManifest.xml with auth callback scheme');
 }
 
+// Declare the managed configuration keys MDM platforms can push to the app
+// (https://docs.placeos.com/placeos/how-to/user-interfaces/native-booking-panel-app/)
+// so EMM consoles can discover and present them. The values are read in JS
+// via the ManagedConfigurations Capacitor plugin.
+function patchAndroidRestrictions(app_root) {
+    const main_root = path.join(app_root, 'android', 'app', 'src', 'main');
+    const manifest_path = path.join(main_root, 'AndroidManifest.xml');
+    if (!existsSync(manifest_path)) return;
+
+    const xml_root = path.join(main_root, 'res', 'xml');
+    mkdirSync(xml_root, { recursive: true });
+    const restrictions = [
+        '<?xml version="1.0" encoding="utf-8"?>',
+        '<restrictions xmlns:android="http://schemas.android.com/apk/res/android">',
+        '    <restriction',
+        '        android:key="domainName"',
+        '        android:restrictionType="string"',
+        '        android:title="@string/restriction_domain_name" />',
+        '    <restriction',
+        '        android:key="apiKey"',
+        '        android:restrictionType="string"',
+        '        android:title="@string/restriction_api_key" />',
+        '    <restriction',
+        '        android:key="SystemId"',
+        '        android:restrictionType="string"',
+        '        android:title="@string/restriction_system_id" />',
+        '    <restriction',
+        '        android:key="restartTime"',
+        '        android:restrictionType="integer"',
+        '        android:defaultValue="0"',
+        '        android:title="@string/restriction_restart_time" />',
+        '    <restriction',
+        '        android:key="restartEnabled"',
+        '        android:restrictionType="bool"',
+        '        android:defaultValue="true"',
+        '        android:title="@string/restriction_restart_enabled" />',
+        '    <restriction',
+        '        android:key="skipInteractiveSetup"',
+        '        android:restrictionType="bool"',
+        '        android:defaultValue="false"',
+        '        android:title="@string/restriction_skip_interactive_setup" />',
+        '</restrictions>',
+        '',
+    ].join('\n');
+    writeFileSync(path.join(xml_root, 'app_restrictions.xml'), restrictions);
+
+    const values_root = path.join(main_root, 'res', 'values');
+    mkdirSync(values_root, { recursive: true });
+    const strings = [
+        '<?xml version="1.0" encoding="utf-8"?>',
+        '<resources>',
+        '    <string name="restriction_domain_name">Server Domain</string>',
+        '    <string name="restriction_api_key">API Key</string>',
+        '    <string name="restriction_system_id">System ID</string>',
+        '    <string name="restriction_restart_time">Restart Hour (0-23)</string>',
+        '    <string name="restriction_restart_enabled">Daily Restart Enabled</string>',
+        '    <string name="restriction_skip_interactive_setup">Skip Interactive Setup</string>',
+        '</resources>',
+        '',
+    ].join('\n');
+    writeFileSync(path.join(values_root, 'restriction_strings.xml'), strings);
+
+    let manifest = readFileSync(manifest_path, 'utf8');
+    if (manifest.includes('android.content.APP_RESTRICTIONS')) return;
+    const meta_data = [
+        '        <meta-data',
+        '            android:name="android.content.APP_RESTRICTIONS"',
+        '            android:resource="@xml/app_restrictions" />',
+    ].join('\n');
+    manifest = manifest.replace(
+        '</application>',
+        `${meta_data}\n    </application>`,
+    );
+    writeFileSync(manifest_path, manifest);
+    console.log('Patched AndroidManifest.xml with managed config restrictions');
+}
+
+// Hide the Android status bar from the window themes so it never shows
+// during launch. Android 15+ ignores these legacy window flags (edge-to-edge
+// enforcement) — there the StatusBar plugin hides it via
+// WindowInsetsController once the webview loads.
+function patchAndroidFullscreen(app_root) {
+    const styles_path = path.join(
+        app_root,
+        'android',
+        'app',
+        'src',
+        'main',
+        'res',
+        'values',
+        'styles.xml',
+    );
+    if (!existsSync(styles_path)) return;
+    let styles = readFileSync(styles_path, 'utf8');
+    if (styles.includes('android:windowFullscreen')) return;
+    styles = styles.replace(
+        /(<style[^>]*>)/g,
+        '$1\n        <item name="android:windowFullscreen">true</item>',
+    );
+    writeFileSync(styles_path, styles);
+    console.log('Patched styles.xml to hide the Android status bar');
+}
+
 function patchIosPlist(app_root, bundle_id) {
     const plist_path = path.join(app_root, 'ios', 'App', 'App', 'Info.plist');
     if (!existsSync(plist_path)) return;
@@ -134,6 +239,22 @@ function patchIosPlist(app_root, bundle_id) {
                 '\t\t<true/>',
                 '\t</dict>',
             ].join('\n'),
+        );
+    }
+    // Hide the status bar from launch. The Capacitor bridge view controller
+    // reads this key for its initial status bar visibility, so it stays
+    // hidden after the splash without waiting for the runtime hide() call.
+    if (!plist.includes('UIStatusBarHidden')) {
+        entries.push(
+            ['\t<key>UIStatusBarHidden</key>', '\t<true/>'].join('\n'),
+        );
+    }
+    // iPadOS ignores status bar hiding for apps that support multitasking
+    // (Split View/Slide Over) — the app must require fullscreen for
+    // UIStatusBarHidden/prefersStatusBarHidden to take effect on iPad.
+    if (!plist.includes('UIRequiresFullScreen')) {
+        entries.push(
+            ['\t<key>UIRequiresFullScreen</key>', '\t<true/>'].join('\n'),
         );
     }
     if (!entries.length) return;

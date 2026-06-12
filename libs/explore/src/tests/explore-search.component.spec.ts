@@ -1,3 +1,5 @@
+import { signal } from '@angular/core';
+import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -5,7 +7,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 
 import { ExploreSearchComponent } from '../lib/explore-search.component';
 import { ExploreSearchService } from '../lib/explore-search.service';
@@ -16,8 +17,8 @@ describe('ExploreSearchComponent', () => {
         component: ExploreSearchComponent,
         providers: [
             MockProvider(ExploreSearchService, {
-                search_results: new BehaviorSubject(null),
-                loading: new BehaviorSubject(''),
+                search_results: signal(null),
+                loading: signal(false),
                 setFilter: jest.fn(),
             } as any),
             MockProvider(Router, { navigate: jest.fn() }),
@@ -44,7 +45,7 @@ describe('ExploreSearchComponent', () => {
         expect('mat-option').not.toExist();
         spectator.typeInElement('test', 'input');
         expect(service.setFilter).toHaveBeenCalledWith('test');
-        (service.search_results as any).next([
+        (service.search_results as any).set([
             { id: '1', name: 'First' },
             { id: '2', name: 'Second' },
         ]);
@@ -57,7 +58,7 @@ describe('ExploreSearchComponent', () => {
         spectator.typeInElement('test', 'input');
         spectator.detectChanges();
         const service = spectator.inject(ExploreSearchService);
-        (service.search_results as any).next([
+        (service.search_results as any).set([
             { id: '1', name: 'First' },
             { id: '2', name: 'Second' },
         ]);

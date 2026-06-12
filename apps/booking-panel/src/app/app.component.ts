@@ -36,6 +36,6 @@ export class AppComponent implements OnInit {
 
     public ngOnInit(): void {
         setMocks(mocksInit);
-        this._placeos.init();
+        this._placeos.init({ allow_mdm_restart: true });
     }
 }

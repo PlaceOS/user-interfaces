@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import {
     Building,
@@ -21,8 +22,8 @@ describe('ExploreStateService', () => {
         service: ExploreZonesService,
         providers: [
             MockProvider(ExploreStateService, {
-                level: new BehaviorSubject({ id: 'lvl-1' } as any),
-                options: new BehaviorSubject({ is_public: false }),
+                level: signal({ id: 'lvl-1' }) as any,
+                options: signal({ is_public: false }) as any,
                 setFeatures: jest.fn(),
                 setLabels: jest.fn(),
                 setStyles: jest.fn(),
@@ -42,7 +43,7 @@ describe('ExploreStateService', () => {
     });
 
     beforeEach(() => {
-        (ts_client as any).showMetadata = jest.fn(() => of({}));
+        (ts_client as any).showMetadata = jest.fn(() => Promise.resolve({}));
         spectator = createService();
     });
 

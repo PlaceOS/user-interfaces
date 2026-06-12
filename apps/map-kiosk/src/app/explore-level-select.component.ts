@@ -1,9 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
-import { nextValueFrom, OrganisationService } from '@placeos/common';
+import { OrganisationService } from '@placeos/common';
 import { ExploreStateService } from '@placeos/explore';
-import { first } from 'rxjs/operators';
 
 @Component({
     selector: 'explore-level-select',
@@ -47,14 +46,7 @@ export class ExploreLevelSelectComponent {
     public readonly levels = toSignal(this._org.active_levels, {
         initialValue: [],
     });
-    public readonly level = toSignal(this._state.level, {
-        initialValue: undefined,
-    });
+    public readonly level = this._state.level;
 
     public readonly setLevel = (lvl) => this._state.setLevel(lvl.id);
-
-    public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
-        const levels = await nextValueFrom(this._org.active_levels);
-    }
 }

@@ -1,5 +1,8 @@
 const DOMAIN_STORAGE_KEY = 'PlaceOS.native.domain';
 const EMAIL_STORAGE_KEY = 'PlaceOS.native.email';
+const API_KEY_STORAGE_KEY = 'PlaceOS.native.api_key';
+const SYSTEM_ID_STORAGE_KEY = 'PlaceOS.native.system_id';
+const MANAGED_CONFIG_STORAGE_KEY = 'PlaceOS.native.managed_config';
 const APP_ID_STORAGE_KEY = 'PlaceOS.native.app_id';
 const LAST_AUTH_URL_STORAGE_KEY = 'PlaceOS.native.last_auth_url';
 const CONSUMED_AUTH_URL_STORAGE_KEY = 'PlaceOS.native.consumed_auth_url';
@@ -248,6 +251,22 @@ export function consumeNativeAuthError(): string {
     return message;
 }
 
+/**
+ * Hide the OS status bar so the webview renders truly fullscreen. The iOS
+ * Info.plist hides it during launch; this keeps it hidden once the bridge
+ * view controller takes over, and handles Android (where the launch theme
+ * flags are ignored on 15+ in favour of WindowInsetsController).
+ */
+export async function hideNativeStatusBar(): Promise<void> {
+    if (!isNativeApp()) return;
+    await callNativeMethod('StatusBar', 'setOverlaysWebView', {
+        overlay: true,
+    })?.catch(() => null);
+    await callNativeMethod('StatusBar', 'hide', { animation: 'NONE' })?.catch(
+        () => null,
+    );
+}
+
 export async function closeNativeBrowser(): Promise<void> {
     await callNativeMethod('Browser', 'close')?.catch(() => null);
 }
@@ -284,6 +303,184 @@ export function setNativeEmail(email: string): void {
 /** Clear the stored API domain. */
 export function clearNativeDomain(): void {
     localStorage.removeItem(DOMAIN_STORAGE_KEY);
+}
+
+/** Retrieve the stored API key, or null if none has been saved. */
+export function getNativeApiKey(): string | null {
+    return localStorage.getItem(API_KEY_STORAGE_KEY);
+}
+
+/** Persist an API key to use for auth instead of the OAuth flow. */
+export function setNativeApiKey(api_key: string): void {
+    const value = `${api_key || ''}`.trim();
+    if (!value) return clearNativeApiKey();
+    localStorage.setItem(API_KEY_STORAGE_KEY, value);
+}
+
+/** Clear the stored API key. */
+export function clearNativeApiKey(): void {
+    localStorage.removeItem(API_KEY_STORAGE_KEY);
+}
+
+/**
+ * Normalise a user-entered server address to a bare `host[:port]` — the
+ * form expected by `setNativeDomain`. Accepts full URLs or bare hosts.
+ * Returns an empty string when the address can't be parsed.
+ */
+export function normaliseNativeDomain(address: string): string {
+    let value = `${address || ''}`.trim();
+    if (!value) return '';
+    if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(value)) value = `https://${value}`;
+    try {
+        const url = new URL(value);
+        if (url.protocol !== 'https:' && url.protocol !== 'http:') return '';
+        if (!url.hostname) return '';
+        return url.port ? `${url.hostname}:${url.port}` : url.hostname;
+    } catch {
+        return '';
+    }
+}
+
+/**
+ * Settings pushed to the device by an MDM platform via managed app
+ * configuration. Keys follow the native booking panel app convention:
+ * https://docs.placeos.com/placeos/how-to/user-interfaces/native-booking-panel-app/
+ */
+export interface NativeManagedConfig {
+    /** Normalised `host[:port]` from the `domainName` key. */
+    domain: string;
+    /** API key to authenticate with instead of the OAuth flow. */
+    api_key: string;
+    /** System for panel apps (booking panel/control) to bind to. */
+    system_id: string;
+    /** Whether to restart (reload) the app daily. Defaults to true. */
+    restart_enabled: boolean;
+    /** Hour of the day (0-23) to restart at. Defaults to midnight. */
+    restart_time: number;
+    /** Whether to apply settings without asking the user to confirm. */
+    skip_interactive_setup: boolean;
+}
+
+async function readManagedValue<T>(
+    method_name: 'getString' | 'getNumber' | 'getBoolean',
+    key: string,
+): Promise<T | null> {
+    const result = callNativeMethod('ManagedConfigurations', method_name, {
+        key,
+    });
+    if (!result) return null;
+    const { value } = await result.catch(() => ({ value: null }));
+    return value ?? null;
+}
+
+/**
+ * Read the managed app configuration pushed by an MDM platform via the
+ * ManagedConfigurations plugin. Returns null outside the native shell or
+ * when no configuration has been pushed to the device.
+ */
+export async function loadNativeManagedConfig(): Promise<NativeManagedConfig | null> {
+    if (!isNativeApp()) return null;
+    const [
+        domain_name,
+        api_key,
+        system_id,
+        restart_time,
+        restart_enabled,
+        skip_setup,
+    ] = await Promise.all([
+        readManagedValue<string>('getString', 'domainName'),
+        readManagedValue<string>('getString', 'apiKey'),
+        readManagedValue<string>('getString', 'SystemId'),
+        readManagedValue<number>('getNumber', 'restartTime'),
+        readManagedValue<boolean>('getBoolean', 'restartEnabled'),
+        readManagedValue<boolean>('getBoolean', 'skipInteractiveSetup'),
+    ]);
+    const domain = normaliseNativeDomain(`${domain_name || ''}`);
+    if (!domain && !api_key && !system_id) return null;
+    return {
+        domain,
+        api_key: `${api_key || ''}`.trim(),
+        system_id: `${system_id || ''}`.trim(),
+        restart_enabled: restart_enabled !== false,
+        restart_time: Math.min(23, Math.max(0, Math.round(restart_time || 0))),
+        skip_interactive_setup: skip_setup === true,
+    };
+}
+
+/**
+ * Persist the managed configuration as the active server settings.
+ * Returns true when the configuration differs from the last one applied —
+ * a re-push of identical settings doesn't disturb the local state.
+ */
+export function applyNativeManagedConfig(config: NativeManagedConfig): boolean {
+    const fingerprint = JSON.stringify([
+        config.domain,
+        config.api_key,
+        config.system_id,
+    ]);
+    if (localStorage.getItem(MANAGED_CONFIG_STORAGE_KEY) === fingerprint) {
+        return false;
+    }
+    if (config.domain) {
+        setNativeDomain(config.domain);
+        setNativeApiKey(config.api_key);
+    }
+    if (config.system_id) {
+        localStorage.setItem(SYSTEM_ID_STORAGE_KEY, config.system_id);
+    } else {
+        localStorage.removeItem(SYSTEM_ID_STORAGE_KEY);
+    }
+    localStorage.setItem(MANAGED_CONFIG_STORAGE_KEY, fingerprint);
+    return true;
+}
+
+/** Retrieve the system ID provided via MDM managed configuration. */
+export function getNativeSystemId(): string {
+    return localStorage.getItem(SYSTEM_ID_STORAGE_KEY) || '';
+}
+
+let _managed_config_sync: Promise<{
+    config: NativeManagedConfig | null;
+    changed: boolean;
+}> | null = null;
+
+/**
+ * Load and persist the MDM managed configuration exactly once per launch.
+ * Callers racing on startup (app initialisation and the bootstrap screens)
+ * share the same read, so awaiting this guarantees the managed settings are
+ * in localStorage before acting on them.
+ */
+export function syncNativeManagedConfig(): Promise<{
+    config: NativeManagedConfig | null;
+    changed: boolean;
+}> {
+    if (!_managed_config_sync) {
+        _managed_config_sync = loadNativeManagedConfig()
+            .then((config) => ({
+                config,
+                changed: config ? applyNativeManagedConfig(config) : false,
+            }))
+            .catch(() => ({ config: null, changed: false }));
+    }
+    return _managed_config_sync;
+}
+
+let _restart_timer: ReturnType<typeof setTimeout> | null = null;
+
+/**
+ * Reload the webview at the next occurrence of the given hour. The reload
+ * re-runs app initialisation, which re-reads the managed configuration and
+ * schedules the following restart.
+ */
+export function scheduleNativeRestart(hour: number): void {
+    if (!isNativeApp() || _restart_timer) return;
+    const next = new Date();
+    next.setHours(hour, 0, 0, 0);
+    if (next.valueOf() <= Date.now()) next.setDate(next.getDate() + 1);
+    _restart_timer = setTimeout(
+        () => location.reload(),
+        next.valueOf() - Date.now(),
+    );
 }
 
 export async function lookupNativeDomainByEmail(

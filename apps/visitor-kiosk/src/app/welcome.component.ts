@@ -30,7 +30,7 @@ import {
 @Component({
     selector: 'app-welcome',
     template: `
-        <div class="absolute inset-0 flex items-center p-8">
+        <div class="absolute inset-0 flex items-center overflow-hidden p-8">
             <img
                 auth
                 [source]="background()"

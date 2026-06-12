@@ -36,7 +36,7 @@ function parseJson<T>(value: string, fallback: T): T {
     }
 }
 
-function lockerBankFromAsset(asset: PlaceAsset): LockerBank {
+export function lockerBankFromAsset(asset: PlaceAsset): LockerBank {
     const data = asset.other_data || {};
     return {
         id: asset.id,
@@ -51,7 +51,10 @@ function lockerBankFromAsset(asset: PlaceAsset): LockerBank {
     } as LockerBank;
 }
 
-function lockerFromAsset(asset: PlaceAsset, banks: LockerBank[]): Locker {
+export function lockerFromAsset(
+    asset: PlaceAsset,
+    banks: LockerBank[],
+): Locker {
     const data = asset.other_data || {};
     const bank_id = (asset as any).parent_id || '';
     const bank = banks.find((_) => _.id === bank_id);

@@ -18,14 +18,13 @@ import {
     AsyncHandler,
     MapsPeopleService,
     OrganisationService,
-    i18n,
+    ViewAction,
+    ViewerStyles,
+    firstTruthyValueFrom,
     log,
     notifyError,
 } from '@placeos/common';
-import { ViewAction, ViewerStyles } from '@placeos/common';
 import { MapService } from 'libs/common/src/lib/mapspeople.service';
-import { combineLatest } from 'rxjs';
-import { filter, first, map } from 'rxjs/operators';
 import { ExploreStateService } from '../../../explore/src/lib/explore-state.service';
 import { IconComponent } from './icon.component';
 
@@ -244,26 +243,11 @@ export class IndoorMapsComponent
     public route_error_message: string = '';
     public coordinates = signal<CustomCoordinates | null>(null);
 
-    public readonly buildings = this._org.building_list;
-    public readonly building = this._org.active_building;
     public readonly setBuilding = (b) => {
         this._org.building = b;
         this._setLocationToBuilding();
     };
 
-    public readonly levels = combineLatest([
-        this.building,
-        this._state.options,
-    ]).pipe(
-        filter(([_]) => !!_),
-        map(([bld]) => [
-            {
-                id: this._org.building.id,
-                name: i18n('COMMON.LEVEL_ALL'),
-            },
-            ...this._org.levelsForBuilding(bld),
-        ]),
-    );
     public floor_mapping: { [id: string]: string } = {};
 
     readonly searchElement = viewChild<ElementRef>('searchInput');
@@ -275,7 +259,7 @@ export class IndoorMapsComponent
 
     async ngOnInit() {
         this.loading.set(true);
-        await this._org.initialised.pipe(first((_) => !!_)).toPromise();
+        await firstTruthyValueFrom(this._org.initialised);
         this.setBuilding(this._org.building);
         const custom_coordinates = this.custom_coordinates();
         if (custom_coordinates) this.coordinates.set(custom_coordinates);

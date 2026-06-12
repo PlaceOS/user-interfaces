@@ -1,9 +1,20 @@
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { AsyncHandler, OrganisationService, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    firstTruthyValueFrom,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { InteractiveMapComponent } from '@placeos/components';
 import { ExploreParkingService, ExploreStateService } from '@placeos/explore';
-import { first } from 'rxjs/operators';
 import { ParkingOptions, ParkingStateService } from './parking-state.service';
 
 @Component({
@@ -46,19 +57,11 @@ export class ParkingMapComponent extends AsyncHandler implements OnInit {
     public readonly options = toSignal(this._parking.options, {
         initialValue: this._default_options,
     });
-    public readonly url = toSignal(this._explore.map_url, { initialValue: '' });
-    public readonly raw_styles = toSignal(this._explore.map_styles, {
-        initialValue: { text: { display: '' } } as any,
-    });
-    public readonly features = toSignal(this._explore.map_features, {
-        initialValue: [],
-    });
-    public readonly actions = toSignal(this._explore.map_actions, {
-        initialValue: [],
-    });
-    public readonly labels = toSignal(this._explore.map_labels, {
-        initialValue: [],
-    });
+    public readonly url = this._explore.map_url;
+    public readonly raw_styles = this._explore.map_styles;
+    public readonly features = this._explore.map_features;
+    public readonly actions = this._explore.map_actions;
+    public readonly labels = this._explore.map_labels;
     public readonly disable_styles = this._settings.signal(
         'parking.disable_styles',
         false,
@@ -89,7 +92,7 @@ export class ParkingMapComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await firstTruthyValueFrom(this._org.initialised);
         this._ready.set(true);
         this.subscription('parking_poll', this._ex_parking.startPolling());
         this._ex_parking.on_book = async (space) => {

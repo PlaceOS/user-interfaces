@@ -6,10 +6,8 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { getModule } from '@placeos/ts-client';
 import { differenceInMinutes, formatDistanceToNow } from 'date-fns';
-import { Observable } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
@@ -26,7 +24,6 @@ export interface DeviceInfoData {
     ssid?: string;
     user?: any;
     bg_color?: string;
-    zoom$?: Observable<number>;
 }
 
 const EMPTY: string[] = [];
@@ -193,7 +190,7 @@ export class ExploreDeviceInfoComponent {
     /** Background color for the dot */
     public readonly bg_color = this._details.bg_color || this._distance_color;
 
-    public zoom = toSignal(this._details.zoom$, { initialValue: 1 });
+    public zoom = signal(1);
 
     public hide_fields = computed(() => {
         return (

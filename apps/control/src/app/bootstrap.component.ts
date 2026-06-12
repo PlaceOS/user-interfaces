@@ -14,8 +14,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     AsyncHandler,
+    getNativeSystemId,
     OrganisationService,
     Space,
+    syncNativeManagedConfig,
     VERSION,
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
@@ -228,11 +230,21 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     /**
      * Check if the application has previously been bootstrapped
      */
-    private checkBootstrapped(): void {
+    private async checkBootstrapped(): Promise<void> {
         if (this.system_id()) return;
         this.loading.set('Checks');
+        // Wait for any MDM managed configuration to be stored locally, as it
+        // takes precedence over previously stored bootstrap settings.
+        await syncNativeManagedConfig();
+        if (this.system_id()) return;
         if (localStorage) {
             const system_id = localStorage.getItem(STORE_KEY);
+            // A system pushed via MDM managed config overrides the stored one
+            const mdm_system_id = getNativeSystemId();
+            if (mdm_system_id && mdm_system_id !== system_id) {
+                this.system_id.set(mdm_system_id);
+                return this.configure(mdm_system_id);
+            }
             if (system_id) {
                 this._router.navigate(['/tabbed', system_id], {
                     queryParamsHandling: 'preserve',

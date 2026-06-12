@@ -1,6 +1,4 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { AsyncHandler } from '@placeos/common';
-import { Observable } from 'rxjs';
 
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 
@@ -15,10 +13,6 @@ export interface MapPolygonData {
     ratio?: number;
     svg_ratio?: number;
     zoom_value?: number;
-    ratio$?: Observable<number>;
-    svg_ratio$?: Observable<number>;
-    zoom$?: Observable<number>;
-    data$?: Observable<MapPolygonData>;
 }
 
 @Component({
@@ -79,7 +73,7 @@ export interface MapPolygonData {
         `,
     ],
 })
-export class MapPolygonComponent extends AsyncHandler implements OnInit {
+export class MapPolygonComponent implements OnInit {
     private _details = inject<MapPolygonData>(MAP_FEATURE_DATA);
 
     /** Message to display above the pin */
@@ -100,37 +94,7 @@ export class MapPolygonComponent extends AsyncHandler implements OnInit {
 
     public readonly point_list = signal<[number, number][]>([]);
 
-    constructor() {
-        super();
-    }
-
     public ngOnInit(): void {
-        if (this._details.data$) {
-            this.subscription(
-                'data',
-                this._details.data$.subscribe((_) => {
-                    this.name.set(_.name);
-                    this.fill.set(`${_.color || '#e53935'}88`);
-                    this.stroke.set(_.color || '#e53935');
-                    this.processPoints(_.points);
-                }),
-            );
-        }
-        this.subscription(
-            'ratio',
-            this._details.ratio$?.subscribe((_) => {
-                this._details.ratio = _;
-                this.processPoints(this._details.points);
-            }),
-        );
-        this.subscription(
-            'zoom',
-            this._details.zoom$?.subscribe((_) => this.zoom_value.set(_)),
-        );
-        this.subscription(
-            'svg_ratio',
-            this._details.svg_ratio$?.subscribe((_) => this.scale.set(_)),
-        );
         this.processPoints(this._details.points);
     }
 

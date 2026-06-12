@@ -4,12 +4,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Point } from '@placeos/common';
 
 import { MatRippleModule } from '@angular/material/core';
-import { MatSlideToggle } from '@angular/material/slide-toggle';
-
-import { first } from 'rxjs/operators';
 
 import {
     AsyncHandler,
+    firstTruthyValueFrom,
     i18n,
     MapsPeopleService,
     notifyError,
@@ -31,6 +29,7 @@ import { MapLocation } from 'libs/users/src/lib/location.class';
 import { showStaff } from 'libs/users/src/lib/staff.fn';
 
 import { FormsModule } from '@angular/forms';
+import { SettingsToggleComponent } from '@placeos/components';
 import { ExploreDesksService } from './explore-desks.service';
 import { ExploreLockersService } from './explore-lockers.service';
 import { ExploreMapControlComponent } from './explore-map-control.component';
@@ -41,15 +40,6 @@ import { ExploreStateService } from './explore-state.service';
 import { ExploreZonesService } from './explore-zones.service';
 
 const EMPTY = [];
-
-function toOptionalSignal<T>(
-    source: { subscribe?: Function },
-    initial: T,
-): any {
-    return source?.subscribe
-        ? toSignal(source as any, { initialValue: initial })
-        : signal(initial);
-}
 
 @Component({
     selector: 'explore-map-view',
@@ -67,53 +57,48 @@ function toOptionalSignal<T>(
         @if (!use_mapsindoors()) {
             <div
                 controls
-                class="border-base-200 bg-base-100 absolute top-2 left-2 max-w-[calc(100vw-1rem)] space-y-2 overflow-hidden rounded-sm border p-2"
+                class="border-base-300 bg-base-100 absolute top-2 left-2 max-w-[calc(100vw-1rem)] space-y-2 overflow-hidden rounded-lg border p-2 shadow-xl"
             >
                 <explore-map-controls></explore-map-controls>
                 @if (!hide_zones()) {
-                    <div class="flex items-center space-x-2">
-                        <mat-slide-toggle
-                            name="zones"
-                            class="ml-2"
-                            [ngModel]="!options()?.disable?.includes('zones')"
-                            (ngModelChange)="toggleZones($event)"
-                        ></mat-slide-toggle>
-                        <label for="zones" class="mb-0">{{
-                            'EXPLORE.AREAS' | translate
-                        }}</label>
-                    </div>
+                    <settings-toggle
+                        class="mt-2"
+                        [name]="'EXPLORE.AREAS' | translate"
+                        [ngModel]="!options()?.disable?.includes('zones')"
+                        (ngModelChange)="toggleZones($event)"
+                    />
                 }
             </div>
         }
         @if (show_legend() && legend().length) {
             <div
                 legend
-                class="border-base-300 bg-base-100 absolute bottom-2 left-2 rounded-lg border gap-2"
+                class="border-base-300 bg-base-100 absolute bottom-2 left-2 gap-2 rounded-lg border"
             >
                 @if (legend().length > 3) {
                     <button
                         type="button"
-                        class="flex w-full items-center justify-between space-x-4 text-left font-medium sm:hidden min-w-64 p-3"
+                        class="flex w-full min-w-64 items-center justify-between space-x-4 p-3 text-left font-medium sm:hidden"
                         [attr.aria-expanded]="!legend_collapsed()"
                         aria-controls="explore-map-legend-items"
                         (click)="legend_collapsed.set(!legend_collapsed())"
                     >
                         <div>{{ 'EXPLORE.LEGEND' | translate }}</div>
-                        <div class="text-sm sm:hidden underline">
+                        <div class="text-sm underline sm:hidden">
                             {{ legend_collapsed() ? 'Show' : 'Hide' }}
                         </div>
                     </button>
-                    <h3 class="hidden sm:block font-medium p-3 min-w-64">
+                    <h3 class="hidden min-w-64 p-3 font-medium sm:block">
                         {{ 'EXPLORE.LEGEND' | translate }}
                     </h3>
                 } @else {
-                    <h3 class="font-medium p-3 min-w-64">
+                    <h3 class="min-w-64 p-3 font-medium">
                         {{ 'EXPLORE.LEGEND' | translate }}
                     </h3>
                 }
                 <div
                     id="explore-map-legend-items"
-                    class="space-y-1 sm:block px-4 pb-3"
+                    class="space-y-1 px-4 pb-3 sm:block"
                     [class.hidden]="legend_collapsed() && legend().length > 3"
                 >
                     @for (pair of legend(); track pair) {
@@ -162,10 +147,10 @@ function toOptionalSignal<T>(
     imports: [
         TranslatePipe,
         InteractiveMapComponent,
-        MatSlideToggle,
         MatRippleModule,
         ExploreMapControlComponent,
         FormsModule,
+        SettingsToggleComponent,
     ],
 })
 export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
@@ -184,29 +169,22 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
     private _space_pipe = inject(SpacePipe);
     private _maps = inject(MapsPeopleService);
 
-    /** Observable for the active map */
-    public readonly url = toOptionalSignal(this._state.map_url, '');
-    /** Observable for the active map */
-    public readonly styles = toOptionalSignal(this._state.map_styles, {
-        text: { display: 'none' },
-    });
-    /** Observable for the active map */
-    public readonly positions = toOptionalSignal(this._state.map_positions, {
-        initialValue: this._state.positions,
-    } as any);
-    /** Observable for the active map */
-    public readonly features = toOptionalSignal(this._state.map_features, []);
-    /** Observable for the active map */
-    public readonly actions = toOptionalSignal(this._state.map_actions, []);
-    /** Observable for the labels map */
-    public readonly labels = toOptionalSignal(this._state.map_labels, []);
-    /** Observable for the active map */
-    public readonly options = toOptionalSignal(this._state.options, {
-        is_public: false,
-        disable: ['zones', 'devices'],
-    });
-    /** Observable for user messages */
-    public readonly message = toOptionalSignal(this._state.message, '');
+    /** Signal for the active map */
+    public readonly url = this._state.map_url;
+    /** Signal for the active map */
+    public readonly styles = this._state.map_styles;
+    /** Signal for the active map */
+    public readonly positions = this._state.map_positions;
+    /** Signal for the active map */
+    public readonly features = this._state.map_features;
+    /** Signal for the active map */
+    public readonly actions = this._state.map_actions;
+    /** Signal for the labels map */
+    public readonly labels = this._state.map_labels;
+    /** Signal for the active map */
+    public readonly options = this._state.options;
+    /** Signal for user messages */
+    public readonly message = this._state.message;
 
     public readonly setOptions = (o) => this._state.setOptions(o);
 
@@ -233,9 +211,9 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         EMPTY,
     );
 
-    public readonly use_mapsindoors = toOptionalSignal(
+    public readonly use_mapsindoors = toSignal(
         this._maps.available$ || (this._maps as any).use_mapspeople$,
-        false,
+        { initialValue: false },
     );
 
     constructor() {
@@ -244,7 +222,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
 
     public async ngOnInit() {
         this._state.reset();
-        await this._spaces.initialised.pipe(first((_) => _)).toPromise();
+        await firstTruthyValueFrom(this._spaces.initialised);
         this.toggleZones(false);
         this.subscription(
             'parking_poll',

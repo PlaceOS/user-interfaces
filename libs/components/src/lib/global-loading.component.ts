@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import {
     AsyncHandler,
+    autoConfirmNativeDomain,
     firstTruthyValueFrom,
     getLoadingMessage,
     nativeDomainError,
@@ -22,6 +23,7 @@ import { TranslatePipe } from './translate.pipe';
         @if (show_domain_overlay()) {
             <native-domain-overlay
                 [serverError]="domain_error()"
+                [autoAccept]="auto_confirm()"
                 (domainSet)="onDomainSet()"
             ></native-domain-overlay>
         }
@@ -86,6 +88,7 @@ export class GlobalLoadingComponent extends AsyncHandler implements OnInit {
     public readonly message = getLoadingMessage();
     public readonly show_domain_overlay = needsNativeDomain();
     public readonly domain_error = nativeDomainError();
+    public readonly auto_confirm = autoConfirmNativeDomain();
 
     public onDomainSet(): void {
         this._placeos.onNativeDomainSet();

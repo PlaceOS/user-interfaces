@@ -238,7 +238,7 @@ export class ExploreDeskInfoComponent extends AsyncHandler implements OnInit {
     );
     public readonly next_booking = computed(
         () =>
-            this.bookings()
+            this.bookings?.()
                 .filter(
                     (booking) =>
                         booking.date > this.active_time() &&
@@ -247,7 +247,7 @@ export class ExploreDeskInfoComponent extends AsyncHandler implements OnInit {
                 .sort((a, b) => a.date - b.date)[0],
     );
     public readonly current_booking = computed(() =>
-        this.bookings().find(
+        this.bookings?.().find(
             (booking) =>
                 this.active_time() >= booking.date &&
                 this.active_time() < booking.date_end,
@@ -260,7 +260,7 @@ export class ExploreDeskInfoComponent extends AsyncHandler implements OnInit {
         () =>
             this.display_booking()?.user_name ||
             this.display_booking()?.booked_by_name ||
-            this.user(),
+            this.user?.(),
     );
     public readonly display_start = computed(
         () => this.display_booking()?.date || this.start(),

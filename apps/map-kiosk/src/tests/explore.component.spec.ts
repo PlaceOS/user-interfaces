@@ -23,12 +23,15 @@ import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { CustomTooltipComponent, IconComponent } from '@placeos/components';
+import {
+    CustomTooltipComponent,
+    DynamicMapComponent,
+    IconComponent,
+} from '@placeos/components';
 import { SpacePipe, SpacesService } from '@placeos/events';
 import { AccessibilityControlsComponent } from '../app/accessibility-controls.component';
 import { ExploreLevelSelectComponent } from '../app/explore-level-select.component';
 import { ExploreComponent } from '../app/explore.component';
-import { DynamicMapComponent } from '@placeos/components';
 
 describe('ExploreComponent', () => {
     let spectator: SpectatorRouting<ExploreComponent>;
@@ -53,15 +56,15 @@ describe('ExploreComponent', () => {
         providers: [
             MockProvider(MatDialog, { open: jest.fn(), closeAll: jest.fn() }),
             MockProvider(ExploreStateService, {
-                options: of({}),
-                level: of({}) as any,
+                options: signal({}),
+                level: signal({}) as any,
                 positions: { zoom: 1, center: { x: 0.5, y: 0.5 } },
-                map_url: of(''),
-                map_styles: of({ text: { display: 'none' } }),
-                map_positions: of({ zoom: 1, center: { x: 0.5, y: 0.5 } }),
-                map_features: of([]),
-                map_actions: of([]),
-                map_labels: of([]),
+                map_url: signal(''),
+                map_styles: signal({ text: { display: 'none' } }),
+                map_positions: signal({ zoom: 1, center: { x: 0.5, y: 0.5 } }),
+                map_features: signal([]),
+                map_actions: signal([]),
+                map_labels: signal([]),
                 setPositions: jest.fn(),
                 setFeatures: jest.fn(),
                 setOptions: jest.fn(),

@@ -6,10 +6,8 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { formatDistanceToNow } from 'date-fns';
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
-import { Observable, map } from 'rxjs';
 import { TranslatePipe } from './translate.pipe';
 
 export interface MapRadiusData {
@@ -18,7 +16,6 @@ export interface MapRadiusData {
     fill: string;
     stroke: string;
     last_seen?: number;
-    zoom$: Observable<number>;
 }
 
 @Component({
@@ -83,10 +80,7 @@ export class MapRadiusComponent {
     private _details = inject<MapRadiusData>(MAP_FEATURE_DATA);
     private _el = inject<ElementRef<HTMLElement>>(ElementRef);
 
-    public zoom = toSignal(
-        this._details.zoom$?.pipe(map((v) => Math.max(0.5, v || 1))),
-        { initialValue: 1 },
-    );
+    public zoom = signal(1);
 
     /** Size of the area marked by this component */
     public radius = signal(this._details.radius || 10);

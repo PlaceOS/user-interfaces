@@ -1,4 +1,5 @@
-import { fakeAsync, tick } from '@angular/core/testing';
+import { signal } from '@angular/core';
+import { fakeAsync, TestBed } from '@angular/core/testing';
 import { UntypedFormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
@@ -22,8 +23,8 @@ describe('ExploreSpacesService', () => {
         service: ExploreSpacesService,
         providers: [
             MockProvider(ExploreStateService, {
-                options: new BehaviorSubject({ is_public: false }),
-                spaces: new BehaviorSubject([]),
+                options: signal({ is_public: false }) as any,
+                spaces: signal([]) as any,
                 setStyles: jest.fn(),
                 setFeatures: jest.fn(),
                 setActions: jest.fn(),
@@ -47,23 +48,26 @@ describe('ExploreSpacesService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
-    it('should bind to spaces', fakeAsync(() => {
+    it('should bind to spaces', () => {
+        jest.useFakeTimers();
         const bindThenSubscribe = jest.fn(() => of().subscribe());
         const variableBinding = { bindThenSubscribe };
         const binding = jest.fn(() => variableBinding);
         const getModuleMock = jest.fn(() => ({ variable: binding }));
         (ts_client as any).getModule = getModuleMock;
         const state = spectator.inject(ExploreStateService);
-        (state.spaces as any).next([
+        (state.spaces as any).set([
             { id: 'space-1', name: 'Test', bookable: true },
         ]);
-        tick(100);
+        TestBed.tick();
+        jest.runOnlyPendingTimers();
         expect(getModuleMock).toHaveBeenCalledWith('space-1', 'Bookings');
         expect(binding).toHaveBeenCalledWith('bookings');
         expect(binding).toHaveBeenCalledWith('status');
         expect(binding).toHaveBeenCalledWith('presence');
         expect(state.setActions).toHaveBeenCalled();
-    }));
+        jest.useRealTimers();
+    });
 
     it('should listen to state changes', fakeAsync(() => {
         // TODO: Fix
