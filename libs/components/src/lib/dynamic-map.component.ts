@@ -105,8 +105,42 @@ type DebugSection = 'styles' | 'features' | 'labels' | 'actions';
                     />
                     <div
                         class="overflow-auto border-t border-white/20 p-2 whitespace-pre select-text"
-                        >{{ debug_detail_text() }}</div
                     >
+                        @if (debug_section() === 'styles') {
+                            @for (
+                                block of debug_style_blocks();
+                                track block.selector
+                            ) {
+                                <div>{{ block.selector + ' {' }}</div>
+                                @for (prop of block.props; track prop.name) {
+                                    <div class="flex items-center">
+                                        <span>{{
+                                            '  ' +
+                                                prop.name +
+                                                ': ' +
+                                                prop.value +
+                                                ';'
+                                        }}</span>
+                                        @if (prop.color) {
+                                            <span
+                                                class="ml-1.5 inline-block h-2.5 w-2.5 rounded-sm border border-white/40"
+                                                [style.background]="prop.color"
+                                            ></span>
+                                        }
+                                    </div>
+                                }
+                                <div>{{ '}' }}</div>
+                            } @empty {
+                                <span>{{
+                                    debug_filter().trim()
+                                        ? 'No matches'
+                                        : 'No styles'
+                                }}</span>
+                            }
+                        } @else {
+                            <span>{{ debug_detail_text() }}</span>
+                        }
+                    </div>
                 }
             </div>
         }
@@ -249,7 +283,7 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
                 : 'no map';
         return [
             'MAP DEBUG (Ctrl+Alt+Shift+G)',
-            `src:      ${this.src().split('/').pop() || '—'}`,
+            `src:      ${this._middleTruncate(this.src().split('/').pop() || '—', 36)}`,
             `status:   ${status}`,
             `texture:  ${state.texture}${this.highResolution() ? ' (high-res)' : ''}`,
             `aspect:   ${state.aspect}`,
@@ -278,13 +312,44 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
         ],
     );
 
+    /** Style rules for the debug panel, with swatch colours for colour-valued properties */
+    public readonly debug_style_blocks = computed(() => {
+        if (this.debug_section() !== 'styles') return [];
+        const blocks = Object.entries(this.styles() || {}).map(
+            ([selector, style]) => ({
+                selector,
+                props: Object.entries(style).map(([name, value]) => {
+                    const value_text = `${value}`;
+                    const color = value_text.replace('!important', '').trim();
+                    return {
+                        name,
+                        value: value_text,
+                        color:
+                            typeof CSS !== 'undefined' &&
+                            CSS.supports('color', color)
+                                ? color
+                                : '',
+                    };
+                }),
+            }),
+        );
+        const filter = this.debug_filter().trim().toLowerCase();
+        if (!filter) return blocks;
+        return blocks.filter(
+            ({ selector, props }) =>
+                selector.toLowerCase().includes(filter) ||
+                props.some((prop) =>
+                    `${prop.name}: ${prop.value}`
+                        .toLowerCase()
+                        .includes(filter),
+                ),
+        );
+    });
+
     public readonly debug_detail_text = computed(() => {
         const section = this.debug_section();
         let entries: string[];
         switch (section) {
-            case 'styles':
-                entries = this._describeStyles();
-                break;
             case 'features':
                 entries = this._describeFeatures();
                 break;
@@ -673,22 +738,19 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
         return unique(events);
     }
 
+    /** Truncate the middle of a string with "..." to fit the given length */
+    private _middleTruncate(value: string, max_length: number): string {
+        if (value.length <= max_length) return value;
+        const keep = max_length - 3;
+        const front = Math.ceil(keep / 2);
+        const back = keep - front;
+        return `${value.slice(0, front)}...${value.slice(value.length - back)}`;
+    }
+
     private _formatLocation(location: string | Point) {
         return typeof location === 'string'
             ? `#${location}`
             : `${location.x.toFixed(3)}, ${location.y.toFixed(3)}`;
-    }
-
-    private _describeStyles(): string[] {
-        return Object.entries(this.styles() || {}).map(([selector, style]) =>
-            [
-                `${selector} {`,
-                ...Object.entries(style).map(
-                    ([prop, value]) => `  ${prop}: ${value};`,
-                ),
-                '}',
-            ].join('\n'),
-        );
     }
 
     private _describeFeatures(): string[] {
