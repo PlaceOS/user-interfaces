@@ -35,7 +35,11 @@ const app = {
     delegated: false,
     has_uploads: true,
     custom_reports,
-    desks: { can_book_for_others: true, max_assigned_count: 0 },
+    desks: {
+        can_book_for_others: true,
+        max_assigned_count: 0,
+        hide_user_list_download: true,
+    },
     bookings: { can_book_for_others: true, use_building_timezone: false },
     visitors: { all_visitors_action_window: 15 },
     reports: { attendance_include_weekends: false },
