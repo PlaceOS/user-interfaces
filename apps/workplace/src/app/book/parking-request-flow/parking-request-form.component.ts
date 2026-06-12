@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -141,9 +141,8 @@ export class ParkingRequestFormComponent
         'parking.available_period',
         14,
     );
-    public readonly submission_notes_html = settingSignal(
-        'parking.request_submission_notes_html',
-        '',
+    public readonly submission_notes_html = computed(() =>
+        settingSignal('parking.request_submission_notes_html', '')().trim(),
     );
 
     public readonly clearForm = () => this._state.resetForm();
