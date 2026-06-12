@@ -43,6 +43,7 @@ export function ensureWorkspace(app_name) {
     // custom-scheme deep link reopens the app but `App.appUrlOpen` never fires
     // in JS, so the OAuth redirect (and code exchange) is never handled.
     // ManagedConfigurations exposes the MDM-pushed app config to JS.
+    // StatusBar lets the app hide the OS status bar for fullscreen rendering.
     const package_json = {
         name: `${app_name}-capacitor`,
         private: true,
@@ -51,6 +52,7 @@ export function ensureWorkspace(app_name) {
             '@capacitor/core': '8.2.0',
             '@capacitor/app': '8.1.0',
             '@capacitor/browser': '8.0.3',
+            '@capacitor/status-bar': '8.0.2',
             '@capawesome/capacitor-managed-configurations': '8.0.1',
         },
     };

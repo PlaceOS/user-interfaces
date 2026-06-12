@@ -251,6 +251,22 @@ export function consumeNativeAuthError(): string {
     return message;
 }
 
+/**
+ * Hide the OS status bar so the webview renders truly fullscreen. The iOS
+ * Info.plist hides it during launch; this keeps it hidden once the bridge
+ * view controller takes over, and handles Android (where the launch theme
+ * flags are ignored on 15+ in favour of WindowInsetsController).
+ */
+export async function hideNativeStatusBar(): Promise<void> {
+    if (!isNativeApp()) return;
+    await callNativeMethod('StatusBar', 'setOverlaysWebView', {
+        overlay: true,
+    })?.catch(() => null);
+    await callNativeMethod('StatusBar', 'hide', { animation: 'NONE' })?.catch(
+        () => null,
+    );
+}
+
 export async function closeNativeBrowser(): Promise<void> {
     await callNativeMethod('Browser', 'close')?.catch(() => null);
 }

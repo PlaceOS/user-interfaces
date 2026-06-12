@@ -44,6 +44,7 @@ import {
     consumeNativeAuthRedirect,
     getNativeApiKey,
     getNativeDomain,
+    hideNativeStatusBar,
     isNativeApp,
     loadNativeManagedConfig,
     markNativeAuthRedirectConsumed,
@@ -208,9 +209,8 @@ export class PlaceOS_Service extends AsyncHandler {
 
     public async init(options: { allow_mdm_restart?: boolean } = {}) {
         if (isNativeApp()) {
-            // Enables the device safe-area padding in application.css so the
-            // OS status/gesture bars don't overlap the edge-to-edge webview.
-            document.documentElement.classList.add('native-app');
+            // Native shells render fullscreen with the OS status bar hidden.
+            hideNativeStatusBar();
             // Re-seed the PKCE verifier in case the OS killed the app (and
             // its sessionStorage) while the user was signing in externally.
             restoreNativePkceVerifier();

@@ -70,6 +70,7 @@ function ensurePlatform(app_name, platform) {
     if (platform === 'android') {
         patchAndroidManifest(app_root, getAppConfig(app_name).bundle_id);
         patchAndroidRestrictions(app_root);
+        patchAndroidFullscreen(app_root);
     }
     if (platform === 'ios') {
         patchIosPlist(app_root, getAppConfig(app_name).bundle_id);
@@ -181,6 +182,32 @@ function patchAndroidRestrictions(app_root) {
     console.log('Patched AndroidManifest.xml with managed config restrictions');
 }
 
+// Hide the Android status bar from the window themes so it never shows
+// during launch. Android 15+ ignores these legacy window flags (edge-to-edge
+// enforcement) — there the StatusBar plugin hides it via
+// WindowInsetsController once the webview loads.
+function patchAndroidFullscreen(app_root) {
+    const styles_path = path.join(
+        app_root,
+        'android',
+        'app',
+        'src',
+        'main',
+        'res',
+        'values',
+        'styles.xml',
+    );
+    if (!existsSync(styles_path)) return;
+    let styles = readFileSync(styles_path, 'utf8');
+    if (styles.includes('android:windowFullscreen')) return;
+    styles = styles.replace(
+        /(<style[^>]*>)/g,
+        '$1\n        <item name="android:windowFullscreen">true</item>',
+    );
+    writeFileSync(styles_path, styles);
+    console.log('Patched styles.xml to hide the Android status bar');
+}
+
 function patchIosPlist(app_root, bundle_id) {
     const plist_path = path.join(app_root, 'ios', 'App', 'App', 'Info.plist');
     if (!existsSync(plist_path)) return;
@@ -212,6 +239,22 @@ function patchIosPlist(app_root, bundle_id) {
                 '\t\t<true/>',
                 '\t</dict>',
             ].join('\n'),
+        );
+    }
+    // Hide the status bar from launch. The Capacitor bridge view controller
+    // reads this key for its initial status bar visibility, so it stays
+    // hidden after the splash without waiting for the runtime hide() call.
+    if (!plist.includes('UIStatusBarHidden')) {
+        entries.push(
+            ['\t<key>UIStatusBarHidden</key>', '\t<true/>'].join('\n'),
+        );
+    }
+    // iPadOS ignores status bar hiding for apps that support multitasking
+    // (Split View/Slide Over) — the app must require fullscreen for
+    // UIStatusBarHidden/prefersStatusBarHidden to take effect on iPad.
+    if (!plist.includes('UIRequiresFullScreen')) {
+        entries.push(
+            ['\t<key>UIRequiresFullScreen</key>', '\t<true/>'].join('\n'),
         );
     }
     if (!entries.length) return;
