@@ -117,6 +117,63 @@ describe('BookingDetailsModalComponent', () => {
         expect(spectator.component.visitor_display_name()).toBe('Visitor One');
     });
 
+    it('should show VIP visitor service details from extension data', () => {
+        (spectator.component as any).booking.set(
+            new Booking({
+                booking_type: 'vip-visitor',
+                title: 'VIP Visit',
+                description: 'visitor name',
+                asset_id: 'visitor@email.com',
+                asset_name: 'visitor name',
+                date: Date.now(),
+                duration: 60,
+                attendees: [
+                    { name: 'Visitor Name', email: 'visitor@email.com' },
+                ],
+                extension_data: {
+                    is_vip: true,
+                    vip_assistant_name: 'assistant name',
+                    vip_assistant_email: 'assistant@email.com',
+                    meet_greet: 'internal',
+                    walkthrough: true,
+                    welcome_beverage: 'custom',
+                    welcome_beverage_custom: 'custom bev',
+                    gift: false,
+                    photographer: false,
+                    restaurant_reservation: {
+                        name: 'restaurant name',
+                        address: 'restaurant address',
+                        time: 1780647300000,
+                    },
+                    driver: 'in_house',
+                    welcome_screen: true,
+                    presentation: false,
+                },
+            } as any),
+        );
+        spectator.detectChanges();
+
+        expect(spectator.component.is_visitor()).toBe(true);
+        expect(spectator.component.visitor_display_name()).toBe('Visitor Name');
+        const detail_values = spectator.component
+            .vip_service_details()
+            .map((_) => _.value);
+        expect(detail_values).toEqual(
+            expect.arrayContaining([
+                'assistant name',
+                'assistant@email.com',
+                'Internal',
+                'Custom',
+                'custom bev',
+                'restaurant name',
+                'restaurant address',
+            ]),
+        );
+        expect(spectator.element.textContent).toContain('assistant name');
+        expect(spectator.element.textContent).toContain('custom bev');
+        expect(spectator.element.textContent).toContain('restaurant address');
+    });
+
     it('should refresh parent state after toggling checked in', async () => {
         jest.spyOn(bookings_fn, 'checkinBooking').mockReturnValue(
             of(
