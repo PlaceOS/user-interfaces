@@ -1034,7 +1034,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                     </div>
                 } @else {
                     <div
-                        class="border-base-300 space-y-3 rounded-lg border p-4"
+                        class="border-base-300 mx-4 space-y-3 rounded-lg border p-4"
                     >
                         <h3
                             class="text-success flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
