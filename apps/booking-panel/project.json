@@ -239,6 +239,20 @@
             "options": {
                 "command": "node tools/capacitor/run.mjs run booking-panel ios"
             }
+        },
+        "mobile:clear:android": {
+            "executor": "nx:run-commands",
+            "cache": false,
+            "options": {
+                "command": "node tools/capacitor/run.mjs clear booking-panel android"
+            }
+        },
+        "mobile:clear:ios": {
+            "executor": "nx:run-commands",
+            "cache": false,
+            "options": {
+                "command": "node tools/capacitor/run.mjs clear booking-panel ios"
+            }
         }
     }
 }

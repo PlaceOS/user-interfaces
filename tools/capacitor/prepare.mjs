@@ -7,6 +7,7 @@ import {
 } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { toFullBleedSvg } from '../generate-favicons.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const WORKSPACE_ROOT = path.resolve(__dirname, '..', '..');
@@ -29,7 +30,7 @@ export function getArtifactsRoot(app_name) {
     return path.join(getAppRoot(app_name), 'artifacts');
 }
 
-export function ensureWorkspace(app_name) {
+export async function ensureWorkspace(app_name) {
     const app_config = getAppConfig(app_name);
     const app_root = getAppRoot(app_name);
     const resources_root = path.join(app_root, 'resources');
@@ -93,8 +94,33 @@ export function ensureWorkspace(app_name) {
     if (!existsSync(icon_source)) {
         throw new Error(`Missing icon source for ${app_name}: ${icon_source}`);
     }
-    copyFileSync(icon_source, path.join(resources_root, 'icon.png'));
-    copyFileSync(icon_source, path.join(resources_root, 'logo.png'));
+    const icon_path = path.join(resources_root, 'icon.png');
+    const logo_path = path.join(resources_root, 'logo.png');
+    if (icon_source.endsWith('.svg')) {
+        const svg = readFileSync(icon_source, 'utf8');
+        // App icons must bleed to the edges — iOS rejects transparency and
+        // rounds the corners itself, so the favicon's pre-rounded corners
+        // would otherwise show as a dark plate inside the icon.
+        await rasteriseSvg(toFullBleedSvg(svg), icon_path);
+        // The splash logo keeps the rounded favicon artwork.
+        await rasteriseSvg(svg, logo_path);
+    } else {
+        copyFileSync(icon_source, icon_path);
+        copyFileSync(icon_source, logo_path);
+    }
 
     return { app_root, app_config };
+}
+
+// @capacitor/assets only accepts PNG sources, so render the app favicon SVG
+// to the 1024px PNG it expects. sharp ships with @capacitor/assets.
+async function rasteriseSvg(svg_source, png_path) {
+    const { default: sharp } = await import('sharp');
+    await sharp(Buffer.from(svg_source), { density: 1200 })
+        .resize(1024, 1024, {
+            fit: 'contain',
+            background: { r: 0, g: 0, b: 0, alpha: 0 },
+        })
+        .png()
+        .toFile(png_path);
 }

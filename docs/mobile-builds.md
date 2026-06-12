@@ -57,6 +57,14 @@ nx run workplace:"mobile:build:android"
 nx run workplace:"mobile:build:ios"
 ```
 
+Clear app data for a fresh run (Android wipes app storage on the connected
+device/emulator; iOS uninstalls the app from the booted simulator):
+
+```bash
+nx run workplace:"mobile:clear:android"
+nx run workplace:"mobile:clear:ios"
+```
+
 ## Generated Output
 
 Generated native workspaces:
@@ -87,6 +95,6 @@ Artifacts uploaded by CI:
 ## Notes
 
 - Native folders are generated from `tools/capacitor/apps.json`
-- Native assets are generated from the app `icon-512x512.png` source copied into `.capacitor/<app>/resources/`
+- Native assets are generated from the app `favicon.svg`, rendered to a 1024px PNG in `.capacitor/<app>/resources/`
 - Do not commit `.capacitor/`
 - Mobile web builds use the app `mobile` build configuration, which disables Angular service workers for native packaging

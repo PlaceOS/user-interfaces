@@ -390,7 +390,7 @@ export async function loadNativeManagedConfig(): Promise<NativeManagedConfig | n
     ] = await Promise.all([
         readManagedValue<string>('getString', 'domainName'),
         readManagedValue<string>('getString', 'apiKey'),
-        readManagedValue<string>('getString', 'SystemId'),
+        readManagedValue<string>('getString', 'systemId'),
         readManagedValue<number>('getNumber', 'restartTime'),
         readManagedValue<boolean>('getBoolean', 'restartEnabled'),
         readManagedValue<boolean>('getBoolean', 'skipInteractiveSetup'),
