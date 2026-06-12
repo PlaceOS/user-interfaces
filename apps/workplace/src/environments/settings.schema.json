@@ -222,6 +222,11 @@
                     "description": "Vehicle type options shown in the parking request flow. Defaults to car, bike, van, truck, and other.",
                     "items": { "$ref": "#/$defs/identity" }
                 },
+                "hidden_buildings": {
+                    "type": "array",
+                    "description": "List of building (zone) IDs to hide from the location options in the parking request flow. Buildings without any levels tagged 'parking' are always hidden.",
+                    "items": { "type": "string" }
+                },
                 "hide_prefer_toggle": {
                     "type": "boolean",
                     "description": "Whether to hide the 'Prefer booked location first' toggle in the location preference section of the parking request flow."
