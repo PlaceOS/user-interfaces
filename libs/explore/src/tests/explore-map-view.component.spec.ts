@@ -108,10 +108,10 @@ describe('ExploreMapViewComponent', () => {
     it('should show map component', () => expect('interactive-map').toExist());
 
     it('should handle option changes', () => {
-        expect('[name="zones"]').toExist();
+        expect('settings-toggle').toExist();
         const state = spectator.inject(ExploreStateService);
         spectator.triggerEventHandler(
-            'mat-slide-toggle',
+            'settings-toggle',
             'ngModelChange',
             true,
         );

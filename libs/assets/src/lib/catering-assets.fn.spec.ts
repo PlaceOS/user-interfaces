@@ -14,7 +14,11 @@ jest.mock('./assets.fn', () => ({
 }));
 
 function response(data: any[]) {
-    return of({ data, total: data.length, next: () => null }) as any;
+    return Promise.resolve({
+        data,
+        total: data.length,
+        next: () => null,
+    }) as any;
 }
 
 async function load_modules() {

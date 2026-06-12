@@ -2,7 +2,7 @@ import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import * as ts_client from '@placeos/ts-client';
 import { MediaAnimation } from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
-import { firstValueFrom, of, skip, take, throwError } from 'rxjs';
+import { firstValueFrom, skip, take } from 'rxjs';
 
 import { MediaCacheService } from '../app/media-cache.service';
 import { setMockTime } from '../app/media-helpers';
@@ -145,10 +145,10 @@ describe('SignageService', () => {
             getFile: jest.fn(() => Promise.resolve(new File([], 'cached'))),
         };
         (ts_client.showSignage as jest.Mock).mockReturnValue(
-            of(create_display() as any),
+            Promise.resolve(create_display() as any),
         );
         (ts_client.querySignagePlugins as jest.Mock).mockReturnValue(
-            of({ data: [] } as any),
+            Promise.resolve({ data: [] } as any),
         );
         (ts_client.responseHeaders as jest.Mock).mockReturnValue({
             'last-modified': new Date().toUTCString(),
@@ -159,7 +159,7 @@ describe('SignageService', () => {
         (ts_client.getModule as jest.Mock).mockReturnValue({
             variable: jest.fn(() => trigger_binding),
         });
-        (ts_client.post as jest.Mock).mockReturnValue(of({} as any));
+        (ts_client.post as jest.Mock).mockReturnValue(Promise.resolve({} as any));
         spectator = create_service({
             providers: [MockProvider(MediaCacheService, media_cache)],
         });
@@ -183,6 +183,10 @@ describe('SignageService', () => {
 
         spectator.service.setDisplay('display-1');
         const playlist = await playlist_promise;
+        // _syncMediaCache invalidates stale files after awaiting
+        // requestFilesToCache, so flush the remaining microtasks
+        await Promise.resolve();
+        await Promise.resolve();
 
         expect(playlist.map((_) => _.id)).toEqual(['media-1', 'media-2']);
         expect(media_cache.availableFiles).toHaveBeenCalledWith('display-1');
@@ -222,7 +226,7 @@ describe('SignageService', () => {
 
     it('should resolve plugin media URLs from the plugin catalogue', async () => {
         (ts_client.showSignage as jest.Mock).mockReturnValue(
-            of(
+            Promise.resolve(
                 create_display({
                     playlist_mappings: {
                         'display-1': ['base-playlist'],
@@ -256,7 +260,7 @@ describe('SignageService', () => {
             ),
         );
         (ts_client.querySignagePlugins as jest.Mock).mockReturnValue(
-            of({
+            Promise.resolve({
                 data: [
                     {
                         id: 'weather-plugin',
@@ -288,7 +292,7 @@ describe('SignageService', () => {
         const now = Date.UTC(2026, 0, 1, 10, 0, 0);
         setMockTime(now);
         (ts_client.showSignage as jest.Mock).mockReturnValue(
-            of(
+            Promise.resolve(
                 create_display({
                     playlist_mappings: {
                         'display-1': ['playlist-source', 'media-source'],
@@ -378,8 +382,8 @@ describe('SignageService', () => {
             'PlaceOS.SIGNAGE.display_details.display-1',
             JSON.stringify(create_display()),
         );
-        (ts_client.showSignage as jest.Mock).mockReturnValue(
-            throwError(() => new Error('display unavailable')),
+        (ts_client.showSignage as jest.Mock).mockImplementation(() =>
+            Promise.reject(new Error('display unavailable')),
         );
         const display_promise = firstValueFrom(
             spectator.service.display.pipe(take(1)),
@@ -407,8 +411,8 @@ describe('SignageService', () => {
     });
 
     it('should not prune media cache when display loading has no matching fallback', async () => {
-        (ts_client.showSignage as jest.Mock).mockReturnValue(
-            throwError(() => new Error('display unavailable')),
+        (ts_client.showSignage as jest.Mock).mockImplementation(() =>
+            Promise.reject(new Error('display unavailable')),
         );
         (ts_client.responseHeaders as jest.Mock).mockReturnValue({});
         media_cache.availableFiles.mockClear();
@@ -437,8 +441,8 @@ describe('SignageService', () => {
         spectator.service.setDisplay('display-1');
         await display_promise;
 
-        (ts_client.showSignage as jest.Mock).mockReturnValue(
-            throwError(() => new Error('display unavailable')),
+        (ts_client.showSignage as jest.Mock).mockImplementation(() =>
+            Promise.reject(new Error('display unavailable')),
         );
         (ts_client.responseHeaders as jest.Mock).mockReturnValue({});
 
@@ -459,7 +463,7 @@ describe('SignageService', () => {
 
     it('should not include signage media that embeds the same display', async () => {
         (ts_client.showSignage as jest.Mock).mockReturnValue(
-            of(
+            Promise.resolve(
                 create_display({
                     playlist_mappings: {
                         'display-1': ['base-playlist'],
@@ -507,7 +511,7 @@ describe('SignageService', () => {
             '_isNestedPlayerWindow',
         ).mockReturnValue(true);
         (ts_client.showSignage as jest.Mock).mockReturnValue(
-            of(
+            Promise.resolve(
                 create_display({
                     playlist_mappings: {
                         'display-1': ['base-playlist'],
@@ -581,7 +585,7 @@ describe('SignageService', () => {
         const now = new Date('2026-01-01T10:00:00Z');
         jest.setSystemTime(now);
         (ts_client.showSignage as jest.Mock).mockReturnValue(
-            of(
+            Promise.resolve(
                 create_display({
                     playlist_mappings: {
                         'display-1': ['base-playlist', 'future-playlist'],
@@ -635,7 +639,7 @@ describe('SignageService', () => {
         jest.setSystemTime(now);
         setMockTime(now.getTime(), 64);
         (ts_client.showSignage as jest.Mock).mockReturnValue(
-            of(
+            Promise.resolve(
                 create_display({
                     playlist_mappings: {
                         'display-1': ['base-playlist', 'future-playlist'],
@@ -688,7 +692,7 @@ describe('SignageService', () => {
         const starts_at = new Date('2026-01-01T10:00:00Z').getTime();
         jest.setSystemTime(starts_at + 5 * 60 * 1000);
         (ts_client.showSignage as jest.Mock).mockReturnValue(
-            of(
+            Promise.resolve(
                 create_display({
                     playlist_config: {
                         ...create_display().playlist_config,
@@ -727,7 +731,7 @@ describe('SignageService', () => {
         const now = new Date('2026-01-01T10:00:00Z').getTime();
         jest.setSystemTime(now);
         (ts_client.showSignage as jest.Mock).mockReturnValue(
-            of(
+            Promise.resolve(
                 create_display({
                     playlist_config: {
                         ...create_display().playlist_config,
@@ -767,7 +771,7 @@ describe('SignageService', () => {
 
     it('should store metric events and ignore playlist counts for random playlists', async () => {
         (ts_client.showSignage as jest.Mock).mockReturnValue(
-            of(
+            Promise.resolve(
                 create_display({
                     playlist_mappings: {
                         'display-1': ['base-playlist', 'random-playlist'],
