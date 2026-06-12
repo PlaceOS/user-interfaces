@@ -8,6 +8,7 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import {
     FormGroup,
     FormsModule,
@@ -46,7 +47,7 @@ import {
     startOfDay,
     startOfWeek,
 } from 'date-fns';
-import { combineLatest, of } from 'rxjs';
+import { combineLatest, defer, of } from 'rxjs';
 import { catchError, filter, map, startWith, switchMap } from 'rxjs/operators';
 import { SettingsToggleComponent } from '../../../../../../libs/components/src/lib/settings-toggle.component';
 
@@ -1208,7 +1209,35 @@ export class ParkingRequestFormDetailsComponent
     public readonly force_show_host_select = input<boolean>(false);
     public readonly force_allow_any_host = input<boolean>(false);
     public readonly building = this._org.active_building;
-    public readonly building_list = this._org.active_buildings;
+    public readonly hidden_buildings = settingSignal<string[]>(
+        'parking.hidden_buildings',
+        [],
+    );
+    private readonly _hidden_buildings$ = toObservable(this.hidden_buildings);
+    /**
+     * Buildings available as parking locations. Excludes buildings without
+     * any parking levels and buildings listed in `parking.hidden_buildings`.
+     */
+    public readonly building_list = defer(() =>
+        combineLatest([
+            this._org.active_buildings,
+            this._org.level_list,
+            this._hidden_buildings$,
+        ]),
+    ).pipe(
+        map(([buildings, levels, hidden]) => {
+            const hidden_ids = new Set(hidden || []);
+            return (buildings || []).filter(
+                (bld) =>
+                    !hidden_ids.has(bld.id) &&
+                    (levels || []).some(
+                        (lvl) =>
+                            lvl.parent_id === bld.id &&
+                            lvl.tags.includes('parking'),
+                    ),
+            );
+        }),
+    );
     public readonly desk_booking_building_id = signal('');
     public readonly available_space_count = signal<number | null>(null);
     public readonly total_space_count = signal<number | null>(null);
@@ -1512,6 +1541,20 @@ export class ParkingRequestFormDetailsComponent
         const form = this.form();
         if (!form) return;
         this.subscription(
+            'ensure_valid_building',
+            combineLatest([this.building_list, this._org.active_building])
+                .pipe(
+                    filter(
+                        ([buildings, bld]) =>
+                            buildings.length > 0 &&
+                            !buildings.some((_) => _.id === bld?.id),
+                    ),
+                )
+                .subscribe(([buildings]) => {
+                    this._org.building = buildings[0];
+                }),
+        );
+        this.subscription(
             'space_availability',
             combineLatest([
                 this._org.active_building,
@@ -1562,7 +1605,7 @@ export class ParkingRequestFormDetailsComponent
         this.subscription(
             'default_building_from_desk_booking',
             combineLatest([
-                this._org.active_buildings,
+                this.building_list,
                 form.controls.date.valueChanges.pipe(
                     startWith(form.getRawValue().date),
                 ),

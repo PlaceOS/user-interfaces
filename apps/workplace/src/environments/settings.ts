@@ -244,6 +244,7 @@ const app = {
             { id: 'truck', name: 'BOOKINGS.PARKING_VEHICLE_TRUCK' },
             { id: 'other', name: 'BOOKINGS.PARKING_VEHICLE_OTHER' },
         ],
+        hidden_buildings: [],
         hide_prefer_toggle: false,
         hide_custom_shift: false,
         hide_selected_space: false,
