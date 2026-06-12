@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["bootstrap.component.ts"],
+  "sourcesContent": ["\n            mat-form-field {\n                width: calc(100% - 2rem);\n            }\n\n            button {\n                width: 8rem;\n                margin: 0.5rem;\n                margin-top: 0;\n            }\n        "],
+  "mappings": ";AACY;AACI,SAAA,KAAA,KAAA,EAAA;AACJ;AAEA;AACI,SAAA;AACA,UAAA;AACA,cAAA;AACJ;",
+  "names": []
+}
