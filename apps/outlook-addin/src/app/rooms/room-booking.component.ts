@@ -1,4 +1,4 @@
-import { Component, DOCUMENT, OnInit, inject } from '@angular/core';
+import { Component, DOCUMENT, OnInit, inject, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -26,7 +26,7 @@ import { FeaturesFilterService } from './features-filter.service';
                 >
                     <h2 class="text-xl font-medium capitalize">Book Room</h2>
                 </header>
-                @if (form) {
+                @if (form(); as form) {
                     <form [formGroup]="form" class="divide-base-200 divide-y">
                         <section class="px-4 py-2">
                             <div class="my-2 flex space-x-4">
@@ -153,10 +153,7 @@ export class RoomBookingComponent implements OnInit {
     public show_people = false;
 
     min_date = Date.now();
-
-    public get form() {
-        return this._state.form;
-    }
+    public readonly form = signal(this._state.form);
 
     public readonly clearForm = () => {
         this._state.clearForm();
@@ -164,14 +161,17 @@ export class RoomBookingComponent implements OnInit {
 
     ngOnInit(): void {
         this._state.newForm();
+        this.form.set(this._state.form);
         this._featuresFilterService.clearFilter();
     }
 
     async findSpace() {
-        this.form.markAllAsTouched();
-        if (!this.form.value.host)
-            this.form.patchValue({ host: currentUser()?.email });
-        if (!this.form.valid) return;
+        const form = this.form() || this._state.form;
+        if (form && !this.form()) this.form.set(form);
+        if (!form) return;
+        form.markAllAsTouched();
+        if (!form.value.host) form.patchValue({ host: currentUser()?.email });
+        if (!form.valid) return;
         await this._state.storeForm();
         this.router.navigate(['/schedule/view']);
     }

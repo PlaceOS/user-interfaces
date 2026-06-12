@@ -1,7 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { AssetGroup, SettingsService } from '@placeos/common';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { AssetGroup, isMobileSafari, SettingsService } from '@placeos/common';
+
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { AssetStateService } from '../asset-state.service';
@@ -16,33 +18,35 @@ const EMPTY_FAVS: string[] = [];
     selector: 'asset-select-modal',
     template: `
         <div
-            class="bg-base-100 flex h-screen w-screen flex-col sm:relative sm:h-auto sm:w-auto"
+            class="bg-base-100 flex h-screen w-screen flex-col space-y-2 overflow-hidden p-2 sm:h-auto sm:w-auto"
+            [style.height]="is_safari ? 'calc(100vh - 80px)' : ''"
         >
-            <header class="flex w-full items-center space-x-4">
-                <button icon mat-dialog-close class="bg-base-200">
+            <header
+                class="bg-base-200 flex h-14 w-full items-center space-x-2 rounded-sm border-none p-2"
+            >
+                <h2 class="flex-1 px-2 text-xl font-medium capitalize">
+                    {{ 'BOOKINGS.ASSETS_ADD_HEADER' | translate }}
+                </h2>
+                <button icon matRipple mat-dialog-close>
                     <icon>close</icon>
                 </button>
-                <h3>{{ 'BOOKINGS.ASSETS_ADD_HEADER' | translate }}</h3>
             </header>
             <main
-                class="divide-base-200 flex h-[65vh] min-h-[65vh] w-full flex-1 items-center divide-x overflow-hidden sm:max-h-[65vh] sm:max-w-[95vw]"
+                class="relative flex h-1/2 flex-1 sm:h-[65vh] sm:flex-none sm:space-x-2"
             >
                 <div
-                    class="flex h-full w-1/2 flex-1 flex-col items-center sm:h-[65vh]"
+                    class="border-base-300 h-full w-full overflow-x-hidden overflow-y-auto rounded-sm border shadow-sm sm:block sm:w-[20rem]"
+                    [class.hidden]="!show_filters"
                 >
-                    <asset-filters
-                        class="hidden h-full sm:block"
-                        [(at_time)]="exact_time"
-                        [(offset)]="offset"
-                        [(offset_day)]="offset_day"
-                    ></asset-filters>
+                    <asset-filters></asset-filters>
                 </div>
                 <div
-                    class="flex h-full w-1/2 flex-1 flex-col items-center sm:h-[65vh] sm:min-w-[20rem]"
+                    class="border-base-300 bg-base-200 h-full w-full overflow-auto rounded-sm border p-2 sm:w-[20rem] lg:block"
+                    [class.hidden]="show_filters || displayed"
+                    [class.sm:hidden]="displayed"
+                    [class.md:block]="!displayed"
                 >
-                    <asset-filters-display
-                        class="border-base-200 w-full border-b"
-                    ></asset-filters-display>
+                    <asset-filters-display></asset-filters-display>
                     <asset-list
                         [selected]="selected_ids"
                         [favorites]="favorites"
@@ -50,76 +54,67 @@ const EMPTY_FAVS: string[] = [];
                         [requested]="requested"
                         (toggleFav)="toggleFavourite($event)"
                         (onSelect)="displayed = $event"
-                        class="h-1/2 w-full flex-1 overflow-hidden"
                     ></asset-list>
                 </div>
-                <asset-details
-                    [item]="displayed!"
-                    class="bg-base-100 absolute z-20 h-full w-full sm:relative sm:flex sm:h-[65vh] sm:max-w-[20rem]"
-                    [class.hidden]="!displayed"
-                    [class.inset-0]="displayed"
-                    [active]="selected_ids.includes(displayed?.id || '')"
-                    (activeChange)="setSelected(displayed!, $event)"
-                    (countChange)="updateSelectedCount($event)"
-                    [fav]="
-                        !!displayed &&
-                        this.favorites.includes(displayed?.id || '')
-                    "
-                    (toggleFav)="toggleFavourite(displayed!)"
-                    (close)="displayed = null"
-                ></asset-details>
-            </main>
-            <footer
-                class="border-base-200 flex flex-col-reverse items-center justify-end border-t p-2 sm:hidden"
-            >
-                @if (displayed) {
+                <div
+                    class="border-base-300 h-full w-full overflow-auto rounded-sm border shadow-sm sm:w-[20rem] lg:block"
+                    [class.hidden]="show_filters || !displayed"
+                    [class.sm:hidden]="!displayed"
+                    [class.md:block]="displayed"
+                >
+                    <asset-details
+                        [item]="displayed"
+                        [active]="selected_ids.includes(displayed?.id)"
+                        (activeChange)="setSelected(displayed, $event)"
+                        [fav]="
+                            displayed && this.favorites.includes(displayed?.id)
+                        "
+                        (toggleFav)="toggleFavourite(displayed)"
+                        (close)="displayed = null"
+                    ></asset-details>
+                </div>
+                @if (!displayed) {
                     <button
-                        btn
+                        icon
                         matRipple
-                        back-btn
-                        class="inverse w-full sm:hidden sm:w-auto"
-                        (click)="displayed = null"
+                        class="border-base-200 bg-base-100 absolute top-3 right-2 z-20 border sm:hidden"
+                        (click)="show_filters = !show_filters"
                     >
-                        {{ 'COMMON.BACK' | translate }}
+                        <icon>{{
+                            show_filters ? 'close' : 'filter_list'
+                        }}</icon>
                     </button>
                 }
-                <button
-                    btn
-                    matRipple
-                    save
-                    [mat-dialog-close]="selected"
-                    [class.mb-2]="displayed"
-                    class="w-full sm:mb-0 sm:w-auto"
-                >
-                    {{ 'COMMON.VIEW_LIST' | translate }}
-                </button>
-            </footer>
+            </main>
             <footer
-                class="border-base-200 hidden w-full items-center justify-between border-t p-2 sm:flex"
+                class="bg-base-200 flex w-full items-center justify-between space-x-2 rounded-sm border-none p-2"
             >
                 <button
                     btn
                     matRipple
+                    name="asset-return"
                     [mat-dialog-close]="selected"
-                    class="clear text-secondary"
+                    class="inverse bg-base-100 text-secondary"
                 >
-                    <div class="flex items-center">
+                    <div class="flex items-center space-x-2">
                         <icon class="text-xl">done</icon>
-                        <div class="mr-1 underline">Confirm Selection</div>
+                        <div class="pr-2">
+                            {{ 'COMMON.CONFIRM_SELECTION' | translate }}
+                        </div>
                     </div>
                 </button>
-                <p class="text-sm opacity-60">{{ count }} asset(s) added</p>
                 <button
                     btn
                     matRipple
+                    name="toggle-asset"
                     [disabled]="!displayed"
                     [class.inverse]="isSelected(displayed?.id)"
                     (click)="setSelected(displayed, !isSelected(displayed?.id))"
                 >
                     <div class="flex items-center">
-                        <icon class="text-xl">
-                            {{ isSelected(displayed?.id) ? 'remove' : 'add' }}
-                        </icon>
+                        <icon class="text-xl">{{
+                            isSelected(displayed?.id) ? 'remove' : 'add'
+                        }}</icon>
                         <div class="mr-1">
                             {{
                                 (isSelected(displayed?.id)
@@ -135,15 +130,15 @@ const EMPTY_FAVS: string[] = [];
     `,
     styles: [``],
     imports: [
+        TranslatePipe,
         IconComponent,
         MatRippleModule,
         MatDialogModule,
-        AssetDetailsComponent,
+        MatTooltipModule,
         AssetListComponent,
+        AssetDetailsComponent,
         AssetFiltersComponent,
         AssetFiltersDisplayComponent,
-        AssetDetailsComponent,
-        TranslatePipe,
     ],
 })
 export class AssetSelectModalComponent {
@@ -158,15 +153,32 @@ export class AssetSelectModalComponent {
         requested: Record<string, number>;
     }>(MAT_DIALOG_DATA);
 
+    public show_filters = false;
     public displayed: AssetGroup | null = null;
     public selected: AssetGroup[] = [...(this._data.items || [])];
     public exact_time = this._data.exact_time ?? false;
     public requested = this._data.requested;
     public offset: number;
     public offset_day: number;
+    private readonly _min_offset = this._settings.signal(
+        'assets.min_offset',
+        0,
+    );
+    private readonly _end_offset = this._settings.signal(
+        'assets.end_offset',
+        0,
+    );
+
+    public get is_safari() {
+        return isMobileSafari();
+    }
 
     public get favorites() {
-        return this._settings.get<string[]>('favourite_assets') || EMPTY_FAVS;
+        return this._settings.signal<string[]>(
+            'favourite_assets',
+            EMPTY_FAVS,
+            true,
+        )();
     }
 
     public get selected_ids() {
@@ -185,11 +197,8 @@ export class AssetSelectModalComponent {
         const { duration } = this._data.details;
         this._state.setOptions(this._data.details);
         this.offset = Math.min(
-            Math.max(
-                this._settings.get('app.assets.min_offset'),
-                this._data.offset || 0,
-            ),
-            (duration || 60) - this._settings.get('app.assets.end_offset'),
+            Math.max(this._min_offset(), this._data.offset || 0),
+            (duration || 60) - this._end_offset(),
         );
         this.offset_day = this._data.offset_day || 0;
     }

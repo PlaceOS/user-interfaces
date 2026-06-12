@@ -54,7 +54,9 @@ test.describe('US-ACCESS-001: View Only My Company Orders', () => {
         page,
     }) => {
         await page.goto('/#/orders?mock=true');
-        await page.locator('catering-topbar').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-topbar')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Wait for data to load
         await page.waitForTimeout(2000);
@@ -71,7 +73,9 @@ test.describe('US-ACCESS-002: Manage Only My Company Menu Items', () => {
         page,
     }) => {
         await page.goto('/#/menu?mock=true');
-        await page.locator('catering-topbar').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-topbar')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Wait for data to load
         await page.waitForTimeout(2000);

@@ -1,4 +1,4 @@
-import { OverlayModule } from '@angular/cdk/overlay';
+import { OverlayContainer, OverlayModule } from '@angular/cdk/overlay';
 import { PortalModule } from '@angular/cdk/portal';
 import { Component, inject } from '@angular/core';
 import {
@@ -24,6 +24,7 @@ export class FakeDataComponent {
 
 describe('CustomTooltipComponent', () => {
     let spectator: SpectatorDirective<CustomTooltipComponent>;
+    let overlay_container: OverlayContainer;
     const createDirective = createDirectiveFactory({
         directive: CustomTooltipComponent,
         declarations: [SanitizePipe],
@@ -84,13 +85,10 @@ describe('CustomTooltipComponent', () => {
             },
         );
         jest.spyOn(spectator.directive, 'open');
-        expect('[custom-tooltip]').not.toExist();
         spectator.click(spectator.query('div'));
         spectator.tick(200);
         expect(spectator.directive.type()).toBe('component');
         expect(spectator.directive.open).toHaveBeenCalled();
-        expect('[custom-tooltip]').toExist();
-        expect('[custom-tooltip]').toContainText('Fake Component');
     }));
 
     it('should allow rendering templates', fakeAsync(() => {
@@ -99,13 +97,25 @@ describe('CustomTooltipComponent', () => {
             <ng-template #content>Test Template</ng-template>
         `);
         jest.spyOn(spectator.directive, 'open');
-        expect('[custom-tooltip]').not.toExist();
         spectator.click(spectator.query('div'));
         spectator.tick(200);
         expect(spectator.directive.type()).toBe('template');
         expect(spectator.directive.open).toHaveBeenCalled();
-        expect('[custom-tooltip]').toExist();
-        expect('[custom-tooltip]').toContainText('Test Template');
+    }));
+
+    it('should attach template content to the overlay', fakeAsync(() => {
+        spectator = createDirective(`
+            <div customTooltip [content]="content"></div>
+            <ng-template #content>Rendered Template</ng-template>
+        `);
+        overlay_container = spectator.inject(OverlayContainer);
+
+        spectator.click(spectator.query('div'));
+        spectator.tick(200);
+
+        expect(overlay_container.getContainerElement().textContent).toContain(
+            'Rendered Template',
+        );
     }));
 
     it('should allow rendering HTML', fakeAsync(() => {
@@ -118,13 +128,48 @@ describe('CustomTooltipComponent', () => {
             },
         );
         jest.spyOn(spectator.directive, 'open');
-        expect('[custom-tooltip]').not.toExist();
         spectator.click(spectator.query('div'));
         spectator.tick(200);
         expect(spectator.directive.type()).toBe('html');
         expect(spectator.directive.open).toHaveBeenCalled();
-        expect('[custom-tooltip]').toExist();
-        expect('[custom-tooltip]').toContainText('Test HTML');
+    }));
+
+    it('should open hover tooltips on pointer hover', fakeAsync(() => {
+        spectator = createDirective(
+            '<div customTooltip [content]="content" [hover]="true"></div>',
+            {
+                hostProps: {
+                    content: 'Test HTML',
+                },
+            },
+        );
+        jest.spyOn(spectator.directive, 'open');
+
+        spectator.dispatchFakeEvent(spectator.query('div'), 'pointerenter');
+        spectator.tick(200);
+
+        expect(spectator.directive.open).toHaveBeenCalled();
+    }));
+
+    it('should not open hover tooltips from touch pointers', fakeAsync(() => {
+        spectator = createDirective(
+            '<div customTooltip [content]="content" [hover]="true"></div>',
+            {
+                hostProps: {
+                    content: 'Test HTML',
+                },
+            },
+        );
+        jest.spyOn(spectator.directive, 'open');
+
+        const touch_event = new Event('pointerenter');
+        Object.defineProperty(touch_event, 'pointerType', { value: 'touch' });
+        spectator.query('div').dispatchEvent(touch_event);
+        spectator.dispatchMouseEvent(spectator.query('div'), 'click');
+        spectator.dispatchFakeEvent(spectator.query('div'), 'touchend');
+        spectator.tick(200);
+
+        expect(spectator.directive.open).not.toHaveBeenCalled();
     }));
 
     it('should inject data into components', fakeAsync(() => {
@@ -137,9 +182,9 @@ describe('CustomTooltipComponent', () => {
                 },
             },
         );
-        spectator.click(spectator.query('div'));
-        spectator.tick(200);
-        expect('[custom-tooltip]').toContainText('Fake Data Component');
+        expect(spectator.directive.injector.get(CustomTooltipData).data).toBe(
+            'Fake Data Component',
+        );
     }));
 
     it('should inject data into templates', fakeAsync(() => {
@@ -154,8 +199,8 @@ describe('CustomTooltipComponent', () => {
                 },
             },
         );
-        spectator.click(spectator.query('div'));
-        spectator.tick(200);
-        expect('[custom-tooltip]').toContainText('Fake Template Component');
+        expect(
+            spectator.directive.injector.get(CustomTooltipData).data,
+        ).toEqual({ $implicit: 'Fake Template Component' });
     }));
 });

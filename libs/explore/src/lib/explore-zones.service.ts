@@ -1,11 +1,18 @@
-import { inject, Injectable } from '@angular/core';
-import { Point, ViewerFeature } from '@placeos/svg-viewer';
+import {
+    effect,
+    inject,
+    Injectable,
+    Injector,
+    signal,
+    untracked,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Point, ViewerFeature } from '@placeos/common';
 import { showMetadata } from '@placeos/ts-client';
-import { debounceTime, filter, map } from 'rxjs/operators';
 
 import {
     AsyncHandler,
-    firstTruthyValueFrom,
+    firstValueWhere,
     HashMap,
     i18n,
     OrganisationService,
@@ -16,7 +23,6 @@ import {
     MapCanvasComponent,
     Polygon,
 } from 'libs/components/src/lib/map-canvas.component';
-import { BehaviorSubject, combineLatest } from 'rxjs';
 import { ExploreIconComponent } from './explore-icon.component';
 import { ExploreSensorInfoComponent } from './explore-sensor-info.component';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
@@ -49,6 +55,14 @@ export class ExploreZonesService extends AsyncHandler {
     private _state = inject(ExploreStateService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private _injector = inject(Injector);
+
+    private _org_initialised = toSignal(this._org.initialised, {
+        initialValue: false,
+    });
+    private _building = toSignal(this._org.active_building, {
+        initialValue: null,
+    });
 
     private _area_list: string[] = [];
     private _statuses: HashMap<string> = {};
@@ -59,49 +73,49 @@ export class ExploreZonesService extends AsyncHandler {
     private _draw: HashMap<boolean> = {};
     private _points: HashMap<[number, number][]> = {};
     private _features: ViewerFeature[] = [];
-    private _polygons$ = new BehaviorSubject<Polygon[]>([]);
+    private _polygons = signal<Polygon[]>([]);
 
-    private _bind = combineLatest([
-        this._org.active_building,
-        this._state.level,
-        this._state.options,
-    ]).pipe(
-        filter(([bld, lvl, { is_public }]) => !!bld && !!lvl && !is_public),
-        map(([_, lvl]) => {
-            this._statuses = {};
-            const mod = this._org.module('area_management', 'AreaManagement');
-            if (!mod) return;
-            const bind_areas = mod.variable(`${lvl.id}:areas`);
-            const bind_zone = mod.variable(`${lvl.id}`);
-            const zones = combineLatest([
-                bind_areas.listen(),
-                bind_zone.listen(),
-            ]).pipe(
-                debounceTime(100),
-                map(([a, z]) => [
-                    ...(a?.value || []),
-                    ...(z?.value || []).filter((_) => _.location === 'area'),
-                ]),
-            );
-            this.subscription(
-                `zones-status`,
-                zones.subscribe((l) => this.parseData(l)),
-            );
-            this.subscription('binding', bind_areas.bind());
-            this.subscription('zone-binding', bind_zone.bind());
-        }),
-    );
+    private _area_data = signal<{ value?: any[] }>(null);
+    private _zone_data = signal<{ value?: any[] }>(null);
 
     constructor() {
         super();
+        // Bind to the area management state of the active level
+        effect(() => {
+            const bld = this._building();
+            const lvl = this._state.level();
+            const { is_public } = this._state.options();
+            if (!bld || !lvl || is_public) return;
+            untracked(() => this._bindToLevel(lvl.id));
+        });
+        // Process zone data from the level's bindings
+        effect(() => {
+            const areas = this._area_data();
+            const zone = this._zone_data();
+            this.timeout(
+                'parse_data',
+                () =>
+                    this.parseData([
+                        ...(areas?.value || []),
+                        ...(zone?.value || []).filter(
+                            (_) => _.location === 'area',
+                        ),
+                    ]),
+                100,
+            );
+        });
         this.init();
     }
 
     public async init() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await firstValueWhere(
+            this._org_initialised,
+            (_) => !!_,
+            this._injector,
+        );
         const zone_metadata = await Promise.all(
             this._org.levels.map((bld) =>
-                showMetadata(bld.id, 'map_regions').toPromise(),
+                showMetadata(bld.id, 'map_regions').catch(() => null),
             ),
         );
         this._area_list = [];
@@ -139,14 +153,29 @@ export class ExploreZonesService extends AsyncHandler {
                 location: { x: 0.5, y: 0.5 },
                 content: MapCanvasComponent,
                 data: {
-                    polygons$: this._polygons$,
+                    polygons: this._polygons.asReadonly(),
                     draw_points: false,
                     draw_labels: false,
                 },
             },
         ]);
         this.updateStatus();
-        this.subscription('bind', this._bind.subscribe());
+    }
+
+    private _bindToLevel(zone_id: string) {
+        this._statuses = {};
+        const mod = this._org.module('area_management', 'AreaManagement');
+        if (!mod) return;
+        const bind_areas = mod.variable(`${zone_id}:areas`);
+        const bind_zone = mod.variable(`${zone_id}`);
+        this.subscription(
+            'binding',
+            bind_areas.bindThenSubscribe((d) => this._area_data.set(d)),
+        );
+        this.subscription(
+            'zone-binding',
+            bind_zone.bindThenSubscribe((d) => this._zone_data.set(d)),
+        );
     }
 
     public parseData(value: ZoneData[] = []) {
@@ -193,11 +222,11 @@ export class ExploreZonesService extends AsyncHandler {
                 });
             if (zone.queue_size)
                 content += i18n('EXPLORE.SENSORS_QUEUE', {
-                    value: `${zone.humidity}\n`,
+                    value: `${zone.queue_size}\n`,
                 });
             if (zone.counter)
                 content += i18n('EXPLORE.SENSORS_COUNT', {
-                    value: `${zone.humidity}\n`,
+                    value: `${zone.counter}\n`,
                 });
             if (
                 this._label_location[id] &&
@@ -269,7 +298,7 @@ export class ExploreZonesService extends AsyncHandler {
                 }
             }
         }
-        this._polygons$.next(polygons);
+        this._polygons.set(polygons);
         this._state.setFeatures('zones', [...features, ...this._features]);
         this._state.setStyles('zones-styles', style_map);
     }

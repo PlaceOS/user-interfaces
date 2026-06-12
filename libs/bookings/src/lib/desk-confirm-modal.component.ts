@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, output, signal } from '@angular/core';
+import { Component, computed, inject, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -35,19 +35,20 @@ export interface DeskConfirmModalData {
         <header>
             <h2>Confirm Booking</h2>
             <div class="flex-1"></div>
-            @if (!loading) {
+            @if (!loading()) {
                 <button icon mat-dialog-close>
                     <icon>close</icon>
                 </button>
             }
         </header>
-        @if (!loading) {
+        @if (!loading()) {
             <main class="p-4">
-                @if (can_set_host) {
+                @if (can_set_host()) {
                     <div host class="flex flex-col">
                         <label>{{ 'FORM.HOST' | translate }}</label>
                         <a-user-search-field
-                            [(ngModel)]="host"
+                            [ngModel]="host()"
+                            (ngModelChange)="host.set($event)"
                             class="mb-4"
                         ></a-user-search-field>
                     </div>
@@ -56,19 +57,23 @@ export interface DeskConfirmModalData {
                     <label>{{ 'FORM.DATE' | translate }}</label>
                     @if (!can_set_date()) {
                         <div date>
-                            {{ date | date: 'mediumDate' }}
+                            {{ date() | date: 'mediumDate' }}
                         </div>
                     } @else {
-                        <a-date-field [(ngModel)]="date"></a-date-field>
+                        <a-date-field
+                            [ngModel]="date()"
+                            (ngModelChange)="date.set($event)"
+                        ></a-date-field>
                     }
                 </div>
-                @if (!hide_reason) {
+                @if (!hide_reason()) {
                     <div reason class="mb-4 flex flex-col">
                         <label>Reason</label>
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
-                                [(ngModel)]="reason"
+                                [ngModel]="reason()"
+                                (ngModelChange)="reason.set($event)"
                                 placeholder="Reason"
                             />
                         </mat-form-field>
@@ -76,7 +81,7 @@ export interface DeskConfirmModalData {
                 }
                 <p>
                     Your desk{{ desks.length === 1 ? '' : 's' }} will be
-                    {{ desk_list }} on
+                    {{ desk_list() }} on
                     {{ level?.display_name || level?.name }}
                 </p>
             </main>
@@ -86,7 +91,7 @@ export interface DeskConfirmModalData {
         } @else {
             <main load class="flex flex-col items-center justify-center p-12">
                 <mat-spinner [diameter]="48" class="mb-4"></mat-spinner>
-                <p>{{ loading }}</p>
+                <p>{{ loading() }}</p>
             </main>
         }
     `,
@@ -120,31 +125,34 @@ export class DeskConfirmModalComponent {
 
     public readonly desks = this._data.desks || [];
 
-    public date = this._data.date;
-    public host = this._data.host;
+    public readonly date = signal(this._data.date);
+    public readonly host = signal(this._data.host);
 
     public readonly can_set_date = signal(this._data.can_set_date);
 
-    public reason = this._data.reason;
+    public readonly reason = signal(this._data.reason);
 
     public readonly level = this._data.level;
 
-    public loading: string;
+    public readonly loading = signal('');
+    private readonly _hide_reason = this._settings.signal(
+        'desks.hide_reason',
+        false,
+    );
+    private readonly _can_set_host = this._settings.signal(
+        'desks.can_book_for_others',
+        false,
+    );
 
-    public get desk_list() {
-        return this.desks.map((_) => _.name).join(', ');
-    }
+    public readonly desk_list = computed(() =>
+        this.desks.map((_) => _.name).join(', '),
+    );
 
-    public get hide_reason() {
-        return !!this._settings.get('app.desks.hide_reason');
-    }
-
-    public get can_set_host() {
-        return !!this._settings.get('app.desks.can_book_for_others');
-    }
+    public readonly hide_reason = this._hide_reason;
+    public readonly can_set_host = this._can_set_host;
 
     public confirm() {
-        this.loading = 'Requesting desk booking...';
+        this.loading.set('Requesting desk booking...');
         this.event.emit({ reason: 'done' });
     }
 }

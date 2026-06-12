@@ -4,6 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
 import {
+    authority,
     clientId,
     convertPairStringToMap,
     invalidateToken,
@@ -32,9 +33,28 @@ import { GoogleAnalyticsService } from './google-analytics.service';
 import { HotkeysService } from './hotkeys.service';
 import { LocaleService, setTranslationService } from './locale.service';
 import { MapsPeopleService } from './mapspeople.service';
+import {
+    bindNativeAuthRedirects,
+    clearNativeApiKey,
+    clearNativeDomain,
+    clearNativePkceVerifier,
+    closeNativeBrowser,
+    consumeNativeAuthError,
+    consumeNativeAuthRedirect,
+    getNativeApiKey,
+    getNativeDomain,
+    hideNativeStatusBar,
+    isNativeApp,
+    markNativeAuthRedirectConsumed,
+    openNativeBrowser,
+    restoreNativePkceVerifier,
+    scheduleNativeRestart,
+    setNativeAuthError,
+    syncNativeManagedConfig,
+} from './native-app';
 import { notifySuccess, setNotifyOutlet } from './notifications';
 import { OrganisationService } from './org/organisation.service';
-import { setupPlace } from './placeos';
+import { createNativeAuthUrl, setupPlace } from './placeos';
 import { SettingsService } from './settings.service';
 import { setInternalUserDomain } from './types/user.class';
 import { current_user, currentUser } from './user-state';
@@ -48,6 +68,9 @@ declare global {
 }
 
 const LOADING_MESSAGE = signal('Loading...');
+const NEEDS_DOMAIN = signal(false);
+const DOMAIN_ERROR = signal('');
+const AUTO_CONFIRM_DOMAIN = signal(false);
 
 export function getLoadingMessage() {
     return LOADING_MESSAGE;
@@ -55,6 +78,25 @@ export function getLoadingMessage() {
 
 export function setLoadingMessage(message: string) {
     LOADING_MESSAGE.set(message);
+}
+
+/** Signal indicating the native domain overlay should be displayed. */
+export function needsNativeDomain() {
+    return NEEDS_DOMAIN;
+}
+
+/** Signal containing an error message to display in the domain overlay. */
+export function nativeDomainError() {
+    return DOMAIN_ERROR;
+}
+
+/**
+ * Signal indicating the domain overlay can auto-accept its settings after a
+ * period of no user activity — set when the MDM managed configuration
+ * provides everything needed to run unattended.
+ */
+export function autoConfirmNativeDomain() {
+    return AUTO_CONFIRM_DOMAIN;
 }
 
 export function initSentry(dsn: string, sample_rate = 0.1) {
@@ -108,6 +150,41 @@ export class PlaceOS_Service extends AsyncHandler {
     private _zone = '';
     private _region = '';
     private _initial_token = '';
+    private _domain_resolve: (() => void) | null = null;
+
+    private async _handleNativeAuthRedirect(url: string): Promise<void> {
+        const callback_url = new URL(url);
+        const params = callback_url.searchParams;
+        await closeNativeBrowser();
+        markNativeAuthRedirectConsumed(url);
+        const error = params.get('error');
+        if (error || !params.get('code')) {
+            const message =
+                params.get('error_description') ||
+                error ||
+                'Sign in failed. Please try again.';
+            console.warn('[AUTH] Native sign in failed.', message);
+            setNativeAuthError(message);
+            location.replace(`${location.origin}${location.pathname}`);
+            return;
+        }
+        // Stash the params where ts-client checks when the URL has none, in
+        // case routing rewrites the URL before the auth flow reads it.
+        sessionStorage.setItem(
+            'ENGINE.auth.params',
+            JSON.stringify({
+                code: params.get('code'),
+                state: params.get('state'),
+            }),
+        );
+        console.warn('[AUTH] Reloading webview with auth code...');
+        // Reload the webview with the OAuth params on the main URL so the
+        // ts-client auth_code flow can pick up the `code` + `state` and
+        // exchange them (using the PKCE verifier stored before sign-in).
+        location.replace(
+            `${location.origin}${location.pathname}?${params.toString()}`,
+        );
+    }
 
     public get debug() {
         return (
@@ -131,7 +208,36 @@ export class PlaceOS_Service extends AsyncHandler {
         this._initial_token = token || '';
     }
 
-    public async init() {
+    /** Called by the native domain overlay once the user has set a domain. */
+    public onNativeDomainSet(): void {
+        NEEDS_DOMAIN.set(false);
+        DOMAIN_ERROR.set('');
+        AUTO_CONFIRM_DOMAIN.set(false);
+        this._domain_resolve?.();
+        this._domain_resolve = null;
+    }
+
+    public async init(options: { allow_mdm_restart?: boolean } = {}) {
+        if (isNativeApp()) {
+            // Native shells render fullscreen with the OS status bar hidden.
+            hideNativeStatusBar();
+            // Re-seed the PKCE verifier in case the OS killed the app (and
+            // its sessionStorage) while the user was signing in externally.
+            restoreNativePkceVerifier();
+            await bindNativeAuthRedirects((url) => {
+                this._handleNativeAuthRedirect(url).catch((error) =>
+                    console.warn('[AUTH] Error handling redirect.', error),
+                );
+            });
+            const launch_url = await consumeNativeAuthRedirect();
+            if (launch_url) {
+                await this._handleNativeAuthRedirect(launch_url);
+                return;
+            }
+        }
+        // Listen for service worker events before any async setup so update
+        // notifications emitted during initialisation are not missed.
+        setupCache(this._cache);
         log('APP', 'MOCKS:', _mocks);
         if (_mocks) {
             setLoadingMessage('Initializing mocks...');
@@ -195,6 +301,9 @@ export class PlaceOS_Service extends AsyncHandler {
         await firstTruthyValueFrom(this._settings.initialised);
         setAppName(this._settings.get('app.short_name'));
         const settings = this._settings.get('composer') || {};
+        settings.app_name =
+            this._settings.get('app.name') ||
+            this._settings.get('app.short_name');
         settings.mock =
             !!this._settings.get('mock') ||
             (_mocks && location.origin.includes('demo.place.tech'));
@@ -206,21 +315,126 @@ export class PlaceOS_Service extends AsyncHandler {
                 queryParams: query,
             });
         }
-        setLoadingMessage('Authenticating...');
-        /** Wait for authentication details to load */
-        await setupPlace(settings).catch((_) => console.error(_));
+        /** Apply any server settings pushed to the device via MDM. */
+        let confirm_managed = false;
+        if (isNativeApp()) {
+            setLoadingMessage('Checking managed configuration...');
+            const { config: managed, changed } =
+                await syncNativeManagedConfig();
+            if (managed) {
+                if (options.allow_mdm_restart && managed.restart_enabled) {
+                    scheduleNativeRestart(managed.restart_time);
+                }
+                // New settings are shown to the user for validation before
+                // use, unless the MDM config opts out of interactive setup.
+                confirm_managed =
+                    changed &&
+                    !!managed.domain &&
+                    !managed.skip_interactive_setup;
+                // When the MDM provides everything a panel app needs to run
+                // unattended, the confirmation accepts itself after a period
+                // of no user activity.
+                AUTO_CONFIRM_DOMAIN.set(
+                    confirm_managed &&
+                        !!options.allow_mdm_restart &&
+                        !!managed.api_key &&
+                        !!managed.system_id,
+                );
+            }
+        }
+        /** On native platforms, ensure we have a server domain before auth. */
+        while (isNativeApp()) {
+            let domain = getNativeDomain();
+            while (!domain || confirm_managed) {
+                confirm_managed = false;
+                setLoadingMessage('Waiting for server configuration...');
+                NEEDS_DOMAIN.set(true);
+                await new Promise<void>((r) => (this._domain_resolve = r));
+                domain = getNativeDomain();
+            }
+            settings.domain = domain;
+            settings.protocol = 'https:';
+            settings.use_domain = true;
+            setLoadingMessage('Authenticating...');
+            const auth_error = await setupPlace(settings)
+                .then(() => null)
+                .catch((_) => _);
+            if (!auth_error) {
+                // Apply after setupPlace so ts-client stores the key under
+                // the client ID computed during setup. With a key set,
+                // token() resolves and the OAuth sign-in below is skipped.
+                const api_key = getNativeApiKey();
+                const client_key = `${clientId()}_x-api-key`;
+                if (api_key) setAPI_Key(api_key);
+                else if (localStorage.getItem(client_key)) {
+                    // Key removed during setup — also purge the copy (and
+                    // the long-lived token) ts-client persisted, or it keeps
+                    // authenticating with the old key.
+                    localStorage.removeItem(client_key);
+                    invalidateToken();
+                }
+                break;
+            }
+            log('APP', 'Auth failed, resetting domain.', auth_error, 'warn');
+            clearNativeDomain();
+            clearNativeApiKey();
+            DOMAIN_ERROR.set(
+                `Unable to connect to "${domain}". The server may be unavailable, or the email address may be for a different server. Try again.`,
+            );
+        }
+        if (isNativeApp() && !token(false)) {
+            const boot_params = new URLSearchParams(START_QUERY);
+            if (boot_params.has('code')) {
+                // The exchange runs inside setupPlace — landing here with a
+                // code in the URL means it was dropped or failed. ts-client
+                // silently discards the code when state and nonce differ.
+                console.warn(
+                    '[AUTH] Auth code was present on load but the token exchange did not complete.',
+                    `State: "${boot_params.get('state')}"`,
+                    `Nonce: "${localStorage.getItem(`${clientId()}_nonce`)}"`,
+                );
+            }
+        }
+        // Only open the sign-in browser when there is no valid token AND no
+        // refresh token — with a refresh token ts-client renews it silently.
+        if (
+            isNativeApp() &&
+            !token(false) &&
+            !refreshToken() &&
+            authority()
+        ) {
+            const auth_error = consumeNativeAuthError();
+            if (auth_error) {
+                // Wait for the user to confirm via the overlay so a failed or
+                // denied sign-in can't endlessly re-open the browser.
+                setLoadingMessage('Waiting for sign in...');
+                DOMAIN_ERROR.set(auth_error);
+                NEEDS_DOMAIN.set(true);
+                await new Promise<void>((r) => (this._domain_resolve = r));
+            }
+            setLoadingMessage('Opening sign in...');
+            const auth_url = await createNativeAuthUrl(settings, clientId());
+            console.warn(`[AUTH] Opening sign in: ${auth_url}`);
+            await openNativeBrowser(auth_url);
+            return;
+        }
+        if (!isNativeApp()) {
+            setLoadingMessage('Authenticating...');
+            await setupPlace(settings).catch((_) => console.error(_));
+        }
         if (this._initial_token) setToken(this._initial_token);
         await lastValueFrom(this._org.initialised.pipe(first((_) => _)));
         if (this._locale) {
             this._locale.zone_id = this._org.organisation.id;
             this._locale.init();
         }
-        setupCache(this._cache);
+        setupCache(this._cache, this._settings.get('service_worker') || {});
         if (!settings.local_login) {
             this.timeout('wait_for_user', () => this.onInitError(), 30 * 1000);
         }
         await lastValueFrom(current_user.pipe(first((_) => !!_)));
         this.clearTimeout('wait_for_user');
+        clearNativePkceVerifier();
         this._initLocale();
         setInternalUserDomain(
             this._settings.get('app.internal_user_domain') ||
@@ -243,7 +457,19 @@ export class PlaceOS_Service extends AsyncHandler {
 
     private onInitError() {
         if (isMock() || currentUser()?.is_logged_in) return;
-        invalidateToken();
+        // An API key that can't load the current user is likely invalid —
+        // without this the key keeps token() truthy and the reload below
+        // loops forever. Clear the setup config so the server overlay is
+        // shown again after the reload.
+        if (isNativeApp() && getNativeApiKey()) {
+            clearNativeApiKey();
+            clearNativeDomain();
+            localStorage.removeItem(`${clientId()}_x-api-key`);
+            invalidateToken();
+        }
+        // Keep a valid token on slow networks — the user fetch timing out
+        // doesn't mean the token is bad, so just retry with a reload.
+        else if (!token(false)) invalidateToken();
         location.reload();
     }
 

@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -8,18 +8,18 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { ParkingStateService } from './parking-state.service';
+import { ParkingOptions, ParkingStateService } from './parking-state.service';
 
 @Component({
     selector: 'parking-fleet-list',
     template: `
         <mat-progress-bar
-            [class.opacity-0]="!(loading | async)?.includes('fleet')"
+            [class.opacity-0]="!loading().includes('fleet')"
             class="w-full"
         />
         <simple-table
             class="block min-w-272 text-sm"
-            [data]="fleet_list"
+            [data]="fleet_list()"
             [columns]="[
                 {
                     key: 'name',
@@ -48,7 +48,7 @@ import { ParkingStateService } from './parking-state.service';
                     size: '6.5rem',
                 },
             ]"
-            [filter]="(options | async)?.search"
+            [filter]="options().search"
             [sortable]="true"
         />
         <ng-template #name_template let-row="row" let-data="data">
@@ -97,7 +97,6 @@ import { ParkingStateService } from './parking-state.service';
     `,
     styles: [``],
     imports: [
-        CommonModule,
         MatRippleModule,
         MatProgressBarModule,
         MatTooltipModule,
@@ -109,9 +108,23 @@ import { ParkingStateService } from './parking-state.service';
 export class ParkingFleetListComponent {
     private _state = inject(ParkingStateService);
 
-    public readonly options = this._state.options;
-    public readonly loading = this._state.loading;
-    public readonly fleet_list = this._state.fleet_vehicles;
+    private readonly _default_options: ParkingOptions = {
+        date: Date.now(),
+        search: '',
+        zones: [],
+        period: 'day',
+        request_filter: 'all',
+    };
+
+    public readonly options = toSignal(this._state.options, {
+        initialValue: this._default_options,
+    });
+    public readonly loading = toSignal(this._state.loading, {
+        initialValue: [],
+    });
+    public readonly fleet_list = toSignal(this._state.fleet_vehicles, {
+        initialValue: [],
+    });
 
     public readonly editFleetVehicle = (vehicle?) =>
         this._state.editFleetVehicle(vehicle);

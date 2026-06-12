@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
@@ -6,17 +7,25 @@ import { ExploreSearchService } from '@placeos/explore';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
+import { SettingsService } from '@placeos/common';
 import { GlobalSearchComponent } from '../../app/components/global-search.component';
+import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
 
 describe('GlobalSearchComponent', () => {
     let spectator: SpectatorRouting<GlobalSearchComponent>;
     const createComponent = createRoutingFactory({
         component: GlobalSearchComponent,
         providers: [
+            MockProvider(SettingsService, { get: jest.fn() }),
             MockProvider(ExploreSearchService, {
-                search_results: new BehaviorSubject([]),
-                loading: new BehaviorSubject(''),
+                search_results: signal([]) as any,
+                global_search_results: signal([]) as any,
+                loading: signal(false) as any,
                 setFilter: jest.fn(),
+                setInProgressBookings: jest.fn(),
+            } as any),
+            MockProvider(ScheduleStateService, {
+                bookings: new BehaviorSubject([]),
             } as any),
         ],
         declarations: [MockComponent(IconComponent)],
@@ -39,7 +48,7 @@ describe('GlobalSearchComponent', () => {
         expect(service.setFilter).toHaveBeenCalled();
         // expect(document.querySelector('[empty]')).toExist();
         spectator.component.filter_str.set('Alex');
-        (service.search_results as any).next([
+        (service.global_search_results as any).set([
             { id: '1', type: 'user', name: 'Alex S', description: '' },
         ]);
         spectator.detectChanges();
@@ -51,7 +60,7 @@ describe('GlobalSearchComponent', () => {
         expect(document.querySelector('a')).not.toExist();
         const service = spectator.inject(ExploreSearchService);
         spectator.component.filter_str.set('Alex');
-        (service.search_results as any).next([
+        (service.global_search_results as any).set([
             { id: '1', type: 'user', name: 'Alex S', description: '' },
         ]);
         spectator.detectChanges();

@@ -31,7 +31,6 @@ import {
 } from '@placeos/ts-client';
 import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-permissions-modal.component';
-import { lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'signage-media-modal',
@@ -208,6 +207,7 @@ import { lastValueFrom } from 'rxjs';
                             <a-date-field
                                 name="valid-from"
                                 formControlName="valid_from"
+                                [clear]="true"
                             ></a-date-field>
                         </div>
                         <div class="flex-1">
@@ -218,6 +218,7 @@ import { lastValueFrom } from 'rxjs';
                                 name="valid-until"
                                 [from]="form.value.valid_from"
                                 formControlName="valid_until"
+                                [clear]="true"
                             ></a-date-field>
                         </div>
                     </div>
@@ -355,9 +356,7 @@ export class SignageMediaModalComponent implements OnDestroy {
             throw e;
         };
         if (this.item.id) {
-            await lastValueFrom(
-                updateSignageMedia(this.item.id, new_media),
-            ).catch(onError);
+            await updateSignageMedia(this.item.id, new_media).catch(onError);
         } else {
             await this._data.onAdd(this.file, new_media).catch(onError);
         }

@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -7,13 +7,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-    nextValueFrom,
-    OrganisationService,
-    SettingsService,
-} from '@placeos/common';
+import { parse } from 'date-fns';
+import { OrganisationService, SettingsService } from '@placeos/common';
 import { BuildingPipe, TranslatePipe } from '@placeos/components';
-import { combineLatest } from 'rxjs';
+import { combineLatest, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
@@ -27,10 +24,10 @@ import { VisitorsStateService } from './visitors-state.service';
     selector: '[app-new-visitors]',
     template: `
         <app-topbar class="print:hidden">></app-topbar>
-        <div class="flex h-px flex-1 print:hidden">
-            <app-sidebar></app-sidebar>
+        <div class="flex h-px flex-1">
+            <app-sidebar class="print:hidden"></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">
-                <div class="flex items-center space-x-2 px-8 py-4">
+                <div class="flex items-center space-x-2 px-8 py-4 print:hidden">
                     <h2 class="text-2xl font-medium">
                         {{ 'RESOURCE.VISITORS' | translate }}
                     </h2>
@@ -48,18 +45,18 @@ import { VisitorsStateService } from './visitors-state.service';
                         {{ 'BOOKINGS.VISITOR_INVITE_TITLE' | translate }}
                     </button>
                 </div>
-                <div class="flex items-center px-8 pb-4">
+                <div class="flex items-center px-8 pb-4 print:hidden">
                     <mat-form-field
                         appearance="outline"
                         class="no-subscript w-60"
                     >
                         <mat-select
-                            [ngModel]="(filters | async)?.zones"
+                            [ngModel]="filters()?.zones"
                             (ngModelChange)="updateZones($event)"
                             [placeholder]="'COMMON.LEVEL_ALL' | translate"
                             multiple
                         >
-                            @for (level of levels | async; track level) {
+                            @for (level of levels(); track level.id) {
                                 <mat-option [value]="level.id">
                                     <div class="flex flex-col-reverse">
                                         @if (use_region) {
@@ -89,9 +86,9 @@ import { VisitorsStateService } from './visitors-state.service';
                 <div class="mx-8 h-1/2 flex-1 overflow-auto">
                     <guest-listings></guest-listings>
                 </div>
-                @if (loading | async) {
+                @if (loading()) {
                     <mat-progress-bar
-                        class="w-full"
+                        class="w-full print:hidden"
                         mode="indeterminate"
                     ></mat-progress-bar>
                 }
@@ -110,7 +107,6 @@ import { VisitorsStateService } from './visitors-state.service';
         `,
     ],
     imports: [
-        CommonModule,
         MatProgressBarModule,
         MatFormFieldModule,
         MatSelectModule,
@@ -133,20 +129,25 @@ export class VisitorsComponent implements OnInit, OnDestroy {
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
 
-    public readonly loading = this._state.loading;
-    public readonly filters = this._state.filters;
-    /** List of selected levels */
-    public zones: string[] = [];
+    public readonly loading = toSignal(this._state.loading || of(false), {
+        initialValue: false,
+    });
+    public readonly filters = toSignal<any>(this._state.filters || of({}), {
+        initialValue: {} as any,
+    });
     /** List of levels for the active building */
-    public readonly levels = combineLatest([
-        this._org.active_building,
-        this._org.active_region,
-    ]).pipe(
-        map(([bld, region]) =>
-            this._settings.get('app.use_region')
-                ? this._org.levelsForRegion(region)
-                : this._org.levelsForBuilding(bld),
+    public readonly levels = toSignal(
+        combineLatest([
+            this._org.active_building || of(null),
+            this._org.active_region || of(null),
+        ]).pipe(
+            map(([bld, region]) =>
+                this._settings.get('app.use_region')
+                    ? this._org.levelsForRegion(region)
+                    : this._org.levelsForBuilding(bld),
+            ),
         ),
+        { initialValue: [] },
     );
     /** Set filtered date */
     public readonly setDate = (date) => this._state.setFilters({ date });
@@ -171,18 +172,26 @@ export class VisitorsComponent implements OnInit, OnDestroy {
     public async inviteVisitor() {
         this._dialog.open(InviteVisitorModalComponent, {
             data: {
-                date: await nextValueFrom(
-                    this._state.filters.pipe(map((f) => f.date || Date.now())),
-                ),
+                date: this.filters()?.date || Date.now(),
             },
         });
     }
 
     public ngOnInit() {
+        this._syncDateFilter();
+        this._state.poll();
         this._state.startPolling();
     }
 
     public ngOnDestroy() {
         this._state.stopPolling();
+    }
+
+    private _syncDateFilter() {
+        const route_date = this._route.snapshot.queryParamMap.get('date');
+        const date = route_date
+            ? parse(route_date, 'yyyy-MM-dd', new Date()).valueOf()
+            : Date.now();
+        this._state.setFilters({ date: Number.isNaN(date) ? Date.now() : date });
     }
 }

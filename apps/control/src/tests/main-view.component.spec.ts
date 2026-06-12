@@ -52,7 +52,7 @@ describe('ControlMainViewComponent', () => {
         expect('[name="splash"]').toExist();
         expect('topbar-header').not.toExist();
         spectator.click('[name="splash"]');
-        expect(service.powerOn).toBeCalled();
+        expect(service.powerOn).toHaveBeenCalled();
     });
 
     it('should show panel when powered up', async () => {

@@ -11,8 +11,7 @@ import {
     VERSION,
 } from '@placeos/common';
 import { PlaceSystem, querySystems } from '@placeos/ts-client';
-import { of } from 'rxjs';
-import { catchError, first, map, shareReplay, switchMap } from 'rxjs/operators';
+import { first, map, shareReplay, switchMap } from 'rxjs/operators';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -159,9 +158,11 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
             querySystems({
                 zone_id: this._org.organisation?.id,
                 limit: 500,
-                fields: ['id', 'name', 'display_name', 'email'].join(','),
+                fields: ['id', 'name', 'display_name', 'email', 'zones'].join(
+                    ',',
+                ),
                 signage: true,
-            }).pipe(catchError(() => of({ data: [] }))),
+            }).catch(() => ({ data: [] })),
         ),
         map((r) =>
             r.data.sort((a, b) =>
@@ -174,11 +175,12 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     );
 
     public level(system: PlaceSystem) {
-        return this._org.levelWithID(system.zones as any);
+        return this._org.levelWithID((system.zones || []) as any);
     }
 
     public building(system: PlaceSystem) {
-        return this._org.buildings.find(({ id }) => system.zones.includes(id));
+        const zones = system.zones || [];
+        return this._org.buildings.find(({ id }) => zones.includes(id));
     }
 
     public async ngOnInit() {

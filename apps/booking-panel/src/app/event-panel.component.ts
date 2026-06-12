@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { startOfMinute } from 'date-fns';
 import { debounceTime, map } from 'rxjs/operators';
@@ -12,7 +13,7 @@ import {
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
-import { CalendarEvent, generateQRCode } from '@placeos/common';
+import { generateQRCode } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     SafePipe,
@@ -26,7 +27,7 @@ import { PanelStateService } from './panel-state.service';
     template: `
         <div class="bg-base-100 absolute inset-0 flex flex-col items-center">
             <header class="flex w-full items-center justify-between p-8">
-                <h1 class="text-3xl font-medium">{{ space_name | async }}</h1>
+                <h1 class="text-3xl font-medium">{{ space_name() }}</h1>
                 <div class="flex items-center space-x-4 portrait:hidden">
                     <p class="text-2xl">
                         {{ time() | date: 'shortTime' }}
@@ -35,7 +36,7 @@ import { PanelStateService } from './panel-state.service';
                         auth
                         class="h-10"
                         alt="Logo"
-                        [source]="(logo | async)?.src || (logo | async) || ''"
+                        [source]="logo()?.src || logo() || ''"
                     />
                 </div>
             </header>
@@ -48,7 +49,7 @@ import { PanelStateService } from './panel-state.service';
                 "
             >
                 <div class="flex-1 overflow-hidden">
-                    @let current_bkn = current | async;
+                    @let current_bkn = current();
                     @if (current_bkn) {
                         <h2 class="line-clamp-5 text-2xl font-medium">
                             {{ current_bkn?.title }}
@@ -81,7 +82,7 @@ import { PanelStateService } from './panel-state.service';
                         {{ 'APP.BOOKING_PANEL.NEXT' | translate }}
                     </h2>
                     <hr class="mb-8" />
-                    @let next_bkn = next | async;
+                    @let next_bkn = next();
                     @if (next_bkn) {
                         <h2 class="line-clamp-4 text-2xl font-medium">
                             {{ next_bkn?.title }}
@@ -90,10 +91,6 @@ import { PanelStateService } from './panel-state.service';
                             starting &#64;
                             {{ next_bkn?.event_start * 1000 | date: 'h:mma' }}
                         </p>
-                        <!-- <p class="text-xl" *ngIf="!hide_meeting_details">
-                {{ 'APP.BOOKING_PANEL.HOST' | translate }}
-                {{ next_bkn?.organiser?.name || next_bkn?.host }}
-              </p> -->
                     } @else {
                         <p class="text-2xl font-medium opacity-60">
                             {{ 'APP.BOOKING_PANEL.NO_UPCOMING' | translate }}
@@ -108,30 +105,32 @@ import { PanelStateService } from './panel-state.service';
                     auth
                     class="h-10"
                     alt="Logo"
-                    [source]="(logo | async)?.src || (logo | async)"
+                    [source]="logo()?.src || logo()"
                 />
                 <p class="text-2xl">
                     {{ time() | date: 'shortTime' }}
                 </p>
             </footer>
-            @if (!hide_qr && checkin) {
-                <div class="absolute top-1/2 -right-[2px] -translate-y-1/2">
+            @if (!hide_qr() && checkin) {
+                <div
+                    class="fixed top-1/2 -right-px flex -translate-y-1/2 items-center"
+                >
                     <button
                         book-tag
                         matRipple
                         (click)="toggleQRShow()"
-                        class="border-base-300 bg-base-100 absolute top-1/2 left-px z-20 -translate-x-full -translate-y-1/2 rounded-l-lg border-y border-l px-1 py-4 uppercase"
+                        class="border-base-300 bg-base-100 relative z-20 h-28 w-12 rounded-l-lg border-y border-l uppercase"
                     >
                         {{ 'COMMON.BOOK' | translate }}
                     </button>
                     <div
                         qr-code-out
                         class="border-base-300 bg-base-100 z-10 overflow-hidden rounded-l-lg border shadow-sm"
-                        [class.w-0]="!show_qr"
-                        [class.w-56]="show_qr"
+                        [class.w-0]="!show_qr()"
+                        [class.w-56]="show_qr()"
                     >
                         <div qr-checkin class="z-50 w-56 p-3">
-                            <img auth class="w-full" [source]="qr_code" />
+                            <img auth class="w-full" [source]="qr_code()" />
                         </div>
                     </div>
                 </div>
@@ -165,17 +164,31 @@ export class EventPanelComponent extends AsyncHandler implements OnInit {
     private _state = inject(PanelStateService);
     private _org = inject(OrganisationService);
 
-    public system_id = '';
-    public show_qr = false;
-    public room_name: string | null = '';
-    public current = this._state.current;
-    public next = this._state.next;
-    public qr_code: any;
-    public hide_qr = false;
-    public readonly space_name = this._state.space.pipe(
-        map((_) => _?.display_name || _?.name || ''),
-    );
+    public system_id = signal<string>('');
+    public show_qr = signal<boolean>(false);
+    public qr_code = signal<any>(null);
+    public hide_qr = signal<boolean>(false);
     public readonly time = signal(Date.now());
+
+    public current = toSignal(this._state.current);
+    public next = toSignal(this._state.next);
+
+    public readonly space_name = toSignal(
+        this._state.space.pipe(map((_) => _?.display_name || _?.name || '')),
+        { initialValue: '' },
+    );
+
+    public readonly logo = toSignal(
+        this._org.active_building.pipe(
+            debounceTime(500),
+            map(
+                () =>
+                    (this._settings.theme
+                        ? this._settings.get('app.logo_light')
+                        : this._settings.get('app.logo_dark')) || {},
+            ),
+        ),
+    );
 
     public get text_color() {
         return this._settings.get('app.text_color') || '#FFFFFF';
@@ -193,16 +206,6 @@ export class EventPanelComponent extends AsyncHandler implements OnInit {
         return this._state.setting('hide_meeting_details');
     }
 
-    public readonly logo = this._org.active_building.pipe(
-        debounceTime(500),
-        map(
-            () =>
-                (this._settings.theme
-                    ? this._settings.get('app.logo_light')
-                    : this._settings.get('app.logo_dark')) || {},
-        ),
-    );
-
     public get checkin() {
         return this._state.setting('show_qr_code') !== false;
     }
@@ -216,14 +219,14 @@ export class EventPanelComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((params) => {
-                this.system_id = params.get('system_id') || '';
-                this._state.system = this.system_id;
+                this.system_id.set(params.get('system_id') || '');
+                this._state.system = this.system_id();
             }),
         );
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
-                this.hide_qr = !!params.get('hide_qr_code');
+                this.hide_qr.set(!!params.get('hide_qr_code'));
             }),
         );
         this.timeout(
@@ -241,31 +244,36 @@ export class EventPanelComponent extends AsyncHandler implements OnInit {
             () => this.time.set(startOfMinute(Date.now()).valueOf()),
             5 * 1000,
         );
-        this._state.current.subscribe();
-        this._state.settings.subscribe(({ custom_qr_url, custom_qr_color }) => {
-            if (custom_qr_url) {
-                this.qr_code = generateQRCode(
-                    custom_qr_url,
-                    '#0000',
-                    custom_qr_color || '#000',
-                );
-            } else if (!this.qr_code) {
-                const url = `${location.origin}${location.pathname}#/checkin/${this._state.system}?user=true`;
-                this.qr_code = generateQRCode(
-                    url,
-                    '#0000',
-                    custom_qr_color || '#000',
-                );
-            }
-        });
+        this.subscription('current', this._state.current.subscribe());
+        this.subscription(
+            'settings',
+            this._state.settings.subscribe(
+                ({ custom_qr_url, custom_qr_color }) => {
+                    if (custom_qr_url) {
+                        this.qr_code.set(
+                            generateQRCode(
+                                custom_qr_url,
+                                '#0000',
+                                custom_qr_color || '#000',
+                            ),
+                        );
+                    } else if (!this.qr_code()) {
+                        const url = `${location.origin}${location.pathname}#/checkin/${this._state.system}?user=true`;
+                        this.qr_code.set(
+                            generateQRCode(
+                                url,
+                                '#0000',
+                                custom_qr_color || '#000',
+                            ),
+                        );
+                    }
+                },
+            ),
+        );
     }
 
     public toggleQRShow() {
-        this.show_qr = !this.show_qr;
-        this.timeout('close', () => (this.show_qr = false), 60 * 1000);
-    }
-
-    public asCalendarEvent(data: any) {
-        return data ? new CalendarEvent(data) : null;
+        this.show_qr.update((v) => !v);
+        this.timeout('close', () => this.show_qr.set(false), 60 * 1000);
     }
 }

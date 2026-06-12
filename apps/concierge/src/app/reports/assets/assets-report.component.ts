@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -13,6 +13,10 @@ import {
 } from '@placeos/components';
 import { debounceTime, map } from 'rxjs/operators';
 
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { ReportsOptionsComponent } from '../reports-options.component';
 import { AssetReportDailyUsageComponent } from './asset-report-daily-usage.component';
 import { AssetReportExpiredItemsComponent } from './asset-report-expired-items.component';
@@ -21,13 +25,45 @@ import { AssetReportProductUsageComponent } from './asset-report-product-usage.c
 import { AssetReportUsersComponent } from './asset-report-users.component';
 import { AssetsReportService } from './assets-report.service';
 
+const METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Business days',
+        description: 'Number of business days in the selected reporting range.',
+    },
+    {
+        label: 'Total bookings',
+        description:
+            'All asset request bookings returned for the selected dates and zones, including active, rejected, and cancelled records.',
+    },
+    {
+        label: 'Active / Rejected / Cancelled',
+        description:
+            'Active excludes cancelled and rejected bookings. Rejected uses bookings with cancelled or rejected status. Cancelled uses bookings flagged as cancelled.',
+    },
+    {
+        label: 'Average length',
+        description:
+            'Average duration of linked events for the active asset requests.',
+    },
+    {
+        label: 'Total and unique booked items',
+        description:
+            'Total booked items sums asset IDs on active requests. Unique items counts product groups that contain at least one booked asset.',
+    },
+    {
+        label: 'Expired items',
+        description:
+            'Purchase orders with expected service end dates before the selected report start date.',
+    },
+];
+
 @Component({
     selector: '[report-assets]',
     template: `
         <reports-options
-            (printing)="printing = $event"
-            [loading]="!!(loading | async)"
-            [has_data]="!!(total_count | async)"
+            (printing)="printing.set($event)"
+            [loading]="loading()"
+            [has_data]="has_data()"
             (download)="downloadReport()"
             (generate)="generateReport()"
         />
@@ -36,29 +72,31 @@ import { AssetsReportService } from './assets-report.service';
         >
             <div class="w-full">
                 <div class="bg-base-200 m-4 flex items-center rounded-sm p-4">
-                    <img
-                        auth
-                        class="h-12"
-                        [source]="(logo | async)?.src || (logo | async)"
-                    />
+                    <img auth class="h-12" [source]="logo()?.src || logo()" />
                     <div class="flex-1"></div>
                     <h2 class="px-2 text-2xl font-medium">
                         {{ 'APP.CONCIERGE.REPORTS_ASSETS_HEADER' | translate }}
                     </h2>
                 </div>
             </div>
-            @if (!(loading | async)) {
-                @if (total_count | async) {
+            @if (!loading()) {
+                @if (total_count()) {
+                    <placeos-report-metric-guide
+                        [absolute]="true"
+                        [items]="metric_guide"
+                    />
                     <asset-report-overall></asset-report-overall>
                     <asset-report-daily-usage
-                        [print]="printing"
+                        [print]="printing()"
                     ></asset-report-daily-usage>
                     <asset-report-product-usage
-                        [print]="printing"
+                        [print]="printing()"
                     ></asset-report-product-usage>
-                    <asset-report-users [print]="printing"></asset-report-users>
+                    <asset-report-users
+                        [print]="printing()"
+                    ></asset-report-users>
                     <asset-report-expired-items
-                        [print]="printing"
+                        [print]="printing()"
                     ></asset-report-expired-items>
                 } @else {
                     <div
@@ -89,11 +127,11 @@ import { AssetsReportService } from './assets-report.service';
         `,
     ],
     imports: [
-        CommonModule,
         TranslatePipe,
         MatProgressSpinnerModule,
         AuthenticatedImageDirective,
         ReportsOptionsComponent,
+        ReportMetricGuideComponent,
         AssetReportDailyUsageComponent,
         AssetReportExpiredItemsComponent,
         AssetReportOverallComponent,
@@ -107,23 +145,33 @@ export class AssetsReportComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _org = inject(OrganisationService);
 
-    public printing = false;
-    public readonly total_count = this._state.stats$.pipe(
-        map((i) => i.total_booked_items || 0),
+    public readonly printing = signal(false);
+    public readonly metric_guide = METRIC_GUIDE;
+    private readonly _stats = toSignal(this._state.stats$, {
+        initialValue: {} as any,
+    });
+    public readonly total_count = computed(
+        () => this._stats()?.total_booked_items || 0,
     );
-    public readonly loading = this._state.loading$;
+    public readonly loading = toSignal(this._state.loading$, {
+        initialValue: false,
+    });
+    public readonly has_data = computed(() => !!this.total_count());
 
     public readonly downloadReport = () => this._state.downloadReport();
     public readonly generateReport = () => this._state.generateReport();
 
-    public readonly logo = this._org.active_building.pipe(
-        debounceTime(500),
-        map(
-            () =>
-                (this._settings.theme === 'dark'
-                    ? this._settings.get('app.logo_dark')
-                    : this._settings.get('app.logo_light')) || {},
+    public readonly logo = toSignal(
+        this._org.active_building.pipe(
+            debounceTime(500),
+            map(
+                () =>
+                    (this._settings.theme === 'dark'
+                        ? this._settings.get('app.logo_dark')
+                        : this._settings.get('app.logo_light')) || {},
+            ),
         ),
+        { initialValue: {} },
     );
 
     public ngOnInit() {

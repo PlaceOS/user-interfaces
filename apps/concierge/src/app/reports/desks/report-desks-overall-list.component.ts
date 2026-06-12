@@ -1,5 +1,6 @@
 import { Component, inject, input } from '@angular/core';
-import { downloadFile, jsonToCsv, nextValueFrom } from '@placeos/common';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { downloadFile, jsonToCsv } from '@placeos/common';
 import { format } from 'date-fns';
 
 import { CommonModule } from '@angular/common';
@@ -10,7 +11,34 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { ReportsStateService } from '../reports-state.service';
+import { formatReportPercentage } from '../reports.utilities';
+
+const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Approved',
+        description: 'Bookings on the day where the booking is approved.',
+    },
+    {
+        label: 'Total requests',
+        description:
+            'All desk bookings on the day, including active, rejected, and cancelled bookings.',
+    },
+    {
+        label: 'Rejected / Cancelled',
+        description:
+            'Displayed as count and percentage of total requests for that day.',
+    },
+    {
+        label: 'Utilisation',
+        description:
+            'Active desk bookings divided by the greater of active bookings or available desk count for that day.',
+    },
+];
 
 @Component({
     selector: 'report-desks-overall-list',
@@ -26,6 +54,7 @@ import { ReportsStateService } from '../reports-state.service';
                     @if (!print()) {
                         <button
                             icon
+                            default
                             matRipple
                             [matTooltip]="
                                 'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE'
@@ -36,10 +65,15 @@ import { ReportsStateService } from '../reports-state.service';
                             <icon>download</icon>
                         </button>
                     }
+                    <placeos-report-metric-guide
+                        title="Table column calculations"
+                        [items]="table_metric_guide"
+                        [inline]="true"
+                    />
                 </div>
                 <simple-table
                     class="block w-full text-sm"
-                    [data]="day_list"
+                    [data]="day_list()"
                     [columns]="[
                         {
                             key: 'date',
@@ -55,6 +89,16 @@ import { ReportsStateService } from '../reports-state.service';
                             name:
                                 'APP.CONCIERGE.REPORTS_TOTAL_REQUESTS'
                                 | translate,
+                        },
+                        {
+                            key: 'cancelled',
+                            name: 'Rejected',
+                            content: booking_percent_template,
+                        },
+                        {
+                            key: 'deleted',
+                            name: 'Cancelled',
+                            content: booking_percent_template,
                         },
                         {
                             key: 'utilisation',
@@ -76,6 +120,15 @@ import { ReportsStateService } from '../reports-state.service';
                 <ng-template #percent_template let-data="data">
                     <div class="p-4">{{ data || '0' }}%</div>
                 </ng-template>
+                <ng-template
+                    #booking_percent_template
+                    let-data="data"
+                    let-row="row"
+                >
+                    <div class="p-4">
+                        {{ formatPercent(data, row.count) }}
+                    </div>
+                </ng-template>
             </div>
         </div>
     `,
@@ -86,21 +139,28 @@ import { ReportsStateService } from '../reports-state.service';
         IconComponent,
         MatRippleModule,
         MatTooltipModule,
+        ReportMetricGuideComponent,
     ],
 })
 export class ReportDesksOverallListComponent {
     private _state = inject(ReportsStateService);
 
     public readonly print = input(false);
+    public readonly table_metric_guide = TABLE_METRIC_GUIDE;
 
-    public readonly day_list = this._state.day_list;
+    public readonly day_list = toSignal(this._state.day_list, {
+        initialValue: [],
+    });
 
     public readonly download = async () => {
-        let data = await nextValueFrom(this.day_list);
-        data = data.map((d) => ({
+        const data = this.day_list().map((d) => ({
             ...d,
             date: format(d.date, 'MMM d, y(EEE)'),
+            cancelled: formatReportPercentage(d.cancelled, d.count),
+            deleted: formatReportPercentage(d.deleted, d.count),
         }));
         downloadFile('desks-usage.csv', jsonToCsv(data));
     };
+
+    public readonly formatPercent = formatReportPercentage;
 }

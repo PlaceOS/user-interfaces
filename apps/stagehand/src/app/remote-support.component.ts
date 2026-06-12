@@ -55,7 +55,10 @@ function contains(str: string, substr: string) {
                         AV Systems Remote Support
                     </h1>
                 </header>
-                <main class="w-full flex-1 overflow-auto">
+                <main
+                    id="stagehand-page-content"
+                    class="w-full flex-1 overflow-auto"
+                >
                     <div
                         class="grid w-full flex-1 grid-cols-1 gap-4 p-4 sm:grid-cols-2"
                     >
@@ -65,7 +68,7 @@ function contains(str: string, substr: string) {
                             <icon class="text-info mb-5 text-3xl">sensors</icon>
                             <div class="flex-1">
                                 <h3 class="text-xl font-medium">Total Rooms</h3>
-                                <div class="text-sm opacity-40">
+                                <div class="stagehand-muted text-sm">
                                     Total room count with devices
                                 </div>
                             </div>
@@ -101,38 +104,50 @@ function contains(str: string, substr: string) {
                             <div class="text-sm opacity-40">Last 30 days</div>
                         </div> -->
                     </div>
-                    <div class="flex items-center space-x-4 px-4">
-                        <mat-form-field
-                            appearance="outline"
-                            class="no-subscript bg-base-100 flex-1"
-                        >
-                            <icon matPrefix class="relative -left-2 text-2xl"
-                                >search</icon
+                    <div class="flex items-start space-x-4 px-4">
+                        <div class="flex-1">
+                            <mat-form-field
+                                appearance="outline"
+                                class="no-subscript bg-base-100 w-full"
                             >
-                            <input
-                                matInput
-                                [(ngModel)]="search_term"
-                                placeholder="Search rooms..."
-                            />
-                        </mat-form-field>
-                        <mat-form-field
-                            appearance="outline"
-                            class="no-subscript bg-base-100"
-                        >
-                            <mat-select
-                                placeholder="All Rooms"
-                                [(ngModel)]="state"
+                                <icon
+                                    matPrefix
+                                    class="relative -left-2 text-2xl"
+                                    >search</icon
+                                >
+                                <input
+                                    id="remote-support-search"
+                                    matInput
+                                    aria-label="Search rooms"
+                                    [(ngModel)]="search_term"
+                                    placeholder="Search rooms..."
+                                />
+                            </mat-form-field>
+                        </div>
+                        <div>
+                            <mat-form-field
+                                appearance="outline"
+                                class="no-subscript bg-base-100"
                             >
-                                <mat-option>All Rooms</mat-option>
-                                <mat-option value="in_use">In Use</mat-option>
-                                <mat-option value="available"
-                                    >Available</mat-option
+                                <mat-select
+                                    id="remote-support-state"
+                                    aria-label="Room state"
+                                    placeholder="All Rooms"
+                                    [(ngModel)]="state"
                                 >
-                                <mat-option value="issues"
-                                    >Has Issues</mat-option
-                                >
-                            </mat-select>
-                        </mat-form-field>
+                                    <mat-option>All Rooms</mat-option>
+                                    <mat-option value="in_use"
+                                        >In Use</mat-option
+                                    >
+                                    <mat-option value="available"
+                                        >Available</mat-option
+                                    >
+                                    <mat-option value="issues"
+                                        >Has Issues</mat-option
+                                    >
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
                     </div>
                     <div class="overflow-auto p-4">
                         @for (space of room_list(); track space.id) {
@@ -213,6 +228,7 @@ function contains(str: string, substr: string) {
                             <div class="flex items-center space-x-2 p-4">
                                 <div
                                     class="h-3 w-3 rounded-full"
+                                    aria-hidden="true"
                                     [class.bg-error]="
                                         status()[space.id] === 'busy'
                                     "
@@ -247,7 +263,7 @@ function contains(str: string, substr: string) {
                             <div class="p-4">
                                 @if (events[space.id]) {
                                     <div>{{ events[space.id].title }}</div>
-                                    <div class="text-xs opacity-30">
+                                    <div class="stagehand-subtle text-xs">
                                         {{
                                             events[space.id].event_start * 1000
                                                 | date: 'shortTime'
@@ -259,7 +275,7 @@ function contains(str: string, substr: string) {
                                         }}
                                     </div>
                                 } @else {
-                                    <span class="opacity-30">None</span>
+                                    <span class="stagehand-subtle">None</span>
                                 }
                             </div>
                         </ng-template>
@@ -320,11 +336,16 @@ function contains(str: string, substr: string) {
                             @if (feed_url) {
                                 <button
                                     snap
+                                    type="button"
                                     matRipple
                                     class="border-base-300 bg-base-300 hover:border-info relative m-2 flex h-16 w-16 items-center justify-center overflow-hidden rounded-sm border hover:border-2"
                                     (click)="openCameraSnapshot(space)"
                                     (mouseenter)="setHovering(true)"
                                     (mouseleave)="setHovering(false)"
+                                    [attr.aria-label]="
+                                        'View camera feed for ' +
+                                        (space.display_name || space.name)
+                                    "
                                     matTooltip="View Camera Feed"
                                 >
                                     <div viewport-only class="h-full w-full">
@@ -332,7 +353,11 @@ function contains(str: string, substr: string) {
                                             auth
                                             [source]="snapshotUrl(feed_url)"
                                             class="h-full w-full object-cover"
-                                            alt="Camera Feed"
+                                            [alt]="
+                                                'Camera feed for ' +
+                                                (space.display_name ||
+                                                    space.name)
+                                            "
                                         />
                                     </div>
                                     <div class="absolute top-0 right-0">
@@ -373,7 +398,9 @@ function contains(str: string, substr: string) {
                                     <div class="flex flex-col">
                                         <div>{{ issue.subject }}</div>
                                         @if (data.length > 1) {
-                                            <div class="text-xs opacity-30">
+                                            <div
+                                                class="stagehand-subtle text-xs"
+                                            >
                                                 +{{ data.length - 1 }} more
                                                 issues
                                             </div>
@@ -381,7 +408,9 @@ function contains(str: string, substr: string) {
                                     </div>
                                 </div>
                             } @else {
-                                <div class="p-4 opacity-30">No issues</div>
+                                <div class="stagehand-subtle p-4">
+                                    No issues
+                                </div>
                             }
                         </ng-template>
                         <ng-template #actions_template let-row="row">
@@ -389,6 +418,10 @@ function contains(str: string, substr: string) {
                                 <a
                                     icon
                                     matRipple
+                                    [attr.aria-label]="
+                                        'Manage room ' +
+                                        (row.display_name || row.name)
+                                    "
                                     [href]="
                                         (backoffice_link() || '/backoffice/') +
                                         '#/systems/' +
@@ -396,7 +429,7 @@ function contains(str: string, substr: string) {
                                         '/modules'
                                     "
                                     target="_blank"
-                                    ref="noopener noreferrer"
+                                    rel="noopener noreferrer"
                                     matTooltip="Manage Room"
                                     class="rounded-sm"
                                 >
@@ -405,12 +438,16 @@ function contains(str: string, substr: string) {
                                 <a
                                     icon
                                     matRipple
+                                    [attr.aria-label]="
+                                        'Control room ' +
+                                        (row.display_name || row.name)
+                                    "
                                     [href]="
                                         row.support_url ||
                                         service_link() + '#/tabbed/' + row.id
                                     "
                                     target="_blank"
-                                    ref="noopener noreferrer"
+                                    rel="noopener noreferrer"
                                     matTooltip="Control Room"
                                     class="rounded-sm"
                                 >

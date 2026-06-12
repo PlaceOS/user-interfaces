@@ -40,11 +40,11 @@ describe('TimeFieldComponent', () => {
         expect(option_elements.length).toBeGreaterThan(0);
         option_elements[0].dispatchEvent(new Event('click'));
         spectator.detectChanges();
-        expect(spectator.component.time).toBe(
-            `${spectator.component.time_options[0].id}`,
+        expect(spectator.component.time()).toBe(
+            `${spectator.component.time_options()[0].id}`,
         );
         spectator.component.writeValue(startOfDay(Date.now()).valueOf());
-        expect(spectator.component.time).toBe(`00:00`);
+        expect(spectator.component.time()).toBe(`00:00`);
         flush();
     }));
 
@@ -61,11 +61,11 @@ describe('TimeFieldComponent', () => {
     it('should allow customising the step between time options', () => {
         spectator.setInput({ step: 5, no_past_times: false });
         spectator.detectChanges();
-        expect(spectator.component._time_options[1].id).toBe('00:05');
+        expect(spectator.component._time_options()[1].id).toBe('00:05');
         const step = Math.floor(Math.random() * 4 + 1) * 5;
         spectator.setInput({ step });
         spectator.detectChanges();
-        expect(spectator.component._time_options[1].id).toBe(
+        expect(spectator.component._time_options()[1].id).toBe(
             format(addMinutes(startOfDay(new Date()), step), 'HH:mm'),
         );
     });
@@ -76,9 +76,9 @@ describe('TimeFieldComponent', () => {
         spectator.setInput({ no_past_times: false });
         spectator.component.writeValue(current_time.valueOf());
         spectator.detectChanges();
-        const option = spectator.component.time_options.find(
-            (block) => block.id === date_str,
-        );
+        const option = spectator.component
+            .time_options()
+            .find((block) => block.id === date_str);
         expect(option).toBeTruthy();
     });
 
@@ -87,7 +87,7 @@ describe('TimeFieldComponent', () => {
         spectator.detectChanges();
         const date = startOfMinute(subMinutes(new Date(), 6));
         const first_option = parse(
-            `${spectator.component.time_options[0].id}`,
+            `${spectator.component.time_options()[0].id}`,
             'HH:mm',
             new Date(),
         );
@@ -99,11 +99,11 @@ describe('TimeFieldComponent', () => {
         spectator.setInput({
             no_past_times: false,
             from: date,
-            range: { start: 60, end: 105 },
+            range: { start: 1, end: 1.75 },
         });
         spectator.component.writeValue(date);
         spectator.detectChanges();
-        expect(spectator.component.time_options.map((_) => _.id)).toEqual([
+        expect(spectator.component.time_options().map((_) => _.id)).toEqual([
             '01:00',
             '01:15',
             '01:30',
@@ -116,11 +116,11 @@ describe('TimeFieldComponent', () => {
         spectator.setInput({
             no_past_times: false,
             from: date,
-            range: { start: 60, end: 120 },
+            range: { start: 1, end: 2 },
         });
         spectator.component.writeValue(addMinutes(date, 35).valueOf());
         spectator.detectChanges();
-        expect(spectator.component.time_options.map((_) => _.id)).toEqual([
+        expect(spectator.component.time_options().map((_) => _.id)).toEqual([
             '01:00',
             '01:15',
             '01:30',

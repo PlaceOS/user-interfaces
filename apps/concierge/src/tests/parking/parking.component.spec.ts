@@ -1,12 +1,12 @@
-import { of } from 'rxjs';
 import { Router } from '@angular/router';
 import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
 import { SettingsService, currentUser } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
+import { of } from 'rxjs';
 
-import { ParkingComponent } from '../../app/parking/parking.component';
 import { ParkingStateService } from '../../app/parking/parking-state.service';
 import { ParkingTopbarComponent } from '../../app/parking/parking-topbar.component';
+import { ParkingComponent } from '../../app/parking/parking.component';
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
 
@@ -28,6 +28,7 @@ describe('ParkingComponent', () => {
             MockProvider(ParkingStateService, {
                 levels: of([]),
                 startPolling: jest.fn(),
+                setOptions: jest.fn(),
             } as any),
             MockProvider(SettingsService, {
                 get: jest.fn((name: string) => settings_map[name]),
@@ -43,6 +44,7 @@ describe('ParkingComponent', () => {
     beforeEach(() => {
         settings_map = {
             'app.parking.show_requests': true,
+            'app.parking.hide_users_and_vehicles': false,
             'app.feature_groups': { 'parking-requests': ['parking-team'] },
             'app.admin_group': 'admin',
         };
@@ -77,6 +79,7 @@ describe('ParkingComponent', () => {
 
     it('should redirect blocked users from the requests route', () => {
         const router = spectator.inject(Router);
+        const state = spectator.inject(ParkingStateService);
         jest.spyOn(router, 'navigate').mockResolvedValue(true);
         Object.defineProperty(router, 'url', {
             value: '/book/parking/events/requests',
@@ -85,9 +88,30 @@ describe('ParkingComponent', () => {
 
         (spectator.component as any)._updatePath();
 
-        expect(spectator.component.view()).toBe('bookings');
+        expect(state.setOptions).toHaveBeenCalledWith({
+            request_filter: 'bookings',
+        });
+        expect(spectator.component.view()).toBe('list');
         expect(router.navigate).toHaveBeenCalledWith(
-            ['/book', 'parking', 'events', 'bookings'],
+            ['/book', 'parking', 'events', 'list'],
+            { replaceUrl: true },
+        );
+    });
+
+    it('should redirect hidden user and vehicle management tabs to spaces', () => {
+        const router = spectator.inject(Router);
+        jest.spyOn(router, 'navigate').mockResolvedValue(true);
+        settings_map['app.parking.hide_users_and_vehicles'] = true;
+        Object.defineProperty(router, 'url', {
+            value: '/book/parking/manage/fleet',
+            configurable: true,
+        });
+
+        (spectator.component as any)._updatePath();
+
+        expect(spectator.component.view()).toBe('spaces');
+        expect(router.navigate).toHaveBeenCalledWith(
+            ['/book', 'parking', 'manage', 'spaces'],
             { replaceUrl: true },
         );
     });

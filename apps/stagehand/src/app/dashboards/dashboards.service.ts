@@ -25,8 +25,6 @@ import {
     TriggerComparison,
     TriggerConditionOperator,
 } from '@placeos/ts-client';
-import { lastValueFrom } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 import { openConfirmModal } from '@placeos/components';
 import mqtt from 'mqtt';
@@ -301,7 +299,7 @@ export class DashboardsService extends AsyncHandler {
 
     public async setAlert(id: string) {
         this.loading.update((l) => [...l, 'ALERT']);
-        const alert = await lastValueFrom(showAlert(id));
+        const alert = await showAlert(id);
         this.alert.set(alert);
         this.loading.update((l) => l.filter((i) => i !== 'ALERT'));
     }
@@ -313,7 +311,7 @@ export class DashboardsService extends AsyncHandler {
             return;
         }
         this.loading.update((l) => [...l, 'DASHBOARD']);
-        const dashboard = await lastValueFrom(showAlertDashboard(id));
+        const dashboard = await showAlertDashboard(id);
         this.dashboard.set(dashboard);
         this.loadDashboardAlerts();
         this.loading.update((l) => l.filter((i) => i !== 'DASHBOARD'));
@@ -321,9 +319,7 @@ export class DashboardsService extends AsyncHandler {
 
     public async loadDashboards() {
         this.loading.update((l) => [...l, 'DASHBOARD_LIST']);
-        const alerts = await lastValueFrom(
-            queryAlertDashboards({ limit: 100 }),
-        );
+        const alerts = await queryAlertDashboards({ limit: 100 });
         this.dashboard_list.set(alerts.data);
         this.loading.update((l) => l.filter((i) => i !== 'DASHBOARD_LIST'));
     }
@@ -341,7 +337,7 @@ export class DashboardsService extends AsyncHandler {
         );
         if (result.reason !== 'done') return;
         result.loading('Removing dashboard...');
-        await lastValueFrom(removeAlertDashboard(dashboard.id));
+        await removeAlertDashboard(dashboard.id);
         result.close();
         notifySuccess(i18n('APP.STAGEHAND.DASHBOARD_REMOVE_SUCCESS'));
         this.loadDashboards();
@@ -360,7 +356,7 @@ export class DashboardsService extends AsyncHandler {
         );
         if (result.reason !== 'done') return;
         result.loading('Removing dashboard alert...');
-        await lastValueFrom(removeAlert(alert.id));
+        await removeAlert(alert.id);
         result.close();
         notifySuccess(i18n('APP.STAGEHAND.DASHBOARD_ALERTS_REMOVE_SUCCESS'));
         this.loadDashboardAlerts();
@@ -370,9 +366,7 @@ export class DashboardsService extends AsyncHandler {
         const dashboard = this.dashboard();
         if (!dashboard && !id) return;
         this.loading.update((l) => [...l, 'ALERT_LIST']);
-        const alerts = await lastValueFrom(
-            listDashboardAlerts(id || dashboard.id),
-        );
+        const alerts = await listDashboardAlerts(id || dashboard.id);
         if (!id) this.alerts_list.set(alerts.data);
         else {
             this.dashboard_alert_map.update((m) => {
@@ -452,11 +446,8 @@ export class DashboardsService extends AsyncHandler {
         }
 
         // Create new query promise
-        const query_promise = lastValueFrom(
-            queryModules({ control_system_id: system_id }).pipe(
-                map((resp) => resp.data),
-            ),
-        )
+        const query_promise = queryModules({ control_system_id: system_id })
+            .then((resp) => resp.data)
             .then((modules) => {
                 const device_names = getModuleDeviceNames(modules);
                 this._system_modules_cache.set(system_id, device_names);
@@ -506,8 +497,10 @@ export class DashboardsService extends AsyncHandler {
         if (!module_name) return undefined;
 
         try {
-            const state = await lastValueFrom(
-                systemModuleState(system_id, module_name, module_index),
+            const state = await systemModuleState(
+                system_id,
+                module_name,
+                module_index,
             );
             let value = state?.[status_key];
             // Navigate through sub-keys if specified

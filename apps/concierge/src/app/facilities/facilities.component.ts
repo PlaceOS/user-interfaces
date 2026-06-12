@@ -1,4 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
+import { startWith } from 'rxjs/operators';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { FacilitiesMapComponent } from './facilities-map.component';
@@ -45,4 +48,19 @@ import { FacilitiesTopbarComponent } from './facilities-topbar.component';
         FacilitiesStatusComponent,
     ],
 })
-export class FacilitiesComponent {}
+export class FacilitiesComponent {
+    private _router = inject(Router);
+
+    private readonly _url = toSignal(
+        this._router.events.pipe(startWith(null)),
+        {
+            initialValue: null,
+        },
+    );
+
+    public readonly path = computed(() => {
+        this._url();
+        const parts = this._router.url.split('/');
+        return parts[parts.length - 1].split('?')[0];
+    });
+}

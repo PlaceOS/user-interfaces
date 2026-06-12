@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { downloadFile, i18n, jsonToCsv, nextValueFrom } from '@placeos/common';
+import { downloadFile, i18n, jsonToCsv } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
@@ -10,8 +11,38 @@ import {
 } from '@placeos/components';
 import { format } from 'date-fns';
 import { DurationPipe } from 'libs/components/src/lib/duration.pipe';
-import { map } from 'rxjs/operators';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
+import { reportBookingStatus } from '../reports.utilities';
 import { ParkingReportService } from './parking-report.service';
+
+const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Parking space',
+        description:
+            'Uses asset name, extension asset name, description, then asset ID as fallback.',
+    },
+    {
+        label: 'Duration',
+        description:
+            'Shows all day when the booking is marked all day or duration is greater than 12 hours; otherwise formats booking minutes.',
+    },
+    {
+        label: 'Reserved for',
+        description: 'Booking user name, falling back to user email.',
+    },
+    {
+        label: 'Checked in',
+        description: 'True when the booking checked-in flag is set.',
+    },
+    {
+        label: 'Status',
+        description:
+            'Cancelled bookings show Cancelled; rejected bookings show Rejected; otherwise the booking status is shown, defaulting to tentative.',
+    },
+];
 
 @Component({
     selector: 'parking-report-list',
@@ -28,6 +59,7 @@ import { ParkingReportService } from './parking-report.service';
                 @if (!print()) {
                     <button
                         icon
+                        default
                         matRipple
                         [matTooltip]="
                             'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
@@ -37,10 +69,15 @@ import { ParkingReportService } from './parking-report.service';
                         <icon>download</icon>
                     </button>
                 }
+                <placeos-report-metric-guide
+                    title="Table column calculations"
+                    [items]="table_metric_guide"
+                    [inline]="true"
+                />
             </div>
             <simple-table
                 class="block w-full text-sm"
-                [data]="parking_bookings"
+                [data]="parking_bookings()"
                 [columns]="[
                     {
                         key: 'parking_name',
@@ -63,6 +100,10 @@ import { ParkingReportService } from './parking-report.service';
                     {
                         key: 'checked_in',
                         name: 'COMMON.CHECKED_IN' | translate,
+                    },
+                    {
+                        key: 'status',
+                        name: 'COMMON.STATUS' | translate,
                     },
                 ]"
                 [sortable]="true"
@@ -96,44 +137,48 @@ import { ParkingReportService } from './parking-report.service';
         IconComponent,
         MatRippleModule,
         MatTooltipModule,
+        ReportMetricGuideComponent,
     ],
 })
 export class ParkingReportListComponent {
     private _state = inject(ParkingReportService);
+    private readonly _bookings = toSignal(this._state.bookings$, {
+        initialValue: [],
+    });
 
     public readonly print = input(false);
+    public readonly table_metric_guide = TABLE_METRIC_GUIDE;
 
-    public readonly parking_bookings = this._state.bookings$.pipe(
-        map((bookings) => {
-            const list = [];
-            for (const booking of bookings) {
-                list.push({
-                    parking_name:
-                        booking.asset_name ||
-                        booking.extension_data?.asset_name ||
-                        booking.description ||
-                        booking.asset_id,
-                    date: booking.date,
-                    duration: booking.duration,
-                    all_day: booking.all_day,
-                    host: booking.user_name || booking.user_email,
-                    checked_in: i18n(
-                        booking.checked_in ? 'COMMON.TRUE' : 'COMMON.FALSE',
-                    ),
-                    self_registered: i18n(
-                        booking.extension_data?.self_registered
-                            ? 'COMMON.TRUE'
-                            : 'COMMON.FALSE',
-                    ),
-                });
-            }
-            list.sort((a, b) => a.date - b.date);
-            return list;
-        }),
-    );
+    public readonly parking_bookings = computed(() => {
+        const list = [];
+        for (const booking of this._bookings()) {
+            list.push({
+                parking_name:
+                    booking.asset_name ||
+                    booking.extension_data?.asset_name ||
+                    booking.description ||
+                    booking.asset_id,
+                date: booking.date,
+                duration: booking.duration,
+                all_day: booking.all_day,
+                host: booking.user_name || booking.user_email,
+                checked_in: i18n(
+                    booking.checked_in ? 'COMMON.TRUE' : 'COMMON.FALSE',
+                ),
+                status: reportBookingStatus(booking),
+                self_registered: i18n(
+                    booking.extension_data?.self_registered
+                        ? 'COMMON.TRUE'
+                        : 'COMMON.FALSE',
+                ),
+            });
+        }
+        list.sort((a, b) => a.date - b.date);
+        return list;
+    });
 
     public readonly download = async () => {
-        const data = await nextValueFrom(this.parking_bookings);
+        const data = this.parking_bookings();
         for (const bkn of data) {
             bkn.date = format(bkn.date, 'yyyy-MM-dd HH:mm');
         }

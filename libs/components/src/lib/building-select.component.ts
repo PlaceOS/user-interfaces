@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatRadioModule } from '@angular/material/radio';
@@ -22,10 +22,7 @@ import { TranslatePipe } from './translate.pipe';
                 <icon class="text-2xl">arrow_back</icon>
                 <div class="leading-tight">
                     <div>
-                        {{
-                            (building | async)?.display_name ||
-                                (building | async)?.name
-                        }}
+                        {{ building()?.display_name || building()?.name }}
                     </div>
                     <div class="text-xs opacity-30">
                         {{ 'RESOURCE.BUILDING' | translate }}
@@ -36,10 +33,10 @@ import { TranslatePipe } from './translate.pipe';
                 {{ 'COMMON.BUILDING_SELECT' | translate }}
             </div>
             <mat-radio-group
-                [ngModel]="(building | async)?.id"
+                [ngModel]="building()?.id"
                 class="flex flex-col space-y-2 px-2"
             >
-                @for (bld of buildings | async; track bld) {
+                @for (bld of buildings(); track bld) {
                     <mat-radio-button
                         [value]="bld.id"
                         (click)="setBuilding(bld)"
@@ -52,7 +49,6 @@ import { TranslatePipe } from './translate.pipe';
     `,
     styles: [``],
     imports: [
-        CommonModule,
         MatRadioModule,
         IconComponent,
         TranslatePipe,
@@ -64,8 +60,8 @@ export class BuildingSelectComponent {
     private _data = inject(CustomTooltipData);
     private _org = inject(OrganisationService);
 
-    public readonly buildings = this._org.active_buildings;
-    public readonly building = this._org.active_building;
+    public readonly buildings = toSignal(this._org.active_buildings);
+    public readonly building = toSignal(this._org.active_building);
 
     public readonly setBuilding = (b) => {
         this._org.setBuilding(b, true);

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { generateQRCode, SettingsService, Space } from '@placeos/common';
@@ -13,7 +13,9 @@ const DEFAULT_PATH = `workplace/#/explore?space={{id}}`;
     template: `
         <header>
             <h2 class="truncate">
-                {{ 'EXPLORE.BOOK_RESOURCE' | translate: { name: space?.name } }}
+                {{
+                    'EXPLORE.BOOK_RESOURCE' | translate: { name: space()?.name }
+                }}
             </h2>
             <div class="flex-1"></div>
             <button icon matRipple mat-dialog-close>
@@ -21,7 +23,7 @@ const DEFAULT_PATH = `workplace/#/explore?space={{id}}`;
             </button>
         </header>
         <main class="p-4">
-            <img class="m-auto h-64 w-64" [src]="qr_code" />
+            <img class="m-auto h-64 w-64" [src]="qr_code()" />
         </main>
     `,
     styles: [``],
@@ -33,10 +35,12 @@ export class ExploreBookQrComponent {
     }>(MAT_DIALOG_DATA);
     private _settings = inject(SettingsService);
 
-    public readonly space = this._data.space;
-    public readonly qr_code = generateQRCode(
-        `${location.origin}${(
-            this._settings.get('app.booking_qr_path') || DEFAULT_PATH
-        ).replace('{{id}}', this._data.space?.email)}`,
+    public readonly space = signal(this._data.space);
+    public readonly qr_code = signal(
+        generateQRCode(
+            `${location.origin}${(
+                this._settings.get('app.booking_qr_path') || DEFAULT_PATH
+            ).replace('{{id}}', this._data.space?.email)}`,
+        ),
     );
 }

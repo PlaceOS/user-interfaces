@@ -1,11 +1,4 @@
-import {
-    Component,
-    ElementRef,
-    inject,
-    OnInit,
-    signal,
-    viewChild,
-} from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -18,7 +11,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
-import { notifyError, padLength } from '@placeos/common';
+import { notifyError } from '@placeos/common';
 import {
     FullscreenModalShellComponent,
     MediaDurationPipe,
@@ -31,16 +24,8 @@ import {
     TimeFieldComponent,
 } from '@placeos/form-fields';
 import { MediaAnimation, SignagePlaylist } from '@placeos/ts-client';
-import {
-    addDays,
-    endOfDay,
-    format,
-    getUnixTime,
-    set,
-    startOfDay,
-} from 'date-fns';
+import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { CronInputFieldComponent } from 'libs/form-fields/src/lib/cron-input-field.component';
-import { BehaviorSubject } from 'rxjs';
 import { SignageStateService } from './signage-state.service';
 
 @Component({
@@ -251,8 +236,7 @@ import { SignageStateService } from './signage-state.service';
                         class="no-subscript w-full"
                     >
                         <mat-select
-                            [ngModel]="schedule()"
-                            (ngModelChange)="schedule.set($event)"
+                            [(ngModel)]="schedule"
                             [ngModelOptions]="{ standalone: true }"
                         >
                             <mat-option value="">No schedule</mat-option>
@@ -403,8 +387,6 @@ export class SignagePlaylistModalComponent implements OnInit {
         '',
     );
 
-    public readonly search = new BehaviorSubject('');
-
     public readonly form = new FormGroup({
         id: new FormControl(this.playlist.id || ''),
         name: new FormControl(this.playlist.name || '', [Validators.required]),
@@ -416,7 +398,6 @@ export class SignagePlaylistModalComponent implements OnInit {
         default_duration: new FormControl(15 * 1000),
         valid_from: new FormControl(0),
         valid_until: new FormControl(0),
-        play_hours: new FormControl('00:00-00:00'),
         play_duration: new FormControl(0),
         play_from: new FormControl(0),
         play_until: new FormControl(0),
@@ -425,48 +406,17 @@ export class SignagePlaylistModalComponent implements OnInit {
         play_cron: new FormControl('* * * * *'),
     });
 
-    public readonly search_input =
-        viewChild<ElementRef<HTMLInputElement>>('search_input');
-
     public ngOnInit() {
         this.form.patchValue({
             ...this.playlist,
             valid_from: this.playlist.valid_from * 1000,
             valid_until: this.playlist.valid_until * 1000,
         } as any);
-        const { play_hours, play_at, play_cron } = this.form.value;
-        let [from, to] = (play_hours || '').split('-');
-        if (!from) from = '00:00';
-        if (!to) to = '00:00';
+        const { play_at, play_cron, play_duration } = this.form.value;
         this.form.patchValue({
-            play_from: addDays(
-                set(Date.now(), {
-                    hours: parseInt(from.split(':')[0]),
-                    minutes: parseInt(from.split(':')[1]),
-                }),
-                1,
-            ).valueOf(),
-            play_until: addDays(
-                set(Date.now(), {
-                    hours: parseInt(to.split(':')[0]),
-                    minutes: parseInt(to.split(':')[1]),
-                }),
-                1,
-            ).valueOf(),
-            play_duration:
-                parseInt(from.split(':')[0]) * 60 +
-                parseInt(from.split(':')[1]),
-            play_once: !play_hours,
+            play_duration,
         });
-        this.schedule.set(
-            play_cron
-                ? 'recurring'
-                : play_at
-                  ? 'exact'
-                  : from !== to
-                    ? 'between'
-                    : '',
-        );
+        this.schedule.set(play_cron ? 'recurring' : play_at ? 'exact' : '');
         if (!this.form.value.orientation)
             this.form.patchValue({ orientation: 'unspecified' });
     }
@@ -478,22 +428,14 @@ export class SignagePlaylistModalComponent implements OnInit {
         this.loading.set(true);
         const form_value = this.form.getRawValue();
         if (this.schedule() === 'between') {
-            form_value.play_hours = `${format(form_value.play_from, 'HH:mm')}-${format(form_value.play_until, 'HH:mm')}`;
             form_value.play_at = 0;
             form_value.play_cron = '';
             delete form_value.play_once;
         } else if (this.schedule() === 'exact') {
             form_value.play_cron = '';
-            const hours = padLength(Math.floor(form_value.play_duration / 60));
-            const minutes = padLength(form_value.play_duration % 60);
-            form_value.play_hours = `${hours}:${minutes}`;
         } else if (this.schedule() === 'recurring') {
-            const hours = padLength(Math.floor(form_value.play_duration / 60));
-            const minutes = padLength(form_value.play_duration % 60);
-            form_value.play_hours = `${hours}:${minutes}`;
             form_value.play_at = 0;
         } else {
-            form_value.play_hours = '';
             form_value.play_at = 0;
             form_value.play_cron = '';
         }
@@ -510,7 +452,6 @@ export class SignagePlaylistModalComponent implements OnInit {
                 endOfDay(form_value.valid_until),
             );
         } else delete form_value.valid_until;
-        if (form_value.play_once) form_value.play_hours = '';
         const result = await this._state
             .savePlaylist({
                 ...(form_value as any),

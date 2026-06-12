@@ -54,14 +54,14 @@ function deliverAtTime(order: CateringOrder) {
         order.event?.date ||
         order.event?.event_start * 1000 ||
         (order as any)._time;
+    if (order.deliver_day_offset > 0 || order.event?.all_day) {
+        date = addDays(startOfDay(date), order.deliver_day_offset).valueOf();
+    }
     if (order.deliver_time) {
         date = set(date, {
             hours: Math.floor(order.deliver_time),
             minutes: (order.deliver_time % 1) * 60,
         }).valueOf();
-    }
-    if (order.deliver_day_offset > 0 || order.event?.all_day) {
-        date = addDays(startOfDay(date), order.deliver_day_offset).valueOf();
     }
     return addMinutes(date, order.deliver_offset).valueOf();
 }
@@ -132,7 +132,9 @@ export class CateringItem {
         this.quantity = data.quantity || 0;
         this.discount_cap = data.discount_cap || 0;
         this.accept_points = !!data.accept_points;
-        this.tags = [...((data.tags instanceof Array ? data.tags : null) || [])];
+        this.tags = [
+            ...((data.tags instanceof Array ? data.tags : null) || []),
+        ];
         this.images = [...(data.images || [])];
         this.options = (data.options || []).map((_) => cloneOption(_));
         const has_options = this.options.some((_) => _.active === true);

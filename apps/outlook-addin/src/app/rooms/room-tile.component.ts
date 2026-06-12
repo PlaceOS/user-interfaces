@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import {
     MAT_BOTTOM_SHEET_DATA,
     MatBottomSheetRef,
@@ -27,10 +27,10 @@ import { RoomConfirmService } from './room-confirm.service';
                     <div
                         class="bg-base-200 m-3 flex h-44 items-center justify-center rounded-lg text-gray-500"
                     >
-                        @if (space?.images?.length > 0) {
+                        @if (space()?.images?.length > 0) {
                             <img
                                 auth
-                                [source]="space.images[0]"
+                                [source]="space()?.images?.[0]"
                                 alt="image of building "
                                 width="100%"
                                 height="100%"
@@ -38,7 +38,7 @@ import { RoomConfirmService } from './room-confirm.service';
                             />
                         }
 
-                        @if (space?.images?.length == 0) {
+                        @if (space()?.images?.length == 0) {
                             <div>
                                 <icon class="text-[8rem]">image</icon>
                             </div>
@@ -46,7 +46,7 @@ import { RoomConfirmService } from './room-confirm.service';
                     </div>
                     <div class="mb-4 flex flex-col">
                         <span class="mx-3 mt-1 text-xl font-bold">
-                            {{ space?.name }}</span
+                            {{ space()?.name }}</span
                         >
 
                         <div
@@ -54,8 +54,8 @@ import { RoomConfirmService } from './room-confirm.service';
                         >
                             <icon class="text-info">room</icon>
                             <span class="text-gray-500">
-                                {{ space?.level?.name }},
-                                {{ space?.level?.parent_id }}</span
+                                {{ space()?.level?.name }},
+                                {{ space()?.level?.parent_id }}</span
                             >
                         </div>
 
@@ -66,7 +66,7 @@ import { RoomConfirmService } from './room-confirm.service';
                                 >people</icon
                             >
                             <span class="text-gray-500">
-                                {{ space?.capacity }}</span
+                                {{ space()?.capacity }}</span
                             >
                         </div>
                     </div>
@@ -89,20 +89,16 @@ import { RoomConfirmService } from './room-confirm.service';
     styles: [``],
     imports: [MatRippleModule, IconComponent, AuthenticatedImageDirective],
 })
-export class RoomTileComponent implements OnInit {
-    data = inject(MAT_BOTTOM_SHEET_DATA);
+export class RoomTileComponent {
+    readonly data = inject<Space>(MAT_BOTTOM_SHEET_DATA);
     private _bottomSheetRef =
         inject<MatBottomSheetRef<RoomTileComponent>>(MatBottomSheetRef);
     private _roomConfirmService = inject(RoomConfirmService);
 
-    space: Space;
-
-    ngOnInit() {
-        this.space = this.data;
-    }
+    readonly space = signal(this.data);
 
     openRoomDetail() {
-        this._roomConfirmService.openRoomDetail(this.space);
+        this._roomConfirmService.openRoomDetail(this.space());
     }
 
     cancel() {

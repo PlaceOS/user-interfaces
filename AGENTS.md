@@ -4,7 +4,7 @@ This file provides guidance to coding agents and automated assistants when worki
 
 ## Project Overview
 
-PlaceOS User Interfaces is a monorepo containing multiple Angular applications for workplace management, built with Nx and Angular 20. The repo includes 16 frontend applications and shared libraries for common functionality.
+PlaceOS User Interfaces is a monorepo containing multiple Angular applications for workplace management, built with Nx and Angular 20. The repo includes 17 frontend applications and shared libraries for common functionality.
 
 ## Repository Structure
 
@@ -16,7 +16,7 @@ PlaceOS User Interfaces is a monorepo containing multiple Angular applications f
 - **control** - AV/Room control
 - **map-kiosk** - Building location kiosk
 - **visitor-kiosk** - Visitor kiosk interface
-- Additional apps: assistant-panel, enrolment, outlook-addin, redirect, signage, signage-manager, stagehand, survey, timetable
+- Additional apps: app-loader, assistant-panel, enrolment, outlook-addin, redirect, signage, signage-manager, stagehand, survey, timetable
 
 E2E tests use Playwright and live in `apps/<app>/e2e` where present.
 
@@ -189,11 +189,15 @@ nx migrate --run-migrations
 - Custom localization support via `shared/locales`, **TranslationPipe** and **LocaleService**
 - Tailwind is custom themed with CSS variables in `shared/styles/application.css`
 - Use **IconComponent** for icons
+- Angular supports two-way binding of signals. e.g. Prefer `[(ngModel)]="a_signal"` over `[ngModel]="a_signal()" (ngModelChange)="a_signal.set($event)"`
+- No weak or unnessessary indirection
+- Only abstract when absolutely nessessary
+- Prefer clear readable procedural code over clean code.
 
 ## Other
 
-- After you finish making changes make sure all the apps build with `npm run build-all`
-- After you finish making changes make sure all the tests pass with `npm run test-all`
+- After you finish making changes make sure all the affected apps build
+- After you finish making changes make sure all the tests pass on the affected apps/libs
 - If you get error `NX   Failed to start plugin worker.` try again with `NX_ISOLATE_PLUGINS=false` prepended.
 
 ## Code Styles

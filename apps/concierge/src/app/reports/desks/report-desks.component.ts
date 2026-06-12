@@ -1,7 +1,7 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { debounceTime, map } from 'rxjs/operators';
+import { Component, computed, effect, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { debounceTime } from 'rxjs/operators';
 
-import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -13,19 +13,51 @@ import {
     AuthenticatedImageDirective,
     TranslatePipe,
 } from '@placeos/components';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { ReportsOptionsComponent } from '../reports-options.component';
 import { ReportsStateService } from '../reports-state.service';
 import { ReportDesksChartsComponent } from './report-desks-charts.component';
 import { ReportDesksLevelListComponent } from './report-desks-level-list.component';
 import { ReportDesksOverallListComponent } from './report-desks-overall-list.component';
 
+const METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Total bookings',
+        description:
+            'All desk bookings returned for the selected dates and zones, including active, rejected, and cancelled records.',
+    },
+    {
+        label: 'Active',
+        description: 'Bookings that are not cancelled and are not rejected.',
+    },
+    {
+        label: 'Rejected / Cancelled',
+        description:
+            'Rejected counts bookings with cancelled state or rejected status. Cancelled counts bookings flagged as cancelled.',
+    },
+    {
+        label: 'Utilisation',
+        description:
+            'Active booking count divided by the number of available desks across the selected levels and business-day period.',
+    },
+    {
+        label: 'Daily utilisation',
+        description:
+            'For each day, active desk usage is compared with available desk capacity for the selected levels.',
+    },
+];
+
 @Component({
     selector: '[report-desks]',
     template: `
         <reports-options
-            (printing)="printing = $event"
-            [loading]="!!(loading | async)"
-            [has_data]="!!(total_count | async)"
+            resource_type="desks"
+            (printing)="printing.set($event)"
+            [loading]="!!loading()"
+            [has_data]="!!total_count()"
             (download)="downloadReport()"
             (generate)="generateReport()"
         />
@@ -34,19 +66,19 @@ import { ReportDesksOverallListComponent } from './report-desks-overall-list.com
         >
             <div class="w-full">
                 <div class="bg-base-200 m-4 flex items-center rounded-sm p-4">
-                    <img
-                        auth
-                        class="h-12"
-                        [source]="(logo | async)?.src || (logo | async)"
-                    />
+                    <img auth class="h-12" [source]="logo()?.src || logo()" />
                     <div class="flex-1"></div>
                     <h2 class="px-2 text-2xl font-medium">
                         {{ 'APP.CONCIERGE.REPORTS_DESKS_HEADER' | translate }}
                     </h2>
                 </div>
             </div>
-            @if (!(loading | async)) {
-                @if (total_count | async) {
+            @if (!loading()) {
+                @if (total_count()) {
+                    <placeos-report-metric-guide
+                        [absolute]="true"
+                        [items]="metric_guide"
+                    />
                     <div
                         class="border-base-200 bg-base-100 m-4 flex items-center justify-center space-x-2 rounded-sm border p-4"
                     >
@@ -57,7 +89,19 @@ import { ReportDesksOverallListComponent } from './report-desks-overall-list.com
                                         | translate
                                 }}
                             </h3>
-                            <p>{{ (total_count | async) || 0 }}</p>
+                            <p>{{ total_count() || 0 }}</p>
+                        </div>
+                        <div class="flex flex-1 flex-col items-center">
+                            <h3>Active</h3>
+                            <p>{{ active_count() || 0 }}</p>
+                        </div>
+                        <div class="flex flex-1 flex-col items-center">
+                            <h3>Rejected</h3>
+                            <p>{{ cancelled_count() || 0 }}</p>
+                        </div>
+                        <div class="flex flex-1 flex-col items-center">
+                            <h3>Cancelled</h3>
+                            <p>{{ deleted_count() || 0 }}</p>
                         </div>
                         <div class="flex flex-1 flex-col items-center">
                             <h3>
@@ -66,17 +110,17 @@ import { ReportDesksOverallListComponent } from './report-desks-overall-list.com
                                         | translate
                                 }}
                             </h3>
-                            <p>{{ (utilisation | async) || 0 }}%</p>
+                            <p>{{ utilisation() || 0 }}%</p>
                         </div>
                     </div>
                     <report-desks-charts
-                        [print]="printing"
+                        [print]="printing()"
                     ></report-desks-charts>
                     <report-desks-overall-list
-                        [print]="printing"
+                        [print]="printing()"
                     ></report-desks-overall-list>
                     <report-desks-levels-list
-                        [print]="printing"
+                        [print]="printing()"
                     ></report-desks-levels-list>
                 } @else {
                     <div
@@ -111,70 +155,96 @@ import { ReportDesksOverallListComponent } from './report-desks-overall-list.com
         `,
     ],
     imports: [
-        CommonModule,
         TranslatePipe,
         MatProgressSpinnerModule,
         ReportsOptionsComponent,
+        ReportMetricGuideComponent,
         ReportDesksChartsComponent,
         ReportDesksLevelListComponent,
         ReportDesksOverallListComponent,
         AuthenticatedImageDirective,
     ],
 })
-export class ReportDesksComponent extends AsyncHandler implements OnInit {
+export class ReportDesksComponent extends AsyncHandler {
     private _state = inject(ReportsStateService);
     private _settings = inject(SettingsService);
     private _route = inject(ActivatedRoute);
     private _org = inject(OrganisationService);
 
-    public printing = false;
-    public readonly total_count = this._state.stats.pipe(
-        map((i) => i.count || 0),
+    private readonly _stats = toSignal(this._state.stats, {
+        initialValue: {
+            count: 0,
+            utilisation: 0,
+            total_count: 0,
+            cancelled_count: 0,
+            deleted_count: 0,
+        },
+    });
+    private readonly _loading = toSignal(this._state.loading, {
+        initialValue: '',
+    });
+    private readonly _active_building = toSignal(
+        this._org.active_building.pipe(debounceTime(500)),
     );
-    public readonly utilisation = this._state.stats.pipe(
-        map((i) => ((i.utilisation || 0) * 100).toFixed(1)),
+    private readonly _query_params = toSignal(this._route.queryParamMap, {
+        initialValue: this._route.snapshot.queryParamMap,
+    });
+
+    public readonly printing = signal(false);
+    public readonly metric_guide = METRIC_GUIDE;
+    public readonly total_count = computed(
+        () => this._stats().total_count || this._stats().count || 0,
     );
-    public readonly loading = this._state.loading;
+    public readonly active_count = computed(() => this._stats().count || 0);
+    public readonly cancelled_count = computed(
+        () => this._stats().cancelled_count || 0,
+    );
+    public readonly deleted_count = computed(
+        () => this._stats().deleted_count || 0,
+    );
+    public readonly utilisation = computed(() =>
+        ((this._stats().utilisation || 0) * 100).toFixed(1),
+    );
+    public readonly loading = computed(() => this._loading());
 
     public readonly downloadReport = () => this._state.downloadReport();
     public readonly generateReport = () => this._state.generateReport();
 
-    public readonly logo = this._org.active_building.pipe(
-        debounceTime(500),
-        map(
-            () =>
-                (this._settings.theme === 'dark'
-                    ? this._settings.get('app.logo_dark')
-                    : this._settings.get('app.logo_light')) || {},
-        ),
-    );
+    public readonly logo = computed(() => {
+        this._active_building();
+        return (
+            (this._settings.theme === 'dark'
+                ? this._settings.get('app.logo_dark')
+                : this._settings.get('app.logo_light')) || {}
+        );
+    });
 
-    public print() {
-        this.printing = true;
-        setTimeout(() => {
-            window.print();
-            this.printing = false;
-        }, 300);
+    constructor() {
+        super();
+        this._state.setOptions({ type: 'desks' });
+        effect(() => {
+            const params = this._query_params();
+            if (params.has('start')) {
+                this._state.setOptions({ start: +params.get('start') });
+            }
+            if (params.has('end')) {
+                this._state.setOptions({ end: +params.get('end') });
+            }
+            if (params.has('zones') || params.has('zone_ids')) {
+                const id_list = params.get('zones') || params.get('zone_ids');
+                const zones = id_list.split(',').filter((_) => _);
+                if (zones.length) this._state.setOptions({ zones });
+            } else {
+                this._state.setOptions({ zones: [] });
+            }
+        });
     }
 
-    public ngOnInit() {
-        this._state.setOptions({ type: 'desks' });
-        this.subscription(
-            'route.query',
-            this._route.queryParamMap.subscribe((params) => {
-                if (params.has('start')) {
-                    this._state.setOptions({ start: +params.get('start') });
-                }
-                if (params.has('end')) {
-                    this._state.setOptions({ end: +params.get('end') });
-                }
-                if (params.has('zones') || params.has('zone_ids')) {
-                    const id_list =
-                        params.get('zones') || params.get('zone_ids');
-                    const zones = id_list.split(',').filter((_) => _);
-                    if (zones.length) this._state.setOptions({ zones });
-                } else this._state.setOptions({ zones: [] });
-            }),
-        );
+    public print() {
+        this.printing.set(true);
+        setTimeout(() => {
+            window.print();
+            this.printing.set(false);
+        }, 300);
     }
 }

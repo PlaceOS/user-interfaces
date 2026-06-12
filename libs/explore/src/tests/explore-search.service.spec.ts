@@ -1,8 +1,18 @@
+import { signal } from '@angular/core';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
-import { Building, Organisation, OrganisationService } from '@placeos/common';
+import {
+    Building,
+    MapsPeopleService,
+    Organisation,
+    OrganisationService,
+} from '@placeos/common';
 import { BehaviorSubject, of } from 'rxjs';
 
-import { ExploreSearchService } from '../lib/explore-search.service';
+import {
+    compareSearchResultsAscending,
+    ExploreSearchService,
+    sortGlobalSearchResults,
+} from '../lib/explore-search.service';
 
 jest.mock('@placeos/ts-client');
 jest.mock('libs/users/src/lib/staff.fn');
@@ -26,7 +36,11 @@ describe('ExploreSearchService', () => {
                 get: jest.fn(),
             }),
             MockProvider(ExploreStateService, {
-                options: new BehaviorSubject({}),
+                level: signal(null),
+                options: signal({}),
+            } as any),
+            MockProvider(MapsPeopleService, {
+                available$: of(false),
             } as any),
         ],
     });
@@ -35,6 +49,54 @@ describe('ExploreSearchService', () => {
 
     it('should create service', () => {
         expect(spectator.service).toBeTruthy();
+    });
+
+    it('should sort search results ascending by name', () => {
+        const results = [
+            { id: '2', type: 'user', name: 'Zoe', description: '' },
+            { id: '1', type: 'user', name: 'Alex', description: '' },
+        ] as any;
+
+        expect(
+            results.sort(compareSearchResultsAscending).map((_) => _.name),
+        ).toEqual(['Alex', 'Zoe']);
+    });
+
+    it('should pin local emergency contacts ahead of other ascending results', () => {
+        const results = [
+            {
+                id: '3',
+                type: 'space',
+                name: 'Boardroom',
+                description: '',
+            },
+            {
+                id: '1',
+                type: 'contact',
+                is_role: true,
+                name: 'Zoe Warden',
+                description: '',
+                zone: 'level-1',
+            },
+            {
+                id: '2',
+                type: 'user',
+                name: 'Alex Staff',
+                description: '',
+            },
+            {
+                id: '4',
+                type: 'contact',
+                is_role: true,
+                name: 'Beta Warden',
+                description: '',
+                zone: 'level-2',
+            },
+        ] as any;
+
+        expect(
+            sortGlobalSearchResults(results, ['level-1']).map((_) => _.name),
+        ).toEqual(['Zoe Warden', 'Alex Staff', 'Beta Warden', 'Boardroom']);
     });
 
     it('should allow searching for users', async () => {

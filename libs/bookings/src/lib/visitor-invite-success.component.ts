@@ -208,7 +208,7 @@ export class VisitorInviteSuccessComponent implements OnInit {
     );
 
     public get time_format() {
-        return this._settings.time_format;
+        return this._settings.time_format_signal();
     }
 
     public async ngOnInit() {

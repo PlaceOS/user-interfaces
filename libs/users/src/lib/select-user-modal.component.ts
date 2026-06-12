@@ -9,7 +9,7 @@ import { StaffUser } from '@placeos/common';
 import { queryUsers } from '@placeos/ts-client';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, from, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -91,7 +91,7 @@ export class SelectUserModalComponent {
     public readonly users = this.search.pipe(
         debounceTime(300),
         switchMap((s) =>
-            queryUsers({ q: s }).pipe(
+            from(queryUsers({ q: s })).pipe(
                 map((o) => o.data),
                 catchError(() => of([])),
             ),

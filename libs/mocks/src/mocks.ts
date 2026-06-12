@@ -1,23 +1,25 @@
 import { log } from '@placeos/common';
 
-import { ASSET_MOCKS } from './lib/api/assets.mock';
-import { BOOKING_MOCKS } from './lib/api/bookings.mock';
-import { CALENDAR_MOCKS } from './lib/api/calendars.mock';
-import { EVENT_MOCKS } from './lib/api/events.mock';
-import { SURVEY_MOCKS } from './lib/api/surveys.mock';
-import { SYSTEM_MOCKS } from './lib/api/systems.mock';
-import { USER_MOCKS } from './lib/api/users.mock';
-import { ZONE_MOCKS } from './lib/api/zones.mock';
+import { registerMockAssets } from './lib/api/assets.mock';
+import { registerMockBookings } from './lib/api/bookings.mock';
+import { registerMockCalendars } from './lib/api/calendars.mock';
+import { registerMockEvents } from './lib/api/events.mock';
+import { registerMockSignage } from './lib/api/signage.mock';
+import { registerMockSurveys } from './lib/api/surveys.mock';
+import { registerMockSystems } from './lib/api/systems.mock';
+import { registerMockUsers } from './lib/api/users.mock';
+import { registerMockZones } from './lib/api/zones.mock';
 
 export default {
-    ZONE_MOCKS,
-    USER_MOCKS,
-    SYSTEM_MOCKS,
-    EVENT_MOCKS,
-    CALENDAR_MOCKS,
-    BOOKING_MOCKS,
-    ASSET_MOCKS,
-    SURVEY_MOCKS,
+    registerMockAssets,
+    registerMockBookings,
+    registerMockCalendars,
+    registerMockEvents,
+    registerMockSignage,
+    registerMockSurveys,
+    registerMockSystems,
+    registerMockUsers,
+    registerMockZones,
 };
 
 log('MOCKS', 'Mocks included with application.');

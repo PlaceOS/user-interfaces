@@ -1,4 +1,4 @@
-import { CalendarEvent, GuestUser } from '@placeos/common';
+import { CalendarEvent, GuestUser, VERSION } from '@placeos/common';
 import { of } from 'rxjs';
 import {
     approveEvent,
@@ -15,6 +15,11 @@ jest.mock('@placeos/ts-client');
 import * as ts_client from '@placeos/ts-client';
 
 describe('Event API Methods', () => {
+    const app_version = VERSION.raw || VERSION.version || VERSION.hash;
+    const app_name = 'PlaceOS';
+
+    beforeEach(() => jest.clearAllMocks());
+
     describe('queryEvents', () => {
         it('should allow calling GET request for listing events', async () => {
             const spy = jest.spyOn(ts_client, 'get');
@@ -95,7 +100,15 @@ describe('Event API Methods', () => {
             spy.mockImplementation(() => of({}) as any);
             expect(ts_client.post).not.toHaveBeenCalled();
             await saveEvent({}).toPromise();
-            expect(ts_client.post).toHaveBeenCalled();
+            expect(ts_client.post).toHaveBeenCalledWith(
+                `/api/staff/v1/events`,
+                expect.objectContaining({
+                    extension_data: expect.objectContaining({
+                        app_name,
+                        app_version,
+                    }),
+                }),
+            );
             spy.mockReset();
         });
         it('should update existing events', async () => {
@@ -103,7 +116,15 @@ describe('Event API Methods', () => {
             spy.mockImplementation(() => of({}) as any);
             expect(ts_client.patch).not.toHaveBeenCalled();
             await saveEvent({ id: '1' }).toPromise();
-            expect(ts_client.patch).toHaveBeenCalled();
+            expect(ts_client.patch).toHaveBeenCalledWith(
+                `/api/staff/v1/events/1`,
+                expect.objectContaining({
+                    extension_data: expect.objectContaining({
+                        app_name,
+                        app_version,
+                    }),
+                }),
+            );
             spy.mockReset();
         });
     });

@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { AuthenticatedImageDirective } from '@placeos/components';
@@ -8,7 +9,12 @@ describe('TopbarHeaderComponent', () => {
     let spectator: SpectatorRouting<TopbarHeaderComponent>;
     const createComponent = createRoutingFactory({
         component: TopbarHeaderComponent,
-        providers: [MockProvider(SettingsService, { get: jest.fn() })],
+        providers: [
+            MockProvider(SettingsService, {
+                get: jest.fn(),
+                theme_signal: signal('light'),
+            }),
+        ],
         declarations: [MockDirective(AuthenticatedImageDirective)],
     });
 

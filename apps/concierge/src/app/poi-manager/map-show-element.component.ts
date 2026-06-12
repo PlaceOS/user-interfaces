@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MAP_FEATURE_DATA } from '@placeos/common';
 
 @Component({
@@ -6,13 +6,13 @@ import { MAP_FEATURE_DATA } from '@placeos/common';
     template: `
         <div
             class="relative h-full w-full border-4"
-            [class.border-warning]="hover"
-            [class.border-success]="!hover"
+            [class.border-warning]="hover()"
+            [class.border-success]="!hover()"
         >
             <div
                 class="absolute inset-0 opacity-40"
-                [class.bg-warning]="hover"
-                [class.bg-success]="!hover"
+                [class.bg-warning]="hover()"
+                [class.bg-success]="!hover()"
             ></div>
         </div>
     `,
@@ -24,7 +24,5 @@ export class MapShowElementComponent {
         hover: boolean;
     }>(MAP_FEATURE_DATA);
 
-    public get hover() {
-        return !!this._data?.hover;
-    }
+    public readonly hover = signal(!!this._data?.hover);
 }

@@ -6,7 +6,6 @@ import {
 } from '@placeos/common';
 import { SafePipe } from '@placeos/components';
 import { showMetadata } from '@placeos/ts-client';
-import { lastValueFrom } from 'rxjs';
 import { SidebarComponent } from './ui/sidebar.component';
 
 interface RecorderStreamImage {
@@ -32,6 +31,7 @@ interface RecorderStreamMetadata {
                 <h1 class="text-2xl font-bold">Recorder Streams</h1>
             </header>
             <main
+                id="stagehand-page-content"
                 class="grid w-full flex-1 grid-cols-1 gap-4 overflow-auto p-4 sm:grid-cols-3"
             >
                 @for (image of images(); track image.id) {
@@ -43,6 +43,9 @@ interface RecorderStreamMetadata {
                         >
                             <img
                                 class="h-full w-full object-contain object-center"
+                                [alt]="
+                                    'Recorder stream preview for ' + image.name
+                                "
                                 [src]="image.url | safe: 'url'"
                             />
                         </div>
@@ -72,8 +75,9 @@ export class RecorderGridViewComponent extends AsyncHandler implements OnInit {
 
     public async ngOnInit() {
         await firstTruthyValueFrom(this._org.initialised);
-        const block = await lastValueFrom(
-            showMetadata(this._org.organisation.id, 'recorder-streams'),
+        const block = await showMetadata(
+            this._org.organisation.id,
+            'recorder-streams',
         );
         const { domain, api_path, images } =
             block.details as RecorderStreamMetadata;

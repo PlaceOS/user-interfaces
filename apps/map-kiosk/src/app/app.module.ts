@@ -16,7 +16,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { BootstrapComponent } from './bootstrap.component';
 import { DeskBookingComponent } from './desk-booking.component';
 import { ExploreLevelSelectComponent } from './explore-level-select.component';
-import { ExploreMapStackComponent } from './explore-map-stack.component';
 import { ExploreComponent } from './explore.component';
 import { FooterMenuComponent } from './footer-menu.component';
 
@@ -35,7 +34,6 @@ const STANDALONE_COMPONENTS = [
     BootstrapComponent,
     ExploreComponent,
     ExploreLevelSelectComponent,
-    ExploreMapStackComponent,
     DeskBookingComponent,
     FooterMenuComponent,
     AccessibilityControlsComponent,

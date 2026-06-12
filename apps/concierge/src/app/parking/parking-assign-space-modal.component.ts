@@ -24,6 +24,8 @@ import {
     notifyError,
     notifySuccess,
     OrganisationService,
+    ViewerFeature,
+    ViewerStyles,
 } from '@placeos/common';
 import {
     IconComponent,
@@ -33,7 +35,6 @@ import {
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 import { ExploreParkingInfoComponent } from 'libs/explore/src/lib/explore-parking-info.component';
 import { PlaceAsset } from '@placeos/ts-client';
-import { ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';

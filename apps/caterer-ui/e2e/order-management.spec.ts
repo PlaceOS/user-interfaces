@@ -12,7 +12,9 @@ const ORDERS_URL = '/#/orders?mock=true';
 test.describe('US-ORDER-001: View Orders for Selected Date', () => {
     test('should display orders list component', async ({ page }) => {
         await page.goto(ORDERS_URL);
-        await page.locator('catering-order-list').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-order-list')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Should show simple-table component
         const table = page.locator('simple-table');
@@ -21,7 +23,9 @@ test.describe('US-ORDER-001: View Orders for Selected Date', () => {
 
     test('should display date selector', async ({ page }) => {
         await page.goto(ORDERS_URL);
-        await page.locator('catering-order-list').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-order-list')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Should show date options component
         const date_options = page.locator('date-options');
@@ -30,7 +34,9 @@ test.describe('US-ORDER-001: View Orders for Selected Date', () => {
 
     test('should load orders for current date', async ({ page }) => {
         await page.goto(ORDERS_URL);
-        await page.locator('catering-order-list').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-order-list')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Wait for orders to load
         await page.waitForTimeout(3000);
@@ -44,7 +50,9 @@ test.describe('US-ORDER-001: View Orders for Selected Date', () => {
 test.describe('US-ORDER-002: View Order Details', () => {
     test('should display order time in table', async ({ page }) => {
         await page.goto(ORDERS_URL);
-        await page.locator('catering-order-list').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-order-list')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Wait for orders to load
         await page.waitForTimeout(3000);
@@ -54,16 +62,22 @@ test.describe('US-ORDER-002: View Order Details', () => {
         await expect(table).toBeVisible();
     });
 
-    test('should display expand button to view order items', async ({ page }) => {
+    test('should display expand button to view order items', async ({
+        page,
+    }) => {
         await page.goto(ORDERS_URL);
-        await page.locator('catering-order-list').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-order-list')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Wait for orders to load
         await page.waitForTimeout(3000);
 
         // Should show expand buttons
         const expand_buttons = page.locator('button').filter({
-            has: page.locator('icon:has-text("chevron_right"), icon:has-text("keyboard_arrow_down")')
+            has: page.locator(
+                'icon:has-text("chevron_right"), icon:has-text("keyboard_arrow_down")',
+            ),
         });
         const count = await expand_buttons.count();
         // There may be no orders for current day, so we just check the structure
@@ -74,14 +88,16 @@ test.describe('US-ORDER-002: View Order Details', () => {
 test.describe('US-ORDER-003: View Order Notes', () => {
     test('should display notes button for orders', async ({ page }) => {
         await page.goto(ORDERS_URL);
-        await page.locator('catering-order-list').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-order-list')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Wait for orders to load
         await page.waitForTimeout(3000);
 
         // Should show notes button with description icon
         const notes_buttons = page.locator('button').filter({
-            has: page.locator('icon:has-text("description")')
+            has: page.locator('icon:has-text("description")'),
         });
         const count = await notes_buttons.count();
         expect(count).toBeGreaterThanOrEqual(0);
@@ -91,7 +107,9 @@ test.describe('US-ORDER-003: View Order Notes', () => {
 test.describe('US-ORDER-004: View Event/Host Information', () => {
     test('should display host column in table', async ({ page }) => {
         await page.goto(ORDERS_URL);
-        await page.locator('catering-order-list').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-order-list')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Table should be visible with host information
         const table = page.locator('simple-table');
@@ -100,7 +118,9 @@ test.describe('US-ORDER-004: View Event/Host Information', () => {
 
     test('should display location column in table', async ({ page }) => {
         await page.goto(ORDERS_URL);
-        await page.locator('catering-order-list').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-order-list')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Table should be visible with location information
         const table = page.locator('simple-table');
@@ -111,7 +131,9 @@ test.describe('US-ORDER-004: View Event/Host Information', () => {
 test.describe('US-ORDER-005: View Order Charge Code and Invoice Number', () => {
     test('should display charge code column in table', async ({ page }) => {
         await page.goto(ORDERS_URL);
-        await page.locator('catering-order-list').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-order-list')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Table should be visible with charge code column
         const table = page.locator('simple-table');
@@ -120,7 +142,9 @@ test.describe('US-ORDER-005: View Order Charge Code and Invoice Number', () => {
 
     test('should display invoice number column in table', async ({ page }) => {
         await page.goto(ORDERS_URL);
-        await page.locator('catering-order-list').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-order-list')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Table should be visible with invoice number column
         const table = page.locator('simple-table');
@@ -131,7 +155,9 @@ test.describe('US-ORDER-005: View Order Charge Code and Invoice Number', () => {
 test.describe('US-ORDER-006: Filter Orders by Date Range', () => {
     test('should change date when date selector is used', async ({ page }) => {
         await page.goto(ORDERS_URL);
-        await page.locator('catering-order-list').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-order-list')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Should show date options
         const date_options = page.locator('date-options');
@@ -139,7 +165,9 @@ test.describe('US-ORDER-006: Filter Orders by Date Range', () => {
 
         // Click to change date (next day button if available)
         const next_button = date_options.locator('button').filter({
-            has: page.locator('icon:has-text("chevron_right"), icon:has-text("navigate_next")')
+            has: page.locator(
+                'icon:has-text("chevron_right"), icon:has-text("navigate_next")',
+            ),
         });
         const count = await next_button.count();
         if (count > 0) {
@@ -152,7 +180,9 @@ test.describe('US-ORDER-006: Filter Orders by Date Range', () => {
 test.describe('US-ORDER-007: Filter Orders by Zone/Level', () => {
     test('should display level filter dropdown', async ({ page }) => {
         await page.goto(ORDERS_URL);
-        await page.locator('catering-topbar').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-topbar')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Should show level select
         const level_select = page.locator('mat-select').first();
@@ -161,7 +191,9 @@ test.describe('US-ORDER-007: Filter Orders by Zone/Level', () => {
 
     test('should have level dropdown interaction', async ({ page }) => {
         await page.goto(ORDERS_URL);
-        await page.locator('catering-topbar').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-topbar')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Wait for data to load
         await page.waitForTimeout(2000);
@@ -181,9 +213,13 @@ test.describe('US-ORDER-007: Filter Orders by Zone/Level', () => {
 });
 
 test.describe('US-ORDER-008: Filter Orders by Caterer/Provider', () => {
-    test('should display caterer filter if multiple caterers', async ({ page }) => {
+    test('should display caterer filter if multiple caterers', async ({
+        page,
+    }) => {
         await page.goto(ORDERS_URL);
-        await page.locator('catering-topbar').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-topbar')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Wait for data to load
         await page.waitForTimeout(2000);
@@ -198,7 +234,9 @@ test.describe('US-ORDER-008: Filter Orders by Caterer/Provider', () => {
 test.describe('US-ORDER-009: Search Orders', () => {
     test('should display search input', async ({ page }) => {
         await page.goto(ORDERS_URL);
-        await page.locator('catering-topbar').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-topbar')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Should show search input
         const search_input = page.locator('input[matInput]');
@@ -207,7 +245,9 @@ test.describe('US-ORDER-009: Search Orders', () => {
 
     test('should filter orders when search term entered', async ({ page }) => {
         await page.goto(ORDERS_URL);
-        await page.locator('catering-order-list').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-order-list')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Wait for orders to load
         await page.waitForTimeout(2000);
@@ -226,9 +266,13 @@ test.describe('US-ORDER-009: Search Orders', () => {
 });
 
 test.describe('US-ORDER-010 to US-ORDER-014: Order Status Management', () => {
-    test('should display status column with status buttons', async ({ page }) => {
+    test('should display status column with status buttons', async ({
+        page,
+    }) => {
         await page.goto(ORDERS_URL);
-        await page.locator('catering-order-list').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-order-list')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Wait for orders to load
         await page.waitForTimeout(3000);
@@ -240,9 +284,13 @@ test.describe('US-ORDER-010 to US-ORDER-014: Order Status Management', () => {
         expect(count).toBeGreaterThanOrEqual(0);
     });
 
-    test('should open status menu when status button clicked', async ({ page }) => {
+    test('should open status menu when status button clicked', async ({
+        page,
+    }) => {
         await page.goto(ORDERS_URL);
-        await page.locator('catering-order-list').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-order-list')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Wait for orders to load
         await page.waitForTimeout(3000);
@@ -263,7 +311,9 @@ test.describe('US-ORDER-010 to US-ORDER-014: Order Status Management', () => {
 
     test('should show all status options in menu', async ({ page }) => {
         await page.goto(ORDERS_URL);
-        await page.locator('catering-order-list').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-order-list')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Wait for orders to load
         await page.waitForTimeout(3000);
@@ -287,14 +337,16 @@ test.describe('US-ORDER-010 to US-ORDER-014: Order Status Management', () => {
 test.describe('US-ORDER-015: Mark Individual Item as Complete', () => {
     test('should expand order to show items', async ({ page }) => {
         await page.goto(ORDERS_URL);
-        await page.locator('catering-order-list').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-order-list')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Wait for orders to load
         await page.waitForTimeout(3000);
 
         // Find expand buttons
         const expand_buttons = page.locator('button').filter({
-            has: page.locator('icon:has-text("chevron_right")')
+            has: page.locator('icon:has-text("chevron_right")'),
         });
         const count = await expand_buttons.count();
 
@@ -316,7 +368,9 @@ test.describe('US-ORDER-015: Mark Individual Item as Complete', () => {
 test.describe('US-ORDER-016: Receive Automatic Order Updates', () => {
     test('should display loading indicator component', async ({ page }) => {
         await page.goto(ORDERS_URL);
-        await page.locator('catering-order-list').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-order-list')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Should have loading component attached
         const loading = page.locator('global-loading');
@@ -327,7 +381,9 @@ test.describe('US-ORDER-016: Receive Automatic Order Updates', () => {
 test.describe('Orders - Empty State', () => {
     test('should handle empty orders gracefully', async ({ page }) => {
         await page.goto(ORDERS_URL);
-        await page.locator('catering-order-list').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-order-list')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Wait for orders to load
         await page.waitForTimeout(3000);
@@ -341,7 +397,9 @@ test.describe('Orders - Empty State', () => {
 test.describe('Orders - Room Service Icon', () => {
     test('should display room service icon for orders', async ({ page }) => {
         await page.goto(ORDERS_URL);
-        await page.locator('catering-order-list').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-order-list')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Wait for orders to load
         await page.waitForTimeout(3000);

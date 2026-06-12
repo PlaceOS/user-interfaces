@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
@@ -50,7 +50,9 @@ import { combineLatest } from 'rxjs';
                 ) | translate
             "
             [loading]="
-                loading ? ('APP.CONCIERGE.LOCKERS_BOOK_SAVING' | translate) : ''
+                loading()
+                    ? ('APP.CONCIERGE.LOCKERS_BOOK_SAVING' | translate)
+                    : ''
             "
             (confirm)="postForm()"
         >
@@ -131,6 +133,8 @@ import { combineLatest } from 'rxjs';
                                     form.controls.date.disabled || disable_start
                                 "
                                 [use_24hr]="use_24hr"
+                                [range]="bookable_hours"
+                                [min_duration]="effective_min_duration"
                             ></a-time-field>
                         </div>
                         @if (!hide_end) {
@@ -144,7 +148,9 @@ import { combineLatest } from 'rxjs';
                                     formControlName="duration"
                                     [time]="form?.getRawValue()?.date"
                                     [max]="max_duration"
+                                    [custom_options]="custom_duration_options"
                                     [use_24hr]="use_24hr"
+                                    [end_time]="bookable_hours?.end"
                                 >
                                 </a-duration-field>
                             </div>
@@ -198,7 +204,7 @@ export class LockerBookingModalComponent
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
 
-    public loading = false;
+    public readonly loading = signal(false);
     public readonly user = this._data.user;
     public readonly date = this._data.date;
     public readonly allow_time_changes = this._data.allow_time_changes ?? true;
@@ -250,6 +256,33 @@ export class LockerBookingModalComponent
 
     public get use_24hr() {
         return this._settings.get('app.use_24_hour_time');
+    }
+
+    public get bookable_hours() {
+        return (
+            this._settings.get('app.lockers.bookable_hours') ||
+            this._settings.get('app.bookings.bookable_hours')
+        );
+    }
+
+    public get min_duration() {
+        return (
+            this._settings.get('app.lockers.min_duration') ||
+            this._settings.get('app.bookings.min_duration') ||
+            30
+        );
+    }
+
+    public get custom_duration_options() {
+        return (
+            this._settings.get('app.lockers.custom_duration_options') ||
+            this._settings.get('app.bookings.custom_duration_options') ||
+            []
+        );
+    }
+
+    public get effective_min_duration() {
+        return Math.min(this.min_duration, ...this.custom_duration_options);
     }
 
     public ngOnInit() {
@@ -340,10 +373,10 @@ export class LockerBookingModalComponent
                 }),
             );
         }
-        this.loading = true;
+        this.loading.set(true);
         this.form.patchValue({ user_id: undefined, booking_type: 'locker' });
         const result = await this._booking_form.postForm().catch((e) => {
-            this.loading = false;
+            this.loading.set(false);
             notifyError(i18n('APP.CONCIERGE.LOCKERS_BOOK_ERROR', { error: e }));
             throw e;
         });

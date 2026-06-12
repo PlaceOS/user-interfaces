@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatMenuModule } from '@angular/material/menu';
 import { i18n, OrganisationService, SettingsService } from '@placeos/common';
@@ -135,13 +135,11 @@ enum TOOLTIP {
         AuthenticatedImageDirective,
     ],
 })
-export class TopbarHeaderComponent implements OnInit {
+export class TopbarHeaderComponent {
     private _settings = inject(SettingsService);
     private _state = inject(ControlStateService);
     private _call = inject(VideoCallStateService);
     private _org = inject(OrganisationService);
-    private _destroyRef = inject(DestroyRef);
-
     public readonly system = toSignal(this._state.system, {
         initialValue: {} as any,
     });
@@ -344,11 +342,5 @@ export class TopbarHeaderComponent implements OnInit {
         ),
     );
 
-    public get is_trusted() {
-        return isTrusted();
-    }
-
-    public ngOnInit() {
-        // Empty - all logic is now in computed signals
-    }
+    public readonly is_trusted = isTrusted();
 }

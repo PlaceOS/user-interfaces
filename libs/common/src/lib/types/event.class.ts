@@ -18,6 +18,7 @@ import {
 } from 'date-fns';
 import { RecurrenceDetails } from '../formatting';
 import { removeEmptyFields, unique } from '../general';
+import { endOfDayInTimezone, startOfDayInTimezone } from '../timezone-helpers';
 import { LinkedBooking } from '../types';
 import { AssetRequest } from './asset-request.class';
 import { CateringOrder } from './catering.class';
@@ -43,6 +44,7 @@ const DAYS_OF_WEEK = [
     'friday',
     'saturday',
 ];
+
 export interface FileDetails {
     /** Name of the file */
     name: string;
@@ -80,6 +82,8 @@ export interface EventExtensionData {
     host_override: string;
     /** Name of the organisational department of the host */
     department: string;
+    /** Whether a custom-period booking should still behave as all day in the UI */
+    custom_all_day?: boolean;
     event_type?: string;
     /** Event category */
     category?: string;
@@ -168,7 +172,10 @@ export function eventStatus(
     if (details.resources?.length) {
         if (
             details.resources.every(
-                (i) => i.response_status === 'accepted' || details.approved,
+                (i) =>
+                    i.response_status === 'accepted' ||
+                    i.response_status === 'confirmed' ||
+                    details.approved,
             )
         ) {
             return 'approved';
@@ -188,8 +195,10 @@ export function eventStatus(
 
 export function parseRecurrence(data: RecurrenceDetails) {
     const start = data.start || (data as any).range_start * 1000;
-    let end = data.end || (data as any).range_end;
-    if (data.occurrences > 1) {
+    let end =
+        data.end ||
+        ((data as any).range_end ? (data as any).range_end * 1000 : undefined);
+    if (!end && data.occurrences > 1) {
         switch (data.pattern) {
             case 'daily':
                 end = addDays(
@@ -228,6 +237,7 @@ export function parseRecurrence(data: RecurrenceDetails) {
             data.days_of_week?.map((_) =>
                 typeof _ === 'number' ? DAYS_OF_WEEK[_] : _,
             ) || [],
+        nth_of_month: data.nth_of_month,
     };
 }
 
@@ -295,6 +305,8 @@ export class CalendarEvent {
     public readonly organiser: User;
     /** Type of event */
     public readonly type: 'cancelled' | 'external' | 'internal';
+    /** Whether event has been deleted */
+    public readonly deleted: boolean;
     /** Whether this event was from a PlaceOS booking instead of a user calendar */
     public readonly from_bookings: boolean;
     /** Master event */
@@ -334,6 +346,9 @@ export class CalendarEvent {
     }
 
     constructor(data: Partial<CalendarEventExtended> = {}) {
+        const custom_all_day = !!(
+            data.extension_data?.custom_all_day || (data as any).custom_all_day
+        );
         this.id = data.event_id || data.id || '';
         this.event_start =
             data.event_start ||
@@ -345,6 +360,7 @@ export class CalendarEvent {
             );
         this.event_end =
             data.event_end ||
+            getUnixTime(data.date_end || 0) ||
             getUnixTime(
                 addMinutes(this.event_start * 1000, data.duration || 30),
             );
@@ -379,22 +395,41 @@ export class CalendarEvent {
             /&lt;&lt;&lt;.*&gt;&gt;&gt;/g,
             '',
         );
+        this.is_system_event = (data.body || this.body).includes(
+            'main_event_id',
+        );
         this.private = !!data.private;
-        this.all_day = !!data.all_day;
+        this.all_day = !!data.all_day || custom_all_day;
+        this.timezone =
+            data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.date = this.event_start * 1000 || this.date;
         this.date_end = this.event_end * 1000 || this.date_end;
         this.duration = differenceInMinutes(this.date_end, this.date);
         if (this.all_day) {
-            (this as any).date = startOfDay(this.date).getTime();
-            (this as any).duration = Math.max(24 * 60 - 1, this.duration - 1);
-            (this as any).date_end = endOfDay(
-                addMinutes(this.date, this.duration).valueOf() - 1,
-            ).getTime();
+            if (!data.duration && !data.date_end && !data.event_end) {
+                (this as any).date = startOfDayInTimezone(
+                    this.date,
+                    this.timezone,
+                );
+                (this as any).duration = 24 * 60 - 1;
+                (this as any).date_end = endOfDayInTimezone(
+                    this.date,
+                    this.timezone,
+                );
+            } else if (this.duration % (24 * 60) === 0) {
+                (this as any).date = startOfDayInTimezone(
+                    this.date,
+                    this.timezone,
+                );
+                (this as any).duration = Math.max(1, this.duration - 1);
+                (this as any).date_end = endOfDayInTimezone(
+                    this.date,
+                    this.timezone,
+                );
+            }
         }
         const matches = this.body.match(/\[ID\|([^\]]+)\]/);
         const associated_id = matches ? matches[1] : null;
-        this.timezone =
-            data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.meeting_url = data.meeting_url || data.online_meeting_url || '';
         this.meeting_id =
             associated_id || data.meeting_id || data.online_meeting_id || '';
@@ -414,6 +449,7 @@ export class CalendarEvent {
         if (data.recurring) {
             this.recurrence = {
                 start:
+                    data.recurrence?.start ||
                     this.event_start * 1000 ||
                     new Date(
                         (data.recurrence as any).range_start * 1000,
@@ -430,6 +466,7 @@ export class CalendarEvent {
                     data.recurrence.days_of_week?.map((_) =>
                         typeof _ === 'number' ? _ : DAYS_OF_WEEK.indexOf(_),
                     ) || [],
+                nth_of_month: data.recurrence.nth_of_month,
             };
         } else {
             this.recurrence = {} as any;
@@ -442,7 +479,10 @@ export class CalendarEvent {
             )
         ) {
             this.resources.push(
-                new Space({ ...(system as any), response_status: data.status }),
+                new Space({
+                    ...(system as any),
+                    response_status: data.status || 'needsAction',
+                }),
             );
         }
         this.system = system || (this.resources[0] as any) || null;
@@ -450,9 +490,9 @@ export class CalendarEvent {
             this.system = { id: data.system_id } as any;
         }
         this.old_system = data.old_system || data.system;
-        this.is_system_event = this.body.includes('main_event_id');
         this.attachments = data.attachments || [];
         this.extension_data = data.extension_data || {};
+        this.deleted = !!(data as any).deleted;
         this.status = eventStatus({ ...data, ...this }) || 'none';
         this.location =
             data.location || this.space?.display_name || this.space?.name || '';
@@ -460,7 +500,7 @@ export class CalendarEvent {
         this.breakdown_time = data.breakdown_time || 0;
         this.visibility = data.visibility || 'normal';
         this.type =
-            this.status === 'declined'
+            this.deleted || this.status === 'declined'
                 ? 'cancelled'
                 : this.attendees.find((_) => _.is_external)
                   ? 'external'
@@ -557,9 +597,16 @@ export class CalendarEvent {
      */
     public toJSON(): Record<string, any> {
         const obj: Record<string, any> = { ...this };
-        const date = this.all_day ? startOfDay(this.date) : this.date;
-        const end = this.all_day
-            ? endOfDay(this.date_end).valueOf() + 1
+        const is_full_day_period =
+            this.all_day &&
+            this.date === startOfDayInTimezone(this.date, this.timezone) &&
+            this.date_end === endOfDayInTimezone(this.date_end, this.timezone);
+        const is_custom_all_day = this.all_day && !is_full_day_period;
+        const date = is_full_day_period
+            ? startOfDayInTimezone(this.date, this.timezone)
+            : this.date;
+        const end = is_full_day_period
+            ? endOfDayInTimezone(this.date_end, this.timezone) + 1
             : this.date_end;
         obj.event_start = getUnixTime(date);
         obj.event_end = getUnixTime(end);
@@ -569,7 +616,7 @@ export class CalendarEvent {
         if (this.recurring) {
             obj.recurrence = parseRecurrence({
                 ...this.recurrence,
-                start: this.date,
+                start: this.recurrence.start || this.date,
             });
             delete obj.recurrence.start;
             delete obj.recurrence.end;
@@ -590,6 +637,16 @@ export class CalendarEvent {
             obj.setup_time = 0;
             obj.breakdown_time = 0;
             obj.extension_data.all_day_date = format(date, 'yyyy-MM-dd');
+        }
+        if (is_custom_all_day) {
+            obj.all_day = false;
+            obj.extension_data.custom_all_day = true;
+        } else {
+            if (this.id) {
+                obj.extension_data.custom_all_day = false;
+            } else {
+                delete obj.extension_data.custom_all_day;
+            }
         }
         obj.extension_data.catering = obj.extension_data.catering.map(
             (i) => new CateringOrder({ ...i, event: null }),

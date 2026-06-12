@@ -16,8 +16,15 @@ import {
     NG_VALUE_ACCESSOR,
     NgControl,
 } from '@angular/forms';
-import { getTimezoneOffsetString } from '@placeos/common';
-import { addYears, endOfDay, set, startOfDay } from 'date-fns';
+import { MatRippleModule } from '@angular/material/core';
+import {
+    getTimeInTimezone,
+    getTimezoneOffsetString,
+    markUserDateChange,
+    setTimeInTimezone,
+} from '@placeos/common';
+import { addYears, endOfDay, set, startOfDay, startOfMinute } from 'date-fns';
+import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -33,45 +40,70 @@ export enum TimezoneDiffRange {
 @Component({
     selector: 'a-date-field,date-field',
     template: `
-        <button
-            class="border-neutral flex h-12 w-full items-center justify-between rounded-sm border"
-            customTooltip
-            [content]="calendar_picker"
-            yPosition="top"
-            [disabled]="disabled()"
-            [class.opacity-30]="disabled()"
-            matRipple
-        >
-            <div
-                class="flex w-1/2 flex-1 flex-col truncate px-4 py-2 text-left leading-tight"
+        <div class="flex items-center gap-1">
+            <button
+                type="button"
+                class="border-neutral flex h-12 w-full flex-1 items-center justify-between rounded-sm border"
+                customTooltip
+                [content]="calendar_picker"
+                yPosition="top"
+                [disabled]="disabled()"
+                [class.opacity-30]="disabled()"
+                matRipple
             >
-                <div class="text-base font-normal">
-                    @if (date()) {
-                        {{ date() | date: date_format }}
-                    } @else {
-                        <span class="opacity-30">{{
-                            'FORM.DATE_EMPTY' | translate
-                        }}</span>
-                    }
-                </div>
-                @if (timezone() && tz) {
-                    <div class="truncate text-xs opacity-30">
-                        @if (range() !== 2) {
-                            <span>{{ start_of_day }}</span>
-                        }
-                        @if (range() === 0) {
-                            <span> - </span>
-                        }
-                        @if (range() !== 1) {
-                            <span>{{ end_of_day }}</span>
+                <div
+                    class="flex w-1/2 flex-1 flex-col truncate px-4 py-2 text-left leading-tight"
+                >
+                    <div class="text-base font-normal">
+                        @if (date() !== null && date() !== undefined) {
+                            {{ date() | date: date_format }}
+                        } @else {
+                            <span class="opacity-30">{{
+                                'FORM.DATE_EMPTY' | translate
+                            }}</span>
                         }
                     </div>
-                }
-            </div>
-            <div class="flex h-10 w-10 items-center justify-center text-2xl">
-                <icon>today</icon>
-            </div>
-        </button>
+                    @if (
+                        timezone() &&
+                        tz &&
+                        date() !== null &&
+                        date() !== undefined
+                    ) {
+                        <div class="truncate text-xs opacity-30">
+                            @if (range() !== 2) {
+                                <span>{{ start_of_day }}</span>
+                            }
+                            @if (range() === 0) {
+                                <span> - </span>
+                            }
+                            @if (range() !== 1) {
+                                <span>{{ end_of_day }}</span>
+                            }
+                        </div>
+                    }
+                </div>
+                <div
+                    class="flex h-10 w-10 items-center justify-center text-2xl"
+                >
+                    <icon>today</icon>
+                </div>
+            </button>
+            @if (clear()) {
+                <button
+                    type="button"
+                    icon
+                    matRipple
+                    class="border-error text-error flex h-12 w-12 items-center justify-center rounded-sm border"
+                    (click)="clearValue($event)"
+                    [attr.aria-label]="'Clear date'"
+                    [disabled]="
+                        date() === null || date() === undefined || disabled()
+                    "
+                >
+                    <icon>close</icon>
+                </button>
+            }
+        </div>
         <div class="error text-error h-5 p-1 text-xs">
             @if (has_error) {
                 <span><ng-content></ng-content></span>
@@ -110,6 +142,7 @@ export enum TimezoneDiffRange {
         IconComponent,
         CustomTooltipComponent,
         TranslatePipe,
+        MatRippleModule,
     ],
 })
 export class DateFieldComponent
@@ -133,15 +166,16 @@ export class DateFieldComponent
     public readonly short = input(false);
     public readonly timezone = input<string>('');
     public readonly range = input<TimezoneDiffRange>(TimezoneDiffRange.Both);
+    public readonly clear = input<boolean>(false);
     /** Currently selected date */
-    public readonly date = signal(Date.now());
+    public readonly date = signal<number | null>(null);
 
     public readonly now = Date.now();
 
     /** Form control on change handler */
-    private _onChange: (_: number) => void;
+    private _onChange: (_: number | null) => void;
     /** Form control on touch handler */
-    private _onTouch: (_: number) => void;
+    private _onTouch: (_: number | null) => void;
     private _control?: NgControl;
 
     public get date_format() {
@@ -155,13 +189,13 @@ export class DateFieldComponent
     private _date_pipe = new DatePipe('en');
 
     public get start_of_day() {
-        const start = startOfDay(this.date()).valueOf();
+        const start = startOfDay(this.date() || Date.now()).valueOf();
         const format = `MMM d, ${this.time_format}${this.range() === 1 ? ' (z)' : ''}`;
         return this._date_pipe.transform(start, format, this.tz);
     }
 
     public get end_of_day() {
-        const end = endOfDay(this.date()).valueOf();
+        const end = endOfDay(this.date() || Date.now()).valueOf();
         const format = `MMM d, ${this.time_format}${this.range() === 1 ? ' (z)' : ''}`;
         return this._date_pipe.transform(end, format, this.tz);
     }
@@ -189,16 +223,19 @@ export class DateFieldComponent
 
     /** First allowed date on the calendar */
     public get from(): Date {
-        return new Date(this.from_date()) || startOfDay(new Date());
+        return this.from_date()
+            ? new Date(this.from_date())
+            : startOfDay(new Date());
     }
     /** Current date value */
     public get until(): Date {
-        return new Date(this.to_date()) || addYears(endOfDay(new Date()), 1);
+        return this.to_date()
+            ? new Date(this.to_date())
+            : addYears(endOfDay(new Date()), 1);
     }
 
     public ngOnInit() {
         this._control = this._injector.get(NgControl);
-        this.date.set(Date.now());
     }
 
     /**
@@ -206,23 +243,47 @@ export class DateFieldComponent
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: number) {
-        // Keep hours and minutes of the old date
-        const old_date = new Date(this.date() || Date.now());
-        let new_date = set(new_value, {
-            hours: old_date.getHours(),
-            minutes: old_date.getMinutes(),
-        }).valueOf();
-        // Check that new date is not before from date
+        // Keep the existing wall-clock time in the selected timezone.
+        const timezone = this.timezone() || undefined;
+        const { hours, minutes } = getTimeInTimezone(
+            this.date() || Date.now(),
+            timezone,
+        );
+        let new_date = setTimeInTimezone(new_value, hours, minutes, timezone);
+        if (timezone) {
+            const selected_date = new Date(new_value);
+            const zoned_date = toZonedTime(this.date() || Date.now(), timezone);
+            new_date = startOfMinute(
+                fromZonedTime(
+                    set(zoned_date, {
+                        year: selected_date.getFullYear(),
+                        month: selected_date.getMonth(),
+                        date: selected_date.getDate(),
+                        hours,
+                        minutes,
+                        seconds: 0,
+                        milliseconds: 0,
+                    }),
+                    timezone,
+                ),
+            ).valueOf();
+        }
+        // Check that new date is before from
         if (new_date < this.from.valueOf()) {
             new_date = this.from.valueOf();
         }
-        // Ensure we don't select a past datetime when switching dates
-        if (new_date < Date.now()) {
-            new_date = Date.now();
-        }
         this.date.set(new_date);
+        markUserDateChange();
         if (this._onChange) this._onChange(new_date);
         this._tooltip()?.close();
+    }
+
+    public clearValue(event?: Event) {
+        event?.stopPropagation();
+        this.date.set(null);
+        markUserDateChange();
+        if (this._onTouch) this._onTouch(null);
+        if (this._onChange) this._onChange(null);
     }
 
     /* istanbul ignore next */
@@ -230,8 +291,8 @@ export class DateFieldComponent
      * Update local value when form control value is changed
      * @param value The new value for the component
      */
-    public writeValue(value: number) {
-        this.date.set(value);
+    public writeValue(value: number | null) {
+        this.date.set(value ?? null);
         this._tooltip()?.close();
     }
 
@@ -240,7 +301,7 @@ export class DateFieldComponent
      * Registers a callback function that is called when the control's value changes in the UI.
      * @param fn The callback function to register
      */
-    public registerOnChange(fn: (_: number) => void): void {
+    public registerOnChange(fn: (_: number | null) => void): void {
         this._onChange = fn;
     }
 
@@ -249,7 +310,7 @@ export class DateFieldComponent
      * Registers a callback function is called by the forms API on initialization to update the form model on blur.
      * @param fn The callback function to register
      */
-    public registerOnTouched(fn: (_: number) => void): void {
+    public registerOnTouched(fn: (_: number | null) => void): void {
         this._onTouch = fn;
     }
 

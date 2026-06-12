@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import {
     MAT_DIALOG_DATA,
@@ -13,7 +13,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { generateAssetCategoryForm, saveAssetCategory } from '@placeos/assets';
 import { AssetCategory, i18n, notifyError } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { map } from 'rxjs/operators';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
@@ -30,13 +29,13 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     ) | translate
                 }}
             </h2>
-            @if (!loading) {
+            @if (!loading()) {
                 <button icon matRipple mat-dialog-close>
                     <icon>close</icon>
                 </button>
             }
         </header>
-        @if (!loading) {
+        @if (!loading()) {
             <main
                 class="h-1/2 w-[24rem] max-w-[80vw] flex-1 overflow-auto p-2"
                 [formGroup]="form"
@@ -68,12 +67,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 'APP.CONCIERGE.ASSETS_CATEGORY_PARENT_EMPTY'
                                     | translate
                             "
-                            [disabled]="!(categories | async)?.length"
+                            [disabled]="!categories().length"
                         >
-                            @for (
-                                category of categories | async;
-                                track category
-                            ) {
+                            @for (category of categories(); track category) {
                                 <mat-option [value]="category.id">
                                     {{ category.name }}
                                 </mat-option>
@@ -90,7 +86,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </p>
             </div>
         }
-        @if (!loading) {
+        @if (!loading()) {
             <footer
                 class="border-base-200 flex justify-end space-x-2 border-t p-2"
             >
@@ -102,7 +98,6 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     `,
     styles: [``],
     imports: [
-        CommonModule,
         IconComponent,
         TranslatePipe,
         MatDialogModule,
@@ -119,11 +114,14 @@ export class AssetCategoryFormComponent {
     private _dialog_ref =
         inject<MatDialogRef<AssetCategoryFormComponent>>(MatDialogRef);
 
-    public loading = false;
+    public readonly loading = signal(false);
     public readonly form = generateAssetCategoryForm();
-    public readonly categories = this._state.categories.pipe(
-        map((list) =>
-            list.filter((_) => _.parent_category_id !== this.form.value.id),
+    public readonly categories_list = toSignal(this._state.categories, {
+        initialValue: [],
+    });
+    public readonly categories = computed(() =>
+        this.categories_list().filter(
+            (_) => _.parent_category_id !== this.form.value.id,
         ),
     );
 
@@ -137,13 +135,13 @@ export class AssetCategoryFormComponent {
 
     public async save() {
         if (!this.form.valid) return;
-        this.loading = true;
+        this.loading.set(true);
         this._dialog_ref.disableClose = true;
         const data = this.form.value;
         const item = await saveAssetCategory(data as any)
             .toPromise()
             .catch((e) => {
-                this.loading = false;
+                this.loading.set(false);
                 this._dialog_ref.disableClose = false;
                 notifyError(
                     i18n('APP.CONCIERGE.ASSETS_CATEGORY_SAVE_ERROR', {
@@ -153,7 +151,7 @@ export class AssetCategoryFormComponent {
                 throw e;
             });
         this.form.reset();
-        this.loading = false;
+        this.loading.set(false);
         this._dialog_ref.close(item);
     }
 }

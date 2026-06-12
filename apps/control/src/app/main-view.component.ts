@@ -1,5 +1,5 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { Component, effect, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 
@@ -98,11 +98,13 @@ import { TopbarHeaderComponent } from './topbar-header.component';
         DatePipe,
     ],
 })
-export class ControlMainViewComponent implements OnInit {
+export class ControlMainViewComponent {
     private _route = inject(ActivatedRoute);
     private _state = inject(ControlStateService);
     private _dialog = inject(MatDialog);
-    private _destroyRef = inject(DestroyRef);
+
+    private readonly _param_map = toSignal(this._route.paramMap);
+    private readonly _query_param_map = toSignal(this._route.queryParamMap);
 
     public readonly system = toSignal(this._state.system, {
         initialValue: {} as any,
@@ -117,6 +119,18 @@ export class ControlMainViewComponent implements OnInit {
         return VERSION;
     }
 
+    constructor() {
+        effect(() => {
+            const params = this._param_map();
+            if (params?.has('system')) this._state.setID(params.get('system'));
+        });
+
+        effect(() => {
+            const params = this._query_param_map();
+            if (params?.get('join') === 'true') this._state.selectMeeting();
+        });
+    }
+
     public async viewChangelog() {
         const changelog = await (
             await fetch(
@@ -124,22 +138,5 @@ export class ControlMainViewComponent implements OnInit {
             )
         ).text();
         this._dialog.open(ChangelogModalComponent, { data: { changelog } });
-    }
-
-    public ngOnInit(): void {
-        this._route.paramMap
-            .pipe(takeUntilDestroyed(this._destroyRef))
-            .subscribe((params) =>
-                params.has('system')
-                    ? this._state.setID(params.get('system'))
-                    : '',
-            );
-        this._route.queryParamMap
-            .pipe(takeUntilDestroyed(this._destroyRef))
-            .subscribe((params) =>
-                params.get('join') === 'true'
-                    ? this._state.selectMeeting()
-                    : '',
-            );
     }
 }

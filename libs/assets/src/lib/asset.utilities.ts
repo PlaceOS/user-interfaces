@@ -10,7 +10,7 @@ import {
 import { AttachedResourceRuleset } from '@placeos/components';
 import { showMetadata } from '@placeos/ts-client';
 import { isAfter, isBefore, setHours, subHours } from 'date-fns';
-import { Observable, of } from 'rxjs';
+import { from, Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 export function generateAssetCategoryForm(
@@ -83,7 +83,9 @@ const RULE_REQUESTS: Record<string, Observable<AttachedResourceRuleset[]>> = {};
 export function getAssetRulesForZone(zone_id: string, fresh: boolean = false) {
     if (!zone_id) return of([] as AttachedResourceRuleset[]);
     if (!RULE_REQUESTS[zone_id] || fresh)
-        RULE_REQUESTS[zone_id] = showMetadata(zone_id, 'assets_config').pipe(
+        RULE_REQUESTS[zone_id] = from(
+            showMetadata(zone_id, 'assets_config'),
+        ).pipe(
             map(
                 (_) =>
                     (_.details instanceof Array

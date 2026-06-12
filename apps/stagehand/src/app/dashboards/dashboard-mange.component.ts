@@ -19,7 +19,6 @@ import { addAlertDashboard, updateAlertDashboard } from '@placeos/ts-client';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { lastValueFrom } from 'rxjs';
 import { DashboardsService } from './dashboards.service';
 
 @Component({
@@ -43,6 +42,7 @@ import { DashboardsService } from './dashboards.service';
                     <a
                         icon
                         matRipple
+                        aria-label="Close dashboard editor"
                         [routerLink]="
                             dashboard()
                                 ? ['/dashboards', dashboard().id]
@@ -60,6 +60,7 @@ import { DashboardsService } from './dashboards.service';
                         >
                         <mat-form-field appearance="outline">
                             <input
+                                id="name"
                                 matInput
                                 name="name"
                                 formControlName="name"
@@ -72,6 +73,7 @@ import { DashboardsService } from './dashboards.service';
                         }}</label>
                         <mat-form-field appearance="outline">
                             <textarea
+                                id="description"
                                 matInput
                                 name="description"
                                 formControlName="description"
@@ -86,7 +88,13 @@ import { DashboardsService } from './dashboards.service';
                 <footer
                     class="bg-base-200 fixed bottom-2 flex w-156 max-w-full justify-end rounded-sm p-2"
                 >
-                    <button btn matRipple class="min-w-32" (click)="save()">
+                    <button
+                        btn
+                        type="button"
+                        matRipple
+                        class="min-w-32"
+                        (click)="save()"
+                    >
                         {{ 'COMMON.SAVE' | translate }}
                     </button>
                 </footer>
@@ -152,7 +160,7 @@ export class DashboardManageComponent extends AsyncHandler implements OnInit {
         const method = new_dash.id
             ? updateAlertDashboard(new_dash.id, new_dash)
             : addAlertDashboard(new_dash);
-        const result = await lastValueFrom(method).catch((_) => null);
+        const result = await method.catch((_) => null);
         this.loading.set('');
         if (result) {
             this._service.loadDashboards();

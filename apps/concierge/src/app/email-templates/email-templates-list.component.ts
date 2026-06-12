@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterModule } from '@angular/router';
@@ -59,14 +60,14 @@ import {
             <div class="min-h-full w-full overflow-x-auto">
                 <simple-table
                     class="block w-full min-w-4xl text-sm"
-                    [data]="templates"
+                    [data]="templates()"
                     empty_message="No group events for selected period"
                     [columns]="[
                         { key: 'subject', name: 'FORM.TITLE' | translate },
                         {
                             key: 'category',
                             name: 'COMMON.CATEGORY' | translate,
-                            show: !(filters | async)?.category && false,
+                            show: !filters()?.category && false,
                         },
                         {
                             key: 'trigger',
@@ -194,8 +195,12 @@ export class EmailTemplatesListComponent {
     private _dialog = inject(MatDialog);
 
     public sending_email: string;
-    public readonly filters = this._state.filters;
-    public readonly templates = this._state.filtered_templates;
+    public readonly filters = toSignal(this._state.filters, {
+        initialValue: {} as EmailTemplatesFilters,
+    });
+    public readonly templates = toSignal(this._state.filtered_templates, {
+        initialValue: [],
+    });
 
     public readonly removeTemplate = (t) => this._state.removeTemplate(t);
     public readonly openBroadcastModal = () =>

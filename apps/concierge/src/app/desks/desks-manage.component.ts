@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { CommonModule } from '@angular/common';
+
 import { Component, computed, ElementRef, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -16,6 +16,7 @@ import {
     notifySuccess,
     OrganisationService,
     randomInt,
+    settingSignal,
     SettingsService,
 } from '@placeos/common';
 import {
@@ -28,7 +29,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { updateMetadata } from '@placeos/ts-client';
-import { DesksStateService } from './desks-state.service';
+import { DeskQrItem, DesksStateService } from './desks-state.service';
 
 const QR_CODES = {};
 
@@ -208,7 +209,7 @@ const QR_CODES = {};
                                 btn
                                 matRipple
                                 class="mx-4 my-2 w-[calc(100%-2rem)]"
-                                (click)="print()"
+                                (click)="print(row)"
                             >
                                 {{
                                     'APP.CONCIERGE.DESKS_ACTION_PRINT_QR'
@@ -253,7 +254,6 @@ const QR_CODES = {};
     `,
     styles: [``],
     imports: [
-        CommonModule,
         SimpleTableComponent,
         TranslatePipe,
         MatProgressSpinnerModule,
@@ -311,39 +311,51 @@ export class DesksManageComponent extends AsyncHandler {
             name: 'desks',
             description: 'desks',
             details: updated_desks,
-        })
-            .toPromise()
-            .catch((e) => {
-                this.loading.set('');
-                notifyError(
-                    i18n('APP.CONCIERGE.DESKS_REMOVE_ERROR', {
-                        error: e.message || e,
-                    }),
-                );
-                throw e;
-            });
+        }).catch((e) => {
+            this.loading.set('');
+            notifyError(
+                i18n('APP.CONCIERGE.DESKS_REMOVE_ERROR', {
+                    error: e.message || e,
+                }),
+            );
+            throw e;
+        });
         notifySuccess(i18n('APP.CONCIERGE.DESKS_REMOVE_SUCCESS'));
         this._state.setFilters({});
         this.loading.set('');
     }
 
-    public get kiosk_url() {
+    public get workplace_url() {
         const path =
             this._settings.get('app.workplace_url_path') || '/workplace';
         return `${window.location.origin}${path}`;
     }
 
-    public loadQrCode(item: any) {
+    public readonly link_path = settingSignal(
+        'workplace_desk_action_path',
+        '/#/book/code?asset_id={asset_id}',
+    );
+
+    public loadQrCode(item: DeskQrItem) {
         const link = `${
-            this.kiosk_url
-        }/#/book/code?asset_id=${encodeURIComponent(item.id)}`;
+            this.workplace_url
+        }${this.link_path().replace('{asset_id}', encodeURIComponent(item.id))}`;
         item.qr_link = link;
         item.qr_code = generateQRCode(link);
         this.qr_code.update((map) => map.set(item.id, item.qr_code));
     }
 
-    public print() {
-        window.print();
+    public print(item: DeskQrItem) {
+        this.loadQrCode(item);
+        this._state.print_desk.set(item);
+        window.addEventListener(
+            'afterprint',
+            () => this._state.print_desk.set(null),
+            {
+                once: true,
+            },
+        );
+        this.timeout('print', () => window.print());
     }
 
     public async loadCSVData(event: InputEvent) {

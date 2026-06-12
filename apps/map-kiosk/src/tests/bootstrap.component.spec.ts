@@ -9,7 +9,6 @@ import {
     BuildingLevel,
     OrganisationService,
     Region,
-    nextValueFrom,
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
@@ -60,16 +59,14 @@ describe('BootstrapComponent', () => {
         spectator.click(document.querySelector('mat-option'));
         spectator.detectChanges();
 
-        expect(spectator.component.active_building.id).toBe('1');
-        expect(spectator.component.active_level).toBeFalsy();
-        expect((await nextValueFrom(spectator.component.levels)).length).toBe(
-            2,
-        );
+        expect(spectator.component.active_building()?.id).toBe('1');
+        expect(spectator.component.active_level()).toBeFalsy();
+        expect(spectator.component.levels().length).toBe(2);
         expect('[level]').toExist();
         spectator.click('[level]');
         spectator.click(document.querySelector('mat-option'));
         spectator.detectChanges();
-        expect(spectator.component.active_level).toBeTruthy();
+        expect(spectator.component.active_level()).toBeTruthy();
     });
 
     it('should allow selecting orientations', () => {
@@ -80,10 +77,12 @@ describe('BootstrapComponent', () => {
         expect(localStorage.setItem).not.toHaveBeenCalled();
         spectator.component.bootstrapKiosk();
         expect(localStorage.setItem).not.toHaveBeenCalled();
-        spectator.component.active_building = new Building({ id: 'bld-1' });
+        spectator.component.active_building.set(new Building({ id: 'bld-1' }));
         spectator.component.bootstrapKiosk();
         expect(localStorage.setItem).not.toHaveBeenCalled();
-        spectator.component.active_level = new BuildingLevel({ id: 'lvl-1' });
+        spectator.component.active_level.set(
+            new BuildingLevel({ id: 'lvl-1' }),
+        );
         spectator.component.bootstrapKiosk();
         expect(localStorage.setItem).toHaveBeenCalledWith(
             'KIOSK.building',
@@ -101,11 +100,11 @@ describe('BootstrapComponent', () => {
             'KIOSK.location',
             'kiosk-1',
         );
-        spectator.component.active_rotation = { id: '90', name: '' };
-        spectator.component.active_location = {
+        spectator.component.active_rotation.set({ id: '90', name: '' });
+        spectator.component.active_location.set({
             id: 'kiosk-1',
             name: 'South West',
-        };
+        });
         spectator.component.bootstrapKiosk();
         expect(localStorage.setItem).toHaveBeenCalledWith(
             'KIOSK.orientation',

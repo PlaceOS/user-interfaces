@@ -17,9 +17,10 @@ import {
     UserListFieldComponent,
 } from '@placeos/form-fields';
 import { MeetingFlowFormComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-flow-form.component';
-import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-form-details.component';
 import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
+
+import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-details.component';
 
 describe('MeetingFlowFormComponent', () => {
     let spectator: Spectator<MeetingFlowFormComponent>;

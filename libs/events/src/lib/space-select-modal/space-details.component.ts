@@ -1,14 +1,15 @@
 import {
     Component,
-    OnChanges,
-    SimpleChanges,
+    computed,
+    effect,
     inject,
     input,
     output,
+    signal,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { Space } from '@placeos/common';
-import { ViewerFeature } from '@placeos/svg-viewer';
+import { ViewerFeature } from '@placeos/common';
 
 import { OrganisationService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -41,7 +42,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     matRipple
                     name="close-space-details"
                     (click)="close.emit()"
-                    class="bg-neutral absolute top-2 left-2 text-white sm:hidden"
+                    class="bg-base-100 absolute top-2 left-2 lg:hidden"
                 >
                     <icon>arrow_back</icon>
                 </button>
@@ -49,15 +50,21 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     icon
                     matRipple
                     name="toggle-space-favourite-details"
-                    [class.text-white]="!fav()"
                     [class.text-info]="fav()"
                     (click)="toggleFav.emit()"
-                    class="bg-neutral absolute top-2 right-2"
+                    class="bg-base-100 absolute top-2 right-2"
                 >
-                    <icon>{{ fav() ? 'favorite' : 'favorite_border' }}</icon>
+                    <icon
+                        [className]="
+                            fav()
+                                ? 'material-symbols-rounded'
+                                : 'material-symbols-outlined'
+                        "
+                        >favorite</icon
+                    >
                 </button>
             </section>
-            <div class="h-1/2 flex-1 space-y-2 overflow-auto p-2">
+            <div class="h-1/2 flex-1 space-y-2 p-2">
                 <section actions class="z-0">
                     <h2 class="mt-4 mb-2 text-xl font-medium">
                         {{ space().display_name || space().name }}
@@ -76,9 +83,13 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                         {{ alert()[1] }}
                     </div>
                 }
-                <hr />
-                <section details class="space-y-2">
-                    <h2 class="text-xl font-medium">
+                <section
+                    details
+                    class="border-base-400 relative mt-4! space-y-2 rounded-sm border px-2 pt-1 pb-1"
+                >
+                    <h2
+                        class="bg-base-100 absolute top-0 left-2 -translate-y-1/2 px-2 text-lg font-medium"
+                    >
                         {{ 'CALENDAR_EVENT.DETAILS' | translate }}
                     </h2>
                     <div class="flex items-center space-x-2">
@@ -93,44 +104,52 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     <div class="flex items-center space-x-2">
                         <icon>meeting_room</icon>
                         <p>
-                            {{ level?.display_name || level?.name }}
+                            {{ level()?.display_name || level()?.name }}
                         </p>
                     </div>
                     <div class="flex items-center space-x-2">
                         <icon>place</icon>
                         <p>
                             {{
-                                building?.address ||
-                                    building?.display_name ||
-                                    building?.name
+                                building()?.address ||
+                                    building()?.display_name ||
+                                    building()?.name
                             }}
                         </p>
                     </div>
                 </section>
-                <hr />
                 @if (space().features?.length) {
-                    <section facilities class="space-y-2">
-                        <h2 class="text-xl font-medium">
+                    <section
+                        facilities
+                        class="border-base-400 relative mt-4! space-y-2 rounded-sm border px-2 pt-1 pb-1"
+                    >
+                        <h2
+                            class="bg-base-100 absolute top-0 left-2 -translate-y-1/2 px-2 text-lg font-medium"
+                        >
                             {{ 'CALENDAR_EVENT.FACILITIES' | translate }}
                         </h2>
-                        @for (feature of space().features; track feature) {
-                            <div class="flex items-center space-x-2">
-                                <!-- <icon>people</icon> -->
-                                <p>{{ feature }}</p>
-                            </div>
-                        }
+                        <div class="flex flex-wrap items-center">
+                            @for (feature of space().features; track feature) {
+                                <div
+                                    for="feat"
+                                    class="border-base-300 m-1 rounded-full border px-4 py-2 text-sm capitalize"
+                                >
+                                    {{ feature }}
+                                </div>
+                            }
+                        </div>
                     </section>
                 }
                 @if (!hide_map()) {
                     <section
                         map
-                        class="border-base-200 relative mx-auto h-64 w-full overflow-hidden rounded-sm border sm:h-48"
+                        class="bg-base-200 relative mx-auto mb-2! h-64 w-full overflow-hidden rounded-sm sm:h-48"
                     >
                         <interactive-map
                             class="pointer-events-none"
-                            [src]="map_url"
+                            [src]="map_url()"
                             [focus]="space().map_id"
-                            [features]="features"
+                            [features]="features()"
                             [options]="{
                                 disable_pan: true,
                                 disable_zoom: true,
@@ -139,38 +158,10 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     </section>
                 }
             </div>
-            <div
-                class="border-base-200 border-t px-2 pt-2 pb-22 shadow-sm sm:hidden"
-            >
-                <button
-                    btn
-                    matRipple
-                    name="toggle-space-details"
-                    [class.inverse]="!single_select() && active()"
-                    class="w-full"
-                    (click)="activeChange.emit(single_select() ? true : !active())"
-                >
-                    <div class="flex items-center justify-center">
-                        <icon class="text-2xl">{{
-                            single_select() ? 'done' : active() ? 'remove' : 'add'
-                        }}</icon>
-                        <p>
-                            {{
-                                single_select()
-                                    ? 'Select Item'
-                                    : ((active()
-                                          ? 'CALENDAR_EVENT.SPACE_REMOVE'
-                                          : 'CALENDAR_EVENT.SPACE_ADD_TO'
-                                      ) | translate)
-                            }}
-                        </p>
-                    </div>
-                </button>
-            </div>
         } @else {
             <div
                 empty
-                class="flex flex-col items-center justify-center space-y-2 p-16"
+                class="flex h-full w-full flex-col items-center justify-center space-y-2 p-16"
             >
                 <p class="text-center opacity-30">
                     {{ 'CALENDAR_EVENT.SPACE_LIST_INFO' | translate }}
@@ -178,19 +169,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
             </div>
         }
     `,
-    styles: [
-        `
-            :host {
-                position: relative;
-                display: flex;
-                flex-direction: column;
-                width: 30%;
-                min-width: 20rem;
-                height: 100%;
-                min-height: 65vh;
-            }
-        `,
-    ],
+    styles: [``],
     imports: [
         TranslatePipe,
         MatRippleModule,
@@ -199,13 +178,12 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
         IconComponent,
     ],
 })
-export class SpaceDetailsComponent implements OnChanges {
+export class SpaceDetailsComponent {
     private _org = inject(OrganisationService);
 
     public readonly space = input<Space>(undefined);
     public readonly fav = input(false);
     public readonly active = input(false);
-    public readonly single_select = input(false);
     public readonly hide_map = input(false);
     public readonly alert = input<[string, string]>(undefined);
 
@@ -213,33 +191,30 @@ export class SpaceDetailsComponent implements OnChanges {
     public readonly close = output<void>();
     public readonly toggleFav = output<void>();
 
-    public map_url = '';
-    public features: ViewerFeature[] = [];
-
-    public get level() {
+    public readonly level = computed(() => {
         const space = this.space();
         return this._org.levelWithID(space?.zones) || space?.level;
-    }
+    });
 
-    public get building() {
+    public readonly building = computed(() => {
         return this._org.buildings.find((_) =>
             this.space()?.zones.includes(_.id),
         );
-    }
+    });
 
-    public ngOnChanges(changes: SimpleChanges) {
-        if (changes.space && this.space()) {
-            this._updateFeature();
+    public readonly map_url = signal('');
+    public readonly features = signal<ViewerFeature[]>([]);
+
+    private _spaceEffect = effect(() => {
+        const space = this.space();
+        if (space) {
+            this.map_url.set(this.level()?.map_id);
+            this.features.set([
+                {
+                    location: space?.map_id,
+                    content: MapPinComponent,
+                },
+            ]);
         }
-    }
-
-    private _updateFeature() {
-        this.map_url = this.level?.map_id;
-        this.features = [
-            {
-                location: this.space()?.map_id,
-                content: MapPinComponent,
-            },
-        ];
-    }
+    });
 }

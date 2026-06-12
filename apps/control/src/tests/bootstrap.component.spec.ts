@@ -61,13 +61,13 @@ describe('BootstrapComponent', () => {
         const button: HTMLButtonElement = spectator.query('button');
         expect(button).toBeTruthy();
         // expect(button.disabled).toBeTruthy();
-        spectator.component.system_id$.next('sys-B0');
+        spectator.component.system_id.set('sys-B0');
         spectator.detectChanges();
         expect(button.disabled).toBeFalsy();
     });
 
     it('should route to the /tabbed on submit', () => {
-        spectator.component.system_id$.next('sys-B0');
+        spectator.component.system_id.set('sys-B0');
         spectator.detectChanges();
         expect(spectator.query('button[disabled]')).toBeFalsy();
         spectator.click('button');

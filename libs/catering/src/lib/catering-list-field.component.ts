@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import {
-    computed,
     Component,
+    computed,
     forwardRef,
     inject,
     input,
@@ -27,252 +27,216 @@ import { endOfDay, startOfDay } from 'date-fns';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { NewCateringSelectModalComponent } from './new-catering-order-modal/new-catering-select-modal.component';
+import { CateringSelectModalComponent } from './catering-select-modal/catering-select-modal.component';
 
 const EMPTY_FAVS = [];
 
 @Component({
     selector: `catering-list-field`,
     template: `
-        @if (orders().length) {
-            <div list class="space-y-2">
-                @for (order of orders(); track order.id) {
-                    <div
-                        order
-                        class="bg-base-100 overflow-hidden rounded-xl border shadow-sm"
-                        [class.border-error]="end_time() < order.deliver_at"
-                        [class.border-base-300]="end_time() >= order.deliver_at"
-                    >
-                        <div class="flex items-center space-x-2 p-4">
-                            <div class="flex-1">
-                                <div class="flex items-center space-x-4">
-                                    <div>
-                                        {{
-                                            'CALENDAR_EVENT.CATERING_ORDER_AT_DATE'
-                                                | translate
-                                                    : {
-                                                          date:
-                                                              order.deliver_at_time
-                                                              | date
-                                                                  : 'mediumDate',
-                                                          time:
-                                                              order.deliver_at_time
-                                                              | date
-                                                                  : time_format,
-                                                      }
-                                        }}
-                                    </div>
-                                    @if (end_time() < order.deliver_at) {
-                                        <div
-                                            class="bg-error text-error-content flex h-6 w-6 items-center justify-center rounded-full"
-                                            [matTooltip]="err_tooltip()"
-                                        >
-                                            <icon>priority_high</icon>
-                                        </div>
-                                    }
-                                </div>
-                                <div class="text-xs opacity-60">
+        <div list class="space-y-2">
+            @for (order of orders(); track order.id) {
+                <div
+                    order
+                    class="bg-base-100 overflow-hidden rounded-xl border shadow-sm"
+                    [class.border-error]="end_time() < order.deliver_at"
+                    [class.border-base-300]="end_time() >= order.deliver_at"
+                >
+                    <div class="flex items-center space-x-2 p-4">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-4">
+                                <div>
                                     {{
-                                        'CALENDAR_EVENT.CATERING_ORDER_DETAILS'
+                                        'CALENDAR_EVENT.CATERING_ORDER_AT_DATE'
                                             | translate
                                                 : {
-                                                      count: order.item_count,
-                                                      cost:
-                                                          order.total_cost / 100
-                                                          | currency
-                                                              : currency_code,
+                                                      date:
+                                                          order.deliver_at
+                                                          | date: 'mediumDate',
+                                                      time:
+                                                          order.deliver_at
+                                                          | date: time_format,
                                                   }
                                     }}
                                 </div>
+                                @if (end_time() < order.deliver_at) {
+                                    <div
+                                        class="bg-error text-error-content flex h-6 w-6 items-center justify-center rounded-full"
+                                        [matTooltip]="err_tooltip()"
+                                    >
+                                        <icon>priority_high</icon>
+                                    </div>
+                                }
                             </div>
-                            @if (!disabled()) {
-                                <button
-                                    icon
-                                    matRipple
-                                    [matTooltip]="
-                                        'CALENDAR_EVENT.CATERING_ORDER_DUPLICATE'
-                                            | translate
-                                    "
-                                    (click)="duplicateOrder(order)"
-                                >
-                                    <icon>content_copy</icon>
-                                </button>
-                            }
-                            @if (!disabled()) {
-                                <button
-                                    icon
-                                    matRipple
-                                    [matTooltip]="
-                                        'CALENDAR_EVENT.CATERING_ORDER_EDIT'
-                                            | translate
-                                    "
-                                    (click)="editOrder(order)"
-                                >
-                                    <icon>edit</icon>
-                                </button>
-                            }
-                            @if (!disabled()) {
-                                <button
-                                    icon
-                                    matRipple
-                                    matTooltip="Remove Order"
-                                    class="text-error"
-                                    (click)="removeOrder(order)"
-                                >
-                                    <icon>delete</icon>
-                                </button>
-                            }
+                            <div class="text-xs opacity-60">
+                                {{
+                                    'CALENDAR_EVENT.CATERING_ORDER_DETAILS'
+                                        | translate
+                                            : {
+                                                  count: order.item_count,
+                                                  cost:
+                                                      order.total_cost / 100
+                                                      | currency: currency_code,
+                                              }
+                                }}
+                            </div>
+                        </div>
+                        @if (!disabled()) {
                             <button
                                 icon
                                 matRipple
                                 [matTooltip]="
-                                    (show_order()[order.id]
-                                        ? 'CALENDAR_EVENT.CATERING_ORDER_HIDE'
-                                        : 'CALENDAR_EVENT.CATERING_ORDER_SHOW'
-                                    ) | translate
+                                    'CALENDAR_EVENT.CATERING_ORDER_DUPLICATE'
+                                        | translate
                                 "
-                                (click)="toggleOrder(order.id)"
+                                (click)="duplicateOrder(order)"
                             >
-                                <icon>
-                                    {{
-                                        show_order()[order.id]
-                                            ? 'expand_less'
-                                            : 'expand_more'
-                                    }}
-                                </icon>
+                                <icon>content_copy</icon>
                             </button>
-                        </div>
-                        <div
-                            class="divide-base-100 bg-base-200 flex flex-col divide-y"
-                            [@show]="show_order()[order.id] ? 'show' : 'hide'"
+                        }
+                        @if (!disabled()) {
+                            <button
+                                icon
+                                matRipple
+                                [matTooltip]="
+                                    'CALENDAR_EVENT.CATERING_ORDER_EDIT'
+                                        | translate
+                                "
+                                (click)="editOrder(order)"
+                            >
+                                <icon>edit</icon>
+                            </button>
+                        }
+                        @if (!disabled()) {
+                            <button
+                                icon
+                                matRipple
+                                matTooltip="Remove Order"
+                                class="text-error"
+                                (click)="removeOrder(order)"
+                            >
+                                <icon>delete</icon>
+                            </button>
+                        }
+                        <button
+                            icon
+                            matRipple
+                            [matTooltip]="
+                                (show_order()[order.id]
+                                    ? 'CALENDAR_EVENT.CATERING_ORDER_HIDE'
+                                    : 'CALENDAR_EVENT.CATERING_ORDER_SHOW'
+                                ) | translate
+                            "
+                            (click)="toggleOrder(order.id)"
                         >
-                            @for (item of order.items; track item.custom_id) {
-                                <div
-                                    class="flex items-center space-x-2 px-4 py-1 hover:opacity-90"
-                                >
-                                    <div class="flex flex-1 items-center">
-                                        {{ item.name || 'Item' }}
-                                        @if (item.option_list?.length) {
-                                            <span
-                                                class="ml-4 text-xs font-normal opacity-60"
-                                                [matTooltip]="optionList(item)"
-                                            >
-                                                {{
-                                                    'CALENDAR_EVENT.CATERING_ORDER_OPTION_COUNT'
-                                                        | translate
-                                                            : {
-                                                                  count:
-                                                                      item
-                                                                          .option_list
-                                                                          ?.length ||
-                                                                      '0',
-                                                              }
-                                                }}
-                                            </span>
-                                        }
-                                    </div>
-                                    <div
-                                        class="bg-success text-success-content rounded-sm px-2 py-1 text-xs"
-                                    >
-                                        x{{ item.quantity }}
-                                    </div>
-                                    <div
-                                        class="bg-info text-info-content rounded-sm px-2 py-1 text-xs"
-                                    >
-                                        {{
-                                            item.unit_price_with_options / 100
-                                                | currency: currency_code
-                                        }}
-                                        ea
-                                    </div>
-                                    @if (!disabled()) {
-                                        <button
-                                            icon
-                                            matRipple
-                                            matTooltip="Remove Order Item"
-                                            class="text-error"
-                                            (click)="removeOrderItem(order, item)"
+                            <icon>
+                                {{
+                                    show_order()[order.id]
+                                        ? 'expand_less'
+                                        : 'expand_more'
+                                }}
+                            </icon>
+                        </button>
+                    </div>
+                    <div
+                        class="divide-base-100 bg-base-200 flex flex-col divide-y"
+                        [@show]="show_order()[order.id] ? 'show' : 'hide'"
+                    >
+                        @for (item of order.items; track item.custom_id) {
+                            <div
+                                class="flex items-center space-x-2 px-4 py-1 hover:opacity-90"
+                            >
+                                <div class="flex flex-1 items-center">
+                                    {{ item.name || 'Item' }}
+                                    @if (item.option_list?.length) {
+                                        <span
+                                            class="ml-4 text-xs font-normal opacity-60"
+                                            [matTooltip]="optionList(item)"
                                         >
-                                            <icon>delete</icon>
-                                        </button>
+                                            {{
+                                                'CALENDAR_EVENT.CATERING_ORDER_OPTION_COUNT'
+                                                    | translate
+                                                        : {
+                                                              count:
+                                                                  item
+                                                                      .option_list
+                                                                      ?.length ||
+                                                                  '0',
+                                                          }
+                                            }}
+                                        </span>
                                     }
+                                </div>
+                                <div
+                                    class="bg-success text-success-content rounded-sm px-2 py-1 text-xs"
+                                >
+                                    x{{ item.quantity }}
+                                </div>
+                                <div
+                                    class="bg-info text-info-content rounded-sm px-2 py-1 text-xs"
+                                >
+                                    {{
+                                        item.unit_price_with_options / 100
+                                            | currency: currency_code
+                                    }}
+                                    ea
+                                </div>
+                                @if (!disabled()) {
                                     <button
                                         icon
                                         matRipple
-                                        name="toggle-catering-item-favourite"
-                                        [matTooltip]="
-                                            (favorites.includes(item.id)
-                                                ? 'COMMON.FAVOURITES_REMOVE'
-                                                : 'COMMON.FAVOURITES_ADD'
-                                            ) | translate
-                                        "
-                                        [class.text-info]="
-                                            favorites.includes(item.id)
-                                        "
-                                        (click)="toggleFavourite(item)"
+                                        matTooltip="Remove Order Item"
+                                        class="text-error"
+                                        (click)="removeOrderItem(order, item)"
                                     >
-                                        <icon
-                                            [className]="
-                                                favorites.includes(item.id)
-                                                    ? 'material-symbols-rounded'
-                                                    : 'material-symbols-outlined'
-                                            "
-                                            >favorite</icon
-                                        >
+                                        <icon>delete</icon>
                                     </button>
-                                </div>
-                            }
-                        </div>
+                                }
+                                <button
+                                    icon
+                                    matRipple
+                                    name="toggle-catering-item-favourite"
+                                    [matTooltip]="
+                                        (favorites.includes(item.id)
+                                            ? 'COMMON.FAVOURITES_REMOVE'
+                                            : 'COMMON.FAVOURITES_ADD'
+                                        ) | translate
+                                    "
+                                    [class.text-info]="
+                                        favorites.includes(item.id)
+                                    "
+                                    (click)="toggleFavourite(item)"
+                                >
+                                    <icon
+                                        [className]="
+                                            favorites.includes(item.id)
+                                                ? 'material-symbols-rounded'
+                                                : 'material-symbols-outlined'
+                                        "
+                                        >favorite</icon
+                                    >
+                                </button>
+                            </div>
+                        }
                     </div>
-                }
-            </div>
-            <button
-                btn
-                matRipple
-                name="add-catering-item"
-                class="inverse mt-2 w-full"
-                [disabled]="disabled()"
-                (click)="editOrder()"
-            >
-                <div class="flex items-center justify-center space-x-2">
-                    <icon>search</icon>
-                    <span>
-                        {{ 'CALENDAR_EVENT.CATERING_ORDER_ADD' | translate }}
-                    </span>
-                </div>
-            </button>
-        } @else {
-            @if (disabled()) {
-                <div
-                    class="flex w-full flex-col items-center space-y-2 rounded-xl bg-base-200 p-8"
-                >
-                    <icon class="text-6xl opacity-30">hand_meal</icon>
-                    <p class="opacity-30">
-                        Catering is not available for the selected space and/or
-                        time
-                    </p>
-                </div>
-            } @else {
-                <div
-                    class="flex w-full flex-col items-center space-y-2 rounded-xl bg-base-200 p-8"
-                >
-                    <p>No catering orders for this booking</p>
-                    <button
-                        btn
-                        matRipple
-                        class="inverse space-x-2"
-                        (click)="editOrder()"
-                    >
-                        <icon class="text-2xl">add_notes</icon>
-                        <span class="pr-3">
-                            {{
-                                'CALENDAR_EVENT.CATERING_ORDER_ADD' | translate
-                            }}
-                        </span>
-                    </button>
                 </div>
             }
-        }
+        </div>
+        <button
+            btn
+            matRipple
+            name="add-catering-item"
+            class="inverse mt-2 w-full"
+            [disabled]="disabled()"
+            (click)="editOrder()"
+        >
+            <div class="flex items-center justify-center space-x-2">
+                <icon>search</icon>
+                <span>
+                    {{ 'CALENDAR_EVENT.CATERING_ORDER_ADD' | translate }}
+                </span>
+            </div>
+        </button>
     `,
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
@@ -323,12 +287,16 @@ export class CateringListFieldComponent
 
     public get favorites() {
         return (
-            this._settings.get<string[]>('favourite_menu_items') || EMPTY_FAVS
+            this._settings.signal<string[]>(
+                'favourite_menu_items',
+                EMPTY_FAVS,
+                true,
+            )() || EMPTY_FAVS
         );
     }
 
     public get time_format() {
-        return this._settings.time_format || 'shortTime';
+        return this._settings.time_format_signal() || 'shortTime';
     }
 
     public get currency_code() {
@@ -406,7 +374,7 @@ export class CateringListFieldComponent
     public editOrder(order: CateringOrder = new CateringOrder()) {
         const options = this.options();
         const optionsValue = this.options();
-        const ref = this._dialog.open(NewCateringSelectModalComponent, {
+        const ref = this._dialog.open(CateringSelectModalComponent, {
             data: {
                 caterer: order.items[0]?.caterer,
                 items: order.items,

@@ -3,12 +3,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { Deal, OrganisationService } from '@placeos/common';
 import { showMetadata } from '@placeos/ts-client';
 import {
-    catchError,
     combineLatest,
     filter,
     map,
     Observable,
-    of,
     shareReplay,
     startWith,
     switchMap,
@@ -30,9 +28,9 @@ export class DealsService {
         filter(([b]) => !!b?.id),
         switchMap(([bld]) => {
             this.loading.set(true);
-            return showMetadata(bld.id, 'deals-n-offers').pipe(
-                catchError(() => of({ details: [] })),
-            );
+            return showMetadata(bld.id, 'deals-n-offers').catch(() => ({
+                details: [],
+            }));
         }),
         map(({ details }) => (details instanceof Array ? details : [])),
         tap(() => this.loading.set(false)),

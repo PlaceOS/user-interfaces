@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
+    BuildingLevel,
     CalendarEvent,
     OrganisationService,
     SettingsService,
@@ -11,6 +12,7 @@ import {
     i18n,
     notifyError,
     notifySuccess,
+    observableFromSignal,
     timePeriodsIntersect,
 } from '@placeos/common';
 import {
@@ -36,7 +38,6 @@ import {
     debounceTime,
     distinctUntilKeyChanged,
     filter,
-    first,
     map,
     shareReplay,
     switchMap,
@@ -78,7 +79,7 @@ function periodFor(period, date, tz_offset = 0, week_start: DayOfWeek = 0) {
         period === 'month'
             ? startOfMonth(date)
             : period === 'week'
-              ? startOfWeek(date)
+              ? startOfWeek(date, { weekStartsOn: week_start })
               : startOfDay(date);
     const end_result =
         period === 'month'
@@ -133,6 +134,38 @@ export class EventsStateService extends AsyncHandler {
     /** Period of time to show events for */
     public readonly period = this._period.asObservable();
 
+    /** List of levels with bookable room resources */
+    public readonly levels: Observable<BuildingLevel[]> = (
+        this._org.active_levels || of([] as BuildingLevel[])
+    ).pipe(
+        switchMap((levels) => {
+            if (!levels.length) {
+                return of(
+                    [] as { level: BuildingLevel; has_bookable: boolean }[],
+                );
+            }
+            return forkJoin(
+                levels.map((level) =>
+                    requestSpacesForZone(level.id).pipe(
+                        map((spaces) => ({
+                            level,
+                            has_bookable: spaces.some(
+                                (space) => space.bookable,
+                            ),
+                        })),
+                        catchError(() => of({ level, has_bookable: false })),
+                    ),
+                ),
+            );
+        }),
+        map((levels) =>
+            levels
+                .filter((item) => item.has_bookable)
+                .map((item) => item.level),
+        ),
+        shareReplay(1),
+    );
+
     public readonly spaces: Observable<Space[]> = combineLatest([
         this._zones,
         this._org.active_region.pipe(distinctUntilKeyChanged('id')),
@@ -180,9 +213,6 @@ export class EventsStateService extends AsyncHandler {
                 this.tz_offset,
                 this._week_start,
             );
-            this._removed_events.next([]);
-            this._added_events.next([]);
-
             // Split spaces into driver-bound and API-fetched
             const spaces_with_driver = spaces.filter((s) => s.room_booking_url);
             const spaces_without_driver = spaces.filter(
@@ -243,7 +273,13 @@ export class EventsStateService extends AsyncHandler {
                 map((event_lists) => flatten(event_lists)),
             );
         }),
-        tap(() => this._loading.next(false)),
+        tap(() => {
+            this._loading.next(false);
+            queueMicrotask(() => {
+                this._removed_events.next([]);
+                this._added_events.next([]);
+            });
+        }),
         shareReplay(1),
     );
     /** Obsevable for filtered list of bookings */
@@ -255,24 +291,47 @@ export class EventsStateService extends AsyncHandler {
         this._date,
         this._period,
         this._zones,
+        this._options,
     ]).pipe(
-        map(([events, removed, added, filters, date, period, zones]: any) => {
-            let event_list = [...events];
-            event_list.filter(
-                (_) =>
-                    !removed.find(
-                        (e) => _.id === e.id || _.ical_uid === e.ical_uid,
-                    ),
-            );
-            event_list = event_list.concat(added);
-            const { start, end } = periodFor(
-                period,
+        map(
+            ([
+                events,
+                removed,
+                added,
+                filters,
                 date,
-                this.tz_offset,
-                this._week_start,
-            );
-            return this.filterEvents(event_list, start, end, filters, zones);
-        }),
+                period,
+                zones,
+                options,
+            ]: any) => {
+                let event_list = [...events];
+                event_list = event_list.filter(
+                    (_) =>
+                        !removed.find(
+                            (e) =>
+                                (_.id && e.id && _.id === e.id) ||
+                                (_.ical_uid &&
+                                    e.ical_uid &&
+                                    _.ical_uid === e.ical_uid),
+                        ),
+                );
+                event_list = event_list.concat(added);
+                const { start, end } = periodFor(
+                    period,
+                    date,
+                    this.tz_offset,
+                    this._week_start,
+                );
+                return this.filterEvents(
+                    event_list,
+                    start,
+                    end,
+                    filters,
+                    zones,
+                    options,
+                );
+            },
+        ),
         shareReplay(1),
     );
 
@@ -283,15 +342,13 @@ export class EventsStateService extends AsyncHandler {
             const binding =
                 mod.binding<Partial<CalendarEvent>[]>('approval_required');
             this.subscription('pending', binding.bind());
-            return binding
-                .listen()
-                .pipe(
-                    map((_) =>
-                        flatten(Object.values(_ || {}))?.map(
-                            (i) => new CalendarEvent(i),
-                        ),
+            return observableFromSignal(binding.listen()).pipe(
+                map((_) =>
+                    flatten(Object.values(_ || {}))?.map(
+                        (i) => new CalendarEvent(i),
                     ),
-                );
+                ),
+            );
         }),
         shareReplay(1),
     );
@@ -360,16 +417,22 @@ export class EventsStateService extends AsyncHandler {
             data: { event },
         });
         const details = await Promise.race([
-            ref.componentInstance.event
-                .pipe(first((_) => _.reason === 'done'))
-                .toPromise(),
+            new Promise((resolve) => {
+                const subscription = ref.componentInstance.event.subscribe(
+                    (details) => {
+                        if (details?.reason !== 'done') return;
+                        subscription.unsubscribe();
+                        resolve(details);
+                    },
+                );
+            }),
             ref.afterClosed().toPromise(),
         ]);
         if (details?.reason !== 'done') return;
         this.replace(details.metadata);
     }
 
-    public async removeBooking(event: CalendarEvent) {
+    public async removeBooking(event: CalendarEvent, series = false) {
         const time = `${format(event.date, 'dd MMM yyyy ' + this.time_format)}`;
         const resource_name = event.space?.display_name || event.location;
         const details = await openConfirmModal(
@@ -386,12 +449,17 @@ export class EventsStateService extends AsyncHandler {
         );
         if (details.reason !== 'done') return false;
         details.loading(i18n('APP.CONCIERGE.BOOKING_REMOVE_LOADING'));
-        await declineEvent(event.id, {
-            calendar: event.calendar || event.mailbox || event.host,
-            system_id: event.system?.id,
-        })
+        this.remove(event);
+        await declineEvent(
+            series ? event.recurring_event_id || event.id : event.id,
+            {
+                calendar: event.calendar || event.mailbox || event.host,
+                system_id: event.system?.id,
+            },
+        )
             .toPromise()
             .catch((e) => {
+                this.restore(event);
                 notifyError(
                     i18n('APP.CONCIERGE.BOOKING_REMOVE_ERROR', { error: e }),
                 );
@@ -399,7 +467,6 @@ export class EventsStateService extends AsyncHandler {
                 throw e;
             });
         notifySuccess(i18n('APP.CONCIERGE.BOOKING_REMOVE_SUCCESS'));
-        this.remove(event);
         this._dialog.closeAll();
         return true;
     }
@@ -409,8 +476,24 @@ export class EventsStateService extends AsyncHandler {
      * @param booking
      */
     public replace(booking: CalendarEvent) {
-        this._removed_events.next([...this._added_events.getValue(), booking]);
-        this._added_events.next([...this._added_events.getValue(), booking]);
+        this._removed_events.next([
+            ...this._removed_events.getValue(),
+            booking,
+        ]);
+        this._added_events.next([
+            ...this._added_events
+                .getValue()
+                .filter(
+                    (_) =>
+                        !(
+                            (_.id && booking.id && _.id === booking.id) ||
+                            (_.ical_uid &&
+                                booking.ical_uid &&
+                                _.ical_uid === booking.ical_uid)
+                        ),
+                ),
+            booking,
+        ]);
     }
 
     /**
@@ -424,12 +507,33 @@ export class EventsStateService extends AsyncHandler {
         ]);
     }
 
+    /**
+     * Restore a booking that was optimistically removed
+     * @param booking
+     */
+    public restore(booking: CalendarEvent) {
+        this._removed_events.next(
+            this._removed_events
+                .getValue()
+                .filter(
+                    (_) =>
+                        !(
+                            (_.id && booking.id && _.id === booking.id) ||
+                            (_.ical_uid &&
+                                booking.ical_uid &&
+                                _.ical_uid === booking.ical_uid)
+                        ),
+                ),
+        );
+    }
+
     private filterEvents(
         events: CalendarEvent[],
         start: Date,
         end: Date,
         filters: BookingFilters,
         zones: string[] = [],
+        options: BookingUIOptions = {},
     ) {
         return events.filter((bkn) => {
             const intersects = timePeriodsIntersect(
@@ -458,7 +562,15 @@ export class EventsStateService extends AsyncHandler {
                 !(filters.hide_type as any).find(
                     (item) => item.id === type || item === type,
                 );
-            return intersects && has_space && in_zones && show;
+            const show_setup_breakdown =
+                options.show_overflow || !bkn.is_system_event;
+            return (
+                intersects &&
+                has_space &&
+                in_zones &&
+                show &&
+                show_setup_breakdown
+            );
         });
     }
 

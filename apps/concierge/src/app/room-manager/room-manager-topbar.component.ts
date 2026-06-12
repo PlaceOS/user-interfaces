@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, effect, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -21,7 +21,10 @@ import { combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
-import { RoomManagementService } from './room-management.service';
+import {
+    RoomListOptions,
+    RoomManagementService,
+} from './room-management.service';
 
 @Component({
     selector: 'room-manager-topbar',
@@ -39,12 +42,12 @@ import { RoomManagementService } from './room-management.service';
         <div class="bg-base-100 flex h-20 items-center space-x-2 px-8">
             <mat-form-field appearance="outline" class="no-subscript w-60">
                 <mat-select
-                    [ngModel]="(filters | async)?.zones"
+                    [ngModel]="filters()?.zones"
                     (ngModelChange)="updateZones($event)"
                     [placeholder]="'COMMON.LEVEL_ALL' | translate"
                     multiple
                 >
-                    @for (level of levels | async; track level) {
+                    @for (level of levels(); track level) {
                         <mat-option [value]="level.id">
                             <div class="flex flex-col-reverse">
                                 @if (use_region) {
@@ -66,10 +69,9 @@ import { RoomManagementService } from './room-management.service';
             </mat-form-field>
             <div class="w-2 flex-1"></div>
             <button
-                btn
                 icon
+                default
                 matRipple
-                class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                 (click)="manageRestrictions()"
                 [matTooltip]="'APP.CONCIERGE.ROOMS_BOOKING_RULES' | translate"
             >
@@ -85,7 +87,6 @@ import { RoomManagementService } from './room-management.service';
         `,
     ],
     imports: [
-        CommonModule,
         IconComponent,
         TranslatePipe,
         MatRippleModule,
@@ -105,19 +106,27 @@ export class RoomManagerTopbarComponent extends AsyncHandler implements OnInit {
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
 
+    private readonly _ready = signal(false);
+    private readonly _query_params = toSignal(this._route.queryParamMap);
+
     /** List of levels for the active building */
-    public readonly levels = combineLatest([
-        this._org.active_building,
-        this._org.active_region,
-    ]).pipe(
-        map(([bld, region]) =>
-            this.use_region
-                ? this._org.levelsForRegion(region)
-                : this._org.levelsForBuilding(bld),
+    public readonly levels = toSignal(
+        combineLatest([
+            this._org.active_building,
+            this._org.active_region,
+        ]).pipe(
+            map(([bld, region]) =>
+                this.use_region
+                    ? this._org.levelsForRegion(region)
+                    : this._org.levelsForBuilding(bld),
+            ),
         ),
+        { initialValue: [] },
     );
 
-    public readonly filters = this._manager.options;
+    public readonly filters = toSignal(this._manager.options, {
+        initialValue: {} as RoomListOptions,
+    });
     /** Set filtered date */
     public readonly setFilters = (filters) => this._manager.setFilters(filters);
     /** Set filter string */
@@ -154,18 +163,22 @@ export class RoomManagerTopbarComponent extends AsyncHandler implements OnInit {
         });
     }
 
+    constructor() {
+        super();
+        effect(() => {
+            if (!this._ready()) return;
+            const params = this._query_params();
+            if (!params?.has('zone_ids')) return;
+            const zones = (params.get('zone_ids') || '')
+                .split(',')
+                .filter(Boolean);
+            this._manager.setFilters({ zones });
+        });
+    }
+
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
-        this.subscription(
-            'route.query',
-            this._route.queryParamMap.subscribe(async (params) => {
-                if (params.has('zone_ids')) {
-                    const zone_list = (params.get('zone_ids') || '').split(',');
-                    const zones = zone_list.filter((z) => z);
-                    this._manager.setFilters({ zones });
-                }
-            }),
-        );
+        this._ready.set(true);
         this.setSearch('');
     }
 }

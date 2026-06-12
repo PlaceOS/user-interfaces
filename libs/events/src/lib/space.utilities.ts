@@ -6,7 +6,7 @@ import {
 } from '@angular/forms';
 import { HashMap, predictableRandomInt, Space } from '@placeos/common';
 import { PlaceSystem, PlaceZone, querySystems } from '@placeos/ts-client';
-import { Observable, of } from 'rxjs';
+import { from, Observable, of } from 'rxjs';
 import { map, shareReplay, tap } from 'rxjs/operators';
 import { USER_DOMAIN } from '../../../users/src/lib/user.utilities';
 import { updateSpaceList } from './space.pipe';
@@ -39,8 +39,13 @@ export function generateSystemsFormFields(system?: PlaceSystem) {
         ]),
         camera_url: new FormControl(system.camera_url || '', [validateURL]),
         camera_snapshot_url: new FormControl(
-            system.camera_snapshot_urls?.find((url) => !!url) || '',
+            system.camera_snapshot_urls?.find((url) => !!url) ||
+                system.camera_snapshot_url ||
+                '',
             [validateURL],
+        ),
+        camera_snapshot_urls: new FormControl(
+            system.camera_snapshot_urls || [system.camera_snapshot_url],
         ),
         room_booking_url: new FormControl(system.room_booking_url || '', [
             validateURL,
@@ -50,9 +55,9 @@ export function generateSystemsFormFields(system?: PlaceSystem) {
             [Validators.pattern('[0-9]*')],
         ),
         features: new FormControl(
-            (typeof system.features === 'string'
+            typeof system.features === 'string'
                 ? (system.features as any).split(' ')
-                : system.features) || [],
+                : [...(system.features || [])],
         ),
         capacity: new FormControl(system.capacity || 0, [
             Validators.pattern('[0-9]*'),
@@ -79,11 +84,13 @@ export function generateSystemsFormFields(system?: PlaceSystem) {
 export function requestSpacesForZone(id: string): Observable<Space[]> {
     if (!id) return of([]);
     if (SPACE_LIST_REQUESTS[id]) return SPACE_LIST_REQUESTS[id];
-    SPACE_LIST_REQUESTS[id] = querySystems({
-        zone_id: id,
-        limit: 500,
-        signage: false,
-    }).pipe(
+    SPACE_LIST_REQUESTS[id] = from(
+        querySystems({
+            zone_id: id,
+            limit: 500,
+            signage: false,
+        }),
+    ).pipe(
         map((_) => (_.data || []).map((_) => new Space(_ as any))),
         tap((_) => updateSpaceList(_)),
         shareReplay(1),

@@ -26,6 +26,7 @@ import {
     i18n,
     notifyError,
     notifySuccess,
+    observableFromSignal,
     OrganisationService,
     SettingsService,
     unique,
@@ -161,7 +162,7 @@ export class ScheduleStateService extends AsyncHandler {
                             space.id,
                             'Bookings',
                         ).variable('bookings');
-                        const obs = binding.listen().pipe(
+                        const obs = observableFromSignal(binding.listen()).pipe(
                             map((event_list) =>
                                 (event_list || []).map(
                                     (i) =>

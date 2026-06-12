@@ -1,3 +1,5 @@
+import { signal } from '@angular/core';
+import { signal } from '@angular/core';
 import { fakeAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -23,7 +25,7 @@ describe('ExploreMapControlComponent', () => {
                 active_levels: new BehaviorSubject([]),
             }),
             MockProvider(ExploreStateService, {
-                level: new BehaviorSubject(null),
+                level: signal(null) as any,
                 setLevel: jest.fn(),
                 setFeatures: jest.fn(),
             }),
@@ -90,7 +92,7 @@ describe('ExploreMapControlComponent', () => {
         spectator.click(document.querySelector('mat-option'));
         expect(spy).toHaveBeenCalledWith({ id: 'lvl-1', name: 'Level 1' });
         spectator.tick(240);
-        expect(spectator.inject(Router).navigate).toBeCalledWith([], {
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([], {
             relativeTo: spectator.inject(ActivatedRoute),
             queryParams: { zone: 'lvl-1' },
         });

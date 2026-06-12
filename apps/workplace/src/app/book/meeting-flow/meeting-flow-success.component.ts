@@ -149,14 +149,6 @@ export class MeetingFlowSuccessComponent implements OnInit {
         return this._settings.time_format;
     }
 
-    public allow_desk_booking() {
-        return (
-            !!this._settings.get<string[]>('app.features')?.includes('desks') &&
-            this._settings.get<boolean>('app.events.hide_nearby_desks') !==
-                true
-        );
-    }
-
     public get formatted_recurrence() {
         const event = this.last_event();
         if (!event?.recurrence?.pattern) return '';

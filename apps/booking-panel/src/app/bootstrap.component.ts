@@ -1,10 +1,17 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { querySystems } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { combineLatest, of } from 'rxjs';
 import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 
-import { AsyncHandler, OrganisationService, VERSION } from '@placeos/common';
+import {
+    AsyncHandler,
+    getNativeSystemId,
+    OrganisationService,
+    syncNativeManagedConfig,
+    VERSION,
+} from '@placeos/common';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -19,10 +26,12 @@ import { TranslatePipe } from '@placeos/components';
 @Component({
     selector: '[app-bootstrap]',
     template: `
-        <div class="bg-base-300 absolute inset-0">
+        <div
+            class="bg-base-200 absolute inset-0 flex flex-col items-center p-3"
+        >
             <div
                 form
-                class="bg-base-100 absolute top-2 left-1/2 flex w-120 max-w-[calc(100vw-2rem)] -translate-x-1/2 transform flex-col items-center overflow-hidden rounded-sm shadow-sm"
+                class="bg-base-100 border-base-300 flex w-120 max-w-[calc(100vw-2rem)] flex-col items-center overflow-hidden rounded-sm border shadow-md"
             >
                 <header
                     class="bg-secondary text-secondary-content flex w-full items-center justify-between px-4 py-3 text-xl font-medium"
@@ -49,10 +58,9 @@ import { TranslatePipe } from '@placeos/components';
                         }}</mat-label>
                         <input
                             matInput
-                            [ngModel]="system_id$ | async"
+                            [(ngModel)]="system_id"
                             [matAutocomplete]="auto"
                             [placeholder]="'COMMON.BOOTSTRAP_LABEL' | translate"
-                            (ngModelChange)="system_id$.next($event)"
                         />
                         @if (loading() === 'search') {
                             <mat-spinner
@@ -62,7 +70,7 @@ import { TranslatePipe } from '@placeos/components';
                         }
                     </mat-form-field>
                     <mat-autocomplete #auto="matAutocomplete">
-                        @for (option of space_list | async; track option.id) {
+                        @for (option of space_list(); track option.id) {
                             <mat-option [value]="option.id">
                                 <div
                                     class="flex w-full items-center space-x-4 leading-tight"
@@ -91,10 +99,7 @@ import { TranslatePipe } from '@placeos/components';
                                 </div>
                             </mat-option>
                         }
-                        @if (
-                            system_id$.getValue()?.length < 2 &&
-                            !(space_list | async)?.length
-                        ) {
+                        @if (system_id()?.length < 2 && !space_list()?.length) {
                             <mat-option class="pointer-events-none opacity-60">
                                 {{
                                     'COMMON.BOOTSTRAP_INPUT_PLACEHOLDER'
@@ -106,7 +111,7 @@ import { TranslatePipe } from '@placeos/components';
                     <button
                         btn
                         matRipple
-                        [disabled]="!system_id$.getValue()"
+                        [disabled]="!system_id()"
                         (click)="bootstrap()"
                     >
                         {{ 'COMMON.BOOTSTRAP_SUBMIT' | translate }}
@@ -158,32 +163,26 @@ import { TranslatePipe } from '@placeos/components';
     ],
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
-    private route = inject(ActivatedRoute);
+    private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _org = inject(OrganisationService);
 
-    public get version() {
-        return VERSION;
-    }
+    public readonly version = VERSION;
 
     /** Whether application data is loading */
     public loading = signal('');
     /** ID of the system to bootstrap */
-    public system_id$ = new BehaviorSubject('');
-    /** Selected system to bootstrap */
-    public selected_system: Space = null;
-    /** Whether input field is focused */
-    public input_focus: boolean;
+    public system_id = signal('');
 
-    public readonly space_list = combineLatest([
-        this.system_id$,
+    private readonly _space_list$ = combineLatest([
+        toObservable(this.system_id),
         this._org.initialised,
     ]).pipe(
         debounceTime(300),
         switchMap(([search]) => {
             this.loading.set('search');
             return search.length < 2
-                ? of({ data: [] })
+                ? of({ data: [] as any[] })
                 : querySystems({
                       q: search,
                       limit: 20,
@@ -191,23 +190,27 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                       zone_id: this._org.organisation.id,
                   });
         }),
-        map((_) => _.data.map((_) => new Space(_ as any))),
+        map((_: any) => _.data.map((_: any) => new Space(_))),
         tap(() => this.loading.set('')),
         shareReplay(1),
     );
+
+    public readonly space_list = toSignal(this._space_list$, {
+        initialValue: [] as Space[],
+    });
 
     private _event = false;
 
     public async ngOnInit() {
         this.subscription(
             'route.query',
-            this.route.queryParamMap.subscribe((params) => {
+            this._route.queryParamMap.subscribe((params) => {
                 if (params.has('clear') && !!params.get('clear')) {
                     this.clearBootstrap();
                 }
                 if (params.has('event')) this._event = true;
                 if (params.has('system_id') || params.has('sys_id')) {
-                    this.system_id$.next(
+                    this.system_id.set(
                         params.get('system_id') || params.get('sys_id'),
                     );
                     this.bootstrap();
@@ -220,19 +223,27 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     /**
      * Setup the default system for the application to bind to
      */
-    public readonly bootstrap = () =>
-        this.configure(this.system_id$.getValue());
+    public readonly bootstrap = () => this.configure(this.system_id());
 
     /**
      * Check if the application has previously been bootstrapped
      */
-    private checkBootstrapped(): void {
+    private async checkBootstrapped(): Promise<void> {
         this.loading.set('Checking');
+        // Wait for any MDM managed configuration to be stored locally, as it
+        // takes precedence over previously stored bootstrap settings.
+        await syncNativeManagedConfig();
         if (localStorage) {
             const system_id = localStorage.getItem('PLACEOS.BOOKINGS.system');
             this._event =
                 this._event ||
                 localStorage.getItem('PLACEOS.Bookings.event') === 'true';
+            // A system pushed via MDM managed config overrides the stored one
+            const mdm_system_id = getNativeSystemId();
+            if (mdm_system_id && mdm_system_id !== system_id) {
+                this.system_id.set(mdm_system_id);
+                return this.configure(mdm_system_id);
+            }
             if (system_id) {
                 this._router.navigate(
                     [this._event ? 'events' : 'panel', system_id],

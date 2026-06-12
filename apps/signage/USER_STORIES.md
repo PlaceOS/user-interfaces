@@ -2,477 +2,527 @@
 
 ## Overview
 
-The Signage app is a digital signage display management system for displaying media content (images, videos, webpages) on building displays with scheduling, caching, and playback controls.
+The Signage app is a kiosk-style digital signage player. It bootstraps a device to a PlaceOS signage system, fetches the display's mapped playlists, plays images, videos, webpages, and plugins, supports scheduled or triggered takeovers, caches media locally, exposes debug controls, and reports playback metrics.
 
 ---
 
 ## Bootstrap & Setup
 
-### US-SIG-001: Select Display from List
+### US-SIG-001: Select a Signage Display
 
-**As a** facility manager
-**I want to** select a signage display from a list of available displays
-**So that** I can configure the kiosk to show content for that specific display
+**As a** facility manager  
+**I want to** select a signage-enabled display from the bootstrap screen  
+**So that** the device plays content for the correct physical display
 
 **Acceptance Criteria:**
 
-- Display list shows all signage-enabled systems
-- Each display shows building and level/floor information
-- Selecting a display saves the configuration to localStorage
-- After selection, the app navigates to the signage display page
+- Bootstrap is available at `/#/bootstrap` and requires an authorised user.
+- The display selector lists signage-enabled systems returned from PlaceOS.
+- Each display option shows the display name plus its building and level when available.
+- The submit action is disabled until a display is selected.
+- Selecting a display and submitting stores the display ID in localStorage under `PlaceOS.SIGNAGE.display`.
+- After bootstrap, the app navigates to `/#/signage/:system_id`.
 
 ---
 
-### US-SIG-002: Persist Display Configuration
+### US-SIG-002: Reuse Stored Display Configuration
 
-**As a** facility manager
-**I want to** have my display selection remembered between sessions
-**So that** I don't have to reconfigure the kiosk after a restart
+**As a** facility manager  
+**I want to** have the selected display remembered between sessions  
+**So that** the signage device can recover after restart without manual setup
 
 **Acceptance Criteria:**
 
-- Selected building ID is saved to localStorage
-- Selected display ID is saved to localStorage
-- On app restart, previously selected display loads automatically
-- User can clear saved configuration if needed
+- On bootstrap, the app checks localStorage for `PlaceOS.SIGNAGE.display`.
+- If a stored display ID exists, the app navigates automatically to `/#/signage/:system_id`.
+- The app also reads `OSK.enabled` from localStorage and enables the virtual keyboard when the value is `true`.
+- The bootstrap screen can clear stored signage bootstrap data when opened with `?clear=true`.
+- Clearing removes both the current display key and the legacy `PlaceOS.SIGNAGE.building` key.
 
 ---
 
 ### US-SIG-003: Bootstrap via URL Parameters
 
-**As a** system administrator
-**I want to** configure a display using URL parameters
-**So that** I can automate kiosk provisioning without manual interaction
+**As a** system administrator  
+**I want to** configure a display from URL parameters  
+**So that** kiosk provisioning can be automated
 
 **Acceptance Criteria:**
 
-- `building` query parameter sets the building filter
-- `display` query parameter sets the selected display
-- `clear_cache` query parameter clears cached configuration
-- App auto-navigates to signage display when parameters are valid
+- `display=<system_id>` on the bootstrap route sets the active display and immediately bootstraps the panel.
+- `clear=true` on the bootstrap route clears stored bootstrap data before normal bootstrap checks complete.
+- A valid `display` parameter navigates to `/#/signage/:system_id`.
+- The app remains stable when legacy or unsupported parameters, such as `building`, are present.
+
+---
+
+### US-SIG-004: Redirect Uninitialised Displays
+
+**As a** content viewer  
+**I want to** be redirected to setup when no display has been selected  
+**So that** an unconfigured signage device does not remain on an empty player
+
+**Acceptance Criteria:**
+
+- `/#/signage/:system_id` starts playback for the provided display ID.
+- `/#/signage` without a display ID starts a 3 second bootstrap timeout.
+- If no display ID is supplied before the timeout expires, the app redirects to `/#/bootstrap`.
+- The bootstrap page allows the display to be selected or restored from storage.
+
+---
+
+## Display Data & Playlist Selection
+
+### US-SIG-005: Load Display Configuration
+
+**As a** signage player  
+**I want to** fetch my display configuration from PlaceOS  
+**So that** I can play the current playlist mappings for my system and zones
+
+**Acceptance Criteria:**
+
+- The app calls the PlaceOS signage endpoint for the active display ID.
+- Requests include preview context when debug mode is enabled and include the currently playing item ID when available.
+- Requests include `If-Modified-Since` based on the last known configuration timestamp.
+- The latest display configuration is cached in localStorage under `PlaceOS.SIGNAGE.display_details`.
+- If the API request fails, the app falls back to the cached display configuration only when it matches the active display ID.
+- Display configuration refreshes every 60 seconds.
+
+---
+
+### US-SIG-006: Build the Active Playlist
+
+**As a** content viewer  
+**I want to** see media from the display and its zones  
+**So that** the screen shows the content assigned to its location
+
+**Acceptance Criteria:**
+
+- The active playlist includes enabled playlists mapped directly to the display.
+- The active playlist also includes enabled playlists mapped to the display's zones.
+- Playlist media is ordered by the playlist media list unless the playlist is configured as random.
+- Random playlists are shuffled before playback.
+- Disabled playlists are excluded.
+- Scheduled playlists are included in normal playback only when they have an active non-takeover schedule.
+- Takeover schedules are excluded from normal playback and handled as overrides.
 
 ---
 
 ## Media Playback
 
-### US-SIG-004: Display Images
+### US-SIG-007: Display Image Media
 
-**As a** content viewer
-**I want to** see images displayed on the signage screen
-**So that** I can view static visual content
+**As a** content viewer  
+**I want to** see image media on the signage screen  
+**So that** static content is visible in the display rotation
 
 **Acceptance Criteria:**
 
-- JPEG, PNG, and WebP images are supported
-- Images display for the configured duration
-- Images scale appropriately to fill the display
-- Images transition smoothly to the next media item
+- Image items render through the image layer.
+- Images use object-contain sizing and remain centred within the screen.
+- Images play for their configured media duration, playlist default duration, or 15 seconds when no duration is configured.
+- The player advances automatically after the effective duration.
 
 ---
 
-### US-SIG-005: Play Videos
+### US-SIG-008: Play Video Media
 
-**As a** content viewer
-**I want to** watch videos on the signage screen
-**So that** I can view dynamic visual content
+**As a** content viewer  
+**I want to** watch video media on the signage screen  
+**So that** animated content can be included in the display rotation
 
 **Acceptance Criteria:**
 
-- MP4 and WebM videos are supported
-- Videos play for their full duration (or configured duration if shorter)
-- Videos can be muted/unmuted
-- Videos transition smoothly when complete
+- Video items render through the video layer.
+- Videos use object-contain sizing and remain centred within the screen.
+- Video playback starts automatically when the item becomes active.
+- If browser video playback is blocked, the player pauses cleanly instead of repeatedly failing.
+- Debug controls can mute and unmute video playback.
 
 ---
 
-### US-SIG-006: Display Web Content
+### US-SIG-009: Display Webpage Media
 
-**As a** content viewer
-**I want to** see web pages displayed on the signage screen
-**So that** I can view live web-based content
+**As a** content viewer  
+**I want to** see webpage media on the signage screen  
+**So that** live web content can be included in the display rotation
 
 **Acceptance Criteria:**
 
-- Web pages display in an iframe
-- Content displays for the configured duration
-- Web pages are responsive to the display size
-- Content transitions smoothly to the next item
+- Webpage items render in an iframe.
+- Playback timing starts after the iframe load event plus a 2 second hold delay.
+- Webpage items play for their configured effective duration.
+- A single valid webpage item remains loaded instead of reloading on every loop.
+- Webpage media is not cached as a local file.
 
 ---
 
-### US-SIG-007: Animate Media Transitions
+### US-SIG-010: Display Plugin Media
 
-**As a** content viewer
-**I want to** see smooth transitions between media items
-**So that** the content display feels professional and polished
+**As a** content viewer  
+**I want to** see plugin-based signage content  
+**So that** dynamic PlaceOS plugin experiences can appear in the display rotation
 
 **Acceptance Criteria:**
 
-- Cut transition switches instantly between items
-- Slide transitions animate from top, left, right, or bottom
-- CrossFade transitions smoothly blend between items
-- Animation duration is configurable (default 1000ms)
-- Transitions work for all media types
+- Plugin media renders through `plugin-embed`.
+- Plugin config combines plugin defaults with media-specific plugin parameters.
+- When a plugin reports `ready`, the player sends config and then a play signal.
+- Static plugins follow the configured effective duration.
+- Play-through plugins advance when they report `finished`.
+- Interactive plugins can request a new playback duration through plugin interaction events.
+- Fatal plugin errors advance to the next media item.
 
 ---
 
-## Playlist Management
+### US-SIG-011: Animate Media Transitions
 
-### US-SIG-008: Cycle Through Playlist
-
-**As a** content viewer
-**I want to** see media items cycle automatically through the playlist
-**So that** all scheduled content is displayed
+**As a** content viewer  
+**I want to** see configured transitions between media items  
+**So that** playback feels polished without disrupting content
 
 **Acceptance Criteria:**
 
-- Media items display in playlist order
-- Each item displays for its configured duration
-- Playlist advances automatically without user interaction
-- Invalid items are skipped automatically
+- Cut transitions switch without slide or fade animation.
+- Slide transitions support top, left, right, and bottom directions.
+- CrossFade transitions blend from the previous layer to the active layer.
+- The animation duration uses `app.default_animation_time`, falling back to the player default.
+- Transitions are skipped when there is only one valid active item.
+- Transition state is exposed in debug controls through the progress indicator.
 
 ---
 
-### US-SIG-009: Loop Playlist
+## Playlist Controls
 
-**As a** content manager
-**I want to** have playlists loop continuously
-**So that** content displays indefinitely without intervention
+### US-SIG-012: Cycle Through Playlist Items
+
+**As a** content viewer  
+**I want to** see valid media items cycle automatically  
+**So that** assigned content plays without user interaction
 
 **Acceptance Criteria:**
 
-- Loop ALL mode repeats the entire playlist
-- Loop ONE mode repeats a single media item
-- Loop NONE mode stops after playlist completes
-- Loop mode is configurable per display
+- Playback starts at the first valid item when the player has a playlist.
+- Items advance automatically when their effective duration expires.
+- The player skips media that is not currently valid.
+- When a changed playlist still contains the currently playing item, the current item is held over before the updated playlist continues.
+- If no valid items exist, the player retries item selection every 5 seconds.
 
 ---
 
-### US-SIG-010: Shuffle Playlist
+### US-SIG-013: Control Loop Mode in Debug
 
-**As a** content manager
-**I want to** shuffle playlist order randomly
-**So that** content appears fresh and varied to viewers
+**As a** system administrator  
+**I want to** change loop behaviour in debug mode  
+**So that** I can test playlist endings and repeated content
 
 **Acceptance Criteria:**
 
-- Shuffle mode randomizes playlist order
-- Current playing item remains first after shuffle
-- Shuffle can be toggled on/off
-- Shuffle state is indicated visually in debug mode
+- Debug controls include a loop toggle.
+- Loop modes cycle through `ALL`, `ONE`, and `NONE`.
+- `ALL` repeats the playlist continuously.
+- `ONE` repeats the current item.
+- `NONE` pauses playback after the playlist reaches the end.
 
 ---
 
-### US-SIG-011: Skip Invalid Media Items
+### US-SIG-014: Shuffle Playlist in Debug
 
-**As a** content viewer
-**I want to** have invalid media items skipped automatically
-**So that** playback continues without interruption
+**As a** system administrator  
+**I want to** shuffle playlist order in debug mode  
+**So that** I can test randomized playback behaviour
 
 **Acceptance Criteria:**
 
-- Media outside valid date range is skipped
-- Media outside play hours is skipped
-- Unavailable media URLs are skipped
-- Error indicators show in debug mode for invalid items
+- Debug controls include a shuffle toggle.
+- Enabling shuffle randomizes the current playlist while keeping the current item first.
+- Disabling shuffle restores the source playlist order.
+- Shuffle state is reflected by the debug control icon state.
 
 ---
 
-## Content Scheduling
+### US-SIG-015: Use Manual Playback Controls
 
-### US-SIG-012: Time Window Restrictions
-
-**As a** content manager
-**I want to** set valid date ranges for media items
-**So that** content only displays during appropriate periods
+**As a** system administrator  
+**I want to** manually control media playback in debug mode  
+**So that** I can inspect and test content quickly
 
 **Acceptance Criteria:**
 
-- `valid_from` timestamp restricts content start date
-- `valid_until` timestamp restricts content end date
-- Content outside valid window is excluded from playlist
-- Debug mode shows validity status for each item
+- Debug mode shows play or pause, previous, next, mute, loop, and shuffle controls.
+- Play and pause preserve current item progress.
+- Previous and next move to valid playlist items.
+- Mute and unmute update the active video element.
+- A progress bar shows playback progress and exposes elapsed duration through its tooltip.
 
 ---
 
-### US-SIG-013: Play Hours Restrictions
+### US-SIG-016: View and Select Playlist Items
 
-**As a** content manager
-**I want to** set time-of-day restrictions for media items
-**So that** content only displays during appropriate hours
+**As a** system administrator  
+**I want to** inspect the active playlist in debug mode  
+**So that** I can verify the content assigned to the display
 
 **Acceptance Criteria:**
 
-- Play hours can be set (e.g., "09:00-17:00")
-- Content outside play hours is excluded from playlist
-- Multiple time ranges can be specified
-- Validation respects local timezone
+- Debug mode shows a playlist sidebar by default.
+- A queue button toggles the playlist sidebar.
+- The sidebar lists each media item name, playlist name, and duration.
+- The currently playing item is highlighted.
+- Invalid items are disabled and show an error icon with a tooltip.
+- Selecting a valid item jumps playback to that item.
+- The sidebar shows the total number of playlist items.
 
 ---
 
-### US-SIG-014: Override Playlists
+## Scheduling & Overrides
 
-**As a** content manager
-**I want to** interrupt normal playback with override content
-**So that** I can display urgent or scheduled announcements
+### US-SIG-017: Restrict Media by Date Window
+
+**As a** content manager  
+**I want to** restrict media and playlist content by valid dates  
+**So that** time-sensitive content only plays during its configured window
 
 **Acceptance Criteria:**
 
-- Override playlists interrupt normal playback immediately
-- Override playlists have configurable duration
-- Normal playback resumes after override expires
-- Override playlists can be closed manually in debug mode
+- Media with a future `valid_from` value is treated as invalid.
+- Media with a past `valid_until` value is treated as invalid.
+- Playlist validity windows are combined with media validity windows when media items are built.
+- Scheduled playlist windows are also combined with playlist and media validity windows.
+- Invalid items are skipped during playback and shown as invalid in debug playlist view.
 
 ---
 
-### US-SIG-015: Schedule Content with Timestamps
+### US-SIG-018: Run Scheduled Non-Takeover Playlists
 
-**As a** content manager
-**I want to** schedule content to play at specific times
-**So that** announcements appear exactly when needed
+**As a** content manager  
+**I want to** schedule playlists into the normal rotation  
+**So that** timed content can join regular playback without interrupting it
 
 **Acceptance Criteria:**
 
-- `play_at` timestamp triggers single execution
-- Content plays within ±18 seconds of scheduled time
-- Scheduled content overrides normal playlist
-- Duration controls how long override plays
+- A scheduled playlist with `play_takeover` disabled is included in normal playback only while its schedule is active.
+- `play_at` schedules support Unix timestamps in seconds or milliseconds.
+- `play_cron` schedules support recurring cron-based activation.
+- `play_period` controls the active window in minutes.
+- When `play_period` is missing, the default active window is 24 hours.
 
 ---
 
-### US-SIG-016: Schedule Content with CRON
+### US-SIG-019: Run Scheduled Takeover Playlists
 
-**As a** content manager
-**I want to** schedule recurring content using CRON expressions
-**So that** announcements repeat on a regular schedule
+**As a** content manager  
+**I want to** schedule takeover playlists  
+**So that** urgent or time-specific content can interrupt regular playback
 
 **Acceptance Criteria:**
 
-- 5-field CRON expressions are supported
-- CRON schedules trigger within 28-second window
-- Common patterns work (e.g., "0 9 * * MON-FRI")
-- Recurring content overrides normal playlist each trigger
+- A scheduled playlist with `play_takeover` enabled is rendered as an override player above normal playback.
+- The normal player is paused while an override is active.
+- Multiple active takeover playlists can be combined into the override playlist.
+- The override ends at the scheduled end time when `play_period` is greater than zero.
+- A scheduled takeover with `play_period` set to zero plays a single pass and then clears.
+- Clearing a scheduled override records its schedule key so the same single-pass activation is not immediately retriggered.
 
 ---
 
-### US-SIG-017: Trigger-Based Overrides
+### US-SIG-020: Trigger Override Playlists
 
-**As a** system integrator
-**I want to** trigger playlist overrides via PlaceOS signals
-**So that** external systems can control signage content
+**As a** system integrator  
+**I want to** activate override playlists from PlaceOS trigger variables  
+**So that** external systems can take over signage content
 
 **Acceptance Criteria:**
 
-- PlaceOS trigger variables activate override playlists
-- Trigger-based overrides prevent overlapping activations
-- Override duration is respected
-- Normal playback resumes after trigger override expires
+- Playlist mappings whose keys start with `trig-` are treated as trigger mappings.
+- The app subscribes to matching variables on the display's `_TRIGGER__1` module.
+- When a trigger fires and no override is active, the mapped enabled playlists are converted to override media.
+- Trigger overrides are ignored when an override is already active.
+- Trigger overrides play once and clear after the override playlist completes.
 
 ---
 
-## Debug & Testing
+### US-SIG-021: Close Overrides in Debug
 
-### US-SIG-018: Enable Debug Mode
-
-**As a** system administrator
-**I want to** enable debug mode via URL parameter
-**So that** I can test and troubleshoot signage displays
+**As a** system administrator  
+**I want to** close an active override in debug mode  
+**So that** I can resume normal playback during testing or operations
 
 **Acceptance Criteria:**
 
-- `?debug=true` query parameter enables debug mode
-- Debug controls appear at bottom of screen
-- Playlist sidebar becomes visible
-- Time controls become accessible
+- Debug mode shows an override header when an override player is active.
+- The header displays the override playlist name when available.
+- The header marks the player as an override.
+- The close action clears the override playlist.
+- Normal playback resumes after the override is cleared.
 
 ---
 
-### US-SIG-019: Manual Playback Controls
+## Debug & Remote Control
 
-**As a** system administrator
-**I want to** manually control media playback
-**So that** I can test content without waiting for auto-advance
+### US-SIG-022: Enable Debug Mode
+
+**As a** system administrator  
+**I want to** enable debug mode from the URL  
+**So that** I can troubleshoot a signage display
 
 **Acceptance Criteria:**
 
-- Play/Pause button toggles playback
-- Skip Next advances to next media item
-- Skip Previous returns to previous item
-- Mute/Unmute controls audio
-- Progress bar shows current duration
+- `debug` query parameter enables debug mode unless its value is `false`.
+- Debug state is stored in sessionStorage under `SIGNAGE.debug`.
+- A stored debug state is restored when the signage route loads.
+- Debug mode shows time controls, media controls, the playlist toggle, playlist details, and the currently playing media ID.
+- `debug=false` disables debug mode and stores that disabled state.
 
 ---
 
-### US-SIG-020: Override System Time
+### US-SIG-023: Override Time in Debug
 
-**As a** system administrator
-**I want to** override the system time for testing
-**So that** I can verify scheduled content without waiting
+**As a** system administrator  
+**I want to** override the app's current time in debug mode  
+**So that** I can verify scheduled content without waiting for real time to pass
 
 **Acceptance Criteria:**
 
-- Time picker allows selecting specific date/time
-- Static mode freezes time at selected moment
-- Progressive mode advances from selected moment
-- Clear button restores actual system time
-- Scheduled content responds to overridden time
+- Debug mode shows a time control with the current effective time.
+- The control allows selecting a date and time.
+- Static mode freezes the effective time at the selected value.
+- Progressive mode starts from the selected value and then advances with real elapsed time.
+- Clearing the override restores the real system time.
+- Schedule checks use the effective time from the time helper.
 
 ---
 
-### US-SIG-021: View Playlist Contents
+### US-SIG-024: Pause and Resume from a Parent Frame
 
-**As a** system administrator
-**I want to** view the current playlist in a sidebar
-**So that** I can verify which content is scheduled
+**As a** host application  
+**I want to** pause and resume signage through postMessage  
+**So that** embedded signage can be coordinated with a parent shell
 
 **Acceptance Criteria:**
 
-- Playlist sidebar shows all media items
-- Currently playing item is highlighted (blue with animation)
-- Invalid items show error indicators (red)
-- Duration displays for each item
-- Click on item jumps to that content
-- Total playlist length counter is shown
+- The signage panel listens for object postMessage payloads.
+- A payload with `type: 'signage:pause'` pauses all player instances.
+- A payload with `type: 'signage:resume'` resumes all player instances.
+- Unknown payloads are ignored.
+- The message listener is removed when the panel is destroyed.
 
 ---
 
 ## Offline Support & Caching
 
-### US-SIG-022: Cache Media Locally
+### US-SIG-025: Cache Media Locally
 
-**As a** system administrator
-**I want to** cache media files locally on the device
-**So that** content displays even during network outages
+**As a** system administrator  
+**I want to** cache media files locally on the device  
+**So that** signage playback can survive network interruptions
 
 **Acceptance Criteria:**
 
-- Media files are cached to IndexedDB
-- Cache status shows: Preparing → Downloading → Storing → Cached
-- Cached media plays from local storage
-- Cache falls back to live streaming if unavailable
+- Non-webpage and non-plugin media URLs are requested for local caching.
+- Media files are stored in IndexedDB in the `SignageMedia` database.
+- Cache metadata is persisted in localStorage under `PlaceOS.SIGNAGE.cached_files`.
+- Cache status moves through preparing, downloading, storing, and cached states.
+- Upload API media requests apply a short-lived authentication cookie before fetching.
+- Cached media is served to the player as object URLs.
 
 ---
 
-### US-SIG-023: Preload Upcoming Media
+### US-SIG-026: Maintain the Media Cache
 
-**As a** content viewer
-**I want to** have upcoming media preloaded
-**So that** transitions are smooth without loading delays
+**As a** signage player  
+**I want to** keep the local media cache aligned with the current display configuration  
+**So that** storage is not wasted on stale content
 
 **Acceptance Criteria:**
 
-- Current item ±2 items are preloaded
-- Object URLs are created for cached media
-- Unused URLs are revoked to prevent memory leaks
-- Failed preloads retry automatically
+- When display configuration changes, the app requests caching for current media URLs.
+- Cached URLs that are no longer referenced by the display are invalidated.
+- Failed cache requests schedule a retry after a debounce delay.
+- Media currently preparing, downloading, or storing waits for a final cached or invalidated state before playback tries to use it.
+- Invalidated media resolves as unavailable instead of throwing through playback.
 
 ---
 
-### US-SIG-024: Offline Display Configuration
+### US-SIG-027: Preload Nearby Media URLs
 
-**As a** system administrator
-**I want to** have display configuration cached locally
-**So that** the display works during network outages
+**As a** content viewer  
+**I want to** have nearby playlist items prepared before playback reaches them  
+**So that** transitions are less likely to wait on media loading
 
 **Acceptance Criteria:**
 
-- Display configuration is stored in localStorage
-- 304 Not Modified optimization prevents unnecessary downloads
-- Cached configuration loads when API is unavailable
-- Configuration refreshes every 60 seconds when online
+- The player prepares URLs for the current item, two previous items, and two next items.
+- Plugin media is skipped because it does not need a prefetched file URL.
+- Object URLs outside the nearby window are revoked.
+- If an active item's URL is not ready, the player waits and retries item selection.
 
 ---
 
 ## Metrics & Analytics
 
-### US-SIG-025: Track Media Views
+### US-SIG-028: Track Playback Metrics
 
-**As a** content manager
-**I want to** track how many times each media item is viewed
-**So that** I can measure content engagement
+**As a** content manager  
+**I want to** track media and playlist playback counts  
+**So that** signage engagement can be reported
 
 **Acceptance Criteria:**
 
-- View is counted when >50% of duration is watched
-- Individual media play counts are tracked
-- Playlist start counts are tracked
-- Full playlist completions are tracked
+- A media count is recorded when a valid item advances after more than 50% progress.
+- A playlist count is recorded when playback advances beyond the last valid item for a playlist.
+- A playlist play-through count is recorded when the last valid item for a playlist advances after more than 50% progress.
+- Playlist counts and play-through counts are not stored for random playlists.
+- Metrics are tracked separately for media counts, playlist counts, and play-through counts.
 
 ---
 
-### US-SIG-026: Report Metrics to Backend
+### US-SIG-029: Report Metrics to PlaceOS
 
-**As a** content manager
-**I want to** have metrics reported to the backend
-**So that** I can analyze signage performance
+**As a** content manager  
+**I want to** send signage metrics to PlaceOS  
+**So that** playback reporting is available outside the device
 
 **Acceptance Criteria:**
 
-- Metrics are posted to backend every 10 minutes
-- Media count, playlist count, and play-through count are reported
-- Metrics are cleared after successful posting
-- Failed posts are retried on next interval
+- Metrics are checked for posting every 10 minutes.
+- Empty metrics are not posted.
+- Non-empty metrics are posted to `/api/engine/v2/signage/:display_id/metrics`.
+- Metric posting is delayed by a random offset of up to 60 seconds to avoid synchronized device traffic.
+- Metrics are cleared only after a successful post.
+- Failed posts leave metrics available for the next posting attempt.
 
 ---
 
-## Error Handling
+## Error Handling & Access
 
-### US-SIG-027: Handle Missing Media
+### US-SIG-030: Handle Missing or Invalid Media
 
-**As a** content viewer
-**I want to** have missing media handled gracefully
-**So that** playback continues without errors
+**As a** content viewer  
+**I want to** have missing or invalid media handled gracefully  
+**So that** playback continues whenever other valid content exists
 
 **Acceptance Criteria:**
 
-- Missing URLs retry every 5 seconds
-- After retries fail, item is skipped
-- Debug mode shows error status for failed items
-- Playback continues with remaining valid items
+- Items without usable media IDs are considered invalid.
+- Future and expired items are skipped.
+- Items without ready URLs are retried instead of crashing playback.
+- Fatal plugin errors advance to the next item.
+- Debug playlist view shows invalid items with an error indicator.
+- If the playlist has no valid items, playback remains stable and retries selection.
 
 ---
 
-### US-SIG-028: Redirect Unauthorized Users
+### US-SIG-031: Protect Signage Routes
 
-**As a** system administrator
-**I want to** redirect unauthorized users appropriately
-**So that** unauthenticated displays show a clear error
-
-**Acceptance Criteria:**
-
-- Unauthorized access redirects to `/unauthorised` page
-- Error message explains the authorization issue
-- User can attempt to re-authenticate
-- Bootstrap page is accessible for reconfiguration
-
----
-
-### US-SIG-029: Auto-Redirect Uninitialized Displays
-
-**As a** content viewer
-**I want to** have uninitialized displays redirect to setup
-**So that** displays always show content or configuration
+**As a** system administrator  
+**I want to** restrict signage setup and playback to authorised users  
+**So that** unauthorised users cannot operate signage displays
 
 **Acceptance Criteria:**
 
-- Displays without system_id redirect to bootstrap after 3 seconds
-- Timeout prevents indefinite loading states
-- Bootstrap page allows display selection
-- Valid configuration navigates back to signage display
+- Bootstrap and signage routes use `AuthorisedUserGuard`.
+- The unauthorised route renders the shared unauthorised component.
+- Unknown routes redirect to bootstrap.
+- The app remains stable when an invalid display ID is supplied.
 
----
-
-## Accessibility
-
-### US-SIG-030: On-Screen Keyboard
-
-**As a** facility manager
-**I want to** use an on-screen keyboard for touch interfaces
-**So that** I can configure displays without a physical keyboard
-
-**Acceptance Criteria:**
-
-- Virtual keyboard is available for text input
-- Keyboard supports standard input operations
-- Keyboard works on touch-enabled displays
-- Keyboard can be dismissed when not needed

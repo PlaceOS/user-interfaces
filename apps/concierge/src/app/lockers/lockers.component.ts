@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import {
     ActivatedRoute,
@@ -9,15 +10,15 @@ import {
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { LockerStateService } from './locker-state.service';
 
-import { CommonModule } from '@angular/common';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { filter, map, startWith } from 'rxjs/operators';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { LockersTopbarComponent } from './locker-topbar.component';
 
 @Component({
-    selector: '[app-new-lockers]',
+    selector: '[app-lockers]',
     template: `
         <app-topbar />
         <div class="flex h-px flex-1">
@@ -29,7 +30,7 @@ import { LockersTopbarComponent } from './locker-topbar.component';
                         <router-outlet></router-outlet>
                     </div>
                 </div>
-                @if ((loading | async) && path() === 'events') {
+                @if (loading() && path() === 'events') {
                     <mat-progress-bar
                         class="w-full"
                         mode="indeterminate"
@@ -50,7 +51,6 @@ import { LockersTopbarComponent } from './locker-topbar.component';
         `,
     ],
     imports: [
-        CommonModule,
         ApplicationTopbarComponent,
         ApplicationSidebarComponent,
         LockersTopbarComponent,
@@ -65,8 +65,25 @@ export class LockersComponent extends AsyncHandler implements OnInit {
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
 
-    public readonly loading = this._state.loading;
-    public path = signal('');
+    private readonly _current_url = toSignal(
+        this._router.events.pipe(
+            filter(
+                (event): event is NavigationEnd =>
+                    event instanceof NavigationEnd,
+            ),
+            map((event) => event.urlAfterRedirects),
+            startWith(this._router.url),
+        ),
+        { initialValue: this._router.url },
+    );
+
+    public readonly loading = toSignal(this._state.loading, {
+        initialValue: '',
+    });
+    public readonly path = computed(() => {
+        const parts = this._current_url()?.split('/') || [''];
+        return parts[parts.length - 1].split('?')[0];
+    });
     /** List of levels for the active building */
     public readonly filters = this._state.filters;
     /** List of levels for the active building */
@@ -91,23 +108,11 @@ export class LockersComponent extends AsyncHandler implements OnInit {
 
     public ngOnInit() {
         this._state.refresh();
-        this.subscription(
-            'router.events',
-            this._router.events.subscribe((e) => {
-                if (e instanceof NavigationEnd) this._updatePath();
-            }),
-        );
-        this._updatePath();
     }
 
     public manageRestrictions() {
         this._dialog.open(BookingRulesModalComponent, {
             data: { type: 'locker' },
         });
-    }
-
-    private _updatePath() {
-        const parts = this._router.url?.split('/') || [''];
-        this.path.set(parts[parts.length - 1].split('?')[0]);
     }
 }

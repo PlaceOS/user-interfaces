@@ -1,9 +1,10 @@
-import { CommonModule } from '@angular/common';
 import {
     Component,
+    computed,
     ElementRef,
-    OnInit,
     inject,
+    OnInit,
+    signal,
     viewChild,
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -11,8 +12,8 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { OrganisationService, SettingsService } from '@placeos/common';
-import { debounceTime, first, map } from 'rxjs/operators';
+import { SettingsService } from '@placeos/common';
+import { first } from 'rxjs/operators';
 import { AuthenticatedImageDirective } from './authenticated-image.directive';
 
 @Component({
@@ -27,18 +28,18 @@ import { AuthenticatedImageDirective } from './authenticated-image.directive';
                         auth
                         class="h-12"
                         alt="Logo"
-                        [source]="(logo | async)?.src || (logo | async)"
+                        [source]="logo()?.src || logo()"
                     />
                 </div>
                 <div class="relative h-1/3 w-full flex-1">
-                    @if (!loading) {
+                    @if (!loading()) {
                         <div class="flex flex-col">
                             <label
                                 for="username"
                                 [class.focused]="
-                                    username || focus === 'username'
+                                    username || focus() === 'username'
                                 "
-                                [class.in-focus]="focus === 'username'"
+                                [class.in-focus]="focus() === 'username'"
                             >
                                 Username
                             </label>
@@ -72,7 +73,7 @@ import { AuthenticatedImageDirective } from './authenticated-image.directive';
                         </div>
                     }
                 </div>
-                @if (!loading) {
+                @if (!loading()) {
                     <div class="flex w-full items-center justify-center">
                         <button btn matRipple color="primary" (click)="login()">
                             Login
@@ -101,7 +102,6 @@ import { AuthenticatedImageDirective } from './authenticated-image.directive';
         `,
     ],
     imports: [
-        CommonModule,
         MatRippleModule,
         MatProgressSpinnerModule,
         MatFormFieldModule,
@@ -111,12 +111,14 @@ import { AuthenticatedImageDirective } from './authenticated-image.directive';
 })
 export class LoginComponent implements OnInit {
     private _settings = inject(SettingsService);
-    private _org = inject(OrganisationService);
+    private readonly _theme = this._settings.theme_signal;
+    private readonly _logo_dark = this._settings.signal('logo_dark', null);
+    private readonly _logo_light = this._settings.signal('logo_light', null);
 
     /** Whether the user credentials are being checked */
-    public loading: boolean;
+    public loading = signal(false);
     /** Current focused field */
-    public focus: string = '';
+    public focus = signal('');
 
     public readonly form = new FormGroup({
         username: new FormControl('', [Validators.required]),
@@ -127,20 +129,17 @@ export class LoginComponent implements OnInit {
     private readonly pwd_field =
         viewChild<ElementRef<HTMLInputElement>>('pass_field');
 
-    public readonly logo = this._org.active_building.pipe(
-        debounceTime(500),
-        map(
-            () =>
-                (this._settings.theme === 'dark'
-                    ? this._settings.get('app.logo_dark')
-                    : this._settings.get('app.logo_light')) || {},
-        ),
+    public readonly logo = computed(
+        () =>
+            (this._theme() === 'dark'
+                ? this._logo_dark()
+                : this._logo_light()) || {},
     );
 
     public async ngOnInit() {
-        this.loading = true;
+        this.loading.set(true);
         await this._settings.initialised.pipe(first((_) => _)).toPromise();
-        this.loading = false;
+        this.loading.set(false);
     }
 
     /** Focus on the password field */
@@ -153,7 +152,7 @@ export class LoginComponent implements OnInit {
 
     /** Perform user login */
     public login() {
-        this.loading = true;
+        this.loading.set(true);
         // this._users.login({
         //     username: this.username,
         //     password: this.password

@@ -32,6 +32,8 @@ describe('TopbarComponent', () => {
             }),
             MockProvider(OrganisationService, {
                 active_building: new BehaviorSubject(new Building()),
+                active_region: new BehaviorSubject(null),
+                region_list: new BehaviorSubject([]),
                 building: new Building(),
             }),
         ],
@@ -76,4 +78,9 @@ describe('TopbarComponent', () => {
 
     it('should render user avatar and details', () =>
         expect('[avatar]').toExist());
+
+    it('should render user controls sidebar', () => {
+        expect('user-controls-sidebar').toExist();
+        expect('[name="user-controls"]').toExist();
+    });
 });

@@ -121,8 +121,11 @@ export class HelpModalComponent {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
-    public readonly active_item = signal({ id: '', content: `` });
     public readonly items = this._data.items;
+    public readonly active_item = signal(
+        this.items?.find((_) => _.id === this._data.active_id) ||
+            this.items?.[0] || { id: '', content: `` },
+    );
 
     public readonly logo = toSignal(
         this._org.active_building.pipe(
@@ -140,12 +143,4 @@ export class HelpModalComponent {
         const item = this.active_item();
         return item?.content ? (marked(item.content) as string) : '';
     });
-
-    constructor() {
-        const initial = this.items?.find(
-            (_) => _.id === this._data.active_id,
-        ) ||
-            this.items?.[0] || { id: '', content: '' };
-        this.active_item.set(initial);
-    }
 }

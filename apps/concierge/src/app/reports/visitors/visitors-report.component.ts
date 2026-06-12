@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -12,19 +12,50 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { debounceTime, map } from 'rxjs/operators';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { ReportsOptionsComponent } from '../reports-options.component';
 import { VisitorReportDailyUsageComponent } from './visitor-report-daily-usage.component';
 import { VisitorReportListComponent } from './visitor-report-list.component';
 import { VisitorReportOverallComponent } from './visitor-report-overall.component';
 import { VisitorsReportService } from './visitors-report.service';
 
+const METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Business days',
+        description: 'Number of business days in the selected reporting range.',
+    },
+    {
+        label: 'Total visitors',
+        description:
+            'Visitor bookings returned for the selected dates and zones.',
+    },
+    {
+        label: 'Average length',
+        description:
+            'Sum of visitor booking durations divided by the number of visitor bookings.',
+    },
+    {
+        label: 'Daily unique visitors',
+        description:
+            'For each day, unique visitors are counted by asset ID and hosts are counted by user email.',
+    },
+    {
+        label: 'Booking count',
+        description:
+            'Total visitor bookings recorded for each day in the report.',
+    },
+];
+
 @Component({
     selector: '[visitors-report]',
     template: `
         <reports-options
-            (printing)="printing = $event"
-            [loading]="loading | async"
-            [has_data]="!!(total_count | async)"
+            (printing)="printing.set($event)"
+            [loading]="loading()"
+            [has_data]="has_data()"
             (download)="downloadReport()"
             (generate)="generateReport()"
         />
@@ -33,11 +64,7 @@ import { VisitorsReportService } from './visitors-report.service';
         >
             <div class="w-full">
                 <div class="bg-base-200 m-4 flex items-center rounded-sm p-4">
-                    <img
-                        auth
-                        class="h-12"
-                        [source]="(logo | async)?.src || (logo | async)"
-                    />
+                    <img auth class="h-12" [source]="logo()?.src || logo()" />
                     <div class="flex-1"></div>
                     <h2 class="px-2 text-2xl font-medium">
                         {{
@@ -46,11 +73,15 @@ import { VisitorsReportService } from './visitors-report.service';
                     </h2>
                 </div>
             </div>
-            @if (!(loading | async)) {
-                @if (total_count | async) {
+            @if (!loading()) {
+                @if (total_count()) {
+                    <placeos-report-metric-guide
+                        [absolute]="true"
+                        [items]="metric_guide"
+                    />
                     <visitor-report-overall></visitor-report-overall>
                     <visitor-report-daily-usage
-                        [print]="printing"
+                        [print]="printing()"
                     ></visitor-report-daily-usage>
                     <visitor-report-list></visitor-report-list>
                 } @else {
@@ -82,8 +113,8 @@ import { VisitorsReportService } from './visitors-report.service';
         `,
     ],
     imports: [
-        CommonModule,
         ReportsOptionsComponent,
+        ReportMetricGuideComponent,
         AuthenticatedImageDirective,
         MatProgressSpinnerModule,
         VisitorReportOverallComponent,
@@ -98,23 +129,31 @@ export class VisitorsReportComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _org = inject(OrganisationService);
 
-    public printing = false;
-    public readonly total_count = this._state.bookings$.pipe(
-        map((i) => i.length || 0),
+    public readonly printing = signal(false);
+    public readonly metric_guide = METRIC_GUIDE;
+    public readonly total_count = toSignal(
+        this._state.bookings$.pipe(map((i) => i.length || 0)),
+        { initialValue: 0 },
     );
-    public readonly loading = this._state.loading$;
+    public readonly loading = toSignal(this._state.loading$, {
+        initialValue: false,
+    });
+    public readonly has_data = computed(() => !!this.total_count());
 
     public readonly downloadReport = () => this._state.downloadReport();
     public readonly generateReport = () => this._state.generateReport();
 
-    public readonly logo = this._org.active_building.pipe(
-        debounceTime(500),
-        map(
-            () =>
-                (this._settings.theme === 'dark'
-                    ? this._settings.get('app.logo_dark')
-                    : this._settings.get('app.logo_light')) || {},
+    public readonly logo = toSignal(
+        this._org.active_building.pipe(
+            debounceTime(500),
+            map(
+                () =>
+                    (this._settings.theme === 'dark'
+                        ? this._settings.get('app.logo_dark')
+                        : this._settings.get('app.logo_light')) || {},
+            ),
         ),
+        { initialValue: {} },
     );
 
     public ngOnInit() {

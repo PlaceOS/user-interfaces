@@ -17,7 +17,10 @@ import { EnrolmentGuestConfirmComponent } from './enrolment-guest-confirm.compon
 import { EnrolmentVipGuestConfirmComponent } from './enrolment-vip-guest-confirm.component';
 import { EnrolmentComponent } from './enrolment.component';
 
-import { GlobalBannerComponent } from '@placeos/components';
+import {
+    GlobalBannerComponent,
+    ServiceWorkerUpdateCardComponent,
+} from '@placeos/components';
 import * as Sentry from '@sentry/angular';
 
 const ROUTES: Route[] = [
@@ -28,6 +31,7 @@ const ROUTES: Route[] = [
 
 const STANADALONE_COMPONENTS = [
     GlobalBannerComponent,
+    ServiceWorkerUpdateCardComponent,
     EnrolmentComponent,
     EnrolmentEventDetailsComponent,
     EnrolmentGuestConfirmComponent,

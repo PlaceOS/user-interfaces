@@ -61,7 +61,7 @@ import { SpacePipe } from '@placeos/events';
             }
         </header>
         <main
-            class="grid max-h-[65vh] w-full max-w-screen flex-1 grid-cols-2 gap-4 overflow-auto px-4 pt-2 pb-4"
+            class="grid max-h-[65vh] w-full max-w-[calc(100vw-2rem)] flex-1 grid-cols-2 gap-4 overflow-auto px-4 pt-2 pb-4"
         >
             <div>
                 <div class="mb-2 flex items-center space-x-4">
@@ -613,11 +613,13 @@ export class MeetingFlowConfirmModalComponent
     }
 
     public get formatted_recurrence() {
+        const recurrence_start = this.event.recurrence.start || this.event.date;
         return formatRecurrence(
             fromEventRecurrence({
                 ...this.event.recurrence,
-                start: this.event.date || this.event.recurrence.start,
+                start: recurrence_start,
             }),
+            recurrence_start,
         );
     }
 

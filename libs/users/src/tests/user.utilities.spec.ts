@@ -38,7 +38,7 @@ describe('[User Utilities]', () => {
         });
 
         it('should error when user not passed', () => {
-            expect(() => generateUserForm(null)).toThrowError();
+            expect(() => generateUserForm(null)).toThrow();
         });
     });
 

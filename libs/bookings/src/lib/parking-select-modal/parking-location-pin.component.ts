@@ -82,7 +82,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
     styles: [],
     imports: [CommonModule, IconComponent],
 })
-export class ParkingSpaceLocationPinComponent {
+export class ParkingLocationPinComponent {
     private _data = inject(MAP_FEATURE_DATA);
 
     public get selected() {

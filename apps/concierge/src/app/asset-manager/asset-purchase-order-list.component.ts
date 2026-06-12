@@ -1,10 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { SimpleTableComponent, TranslatePipe } from '@placeos/components';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { AssetManagerStateService } from './asset-manager-state.service';
+import {
+    AssetManagerStateService,
+    AssetOptions,
+} from './asset-manager-state.service';
 
 @Component({
     selector: 'app-asset-purchase-order-list',
@@ -16,7 +20,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 <simple-table
                     class="block min-w-208 text-sm"
                     purchase-orders
-                    [data]="purchase_orders"
+                    [data]="purchase_orders()"
                     [columns]="[
                         {
                             key: 'purchase_order_number',
@@ -52,12 +56,12 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         },
                     ]"
                     [empty_message]="
-                        ((filters | async)?.search
+                        (filters().search
                             ? 'APP.CONCIERGE.ASSETS_PURCHASE_SEARCH_EMPTY'
                             : 'APP.CONCIERGE.ASSETS_PURCHASE_EMPTY'
                         ) | translate
                     "
-                    [filter]="(filters | async)?.search"
+                    [filter]="filters().search"
                     [sortable]="true"
                     (row_clicked)="editOrder($event)"
                 ></simple-table>
@@ -90,24 +94,26 @@ export class AssetPurchaseOrderListComponent {
     private _router = inject(Router);
 
     public readonly now = Date.now();
-    public readonly purchase_orders = combineLatest([
-        this._state.options,
-        this._state.purchase_orders,
-    ]).pipe(
-        map(([{ search }, list]) =>
-            list.filter(
-                (_) =>
-                    !search ||
-                    (_ as any).purchase_order_number
-                        .toLowerCase()
-                        .includes(search.toLowerCase()) ||
-                    _.invoice_number
-                        ?.toLowerCase()
-                        .includes(search.toLowerCase()),
+    public readonly purchase_orders = toSignal(
+        combineLatest([this._state.options, this._state.purchase_orders]).pipe(
+            map(([{ search }, list]) =>
+                (list || []).filter(
+                    (_) =>
+                        !search ||
+                        (_ as any).purchase_order_number
+                            .toLowerCase()
+                            .includes(search.toLowerCase()) ||
+                        _.invoice_number
+                            ?.toLowerCase()
+                            .includes(search.toLowerCase()),
+                )
             ),
         ),
+        { initialValue: [] },
     );
-    public readonly filters = this._state.options;
+    public readonly filters = toSignal(this._state.options, {
+        initialValue: { view: 'grid' } as AssetOptions,
+    });
 
     public editOrder(order) {
         this._router.navigate(

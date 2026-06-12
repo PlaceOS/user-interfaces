@@ -3,22 +3,22 @@ import {
     addHours,
     addMinutes,
     differenceInMinutes,
-    endOfDay,
     getUnixTime,
     isAfter,
     isBefore,
     isSameDay,
     roundToNearestMinutes,
-    startOfDay,
 } from 'date-fns';
 import { capitalizeFirstLetter, removeEmptyFields } from '../general';
 import { WeekOfMonth } from '../recurrence';
+import { endOfDayInTimezone, startOfDayInTimezone } from '../timezone-helpers';
 import { LinkedBooking } from '../types';
 import { AssetRequest } from './asset-request.class';
 import { User } from './user.class';
 
 export type BookingType =
     | 'desk'
+    | 'group'
     | 'parking'
     | 'locker'
     | 'room'
@@ -182,6 +182,10 @@ export class Booking {
         return this.all_day || this.duration >= 18 * 60;
     }
 
+    public get has_ended() {
+        return this.checked_out_at > 0 || isAfter(Date.now(), this.date_end);
+    }
+
     _valid_asset_cache = [];
     _valid_cache_expiry = 0;
 
@@ -214,6 +218,9 @@ export class Booking {
     }
 
     constructor(data: Partial<BookingComplete> = {}) {
+        const custom_all_day = !!(
+            data.extension_data?.custom_all_day || (data as any).custom_all_day
+        );
         this.id = data.id || '';
         this.parent_id = data.parent_id || '';
         this.asset_id = data.asset_id || '';
@@ -297,17 +304,31 @@ export class Booking {
         this.attendees = data.attendees || data.guests || data.members || [];
         this.tags = data.tags || data.extension_data?.tags || [];
         this.images = data.images || [];
-        this.all_day = data.all_day || this.duration >= 24 * 60;
+        this.all_day =
+            !!data.all_day || custom_all_day || this.duration >= 24 * 60;
         this.induction = data.induction || undefined;
         if (this.all_day) {
-            (this as any).date = startOfDay(this.date).getTime();
-            (this as any).duration = Math.max(
-                24 * 60 - 1,
-                this.duration - ((this.duration % 24) * 60 === 0 ? 1 : 0),
-            );
-            (this as any).date_end = endOfDay(
-                addMinutes(this.date, this.duration - 1).valueOf(),
-            ).getTime();
+            if (!data.duration && !data.date_end && !data.booking_end) {
+                (this as any).date = startOfDayInTimezone(
+                    this.date,
+                    this.timezone,
+                );
+                (this as any).duration = 24 * 60 - 1;
+                (this as any).date_end = endOfDayInTimezone(
+                    this.date,
+                    this.timezone,
+                );
+            } else if (this.duration % (24 * 60) === 0) {
+                (this as any).date = startOfDayInTimezone(
+                    this.date,
+                    this.timezone,
+                );
+                (this as any).duration = Math.max(1, this.duration - 1);
+                (this as any).date_end = endOfDayInTimezone(
+                    this.date,
+                    this.timezone,
+                );
+            }
         }
         this.checked_out_at = data.checked_out_at;
         this.checked_in_at = data.checked_in_at;
@@ -316,13 +337,16 @@ export class Booking {
         this.linked_parent_booking = data.linked_parent_booking || null;
         this.images = data.images || [];
         this.status =
-            this.checked_out_at > 0 || isAfter(Date.now(), this.date_end)
-                ? 'ended'
-                : this.rejected || this.deleted
+            this.deleted || data.status === 'cancelled'
+                ? 'cancelled'
+                : this.rejected || data.status === 'declined'
                   ? 'declined'
-                  : this.approved
-                    ? 'approved'
-                    : 'tentative';
+                  : this.checked_out_at > 0 ||
+                      isAfter(Date.now(), this.date_end)
+                    ? 'ended'
+                    : this.approved || data.status === 'approved'
+                      ? 'approved'
+                      : 'tentative';
         this.process_state = data.process_state || 'pending';
 
         this.recurrence_type = data.recurrence_type || 'none';

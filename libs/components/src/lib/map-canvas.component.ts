@@ -1,16 +1,14 @@
 import {
     Component,
     ElementRef,
-    OnInit,
+    Signal,
+    computed,
+    effect,
     inject,
+    signal,
     viewChild,
 } from '@angular/core';
-import {
-    AsyncHandler,
-    nextValueFrom,
-    shiftColorTowards,
-} from '@placeos/common';
-import { Observable, combineLatest } from 'rxjs';
+import { shiftColorTowards } from '@placeos/common';
 
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 
@@ -26,11 +24,7 @@ export interface Polygon {
 export interface MapPolygonData {
     draw_labels?: boolean;
     draw_points?: boolean;
-    polygons$: Observable<Polygon[]>;
-    ratio$?: Observable<number>;
-    svg_ratio$?: Observable<number>;
-    zoom$?: Observable<number>;
-    data$?: Observable<MapPolygonData>;
+    polygons: Signal<Polygon[]>;
 }
 
 @Component({
@@ -39,70 +33,34 @@ export interface MapPolygonData {
         <canvas
             #canvas
             class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-            [style.width]="width * svg_ratio * zoom + '%'"
-            [style.height]="width * svg_ratio * ratio * zoom + '%'"
+            [style.width]="width() * svg_ratio() * zoom() + '%'"
+            [style.height]="width() * svg_ratio() * ratio() * zoom() + '%'"
         ></canvas>
     `,
     styles: [],
 })
-export class MapCanvasComponent extends AsyncHandler implements OnInit {
+export class MapCanvasComponent {
     private _data = inject<MapPolygonData>(MAP_FEATURE_DATA);
 
-    public zoom = 1;
-    public ratio = 1;
-    public svg_ratio = 1;
-    public width = 10000;
+    public zoom = signal(1);
+    public ratio = signal(1);
+    public svg_ratio = signal(1);
+    public width = signal(10000);
 
     private readonly canvas_element =
         viewChild<ElementRef<HTMLCanvasElement>>('canvas');
 
-    public get ratioed_height(): number {
-        return +(this.width * this.ratio).toFixed(2);
-    }
+    public readonly ratioed_height = computed(
+        () => +(this.width() * this.ratio()).toFixed(2),
+    );
 
     constructor() {
-        super();
-    }
-
-    public ngOnInit(): void {
-        this.subscription(
-            'state',
-            combineLatest([
-                this._data.ratio$,
-                this._data.zoom$,
-                this._data.svg_ratio$,
-            ]).subscribe(([ratio, zoom, sr]) =>
-                this._handleMapChange(ratio, zoom, sr),
-            ),
-        );
-        this.subscription(
-            'polygons',
-            this._data.polygons$.subscribe((list) =>
-                this._handleStateChange(list),
-            ),
-        );
-    }
-
-    private async _handleMapChange(
-        ratio: number,
-        zoom: number,
-        svg_ratio: number,
-    ) {
-        const old_ratio = this.ratio;
-        this.zoom = zoom;
-        this.ratio = ratio;
-        this.svg_ratio = svg_ratio;
-        const width = this.width / 10;
-        const height = (this.width * this.ratio) / 10;
-
-        if (old_ratio === ratio) return;
-
-        const canvas = this.canvas_element().nativeElement;
-        canvas.width = width;
-        canvas.height = height;
-
-        const polygons = await nextValueFrom(this._data.polygons$);
-        this._handleStateChange(polygons);
+        effect(() => {
+            const canvas = this.canvas_element();
+            const polygons = this._data.polygons();
+            if (!canvas) return;
+            this._handleStateChange(polygons);
+        });
     }
 
     private _handleStateChange(polygon_list: Polygon[]): void {

@@ -6,6 +6,7 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
 import { Booking } from '@placeos/common';
@@ -14,23 +15,40 @@ import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.c
 import { IndoorMapsComponent } from 'libs/components/src/lib/indoor-maps.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { BookingDetailsModalComponent } from '../lib/booking-details-modal.component';
+import * as bookings_fn from '../lib/bookings.fn';
 
 describe('BookingDetailsModalComponent', () => {
     let spectator: Spectator<BookingDetailsModalComponent>;
+    const refresh_fn = jest.fn();
+    const edit_fn = jest.fn();
+    const remove_fn = jest.fn();
+    const end_fn = jest.fn();
     const createComponent = createComponentFactory({
         component: BookingDetailsModalComponent,
         providers: [
-            MockProvider(MAT_DIALOG_DATA, { booking: new Booking() }),
-            MockProvider(OrganisationService, {
+            MockProvider(MAT_DIALOG_DATA, {
+                booking: new Booking({
+                    id: 'booking-1',
+                    booking_type: 'desk',
+                    type: 'desk',
+                    asset_id: 'desk-1',
+                    asset_name: 'Desk 1',
+                    date: Date.now(),
+                    duration: 60,
+                    status: 'approved',
+                } as any),
+                edit_fn,
+                remove_fn,
+                end_fn,
+                refresh_fn,
+            }),
+            MockProvider(OrganisationService as any, {
                 levelWithID: jest.fn(),
                 buildings: [],
             }),
-            MockProvider(SettingsService, {
-                get: jest.fn(),
-                time_format: 'h:mm a',
-            }),
+            MockProvider(SettingsService as any, createSettingsServiceMock()),
             MockProvider(MapsPeopleService, {
                 use_mapsindoors$: new BehaviorSubject(false),
             } as any),
@@ -45,7 +63,10 @@ describe('BookingDetailsModalComponent', () => {
         imports: [MockModule(MatMenuModule), MockModule(MatDialogModule)],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        jest.clearAllMocks();
+        spectator = createComponent();
+    });
 
     it('should create component', () =>
         expect(spectator.component).toBeTruthy());
@@ -86,11 +107,205 @@ describe('BookingDetailsModalComponent', () => {
                 description: 'Vendor Interview',
                 asset_name: 'Vendor Interview',
                 asset_id: 'visitor.one@example.com',
-                attendees: [{ name: 'Visitor One', email: 'visitor.one@example.com' }],
+                attendees: [
+                    { name: 'Visitor One', email: 'visitor.one@example.com' },
+                ],
             } as any),
         );
 
         expect(spectator.component.display_title()).toBe('Vendor Interview');
         expect(spectator.component.visitor_display_name()).toBe('Visitor One');
+    });
+
+    it('should refresh parent state after toggling checked in', async () => {
+        jest.spyOn(bookings_fn, 'checkinBooking').mockReturnValue(
+            of(
+                new Booking({
+                    id: 'booking-1',
+                    checked_in: true,
+                } as any),
+            ),
+        );
+
+        await spectator.component.toggleCheckedIn();
+
+        expect(refresh_fn).toHaveBeenCalled();
+        expect(spectator.component.booking().checked_in).toBe(true);
+    });
+
+    it('should show waitlisted status for current week parking requests when enabled', () => {
+        (spectator.component as any).booking.set(
+            new Booking({
+                booking_type: 'parking',
+                type: 'parking',
+                asset_id: 'unallocated-1',
+                date: Date.now(),
+                status: 'tentative',
+            } as any),
+        );
+
+        expect(spectator.component.booking_status()).toBe('info');
+    });
+
+    it('should not show waiting approval parking requests as waitlisted', () => {
+        (spectator.component as any).booking.set(
+            new Booking({
+                booking_type: 'parking',
+                type: 'parking',
+                asset_id: 'unallocated-1',
+                date: Date.now(),
+                status: 'tentative',
+                process_state: 'waiting_approval',
+            } as any),
+        );
+
+        expect(spectator.component.booking_status()).toBe('warning');
+    });
+
+    it('should hide waitlisted status for parking requests when waitlist display is disabled', () => {
+        const settings = spectator.inject(SettingsService);
+        (settings.get as jest.Mock).mockImplementation((name: string) =>
+            name === 'app.parking.show_waitlist' ? false : undefined,
+        );
+        spectator = createComponent();
+        (spectator.component as any).booking.set(
+            new Booking({
+                booking_type: 'parking',
+                type: 'parking',
+                asset_id: 'unallocated-1',
+                date: Date.now(),
+                status: 'tentative',
+            } as any),
+        );
+
+        expect(spectator.component.booking_status()).toBe('warning');
+    });
+
+    it('should hide selected parking space when enabled', () => {
+        const settings = spectator.inject(SettingsService);
+        (settings.get as jest.Mock).mockImplementation((name: string) =>
+            name === 'app.parking.hide_selected_space' ? true : undefined,
+        );
+        spectator = createComponent();
+        (spectator.component as any).booking.set(
+            new Booking({
+                booking_type: 'parking',
+                type: 'parking',
+                asset_id: 'parking-1',
+                asset_name: 'Parking 1',
+            } as any),
+        );
+
+        expect(spectator.component.resource_details_label()).toBe(
+            'RESOURCE.PARKING',
+        );
+    });
+
+    it('should show group details from the linked group parent booking', () => {
+        (spectator.component as any).booking.set(
+            new Booking({
+                booking_type: 'desk',
+                type: 'desk',
+                parent_id: 'booking-group',
+                linked_parent_booking: {
+                    id: 'booking-group',
+                    asset_id: 'group-1',
+                    asset_name: 'Group Booking',
+                    user_id: 'user-1',
+                    user_name: 'User One',
+                    description: 'Group Booking',
+                    booking_type: 'group',
+                    date: Date.now(),
+                    duration: 60,
+                    status: 'approved',
+                    extension_data: {
+                        group: 'group-ref',
+                        group_resource_type: 'desk',
+                        group_members: [
+                            { email: 'one@example.com', name: 'One' },
+                            { email: 'two@example.com', name: 'Two' },
+                        ],
+                    },
+                },
+            } as any),
+        );
+        spectator.detectChanges();
+
+        expect(spectator.component.group_details()).toEqual({
+            name: 'group-ref',
+            resource_type: 'desk',
+            size: 2,
+        });
+        expect(spectator.element.textContent).toContain('Group Booking');
+    });
+
+    it('should allow the group host to delete the linked group parent', () => {
+        (spectator.component as any).booking.set(
+            new Booking({
+                booking_type: 'desk',
+                type: 'desk',
+                parent_id: 'booking-group',
+                user_email: '<empty>@dev.place.tech',
+                linked_parent_booking: {
+                    id: 'booking-group',
+                    asset_id: 'group-1',
+                    asset_name: 'Group Booking',
+                    user_id: 'current-user',
+                    user_name: '<empty>',
+                    user_email: '<empty>@dev.place.tech',
+                    description: 'Group Booking',
+                    booking_type: 'group',
+                    date: Date.now(),
+                    duration: 60,
+                    status: 'approved',
+                    extension_data: {
+                        group_resource_type: 'desk',
+                        group_members: [
+                            {
+                                email: '<empty>@dev.place.tech',
+                                name: '<empty>',
+                            },
+                            { email: 'two@example.com', name: 'Two' },
+                        ],
+                    },
+                },
+            } as any),
+        );
+
+        expect(spectator.component.can_manage_group()).toBe(true);
+        spectator.component.remove(spectator.component.group_parent_booking());
+
+        expect(remove_fn).toHaveBeenCalledWith(
+            expect.objectContaining({
+                id: 'booking-group',
+                booking_type: 'group',
+            }),
+        );
+    });
+
+    it('should hide group parent actions for non-host users', () => {
+        (spectator.component as any).booking.set(
+            new Booking({
+                booking_type: 'desk',
+                type: 'desk',
+                parent_id: 'booking-group',
+                user_email: '<empty>@dev.place.tech',
+                linked_parent_booking: {
+                    id: 'booking-group',
+                    asset_id: 'group-1',
+                    asset_name: 'Group Booking',
+                    user_id: 'other-user',
+                    user_name: 'Other User',
+                    user_email: 'other.user@example.com',
+                    description: 'Group Booking',
+                    booking_type: 'group',
+                    date: Date.now(),
+                    duration: 60,
+                    status: 'approved',
+                },
+            } as any),
+        );
+
+        expect(spectator.component.can_manage_group()).toBe(false);
     });
 });

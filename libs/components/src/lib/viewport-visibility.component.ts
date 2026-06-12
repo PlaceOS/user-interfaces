@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
     Component,
     ElementRef,
@@ -16,7 +15,7 @@ import {
             <ng-content />
         }
     `,
-    imports: [CommonModule],
+    imports: [],
 })
 export class ViewportVisibilityComponent implements OnInit, OnDestroy {
     private _element = inject(ElementRef);

@@ -1,5 +1,13 @@
-import { del, get, patch, post, put, query } from '@placeos/ts-client';
-import { lastValueFrom, Observable, of } from 'rxjs';
+import {
+    cleanObject,
+    del,
+    get,
+    patch,
+    post,
+    put,
+    query,
+} from '@placeos/ts-client';
+import { from, lastValueFrom, Observable, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 
 import {
@@ -10,8 +18,10 @@ import {
     CalendarEvent,
     flatten,
     GuestUser,
+    setting,
     toQueryString,
     unique,
+    VERSION,
 } from '@placeos/common';
 
 import { addMinutes, getUnixTime } from 'date-fns';
@@ -31,6 +41,8 @@ export interface BookingsQueryParams {
     type: BookingType;
     /** Include checked out bookings in the response */
     include_checked_out?: boolean;
+    /** Include bookings made by the current user in the response */
+    include_booked_by?: boolean;
     /** Include deleted bookings in the response (can be set to apply to only recurring bookings) */
     include_deleted?: 'all' | 'recurring';
     /** Include deleted bookings in the response */
@@ -49,13 +61,36 @@ export interface BookingsQueryParams {
 
 const BOOKINGS_ENDPOINT = `/api/staff/v1/bookings`;
 
+const APP_VERSION = VERSION.raw || VERSION.version || VERSION.hash;
+
+function appName() {
+    return (
+        setting<string>('app.name') ||
+        setting<string>('app.short_name') ||
+        'PlaceOS'
+    );
+}
+
+function withAppVersion<T extends { extension_data?: Record<string, any> }>(
+    data: T,
+): T {
+    return {
+        ...data,
+        extension_data: {
+            ...(data.extension_data || {}),
+            app_name: appName(),
+            app_version: APP_VERSION,
+        },
+    };
+}
+
 /**
  * Get a single page of bookings
  * @param q Parameters to pass to the API request
  */
 export function queryBookings(q: BookingsQueryParams): Observable<Booking[]> {
     const query = toQueryString(q);
-    return get(`${BOOKINGS_ENDPOINT}${query ? '?' + query : ''}`).pipe(
+    return from(get(`${BOOKINGS_ENDPOINT}${query ? '?' + query : ''}`)).pipe(
         map((list) => list.map((item) => new Booking(item))),
         catchError((_) => of([])),
     );
@@ -69,7 +104,9 @@ export function bookedResourceList(
     q: BookingsQueryParams,
 ): Observable<string[]> {
     const query = toQueryString({ ...q, limit: 10000 });
-    return get(`${BOOKINGS_ENDPOINT}/booked${query ? '?' + query : ''}`).pipe(
+    return from(
+        get(`${BOOKINGS_ENDPOINT}/booked${query ? '?' + query : ''}`),
+    ).pipe(
         map((list) => list as string[]),
         catchError((_) => of([])),
     );
@@ -91,9 +128,11 @@ export function findBookingClashes(
     q: BookingClashQueryOptions = {},
 ): Observable<string[] | BookingClash[]> {
     const query = toQueryString({ ...q, limit: 10000 });
-    return post(
-        `${BOOKINGS_ENDPOINT}/clashing-assets${query ? '?' + query : ''}`,
-        booking.toJSON(),
+    return from(
+        post(
+            `${BOOKINGS_ENDPOINT}/clashing-assets${query ? '?' + query : ''}`,
+            booking.toJSON(),
+        ),
     ).pipe(
         map((list) =>
             q.include_clash_time
@@ -109,12 +148,14 @@ export function findBookingClashes(
  * @param q Parameters to pass to the API request
  */
 export function queryPagedBookings(q: BookingsQueryParams) {
-    return query<Booking>({
-        query_params: q,
-        fn: (item) => new Booking(item),
-        endpoint: BOOKINGS_ENDPOINT,
-        path: '',
-    });
+    return from(
+        query<Booking>({
+            query_params: q,
+            fn: (item) => new Booking(item),
+            endpoint: BOOKINGS_ENDPOINT,
+            path: '',
+        }),
+    );
 }
 
 const MAX_PAGES = 50;
@@ -126,17 +167,19 @@ const MAX_PAGES = 50;
 export function queryAllBookings(
     q: BookingsQueryParams,
 ): Observable<Booking[]> {
-    return query<Booking>({
-        query_params: q,
-        fn: (item) => new Booking(item),
-        endpoint: BOOKINGS_ENDPOINT,
-        path: '',
-    }).pipe(
+    return from(
+        query<Booking>({
+            query_params: q,
+            fn: (item) => new Booking(item),
+            endpoint: BOOKINGS_ENDPOINT,
+            path: '',
+        }),
+    ).pipe(
         switchMap(async ({ data, next }) => {
             let list = [...data];
             let count = 1;
             while (next && count <= MAX_PAGES) {
-                const resp = await next().toPromise();
+                const resp = await next();
                 data = resp.data;
                 next = resp.next;
                 list = [...list, ...data];
@@ -154,7 +197,7 @@ export function queryAllBookings(
  * @param q Parameters to pass to the API request
  */
 export function showBooking(id: string) {
-    return get(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`).pipe(
+    return from(get(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`)).pipe(
         map((item) => new Booking(item)),
     );
 }
@@ -168,9 +211,12 @@ export function createBooking(
     q?: { event_id?: string; ical_uid?: string },
 ) {
     const query = toQueryString(q);
-    return post(`${BOOKINGS_ENDPOINT}${query ? '?' + query : ''}`, data).pipe(
-        map((item) => new Booking(item)),
-    );
+    return from(
+        post(
+            `${BOOKINGS_ENDPOINT}${query ? '?' + query : ''}`,
+            withAppVersion(data),
+        ),
+    ).pipe(map((item) => new Booking(item)));
 }
 
 /**
@@ -184,9 +230,11 @@ export function updateBooking(
     data: Partial<Booking>,
     method: 'put' | 'patch' = 'patch',
 ) {
-    return (method === 'patch' ? patch : put)(
-        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`,
-        data,
+    return from(
+        (method === 'patch' ? patch : put)(
+            `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`,
+            withAppVersion(data),
+        ),
     ).pipe(map((item) => new Booking(item)));
 }
 
@@ -199,9 +247,11 @@ export function updateBookingInductionStatus(
     id: string,
     status: 'tentative' | 'accepted' | 'declined',
 ) {
-    return post(
-        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/update_induction?induction=${encodeURIComponent(status)}`,
-        {},
+    return from(
+        post(
+            `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/update_induction?induction=${encodeURIComponent(status)}`,
+            {},
+        ),
     ).pipe(map((item) => new Booking(item)));
 }
 
@@ -218,9 +268,11 @@ export function updateBookingInstance(
     data: Partial<Booking>,
     method: 'put' | 'patch' = 'patch',
 ) {
-    return (method === 'patch' ? patch : put)(
-        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`,
-        data,
+    return from(
+        (method === 'patch' ? patch : put)(
+            `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`,
+            withAppVersion(data),
+        ),
     ).pipe(map((item) => new Booking(item)));
 }
 
@@ -250,7 +302,7 @@ export const saveBooking = (
                   data,
               )
             : updateBooking(id, data)
-        : createBooking(data, q);
+        : createBooking(cleanObject(data, ['', null, undefined]) || {}, q);
 };
 
 /**
@@ -261,9 +313,11 @@ export function removeBooking(id: string, q: any = {}) {
     if (q.instance) {
         return removeBookingInstance(id, q.start_time);
     }
-    return del(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, {
-        response_type: 'void',
-    });
+    return from(
+        del(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, {
+            response_type: 'void',
+        }),
+    );
 }
 
 /**
@@ -272,11 +326,13 @@ export function removeBooking(id: string, q: any = {}) {
  * @param start_time Unix seconds of the start time of the booking
  */
 export function removeBookingInstance(id: string, start_time: number) {
-    return del(
-        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`,
-        {
-            response_type: 'void',
-        },
+    return from(
+        del(
+            `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`,
+            {
+                response_type: 'void',
+            },
+        ),
     );
 }
 
@@ -286,9 +342,8 @@ export function removeBookingInstance(id: string, start_time: number) {
  * @param system_id Associated system to approve
  */
 export function approveBooking(id: string) {
-    return post(
-        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/approve`,
-        '',
+    return from(
+        post(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/approve`, ''),
     ).pipe(map((item) => new Booking(item)));
 }
 
@@ -298,9 +353,11 @@ export function approveBooking(id: string) {
  * @param start_time Start time of the booking instance
  */
 export function approveBookingInstance(id: string, start_time: number) {
-    return post(
-        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/approve`,
-        '',
+    return from(
+        post(
+            `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/approve/${start_time}`,
+            '',
+        ),
     ).pipe(map((item) => new Booking(item)));
 }
 
@@ -310,9 +367,8 @@ export function approveBookingInstance(id: string, start_time: number) {
  * @param system_id Associated system to reject
  */
 export function rejectBooking(id: string) {
-    return post(
-        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/reject`,
-        '',
+    return from(
+        post(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/reject`, ''),
     ).pipe(map((item) => new Booking(item)));
 }
 
@@ -322,9 +378,11 @@ export function rejectBooking(id: string) {
  * @param start_time Start time of the booking instance
  */
 export function rejectBookingInstance(id: string, start_time: number) {
-    return post(
-        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/reject`,
-        '',
+    return from(
+        post(
+            `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/reject/${start_time}`,
+            '',
+        ),
     ).pipe(map((item) => new Booking(item)));
 }
 
@@ -334,11 +392,13 @@ export function setBookingState(
     utm_source?: string,
 ) {
     const query = toQueryString({ state, utm_source });
-    return post(
-        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/update_state${
-            query ? '?' + query : ''
-        }`,
-        {},
+    return from(
+        post(
+            `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/update_state${
+                query ? '?' + query : ''
+            }`,
+            {},
+        ),
     ).pipe(map((item) => new Booking(item)));
 }
 
@@ -347,9 +407,8 @@ export function setBookingState(
  * @param id ID of the booking to reject
  */
 export function queryBookingGuests(id: string) {
-    return post(
-        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/guests`,
-        '',
+    return from(
+        post(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/guests`, ''),
     ).pipe(map((item) => new GuestUser(item)));
 }
 
@@ -363,11 +422,13 @@ export function checkinBookingGuest(
     guest_id: string,
     state = true,
 ) {
-    return post(
-        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(
-            id,
-        )}/guests/${encodeURIComponent(guest_id)}/check_in?state=${state}`,
-        '',
+    return from(
+        post(
+            `${BOOKINGS_ENDPOINT}/${encodeURIComponent(
+                id,
+            )}/guests/${encodeURIComponent(guest_id)}/check_in?state=${state}`,
+            '',
+        ),
     ).pipe(map((item) => new GuestUser(item)));
 }
 
@@ -377,9 +438,8 @@ export function checkinBookingGuest(
  * @param guest Guest to add to the booking
  */
 export function bookingAddGuest(id: string, guest: GuestUser) {
-    return post(
-        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/attendee`,
-        guest,
+    return from(
+        post(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/attendee`, guest),
     ).pipe(map((item) => new GuestUser(item)));
 }
 
@@ -389,10 +449,12 @@ export function bookingAddGuest(id: string, guest: GuestUser) {
  * @param guest Guest to remove from the booking
  */
 export function bookingRemoveGuest(id: string, guest: GuestUser) {
-    return del(
-        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(
-            id,
-        )}/attendee/${encodeURIComponent(guest.email)}`,
+    return from(
+        del(
+            `${BOOKINGS_ENDPOINT}/${encodeURIComponent(
+                id,
+            )}/attendee/${encodeURIComponent(guest.email)}`,
+        ),
     ).pipe(map((item) => new GuestUser(item)));
 }
 
@@ -403,9 +465,11 @@ export function bookingRemoveGuest(id: string, guest: GuestUser) {
  */
 export function checkinBooking(id: string, state: boolean) {
     const query = toQueryString({ state });
-    return post(
-        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/check_in?${query}`,
-        '',
+    return from(
+        post(
+            `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/check_in?${query}`,
+            '',
+        ),
     ).pipe(
         map((item) => new Booking(item)),
         catchError(async (e) => {
@@ -427,9 +491,11 @@ export function checkinBookingInstance(
     state: boolean,
 ) {
     const query = toQueryString({ state });
-    return post(
-        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/check_in/${start_time}?${query}`,
-        '',
+    return from(
+        post(
+            `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/check_in/${start_time}?${query}`,
+            '',
+        ),
     ).pipe(
         map((item) => new Booking(item)),
         catchError(async (e) => {
@@ -450,11 +516,13 @@ export function checkinBookingAttendee(
     state: boolean,
 ) {
     const query = toQueryString({ state });
-    return post(
-        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(
-            id,
-        )}/guests/${encodeURIComponent(email)}/check_in?${query}`,
-        '',
+    return from(
+        post(
+            `${BOOKINGS_ENDPOINT}/${encodeURIComponent(
+                id,
+            )}/guests/${encodeURIComponent(email)}/check_in?${query}`,
+            '',
+        ),
     ).pipe(map((item) => new GuestUser(item)));
 }
 
@@ -469,7 +537,6 @@ export function queryResourceAvailability(
     duration: number,
     ignore?: string,
     type: BookingType = 'room',
-    ignore_period: [number, number] = [0, 0],
 ): Observable<boolean[]> {
     return queryBookings({
         type,
@@ -565,7 +632,7 @@ export async function createBookingsForEvent(
                             details: item,
                         },
                         zones,
-                    }),
+                    }).toJSON(),
                     { ical_uid: event.ical_uid, event_id: event.id },
                 ),
             );

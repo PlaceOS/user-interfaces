@@ -3,8 +3,6 @@ export * from './catering-menu.component';
 export * from './catering-option-modal.component';
 export * from './catering-order-item.component';
 export * from './catering-order-list.component';
-export * from './catering-order-modal.component';
-export * from './catering-order-modal/new-catering-order-modal.component';
 export * from './catering-order-options-modal.component';
 export * from './catering-orders.service';
 export * from './catering-state.service';

@@ -1,4 +1,5 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
@@ -24,7 +25,7 @@ import { DeskBookingFormComponent } from './desk-form.component';
                         btn
                         matRipple
                         class="w-full sm:flex-1"
-                        [disabled]="!form.value.asset_id"
+                        [disabled]="!can_book()"
                         (click)="makeBooking()"
                     >
                         Book Desk
@@ -48,11 +49,12 @@ export class DeskBookingComponent {
     private _service = inject(BookingFormService);
     private _router = inject(Router);
 
+    public readonly form = this._service.form;
+    public readonly form_value = toSignal(this.form.valueChanges, {
+        initialValue: this.form.getRawValue(),
+    });
+    public readonly can_book = computed(() => !!this.form_value().asset_id);
     public readonly clearForm = () => this._service.clearForm();
-
-    public get form() {
-        return this._service.form;
-    }
 
     public async makeBooking() {
         await this._service.confirmPost();

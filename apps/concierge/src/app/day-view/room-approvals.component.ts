@@ -1,18 +1,16 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     CalendarEvent,
     getTimezoneOffsetString,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
-
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AuthenticatedImageDirective,
     BuildingPipe,
@@ -51,10 +49,8 @@ import { EventsStateService } from './events-state.service';
                         'APP.CONCIERGE.ROOMS_PENDING_HEADER'
                             | translate
                                 : {
-                                      count:
-                                          (filtered_pending | async)?.length ||
-                                          '0',
-                                      total: (pending | async)?.length || '0',
+                                      count: filtered_pending().length || '0',
+                                      total: pending().length || '0',
                                   }
                     }}
                 </h3>
@@ -64,8 +60,7 @@ import { EventsStateService } from './events-state.service';
                     type="text"
                     [placeholder]="'COMMON.SEARCH' | translate"
                     class="w-full py-4 pr-4 pl-10"
-                    [ngModel]="search | async"
-                    (ngModelChange)="search.next($event)"
+                    [(ngModel)]="search"
                 />
                 <icon
                     class="pointer-events-none absolute top-1/2 left-2 -translate-y-1/2 text-2xl"
@@ -74,7 +69,7 @@ import { EventsStateService } from './events-state.service';
                 </icon>
             </div>
             <div class="bg-base-200 flex-1 space-y-1 overflow-auto p-1">
-                @if (!(filtered_pending | async)?.length) {
+                @if (!filtered_pending().length) {
                     <div
                         class="flex h-full w-full flex-col items-center justify-center space-y-2"
                     >
@@ -86,7 +81,7 @@ import { EventsStateService } from './events-state.service';
                         </p>
                     </div>
                 }
-                @for (event of filtered_pending | async; track event) {
+                @for (event of filtered_pending(); track event) {
                     <div
                         class="border-base-300 bg-base-100 relative w-full rounded-lg border p-2"
                     >
@@ -266,7 +261,7 @@ import { EventsStateService } from './events-state.service';
                 btn
                 icon
                 matRipple
-                class="bg-warning text-warning-content absolute top-3 -left-8 shadow-sm"
+                class="border-base-200 hover:bg-info-light absolute top-3 -left-8 border shadow-md"
                 (click)="setShow(!show())"
                 [matTooltip]="'APP.CONCIERGE.ROOMS_PENDING_SHOW' | translate"
                 matTooltipPosition="left"
@@ -308,9 +303,11 @@ export class RoomBookingsApprovalsComponent implements OnInit {
     public readonly status = signal<
         Record<string, 'accept' | 'decline' | undefined>
     >({});
-    public readonly search = new BehaviorSubject('');
+    public readonly search = signal('');
 
-    public readonly pending = this._state.pending;
+    public readonly pending = toSignal(this._state.pending, {
+        initialValue: [],
+    });
 
     public get time_format() {
         return this._settings.time_format;
@@ -333,21 +330,19 @@ export class RoomBookingsApprovalsComponent implements OnInit {
         return tz_offset === this._local_tz ? '' : tz_offset;
     }
 
-    public readonly filtered_pending = combineLatest([
-        this._state.pending,
-        this.search,
-    ]).pipe(
-        map(([list, search]) =>
-            list.filter(
-                (event) =>
-                    event.title.toLowerCase().includes(search.toLowerCase()) ||
-                    event.host.toLowerCase().includes(search.toLowerCase()) ||
-                    event.organiser?.name
-                        .toLowerCase()
-                        .includes(search.toLowerCase()),
-            ),
-        ),
-    );
+    public readonly filtered_pending = computed(() => {
+        const search = this.search().toLowerCase();
+        const status = this.status();
+        return this.pending().filter(
+            (event) =>
+                !status[event.id] &&
+                (!event.recurring_event_id ||
+                    !status[event.recurring_event_id]) &&
+                (event.title.toLowerCase().includes(search) ||
+                    event.host.toLowerCase().includes(search) ||
+                    event.organiser?.name?.toLowerCase().includes(search)),
+        );
+    });
 
     public setShow(value: boolean) {
         this.show.set(value);
@@ -370,10 +365,8 @@ export class RoomBookingsApprovalsComponent implements OnInit {
         this.loading.set(true);
         await mod.execute('accept_event', [event.mailbox, event.id]).catch();
         this.loading.set(false);
-        this.status.update((s) => {
-            s[event.id] = 'accept';
-            return s;
-        });
+        this.status.update((s) => ({ ...s, [event.id]: 'accept' }));
+        this._state.replace(this._eventWithStatus(event, 'approved'));
     }
 
     public async approveSeries(event: CalendarEvent) {
@@ -387,12 +380,9 @@ export class RoomBookingsApprovalsComponent implements OnInit {
                 30 * 1000,
             )
             .catch();
-        await mod.execute('find_bookings_for_approval').catch();
         this.loading.set(false);
-        this.status.update((s) => {
-            s[event.id] = 'accept';
-            return s;
-        });
+        this._setSeriesStatus(event, 'accept');
+        this._replaceSeriesEvents(event, 'approved');
     }
 
     public async reject(event: CalendarEvent) {
@@ -401,10 +391,8 @@ export class RoomBookingsApprovalsComponent implements OnInit {
         this.loading.set(true);
         await mod.execute('decline_event', [event.mailbox, event.id]).catch();
         this.loading.set(false);
-        this.status.update((s) => {
-            s[event.id] = 'decline';
-            return s;
-        });
+        this.status.update((s) => ({ ...s, [event.id]: 'decline' }));
+        this._state.replace(this._eventWithStatus(event, 'declined'));
     }
 
     public async rejectSeries(event: CalendarEvent) {
@@ -418,11 +406,57 @@ export class RoomBookingsApprovalsComponent implements OnInit {
                 30 * 1000,
             )
             .catch();
-        await mod.execute('find_bookings_for_approval').catch();
         this.loading.set(false);
-        this.status.update((s) => {
-            s[event.id] = 'decline';
-            return s;
+        this._setSeriesStatus(event, 'decline');
+        this._replaceSeriesEvents(event, 'declined');
+    }
+
+    private _setSeriesStatus(
+        event: CalendarEvent,
+        status: 'accept' | 'decline',
+    ) {
+        const recurring_event_id = event.recurring_event_id || event.id;
+        const series_events = this.pending().filter(
+            (_) => (_.recurring_event_id || _.id) === recurring_event_id,
+        );
+        this.status.update((s) => ({
+            ...s,
+            [recurring_event_id]: status,
+            ...Object.fromEntries(series_events.map((_) => [_.id, status])),
+            [event.id]: status,
+        }));
+    }
+
+    private _replaceSeriesEvents(
+        event: CalendarEvent,
+        status: 'approved' | 'declined',
+    ) {
+        const recurring_event_id = event.recurring_event_id || event.id;
+        const series_events = this.pending().filter(
+            (_) => (_.recurring_event_id || _.id) === recurring_event_id,
+        );
+        for (const series_event of series_events.length
+            ? series_events
+            : [event]) {
+            this._state.replace(this._eventWithStatus(series_event, status));
+        }
+    }
+
+    private _eventWithStatus(
+        event: CalendarEvent,
+        status: 'approved' | 'declined',
+    ) {
+        const response_status = status === 'approved' ? 'accepted' : 'declined';
+        return new CalendarEvent({
+            ...event,
+            status,
+            resources: event.resources.map((resource) => ({
+                ...resource,
+                response_status,
+            })) as any,
+            system: event.system
+                ? ({ ...event.system, response_status } as any)
+                : event.system,
         });
     }
 }

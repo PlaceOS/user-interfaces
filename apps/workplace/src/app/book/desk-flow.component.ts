@@ -1,15 +1,20 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BookingFormService } from '@placeos/bookings';
+import { BookingFormService, findNearbyFeature } from '@placeos/bookings';
 import {
     AsyncHandler,
     Booking,
+    currentUser,
     Desk,
     firstTruthyValueFrom,
+    i18n,
     nextValueFrom,
+    notifyError,
     notifyInfo,
     OrganisationService,
 } from '@placeos/common';
+import { SpacePipe } from '@placeos/events';
+import { set } from 'date-fns';
 import { lastValueFrom, map, timer } from 'rxjs';
 import { NewDeskFlowSuccessComponent } from './desk-flow-new/desk-flow-success.component';
 import { NewDeskFlowFormComponent } from './desk-flow/desk-flow-form.component';
@@ -42,6 +47,8 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
     private _state = inject(BookingFormService);
     private _org = inject(OrganisationService);
     private _route = inject(ActivatedRoute);
+
+    private _space_pipe: SpacePipe = new SpacePipe(this._org);
 
     public readonly view = this._state.view;
 
@@ -115,7 +122,47 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
                         ],
                     });
                 }
+                if (params.has('nearby_space')) {
+                    await this._initNearbyDeskBooking(
+                        params.get('nearby_space'),
+                        parseInt(params.get('date'), 10) || Date.now(),
+                    );
+                }
             }),
         );
+    }
+
+    private async _initNearbyDeskBooking(space_id: string, event_date: number) {
+        const space = await this._space_pipe.transform(space_id);
+        const level = this._org.levelWithID(space?.zones);
+        this._state.setOptions({ type: 'desk', zone_id: level?.id });
+        this._state.form.patchValue({
+            date: set(event_date, { hours: 8, minutes: 0 }).valueOf(),
+            duration: 10 * 60,
+            all_day: true,
+            booking_type: 'desk',
+            user: currentUser(),
+        });
+        const resources = await nextValueFrom(this._state.available_resources);
+        const bookable_desks = resources
+            .map((_) => _.map_id || _.id)
+            .filter((i) => i);
+        const nearby = await findNearbyFeature(
+            level.map_id,
+            space?.map_id,
+            bookable_desks,
+        );
+        if (!nearby)
+            return notifyError(i18n('APP.WORKPLACE.MEETING_DESK_ERROR'));
+        const resource = resources.find((_) => _.map_id === nearby);
+        this._state.form.patchValue({
+            date: set(event_date, { hours: 8, minutes: 0 }).valueOf(),
+            duration: 10 * 60,
+            all_day: true,
+            booking_type: 'desk',
+            asset_id: nearby,
+            asset_name: resource.name,
+            resources: [resource],
+        });
     }
 }

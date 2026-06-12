@@ -11,8 +11,16 @@ const ROUTES: Route[] = [
         path: '',
         component: LockersComponent,
         children: [
-            { path: 'events', component: LockerBookingsComponent },
-            { path: 'manage', component: LockerListComponent },
+            {
+                path: 'events',
+                component: LockerBookingsComponent,
+                title: 'Locker Bookings',
+            },
+            {
+                path: 'manage',
+                component: LockerListComponent,
+                title: 'Locker Management',
+            },
             { path: '**', redirectTo: 'events' },
         ],
     },

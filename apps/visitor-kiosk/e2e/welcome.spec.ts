@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import {
-    LOAD_TIMEOUT,
     ACTION_TIMEOUT,
+    LOAD_TIMEOUT,
     WELCOME_URL,
     navigateWithConfig,
 } from './test-utils';
@@ -17,7 +17,9 @@ test.describe('US-WELCOME-001: View Welcome Screen', () => {
     }) => {
         await navigateWithConfig(page, WELCOME_URL);
         // Wait for check-in link to be visible (uses href in DOM, not routerLink)
-        await page.locator('a[href*="checkin"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('a[href*="checkin"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Should have background image
         const bgImage = page.locator('img[auth]');
@@ -26,7 +28,9 @@ test.describe('US-WELCOME-001: View Welcome Screen', () => {
 
     test('should display check-in button', async ({ page }) => {
         await navigateWithConfig(page, WELCOME_URL);
-        await page.locator('a[href*="checkin"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('a[href*="checkin"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         const checkinButton = page.locator('a[href*="checkin"]');
         await expect(checkinButton).toBeVisible({ timeout: ACTION_TIMEOUT });
@@ -34,7 +38,9 @@ test.describe('US-WELCOME-001: View Welcome Screen', () => {
 
     test('should display building graphic', async ({ page }) => {
         await navigateWithConfig(page, WELCOME_URL);
-        await page.locator('a[href*="checkin"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('a[href*="checkin"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         const buildingImg = page.locator('img[src*="building.png"]');
         await expect(buildingImg).toBeVisible({ timeout: ACTION_TIMEOUT });
@@ -44,7 +50,9 @@ test.describe('US-WELCOME-001: View Welcome Screen', () => {
 test.describe('US-WELCOME-002: View Current Date and Time', () => {
     test('should display current date and time', async ({ page }) => {
         await navigateWithConfig(page, WELCOME_URL);
-        await page.locator('a[href*="checkin"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('a[href*="checkin"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Time display is in absolute positioned div at top right
         const timeDisplay = page.locator('.absolute.top-4.right-4');
@@ -55,7 +63,9 @@ test.describe('US-WELCOME-002: View Current Date and Time', () => {
 test.describe('US-WELCOME-003: Access Check-In', () => {
     test('should have visible check-in button', async ({ page }) => {
         await navigateWithConfig(page, WELCOME_URL);
-        await page.locator('a[href*="checkin"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('a[href*="checkin"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         const checkinButton = page.locator('a[href*="checkin"]');
         await expect(checkinButton).toBeVisible({ timeout: ACTION_TIMEOUT });
@@ -65,7 +75,9 @@ test.describe('US-WELCOME-003: Access Check-In', () => {
         page,
     }) => {
         await navigateWithConfig(page, WELCOME_URL);
-        await page.locator('a[href*="checkin"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('a[href*="checkin"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         const checkinButton = page.locator('a[href*="checkin"]');
         await checkinButton.click();
@@ -79,7 +91,9 @@ test.describe('US-WELCOME-004: Access Self-Registration', () => {
         page,
     }) => {
         await navigateWithConfig(page, WELCOME_URL);
-        await page.locator('a[href*="checkin"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('a[href*="checkin"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Register button visibility depends on settings - check if it exists in DOM
         const registerButton = page.locator('a[href*="register"]');
@@ -92,7 +106,9 @@ test.describe('US-WELCOME-004: Access Self-Registration', () => {
         page,
     }) => {
         await navigateWithConfig(page, WELCOME_URL);
-        await page.locator('a[href*="checkin"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('a[href*="checkin"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         const registerButton = page.locator('a[href*="register"]');
         const isVisible = await registerButton.isVisible().catch(() => false);
@@ -111,7 +127,9 @@ test.describe('US-WELCOME-005: Access Building Map', () => {
         page,
     }) => {
         await navigateWithConfig(page, WELCOME_URL);
-        await page.locator('a[href*="checkin"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('a[href*="checkin"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Explore button visibility depends on level being set and hide_explore setting
         const exploreButton = page.locator('a[href*="explore"]');
@@ -125,7 +143,9 @@ test.describe('US-WELCOME-006: Change Kiosk Language', () => {
         page,
     }) => {
         await navigateWithConfig(page, WELCOME_URL);
-        await page.locator('a[href*="checkin"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('a[href*="checkin"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Language button visibility depends on having multiple locales
         const langButton = page.locator('button.absolute.top-4.left-4');
@@ -137,7 +157,9 @@ test.describe('US-WELCOME-006: Change Kiosk Language', () => {
         page,
     }) => {
         await navigateWithConfig(page, WELCOME_URL);
-        await page.locator('a[href*="checkin"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('a[href*="checkin"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         const langButton = page.locator('button.absolute.top-4.left-4');
         const isVisible = await langButton.isVisible().catch(() => false);
@@ -159,7 +181,9 @@ test.describe('US-WELCOME-007: View Available Languages', () => {
         page,
     }) => {
         await navigateWithConfig(page, WELCOME_URL);
-        await page.locator('a[href*="checkin"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('a[href*="checkin"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         const langButton = page.locator('button.absolute.top-4.left-4');
         const isVisible = await langButton.isVisible().catch(() => false);
@@ -183,15 +207,21 @@ test.describe('Welcome Screen - Responsive Layout', () => {
         await page.setViewportSize({ width: 1920, height: 1080 });
         await navigateWithConfig(page, WELCOME_URL);
 
-        await page.locator('a[href*="checkin"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('a[href*="checkin"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
         await expect(page.locator('a[href*="checkin"]')).toBeVisible();
     });
 
-    test('should adapt to portrait orientation (768x1024)', async ({ page }) => {
+    test('should adapt to portrait orientation (768x1024)', async ({
+        page,
+    }) => {
         await page.setViewportSize({ width: 768, height: 1024 });
         await navigateWithConfig(page, WELCOME_URL);
 
-        await page.locator('a[href*="checkin"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('a[href*="checkin"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
         await expect(page.locator('a[href*="checkin"]')).toBeVisible();
     });
 
@@ -199,7 +229,9 @@ test.describe('Welcome Screen - Responsive Layout', () => {
         await page.setViewportSize({ width: 1080, height: 1920 });
         await navigateWithConfig(page, WELCOME_URL);
 
-        await page.locator('a[href*="checkin"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('a[href*="checkin"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
         await expect(page.locator('a[href*="checkin"]')).toBeVisible();
     });
 });

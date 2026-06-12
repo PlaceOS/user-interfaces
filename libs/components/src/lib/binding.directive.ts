@@ -11,10 +11,14 @@ import {
     model,
     output,
 } from '@angular/core';
-import { authority, getModule, onlineState } from '@placeos/ts-client';
+import {
+    authority,
+    getModule,
+    onlineState,
+    waitForSignal,
+} from '@placeos/ts-client';
 
 import { AsyncHandler } from '@placeos/common';
-import { first } from 'rxjs/operators';
 
 @Directive({
     selector: 'i[bind], [binding], co-bind',
@@ -56,9 +60,7 @@ export class BindingDirective<T = any>
     }
 
     public ngOnInit(): void {
-        onlineState()
-            ?.pipe(first((_) => _))
-            .subscribe((_) => this.bindVariable());
+        waitForSignal(onlineState(), (_) => _).then(() => this.bindVariable());
     }
 
     public ngOnChanges(changes: SimpleChanges): void {

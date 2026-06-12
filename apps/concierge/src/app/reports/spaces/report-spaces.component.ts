@@ -1,7 +1,7 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, map } from 'rxjs/operators';
 
-import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -13,6 +13,10 @@ import {
     AuthenticatedImageDirective,
     TranslatePipe,
 } from '@placeos/components';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { ReportsOptionsComponent } from '../reports-options.component';
 import { ReportsStateService } from '../reports-state.service';
 import { ReportSpacesChartsComponent } from './report-spaces-charts.component';
@@ -21,13 +25,41 @@ import { ReportSpacesOverallComponent } from './report-spaces-overall.component'
 import { ReportSpacesSpaceListingComponent } from './report-spaces-space-listing.component';
 import { ReportSpacesUserListingComponent } from './report-spaces-user-listing.component';
 
+const METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Business days',
+        description: 'Number of business days in the selected reporting range.',
+    },
+    {
+        label: 'Total bookings',
+        description:
+            'All room bookings returned for the selected dates and zones, including active, rejected, and cancelled records.',
+    },
+    {
+        label: 'Active / Rejected / Cancelled',
+        description:
+            'Active excludes cancelled and rejected events. Rejected uses events with cancelled state/type or rejected status. Cancelled uses events flagged as cancelled.',
+    },
+    {
+        label: 'Average length',
+        description:
+            'Sum of active booking durations divided by the number of active bookings.',
+    },
+    {
+        label: 'Attendance and no-shows',
+        description:
+            'Attendance uses the maximum recorded people count on each booking. No-shows are bookings with no recorded people count.',
+    },
+];
+
 @Component({
     selector: '[report-spaces]',
     template: `
         <reports-options
-            (printing)="printing = $event"
-            [loading]="!!(loading | async)"
-            [has_data]="!!(total_count | async)"
+            resource_type="events"
+            (printing)="printing.set($event)"
+            [loading]="!!loading()"
+            [has_data]="has_data()"
             (download)="downloadReport()"
             (generate)="generateReport()"
         />
@@ -36,31 +68,31 @@ import { ReportSpacesUserListingComponent } from './report-spaces-user-listing.c
         >
             <div class="w-full">
                 <div class="bg-base-200 m-4 flex items-center rounded-sm p-4">
-                    <img
-                        auth
-                        class="h-12"
-                        [source]="(logo | async)?.src || (logo | async)"
-                    />
+                    <img auth class="h-12" [source]="logo()?.src || logo()" />
                     <div class="flex-1"></div>
                     <h2 class="px-2 text-2xl font-medium">
                         {{ 'APP.CONCIERGE.REPORTS_ROOMS_HEADER' | translate }}
                     </h2>
                 </div>
             </div>
-            @if (!(loading | async)) {
-                @if (total_count | async) {
+            @if (!loading()) {
+                @if (total_count()) {
+                    <placeos-report-metric-guide
+                        [absolute]="true"
+                        [items]="metric_guide"
+                    />
                     <report-spaces-overall></report-spaces-overall>
                     <report-spaces-charts
-                        [print]="printing"
+                        [print]="printing()"
                     ></report-spaces-charts>
                     <report-spaces-overall-list
-                        [print]="printing"
+                        [print]="printing()"
                     ></report-spaces-overall-list>
                     <report-spaces-space-listing
-                        [print]="printing"
+                        [print]="printing()"
                     ></report-spaces-space-listing>
                     <report-spaces-user-listing
-                        [print]="printing"
+                        [print]="printing()"
                     ></report-spaces-user-listing>
                 } @else {
                     <div
@@ -91,10 +123,10 @@ import { ReportSpacesUserListingComponent } from './report-spaces-user-listing.c
         `,
     ],
     imports: [
-        CommonModule,
         MatProgressSpinnerModule,
         TranslatePipe,
         ReportsOptionsComponent,
+        ReportMetricGuideComponent,
         AuthenticatedImageDirective,
         ReportSpacesChartsComponent,
         ReportSpacesOverallComponent,
@@ -109,23 +141,31 @@ export class ReportSpacesComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _org = inject(OrganisationService);
 
-    public printing = false;
-    public readonly total_count = this._state.stats.pipe(
-        map((i) => i.count || 0),
+    public readonly printing = signal(false);
+    public readonly metric_guide = METRIC_GUIDE;
+    public readonly total_count = toSignal(
+        this._state.stats.pipe(map((i) => i.total_count || i.count || 0)),
+        { initialValue: 0 },
     );
-    public readonly loading = this._state.loading;
+    public readonly loading = toSignal(this._state.loading, {
+        initialValue: '',
+    });
+    public readonly has_data = computed(() => !!this.total_count());
 
     public readonly downloadReport = () => this._state.downloadReport();
     public readonly generateReport = () => this._state.generateReport();
 
-    public readonly logo = this._org.active_building.pipe(
-        debounceTime(500),
-        map(
-            () =>
-                (this._settings.theme === 'dark'
-                    ? this._settings.get('app.logo_dark')
-                    : this._settings.get('app.logo_light')) || {},
+    public readonly logo = toSignal(
+        this._org.active_building.pipe(
+            debounceTime(500),
+            map(
+                () =>
+                    (this._settings.theme === 'dark'
+                        ? this._settings.get('app.logo_dark')
+                        : this._settings.get('app.logo_light')) || {},
+            ),
         ),
+        { initialValue: {} },
     );
 
     public ngOnInit() {

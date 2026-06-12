@@ -3,6 +3,7 @@ import {
     Component,
     ElementRef,
     OnDestroy,
+    computed,
     inject,
     signal,
     viewChild,
@@ -14,6 +15,7 @@ import {
     nextValueFrom,
     notifyError,
     scanForQRCode,
+    settingSignal,
 } from '@placeos/common';
 
 import { FormsModule } from '@angular/forms';
@@ -21,7 +23,11 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    TranslatePipe,
+    VirtualKeyboardComponent,
+} from '@placeos/components';
 import { CheckinStateService } from './checkin-state.service';
 
 @Component({
@@ -40,9 +46,9 @@ import { CheckinStateService } from './checkin-state.service';
                     class="no-subscript w-px flex-1"
                 >
                     <input
+                        keyboard
                         matInput
-                        [ngModel]="email()"
-                        (ngModelChange)="email.set($event)"
+                        [(ngModel)]="email"
                         placeholder="Enter email..."
                         type="email"
                         autocomplete="off"
@@ -134,6 +140,7 @@ import { CheckinStateService } from './checkin-state.service';
         MatFormFieldModule,
         MatInputModule,
         FormsModule,
+        VirtualKeyboardComponent,
     ],
 })
 export class CheckinQRScanComponent
@@ -148,6 +155,17 @@ export class CheckinQRScanComponent
     public readonly scanner_ready = signal(false);
     /** Email address of the visitor */
     public readonly email = signal('');
+    public readonly induction_enabled = settingSignal(
+        'induction_enabled',
+        false,
+    );
+    public readonly induction_details = settingSignal('induction_details');
+    public readonly is_induction_enabled = computed(
+        () => this.induction_enabled() && this.induction_details(),
+    );
+    public readonly induction_after_details = settingSignal(
+        'induction_after_details',
+    );
     /** Video element to emit camera feed */
     private readonly _video_el =
         viewChild<ElementRef<HTMLVideoElement>>('video');
@@ -155,17 +173,6 @@ export class CheckinQRScanComponent
     private _canvas: HTMLCanvasElement;
     /** Canvas context */
     private _ctx: CanvasRenderingContext2D;
-
-    public get is_induction_enabled() {
-        return (
-            this._settings.get('app.induction_enabled') &&
-            this._settings.get('app.induction_details')
-        );
-    }
-
-    public get induction_after_details() {
-        return this._settings.get('app.induction_after_details');
-    }
 
     public ngAfterViewInit() {
         this._checkin.metadata = '';
@@ -196,11 +203,13 @@ export class CheckinQRScanComponent
             return;
         }
         if (!/^\d+$/.test(event_id)) event_id = undefined;
-        await this._checkin.loadGuestAndEvent(visitor_email, event_id).catch((err) => {
-            this.handleError(err.message || err);
-            this.checking_code.set(false);
-            throw err;
-        });
+        await this._checkin
+            .loadGuestAndEvent(visitor_email, event_id)
+            .catch((err) => {
+                this.handleError(err.message || err);
+                this.checking_code.set(false);
+                throw err;
+            });
         const event = await nextValueFrom(this._checkin.event);
         if (event.rejected) {
             this.handleError('Your meeting has been rejected.');
@@ -216,7 +225,7 @@ export class CheckinQRScanComponent
             this.checking_code.set(false);
             return;
         }
-        if (this.is_induction_enabled && event?.induction !== 'accepted') {
+        if (this.is_induction_enabled() && event?.induction !== 'accepted') {
             this._router.navigate(['/checkin', 'induction']);
         } else {
             this._router.navigate(['/checkin', 'details']);
@@ -255,8 +264,8 @@ export class CheckinQRScanComponent
         }
         if (
             event.induction !== 'accepted' &&
-            this.is_induction_enabled &&
-            !this.induction_after_details
+            this.is_induction_enabled() &&
+            !this.induction_after_details()
         ) {
             this._router.navigate(['/checkin', 'induction']);
         } else {
@@ -284,7 +293,8 @@ export class CheckinQRScanComponent
                 })
                 .then((stream) => {
                     _video_el.srcObject = stream;
-                    _video_el.onloadedmetadata = () => this.scanner_ready.set(true);
+                    _video_el.onloadedmetadata = () =>
+                        this.scanner_ready.set(true);
                     this.subscription(
                         'scan_for_qr_code',
                         scanForQRCode(_video_el).subscribe({

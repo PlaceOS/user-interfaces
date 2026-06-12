@@ -45,6 +45,7 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
         <div class="relative h-1/2 w-full flex-1">
             <router-outlet></router-outlet>
         </div>
+        <placeos-service-worker-update-card />
     `,
     styles: [
         `
@@ -70,6 +71,9 @@ export class AppComponent extends AsyncHandler implements OnInit {
     public async ngOnInit() {
         log('APP', 'MOCKS:', MOCKS);
         setNotifyOutlet(this._snackbar);
+        // Listen for service worker events before any async setup so update
+        // notifications emitted during initialisation are not missed.
+        setupCache(this._cache);
         const authority: PlaceAuthority = await (
             await fetch('/auth/authority')
         ).json();
@@ -82,7 +86,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
             location.origin.includes('demo.place.tech');
         /** Wait for authentication details to load */
         await setupPlace(settings);
-        setupCache(this._cache);
+        setupCache(this._cache, this._settings.get('service_worker') || {});
         setInternalUserDomain(
             this._settings.get('app.internal_user_domain') ||
                 `@${currentUser()?.email?.split('@')[1]}`,

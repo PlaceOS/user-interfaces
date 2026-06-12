@@ -1,6 +1,6 @@
 import { of } from 'rxjs';
 
-import { Booking } from '@placeos/common';
+import { Booking, VERSION } from '@placeos/common';
 import {
     approveBooking,
     checkinBooking,
@@ -17,6 +17,11 @@ jest.mock('@placeos/ts-client');
 import * as ts_client from '@placeos/ts-client';
 
 describe('[Booking API]', () => {
+    const app_version = VERSION.raw || VERSION.version || VERSION.hash;
+    const app_name = 'PlaceOS';
+
+    beforeEach(() => jest.clearAllMocks());
+
     describe('queryBookings', () => {
         it('should allow calling GET request for listing bookings', async () => {
             const spy = jest.spyOn(ts_client, 'get');
@@ -59,7 +64,7 @@ describe('[Booking API]', () => {
             expect(booking).toBeInstanceOf(Booking);
             expect(ts_client.post).toHaveBeenCalledWith(
                 `/api/staff/v1/bookings`,
-                {},
+                { extension_data: { app_name, app_version } },
             );
             spy.mockReset();
         });
@@ -74,7 +79,7 @@ describe('[Booking API]', () => {
             expect(booking).toBeInstanceOf(Booking);
             expect(ts_client.patch).toHaveBeenCalledWith(
                 `/api/staff/v1/bookings/1`,
-                {},
+                { extension_data: { app_name, app_version } },
             );
             spy.mockReset();
         });
@@ -86,7 +91,7 @@ describe('[Booking API]', () => {
             expect(booking).toBeInstanceOf(Booking);
             expect(ts_client.put).toHaveBeenCalledWith(
                 `/api/staff/v1/bookings/1`,
-                {},
+                { extension_data: { app_name, app_version } },
             );
             spy.mockReset();
         });
@@ -98,7 +103,10 @@ describe('[Booking API]', () => {
             spy.mockImplementation(() => of({}) as any);
             expect(ts_client.post).not.toHaveBeenCalled();
             await saveBooking({}).toPromise();
-            expect(ts_client.post).toHaveBeenCalled();
+            expect(ts_client.post).toHaveBeenCalledWith(
+                `/api/staff/v1/bookings`,
+                { extension_data: { app_name, app_version } },
+            );
             spy.mockReset();
         });
         it('should update existing bookings', async () => {
@@ -106,7 +114,10 @@ describe('[Booking API]', () => {
             spy.mockImplementation(() => of({}) as any);
             expect(ts_client.patch).not.toHaveBeenCalled();
             await saveBooking({ id: '1' }).toPromise();
-            expect(ts_client.patch).toHaveBeenCalled();
+            expect(ts_client.patch).toHaveBeenCalledWith(
+                `/api/staff/v1/bookings/1`,
+                { extension_data: { app_name, app_version } },
+            );
             spy.mockReset();
         });
     });

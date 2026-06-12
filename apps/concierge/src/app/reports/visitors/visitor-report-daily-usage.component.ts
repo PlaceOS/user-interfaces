@@ -1,20 +1,35 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import {
-    downloadFile,
-    jsonToCsv,
-    nextValueFrom,
-    unique,
-} from '@placeos/common';
+import { downloadFile, jsonToCsv, unique } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
 import { map } from 'rxjs/operators';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { VisitorsReportService } from './visitors-report.service';
+
+const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Unique visitors',
+        description: 'Number of distinct visitor asset IDs booked on the day.',
+    },
+    {
+        label: 'Hosts',
+        description: 'Number of distinct booking user emails on the day.',
+    },
+    {
+        label: 'Booking count',
+        description: 'Total visitor bookings recorded for the day.',
+    },
+];
 
 @Component({
     selector: 'visitor-report-daily-usage',
@@ -29,6 +44,7 @@ import { VisitorsReportService } from './visitors-report.service';
                 @if (!print()) {
                     <button
                         icon
+                        default
                         matRipple
                         [matTooltip]="
                             'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
@@ -38,10 +54,15 @@ import { VisitorsReportService } from './visitors-report.service';
                         <icon>download</icon>
                     </button>
                 }
+                <placeos-report-metric-guide
+                    title="Table column calculations"
+                    [items]="table_metric_guide"
+                    [inline]="true"
+                />
             </div>
             <simple-table
                 class="block w-full text-sm"
-                [data]="daily_stats"
+                [data]="daily_stats()"
                 [columns]="[
                     {
                         key: 'date',
@@ -86,32 +107,37 @@ import { VisitorsReportService } from './visitors-report.service';
         IconComponent,
         MatTooltipModule,
         MatRippleModule,
+        ReportMetricGuideComponent,
     ],
 })
 export class VisitorReportDailyUsageComponent {
     private _state = inject(VisitorsReportService);
 
     public readonly print = input<boolean>(false);
+    public readonly table_metric_guide = TABLE_METRIC_GUIDE;
 
-    public readonly daily_stats = this._state.daily_stats$.pipe(
-        map((days) => {
-            const list = [];
-            for (const date in days) {
-                list.push({
-                    date,
-                    booking_count: unique(days[date].bookings, 'asset_id')
-                        .length,
-                    host_count: unique(days[date].bookings, 'user_email')
-                        .length,
-                    booked_count: days[date].bookings.length,
-                });
-            }
-            return list;
-        }),
+    public readonly daily_stats = toSignal(
+        this._state.daily_stats$.pipe(
+            map((days) => {
+                const list = [];
+                for (const date in days) {
+                    list.push({
+                        date,
+                        booking_count: unique(days[date].bookings, 'asset_id')
+                            .length,
+                        host_count: unique(days[date].bookings, 'user_email')
+                            .length,
+                        booked_count: days[date].bookings.length,
+                    });
+                }
+                return list;
+            }),
+        ),
+        { initialValue: [] },
     );
 
     public readonly download = async () => {
-        const data = await nextValueFrom(this.daily_stats);
+        const data = this.daily_stats();
         downloadFile('report-visitors-daily-usage.csv', jsonToCsv(data));
     };
 }

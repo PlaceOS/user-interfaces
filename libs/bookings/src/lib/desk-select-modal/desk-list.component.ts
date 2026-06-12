@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, input, output } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
@@ -11,29 +11,21 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
 
 @Component({
     selector: 'desk-list',
-    styles: [
-        `
-            :host {
-                width: 100%;
-                height: 100%;
-                padding: 0.5rem;
-                background: rgba(0, 0, 0, 0.05);
-                overflow-y: auto;
-            }
-        `,
-    ],
+    styles: [``],
     template: `
-        <h3 class="font-bold">{{ 'COMMON.RESULTS' | translate }}</h3>
-        <p count class="mb-4 text-sm opacity-60">
+        <h3 class="px-2 font-bold">{{ 'COMMON.RESULTS' | translate }}</h3>
+        <p count class="mb-4 px-2 text-sm opacity-60">
             {{
                 'COMMON.RESULTS_COUNT'
-                    | translate: { count: (desks | async)?.length || 0 }
+                    | translate
+                        : { count: desks()?.length || 0 }
+                        : desks()?.length || 0
             }}
         </p>
-        @if (!(loading | async)?.length) {
-            @if ((desks | async)?.length) {
+        @if (!loading()?.length) {
+            @if (desks()?.length) {
                 <ul class="list-style-none space-y-2">
-                    @for (desk of desks | async; track desk.id) {
+                    @for (desk of desks(); track desk) {
                         <li
                             desk
                             class="border-base-200 bg-base-100 relative w-full overflow-hidden rounded-lg border shadow-sm"
@@ -50,7 +42,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                                 >
                                     @if (selected().includes(desk.id)) {
                                         <div
-                                            class="border-neutral bg-base-200 absolute top-1 left-1 flex h-6 w-6 items-center justify-center rounded-full border text-white"
+                                            class="border-neutral bg-base-200 absolute top-1 left-1 flex h-6 w-6 items-center justify-center rounded-full border"
                                         >
                                             <icon>done</icon>
                                         </div>
@@ -69,9 +61,11 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                                     }
                                 </div>
                                 <div class="flex-1 space-y-2 pt-2 text-left">
-                                    <span class="font-medium">
+                                    <div
+                                        class="w-[calc(100%-2rem)] truncate font-medium"
+                                    >
                                         {{ desk.name || desk.id || 'Desk' }}
-                                    </span>
+                                    </div>
                                     <div
                                         class="flex items-center space-x-2 text-sm"
                                     >
@@ -105,6 +99,11 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                             </button>
                         </li>
                     }
+                    <li
+                        class="bg-base-400 rounded-sm p-2 text-center text-sm opacity-30"
+                    >
+                        {{ 'COMMON.END_OF_LIST' | translate }}
+                    </li>
                 </ul>
             } @else {
                 <div
@@ -129,7 +128,6 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
         }
     `,
     imports: [
-        CommonModule,
         TranslatePipe,
         MatRippleModule,
         MatProgressSpinnerModule,
@@ -146,21 +144,26 @@ export class DeskListComponent {
     public readonly onSelect = output<BookingAsset>();
     public readonly toggleFav = output<BookingAsset>();
 
-    public readonly desks = combineLatest([
-        this._state.options,
-        this._state.available_resources,
-    ]).pipe(
-        map(([{ show_fav }, _]) =>
-            _.filter((i) => !show_fav || this.isFavourite(i.id)).sort(
-                (a, b) => {
-                    const a_fav = this.isFavourite(a.id) ? 1 : 0;
-                    const b_fav = this.isFavourite(b.id) ? 1 : 0;
-                    return b_fav - a_fav;
-                },
+    public readonly desks = toSignal(
+        combineLatest([
+            this._state.options,
+            this._state.available_resources,
+        ]).pipe(
+            map(([{ show_fav }, _]) =>
+                _.filter((i) => !show_fav || this.isFavourite(i.id)).sort(
+                    (a, b) => {
+                        const a_fav = this.isFavourite(a.id) ? 1 : 0;
+                        const b_fav = this.isFavourite(b.id) ? 1 : 0;
+                        return b_fav - a_fav;
+                    },
+                ),
             ),
         ),
+        { initialValue: [] },
     );
-    public readonly loading = this._state.loading;
+    public readonly loading = toSignal(this._state.loading, {
+        initialValue: '',
+    });
 
     public isFavourite(desk_id: string) {
         return this.favorites().includes(desk_id);

@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
     Component,
     input,
@@ -243,7 +242,7 @@ export function numberToPosition(num: number): string {
                                         >
                                             <mat-select-trigger>
                                                 {{ pad(cron_hour) }}:<span
-                                                    class="opacity-30"
+                                                    class="stagehand-muted"
                                                     >00</span
                                                 >
                                             </mat-select-trigger>
@@ -253,7 +252,7 @@ export function numberToPosition(num: number): string {
                                             ) {
                                                 <mat-option [value]="+hour">
                                                     {{ pad(hour) }}:<span
-                                                        class="opacity-30"
+                                                        class="stagehand-muted"
                                                         >00</span
                                                     >
                                                 </mat-option>
@@ -278,7 +277,7 @@ export function numberToPosition(num: number): string {
                                             }"
                                         >
                                             <mat-select-trigger>
-                                                <span class="opacity-30">{{
+                                                <span class="stagehand-muted">{{
                                                     pad(cron_hour)
                                                 }}</span
                                                 >:{{ pad(cron_minute) }}
@@ -288,7 +287,7 @@ export function numberToPosition(num: number): string {
                                                 track minute
                                             ) {
                                                 <mat-option [value]="+minute">
-                                                    <span class="opacity-30">{{
+                                                    <span class="stagehand-muted">{{
                                                         pad(cron_hour)
                                                     }}</span
                                                     >:{{ pad(minute) }}
@@ -314,7 +313,6 @@ export function numberToPosition(num: number): string {
     `,
     styles: [],
     imports: [
-        CommonModule,
         FormsModule,
         CronInputFieldComponent,
         MatFormFieldModule,

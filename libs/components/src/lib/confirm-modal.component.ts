@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
+import { Component, EventEmitter, OnInit, inject } from '@angular/core';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
@@ -128,7 +128,7 @@ export class ConfirmModalComponent extends AsyncHandler implements OnInit {
     /** Loading state */
     public loading: string;
     /** Emitter for user action on the modal */
-    @Output() public event = new EventEmitter<DialogEvent>();
+    public readonly event = new EventEmitter<DialogEvent>();
     /** Title of the confirm modal */
     public readonly title: string = this._data.title || 'COMMON.CONFIRM';
     /** Body of the confirm modal */

@@ -92,7 +92,9 @@ test.describe('Stagehand App - Hash Routing', () => {
         await page.goto('/#/alerts?mock=true');
 
         // Check for visible content inside the component
-        await expect(page.locator('stagehand-alerts h1:has-text("AV Systems Alerts")')).toBeVisible({
+        await expect(
+            page.locator('stagehand-alerts h1:has-text("AV Systems Alerts")'),
+        ).toBeVisible({
             timeout: LOAD_TIMEOUT,
         });
     });
@@ -104,7 +106,11 @@ test.describe('Stagehand App - Hash Routing', () => {
         await page.goto('/#/remote-support?mock=true');
 
         // Check for visible content inside the component
-        await expect(page.locator('stagehand-remote-support h1:has-text("AV Systems Remote Support")')).toBeVisible({
+        await expect(
+            page.locator(
+                'stagehand-remote-support h1:has-text("AV Systems Remote Support")',
+            ),
+        ).toBeVisible({
             timeout: LOAD_TIMEOUT,
         });
     });

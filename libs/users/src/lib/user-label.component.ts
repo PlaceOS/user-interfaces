@@ -140,6 +140,9 @@ export interface UserDetails extends User {
 })
 export class UserLabelComponent {
     private _settings = inject(SettingsService);
+    private readonly _theme = this._settings.theme_signal;
+    private readonly _logo_dark = this._settings.signal('logo_dark', null);
+    private readonly _logo_light = this._settings.signal('logo_light', null);
 
     public readonly user = input<UserDetails>({} as any);
     public readonly width = input<number>(25);
@@ -147,9 +150,9 @@ export class UserLabelComponent {
     public readonly landscape = computed(() => this.width() > this.height());
 
     public get logo() {
-        return this._settings.theme === 'dark'
-            ? this._settings.get('app.logo_dark')
-            : this._settings.get('app.logo_light');
+        return this._theme() === 'dark'
+            ? this._logo_dark()
+            : this._logo_light();
     }
 
     print() {

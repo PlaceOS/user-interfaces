@@ -10,15 +10,163 @@ import { defer, forkJoin, from, Observable, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { saveAsset, saveAssetCategory, saveAssetType } from './assets.fn';
 
-const PARKING_CATEGORY_NAME = '_PARKING_SPACES_';
+const PARKING_CATEGORY_NAME = '_PARKING_';
 const PARKING_TYPE_NAME = '_PARKING_SPACES_';
 
 let _parking_type_id: string | null = null;
 let _parking_type_id_promise: Promise<string> | null = null;
+let _hidden_categories_promise: Promise<any[]> | null = null;
+const _types_for_category_promises = new Map<string, Promise<any[]>>();
+
+function normalise_name(name: string = '') {
+    return name.trim().toLowerCase();
+}
+
+async function query_hidden_categories() {
+    if (!_hidden_categories_promise) {
+        _hidden_categories_promise = queryAssetCategories({
+            hidden: true,
+            limit: 500,
+        })
+            .then((_) => _.data)
+            .catch(() => []);
+    }
+    return _hidden_categories_promise;
+}
+
+async function query_types_for_category(category_id: string) {
+    if (!_types_for_category_promises.has(category_id)) {
+        _types_for_category_promises.set(
+            category_id,
+            queryAssetTypes({ category_id, limit: 500 })
+                .then((_) => _.data)
+                .catch(() => []),
+        );
+    }
+    return _types_for_category_promises.get(category_id);
+}
+
+function reset_hidden_categories_cache() {
+    _hidden_categories_promise = null;
+}
+
+function reset_types_cache(category_ids: string[]) {
+    category_ids.forEach((category_id) =>
+        _types_for_category_promises.delete(category_id),
+    );
+}
+
+async function query_types_for_categories(category_ids: string[]) {
+    const list = await Promise.all(
+        category_ids.map((category_id) =>
+            query_types_for_category(category_id),
+        ),
+    );
+    return list.flat();
+}
+
+async function ensure_hidden_category(name: string) {
+    const match_name = normalise_name(name);
+    let category = (await query_hidden_categories()).find(
+        (_) => normalise_name(_.name) === match_name,
+    );
+    if (category) return category;
+    reset_hidden_categories_cache();
+    category = (await query_hidden_categories()).find(
+        (_) => normalise_name(_.name) === match_name,
+    );
+    if (category) return category;
+    try {
+        const category = await saveAssetCategory({
+            name,
+            hidden: true,
+        } as any).toPromise();
+        reset_hidden_categories_cache();
+        return category;
+    } catch (error) {
+        reset_hidden_categories_cache();
+        category = (await query_hidden_categories()).find(
+            (_) => normalise_name(_.name) === match_name,
+        );
+        if (category) return category;
+        throw error;
+    }
+}
+
+async function move_type_to_category(
+    type: any,
+    category_id: string,
+    name: string,
+) {
+    if (
+        type.category_id === category_id &&
+        normalise_name(type.name) === normalise_name(name)
+    ) {
+        return type;
+    }
+    try {
+        const updated_type = await saveAssetType({
+            id: type.id,
+            name,
+            brand: type.brand || 'PlaceOS',
+            category_id,
+        } as any).toPromise();
+        reset_types_cache([category_id]);
+        return updated_type;
+    } catch (error) {
+        reset_types_cache([category_id]);
+        const types = await query_types_for_category(category_id);
+        const existing_type = types.find(
+            (_) => normalise_name(_.name) === normalise_name(name),
+        );
+        if (existing_type) return existing_type;
+        throw error;
+    }
+}
+
+async function ensure_type(
+    category_id: string,
+    name: string,
+    legacy_category_ids: string[] = [],
+) {
+    const match_name = normalise_name(name);
+    let type = (
+        await query_types_for_categories([
+            category_id,
+            ...legacy_category_ids.filter((_) => _ !== category_id),
+        ])
+    ).find((_) => normalise_name(_.name) === match_name);
+    if (type) return move_type_to_category(type, category_id, name);
+    try {
+        const type = await saveAssetType({
+            name,
+            brand: 'PlaceOS',
+            category_id,
+        } as any).toPromise();
+        reset_types_cache([category_id]);
+        return type;
+    } catch (error) {
+        reset_types_cache([category_id, ...legacy_category_ids]);
+        type = (
+            await query_types_for_categories([
+                category_id,
+                ...legacy_category_ids.filter((_) => _ !== category_id),
+            ])
+        ).find((_) => normalise_name(_.name) === match_name);
+        if (type) return move_type_to_category(type, category_id, name);
+        throw error;
+    }
+}
+
+async function bootstrap_asset_type(type_name: string) {
+    const category = await ensure_hidden_category(PARKING_CATEGORY_NAME);
+    const type = await ensure_type(category.id, type_name);
+    return type.id;
+}
 
 /**
- * Ensures the _PARKING_SPACES_ category (hidden) and _PARKING_SPACES_ type exist,
- * caches the type ID. Returns synchronously via of() once resolved.
+ * Ensures the shared _PARKING_ category (hidden) and _PARKING_SPACES_ type
+ * exist, migrating legacy parking categories when needed.
  */
 export function resolveParkingTypeId(): Observable<string> {
     if (_parking_type_id) return of(_parking_type_id);
@@ -32,30 +180,7 @@ export function resolveParkingTypeId(): Observable<string> {
 }
 
 async function _bootstrapParkingType(): Promise<string> {
-    const categories = await queryAssetCategories({ hidden: true })
-        .pipe(map((_) => _.data))
-        .toPromise()
-        .catch(() => []);
-    let category = categories.find((_) => _.name === PARKING_CATEGORY_NAME);
-    if (!category) {
-        category = await saveAssetCategory({
-            name: PARKING_CATEGORY_NAME,
-            hidden: true,
-        } as any).toPromise();
-    }
-    const types = await queryAssetTypes({ category_id: category.id })
-        .pipe(map((_) => _.data))
-        .toPromise()
-        .catch(() => []);
-    let type = types.find((_) => _.name === PARKING_TYPE_NAME);
-    if (!type) {
-        type = await saveAssetType({
-            name: PARKING_TYPE_NAME,
-            brand: 'PlaceOS',
-            category_id: category.id,
-        } as any).toPromise();
-    }
-    return type.id;
+    return bootstrap_asset_type(PARKING_TYPE_NAME);
 }
 
 /** Query parking spaces for a single zone */
@@ -71,7 +196,16 @@ export function queryParkingSpacesForZones(
     zone_ids: string[],
 ): Observable<PlaceAsset[]> {
     if (!zone_ids?.length) return of([]);
-    return forkJoin(zone_ids.map((id) => queryParkingSpaces(id))).pipe(
+    return resolveParkingTypeId().pipe(
+        switchMap((type_id) =>
+            forkJoin(
+                zone_ids.map((zone_id) =>
+                    queryAssets({ zone_id, type_id, limit: 500 }).then(
+                        (_) => _.data,
+                    ),
+                ),
+            ),
+        ),
         map((results) => flatten<PlaceAsset>(results)),
     );
 }
@@ -87,7 +221,7 @@ export function saveParkingSpace(
 
 /** Delete a parking space asset by ID */
 export function deleteParkingSpace(id: string) {
-    return removeAsset(id);
+    return from(removeAsset(id));
 }
 
 export interface ParkingUser {
@@ -103,15 +237,14 @@ export interface ParkingUser {
     special_needs: boolean;
 }
 
-const PARKING_USER_CATEGORY_NAME = '_PARKING_USERS_';
 const PARKING_USER_TYPE_NAME = '_PARKING_USERS_';
 
 let _parking_user_type_id: string | null = null;
 let _parking_user_type_id_promise: Promise<string> | null = null;
 
 /**
- * Ensures the _PARKING_USERS_ category (hidden) and _PARKING_USERS_ type exist,
- * caches the type ID. Returns synchronously via of() once resolved.
+ * Ensures the shared _PARKING_ category (hidden) and _PARKING_USERS_ type
+ * exist, migrating legacy parking categories when needed.
  */
 export function resolveParkingUserTypeId(): Observable<string> {
     if (_parking_user_type_id) return of(_parking_user_type_id);
@@ -127,32 +260,7 @@ export function resolveParkingUserTypeId(): Observable<string> {
 }
 
 async function _bootstrapParkingUserType(): Promise<string> {
-    const categories = await queryAssetCategories({ hidden: true })
-        .pipe(map((_) => _.data))
-        .toPromise()
-        .catch(() => []);
-    let category = categories.find(
-        (_) => _.name === PARKING_USER_CATEGORY_NAME,
-    );
-    if (!category) {
-        category = await saveAssetCategory({
-            name: PARKING_USER_CATEGORY_NAME,
-            hidden: true,
-        } as any).toPromise();
-    }
-    const types = await queryAssetTypes({ category_id: category.id })
-        .pipe(map((_) => _.data))
-        .toPromise()
-        .catch(() => []);
-    let type = types.find((_) => _.name === PARKING_USER_TYPE_NAME);
-    if (!type) {
-        type = await saveAssetType({
-            name: PARKING_USER_TYPE_NAME,
-            brand: 'PlaceOS',
-            category_id: category.id,
-        } as any).toPromise();
-    }
-    return type.id;
+    return bootstrap_asset_type(PARKING_USER_TYPE_NAME);
 }
 
 /** Convert a PlaceAsset to a ParkingUser */
@@ -216,7 +324,7 @@ export function saveParkingUser(
 
 /** Delete a parking user asset by ID */
 export function deleteParkingUser(id: string) {
-    return removeAsset(id);
+    return from(removeAsset(id));
 }
 
 export interface ParkingFleetVehicle {
@@ -228,15 +336,15 @@ export interface ParkingFleetVehicle {
     notes: string;
 }
 
-const PARKING_FLEET_CATEGORY_NAME = '_PARKING_FLEET_VEHICLES_';
 const PARKING_FLEET_TYPE_NAME = '_PARKING_FLEET_VEHICLES_';
 
 let _parking_fleet_type_id: string | null = null;
 let _parking_fleet_type_id_promise: Promise<string> | null = null;
 
 /**
- * Ensures the _PARKING_FLEET_VEHICLES_ category (hidden) and
- * _PARKING_FLEET_VEHICLES_ type exist, caches the type ID.
+ * Ensures the shared _PARKING_ category (hidden) and
+ * _PARKING_FLEET_VEHICLES_ type exist, migrating legacy parking categories
+ * when needed.
  */
 export function resolveParkingFleetTypeId(): Observable<string> {
     if (_parking_fleet_type_id) return of(_parking_fleet_type_id);
@@ -252,32 +360,7 @@ export function resolveParkingFleetTypeId(): Observable<string> {
 }
 
 async function _bootstrapParkingFleetType(): Promise<string> {
-    const categories = await queryAssetCategories({ hidden: true })
-        .pipe(map((_) => _.data))
-        .toPromise()
-        .catch(() => []);
-    let category = categories.find(
-        (_) => _.name === PARKING_FLEET_CATEGORY_NAME,
-    );
-    if (!category) {
-        category = await saveAssetCategory({
-            name: PARKING_FLEET_CATEGORY_NAME,
-            hidden: true,
-        } as any).toPromise();
-    }
-    const types = await queryAssetTypes({ category_id: category.id })
-        .pipe(map((_) => _.data))
-        .toPromise()
-        .catch(() => []);
-    let type = types.find((_) => _.name === PARKING_FLEET_TYPE_NAME);
-    if (!type) {
-        type = await saveAssetType({
-            name: PARKING_FLEET_TYPE_NAME,
-            brand: 'PlaceOS',
-            category_id: category.id,
-        } as any).toPromise();
-    }
-    return type.id;
+    return bootstrap_asset_type(PARKING_FLEET_TYPE_NAME);
 }
 
 /** Convert a PlaceAsset to a ParkingFleetVehicle */
@@ -335,5 +418,5 @@ export function saveParkingFleetVehicle(
 
 /** Delete a fleet vehicle asset by ID */
 export function deleteParkingFleetVehicle(id: string) {
-    return removeAsset(id);
+    return from(removeAsset(id));
 }

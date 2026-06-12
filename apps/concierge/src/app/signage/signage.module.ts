@@ -12,9 +12,13 @@ const ROUTES: Route[] = [
         component: SignageComponent,
         children: [
             { path: '', redirectTo: 'media', pathMatch: 'full' },
-            { path: 'media', component: SignageMediaComponent },
-            { path: 'displays', component: SignageDisplaysComponent },
-            { path: 'zones', component: SignageZonesComponent },
+            { path: 'media', component: SignageMediaComponent, title: 'Signage Media' },
+            {
+                path: 'displays',
+                component: SignageDisplaysComponent,
+                title: 'Signage Displays',
+            },
+            { path: 'zones', component: SignageZonesComponent, title: 'Signage Zones' },
             { path: '*', redirectTo: 'media', pathMatch: 'full' },
         ],
     },

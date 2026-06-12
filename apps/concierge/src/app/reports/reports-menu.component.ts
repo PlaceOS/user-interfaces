@@ -2,9 +2,15 @@ import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import { SettingsService } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 
-const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
+const DEFAULT_FEATURES = [
+    'attendance',
+    'desks',
+    'spaces',
+    'catering',
+    'contact-tracing',
+];
 
 @Component({
     selector: 'reports-menu,[reports-menu]',
@@ -13,7 +19,7 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
             class="bg-base-200 absolute inset-0 flex items-center justify-center overflow-auto"
         >
             <div class="grid w-full justify-items-center">
-                @if (features.includes('desks')) {
+                @if (features().includes('desks')) {
                     <a
                         [routerLink]="['/reports', 'desks']"
                         matRipple
@@ -27,7 +33,7 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
                         </div>
                     </a>
                 }
-                @if (features.includes('spaces')) {
+                @if (features().includes('spaces')) {
                     <a
                         [routerLink]="['/reports', 'bookings']"
                         matRipple
@@ -41,7 +47,26 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
                         </div>
                     </a>
                 }
-                @if (features.includes('catering')) {
+                @if (features().includes('attendance')) {
+                    <a
+                        [routerLink]="['/reports', 'attendance']"
+                        matRipple
+                        class="border-base-200 bg-base-100 flex h-64 w-64 flex-col items-center justify-center rounded-sm border p-4 shadow-sm hover:opacity-80"
+                    >
+                        <icon class="text-8xl">groups</icon>
+                        <h3 class="mb-4 text-center text-xl font-bold">
+                            {{
+                                'APP.CONCIERGE.MENU_REPORT_SITE_ATTENDANCE'
+                                    | translate
+                            }}
+                        </h3>
+                        <div class="flex items-center">
+                            <p>View Report</p>
+                            <icon class="ml-2">chevron_right</icon>
+                        </div>
+                    </a>
+                }
+                @if (features().includes('catering')) {
                     <a
                         [routerLink]="['/reports', 'catering']"
                         matRipple
@@ -55,7 +80,7 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
                         </div>
                     </a>
                 }
-                @if (features.includes('contact-tracing')) {
+                @if (features().includes('contact-tracing')) {
                     <a
                         [routerLink]="['/reports', 'contact-tracing']"
                         matRipple
@@ -69,7 +94,7 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
                         </div>
                     </a>
                 }
-                @for (report of custom_reports; track report) {
+                @for (report of custom_reports(); track report) {
                     <a
                         [routerLink]="['/reports', report.id]"
                         matRipple
@@ -107,16 +132,19 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
             }
         `,
     ],
-    imports: [RouterModule, IconComponent, MatRippleModule],
+    imports: [RouterModule, IconComponent, MatRippleModule, TranslatePipe],
 })
 export class ReportsMenuComponent {
     private _settings = inject(SettingsService);
 
-    public get custom_reports() {
-        return this._settings.get('app.custom_reports') || [];
-    }
-
-    public get features() {
-        return this._settings.get('app.reports.features') || DEFAULT_FEATURES;
-    }
+    public readonly custom_reports = this._settings.signal(
+        'app.custom_reports',
+        [],
+        true,
+    );
+    public readonly features = this._settings.signal(
+        'app.reports.features',
+        DEFAULT_FEATURES,
+        true,
+    );
 }

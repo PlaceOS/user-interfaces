@@ -17,6 +17,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import {
+    alignDateToBookableHours,
     AsyncHandler,
     currentUser,
     firstTruthyValueFrom,
@@ -30,9 +31,10 @@ import {
     SettingsService,
     User,
 } from '@placeos/common';
-import { TranslatePipe } from '@placeos/components';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
+import { HostSelectFieldComponent } from 'libs/form-fields/src/lib/host-select-field.component';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
 import { UserListFieldComponent } from 'libs/form-fields/src/lib/user-list-field.component';
 import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
@@ -80,7 +82,7 @@ import { BookingFormService } from './booking-form.service';
                         formControlName="date"
                     ></a-date-field>
                 </div>
-                @if (allow_all_day) {
+                @if (allow_all_day()) {
                     <div class="-mt-2 mb-2 flex justify-end">
                         <mat-checkbox formControlName="all_day">
                             {{ 'COMMON.ALL_DAY' | translate }}
@@ -102,6 +104,9 @@ import { BookingFormService } from './booking-form.service';
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr()"
+                                [range]="bookable_hours()"
+                                [min_duration]="min_duration()"
+                                [timezone]="timezone()"
                             ></a-time-field>
                         </div>
                         <div class="flex w-1/3 flex-1 flex-col">
@@ -115,11 +120,13 @@ import { BookingFormService } from './booking-form.service';
                                 [time]="form.value.date"
                                 [max]="max_duration()"
                                 [use_24hr]="use_24hr()"
+                                [end_time]="bookable_hours()?.end"
+                                [timezone]="timezone()"
                             ></a-duration-field>
                         </div>
                     </div>
                 }
-                @if (can_book_for_others()) {
+                @if (can_book_for_anyone()) {
                     <div class="flex w-full flex-col">
                         <label for="host">
                             {{ 'FORM.HOST' | translate }}<span>*</span>
@@ -129,6 +136,16 @@ import { BookingFormService } from './booking-form.service';
                             class="mb-4"
                             formControlName="user"
                         ></a-user-search-field>
+                    </div>
+                } @else if (can_book_for_others()) {
+                    <div class="flex w-full flex-col">
+                        <label for="host">
+                            {{ 'FORM.HOST' | translate }}<span>*</span>
+                        </label>
+                        <host-select-field
+                            name="host"
+                            formControlName="user"
+                        ></host-select-field>
                     </div>
                 }
                 @if (!multiple()) {
@@ -347,6 +364,7 @@ import { BookingFormService } from './booking-form.service';
         UserListFieldComponent,
         MatAutocompleteModule,
         UserSearchFieldComponent,
+        HostSelectFieldComponent,
         DateFieldComponent,
         DurationFieldComponent,
         TimeFieldComponent,
@@ -361,6 +379,14 @@ export class VisitorInviteFormComponent
     private _service = inject(BookingFormService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private readonly _visitor_allow_all_day = this._settings.signal(
+        'visitors.allow_all_day',
+        undefined,
+    );
+    private readonly _booking_allow_all_day = this._settings.signal(
+        'bookings.allow_all_day',
+        false,
+    );
 
     public readonly date = input<number>(Date.now());
     public readonly confirm = input<number>(0);
@@ -387,21 +413,59 @@ export class VisitorInviteFormComponent
         'visitors.allow_international',
         false,
     );
-    public readonly can_book_for_others = settingSignal(
-        'bookings.can_book_for_others',
-        false,
+    public readonly can_book_for_others = computed(
+        () =>
+            settingSignal('visitors.can_book_for_others')() ??
+            settingSignal('bookings.can_book_for_others')(),
     );
-    public readonly max_duration = computed(() =>
-        Math.min(
-            settingSignal('visitors.max_duration', 180)(),
-            settingSignal('bookings.max_duration', 180)(),
-        ),
+    public readonly can_book_for_anyone = computed(
+        () =>
+            settingSignal('visitors.can_book_for_anyone')() ??
+            settingSignal('bookings.can_book_for_anyone')(),
+    );
+    public readonly bookable_hours = computed(
+        () =>
+            settingSignal('visitors.bookable_hours', null)() ||
+            settingSignal('bookings.bookable_hours', null)(),
+    );
+    private readonly _visitor_max_duration = settingSignal(
+        'visitors.max_duration',
+    );
+    private readonly _booking_max_duration = settingSignal(
+        'bookings.max_duration',
+    );
+    public readonly max_duration = computed(
+        () =>
+            this._visitor_max_duration() || this._booking_max_duration() || 180,
     );
     public readonly multiple = settingSignal(
         'bookings.multiple_visitors',
         false,
     );
     public readonly use_24hr = settingSignal('use_24_hour_time', false);
+    private readonly _visitor_use_bld_tz = settingSignal(
+        'visitors.use_building_timezone',
+        false,
+    );
+    private readonly _booking_use_bld_tz = settingSignal(
+        'bookings.use_building_timezone',
+        false,
+    );
+    public readonly timezone = computed(() =>
+        this._visitor_use_bld_tz() || this._booking_use_bld_tz()
+            ? this._org.building?.timezone || ''
+            : '',
+    );
+    private readonly _visitor_min_duration = settingSignal(
+        'visitors.min_duration',
+    );
+    private readonly _booking_min_duration = settingSignal(
+        'bookings.min_duration',
+    );
+    public readonly min_duration = computed(
+        () =>
+            this._visitor_min_duration() || this._booking_min_duration() || 30,
+    );
     public readonly buildings = this._org.active_buildings;
     public readonly building = computed(() =>
         settingSignal('use_region', false)()
@@ -413,16 +477,10 @@ export class VisitorInviteFormComponent
         return this._service.form;
     }
 
-    public get time_format() {
-        return this._settings.time_format;
-    }
-
-    public get allow_all_day() {
-        return (
-            this._settings.get('app.visitors.allow_all_day') ??
-            this._settings.get('app.bookings.allow_all_day')
-        );
-    }
+    public readonly time_format = this._settings.time_format_signal;
+    public readonly allow_all_day = computed(
+        () => this._visitor_allow_all_day() ?? this._booking_allow_all_day(),
+    );
 
     public async ngOnInit() {
         this._service.clearOldState();
@@ -473,7 +531,13 @@ export class VisitorInviteFormComponent
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.date && this.date()) {
-            this.form.patchValue({ date: this.date() });
+            this.form.patchValue({
+                date: alignDateToBookableHours(
+                    this.date(),
+                    this.bookable_hours(),
+                    this.form.getRawValue().date,
+                ),
+            });
         }
         if (changes.confirm && this.confirm() > 0) {
             this.sendInvite();
@@ -526,7 +590,7 @@ export class VisitorInviteFormComponent
                 }]`,
             );
         }
-        if (!this.form.value.user_email || !this.can_book_for_others) {
+        if (!this.form.value.user_email || !this.can_book_for_others()) {
             this.form.patchValue({ user: currentUser() });
         }
         const visitor_reason =

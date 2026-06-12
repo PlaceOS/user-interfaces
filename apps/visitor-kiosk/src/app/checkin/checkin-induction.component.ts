@@ -1,14 +1,14 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { Router } from '@angular/router';
 import {
     OrganisationService,
-    SettingsService,
     notifyError,
     notifyInfo,
     notifySuccess,
+    settingSignal,
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { first } from 'rxjs/operators';
@@ -26,7 +26,7 @@ import { CheckinStateService } from './checkin-state.service';
             <div
                 class="border-base-300 max-h-[50vh] w-full overflow-x-hidden overflow-y-auto rounded-sm border p-4 text-sm whitespace-pre-wrap opacity-60"
             >
-                {{ induction_details }}
+                {{ induction_details() }}
             </div>
             <mat-checkbox [(ngModel)]="agree" class="my-4">
                 {{ 'APP.VISITOR_KIOSK.ACCEPT_TERMS' | translate }}
@@ -44,7 +44,7 @@ import { CheckinStateService } from './checkin-state.service';
                     btn
                     matRipple
                     class="w-32"
-                    [disabled]="!agree"
+                    [disabled]="!agree()"
                     (click)="continue()"
                 >
                     {{ 'APP.VISITOR_KIOSK.ACCEPT' | translate }}
@@ -58,41 +58,41 @@ import { CheckinStateService } from './checkin-state.service';
 export class CheckinInductionComponent {
     private _checkin = inject(CheckinStateService);
     private _router = inject(Router);
-    private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
+    private readonly _allow_user_photo = settingSignal(
+        'allow_user_photo',
+        false,
+    );
+    private readonly _allow_printing_label = settingSignal(
+        'allow_printing_label',
+    );
+    private readonly _induction_enabled = settingSignal(
+        'induction_enabled',
+        false,
+    );
 
     public readonly event = this._checkin.event;
-    public agree = false;
-    public loading = false;
-
-    public get induction_details() {
-        return this._settings.get('app.induction_details');
-    }
-
-    public get induction_after_details() {
-        return this._settings.get('app.induction_after_details');
-    }
-
-    public get allow_user_photo() {
-        return (
-            this._settings.get('app.allow_user_photo') &&
-            this._settings.get('app.allow_printing_label') !== false
-        );
-    }
-
-    public get is_enabled() {
-        return (
-            this._settings.get('app.induction_enabled') &&
-            this._settings.get('app.induction_details')
-        );
-    }
+    public readonly agree = signal(false);
+    public readonly loading = signal(false);
+    public readonly induction_details = settingSignal('induction_details');
+    public readonly induction_after_details = settingSignal(
+        'induction_after_details',
+        false,
+    );
+    public readonly allow_user_photo = computed(
+        () =>
+            this._allow_user_photo() && this._allow_printing_label() !== false,
+    );
+    public readonly is_enabled = computed(
+        () => !!(this._induction_enabled() && this.induction_details()),
+    );
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         const event = await this.event.pipe(first()).toPromise();
         if (!event) this._router.navigate(['/checkin']);
-        if (!this.is_enabled || event.induction === 'accepted') {
-            if (this.induction_after_details) {
+        if (!this.is_enabled() || event.induction === 'accepted') {
+            if (this.induction_after_details()) {
                 this._router.navigate(['/checkin', 'results']);
             } else {
                 this._router.navigate(['/checkin', 'details']);
@@ -101,7 +101,7 @@ export class CheckinInductionComponent {
     }
 
     public async decline() {
-        this.loading = true;
+        this.loading.set(true);
         await this._checkin.declineInduction().catch((err) => {
             notifyError('Error declining induction', err);
             throw err;
@@ -112,16 +112,16 @@ export class CheckinInductionComponent {
     }
 
     public async continue() {
-        this.loading = true;
+        this.loading.set(true);
         await this._checkin.completeInduction().catch((err) => {
             notifyError('Error completing induction', err);
             throw err;
         });
         notifySuccess('Induction completed successfully');
-        if (this.induction_after_details) {
+        if (this.induction_after_details()) {
             this._router.navigate([
                 '/checkin',
-                this.allow_user_photo ? 'photo' : 'results',
+                this.allow_user_photo() ? 'photo' : 'results',
             ]);
         } else {
             this._router.navigate(['/checkin', 'details']);

@@ -1,9 +1,13 @@
-import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
 import {
-    MAT_DIALOG_DATA,
-    MatDialog,
-    MatDialogRef,
-} from '@angular/material/dialog';
+    Component,
+    OnInit,
+    computed,
+    inject,
+    output,
+    signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     CalendarEvent,
@@ -15,11 +19,8 @@ import {
     notifySuccess,
 } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
-import { FindAvailabilityModalComponent } from '@placeos/users';
-import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 
-import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -41,7 +42,7 @@ import {
     UserListFieldComponent,
 } from '@placeos/form-fields';
 
-import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-form-details.component';
+import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-details.component';
 
 @Component({
     selector: 'event-book-modal',
@@ -53,9 +54,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                     : 'APP.CONCIERGE.ROOMS_BOOK_NEW'
                 ) | translate
             "
-            [loading]="
-                (loading | async) ? ('CALENDAR_EVENT.LOADING' | translate) : ''
-            "
+            [loading]="loading() ? ('CALENDAR_EVENT.LOADING' | translate) : ''"
             (confirm)="save()"
         >
             <form [formGroup]="form">
@@ -71,6 +70,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                         </div>
                         <div class="w-px flex-1"></div>
                         <button
+                            type="button"
                             icon
                             name="toggle-details-meeting"
                             matRipple
@@ -106,14 +106,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                             </div>
                             <div class="w-px flex-1"></div>
                             <button
-                                matRipple
-                                name="find-attendee-availability"
-                                class="text-info bg-none text-xs underline"
-                                (click)="findAvailableTime()"
-                            >
-                                {{ 'COMMON.AVAILABILITY' | translate }}
-                            </button>
-                            <button
+                                type="button"
                                 icon
                                 name="toggle-attendees-meeting"
                                 matRipple
@@ -152,6 +145,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                         </div>
                         <div class="w-px flex-1"></div>
                         <button
+                            type="button"
                             icon
                             name="toggle-spaces-meeting"
                             matRipple
@@ -191,7 +185,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                         ></space-list-field>
                     </div>
                 </section>
-                @if (has_catering | async) {
+                @if (has_catering()) {
                     <section class="p-2">
                         <h3 class="flex items-center space-x-2">
                             <div
@@ -204,6 +198,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                             </div>
                             <div class="w-px flex-1"></div>
                             <button
+                                type="button"
                                 icon
                                 name="toggle-catering-meeting"
                                 matRipple
@@ -234,9 +229,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                                         : '',
                                 }"
                             ></catering-list-field>
-                            @if (
-                                form.value.catering?.length && has_codes | async
-                            ) {
+                            @if (form.value.catering?.length && has_codes()) {
                                 <mat-form-field
                                     appearance="outline"
                                     class="mt-2 w-full"
@@ -251,10 +244,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                                         <input
                                             #input
                                             class="border-base-200 bg-base-100 sticky top-0 z-50 w-full rounded-none border-x-0 border-t-0 border-b px-4 py-3 text-base focus:border-b"
-                                            [ngModel]="code_filter.getValue()"
-                                            (ngModelChange)="
-                                                code_filter.next($event)
-                                            "
+                                            [(ngModel)]="code_filter"
                                             [ngModelOptions]="{
                                                 standalone: true,
                                             }"
@@ -265,7 +255,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                                         />
                                         <mat-option class="hidden"></mat-option>
                                         @for (
-                                            code of filtered_codes | async;
+                                            code of filtered_codes();
                                             track code
                                         ) {
                                             <mat-option [value]="code">
@@ -288,7 +278,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                                     [class.mt-2]="
                                         !(
                                             form.value.catering?.length &&
-                                                has_codes | async
+                                            has_codes()
                                         )
                                     "
                                 >
@@ -317,13 +307,14 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                             <div
                                 class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                             >
-                                {{ !(has_catering | async) ? '4' : '5' }}
+                                {{ !has_catering() ? '4' : '5' }}
                             </div>
                             <div class="text-xl">
                                 {{ 'RESOURCE.ASSETS' | translate }}
                             </div>
                             <div class="w-px flex-1"></div>
                             <button
+                                type="button"
                                 icon
                                 name="toggle-assets-meeting"
                                 matRipple
@@ -362,8 +353,8 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                                 class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                             >
                                 {{
-                                    !(has_catering | async) || !has_assets
-                                        ? !(has_catering | async) && !has_assets
+                                    !has_catering() || !has_assets
+                                        ? !has_catering() && !has_assets
                                             ? '4'
                                             : '5'
                                         : '6'
@@ -393,7 +384,6 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     imports: [
-        CommonModule,
         FullscreenModalShellComponent,
         RichTextInputComponent,
         SpaceListFieldComponent,
@@ -420,33 +410,37 @@ export class EventBookModalComponent implements OnInit {
     private _catering = inject(CateringOrderStateService);
     private _dialog_ref =
         inject<MatDialogRef<EventBookModalComponent>>(MatDialogRef);
-    private _dialog = inject(MatDialog);
 
-    @Output() public event = new EventEmitter<DialogEvent>();
-    public readonly loading = new BehaviorSubject(false);
+    public readonly event = output<DialogEvent>();
+    public readonly loading = signal(false);
     public hide_block: Record<string, boolean> = {};
-    public code_filter = new BehaviorSubject('');
+    public readonly code_filter = signal('');
 
-    public readonly has_catering = this._catering.available_menu.pipe(
-        map((l) => l.length > 0),
+    private readonly _charge_codes = toSignal(this._catering.charge_codes, {
+        initialValue: [],
+    });
+
+    public readonly has_catering = toSignal(
+        this._catering.available_menu.pipe(map((l) => l.length > 0)),
+        { initialValue: false },
     );
 
-    public readonly has_codes = this._catering.charge_codes.pipe(
-        map((l) => l.length > 0),
-        tap((has_codes) => {
-            if (!has_codes) {
-                this.form.get('catering_charge_code').setValidators([]);
-                this.form.updateValueAndValidity();
-            }
-        }),
+    public readonly has_codes = toSignal(
+        this._catering.charge_codes.pipe(
+            map((l) => l.length > 0),
+            tap((has_codes) => {
+                if (!has_codes) {
+                    this.form.get('catering_charge_code').setValidators([]);
+                    this.form.updateValueAndValidity();
+                }
+            }),
+        ),
+        { initialValue: false },
     );
 
-    public readonly filtered_codes = combineLatest([
-        this.code_filter,
-        this._catering.charge_codes,
-    ]).pipe(
-        map(([s, l]) =>
-            l.filter((_) => _.toLowerCase().includes(s.toLowerCase())),
+    public readonly filtered_codes = computed(() =>
+        this._charge_codes().filter((_) =>
+            _.toLowerCase().includes(this.code_filter().toLowerCase()),
         ),
     );
 
@@ -504,28 +498,8 @@ export class EventBookModalComponent implements OnInit {
         this._event_form.newForm(this._data.event);
     }
 
-    public findAvailableTime() {
-        const { attendees, organiser, date, duration } = this.form.value;
-        const ref = this._dialog.open(FindAvailabilityModalComponent, {
-            data: {
-                users: attendees,
-                host: organiser || currentUser(),
-                date,
-                duration,
-            },
-        });
-        ref.afterClosed().subscribe((d) => {
-            if (!d) return;
-            this.form.patchValue({
-                date: ref.componentInstance.date(),
-                attendees: ref.componentInstance.users(),
-                duration: ref.componentInstance.duration(),
-            });
-        });
-    }
-
     public async save() {
-        this.loading.next(true);
+        this.loading.set(true);
         if (!this.form.value.host) {
             this.form.patchValue({
                 host: currentUser().email,
@@ -533,12 +507,12 @@ export class EventBookModalComponent implements OnInit {
         }
         const event = await this._event_form.postForm().catch((_) => {
             notifyError(_);
-            this.loading.next(false);
+            this.loading.set(false);
             throw _;
         });
         this.event.emit({ reason: 'done', metadata: event });
         notifySuccess(i18n('CALENDAR_EVENT.SUCCESS'));
         this._dialog_ref.close();
-        this.loading.next(false);
+        this.loading.set(false);
     }
 }

@@ -14,7 +14,7 @@ import {
     catchError,
     combineLatest,
     filter,
-    lastValueFrom,
+    from,
     map,
     Observable,
     of,
@@ -42,7 +42,7 @@ export class DealsService extends AsyncHandler {
         filter(([b]) => !!b?.id),
         switchMap(([bld]) => {
             this.loading.set(true);
-            return showMetadata(bld.id, 'deals-n-offers').pipe(
+            return from(showMetadata(bld.id, 'deals-n-offers')).pipe(
                 catchError(() => of({ details: [] })),
             );
         }),
@@ -53,21 +53,20 @@ export class DealsService extends AsyncHandler {
     );
 
     public async saveDeal(deal: Partial<Deal>) {
-        const metadata = await lastValueFrom(
-            showMetadata(this._org.building.id, 'deals-n-offers'),
+        const metadata = await showMetadata(
+            this._org.building.id,
+            'deals-n-offers',
         ).catch(() => null);
         let deals = metadata?.details instanceof Array ? metadata.details : [];
         if (deal.id) {
             deals = deals.filter((d) => d.id !== deal.id);
         } else deal.id = `deal-${randomString(8)}`;
         deals.push(deal);
-        await lastValueFrom(
-            updateMetadata(this._org.building.id, {
-                name: 'deals-n-offers',
-                description: 'List of deals and offers',
-                details: deals,
-            }),
-        );
+        await updateMetadata(this._org.building.id, {
+            name: 'deals-n-offers',
+            description: 'List of deals and offers',
+            details: deals,
+        });
         this._changed.next(Date.now());
         return deal;
     }
@@ -86,18 +85,17 @@ export class DealsService extends AsyncHandler {
             if (result?.reason !== 'done') return false;
             result.close();
         }
-        const metadata = await lastValueFrom(
-            showMetadata(this._org.building.id, 'deals-n-offers'),
+        const metadata = await showMetadata(
+            this._org.building.id,
+            'deals-n-offers',
         ).catch(() => null);
         let deals = metadata?.details instanceof Array ? metadata.details : [];
         deals = deals.filter((d) => d.id !== deal.id);
-        await lastValueFrom(
-            updateMetadata(this._org.building.id, {
-                name: 'deals-n-offers',
-                description: 'List of deals and offers',
-                details: deals,
-            }),
-        );
+        await updateMetadata(this._org.building.id, {
+            name: 'deals-n-offers',
+            description: 'List of deals and offers',
+            details: deals,
+        });
         this._changed.next(Date.now());
         return true;
     }

@@ -1,5 +1,5 @@
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
-import { CdkPortal, PortalModule } from '@angular/cdk/portal';
+import { TemplatePortal } from '@angular/cdk/portal';
 import { CommonModule } from '@angular/common';
 import {
     Component,
@@ -12,6 +12,7 @@ import {
     SimpleChanges,
     TemplateRef,
     Type,
+    ViewContainerRef,
     computed,
     effect,
     inject,
@@ -31,7 +32,7 @@ export class CustomTooltipData<T = any> {
     selector: '[customTooltip]',
     template: `
         <ng-content />
-        <ng-template cdk-portal>
+        <ng-template #portal_content>
             <div custom-tooltip class="relative print:hidden">
                 @switch (type()) {
                     @case ('component') {
@@ -58,7 +59,7 @@ export class CustomTooltipData<T = any> {
             }
         `,
     ],
-    imports: [CommonModule, PortalModule, SanitizePipe],
+    imports: [CommonModule, SanitizePipe],
 })
 export class CustomTooltipComponent<T = any>
     extends AsyncHandler
@@ -67,6 +68,7 @@ export class CustomTooltipComponent<T = any>
     private _element = inject<ElementRef<HTMLElement>>(ElementRef);
     private _overlay = inject(Overlay);
     private _injector = inject(Injector);
+    private _view_container_ref = inject(ViewContainerRef);
 
     /** Horizontal position of the rendered overlay */
     public readonly x_pos = input<'start' | 'center' | 'end'>('end', {
@@ -88,6 +90,10 @@ export class CustomTooltipComponent<T = any>
     public readonly hover = input(false);
     /** Delay time in milliseconds to close after hover */
     public readonly delay = input(0);
+    /** Horizontal offset of the rendered overlay */
+    public readonly x_offset = input(0, { alias: 'xOffset' });
+    /** Vertical offset of the rendered overlay */
+    public readonly y_offset = input(0, { alias: 'yOffset' });
     /** Type of content to render */
     public readonly type = computed(() =>
         this.content() instanceof TemplateRef
@@ -113,7 +119,9 @@ export class CustomTooltipComponent<T = any>
 
     private _overlay_ref: OverlayRef = null;
 
-    private readonly _portal = viewChild(CdkPortal);
+    private readonly _portal_content = viewChild.required('portal_content', {
+        read: TemplateRef,
+    });
 
     private _update_injector = effect(() => {
         this.injector = Injector.create({
@@ -128,28 +136,36 @@ export class CustomTooltipComponent<T = any>
     });
 
     public ngOnInit(): void {
-        const open = () => this.open();
-        const hover_open = () => (this.hover() ? this.open() : '');
-        const hover_close = () => (this.hover() ? this.close() : '');
+        const open = () => (!this.hover() ? this.open() : '');
+        const hover_open = (event: MouseEvent | PointerEvent) =>
+            this._canOpenHoverTooltip(event) ? this.open() : '';
+        const hover_close = (event: MouseEvent | PointerEvent) =>
+            this._canOpenHoverTooltip(event) ? this.close() : '';
         this._element.nativeElement.addEventListener('click', open);
         this._element.nativeElement.addEventListener('touchend', open);
-        this._element.nativeElement.addEventListener('mouseenter', hover_open);
-        this._element.nativeElement.addEventListener('mouseleave', hover_close);
+        this._element.nativeElement.addEventListener(
+            'pointerenter',
+            hover_open,
+        );
+        this._element.nativeElement.addEventListener(
+            'pointerleave',
+            hover_close,
+        );
         this.subscription('click', () =>
             this._element.nativeElement.removeEventListener('click', open),
         );
         this.subscription('touchend', () =>
             this._element.nativeElement.removeEventListener('touchend', open),
         );
-        this.subscription('mouseenter', () =>
+        this.subscription('pointerenter', () =>
             this._element.nativeElement.removeEventListener(
-                'mouseenter',
+                'pointerenter',
                 hover_open,
             ),
         );
-        this.subscription('mouseleave', () =>
+        this.subscription('pointerleave', () =>
             this._element.nativeElement.removeEventListener(
-                'mouseleave',
+                'pointerleave',
                 hover_close,
             ),
         );
@@ -158,7 +174,11 @@ export class CustomTooltipComponent<T = any>
     public ngOnChanges(changes: SimpleChanges): void {
         if (
             this._overlay_ref &&
-            (changes.x_pos || changes.y_pos || changes.content)
+            (changes.x_pos ||
+                changes.y_pos ||
+                changes.x_offset ||
+                changes.y_offset ||
+                changes.content)
         ) {
             this.open();
         }
@@ -180,9 +200,10 @@ export class CustomTooltipComponent<T = any>
                     this.timeout('onclose', () => this.close(), delay);
                 }
                 if (this._overlay_ref) this.close();
-                const _portal = this._portal();
-                if (!_portal) return;
-                const pos = this._element.nativeElement.getBoundingClientRect();
+                const portal = new TemplatePortal(
+                    this._portal_content(),
+                    this._view_container_ref,
+                );
                 const default_x = 'end';
                 const default_y = 'top';
                 const y_pos = this.y_pos();
@@ -191,6 +212,8 @@ export class CustomTooltipComponent<T = any>
                     positionStrategy: this._overlay
                         .position()
                         .flexibleConnectedTo(this._element)
+                        .withDefaultOffsetX(this.x_offset())
+                        .withDefaultOffsetY(this.y_offset())
                         .withPositions([
                             {
                                 originX: this.x_pos() || default_x,
@@ -205,7 +228,7 @@ export class CustomTooltipComponent<T = any>
                             },
                         ]),
                 });
-                this._overlay_ref.attach(_portal);
+                this._overlay_ref.attach(portal);
                 if (this.backdrop()) {
                     this.subscription(
                         'backdrop',
@@ -225,5 +248,10 @@ export class CustomTooltipComponent<T = any>
             this._overlay_ref.dispose();
             this._overlay_ref = null;
         }
+    }
+
+    private _canOpenHoverTooltip(event: MouseEvent | PointerEvent) {
+        if (!this.hover()) return false;
+        return !('pointerType' in event) || event.pointerType !== 'touch';
     }
 }

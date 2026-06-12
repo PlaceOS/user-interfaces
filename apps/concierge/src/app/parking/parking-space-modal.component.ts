@@ -23,8 +23,15 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DialogEvent, User } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
-import { UserSearchFieldComponent } from '@placeos/form-fields';
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import {
+    ItemListFieldComponent,
+    UserSearchFieldComponent,
+} from '@placeos/form-fields';
 import { showStaff } from '@placeos/users';
 import { ParkingSpace } from './parking-state.service';
 
@@ -50,7 +57,10 @@ import { ParkingSpace } from './parking-state.service';
                 }
             </header>
             @if (!loading()) {
-                <main class="flex flex-col p-4" [formGroup]="form">
+                <main
+                    class="flex max-h-[65vh] flex-col overflow-auto p-4"
+                    [formGroup]="form"
+                >
                     <label for="identifier">{{
                         'APP.CONCIERGE.PARKING_SPACE_NAME' | translate
                     }}</label>
@@ -112,6 +122,26 @@ import { ParkingSpace } from './parking-state.service';
                             </icon>
                         </button>
                     </div>
+                    <div class="flex space-x-4 pb-4">
+                        <settings-toggle
+                            formControlName="bookable"
+                            class="w-full"
+                            [name]="'COMMON.BOOKABLE' | translate"
+                        >
+                        </settings-toggle>
+                    </div>
+                    <label>{{ 'COMMON.GROUPS' | translate }}</label>
+                    <item-list-field
+                        class="w-full"
+                        [placeholder]="'BOOKINGS.GROUPS' | translate"
+                        formControlName="place_groups"
+                    ></item-list-field>
+                    <label>{{ 'COMMON.FEATURES' | translate }}</label>
+                    <item-list-field
+                        class="w-full"
+                        [placeholder]="'COMMON.FEATURES' | translate"
+                        formControlName="features"
+                    ></item-list-field>
                     <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
                     <mat-form-field appearance="outline">
                         <textarea
@@ -150,6 +180,8 @@ import { ParkingSpace } from './parking-state.service';
         MatFormFieldModule,
         MatInputModule,
         IconComponent,
+        ItemListFieldComponent,
+        SettingsToggleComponent,
         UserSearchFieldComponent,
         ReactiveFormsModule,
         MatTooltipModule,
@@ -174,6 +206,9 @@ export class ParkingSpaceModalComponent implements OnInit {
         assigned_user: new FormControl<User>(null),
         assigned_to: new FormControl(''),
         assigned_name: new FormControl(''),
+        bookable: new FormControl(false),
+        place_groups: new FormControl<string[]>([]),
+        features: new FormControl<string[]>([]),
         notes: new FormControl(''),
         map_rotation: new FormControl(0),
     });
@@ -183,6 +218,8 @@ export class ParkingSpaceModalComponent implements OnInit {
         if (_data) {
             this.form.patchValue({
                 ..._data,
+                features: [...(_data.features || [])],
+                place_groups: [...(_data.place_groups || [])],
                 map_id: _data.map_id || _data.other_data?.map_id,
             });
         }

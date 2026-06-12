@@ -1,6 +1,7 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -12,19 +13,18 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { combineLatest } from 'rxjs';
 import { LockerStateService } from './locker-state.service';
 
 @Component({
     selector: 'locker-list',
     template: `
         <mat-progress-bar
-            [class.opacity-0]="!(loading | async)?.includes('lockers')"
+            [class.opacity-0]="!loading().includes('lockers')"
             class="w-full"
         />
         <simple-table
             class="block min-w-208 text-sm"
-            [data]="locker_banks"
+            [data]="locker_banks()"
             [columns]="[
                 {
                     key: 'name',
@@ -51,8 +51,8 @@ import { LockerStateService } from './locker-state.service';
                     size: '6rem',
                 },
             ]"
-            [filter]="search | async"
-            [show_children]="show_children"
+            [filter]="search()"
+            [show_children]="show_children()"
             [child_template]="locker_list_template"
             [sortable]="true"
             [empty_message]="'APP.CONCIERGE.LOCKERS_BANK_EMPTY' | translate"
@@ -128,11 +128,11 @@ import { LockerStateService } from './locker-state.service';
                     icon
                     matRipple
                     [disabled]="!row.lockers?.length"
-                    (click)="show_children[row.id] = !show_children[row.id]"
+                    (click)="toggleChildren(row.id)"
                 >
                     <icon class="text-2xl">
                         {{
-                            show_children[row.id]
+                            show_children()[row.id]
                                 ? 'keyboard_arrow_down'
                                 : 'chevron_right'
                         }}
@@ -183,7 +183,7 @@ import { LockerStateService } from './locker-state.service';
                         size: '5.9rem',
                     },
                 ]"
-                [filter]="search | async"
+                [filter]="search()"
                 [empty_message]="'APP.CONCIERGE.LOCKERS_EMPTY' | translate"
             />
             <ng-template #assigned_template let-row="row" let-data="data">
@@ -336,7 +336,6 @@ import { LockerStateService } from './locker-state.service';
     `,
     styles: [],
     imports: [
-        CommonModule,
         MatMenuModule,
         IconComponent,
         MatRippleModule,
@@ -350,15 +349,25 @@ export class LockerListComponent extends AsyncHandler implements OnInit {
     private _state = inject(LockerStateService);
     private _clipboard = inject(Clipboard);
 
-    public show_children = {};
-    public readonly locker_banks = this._state.filtered_banks;
-    public readonly lockers = this._state.filtered_lockers;
+    public readonly show_children = signal<Record<string, boolean>>({});
+    public readonly locker_banks = toSignal(this._state.filtered_banks, {
+        initialValue: [],
+    });
+    public readonly lockers = toSignal(this._state.filtered_lockers, {
+        initialValue: [],
+    });
     public readonly options = this._state.filters;
-    public readonly loading = this._state.loading;
-    public readonly bookings = this._state.bookings;
-    public readonly search = this._state.search;
+    public readonly loading = toSignal(this._state.loading, {
+        initialValue: '',
+    });
+    public readonly bookings = toSignal(this._state.bookings, {
+        initialValue: [],
+    });
+    public readonly search = toSignal(this._state.search, { initialValue: '' });
 
-    public readonly locker_status: Record<string, string> = {};
+    public readonly locker_status = computed(() =>
+        this._status_list(this.lockers(), this.bookings()),
+    );
 
     public readonly viewBank = (b) => this._state.viewLockerBank(b);
     public readonly editLocker = (bid, s?) => this._state.editLocker(bid, s);
@@ -373,14 +382,13 @@ export class LockerListComponent extends AsyncHandler implements OnInit {
         return this._state.has_driver;
     }
 
-    public ngOnInit() {
-        this.subscription(
-            'bookings',
-            combineLatest([this.lockers, this.bookings]).subscribe(
-                ([lockers, bookings]) =>
-                    this._updateStatusList(lockers, bookings),
-            ),
-        );
+    public ngOnInit() {}
+
+    public toggleChildren(id: string) {
+        this.show_children.update((state) => ({
+            ...state,
+            [id]: !state[id],
+        }));
     }
 
     public copyToClipboard(id: string, type?: string) {
@@ -411,7 +419,8 @@ export class LockerListComponent extends AsyncHandler implements OnInit {
         return 'APP.CONCIERGE.LOCKERS_STATUS_FREE';
     }
 
-    private _updateStatusList(lockers: Locker[], bookings: Booking[]) {
+    private _status_list(lockers: Locker[], bookings: Booking[]) {
+        const status_list: Record<string, string> = {};
         for (const locker of lockers) {
             const booking = bookings.find(
                 (_) =>
@@ -421,24 +430,25 @@ export class LockerListComponent extends AsyncHandler implements OnInit {
                     _.status !== 'ended',
             );
             if (locker.assigned_to && !booking) {
-                this.locker_status[locker.id] = 'assigned_free';
+                status_list[locker.id] = 'assigned_free';
             } else if (
                 locker.assigned_to &&
                 booking &&
                 booking.user_email === locker.assigned_to
             ) {
-                this.locker_status[locker.id] = 'assigned_busy';
+                status_list[locker.id] = 'assigned_busy';
             } else if (
                 locker.assigned_to &&
                 booking &&
                 booking.user_email !== locker.assigned_to
             ) {
-                this.locker_status[locker.id] = 'reuse_busy';
+                status_list[locker.id] = 'reuse_busy';
             } else if (!locker.assigned_to && booking) {
-                this.locker_status[locker.id] = 'busy';
+                status_list[locker.id] = 'busy';
             } else {
-                this.locker_status[locker.id] = 'free';
+                status_list[locker.id] = 'free';
             }
         }
+        return status_list;
     }
 }

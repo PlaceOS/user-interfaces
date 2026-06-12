@@ -4,6 +4,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
 import { IconComponent } from './icon.component';
+import { SanitizePipe } from './sanitise.pipe';
 import { TranslatePipe } from './translate.pipe';
 
 @Component({
@@ -21,20 +22,23 @@ import { TranslatePipe } from './translate.pipe';
                 class="bg-base-200 sticky top-0 z-10 mx-auto my-2 flex h-14 w-full items-center justify-between rounded-sm border-none px-4 py-2"
                 [class.max-w-156]="!full_width()"
             >
-                <h2 class="text-xl font-medium capitalize">
-                    {{ heading() }}
-                </h2>
-                @if (!close()?.length) {
-                    @if (!loading()) {
-                        <button icon matRipple mat-dialog-close>
-                            <icon>close</icon>
-                        </button>
-                    }
-                } @else {
-                    @if (!loading()) {
-                        <a icon matRipple [routerLink]="close()">
-                            <icon>close</icon>
-                        </a>
+                <h2
+                    class="flex items-center text-xl font-medium capitalize"
+                    [innerHTML]="heading() | sanitize"
+                ></h2>
+                @if (!hide_close()) {
+                    @if (!close()?.length) {
+                        @if (!loading()) {
+                            <button icon matRipple mat-dialog-close>
+                                <icon>close</icon>
+                            </button>
+                        }
+                    } @else {
+                        @if (!loading()) {
+                            <a icon matRipple [routerLink]="close()">
+                                <icon>close</icon>
+                            </a>
+                        }
                     }
                 }
             </header>
@@ -63,6 +67,7 @@ import { TranslatePipe } from './translate.pipe';
                         btn
                         matRipple
                         class="min-w-32"
+                        [disabled]="confirm_disabled()"
                         (click)="confirm.emit()"
                     >
                         {{ confirm_text() || ('COMMON.SAVE' | translate) }}
@@ -85,14 +90,17 @@ import { TranslatePipe } from './translate.pipe';
         MatDialogModule,
         MatRippleModule,
         RouterModule,
+        SanitizePipe,
     ],
 })
 export class FullscreenModalShellComponent {
     public readonly loading = input('');
     public readonly heading = input('Fullscreen Modal');
     public readonly confirm_text = input('');
+    public readonly confirm_disabled = input(false);
     public readonly close = input<string[]>([]);
     public readonly hide_confirm = input(false);
+    public readonly hide_close = input(false);
     public readonly full_width = input(false);
     public readonly confirm = output();
     public readonly closed = output();

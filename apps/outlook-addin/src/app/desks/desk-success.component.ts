@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
@@ -14,14 +14,13 @@ import { BookingFormService } from '@placeos/bookings';
             <img src="assets/tick_success.svg" />
             <p>
                 Your desk booking for
-                <i>{{ last_success?.asset_name || last_success?.asset_id }}</i>
+                <i>{{
+                    last_success()?.asset_name || last_success()?.asset_id
+                }}</i>
                 has been successfully booked for the
-                {{ last_success?.date | date: 'dd MMMM yyyy' }} at
-                {{ last_success?.date | date: 'shortTime' }} -
-                {{
-                    last_success?.date + last_success?.duration * 60 * 1000
-                        | date: 'shortTime'
-                }}
+                {{ last_success()?.date | date: 'dd MMMM yyyy' }} at
+                {{ last_success()?.date | date: 'shortTime' }} -
+                {{ end_time() | date: 'shortTime' }}
             </p>
             @if (true) {
                 <p>
@@ -46,5 +45,9 @@ import { BookingFormService } from '@placeos/bookings';
 export class DeskBookingSuccessComponent {
     private _service = inject(BookingFormService);
 
-    public readonly last_success = this._service.last_success;
+    public readonly last_success = signal(this._service.last_success);
+    public readonly end_time = computed(() => {
+        const booking = this.last_success();
+        return booking?.date + booking?.duration * 60 * 1000;
+    });
 }

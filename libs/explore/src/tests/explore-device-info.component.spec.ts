@@ -2,7 +2,6 @@ import { OverlayModule } from '@angular/cdk/overlay';
 import { PortalModule } from '@angular/cdk/portal';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockProvider, ngMocks } from 'ng-mocks';
-import { of } from 'rxjs';
 
 import { ExploreDeviceInfoComponent } from '../lib/explore-device-info.component';
 
@@ -20,7 +19,6 @@ describe('ExploreDeviceInfoComponent', () => {
             MockProvider(MAP_FEATURE_DATA, {
                 mac: 'User',
                 variance: 10,
-                zoom$: of(1),
             }),
             MockProvider(SettingsService, { get: jest.fn() }),
         ],

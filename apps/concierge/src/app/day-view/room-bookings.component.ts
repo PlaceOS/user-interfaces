@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -25,11 +25,19 @@ import {
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { requestSpacesForZone } from '@placeos/events';
 import { UserPipe } from '@placeos/users';
 import { format } from 'date-fns';
-import { combineLatest } from 'rxjs';
-import { debounceTime, filter, map } from 'rxjs/operators';
-import { EventsStateService } from './events-state.service';
+import { combineLatest, of } from 'rxjs';
+import {
+    catchError,
+    debounceTime,
+    map,
+    shareReplay,
+    switchMap,
+} from 'rxjs/operators';
+import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
+import { BookingUIOptions, EventsStateService } from './events-state.service';
 import { RoomBookingsApprovalsComponent } from './room-approvals.component';
 import { RoomBookingsListComponent } from './room-bookings-list.component';
 import { RoomBookingsInvertedTimelineComponent } from './room-timeline-inverted.component';
@@ -48,7 +56,7 @@ const EMPTY = [];
                 <div class="w-px flex-1"></div>
                 <mat-form-field appearance="outline" class="no-subscript w-32">
                     <mat-select
-                        [ngModel]="period | async"
+                        [ngModel]="period()"
                         (ngModelChange)="setPeriod($event)"
                     >
                         <mat-option value="day">
@@ -67,7 +75,7 @@ const EMPTY = [];
                         'APP.CONCIERGE.DOWNLOAD_USER_LIST' | translate
                     "
                     [disabled]="downloading()"
-                    (click)="downloadCsv()"
+                    (click)="downloadAttendeeList()"
                 >
                     @if (downloading()) {
                         <mat-spinner diameter="24"></mat-spinner>
@@ -113,12 +121,12 @@ const EMPTY = [];
             <div class="flex w-full items-center space-x-2">
                 <mat-form-field appearance="outline" class="no-subscript w-52">
                     <mat-select
-                        [ngModel]="zones | async"
+                        [ngModel]="zones()"
                         (ngModelChange)="updateZones($event)"
                         [placeholder]="'COMMON.LEVEL_ALL' | translate"
                         multiple
                     >
-                        @for (level of levels | async; track level) {
+                        @for (level of levels(); track level) {
                             <mat-option [value]="level.id">
                                 <div class="flex flex-col-reverse">
                                     @if (use_region) {
@@ -140,7 +148,7 @@ const EMPTY = [];
                 </mat-form-field>
                 @if (allow_setup_breakdown) {
                     <settings-toggle
-                        [ngModel]="(ui_options | async)?.show_overflow"
+                        [ngModel]="ui_options().show_overflow"
                         (ngModelChange)="
                             updateUIOptions({ show_overflow: $event })
                         "
@@ -214,7 +222,7 @@ const EMPTY = [];
             </div>
             <div class="border-base-200 mt-4 flex h-px w-full flex-1 border-t">
                 @if (view() === 'timeline') {
-                    @if ((period | async) === 'day') {
+                    @if (period() === 'day') {
                         @if (day_timeline_view() === 'inverted') {
                             <room-bookings-inverted-timeline
                                 class="relative z-0 w-1/2 flex-1"
@@ -241,7 +249,6 @@ const EMPTY = [];
     styles: [``],
     providers: [UserPipe],
     imports: [
-        CommonModule,
         TranslatePipe,
         MatFormFieldModule,
         MatSelectModule,
@@ -273,21 +280,38 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
         'default',
     );
 
-    public readonly zones = this._state.zones;
-    public readonly period = this._state.period;
+    public readonly zones = toSignal(this._state.zones, { initialValue: [] });
+    public readonly period = toSignal(this._state.period, {
+        initialValue: 'day' as const,
+    });
     public readonly downloading = signal(false);
     public readonly view = signal<'timeline' | 'list'>('timeline');
-    public readonly ui_options = this._state.options;
-    public readonly levels = combineLatest([
+    public readonly ui_options = toSignal(this._state.options, {
+        initialValue: {} as BookingUIOptions,
+    });
+    private readonly _levels$ = combineLatest([
         this._org.active_building,
         this._org.active_region,
     ]).pipe(
-        map(([bld, region]) =>
-            this.use_region
-                ? this._org.levelsForRegion(region)
-                : this._org.levelsForBuilding(bld),
-        ),
+        switchMap(([bld, region]) => {
+            const zone = this.use_region ? region : bld;
+            if (!zone?.id) return of([]);
+            return requestSpacesForZone(zone.id).pipe(catchError(() => of([])));
+        }),
+        map((spaces) => {
+            const level_ids = new Set(
+                spaces
+                    .filter((space) => space.bookable)
+                    .flatMap((space) => space.zones || []),
+            );
+            const level_list = this.use_region
+                ? this._org.levelsForRegion(this._org.region)
+                : this._org.levelsForBuilding(this._org.building);
+            return level_list.filter((level) => level_ids.has(level.id));
+        }),
+        shareReplay(1),
     );
+    public readonly levels = toSignal(this._levels$, { initialValue: [] });
     /** List of levels for the active building */
     public readonly updateZones = (zones: string[]) => {
         const zone_ids = this._clean_zone_ids(zones);
@@ -299,6 +323,7 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
             queryParamsHandling: 'merge',
         });
         this._state.setZones(zone_ids);
+        persistZones('room-bookings', this._persistScopeId(), zone_ids);
     };
     public readonly updateUIOptions = (o) => this._state.setUIOptions(o);
     public readonly setPeriod = (p) => {
@@ -391,26 +416,33 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
         );
         this.subscription(
             'levels',
-            this._org.active_levels
-                .pipe(debounceTime(300))
-                .subscribe(async (levels) => {
-                    if (this.use_region) return;
-                    const zones = (await nextValueFrom(this.zones)).filter(
-                        (zone) => levels.find((lvl) => lvl.id === zone),
-                    );
-                    this.updateZones(zones);
-                }),
+            this._levels$.pipe(debounceTime(300)).subscribe(async (levels) => {
+                if (this.use_region) return;
+                const current = this.zones().filter((zone) =>
+                    levels.find((lvl) => lvl.id === zone),
+                );
+                if (!this.zones().length) {
+                    // Restore persisted selection when the view first
+                    // loads without an explicit URL filter. Empty means
+                    // "all levels".
+                    const persisted = loadPersistedZones(
+                        'room-bookings',
+                        this._persistScopeId(),
+                    ).filter((zone) => levels.find((lvl) => lvl.id === zone));
+                    if (persisted.length) {
+                        this.updateZones(persisted);
+                        return;
+                    }
+                }
+                this.updateZones(current);
+            }),
         );
-        this.subscription(
-            'region',
-            this._org.active_region
-                .pipe(filter((_) => !!_))
-                .subscribe(async (_) => {
-                    const zones = await nextValueFrom(this.zones);
-                    if (zones.length) return;
-                    this.updateZones([_.id]);
-                }),
-        );
+    }
+
+    private _persistScopeId() {
+        return this.use_region
+            ? this._org.region?.id || ''
+            : this._org.building?.id || '';
     }
 
     public setFilter(id: string, value: boolean) {
@@ -421,15 +453,22 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
         this._state.setFilters({ hide_type });
     }
 
-    public readonly downloadCsv = async () => {
+    public async downloadAttendeeList() {
         this.downloading.set(true);
         try {
             const events = await nextValueFrom(this._state.filtered);
             const emails = new Set<string>();
             for (const event of events) {
-                if (event.host) emails.add(event.host);
+                if (event.host && event.system?.email !== event.host)
+                    emails.add(event.host);
                 for (const attendee of event.attendees || []) {
-                    if (attendee.email) emails.add(attendee.email);
+                    if (
+                        attendee.email &&
+                        event.system?.email !== attendee.email &&
+                        !attendee.resource
+                    ) {
+                        emails.add(attendee.email);
+                    }
                 }
             }
             const data = await Promise.all(
@@ -441,7 +480,7 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
                     };
                 }),
             );
-            const period = await nextValueFrom(this.period);
+            const period = this.period();
             const date = format(this._state.getDate(), 'yyyy-MM-dd');
             downloadFile(
                 `room-bookings-${date}-${period}.csv`,
@@ -450,7 +489,7 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
         } finally {
             this.downloading.set(false);
         }
-    };
+    }
 
     private _clean_zone_ids(zones: string[] = []) {
         return (zones || []).filter((zone_id) => !!zone_id);

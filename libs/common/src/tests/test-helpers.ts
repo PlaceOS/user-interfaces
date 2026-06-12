@@ -1,4 +1,4 @@
-import { signal, Signal, Type } from '@angular/core';
+import { computed, signal, Signal, Type } from '@angular/core';
 import {
     MockComponent,
     MockDirective,
@@ -6,6 +6,7 @@ import {
     MockedDirective,
     MockInstance,
 } from 'ng-mocks';
+import { of } from 'rxjs';
 
 interface PropDecoratorFactory {
     type?: { prototype: { ngMetadataName?: string } };
@@ -148,4 +149,39 @@ export const mockDirective = <T>(
         mockSignalBasedQueries(hostDirective.directive);
     }
     return MockDirective(directive);
+};
+
+export const createSettingsServiceMock = (
+    overrides: Record<string, any> = {},
+) => {
+    const version = signal(0);
+    const get = jest.fn(<T = any>(_: string): T => undefined as T);
+    const bump = () => version.update((value) => value + 1);
+    const mock_implementation = get.mockImplementation.bind(get);
+    const mock_return_value = get.mockReturnValue.bind(get);
+    (get.mockImplementation as any) = ((fn) => {
+        bump();
+        return mock_implementation(fn);
+    }) as any;
+    (get.mockReturnValue as any) = ((value) => {
+        bump();
+        return mock_return_value(value);
+    }) as any;
+    return {
+        get,
+        saveUserSetting: jest.fn(),
+        initialised: of(true),
+        overrides$: of([]),
+        signal: jest.fn((name: string, default_value?: any, root = false) =>
+            computed(() => {
+                version();
+                return get(root ? name : `app.${name}`) ?? default_value;
+            }),
+        ),
+        time_format_signal: jest.fn(() =>
+            get('app.use_24_hour_time') ? 'HH:mm' : 'h:mm a',
+        ),
+        theme_signal: jest.fn(() => get('theme') || 'light'),
+        ...overrides,
+    } as any;
 };

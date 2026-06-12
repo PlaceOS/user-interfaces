@@ -1,15 +1,16 @@
 import {
     Component,
+    computed,
     ElementRef,
-    Renderer2,
     inject,
     model,
     output,
+    Renderer2,
     viewChild,
 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
-import { Point } from '@placeos/svg-viewer';
+import { Point } from '@placeos/common';
 
 /**
  * Grab point details from mouse or touch event
@@ -74,7 +75,7 @@ export enum JoystickPan {
             >
                 <div
                     thumb
-                    [style.transform]="thumb_transform"
+                    [style.transform]="thumb_transform()"
                     class="bg-neutral h-12 w-12 rounded-full"
                 ></div>
             </div>
@@ -97,7 +98,7 @@ export class JoystickComponent extends AsyncHandler {
 
     private _box: ClientRect;
 
-    public get thumb_transform() {
+    public readonly thumb_transform = computed(() => {
         const pan = this.pan();
         const tilt = this.tilt();
         return `translate(${
@@ -113,7 +114,7 @@ export class JoystickComponent extends AsyncHandler {
                   ? '-50'
                   : '50'
         }%)`;
-    }
+    });
 
     public startPan(event: MouseEvent | TouchEvent) {
         const move_event =

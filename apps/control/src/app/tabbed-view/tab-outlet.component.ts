@@ -1,16 +1,15 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { AsyncHandler, log, nextValueFrom } from '@placeos/common';
+import { AsyncHandler, log } from '@placeos/common';
 import {
     BindingDirective,
     IconComponent,
     SafePipe,
     TranslatePipe,
 } from '@placeos/components';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { debounceTime, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
 import { CameraControlsComponent } from '../ui/camera-controls.component';
 import { MarkdownPipe } from '../ui/markdown.pipe';
@@ -43,7 +42,7 @@ import { TVControlsComponent } from './tv-controls.component';
                 class="relative flex w-[calc(100%-1rem)] items-center overflow-hidden px-1 pt-2"
                 [style.padding-right]="(join_code ? 6 : 0) + 'rem'"
             >
-                @for (tab of tabs | async; track tab) {
+                @for (tab of tabs(); track tab) {
                     <a
                         matRipple
                         class="bg-base-100 text-base-content mx-1 flex h-24 w-32 flex-col items-center justify-center overflow-hidden rounded-t rounded-b-none leading-tight opacity-60 shadow-sm"
@@ -63,7 +62,7 @@ import { TVControlsComponent } from './tv-controls.component';
                 <div class="absolute top-0 right-0 bottom-2 flex space-x-2">
                     <voice-assistant
                         [system_id]="id"
-                        [enabled]="(system$ | async)?.voice_control"
+                        [enabled]="system()?.voice_control"
                     ></voice-assistant>
                     @if (join_code) {
                         <div class="max-h-full w-16">
@@ -91,20 +90,20 @@ import { TVControlsComponent } from './tv-controls.component';
             <div
                 class="divide-base-200 bg-base-100 text-base-content mb-1 flex h-1/2 w-[calc(100%-1rem)] flex-1 items-center divide-x overflow-auto rounded-sm shadow-sm"
             >
-                @if ((inputs | async)?.length > 1) {
+                @if (inputs().length > 1) {
                     <div
                         class="h-full w-64 min-w-64 space-y-2 overflow-auto px-4 pt-2 pb-4 sm:min-w-0"
                     >
                         <h3 class="p-2 text-center text-lg font-medium">
                             {{ 'APP.CONTROL.INPUTS_AVAILABLE' | translate }}
                         </h3>
-                        @for (input of inputs | async; track input) {
+                        @for (input of inputs(); track input) {
                             <button
                                 btn
                                 matRipple
                                 class="w-full"
                                 [class.inverse]="
-                                    (system$ | async)?.selected_input !==
+                                    system()?.selected_input !==
                                     (input.id || input.name)
                                 "
                                 (click)="setInput(input)"
@@ -112,7 +111,7 @@ import { TVControlsComponent } from './tv-controls.component';
                                 {{ input?.name }}
                             </button>
                         }
-                        @if (!(inputs | async)?.length) {
+                        @if (!inputs().length) {
                             <div
                                 class="flex h-1/2 w-full flex-1 items-center justify-center p-8 opacity-30"
                             >
@@ -128,19 +127,19 @@ import { TVControlsComponent } from './tv-controls.component';
                     style="flex: 2"
                     class="relative h-full min-h-full min-w-full overflow-auto sm:min-w-0"
                 >
-                    @switch ((tab | async)?.controls) {
+                    @switch (tab()?.controls) {
                         @case ('vidconf-controls') {
-                            @if (call | async) {
+                            @if (call()) {
                                 <div
                                     video-call-page
                                     [present_output]="
-                                        (tab | async)?.presentation_source
+                                        tab()?.presentation_source
                                     "
                                     [redirect]="false"
                                 ></div>
                             } @else {
                                 <div class="flex justify-center space-x-8">
-                                    @if (!(speaker_track | async)) {
+                                    @if (!speaker_track()) {
                                         <camera-controls></camera-controls>
                                     }
                                     <video-call-dial-view
@@ -151,21 +150,19 @@ import { TVControlsComponent } from './tv-controls.component';
                             }
                         }
                         @case ('tv-channels') {
-                            <tv-controls
-                                [mod]="(tab | async)?.mod"
-                            ></tv-controls>
+                            <tv-controls [mod]="tab()?.mod"></tv-controls>
                         }
                         @default {
-                            @if (help | async) {
+                            @if (help()) {
                                 <div
                                     class="p-8"
                                     content
                                     [innerHTML]="
-                                        (help | async).content | markdown | safe
+                                        help().content | markdown | safe
                                     "
                                 ></div>
                             }
-                            @if (!(help | async)) {
+                            @if (!help()) {
                                 <div
                                     class="flex h-full w-full items-center justify-center opacity-60"
                                 >
@@ -179,7 +176,7 @@ import { TVControlsComponent } from './tv-controls.component';
                             }
                         }
                     }
-                    @if ((tab | async)?.help && (tab | async)?.controls) {
+                    @if (tab()?.help && tab()?.controls) {
                         <button
                             btn
                             matRipple
@@ -198,10 +195,7 @@ import { TVControlsComponent } from './tv-controls.component';
             </div>
             <div class="relative w-full">
                 <device-output-list></device-output-list>
-                @if (
-                    (hide_present_all | async) !== true &&
-                    (outputs | async).length > 1
-                ) {
+                @if (hide_present_all() !== true && outputs().length > 1) {
                     <button
                         btn
                         matRipple
@@ -223,7 +217,6 @@ import { TVControlsComponent } from './tv-controls.component';
         `,
     ],
     imports: [
-        CommonModule,
         BindingDirective,
         MatRippleModule,
         IconComponent,
@@ -239,96 +232,110 @@ import { TVControlsComponent } from './tv-controls.component';
         RouterModule,
     ],
 })
-export class TabOutletComponent extends AsyncHandler implements OnInit {
+export class TabOutletComponent extends AsyncHandler {
     private _service = inject(ControlStateService);
     private _vc_state = inject(VideoCallStateService);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
 
     public hearing_tloop = false;
-    public readonly active_tab = new BehaviorSubject('');
-    public readonly hide_present_all = this._service.hide_present_all;
-    public readonly outputs = this._service.output_list.pipe(
-        map((_) => _ || []),
+    public readonly id = this._service.id;
+    public readonly active_tab = signal('');
+    public readonly hide_present_all = toSignal(this._service.hide_present_all);
+    public readonly outputs = toSignal(
+        this._service.output_list.pipe(map((_) => _ || [])),
+        { initialValue: [] },
     );
-    public readonly system$ = this._service.system;
-    public readonly tabs = this._service.tabs;
-    public readonly call = this._vc_state.call;
-    public readonly speaker_track = this._vc_state.speaker_track;
-    public readonly tab = combineLatest([
-        this._service.tabs,
-        this.active_tab,
-    ]).pipe(map(([_, id]) => _.find((t: any) => (t.id || t.name) === id)));
-
-    public readonly inputs = combineLatest([
-        this.active_tab,
-        this.tabs,
-        this._service.available_inputs,
-    ]).pipe(
-        map(([id, tabs, inputs]) => {
-            const tab = tabs.find((_: any) => (_.id || _.name) === id);
-            if (!tab) return [];
-            return inputs.filter(
-                (_) =>
-                    (!tab.inputs && (!tab.type || _.type === tab.type)) ||
-                    (tab.inputs && tab.inputs.includes(_.id)),
-            );
-        }),
+    public readonly system = toSignal(this._service.system);
+    public readonly tabs = toSignal(this._service.tabs, { initialValue: [] });
+    public readonly call = toSignal(this._vc_state.call);
+    public readonly speaker_track = toSignal(this._vc_state.speaker_track);
+    public readonly tab = computed(() =>
+        this.tabs().find((t: any) => (t.id || t.name) === this.active_tab()),
     );
 
-    private _user_action = false;
+    public readonly inputs = computed(() => {
+        const id = this.active_tab();
+        const tab = this.tabs().find((_: any) => (_.id || _.name) === id);
+        const inputs = this._available_inputs();
+        if (!tab) return [];
+        return inputs.filter(
+            (_) =>
+                (!tab.inputs && (!tab.type || _.type === tab.type)) ||
+                (tab.inputs && tab.inputs.includes(_.id)),
+        );
+    });
 
-    public readonly help = combineLatest([
-        this._service.help_items,
-        this.tab,
-    ]).pipe(map(([_, t]) => (_ || []).find((h: any) => h.id === t?.help)));
+    private _user_action = signal(false);
+    private _available_inputs = toSignal(this._service.available_inputs, {
+        initialValue: [],
+    });
+    private _route_tab = toSignal(
+        this._route.paramMap.pipe(map((params) => params.get('tab') || '')),
+        { initialValue: '' },
+    );
+
+    public readonly help = computed(() => {
+        const tab = this.tab();
+        return (this._help_items() || []).find((h: any) => h.id === tab?.help);
+    });
+    private _help_items = toSignal(this._service.help_items, {
+        initialValue: [],
+    });
 
     public join_code = '';
 
     public setInput = (s) => this._service.setOutputSource(s.id);
-    public viewHelp = async () =>
-        this._service.viewHelp((await nextValueFrom(this.tab)).help);
+    public viewHelp = () => this._service.viewHelp(this.tab()?.help);
 
-    public get id() {
-        return this._service.id;
-    }
-
-    public ngOnInit() {
-        this.subscription(
-            'route.params',
-            this._route.paramMap.subscribe((params) =>
-                this.active_tab.next(
-                    params.get('tab') || this.active_tab.getValue(),
-                ),
-            ),
-        );
-        this.subscription(
-            'tab',
-            this._service.system.subscribe((_) => {
-                this.timeout(
-                    'update_tab',
-                    () => {
-                        if (_.selected_tab) {
-                            this.active_tab.next(_.selected_tab);
-                            this._router.navigate(
-                                ['/tabbed', this.id, _.selected_tab],
-                                { queryParamsHandling: 'merge' },
-                            );
-                        }
-                    },
-                    500,
-                );
-            }),
-        );
-        this.subscription(
-            'inputs',
-            combineLatest([this.inputs, this.system$, this.tab])
-                .pipe(debounceTime(300))
-                .subscribe(([input_list, { selected_input }, tab]) => {
+    constructor() {
+        super();
+        effect(() => {
+            const tab = this._route_tab();
+            if (tab) this.active_tab.set(tab);
+        });
+        effect(() => {
+            const selected_tab = this.system()?.selected_tab;
+            this.timeout(
+                'update_tab',
+                () => {
+                    if (selected_tab) {
+                        this.active_tab.set(selected_tab);
+                        this._router.navigate(
+                            ['/tabbed', this.id, selected_tab],
+                            {
+                                queryParamsHandling: 'merge',
+                            },
+                        );
+                    }
+                },
+                500,
+            );
+        });
+        effect(() => {
+            const available_inputs = this._available_inputs();
+            const tabs = this.tabs();
+            const selected_input = this.system()?.selected_input;
+            const active_tab = this._route_tab();
+            const user_action = this._user_action();
+            this.timeout(
+                'inputs',
+                () => {
+                    const tab = tabs.find(
+                        (_: any) => (_.id || _.name) === active_tab,
+                    );
+                    const input_list = !tab
+                        ? []
+                        : available_inputs.filter(
+                              (_) =>
+                                  (!tab.inputs &&
+                                      (!tab.type || _.type === tab.type)) ||
+                                  (tab.inputs && tab.inputs.includes(_.id)),
+                          );
                     const has_selected = input_list.find(
                         (i) => (i.id || i.name) === selected_input,
                     );
-                    if (has_selected || !this._user_action) return;
+                    if (has_selected || !user_action) return;
                     input_list.length
                         ? this._service.setSelectedInput(input_list[0].id)
                         : log(
@@ -337,19 +344,21 @@ export class TabOutletComponent extends AsyncHandler implements OnInit {
                               undefined,
                               'warn',
                           );
-                }),
-        );
+                },
+                300,
+            );
+        });
     }
 
-    public async presentToAll() {
-        const tab = await nextValueFrom(this.tab);
+    public presentToAll() {
+        const tab = this.tab();
         if (!tab) return;
         this._service.routeToAll();
     }
 
     public onAction() {
-        if (this._user_action) return;
-        this._user_action = true;
-        setTimeout(() => (this._user_action = false), 1000);
+        if (this._user_action()) return;
+        this._user_action.set(true);
+        setTimeout(() => this._user_action.set(false), 1000);
     }
 }

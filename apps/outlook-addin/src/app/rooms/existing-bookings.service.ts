@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { AsyncHandler } from '@placeos/common';
-import { CalendarEvent, queryEvents } from '@placeos/events';
+import { AsyncHandler, CalendarEvent } from '@placeos/common';
+import { queryEvents } from '@placeos/events';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';

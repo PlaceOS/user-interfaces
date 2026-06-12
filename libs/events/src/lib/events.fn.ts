@@ -2,11 +2,13 @@ import {
     BookingClash,
     CalendarEvent,
     GuestUser,
+    setting,
     toQueryString,
+    VERSION,
 } from '@placeos/common';
 import { del, get, patch, post, put, query } from '@placeos/ts-client';
 import { addMinutes, getUnixTime } from 'date-fns';
-import { Observable, combineLatest, of } from 'rxjs';
+import { combineLatest, from, Observable, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 
 import { queryCalendarAvailability, querySpaceFreeBusy } from './calendar.fn';
@@ -31,6 +33,35 @@ export interface CalendarEventQueryParams {
     strict?: 'limit' | 'all' | 'notify';
 }
 
+export interface CalendarEventHistoryQueryParams {
+    /** Epoch in seconds for the start of the availability period */
+    period_start: number;
+    /** Epoch in seconds for the end of the availability period */
+    period_end: number;
+    /** Comma seperated list of zone ids to check availability */
+    zone_ids?: string;
+    /** Comma seperated list of system(space) ids to check availability */
+    system_ids?: string;
+    /** Comma seperated list of calendar ids to check availability */
+    calendars?: string;
+    /** ical UID associated with the booking */
+    ical_uid?: string;
+}
+
+export interface CalendarEventChange {
+    // ID of the change event
+    id: string;
+    // Unix timestamp in seconds the change was created
+    created_at: number;
+    // Unix timestamp in seconds the change was updated
+    updated_at: number;
+    type: string;
+    // ID of the event that was changed
+    resource_id: string;
+    action: string;
+    changed_fields: string[];
+}
+
 export interface CalendarEventShowParams {
     /** ID of the personal calendar to grab the events details from */
     calendar?: string;
@@ -40,6 +71,29 @@ export interface CalendarEventShowParams {
 
 const EVENTS_ENDPOINT = `/api/staff/v1/events`;
 
+const APP_VERSION = VERSION.raw || VERSION.version || VERSION.hash;
+
+function appName() {
+    return (
+        setting<string>('app.name') ||
+        setting<string>('app.short_name') ||
+        'PlaceOS'
+    );
+}
+
+function withAppVersion<T extends { extension_data?: Record<string, any> }>(
+    data: T,
+): T {
+    return {
+        ...data,
+        extension_data: {
+            ...(data.extension_data || {}),
+            app_name: appName(),
+            app_version: APP_VERSION,
+        },
+    };
+}
+
 /**
  * List events
  * @param q Parameters to pass to the API request
@@ -48,25 +102,39 @@ export function queryEvents(
     q: CalendarEventQueryParams,
 ): Observable<CalendarEvent[]> {
     const query = toQueryString(q);
-    return get(`${EVENTS_ENDPOINT}${query ? '?' + query : ''}`).pipe(
+    return from(get(`${EVENTS_ENDPOINT}${query ? '?' + query : ''}`)).pipe(
         map((list) => list.map((e) => new CalendarEvent(e))),
         catchError((_) => of([])),
+    );
+}
+
+export function queryEventHistory(
+    q: CalendarEventHistoryQueryParams,
+): Observable<CalendarEventChange[]> {
+    const query = toQueryString(q);
+    return from(
+        get(`${EVENTS_ENDPOINT}/history${query ? '?' + query : ''}`),
+    ).pipe(
+        map((list) => list as CalendarEventChange[]),
+        catchError((_) => of([] as CalendarEventChange[])),
     );
 }
 
 export function queryAllEvents(
     q: CalendarEventQueryParams,
 ): Observable<CalendarEvent[]> {
-    return query<CalendarEvent>({
-        query_params: q,
-        fn: (item) => new CalendarEvent(item),
-        endpoint: EVENTS_ENDPOINT,
-        path: '',
-    }).pipe(
+    return from(
+        query<CalendarEvent>({
+            query_params: q,
+            fn: (item) => new CalendarEvent(item),
+            endpoint: EVENTS_ENDPOINT,
+            path: '',
+        }),
+    ).pipe(
         switchMap(async ({ data, next }) => {
             let list = [...data];
             while (next) {
-                const resp = await next().toPromise();
+                const resp = await next();
                 data = resp.data;
                 next = resp.next;
                 list = [...list, ...data];
@@ -84,10 +152,12 @@ export function queryAllEvents(
  */
 export function showEvent(id: string, q: CalendarEventShowParams = {}) {
     const query = toQueryString(q);
-    return get(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${
-            query ? '?' + query : ''
-        }`,
+    return from(
+        get(
+            `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${
+                query ? '?' + query : ''
+            }`,
+        ),
     ).pipe(map((item) => new CalendarEvent(item)));
 }
 
@@ -96,9 +166,12 @@ export function showEvent(id: string, q: CalendarEventShowParams = {}) {
  * @param data New calendar event fields
  */
 export function createEvent(data: Partial<CalendarEvent>) {
-    return post(`${EVENTS_ENDPOINT}`, new CalendarEvent(data).toJSON()).pipe(
-        map((item) => new CalendarEvent(item)),
-    );
+    return from(
+        post(
+            `${EVENTS_ENDPOINT}`,
+            new CalendarEvent(withAppVersion(data)).toJSON(),
+        ),
+    ).pipe(map((item) => new CalendarEvent(item)));
 }
 
 /**
@@ -115,11 +188,13 @@ export function updateEvent(
     method: 'put' | 'patch' = 'patch',
 ) {
     const query = toQueryString(q);
-    return (method === 'patch' ? patch : put)(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${
-            query ? '?' + query : ''
-        }`,
-        new CalendarEvent(data).toJSON(),
+    return from(
+        (method === 'patch' ? patch : put)(
+            `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${
+                query ? '?' + query : ''
+            }`,
+            new CalendarEvent(withAppVersion(data)).toJSON(),
+        ),
     ).pipe(map((item) => new CalendarEvent(item)));
 }
 
@@ -146,13 +221,15 @@ export const saveEvent = (
  */
 export function removeEvent(id: string, q: CalendarEventShowParams = {}) {
     const query = toQueryString(q);
-    return del(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${
-            query ? '?' + query : ''
-        }`,
-        {
-            response_type: 'void',
-        },
+    return from(
+        del(
+            `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${
+                query ? '?' + query : ''
+            }`,
+            {
+                response_type: 'void',
+            },
+        ),
     );
 }
 
@@ -162,11 +239,13 @@ export function removeEvent(id: string, q: CalendarEventShowParams = {}) {
  * @param system_id Associated system to approve
  */
 export function approveEvent(id: string, system_id: string) {
-    return post(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(
-            id,
-        )}/approve?system_id=${encodeURIComponent(system_id)}`,
-        '',
+    return from(
+        post(
+            `${EVENTS_ENDPOINT}/${encodeURIComponent(
+                id,
+            )}/approve?system_id=${encodeURIComponent(system_id)}`,
+            '',
+        ),
     ).pipe(map((item) => new CalendarEvent(item)));
 }
 
@@ -176,11 +255,13 @@ export function approveEvent(id: string, system_id: string) {
  * @param system_id Associated system to reject
  */
 export function rejectEvent(id: string, system_id: string) {
-    return post(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(
-            id,
-        )}/reject?system_id=${encodeURIComponent(system_id)}`,
-        '',
+    return from(
+        post(
+            `${EVENTS_ENDPOINT}/${encodeURIComponent(
+                id,
+            )}/reject?system_id=${encodeURIComponent(system_id)}`,
+            '',
+        ),
     ).pipe(map((item) => new CalendarEvent(item)));
 }
 
@@ -191,11 +272,13 @@ export function rejectEvent(id: string, system_id: string) {
  */
 export function declineEvent(id: string, query: CalendarEventShowParams = {}) {
     const q = toQueryString(query);
-    return post(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/decline${
-            q ? '?' + q : ''
-        }`,
-        '',
+    return from(
+        post(
+            `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/decline${
+                q ? '?' + q : ''
+            }`,
+            '',
+        ),
     ).pipe(map((item) => new CalendarEvent(item)));
 }
 
@@ -209,10 +292,12 @@ export function queryEventGuests(
     q: CalendarEventShowParams = {},
 ): Observable<GuestUser[]> {
     const query = toQueryString(q);
-    return get(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/guests${
-            query ? '?' + query : ''
-        }`,
+    return from(
+        get(
+            `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/guests${
+                query ? '?' + query : ''
+            }`,
+        ),
     ).pipe(map((list) => list.map((item) => new GuestUser(item))));
 }
 
@@ -230,11 +315,13 @@ export function checkinEventGuest(
     q: CalendarEventShowParams = {},
 ) {
     const query = toQueryString({ ...q, state });
-    return post(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(
-            id,
-        )}/guests/${guest_id}/checkin${query ? '?' + query : ''}`,
-        '',
+    return from(
+        post(
+            `${EVENTS_ENDPOINT}/${encodeURIComponent(
+                id,
+            )}/guests/${guest_id}/checkin${query ? '?' + query : ''}`,
+            '',
+        ),
     ).pipe(map((item) => new GuestUser(item)));
 }
 
@@ -249,9 +336,11 @@ export function addEventGuest(
     q: CalendarEventShowParams = {},
 ) {
     const query = toQueryString(q);
-    return post(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/attendee${query ? '?' + query : ''}`,
-        guest,
+    return from(
+        post(
+            `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/attendee${query ? '?' + query : ''}`,
+            guest,
+        ),
     ).pipe(map((item) => new GuestUser(item)));
 }
 
@@ -266,10 +355,12 @@ export function removeEventGuest(
     q: CalendarEventShowParams = {},
 ) {
     const query = toQueryString(q);
-    return del(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(
-            id,
-        )}/attendee/${encodeURIComponent(guest.email)}${query ? '?' + query : ''}`,
+    return from(
+        del(
+            `${EVENTS_ENDPOINT}/${encodeURIComponent(
+                id,
+            )}/attendee/${encodeURIComponent(guest.email)}${query ? '?' + query : ''}`,
+        ),
     ).pipe(map((item) => new GuestUser(item)));
 }
 
@@ -285,10 +376,12 @@ export function getEventMetadata(
     query: { ical_uid?: string } = {},
 ) {
     const q = toQueryString({ ...query });
-    return get(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(
-            id,
-        )}/metadata/${encodeURIComponent(system_id)}${q ? '?' + q : ''}`,
+    return from(
+        get(
+            `${EVENTS_ENDPOINT}/${encodeURIComponent(
+                id,
+            )}/metadata/${encodeURIComponent(system_id)}${q ? '?' + q : ''}`,
+        ),
     ).pipe(map((item) => item as EventExtensionData));
 }
 
@@ -304,10 +397,12 @@ export function showEventMetadata(
     query: { ical_uid?: string } = {},
 ) {
     const q = toQueryString({ ...query });
-    return get(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(
-            id,
-        )}/metadata/${encodeURIComponent(system_id)}${q ? '?' + q : ''}`,
+    return from(
+        get(
+            `${EVENTS_ENDPOINT}/${encodeURIComponent(
+                id,
+            )}/metadata/${encodeURIComponent(system_id)}${q ? '?' + q : ''}`,
+        ),
     ).pipe(map((item) => item as EventExtensionData));
 }
 
@@ -325,11 +420,13 @@ export function updateEventMetadata(
     query: { ical_uid?: string } = {},
 ) {
     const q = toQueryString({ ...query });
-    return patch(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(
-            id,
-        )}/metadata/${encodeURIComponent(system_id)}${q ? '?' + q : ''}`,
-        metadata,
+    return from(
+        patch(
+            `${EVENTS_ENDPOINT}/${encodeURIComponent(
+                id,
+            )}/metadata/${encodeURIComponent(system_id)}${q ? '?' + q : ''}`,
+            metadata,
+        ),
     ).pipe(map((item) => item as EventExtensionData));
 }
 
@@ -424,9 +521,11 @@ export function findEventClashes(
     q: EventClashQueryOptions = {},
 ): Observable<string[] | BookingClash[]> {
     const query = toQueryString({ ...q, limit: 10000 });
-    return post(
-        `${EVENTS_ENDPOINT}/clashing-assets${query ? '?' + query : ''}`,
-        event.toJSON(),
+    return from(
+        post(
+            `${EVENTS_ENDPOINT}/clashing-assets${query ? '?' + query : ''}`,
+            event.toJSON(),
+        ),
     ).pipe(
         map((list) =>
             q.include_clash_time

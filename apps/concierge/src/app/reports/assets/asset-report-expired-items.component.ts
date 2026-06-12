@@ -1,14 +1,36 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { downloadFile, jsonToCsv, nextValueFrom } from '@placeos/common';
+import { downloadFile, jsonToCsv } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { AssetsReportService } from './assets-report.service';
+
+const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Purchase / invoice numbers',
+        description:
+            'Identifiers from the asset purchase order returned by the assets service.',
+    },
+    {
+        label: 'Purchase date',
+        description: 'Purchase order purchase date, shown when available.',
+    },
+    {
+        label: 'Service start / end',
+        description:
+            'Expected service dates from the purchase order. Rows are included when the expected service end date is before the report start date.',
+    },
+];
 
 @Component({
     selector: 'asset-report-expired-items',
@@ -26,6 +48,7 @@ import { AssetsReportService } from './assets-report.service';
                 @if (!print()) {
                     <button
                         icon
+                        default
                         matRipple
                         [matTooltip]="
                             'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
@@ -35,10 +58,15 @@ import { AssetsReportService } from './assets-report.service';
                         <icon>download</icon>
                     </button>
                 }
+                <placeos-report-metric-guide
+                    title="Table column calculations"
+                    [items]="table_metric_guide"
+                    [inline]="true"
+                />
             </div>
             <simple-table
                 class="block w-full text-sm"
-                [data]="expired_items"
+                [data]="expired_items()"
                 [columns]="[
                     {
                         key: 'purchase_order_number',
@@ -92,16 +120,22 @@ import { AssetsReportService } from './assets-report.service';
         IconComponent,
         MatRippleModule,
         MatTooltipModule,
+        ReportMetricGuideComponent,
     ],
 })
 export class AssetReportExpiredItemsComponent {
     private _state = inject(AssetsReportService);
 
     public readonly print = input(false);
-    public readonly expired_items = this._state.expired_items$;
+    public readonly table_metric_guide = TABLE_METRIC_GUIDE;
+    public readonly expired_items = toSignal(this._state.expired_items$, {
+        initialValue: [],
+    });
 
     public readonly download = async () => {
-        const data = await nextValueFrom(this.expired_items);
-        downloadFile('report-assets-expired-items.csv', jsonToCsv(data));
+        downloadFile(
+            'report-assets-expired-items.csv',
+            jsonToCsv(this.expired_items()),
+        );
     };
 }

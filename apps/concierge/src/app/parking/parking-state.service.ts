@@ -72,6 +72,7 @@ export interface ParkingOptions {
     period: 'day' | 'week';
     search: string;
     zones: string[];
+    request_filter?: 'all' | 'bookings' | 'requests';
 }
 
 export type ParkingSpace = PlaceAsset;

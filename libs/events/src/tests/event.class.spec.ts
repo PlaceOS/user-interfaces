@@ -1,6 +1,19 @@
-import { CalendarEvent, setDefaultCreator, Space, User } from '@placeos/common';
+import {
+    CalendarEvent,
+    setDefaultCreator,
+    Space,
+    User,
+    WeekOfMonth,
+} from '@placeos/common';
 import { setInternalUserDomain } from '@placeos/users';
-import { add, getUnixTime, startOfDay, startOfHour, sub } from 'date-fns';
+import {
+    add,
+    endOfDay,
+    getUnixTime,
+    startOfDay,
+    startOfHour,
+    sub,
+} from 'date-fns';
 
 describe('CalendarEvent', () => {
     let event: CalendarEvent;
@@ -156,6 +169,126 @@ describe('CalendarEvent', () => {
             event_start: getUnixTime(add(new Date(), { days: 2 })),
         });
         expect(event.is_today).toBeFalsy();
+    });
+
+    it('should preserve custom all-day periods', () => {
+        event = new CalendarEvent({
+            all_day: true,
+            date: new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+            date_end: new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+        });
+
+        expect(event.date).toBe(new Date(2028, 5, 15, 9, 0, 0, 0).valueOf());
+        expect(event.duration).toBe(8 * 60);
+        expect(event.date_end).toBe(
+            new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+        );
+    });
+
+    it('should load custom all-day events from extension data', () => {
+        event = new CalendarEvent({
+            all_day: false,
+            date: new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+            date_end: new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+            extension_data: { custom_all_day: true },
+        });
+
+        expect(event.all_day).toBe(true);
+        expect(event.date).toBe(new Date(2028, 5, 15, 9, 0, 0, 0).valueOf());
+        expect(event.duration).toBe(8 * 60);
+    });
+
+    it('should serialise custom all-day events for the backend', () => {
+        event = new CalendarEvent({
+            all_day: true,
+            date: new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+            date_end: new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+        });
+
+        const json = event.toJSON();
+
+        expect(json.all_day).toBe(false);
+        expect(json.extension_data.custom_all_day).toBe(true);
+        expect(json.extension_data.all_day_date).toBe('2028-06-15');
+    });
+
+    it('should serialise recurring events from the recurrence start', () => {
+        const recurrence_start = new Date(2026, 4, 13, 9).valueOf();
+        event = new CalendarEvent({
+            date: new Date(2026, 4, 12, 9).valueOf(),
+            date_end: new Date(2026, 4, 12, 10).valueOf(),
+            recurring: true,
+            recurrence: {
+                start: recurrence_start,
+                end: new Date(2026, 10, 30).valueOf(),
+                interval: 1,
+                pattern: 'monthly',
+                days_of_week: [3],
+            },
+        });
+
+        const json = event.toJSON();
+
+        expect(json.recurrence.range_start).toBe(
+            getUnixTime(startOfDay(recurrence_start)),
+        );
+        expect(json.recurrence.days_of_week).toEqual(['wednesday']);
+    });
+
+    it('should serialise recurring events until the selected end date', () => {
+        const recurrence_end = new Date(2026, 5, 30, 23, 59, 59, 999).valueOf();
+        event = new CalendarEvent({
+            date: new Date(2026, 5, 2, 9).valueOf(),
+            date_end: new Date(2026, 5, 2, 10).valueOf(),
+            recurring: true,
+            recurrence: {
+                start: new Date(2026, 5, 2, 9).valueOf(),
+                end: recurrence_end,
+                interval: 1,
+                pattern: 'weekly',
+                days_of_week: [2],
+            },
+        });
+
+        const json = event.toJSON();
+
+        expect(json.recurrence.range_end).toBe(
+            getUnixTime(endOfDay(recurrence_end)),
+        );
+    });
+
+    it('should preserve monthly weekday recurrence metadata', () => {
+        event = new CalendarEvent({
+            date: new Date(2026, 4, 12, 9).valueOf(),
+            date_end: new Date(2026, 4, 12, 10).valueOf(),
+            recurring: true,
+            recurrence: {
+                start: new Date(2026, 4, 13, 9).valueOf(),
+                end: new Date(2026, 10, 30).valueOf(),
+                interval: 1,
+                pattern: 'monthly',
+                days_of_week: [3],
+                nth_of_month: WeekOfMonth.Second,
+            },
+        });
+
+        const json = event.toJSON();
+
+        expect(json.recurrence.nth_of_month).toBe(WeekOfMonth.Second);
+    });
+
+    it('should clear custom all-day metadata when updating an existing event', () => {
+        event = new CalendarEvent({
+            id: 'event-1',
+            all_day: false,
+            date: new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+            date_end: new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+        });
+
+        const json = event.toJSON();
+
+        expect(json.all_day).toBe(false);
+        expect(json.extension_data.custom_all_day).toBe(false);
     });
 
     it('should expose list of guests for event', () => {

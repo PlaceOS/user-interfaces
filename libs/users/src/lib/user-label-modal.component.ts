@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -106,7 +105,6 @@ interface UserLabelSettings {
     `,
     styles: [``],
     imports: [
-        CommonModule,
         UserLabelComponent,
         MatDialogModule,
         FormsModule,

@@ -122,14 +122,12 @@ export class BuildingManagementService {
         );
         if (ref.reason !== 'done') return ref.close();
         ref.loading(i18n('APP.CONCIERGE.BUILDINGS_REMOVE_LOADING'));
-        await removeZone(building.id)
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    i18n('APP.CONCIERGE.BUILDINGS_REMOVE_ERROR', { error: e }),
-                );
-                throw e;
-            });
+        await removeZone(building.id).catch((e) => {
+            notifyError(
+                i18n('APP.CONCIERGE.BUILDINGS_REMOVE_ERROR', { error: e }),
+            );
+            throw e;
+        });
         this._org.removeZone({ id: building.id, tags: ['building'] } as any);
         notifySuccess(i18n('APP.CONCIERGE.BUILDINGS_REMOVE_SUCCESS'));
         ref.close();

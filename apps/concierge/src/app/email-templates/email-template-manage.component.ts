@@ -1,6 +1,7 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+
+import { Component, computed, effect, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
     FormControl,
     FormGroup,
@@ -18,13 +19,13 @@ import {
     AsyncHandler,
     extractTextFromHTML,
     i18n,
-    nextValueFrom,
     notifyError,
     notifySuccess,
     OrganisationService,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { RichTextInputComponent } from '@placeos/form-fields';
+import { startWith } from 'rxjs/operators';
 import {
     EmailTemplate,
     EmailTemplatesStateService,
@@ -42,13 +43,13 @@ import {
                 >
                     <h2 class="text-xl font-medium">
                         {{
-                            (template?.id
+                            (template()?.id
                                 ? 'APP.CONCIERGE.EMAIL_TEMPLATES_EDIT'
                                 : 'APP.CONCIERGE.EMAIL_TEMPLATES_NEW'
                             ) | translate
                         }}
                     </h2>
-                    @if (!loading) {
+                    @if (!loading()) {
                         <a icon matRipple [routerLink]="['/email-templates']">
                             <icon>close</icon>
                         </a>
@@ -74,7 +75,7 @@ import {
                                     "
                                     formControlName="zone_id"
                                 >
-                                    @for (bld of buildings | async; track bld) {
+                                    @for (bld of buildings(); track bld.id) {
                                         <mat-option [value]="bld.id">
                                             {{ bld.display_name || bld.name }}
                                         </mat-option>
@@ -101,11 +102,11 @@ import {
                                 >
                                     <div class="truncate">
                                         {{
-                                            active_trigger?.name ||
-                                                active_trigger?.module_name
+                                            active_trigger()?.name ||
+                                                active_trigger()?.module_name
                                         }}
                                     </div>
-                                    @if (!active_trigger) {
+                                    @if (!active_trigger()) {
                                         <div class="truncate opacity-30">
                                             {{
                                                 'COMMON.TRIGGER_SELECT'
@@ -124,11 +125,11 @@ import {
                                     {{ 'COMMON.NONE' | translate }}
                                 </button>
                                 @for (
-                                    group of definitions | async;
-                                    track group
+                                    group of definitions();
+                                    track group.name
                                 ) {
                                     <label class="p-4">{{ group.name }}</label>
-                                    @for (tmpl of group.items; track tmpl) {
+                                    @for (tmpl of group.items; track tmpl.id) {
                                         <button
                                             mat-menu-item
                                             (click)="
@@ -187,7 +188,7 @@ import {
                         </button>
                         <mat-menu #tracking_menu="matMenu" class="max-h-96">
                             @for (
-                                field of active_trigger?.fields || [];
+                                field of active_trigger()?.fields || [];
                                 track field
                             ) {
                                 <button
@@ -204,7 +205,7 @@ import {
                                     </div>
                                 </button>
                             }
-                            @if (!(active_trigger?.fields || []).length) {
+                            @if (!(active_trigger()?.fields || []).length) {
                                 <button mat-menu-item [disabled]="true">
                                     {{
                                         'APP.CONCIERGE.EMAIL_TEMPLATES_PLACEHOLDERS_EMPTY'
@@ -267,7 +268,7 @@ import {
                         class="block min-h-[calc(100vh-32rem)]"
                     ></rich-text-input>
                 </form>
-                @if (!loading) {
+                @if (!loading()) {
                     <footer
                         class="bg-base-200 sticky bottom-2 z-20 mx-auto mt-2 flex w-full max-w-160 items-center justify-end rounded-sm border-none px-4 py-2"
                     >
@@ -286,14 +287,13 @@ import {
                     class="flex h-full w-full flex-col items-center justify-center space-y-2"
                 >
                     <mat-spinner [diameter]="32"></mat-spinner>
-                    <p>{{ loading }}</p>
+                    <p>{{ loading() }}</p>
                 </div>
             </div>
         </ng-template>
     `,
     styles: [``],
     imports: [
-        CommonModule,
         RouterModule,
         MatProgressSpinnerModule,
         TranslatePipe,
@@ -307,20 +307,25 @@ import {
         IconComponent,
     ],
 })
-export class EmailTemplateManageComponent
-    extends AsyncHandler
-    implements OnInit
-{
+export class EmailTemplateManageComponent extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _state = inject(EmailTemplatesStateService);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _clipboard = inject(Clipboard);
 
-    public loading = '';
-    public template: EmailTemplate;
-    public readonly definitions = this._state.template_groups;
-    public readonly buildings = this._org.building_list;
+    private readonly _params = toSignal(this._route.paramMap, {
+        initialValue: this._route.snapshot.paramMap,
+    });
+
+    public readonly loading = signal('');
+    public readonly template = signal<EmailTemplate | null>(null);
+    public readonly definitions = toSignal(this._state.template_groups, {
+        initialValue: [],
+    });
+    public readonly buildings = toSignal(this._org.building_list, {
+        initialValue: [],
+    });
     public readonly form = new FormGroup({
         id: new FormControl(''),
         reply_to: new FormControl(''),
@@ -331,42 +336,25 @@ export class EmailTemplateManageComponent
         html: new FormControl('', [Validators.required]),
         zone_id: new FormControl(''),
     });
-    public active_trigger = null;
+    private readonly _trigger = toSignal(
+        this.form.controls.trigger.valueChanges.pipe(
+            startWith(this.form.controls.trigger.value || ''),
+        ),
+        { initialValue: this.form.controls.trigger.value || '' },
+    );
+    public readonly active_trigger = computed(() => {
+        const trigger_id = this._trigger();
+        return this.definitions()
+            .flatMap((group) => group.items)
+            .find((_) => _.id === trigger_id);
+    });
 
-    public ngOnInit() {
-        this.subscription(
-            'route.params',
-            this._route.paramMap.subscribe(async (params) => {
-                if (params.has('id')) {
-                    this.loading = i18n(
-                        'APP.CONCIERGE.EMAIL_TEMPLATES_LOADING',
-                    );
-                    this.template = await this._state.loadTemplate(
-                        params.get('id'),
-                    );
-                    this.loading = '';
-                    console.log('Template:', this.template);
-                    if (!this.template) {
-                        this._router.navigate(['/email-templates', 'manage']);
-                    } else {
-                        this.form.patchValue(this.template);
-                    }
-                }
-            }),
-        );
-        this.subscription(
-            'trigger',
-            this.form.valueChanges.subscribe(async (value) => {
-                if (value.trigger) {
-                    const trigger_list = await nextValueFrom(
-                        this._state.template_definitions,
-                    );
-                    this.active_trigger = trigger_list.find(
-                        (_) => _.id === value.trigger,
-                    );
-                }
-            }),
-        );
+    constructor() {
+        super();
+        effect(() => {
+            const id = this._params().get('id');
+            if (id) this._loadTemplate(id);
+        });
     }
 
     public copyField(field: string) {
@@ -377,15 +365,15 @@ export class EmailTemplateManageComponent
     }
 
     public async save() {
-        this.loading = i18n('APP.CONCIERGE.EMAIL_TEMPLATES_SAVING');
+        this.loading.set(i18n('APP.CONCIERGE.EMAIL_TEMPLATES_SAVING'));
         const zone =
-            this.template?.zone_id !== this.form.value.zone_id
-                ? this.template?.zone_id
+            this.template()?.zone_id !== this.form.value.zone_id
+                ? this.template()?.zone_id
                 : '';
         await this._state
             .saveTemplate(
                 {
-                    ...(this.template || {}),
+                    ...(this.template() || {}),
                     ...this.form.getRawValue(),
                     text: extractTextFromHTML(
                         this.form.getRawValue().html || '',
@@ -394,11 +382,23 @@ export class EmailTemplateManageComponent
                 zone,
             )
             .catch((e) => {
-                this.loading = '';
+                this.loading.set('');
                 notifyError(i18n(e));
                 throw e;
             });
-        this.loading = '';
+        this.loading.set('');
         this._router.navigate(['/email-templates']);
+    }
+
+    private async _loadTemplate(id: string) {
+        this.loading.set(i18n('APP.CONCIERGE.EMAIL_TEMPLATES_LOADING'));
+        const template = await this._state.loadTemplate(id);
+        this.template.set(template || null);
+        this.loading.set('');
+        if (!template) {
+            this._router.navigate(['/email-templates', 'manage']);
+            return;
+        }
+        this.form.patchValue(template);
     }
 }

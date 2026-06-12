@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { queryCateringItems } from '@placeos/assets';
 import {
     CateringItem,
     OrganisationService,
@@ -59,8 +60,8 @@ export class CateringOrderStateService {
     public readonly settings = this._org.active_building.pipe(
         filter((_) => !!_),
         switchMap((_) =>
-            showMetadata(_.id, 'catering-settings').pipe(
-                catchError((_) => of({} as PlaceMetadata)),
+            showMetadata(_.id, 'catering-settings').catch(
+                () => ({}) as PlaceMetadata,
             ),
         ),
         map((_) => _.details as CateringSettings),
@@ -84,13 +85,8 @@ export class CateringOrderStateService {
         filter(([_, bld]) => !!bld),
         switchMap(([{ zone }, bld]) => {
             this._loading.next('[MENU]');
-            return showMetadata(zone || bld.id, 'catering').pipe(
-                map((d) =>
-                    (d.details instanceof Array ? d.details : []).map(
-                        (_) => new CateringItem(_),
-                    ),
-                ),
-                catchError((_) => []),
+            return queryCateringItems(zone || bld.id).pipe(
+                catchError((_) => of([] as CateringItem[])),
             );
         }),
         tap((items) => {
@@ -141,8 +137,7 @@ export class CateringOrderStateService {
                 },
                 l,
             ]) => {
-                const rules =
-                    await getCateringRulesForZone(zone_id).toPromise();
+                const rules = await getCateringRulesForZone(zone_id);
                 search = search.toLowerCase();
                 let list = search
                     ? l.filter((_) => _.name.toLowerCase().includes(search))

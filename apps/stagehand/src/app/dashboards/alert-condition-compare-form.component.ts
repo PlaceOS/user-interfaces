@@ -24,7 +24,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { Identity, i18n, notifyError } from '@placeos/common';
-import { map } from 'rxjs/operators';
 
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
@@ -69,9 +68,6 @@ export function calculateModuleIndex(
                 }
                 @if (form().controls.operator) {
                     <div class="flex flex-1 flex-col">
-                        <label for="operator" hidden>{{
-                            'TRIGGERS.COMPARE_OP' | translate
-                        }}</label>
                         <mat-form-field appearance="outline">
                             <mat-select
                                 name="operator"
@@ -94,9 +90,6 @@ export function calculateModuleIndex(
                 }
                 @if (form().controls.operator) {
                     <div class="flex flex-1 flex-col">
-                        <label for="compared-to" hidden>{{
-                            'TRIGGERS.COMPARE_TO' | translate
-                        }}</label>
                         <mat-form-field appearance="outline">
                             <mat-select
                                 name="compared-to"
@@ -117,9 +110,6 @@ export function calculateModuleIndex(
                 }
                 @if (rhs_type === 'constant' && form().controls.right) {
                     <div class="flex flex-1 flex-col">
-                        <label for="constant" hidden>{{
-                            'TRIGGERS.COMPARE_TO' | translate
-                        }}</label>
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
@@ -352,7 +342,7 @@ export class AlertConditionComparisonFormComponent
                 ? name.slice(0, name.length - 1).join('_')
                 : name[0],
             +name[name.length - 1] || 1,
-        ).subscribe(
+        ).then(
             (var_map) => {
                 if (Object.keys(var_map || {}).length <= 0) {
                     var_map = { connected: true };
@@ -384,8 +374,8 @@ export class AlertConditionComparisonFormComponent
             return;
         }
         queryModules({ control_system_id: system.id })
-            .pipe(map((resp) => resp.data))
-            .subscribe((module_list) => {
+            .then((resp) => resp.data)
+            .then((module_list) => {
                 this.modules = module_list;
                 const mod_list = this.system().modules;
                 this.modules.sort(

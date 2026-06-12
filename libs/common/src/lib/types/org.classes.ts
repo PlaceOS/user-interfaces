@@ -20,6 +20,8 @@ export class Organisation {
     public readonly tags: string[];
     /** Count for the Organisation */
     public readonly count: number;
+    /** Count for the Organisation */
+    public readonly children_count: number;
     /** Capacity for the Organisation */
     public readonly capacity: number;
     /** PlaceOS bindings for applications */
@@ -33,6 +35,7 @@ export class Organisation {
         this.description = raw_data.description || '';
         this.tags = raw_data.tags || [];
         this.count = raw_data.count || 0;
+        this.children_count = raw_data.children_count || 0;
         this.capacity = raw_data.capacity || 0;
         this.bindings = raw_data.bindings || {};
         this._settings = raw_data.settings || {};

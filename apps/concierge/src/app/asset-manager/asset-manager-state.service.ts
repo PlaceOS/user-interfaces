@@ -52,6 +52,7 @@ import {
     first,
     map,
     shareReplay,
+    startWith,
     switchMap,
     tap,
 } from 'rxjs/operators';
@@ -94,17 +95,22 @@ export class AssetManagerStateService extends AsyncHandler {
     ]).pipe(
         switchMap(() => {
             this._loading.next(true);
-            return getGroupsWithAssets({ zone_id: this._org.building?.id });
+            return getGroupsWithAssets({
+                zone_id: this._org.building?.id,
+            }).pipe(
+                map((r) => r.data),
+                catchError(() => of([])),
+            );
         }),
         tap((_) => this._loading.next(false)),
         shareReplay(1),
-    ) as any;
+    );
     /** List of available assets */
     public readonly purchase_orders: Observable<AssetPurchaseOrder[]> =
         this._change.pipe(
             switchMap(() => {
                 this._loading.next(true);
-                return queryAssetPurchaseOrders();
+                return queryAssetPurchaseOrders().pipe(map((_) => _.data));
             }),
             tap(() => this._loading.next(false)),
             shareReplay(1),
@@ -253,6 +259,7 @@ export class AssetManagerStateService extends AsyncHandler {
                   )
                 : list,
         ),
+        startWith([]),
     );
     /** Mapping of available assets to categories */
     public readonly product_mapping = combineLatest([
@@ -270,7 +277,7 @@ export class AssetManagerStateService extends AsyncHandler {
                     : '',
             }));
             const categories = unique(
-                mapped_products.map((i) => i.category_id),
+                mapped_products?.map((i) => i.category_id) || [],
             );
             for (const group of categories) {
                 map[group] = mapped_products.filter(
@@ -287,8 +294,8 @@ export class AssetManagerStateService extends AsyncHandler {
     ]).pipe(
         filter(([_]) => !!_),
         switchMap(([_]) =>
-            showMetadata(_.id, 'assets-settings').pipe(
-                catchError((_) => of({} as PlaceMetadata)),
+            showMetadata(_.id, 'assets-settings').catch(
+                () => ({}) as PlaceMetadata,
             ),
         ),
         map((_) => (_.details as Record<string, any>) || {}),
@@ -384,7 +391,7 @@ export class AssetManagerStateService extends AsyncHandler {
     public async deleteActiveProduct() {
         const item = await nextValueFrom(this.active_product);
         if (!item?.id) return;
-        await removeAssetType(item.id).toPromise();
+        await removeAssetType(item.id);
         this._change.next(Date.now());
         notifySuccess('Successfully deleted asset');
     }
@@ -438,15 +445,14 @@ export class AssetManagerStateService extends AsyncHandler {
         if (details?.reason !== 'done') return;
         this.updateConfig(this._org.building.id, details.metadata).then(
             () => ref.close(),
-            () => (ref.componentInstance.loading = false),
+            () => ref.componentInstance.loading.set(false),
         );
     }
 
     public async getConfig(
         zone_id: string = this._org.building.id,
     ): Promise<AttachedResourceRuleset[]> {
-        const rules = (await showMetadata(zone_id, 'assets_config').toPromise())
-            .details;
+        const rules = (await showMetadata(zone_id, 'assets_config')).details;
         return rules instanceof Array ? (rules as any) : [];
     }
 
@@ -456,7 +462,7 @@ export class AssetManagerStateService extends AsyncHandler {
             name: 'assets_config',
             details: config,
             description: `Assets config for ${zone_id}`,
-        }).toPromise();
+        });
     }
 
     public async saveSettings(settings: Record<string, any>) {
@@ -466,7 +472,7 @@ export class AssetManagerStateService extends AsyncHandler {
             name: 'assets-settings',
             details: { ...old_settings, ...settings },
             description: `Assets settings for ${this._org.building.id}`,
-        }).toPromise();
+        });
         this._change.next(Date.now());
         return result;
     }

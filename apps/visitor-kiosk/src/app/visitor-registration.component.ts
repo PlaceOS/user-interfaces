@@ -1,4 +1,5 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { startOfMinute } from 'date-fns';
@@ -25,6 +26,7 @@ import {
     AuthenticatedImageDirective,
     IconComponent,
     TranslatePipe,
+    VirtualKeyboardComponent,
 } from '@placeos/components';
 import {
     DurationFieldComponent,
@@ -68,6 +70,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                         >
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                keyboard
                                 matInput
                                 name="name"
                                 formControlName="asset_name"
@@ -80,8 +83,12 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                         <label for="email">
                             {{ 'APP.VISITOR_KIOSK.EMAIL' | translate }}</label
                         >
-                        <mat-form-field appearance="outline" class="w-full">
+                        <mat-form-field
+                            appearance="outline"
+                            class="mb-0 w-full"
+                        >
                             <input
+                                keyboard
                                 matInput
                                 name="email"
                                 formControlName="asset_id"
@@ -94,13 +101,14 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                         <label for="user">Host</label>
                         <a-user-search-field
                             formControlName="user"
-                            class="mb-4"
+                            [class.mb-4]="!form.value.user"
                         ></a-user-search-field>
                         <label form="phone">
                             {{ 'APP.VISITOR_KIOSK.PHONE' | translate }}</label
                         >
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                keyboard
                                 matInput
                                 name="phone"
                                 type="tel"
@@ -117,6 +125,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                         >
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                keyboard
                                 matInput
                                 name="org"
                                 formControlName="company"
@@ -130,9 +139,10 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                         </label>
                         <mat-form-field
                             appearance="outline"
-                            class="no-subscript w-full"
+                            class="no-subscript mb-4 w-full"
                         >
                             <input
+                                keyboard
                                 matInput
                                 name="reason"
                                 formControlName="title"
@@ -143,15 +153,15 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             />
                         </mat-form-field>
                         @if (allow_pass_number()) {
-                            <div class="h-4"></div>
                             <label form="pass">
                                 {{ 'BOOKINGS.VISITOR_PASS' | translate }}
                             </label>
                             <mat-form-field
                                 appearance="outline"
-                                class="no-subscript w-full"
+                                class="no-subscript mb-4 w-full"
                             >
                                 <input
+                                    keyboard
                                     matInput
                                     name="pass"
                                     formControlName="pass_number"
@@ -178,10 +188,11 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             </label>
                             <a-duration-field
                                 name="duration"
+                                class="text-base"
                                 formControlName="duration"
-                                [time]="form.value.date"
+                                [time]="form_value().date"
                                 [max]="max_duration()"
-                                [disabled]="form.value.all_day"
+                                [disabled]="form_value().all_day"
                             ></a-duration-field>
                         }
                     </div>
@@ -222,6 +233,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
         DurationFieldComponent,
         RouterModule,
         AuthenticatedImageDirective,
+        VirtualKeyboardComponent,
     ],
 })
 export class VisitorRegistrationComponent
@@ -251,6 +263,9 @@ export class VisitorRegistrationComponent
     private readonly _induction_details = settingSignal('induction_details');
 
     public readonly form = this._booking_form.form;
+    public readonly form_value = toSignal(this.form.valueChanges, {
+        initialValue: this.form.getRawValue(),
+    });
     public readonly loading = signal(false);
     public readonly now = signal(startOfMinute(Date.now()).valueOf());
     public readonly background = settingSignal('welcome_background');

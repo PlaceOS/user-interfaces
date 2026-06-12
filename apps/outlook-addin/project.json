@@ -147,7 +147,8 @@
             "executor": "@nx/jest:jest",
             "outputs": ["{workspaceRoot}/coverage/apps/outlook-addin"],
             "options": {
-                "jestConfig": "apps/outlook-addin/jest.config.ts"
+                "jestConfig": "apps/outlook-addin/jest.config.ts",
+                "tsConfig": "apps/outlook-addin/tsconfig.spec.json"
             }
         }
     }

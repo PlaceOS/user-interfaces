@@ -14,7 +14,6 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 
-import { CommonModule } from '@angular/common';
 import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/desk-flow/desk-form-details.component';
 
 @Component({
@@ -39,7 +38,6 @@ import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/desk-fl
     `,
     styles: [``],
     imports: [
-        CommonModule,
         FullscreenModalShellComponent,
         NewDeskFormDetailsComponent,
         TranslatePipe,
@@ -59,11 +57,17 @@ export class DeskBookModalComponent implements OnInit {
     }
 
     public ngOnInit() {
+        this._booking_form.newForm('desk');
         if (!this.form.value.id) {
             this.form.patchValue({
                 duration:
                     this._settings.get('app.desks.default_duration') || 60,
+                all_day: !!(
+                    this._settings.get('app.desks.all_day_default') ??
+                    this._settings.get('app.bookings.all_day_default')
+                ),
             });
+            this._booking_form.applyDurationSettings();
         }
     }
 
@@ -75,7 +79,11 @@ export class DeskBookModalComponent implements OnInit {
             method = () => this._booking_form.postFormForGroup();
         }
         const event = await method().catch((_) => {
-            notifyError(_);
+            if (_?.status === 409) {
+                notifyError(i18n('APP.CONCIERGE.DESKS_ASSIGN_CONFLICT_ERROR'));
+            } else {
+                notifyError(_);
+            }
             this.loading.set(false);
             throw _;
         });

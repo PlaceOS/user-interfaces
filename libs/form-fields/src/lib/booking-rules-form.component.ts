@@ -30,17 +30,15 @@ import { queryZones } from '@placeos/ts-client';
 import { endOfDay, set, startOfDay } from 'date-fns';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { of } from 'rxjs';
-import {
-    catchError,
-    filter,
-    map,
-    shareReplay,
-    switchMap,
-} from 'rxjs/operators';
+import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
 import { DateFieldComponent } from './date-field.component';
 import { DurationFieldComponent } from './duration-field.component';
-import { ItemListFieldComponent } from './item-list-field.component';
+import {
+    ItemListFieldComponent,
+    uniqueChipItems,
+} from './item-list-field.component';
+
+const ITEM_LIST_CONDITIONS = ['groups', 'locations', 'tags', 'resource_ids'];
 
 @Component({
     selector: 'booking-rules-form',
@@ -452,9 +450,7 @@ export class BookingRulesFormComponent implements OnChanges {
     public readonly building_zones = this._org.active_building.pipe(
         filter((_) => !!_),
         switchMap((bld) =>
-            queryZones({ parent_id: bld.id }).pipe(
-                catchError(() => of({ data: [] })),
-            ),
+            queryZones({ parent_id: bld.id }).catch(() => ({ data: [] })),
         ),
         map((res) => res.data),
         shareReplay(1),
@@ -515,7 +511,7 @@ export class BookingRulesFormComponent implements OnChanges {
     });
 
     public get time_format() {
-        return this._settings.time_format;
+        return this._settings.time_format_signal();
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
@@ -561,10 +557,15 @@ export class BookingRulesFormComponent implements OnChanges {
             );
         }
         const value = this.form.getRawValue();
-        const condition_keys = Object.keys(value.conditions);
+        const conditions = value.conditions as Record<string, unknown>;
+        const condition_keys = Object.keys(conditions);
         for (const key of condition_keys) {
             if (!this.available_conditions.includes(key)) {
-                delete value.conditions[key];
+                delete conditions[key];
+            } else if (ITEM_LIST_CONDITIONS.includes(key)) {
+                conditions[key] = uniqueChipItems(
+                    (conditions[key] as string[]) || [],
+                );
             }
         }
         this.rulesetChange.emit(value as any);

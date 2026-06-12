@@ -124,7 +124,8 @@
             "executor": "@nx/jest:jest",
             "outputs": ["{workspaceRoot}/coverage/apps/map-kiosk"],
             "options": {
-                "jestConfig": "apps/map-kiosk/jest.config.ts"
+                "jestConfig": "apps/map-kiosk/jest.config.ts",
+                "tsConfig": "apps/map-kiosk/tsconfig.spec.json"
             }
         }
     }

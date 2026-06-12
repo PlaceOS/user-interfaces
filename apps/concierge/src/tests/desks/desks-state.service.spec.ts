@@ -1,16 +1,17 @@
+import { EventEmitter } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/common';
-import { EventEmitter } from '@angular/core';
-import { BehaviorSubject, lastValueFrom, of } from 'rxjs';
+import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { BehaviorSubject, lastValueFrom, of, throwError } from 'rxjs';
 
-import { SettingsService } from '@placeos/common';
-import { MockProvider } from 'ng-mocks';
-import { DesksStateService } from '../../app/desks/desks-state.service';
 import * as booking_mod from '@placeos/bookings';
 import * as common_mod from '@placeos/common';
+import { SettingsService } from '@placeos/common';
 import * as component_mod from '@placeos/components';
 import * as ts_client_mod from '@placeos/ts-client';
+import { MockProvider } from 'ng-mocks';
+import { DesksStateService } from '../../app/desks/desks-state.service';
 
 jest.mock('@placeos/bookings');
 jest.mock('@placeos/common');
@@ -22,6 +23,7 @@ describe('DesksStateService', () => {
     let active_building: BehaviorSubject<any>;
     let active_region: BehaviorSubject<any>;
     let current_building: any;
+    let settings_map: Record<string, any>;
     const organisation_service: any = {
         active_levels: of([]),
         initialised: of(true),
@@ -45,8 +47,7 @@ describe('DesksStateService', () => {
         providers: [
             MockProvider(MatDialog, { open: jest.fn() }),
             MockProvider(SettingsService, {
-                get: ((name: string) =>
-                    name === 'app.use_region' ? false : undefined) as any,
+                get: ((name: string) => settings_map[name]) as any,
             } as any),
             MockProvider(OrganisationService, organisation_service),
         ],
@@ -54,6 +55,7 @@ describe('DesksStateService', () => {
 
     beforeEach(() => {
         current_building = { id: 'bld-1' };
+        settings_map = { 'app.use_region': false };
         active_building = new BehaviorSubject(current_building);
         active_region = new BehaviorSubject({ id: 'region-1' });
         organisation_service.active_building = active_building;
@@ -62,11 +64,18 @@ describe('DesksStateService', () => {
         (booking_mod as any).queryPagedBookings = jest.fn(() =>
             of({ data: [], total: 0, next: null }),
         );
+        (booking_mod as any).queryBookings = jest.fn(() => of([]));
         (booking_mod as any).saveBooking = jest.fn(() => of({}));
         (booking_mod as any).removeBooking = jest.fn(() => of(undefined));
-        jest.spyOn(ts_client_mod, 'updateMetadata').mockReturnValue(
-            of({}) as any,
+        (booking_mod as any).rejectBooking = jest.fn(() => of({}));
+        (booking_mod as any).rejectBookingInstance = jest.fn(() => of({}));
+        (booking_mod as any).updateBooking = jest.fn(() => of({}));
+        jest.spyOn(ts_client_mod, 'updateMetadata').mockResolvedValue(
+            {} as never,
         );
+        jest.spyOn(ts_client_mod, 'showMetadata').mockResolvedValue({
+            details: [],
+        } as never);
         (component_mod as any).openConfirmModal = jest.fn(async () => ({
             reason: 'done',
             loading: jest.fn(),
@@ -75,9 +84,15 @@ describe('DesksStateService', () => {
         (common_mod as any).nextValueFrom = jest.fn((obs) =>
             lastValueFrom(obs),
         );
+        (common_mod as any).i18n = jest.fn((key) => key);
         (common_mod as any).notifySuccess = jest.fn();
         (common_mod as any).notifyError = jest.fn();
+        (common_mod as any).setTimeInTimezone = jest.fn((date) => date);
         (common_mod as any).unique = jest.fn((list) => list);
+        (common_mod as any).Booking.mockImplementation(function (data) {
+            Object.assign(this, data);
+        });
+        jest.clearAllMocks();
         spectator = createService();
     });
 
@@ -85,25 +100,41 @@ describe('DesksStateService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
-    it('should reload desk bookings when the active building changes', async () => {
-        jest.useFakeTimers();
-        spectator.service.setFilters({ view: 'events' });
-        await jest.advanceTimersByTimeAsync(1100);
-
-        expect(booking_mod.queryPagedBookings).toHaveBeenCalledTimes(1);
-        expect(booking_mod.queryPagedBookings).toHaveBeenLastCalledWith(
-            expect.objectContaining({ zones: 'bld-1' }),
-        );
-
+    it('should reload desk bookings when the active building changes', () => {
+        expect((spectator.service as any)._currentLevelList()).toEqual([
+            { id: 'bld-1-lvl-1' },
+        ]);
         current_building = { id: 'bld-2' };
         active_building.next(current_building);
-        await jest.advanceTimersByTimeAsync(1100);
+        expect((spectator.service as any)._currentLevelList()).toEqual([
+            { id: 'bld-2-lvl-1' },
+        ]);
+    });
 
-        expect(booking_mod.queryPagedBookings).toHaveBeenCalledTimes(2);
-        expect(booking_mod.queryPagedBookings).toHaveBeenLastCalledWith(
-            expect.objectContaining({ zones: 'bld-2' }),
+    it('should apply building timezone to desk booking listing requests', () => {
+        current_building = { id: 'bld-1', timezone: 'Australia/Sydney' };
+        active_building.next(current_building);
+        (spectator.inject(SettingsService).get as any) = jest.fn(
+            (name: string) => {
+                if (name === 'app.use_region') return false;
+                if (name === 'app.bookings.use_building_timezone') return true;
+                return undefined;
+            },
         );
-        jest.useRealTimers();
+        (common_mod as any).getTimezoneDifferenceInHours = jest.fn(() => 2);
+        const date = new Date('2026-06-15T12:00:00').valueOf();
+
+        expect(spectator.service.tz_offset).toBe(2);
+        expect(
+            getUnixTime(
+                addMinutes(startOfDay(date), spectator.service.tz_offset * 60),
+            ),
+        ).toBe(getUnixTime(addMinutes(startOfDay(date), 120)));
+        expect(
+            getUnixTime(
+                addMinutes(endOfDay(date), spectator.service.tz_offset * 60),
+            ),
+        ).toBe(getUnixTime(addMinutes(endOfDay(date), 120)));
     });
 
     it('should cancel only one recurring booking instance', async () => {
@@ -137,6 +168,13 @@ describe('DesksStateService', () => {
     });
 
     it('should create assigned booking for non-bookable desks', async () => {
+        const mock_now = new Date('2026-06-15T12:00:00Z').valueOf();
+        const assigned_start = new Date('2026-06-15T01:00:00Z').valueOf();
+        current_building = { id: 'bld-1', timezone: 'Australia/Sydney' };
+        active_building.next(current_building);
+        settings_map['app.bookings.use_building_timezone'] = true;
+        jest.spyOn(Date, 'now').mockReturnValue(mock_now);
+        (common_mod as any).setTimeInTimezone.mockReturnValue(assigned_start);
         const dialog_ref = {
             afterClosed: () =>
                 of({
@@ -160,7 +198,138 @@ describe('DesksStateService', () => {
 
         await spectator.service.editDesk({ id: 'desk-1' } as any);
 
-        expect(booking_mod.saveBooking).toHaveBeenCalled();
+        expect(common_mod.setTimeInTimezone).toHaveBeenCalledWith(
+            mock_now,
+            1,
+            0,
+            'Australia/Sydney',
+        );
+        expect(booking_mod.saveBooking).toHaveBeenCalledWith(
+            expect.objectContaining({
+                booking_start: getUnixTime(assigned_start),
+                booking_end: getUnixTime(assigned_start + 22 * 60 * 60 * 1000),
+            }),
+        );
+    });
+
+    it('should block assignments when the desk limit is reached', async () => {
+        settings_map['app.desks.max_assigned_count'] = 1;
+        (ts_client_mod.showMetadata as jest.Mock).mockResolvedValue({
+            details: [
+                {
+                    id: 'desk-existing',
+                    assigned_to: 'staff@example.com',
+                    assigned_name: 'Staff Name',
+                },
+            ],
+        } as never);
+        const dialog_ref = {
+            afterClosed: () =>
+                of({
+                    reason: 'done',
+                    metadata: {
+                        id: 'desk-new',
+                        name: 'Desk New',
+                        assigned_to: 'staff@example.com',
+                        assigned_name: 'Staff Name',
+                    },
+                }),
+            componentInstance: {
+                event: new EventEmitter<any>(),
+                loading: { set: jest.fn() },
+            },
+            close: jest.fn(),
+        };
+        (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
+        spectator.service.setFilters({ zones: ['level-1'] });
+
+        await spectator.service
+            .editDesk({ id: 'desk-new-2' } as any)
+            .catch(() => undefined);
+
+        expect(common_mod.notifyError).toHaveBeenCalledWith(
+            'Users can only have 1 assigned desk at a time.',
+        );
+        expect(ts_client_mod.updateMetadata).not.toHaveBeenCalled();
+        expect(booking_mod.saveBooking).not.toHaveBeenCalled();
+        expect(dialog_ref.componentInstance.loading.set).toHaveBeenCalledWith(
+            false,
+        );
+    });
+
+    it('should restore the previous assigned desk booking when reassignment fails', async () => {
+        const original_desk = {
+            id: 'desk-1',
+            name: 'Desk 1',
+            assigned_to: 'old.staff@example.com',
+            assigned_name: 'Old Staff',
+            zone: { id: 'level-1' },
+            zones: ['level-1'],
+        } as any;
+        const dialog_ref = {
+            afterClosed: () =>
+                of({
+                    reason: 'done',
+                    metadata: {
+                        ...original_desk,
+                        assigned_to: 'new.staff@example.com',
+                        assigned_name: 'New Staff',
+                    },
+                }),
+            componentInstance: {
+                event: new EventEmitter<any>(),
+                loading: { set: jest.fn() },
+            },
+            close: jest.fn(),
+        };
+        (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
+        spectator.service.setFilters({ zones: ['level-1'] });
+        (booking_mod.queryBookings as jest.Mock).mockReturnValue(
+            of([
+                {
+                    id: 'booking-1',
+                    asset_id: 'desk-1',
+                },
+            ]),
+        );
+        (booking_mod.saveBooking as jest.Mock)
+            .mockReturnValueOnce(throwError(() => ({ status: 409 })))
+            .mockReturnValueOnce(of({}));
+
+        await spectator.service.editDesk(original_desk).catch(() => undefined);
+
+        expect(ts_client_mod.updateMetadata).toHaveBeenCalledTimes(2);
+        expect(booking_mod.removeBooking).toHaveBeenCalledWith('booking-1');
+        expect(booking_mod.saveBooking).toHaveBeenCalledTimes(2);
+        expect(common_mod.Booking).toHaveBeenCalledTimes(2);
+        expect(common_mod.Booking).toHaveBeenNthCalledWith(
+            1,
+            expect.objectContaining({
+                user_email: 'new.staff@example.com',
+                user_name: 'New Staff',
+                asset_id: 'desk-1',
+            }),
+        );
+        expect(common_mod.Booking).toHaveBeenNthCalledWith(
+            2,
+            expect.objectContaining({
+                user_email: 'old.staff@example.com',
+                user_name: 'Old Staff',
+                asset_id: 'desk-1',
+                asset_name: 'Desk 1',
+                zones: expect.arrayContaining([
+                    'org-1',
+                    'region-1',
+                    'bld-1',
+                    'level-1',
+                    { id: 'level-1' },
+                ]),
+                extension_data: expect.objectContaining({
+                    asset_name: 'Desk 1',
+                    is_assigned: true,
+                }),
+            }),
+        );
     });
 
     it('should persist homebase when editing desks', async () => {
@@ -208,5 +377,115 @@ describe('DesksStateService', () => {
     it.todo('should allow approving of bookings');
     it.todo('should allow rejection of bookings');
     it.todo('should allow toggling of access state for booking users');
-    it.todo('should allow rejection of all displayed bookings');
+
+    it('should mark a rejected desk booking as declined', async () => {
+        const booking = {
+            id: 'booking-1',
+            approved: true,
+            rejected: false,
+            status: 'approved',
+        } as any;
+
+        await spectator.service.rejectDesk(booking);
+
+        expect(booking_mod.rejectBooking).toHaveBeenCalledWith('booking-1');
+        expect(booking.approved).toBe(false);
+        expect(booking.rejected).toBe(true);
+        expect(booking.status).toBe('declined');
+        expect(common_mod.notifySuccess).toHaveBeenCalledWith(
+            'APP.CONCIERGE.DESKS_REJECT_SUCCESS',
+        );
+    });
+
+    it('should reset desk bookings with the first page query on refresh', () => {
+        const first_page = jest.fn(() =>
+            of({ data: [], total: 0, next: null }),
+        );
+        const next_pages: any[] = [];
+        (spectator.service as any)._first_page = first_page;
+        (spectator.service as any)._next_page.subscribe((next_page) =>
+            next_pages.push(next_page),
+        );
+
+        spectator.service.refresh();
+
+        expect(next_pages).toContain(first_page);
+    });
+
+    it('should reject all displayed desk bookings with the instance endpoint where needed', async () => {
+        const confirm_ref = {
+            reason: 'done',
+            loading: jest.fn(),
+            close: jest.fn(),
+        };
+        (component_mod.openConfirmModal as jest.Mock).mockResolvedValue(
+            confirm_ref,
+        );
+        const list = [
+            { id: 'booking-1', status: 'approved' },
+            {
+                id: 'booking-2',
+                instance: 1_740_000_000,
+                status: 'approved',
+            },
+        ];
+        Object.defineProperty(spectator.service, 'paged_bookings', {
+            value: () => ({
+                list,
+                total: 2,
+                has_next: false,
+            }),
+        });
+        const refresh_spy = jest.spyOn(spectator.service, 'refresh');
+
+        await spectator.service.rejectAllDesks();
+
+        expect(booking_mod.rejectBooking).toHaveBeenCalledWith('booking-1');
+        expect(booking_mod.rejectBookingInstance).toHaveBeenCalledWith(
+            'booking-2',
+            1_740_000_000,
+        );
+        expect(confirm_ref.loading).toHaveBeenCalledWith(
+            'APP.CONCIERGE.DESKS_REJECT_ALL_LOADING',
+        );
+        expect(confirm_ref.close).toHaveBeenCalled();
+        expect(common_mod.notifySuccess).toHaveBeenCalledWith(
+            'APP.CONCIERGE.DESKS_REJECT_ALL_SUCCESS',
+        );
+        expect(list.every((desk) => desk.status === 'declined')).toBe(true);
+        expect(refresh_spy).toHaveBeenCalled();
+    });
+
+    it('should close the reject all confirmation when a desk rejection fails', async () => {
+        const confirm_ref = {
+            reason: 'done',
+            loading: jest.fn(),
+            close: jest.fn(),
+        };
+        (component_mod.openConfirmModal as jest.Mock).mockResolvedValue(
+            confirm_ref,
+        );
+        Object.defineProperty(spectator.service, 'paged_bookings', {
+            value: () => ({
+                list: [{ id: 'booking-1', instance: 1_740_000_000 }],
+                total: 1,
+                has_next: false,
+            }),
+        });
+        (booking_mod.rejectBookingInstance as jest.Mock).mockReturnValue(
+            throwError(() => '405 Method Not Allowed'),
+        );
+        const refresh_spy = jest.spyOn(spectator.service, 'refresh');
+
+        await expect(spectator.service.rejectAllDesks()).rejects.toBe(
+            '405 Method Not Allowed',
+        );
+
+        expect(common_mod.notifyError).toHaveBeenCalledWith(
+            'APP.CONCIERGE.DESKS_REJECT_ALL_ERROR',
+        );
+        expect(confirm_ref.close).toHaveBeenCalled();
+        expect(common_mod.notifySuccess).not.toHaveBeenCalled();
+        expect(refresh_spy).not.toHaveBeenCalled();
+    });
 });

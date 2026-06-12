@@ -384,22 +384,17 @@ export class TeamScheduleService {
             const user = currentUser();
             if (!user?.id) return [];
 
-            const metadata: PlaceMetadata = (await lastValueFrom(
-                showMetadata(user.id, 'contacts').pipe(
-                    catchError(() => of({})),
-                ),
-            )) as any;
+            const metadata: PlaceMetadata = (await showMetadata(
+                user.id,
+                'contacts',
+            ).catch(() => ({}))) as any;
             const list =
                 metadata?.details instanceof Array ? metadata.details : [];
 
             // Fetch full user details for each contact
             const users = await Promise.all(
                 list.map((contact) =>
-                    lastValueFrom(
-                        showUser(contact.email).pipe(
-                            catchError(() => of(contact)),
-                        ),
-                    ),
+                    showUser(contact.email).catch(() => contact),
                 ),
             );
             return users.map((u) => new StaffUser(u as any));

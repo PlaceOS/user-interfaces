@@ -12,9 +12,100 @@ import { apiKey, authority, token } from '@placeos/ts-client';
  * Used by both AuthenticatedImageDirective and AuthenticatedImagePipe
  */
 export const IMAGE_STORE = new Map<string, string>();
+const SESSION_IMAGE_CACHE_NAME = 'PlaceOS.image-cache-v1';
+const SESSION_IMAGE_CACHE_KEYS = 'PlaceOS.image-cache-keys-v1';
 
 // Track loading state to prevent duplicate requests
 const LOADING_STORE = new Map<string, Promise<string>>();
+let _session_image_keys: string[] | null = null;
+
+function getSessionImageKeys(): string[] {
+    if (_session_image_keys) return _session_image_keys;
+    if (typeof sessionStorage === 'undefined') return [];
+    try {
+        const stored_value = sessionStorage.getItem(SESSION_IMAGE_CACHE_KEYS);
+        _session_image_keys = stored_value ? JSON.parse(stored_value) : [];
+        return _session_image_keys;
+    } catch {
+        return [];
+    }
+}
+
+function setSessionImageKeys(keys: string[]) {
+    _session_image_keys = Array.from(new Set(keys));
+    if (typeof sessionStorage === 'undefined') return;
+    try {
+        sessionStorage.setItem(
+            SESSION_IMAGE_CACHE_KEYS,
+            JSON.stringify(_session_image_keys),
+        );
+    } catch {}
+}
+
+async function getSessionImageCache() {
+    if (typeof caches === 'undefined') return null;
+    try {
+        return await caches.open(SESSION_IMAGE_CACHE_NAME);
+    } catch {
+        return null;
+    }
+}
+
+async function getSessionCachedResponse(source: string) {
+    if (!getSessionImageKeys().includes(source)) return null;
+    const cache = await getSessionImageCache();
+    if (!cache) return null;
+    try {
+        return (await cache.match(source)) || null;
+    } catch {
+        return null;
+    }
+}
+
+async function storeSessionCachedResponse(source: string, response: Response) {
+    const cache = await getSessionImageCache();
+    if (!cache) return;
+    try {
+        await cache.put(source, response);
+        setSessionImageKeys([...getSessionImageKeys(), source]);
+    } catch {}
+}
+
+export function setAuthCookie(cookie_path: string) {
+    const tkn = token();
+    document.cookie = `${
+        tkn === 'x-api-key'
+            ? 'api-key=' + encodeURIComponent(apiKey())
+            : 'bearer_token=' + encodeURIComponent(tkn)
+    };max-age=30;path=${cookie_path};samesite=strict;${
+        location.protocol === 'https:' ? 'secure;' : ''
+    }`;
+}
+
+async function responseToObjectUrl(source: string, response: Response) {
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    IMAGE_STORE.set(source, url);
+    return url;
+}
+
+export async function loadAuthenticatedImage(
+    source: string,
+    cookie_path: string,
+): Promise<string> {
+    if (IMAGE_STORE.has(source)) return IMAGE_STORE.get(source);
+    const cached_response = await getSessionCachedResponse(source);
+    if (cached_response) {
+        return responseToObjectUrl(source, cached_response);
+    }
+    setAuthCookie(cookie_path);
+    const response = await fetch(source);
+    if (!response || !response.ok) {
+        throw new Error(`Failed to fetch image: ${response?.status}`);
+    }
+    void storeSessionCachedResponse(source, response.clone());
+    return responseToObjectUrl(source, response);
+}
 
 @Pipe({
     name: 'authenticatedImage,authImage',
@@ -56,8 +147,7 @@ export class AuthenticatedImagePipe implements PipeTransform, OnDestroy {
         this._subscriptions.add(source);
 
         try {
-            const url = await loadPromise;
-            IMAGE_STORE.set(source, url);
+            await loadPromise;
         } catch (error) {
             console.info('Failed to load image:', source, error);
         } finally {
@@ -69,22 +159,6 @@ export class AuthenticatedImagePipe implements PipeTransform, OnDestroy {
     }
 
     private async _fetchImage(source: string): Promise<string> {
-        const tkn = token();
-        document.cookie = `${
-            tkn === 'x-api-key'
-                ? 'api-key=' + encodeURIComponent(apiKey())
-                : 'bearer_token=' + encodeURIComponent(tkn)
-        };max-age=30;path=/api/engine/v2/uploads;samesite=strict;${
-            location.protocol === 'https:' ? 'secure;' : ''
-        }`;
-
-        const response = await fetch(source);
-
-        if (!response || !response.ok) {
-            throw new Error(`Failed to fetch image: ${response?.status}`);
-        }
-
-        const blob = await response.blob();
-        return URL.createObjectURL(blob);
+        return loadAuthenticatedImage(source, '/api/engine/v2/uploads');
     }
 }

@@ -1,14 +1,17 @@
+import { signal } from '@angular/core';
 import { fakeAsync } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import {
     Building,
+    Desk,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
 import { BehaviorSubject, of } from 'rxjs';
 
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
+import { generateBookingForm } from 'libs/bookings/src/lib/booking.utilities';
 import { DesksService } from 'libs/bookings/src/lib/desk.service';
 
 import { ExploreDesksService } from '../lib/explore-desks.service';
@@ -26,8 +29,8 @@ describe('ExploreDesksService', () => {
         service: ExploreDesksService,
         providers: [
             MockProvider(ExploreStateService, {
-                level: new BehaviorSubject(null),
-                options: new BehaviorSubject({ is_public: false }),
+                level: signal(null) as any,
+                options: signal({ is_public: false }) as any,
                 setFeatures: jest.fn(),
                 setStyles: jest.fn(),
                 setActions: jest.fn(),
@@ -49,8 +52,8 @@ describe('ExploreDesksService', () => {
     beforeEach(() => {
         (ts_client as any).showMetadata = jest.fn((_, name) =>
             name.includes('restrictions')
-                ? of([])
-                : of({
+                ? Promise.resolve([])
+                : Promise.resolve({
                       details: [
                           { id: 'desk-1', name: '1', bookable: true },
                           { id: 'desk-2', name: '2', bookable: false },
@@ -112,5 +115,32 @@ describe('ExploreDesksService', () => {
         // });
         // // TODO: Test various desk states
         // jest.useRealTimers();
+    });
+
+    it('should use the desk map id as the asset id when booking a map-only desk', async () => {
+        const booking_service = spectator.inject(BookingFormService) as any;
+        booking_service.form = generateBookingForm();
+        booking_service.form.patchValue({
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+        });
+        booking_service.newForm = jest.fn();
+        booking_service.setOptions = jest.fn();
+        booking_service.confirmPost = jest.fn().mockResolvedValue({});
+        (spectator.service as any)._statuses['map-desk-1'] = signal('free');
+
+        await (spectator.service as any)._bookDesk(
+            new Desk({
+                map_id: 'map-desk-1',
+                name: 'Map Desk 1',
+                bookable: true,
+                zone: { id: 'lvl-1', parent_id: 'bld-1' } as any,
+            }),
+            {},
+        );
+
+        expect(booking_service.form.value.asset_id).toBe('map-desk-1');
+        expect(booking_service.form.value.resources[0].id).toBe('map-desk-1');
+        expect(booking_service.confirmPost).toHaveBeenCalled();
     });
 });

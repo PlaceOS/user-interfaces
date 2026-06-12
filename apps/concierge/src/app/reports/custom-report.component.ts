@@ -1,6 +1,7 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { SettingsService } from '@placeos/common';
 import { SafePipe } from '@placeos/components';
 
 const EMPTY = {};
@@ -8,10 +9,10 @@ const EMPTY = {};
 @Component({
     selector: 'custom-report',
     template: `
-        @if (id) {
+        @if (id()) {
             <iframe
                 class="h-full w-full"
-                [src]="report_url | safe: 'resource'"
+                [src]="report_url() | safe: 'resource'"
             ></iframe>
         }
     `,
@@ -25,16 +26,20 @@ const EMPTY = {};
     ],
     imports: [SafePipe],
 })
-export class CustomReportComponent extends AsyncHandler implements OnInit {
+export class CustomReportComponent {
     private _settings = inject(SettingsService);
     private _route = inject(ActivatedRoute);
 
-    public id = '';
+    private readonly _params = toSignal(this._route.paramMap, {
+        initialValue: this._route.snapshot.paramMap,
+    });
 
-    public get report_url() {
+    public readonly id = computed(() => this._params().get('id') || '');
+
+    public readonly report_url = computed(() => {
         const report =
             (this._settings.get('app.custom_reports') || []).find(
-                (_) => _.id === this.id,
+                (_) => _.id === this.id(),
             ) || EMPTY;
         if (!report.url) return '';
         const url =
@@ -43,14 +48,5 @@ export class CustomReportComponent extends AsyncHandler implements OnInit {
             url +
             (report.api_key ? `&key=${encodeURIComponent(report.api_key)}` : '')
         );
-    }
-
-    public ngOnInit() {
-        this.subscription(
-            'route.params',
-            this._route.paramMap.subscribe(
-                (params) => (this.id = params.get('id') || ''),
-            ),
-        );
-    }
+    });
 }

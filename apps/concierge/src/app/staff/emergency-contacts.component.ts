@@ -1,6 +1,7 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -16,8 +17,6 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { EmergencyContactModalComponent } from './emergency-contact-modal.component';
@@ -77,8 +76,7 @@ export { EmergencyContact } from './emergency-contacts.service';
                             appearance="outline"
                         >
                             <mat-select
-                                [ngModel]="role_filter.getValue()"
-                                (ngModelChange)="role_filter.next($event)"
+                                [(ngModel)]="role_filter"
                                 [placeholder]="
                                     'APP.CONCIERGE.CONTACTS_ROLES_ALL'
                                         | translate
@@ -88,10 +86,7 @@ export { EmergencyContact } from './emergency-contacts.service';
                                     'APP.CONCIERGE.CONTACTS_ROLES_ALL'
                                         | translate
                                 }}</mat-option>
-                                @for (
-                                    role of (roles | async) || [];
-                                    track role + $index
-                                ) {
+                                @for (role of roles(); track role + $index) {
                                     <mat-option [value]="role">
                                         {{ role }}
                                     </mat-option>
@@ -101,8 +96,8 @@ export { EmergencyContact } from './emergency-contacts.service';
                         <div class="flex items-center space-x-2">
                             <button
                                 icon
+                                default
                                 matRipple
-                                class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                                 [matTooltip]="
                                     'APP.CONCIERGE.CONTACTS_ROLES_MANAGE'
                                         | translate
@@ -117,7 +112,7 @@ export { EmergencyContact } from './emergency-contacts.service';
                 <section class="h-1/2 w-full flex-1 overflow-auto px-8">
                     <simple-table
                         class="block min-w-208 text-sm"
-                        [data]="filtered_contacts"
+                        [data]="filtered_contacts()"
                         [filter]="search"
                         [empty_message]="
                             (search
@@ -225,7 +220,6 @@ export { EmergencyContact } from './emergency-contacts.service';
         `,
     ],
     imports: [
-        CommonModule,
         MatRippleModule,
         IconComponent,
         MatTooltipModule,
@@ -247,18 +241,18 @@ export class EmergencyContactsComponent implements OnInit {
     private _contacts_service = inject(EmergencyContactsService);
 
     public search = '';
-    public readonly role_filter = new BehaviorSubject<string>('');
+    public readonly role_filter = signal('');
     public readonly data$ = this._contacts_service.data$;
-    public readonly roles = this._contacts_service.roles$;
-    public readonly contacts = this._contacts_service.contacts$;
-    public readonly filtered_contacts = combineLatest([
-        this.contacts,
-        this.role_filter,
-    ]).pipe(
-        map(([list, role]) =>
-            list.filter((_) => !role || _.roles.includes(role)),
-        ),
-    );
+    public readonly roles = toSignal(this._contacts_service.roles$, {
+        initialValue: [],
+    });
+    public readonly contacts = toSignal(this._contacts_service.contacts$, {
+        initialValue: [],
+    });
+    public readonly filtered_contacts = computed(() => {
+        const role = this.role_filter();
+        return this.contacts().filter((_) => !role || _.roles.includes(role));
+    });
 
     public ngOnInit(): void {
         // Check if migration from metadata is needed

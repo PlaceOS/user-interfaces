@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -15,7 +16,6 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { addMonths, endOfMonth, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, map } from 'rxjs';
 import { DealsService } from './deals.service';
 
 @Component({
@@ -59,11 +59,7 @@ import { DealsService } from './deals.service';
                     </button>
                 </div>
                 <mat-form-field appearance="outline" class="no-subscript">
-                    <mat-select
-                        [ngModel]="expires.getValue()"
-                        (ngModelChange)="expires.next($event)"
-                        placeholder="All Deals"
-                    >
+                    <mat-select [(ngModel)]="expires" placeholder="All Deals">
                         <mat-option [value]="0">All Deals</mat-option>
                         <mat-option [value]="-1">Expired Deals</mat-option>
                         <mat-option [value]="1">Expires next month</mat-option>
@@ -76,13 +72,9 @@ import { DealsService } from './deals.service';
                     </mat-select>
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="no-subscript">
-                    <mat-select
-                        [ngModel]="type.getValue()"
-                        (ngModelChange)="type.next($event)"
-                        placeholder="All Types"
-                    >
+                    <mat-select [(ngModel)]="type" placeholder="All Types">
                         <mat-option value="">All Types</mat-option>
-                        @for (t of types | async; track t) {
+                        @for (t of types(); track t) {
                             <mat-option [value]="t" class="capitalize">{{
                                 t
                             }}</mat-option>
@@ -95,7 +87,7 @@ import { DealsService } from './deals.service';
                     <div
                         class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
                     >
-                        @for (deal of deals | async; track deal.id) {
+                        @for (deal of deals(); track deal.id) {
                             <div>
                                 <button
                                     class="border-base-300 bg-base-100 mx-auto flex flex-col items-center overflow-hidden rounded-lg border shadow-sm"
@@ -140,7 +132,7 @@ import { DealsService } from './deals.service';
                                 </button>
                             </div>
                         }
-                        @if ((deals | async)?.length <= 0) {
+                        @if (deals().length <= 0) {
                             <div
                                 class="bg-base-200 col-span-6 flex w-full flex-col items-center justify-center rounded-lg p-16"
                             >
@@ -181,7 +173,7 @@ import { DealsService } from './deals.service';
                 } @else {
                     <div class="mb-4 min-w-5xl">
                         <simple-table
-                            [data]="filtered_deals | async"
+                            [data]="filtered_deals()"
                             class="text-sm"
                             [sortable]="true"
                             [columns]="[
@@ -343,38 +335,32 @@ export class DealsListComponent {
     private _deals = inject(DealsService);
 
     public readonly display = signal<'list' | 'grid'>('list');
-    public readonly expires = new BehaviorSubject(0);
-    public readonly type = new BehaviorSubject('');
-    public readonly deals = this._deals.deals$;
-    public readonly types = this.deals.pipe(
-        map((_) => unique(_.map((d) => d.type)).filter((type) => !!type)),
+    public readonly expires = signal(0);
+    public readonly type = signal('');
+    public readonly deals = toSignal(this._deals.deals$, { initialValue: [] });
+    public readonly types = computed(() =>
+        unique(this.deals().map((d) => d.type)).filter((type) => !!type),
     );
-    public readonly filtered_deals = combineLatest([
-        this.deals,
-        this.expires,
-        this.type,
-    ]).pipe(
-        map(([deals, expires, type]) => {
-            let deal_list = deals;
-            if (expires > 0) {
-                const start = startOfDay(Date.now()).valueOf();
-                const end = endOfMonth(
-                    addMonths(Date.now(), expires),
-                ).valueOf();
-                deal_list = deal_list.filter(
-                    (deal) => deal.expires_at >= start && deal.expires_at < end,
-                );
-            } else if (expires < 0) {
-                deal_list = deal_list.filter(
-                    (deal) => deal.expires_at < Date.now(),
-                );
-            }
-            if (type) {
-                deal_list = deal_list.filter((deal) => deal.type === type);
-            }
-            return deal_list;
-        }),
-    );
+    public readonly filtered_deals = computed(() => {
+        const expires = this.expires();
+        const type = this.type();
+        let deal_list = this.deals();
+        if (expires > 0) {
+            const start = startOfDay(Date.now()).valueOf();
+            const end = endOfMonth(addMonths(Date.now(), expires)).valueOf();
+            deal_list = deal_list.filter(
+                (deal) => deal.expires_at >= start && deal.expires_at < end,
+            );
+        } else if (expires < 0) {
+            deal_list = deal_list.filter(
+                (deal) => deal.expires_at < Date.now(),
+            );
+        }
+        if (type) {
+            deal_list = deal_list.filter((deal) => deal.type === type);
+        }
+        return deal_list;
+    });
     public date = Date.now();
 
     public readonly remove = (deal: Deal) => this._deals.removeDeal(deal);

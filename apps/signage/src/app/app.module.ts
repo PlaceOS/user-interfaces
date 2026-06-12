@@ -12,6 +12,13 @@ import { environment } from '../environments/environment';
 import { AppRoutingModule } from './app-routing.module';
 import { BootstrapComponent } from './bootstrap.component';
 
+import { registerLocaleData } from '@angular/common';
+import localeAr from '@angular/common/locales/ar';
+import localeEs from '@angular/common/locales/es';
+import localeFr from '@angular/common/locales/fr';
+import localeIt from '@angular/common/locales/it';
+import localeJa from '@angular/common/locales/ja';
+import localeZh from '@angular/common/locales/zh';
 import { LocaleService } from '@placeos/common';
 import {
     GlobalBannerComponent,
@@ -31,6 +38,13 @@ const STANDALONE_COMPONENTS = [
     SignagePanelComponent,
     MediaPlayerComponent,
 ];
+
+registerLocaleData(localeFr);
+registerLocaleData(localeAr);
+registerLocaleData(localeJa);
+registerLocaleData(localeZh);
+registerLocaleData(localeEs);
+registerLocaleData(localeIt);
 
 @NgModule({
     declarations: [AppComponent],

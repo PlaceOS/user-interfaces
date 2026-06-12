@@ -1,4 +1,11 @@
-import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    OnDestroy,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -18,13 +25,13 @@ import {
     notifyError,
     OrganisationService,
     randomInt,
+    settingSignal,
     SettingsService,
 } from '@placeos/common';
 import { UserPipe } from '@placeos/users';
 import { format } from 'date-fns';
 import { DeskView } from './desks-state.service';
 
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -35,15 +42,18 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     BuildingPipe,
     IconComponent,
+    SafePipe,
     TranslatePipe,
 } from '@placeos/components';
-import { combineLatest } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
+import { showMetadata } from '@placeos/ts-client';
+import { combineLatest, forkJoin, from, of } from 'rxjs';
+import { catchError, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { DateOptionsComponent } from '../ui/date-options.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
+import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
 import { DeskBookModalComponent } from './desk-book-modal.component';
 import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
 import { DesksStateService } from './desks-state.service';
@@ -58,7 +68,7 @@ import { DesksStateService } from './desks-state.service';
                 <div class="flex w-full items-center space-x-2 px-8 py-4">
                     <h2 class="text-2xl font-medium">
                         {{
-                            (manage
+                            (manage()
                                 ? 'APP.CONCIERGE.DESKS_HEADER'
                                 : 'APP.CONCIERGE.DESKS_BOOK_HEADER'
                             ) | translate
@@ -70,7 +80,7 @@ import { DesksStateService } from './desks-state.service';
                         [model]="filters().search"
                         (modelChange)="setFilters({ search: $event })"
                     ></searchbar>
-                    @if (path !== 'manage') {
+                    @if (path() !== 'manage') {
                         <button
                             btn
                             matRipple
@@ -83,7 +93,7 @@ import { DesksStateService } from './desks-state.service';
                             <icon class="text-2xl">add</icon>
                         </button>
                     }
-                    @if (path === 'manage') {
+                    @if (path() === 'manage') {
                         <button
                             btn
                             matRipple
@@ -98,7 +108,7 @@ import { DesksStateService } from './desks-state.service';
                     }
                 </div>
                 <div class="mb-4 flex w-full items-center gap-2 px-8">
-                    @if (!manage) {
+                    @if (!manage()) {
                         <mat-form-field
                             appearance="outline"
                             class="no-subscript w-60"
@@ -137,7 +147,7 @@ import { DesksStateService } from './desks-state.service';
                             </mat-select>
                         </mat-form-field>
                     }
-                    @if (manage) {
+                    @if (manage()) {
                         <mat-form-field
                             appearance="outline"
                             class="no-subscript w-60"
@@ -149,7 +159,9 @@ import { DesksStateService } from './desks-state.service';
                                         : ''
                                 "
                                 (ngModelChange)="updateZones([$event])"
-                                [placeholder]="'COMMON.LEVEL_ALL' | translate"
+                                [placeholder]="
+                                    'COMMON.LEVEL_SELECT' | translate
+                                "
                             >
                                 @for (level of levels(); track level) {
                                     <mat-option [value]="level.id">
@@ -180,58 +192,57 @@ import { DesksStateService } from './desks-state.service';
                         </mat-form-field>
                     }
                     <div class="w-px flex-1"></div>
-                    @if (path === 'events') {
+                    @if (path() === 'events') {
                         <date-options
                             (dateChange)="setDate($event)"
                         ></date-options>
                         <button
-                            btn
                             icon
+                            default
                             matRipple
                             [matTooltip]="'COMMON.REFRESH' | translate"
-                            class="border-base-200 rounded-sm border"
                             (click)="refresh()"
                             [disabled]="loading()"
                         >
                             <icon>refresh</icon>
                         </button>
                         <button
-                            btn
                             icon
+                            default
                             matRipple
                             [matTooltip]="
                                 'APP.CONCIERGE.REJECT_ALL' | translate
                             "
-                            class="border-base-200 rounded-sm border"
                             (click)="rejectAll()"
                             [disabled]="loading()"
                         >
                             <icon>event_busy</icon>
                         </button>
-                        <button
-                            btn
-                            icon
-                            matRipple
-                            [matTooltip]="
-                                'APP.CONCIERGE.DOWNLOAD_USER_LIST' | translate
-                            "
-                            class="border-base-200 rounded-sm border"
-                            [disabled]="downloading()"
-                            (click)="downloadCsv()"
-                        >
-                            @if (downloading()) {
-                                <mat-spinner diameter="24"></mat-spinner>
-                            } @else {
-                                <icon>download</icon>
-                            }
-                        </button>
+                        @if (hide_user_list_download()) {
+                            <button
+                                icon
+                                default
+                                matRipple
+                                [matTooltip]="
+                                    'APP.CONCIERGE.DOWNLOAD_USER_LIST'
+                                        | translate
+                                "
+                                [disabled]="downloading()"
+                                (click)="downloadCsv()"
+                            >
+                                @if (downloading()) {
+                                    <mat-spinner diameter="24"></mat-spinner>
+                                } @else {
+                                    <icon>download</icon>
+                                }
+                            </button>
+                        }
                     }
-                    @if (path === 'manage') {
+                    @if (path() === 'manage') {
                         <button
-                            btn
                             icon
+                            default
                             matRipple
-                            class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                             [matTooltip]="
                                 'APP.CONCIERGE.DESKS_VIEW_QR_CODE_LIST'
                                     | translate
@@ -241,10 +252,9 @@ import { DesksStateService } from './desks-state.service';
                             <icon>qr_code</icon>
                         </button>
                         <button
-                            btn
                             icon
+                            default
                             matRipple
-                            class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                             [matTooltip]="
                                 'APP.CONCIERGE.DESKS_LIST_UPLOAD' | translate
                             "
@@ -257,10 +267,9 @@ import { DesksStateService } from './desks-state.service';
                             />
                         </button>
                         <button
-                            btn
                             icon
+                            default
                             matRipple
-                            class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                             (click)="downloadTemplate()"
                             [matTooltip]="
                                 'APP.CONCIERGE.DESKS_LIST_DOWNLOAD' | translate
@@ -270,8 +279,8 @@ import { DesksStateService } from './desks-state.service';
                         </button>
                         <button
                             icon
+                            default
                             matRipple
-                            class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                             (click)="manageRestrictions()"
                             [matTooltip]="
                                 'APP.CONCIERGE.DESKS_BOOKING_RULES' | translate
@@ -284,7 +293,7 @@ import { DesksStateService } from './desks-state.service';
                 <div class="relative h-1/2 w-full flex-1 overflow-auto px-8">
                     <router-outlet></router-outlet>
                 </div>
-                @if (loading() && path === 'events') {
+                @if (loading() && path() === 'events') {
                     <mat-progress-bar
                         class="w-full"
                         mode="indeterminate"
@@ -292,6 +301,23 @@ import { DesksStateService } from './desks-state.service';
                 }
             </main>
         </div>
+        @if (print_desk(); as desk) {
+            <div class="desk-qr-print-preview print-only fixed top-0 left-0">
+                <a
+                    [href]="desk.qr_link | safe: 'url'"
+                    target="_blank"
+                    ref="noopener noreferrer"
+                    class="border-base-200 bg-base-100 m-2 block rounded-lg border p-2"
+                >
+                    <img class="w-48" [src]="desk.qr_code" />
+                </a>
+                <div
+                    class="bg-base-200 mx-2 mt-2 w-48 rounded-sm p-2 text-center font-mono text-sm"
+                >
+                    {{ desk.name || desk.id }}
+                </div>
+            </div>
+        }
     `,
     styles: [
         `
@@ -310,7 +336,6 @@ import { DesksStateService } from './desks-state.service';
         MatProgressSpinnerModule,
         RouterModule,
         MatRippleModule,
-        CommonModule,
         FormsModule,
         IconComponent,
         MatRippleModule,
@@ -323,6 +348,7 @@ import { DesksStateService } from './desks-state.service';
         SearchbarComponent,
         TranslatePipe,
         BuildingPipe,
+        SafePipe,
     ],
 })
 export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
@@ -336,11 +362,16 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
 
     public readonly loading = this._state.loading;
     public readonly downloading = signal(false);
-    public path: string;
-    public manage = false;
+    public readonly path = signal('');
+    public readonly manage = computed(() => this.path() === 'manage');
+    public readonly print_desk = this._state.print_desk;
+    private readonly _desk_levels_loaded = signal(false);
     /** Signal for filters */
     public readonly filters = this._state.filters;
-    private readonly _levels$ = combineLatest([
+    public readonly hide_user_list_download = settingSignal(
+        'desks.hide_user_list_download',
+    );
+    private readonly _all_levels$ = combineLatest([
         this._org.active_building,
         this._org.active_region,
     ]).pipe(
@@ -351,8 +382,43 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
         ),
         shareReplay(1),
     );
+    private readonly _desk_levels$ = this._all_levels$.pipe(
+        switchMap((levels) => {
+            this._desk_levels_loaded.set(false);
+            if (!levels.length) return of([]);
+            return forkJoin(
+                levels.map((level) =>
+                    from(showMetadata(level.id, 'desks')).pipe(
+                        map((metadata) =>
+                            metadata.details instanceof Array &&
+                            metadata.details.length
+                                ? level
+                                : null,
+                        ),
+                        catchError(() => of(null)),
+                    ),
+                ),
+            );
+        }),
+        map((levels) =>
+            levels.filter((level): level is BuildingLevel => !!level),
+        ),
+        tap(() => this._desk_levels_loaded.set(true)),
+        shareReplay(1),
+    );
+    private readonly _all_levels = toSignal(this._all_levels$, {
+        initialValue: [],
+    });
+    private readonly _desk_levels = toSignal(this._desk_levels$, {
+        initialValue: [],
+    });
     /** Signal for levels for the active building */
-    public readonly levels = toSignal(this._levels$, { initialValue: [] });
+    public readonly levels = computed(() => {
+        const desk_levels = this._desk_levels();
+        return this.manage() || !this._desk_levels_loaded()
+            ? this._all_levels()
+            : desk_levels;
+    });
     public readonly setDate = (date) => this._state.setFilters({ date });
     public readonly setFilters = (o) => this._state.setFilters(o);
     public readonly refresh = () => this._state.refresh();
@@ -360,12 +426,26 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     public readonly editDesk = () => this._state.editDesk();
     /** Update active zones for desks */
     public readonly updateZones = (zones: string[]) => {
+        let clean_zones = (zones || []).filter((_) => !!_);
+        // Manage view must always have a specific zone to write metadata
+        // to — snap empty selections back to the first available level.
+        if (this.manage() && !clean_zones.length) {
+            const levels = this.levels();
+            if (levels.length) clean_zones = [levels[0].id];
+        }
         this._router.navigate([], {
             relativeTo: this._route,
-            queryParams: { zone_ids: zones.join(',') },
+            queryParams: {
+                zone_ids: clean_zones.length ? clean_zones.join(',') : null,
+            },
             queryParamsHandling: 'merge',
         });
-        this._state.setFilters({ zones });
+        this._state.setFilters({ zones: clean_zones });
+        persistZones(
+            this.manage() ? 'desks-manage' : 'desks',
+            this._persistScopeId(),
+            clean_zones,
+        );
     };
 
     public get use_region() {
@@ -373,12 +453,15 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     }
 
     public ngOnInit() {
+        this._state.setFilters({ search: '' });
         this.subscription(
             'router.events',
             this._router.events.subscribe((e) => {
                 if (e instanceof NavigationEnd) {
                     const url_parts = this._router.url?.split('/') || [''];
-                    this.path = url_parts[url_parts.length - 1].split('?')[0];
+                    this.path.set(
+                        url_parts[url_parts.length - 1].split('?')[0],
+                    );
                     this._updateView();
                 }
             }),
@@ -386,24 +469,31 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
-                if (params.has('zone_ids')) {
-                    const zones = params.get('zone_ids').split(',');
-                    if (!zones.length) return;
-                    const level = this._org.levelWithID(zones);
-                    this._state.setFilters({ zones });
-                    if (!level) return;
-                    this._org.building = this._org.buildings.find(
-                        (bld) => bld.id === level.parent_id,
-                    );
-                }
+                if (!params.has('zone_ids')) return;
+                const zones = (params.get('zone_ids') || '')
+                    .split(',')
+                    .filter(Boolean);
+                if (!zones.length) return;
+                const level = this._org.levelWithID(zones);
+                this._state.setFilters({ zones });
+                if (!level) return;
+                this._org.building = this._org.buildings.find(
+                    (bld) => bld.id === level.parent_id,
+                );
             }),
         );
         this.subscription(
             'level-changes',
-            this._levels$.subscribe((levels) => this._syncZones(levels)),
+            this._all_levels$.subscribe((levels) => this._syncZones(levels)),
+        );
+        this.subscription(
+            'desk-level-changes',
+            this._desk_levels$.subscribe((levels) => {
+                if (!this.manage()) this._syncZones(levels);
+            }),
         );
         const parts = this._router.url?.split('/') || [''];
-        this.path = parts[parts.length - 1].split('?')[0];
+        this.path.set(parts[parts.length - 1].split('?')[0]);
         this._updateView();
     }
 
@@ -493,15 +583,19 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     }
 
     private _getViewFromPath(): DeskView {
-        if (this.path.includes('manage')) return 'manage';
-        if (this.path.includes('map')) return 'map';
+        if (this.path().includes('manage')) return 'manage';
+        if (this.path().includes('map')) return 'map';
         return 'events';
     }
 
     private _updateView() {
         const view = this._getViewFromPath();
-        this.manage = view === 'manage';
-        this._state.setFilters({ view });
+        const previous_view = this._state.filters().view;
+        this._state.setFilters(
+            previous_view && previous_view !== view
+                ? { view, search: '' }
+                : { view },
+        );
         this._syncZones(this.levels());
     }
 
@@ -510,18 +604,38 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
         const valid_zones = current_zones.filter((zone) =>
             levels.find((level) => level.id === zone),
         );
-        const next_zones = this.manage ? valid_zones.slice(0, 1) : valid_zones;
-        if (!next_zones.length && levels.length) {
-            next_zones.push(levels[0].id);
+        let next_zones = this.manage() ? valid_zones.slice(0, 1) : valid_zones;
+        if (!next_zones.length) {
+            // Restore persisted selection for the current view when none is
+            // active. Manage view then falls back to the first level if no
+            // valid persisted zone exists — it can never be "all levels".
+            const persisted = loadPersistedZones(
+                this.manage() ? 'desks-manage' : 'desks',
+                this._persistScopeId(),
+            ).filter((zone) => levels.find((lvl) => lvl.id === zone));
+            if (persisted.length) {
+                next_zones = this.manage() ? persisted.slice(0, 1) : persisted;
+            } else if (this.manage() && levels.length) {
+                next_zones = [levels[0].id];
+            }
         }
         if (this._sameZones(current_zones, next_zones)) return;
         this.updateZones(next_zones);
     }
 
-    private _sameZones(current_zones: string[] = [], next_zones: string[] = []) {
+    private _sameZones(
+        current_zones: string[] = [],
+        next_zones: string[] = [],
+    ) {
         return (
             current_zones.length === next_zones.length &&
             current_zones.every((zone, index) => zone === next_zones[index])
         );
+    }
+
+    private _persistScopeId() {
+        return this.use_region
+            ? this._org.region?.id || ''
+            : this._org.building?.id || '';
     }
 }

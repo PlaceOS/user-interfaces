@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, forwardRef } from '@angular/core';
+import { Component, forwardRef, signal } from '@angular/core';
 import {
     ControlValueAccessor,
     FormsModule,
@@ -24,11 +24,13 @@ import { catchError, map, shareReplay } from 'rxjs/operators';
     template: `
         <mat-form-field appearance="outline" class="w-full">
             <mat-select
-                [ngModel]="this.item?.email"
+                [ngModel]="item()?.email"
                 (ngModelChange)="setValue($event)"
-                [disabled]="disabled"
+                [disabled]="disabled()"
                 [placeholder]="
-                    item?.email ? item.name || item.email : 'Select host'
+                    item()?.email
+                        ? item()?.name || item()?.email
+                        : 'Select host'
                 "
             >
                 @for (user of users | async; track user) {
@@ -58,7 +60,7 @@ import { catchError, map, shareReplay } from 'rxjs/operators';
     imports: [MatFormFieldModule, MatSelectModule, CommonModule, FormsModule],
 })
 export class HostSelectFieldComponent implements ControlValueAccessor {
-    public item?: User;
+    public readonly item = signal<User | null>(null);
     public readonly users = combineLatest([
         queryCalendars().pipe(catchError(() => of([] as Calendar[]))),
     ]).pipe(
@@ -79,7 +81,7 @@ export class HostSelectFieldComponent implements ControlValueAccessor {
         map((_) => unique([currentUser(), ..._], 'email')),
         shareReplay(1),
     );
-    public disabled = false;
+    public readonly disabled = signal(false);
 
     private _onChange: (_: User) => void;
     private _onTouch: (_: User) => void;
@@ -90,9 +92,10 @@ export class HostSelectFieldComponent implements ControlValueAccessor {
      */
     public async setValue(email: string) {
         const users = (await nextValueFrom(this.users)) || [];
-        this.item = users?.find((_) => _.email === email);
-        if (!this.item) this.item = new User({ email });
-        if (this._onChange) this._onChange(this.item);
+        let item: User | null = users?.find((_) => _.email === email) || null;
+        if (!item) item = new User({ email });
+        this.item.set(item);
+        if (this._onChange) this._onChange(item);
     }
 
     /**
@@ -100,13 +103,12 @@ export class HostSelectFieldComponent implements ControlValueAccessor {
      * @param value The new value for the component
      */
     public writeValue(value: User) {
-        this.item = value;
-        if (!value?.email) this.item = currentUser();
+        this.item.set(value?.email ? value : currentUser());
     }
 
     public readonly registerOnChange = (fn: (_: User) => void) =>
         (this._onChange = fn);
     public readonly registerOnTouched = (fn: (_: User) => void) =>
         (this._onTouch = fn);
-    public readonly setDisabledState = (s: boolean) => (this.disabled = s);
+    public readonly setDisabledState = (s: boolean) => this.disabled.set(s);
 }

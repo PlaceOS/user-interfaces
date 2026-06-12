@@ -15,7 +15,14 @@ import {
     FormsModule,
     NG_VALUE_ACCESSOR,
 } from '@angular/forms';
-import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs';
+import {
+    BehaviorSubject,
+    combineLatest,
+    from,
+    Observable,
+    of,
+    Subject,
+} from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -56,6 +63,11 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
                     [(ngModel)]="search_str"
                     (ngModelChange)="search$.next($event)"
                     [disabled]="disabled()"
+                    [attr.aria-label]="
+                        placeholder()
+                            ? placeholder()
+                            : 'Search' + (name() ? ' for ' + name() : '')
+                    "
                     [placeholder]="
                         placeholder()
                             ? placeholder()
@@ -101,7 +113,7 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
                     </div>
                 } @else {
                     <div
-                        class="flex min-h-48 flex-col items-center justify-center p-8 opacity-30"
+                        class="stagehand-subtle flex min-h-48 flex-col items-center justify-center p-8"
                     >
                         <p class="text-sm">
                             {{
@@ -145,7 +157,7 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
                         }}</code>
                     }
                 </div>
-                <div class="text-xs opacity-60">
+                <div class="stagehand-subtle text-xs">
                     {{ option.id }}
                     {{ option.extra ? ' - ' + option.extra : '' }}
                 </div>
@@ -225,7 +237,7 @@ export class SystemSearchFieldComponent
     public readonly loading = model<boolean>(false);
     /** Service used for searching items */
     public readonly query_fn = input<(_: string) => Observable<PlaceSystem[]>>(
-        (_) => querySystems({ q: _ }).pipe(map((resp) => resp.data)),
+        (_) => from(querySystems({ q: _ })).pipe(map((resp) => resp.data)),
     );
     /** Currently selected item */
     public active_item = signal(null);

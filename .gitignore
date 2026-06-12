@@ -1,4 +1,9 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
+.fallow
+.playwright-mcp
+.worktrees/*
+!.worktrees/.gitkeep
+config/testers*
 
 # compiled output
 /dist
@@ -6,6 +11,7 @@
 /tmp
 /out-tsc
 /reports
+shared/**/material-symbols-*
 
 # dependencies
 /node_modules
@@ -57,9 +63,15 @@ locales.tsv
 
 .nx/cache
 .nx/workspace-data
+.capacitor/
 # Sentry Config File
 .sentryclirc
 .github/instructions/nx.instructions.md
 test-results
 
 refs
+
+.claude/worktrees
+.claude/settings.local.json
+
+.nx/polygraph

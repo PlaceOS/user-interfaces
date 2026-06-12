@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, lastValueFrom } from 'rxjs';
+import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map, shareReplay, tap } from 'rxjs/operators';
 
 import { BookingFormService } from '@placeos/bookings';
@@ -357,11 +357,11 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        this._room_alerts = await lastValueFrom(
-            showMetadata(this._org.organisation.id, 'room_alerts').pipe(
-                map((v) => v.details as any),
-            ),
+        const metadata = await showMetadata(
+            this._org.organisation.id,
+            'room_alerts',
         );
+        this._room_alerts = metadata.details as any;
     }
 
     public removeFavourite(
@@ -407,13 +407,14 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
 
     public async newBooking(type: BookingType, item: any) {
         if (!item) return;
-        const booking_path = type === 'desk'
-            ? this._settings.get('app.new_features')
-                ? 'desk'
-                : 'desks'
-            : type === 'locker'
-              ? 'locker'
-              : 'parking';
+        const booking_path =
+            type === 'desk'
+                ? this._settings.get('app.new_features')
+                    ? 'desk'
+                    : 'desks'
+                : type === 'locker'
+                  ? 'locker'
+                  : 'parking';
         const query_params = type === 'desk' ? { asset_id: item.id } : {};
         this._router.navigate(['/book', booking_path], {
             queryParams: query_params,

@@ -64,7 +64,7 @@ const help = [
 const events = {
     multiple_spaces: false,
     desk_start: 9,
-    // bookable_hours: { start: 480, end: 1140 },
+    // bookable_hours: { start: 8, end: 19 },
     can_book_for_others: false,
     has_catering: true,
     has_assets: true,
@@ -79,6 +79,7 @@ const events = {
     allow_recurrence: false,
     allow_daily_allday_recurrence: false,
     allow_online_meetings: false,
+    force_current_user_for_booking_rules: false,
 };
 /*===========================*\
 ||  SPACE LISTING SETTINGS   ||
@@ -153,7 +154,7 @@ const app = {
     name: 'Workplace',
     title: 'Workplace Application',
     description: 'PlaceOS Workplace UI written with Angular Framework',
-    short_name: 'STAFF',
+    short_name: 'WorkMate',
     logo_light: 'assets/logo-light.svg',
     logo_dark: 'assets/logo-dark.svg',
     locales: [
@@ -174,7 +175,7 @@ const app = {
         { id: 'es', name: 'LANGUAGE.SPANISH', local: 'Español', flag: '🇪🇸' },
         {
             id: 'pt',
-            name: 'LANGUAGE.PORTUGESE',
+            name: 'LANGUAGE.PORTUGUESE',
             local: 'Português',
             flag: '🇵🇹',
         },
@@ -198,6 +199,7 @@ const app = {
     default_route: '/landing',
     use_geolocation: false,
     use_24_hour_time: false,
+    show_changelog: true,
     new_features: true,
     can_deliver: true,
     no_user_calendar: false,
@@ -214,15 +216,17 @@ const app = {
         all_day_default: false,
         allowed_daily_visitor_count: 100,
         multiple_visitors: true,
+        force_current_user_for_booking_rules: false,
     },
     desks: {
         can_book_lockers: true,
         can_book_for_others: true,
-        // bookable_hours: { start: 480, end: 1140 },
+        // bookable_hours: { start: 8, end: 19 },
         allow_groups: true,
         allow_time_changes: true,
         allow_all_day: true,
         auto_allocation: false,
+        prevent_self_booking_if_assigned_desk: false,
         show_calendar_links: true,
         allow_recurrence: true,
         hide_map: false,
@@ -233,12 +237,19 @@ const app = {
         allow_all_day: true,
         allow_recurrence: true,
         request_submission_notes_html: '',
-        request_space_restrictions: [
-            {
-                id: 'oversized',
-                name: 'BOOKINGS.PARKING_RESTRICTION_OVERSIZED',
-            },
+        vehicle_types: [
+            { id: 'car', name: 'BOOKINGS.PARKING_VEHICLE_CAR' },
+            { id: 'bike', name: 'BOOKINGS.PARKING_VEHICLE_BIKE' },
+            { id: 'van', name: 'BOOKINGS.PARKING_VEHICLE_VAN' },
+            { id: 'truck', name: 'BOOKINGS.PARKING_VEHICLE_TRUCK' },
+            { id: 'other', name: 'BOOKINGS.PARKING_VEHICLE_OTHER' },
         ],
+        hidden_buildings: [],
+        hide_prefer_toggle: false,
+        hide_custom_shift: false,
+        hide_selected_space: false,
+        hide_availability_counter: false,
+        require_plate_number: false,
     },
     visitors: {
         allow_all_day: true,

@@ -1,8 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
 
-import { CommonModule } from '@angular/common';
 import { MatMenuModule } from '@angular/material/menu';
 import {
     BuildingPipe,
@@ -159,7 +158,6 @@ import { SurveyService } from './survey.service';
         `,
     ],
     imports: [
-        CommonModule,
         MatMenuModule,
         RouterModule,
         SimpleTableComponent,
@@ -169,21 +167,18 @@ import { SurveyService } from './survey.service';
         BuildingPipe,
     ],
 })
-export class SurveyListingsComponent extends AsyncHandler implements OnInit {
+export class SurveyListingsComponent {
     private _route = inject(ActivatedRoute);
     private _survey = inject(SurveyService);
+    private readonly _params = toSignal(this._route.paramMap, {
+        initialValue: this._route.snapshot.paramMap,
+    });
+    private readonly _sync_building = effect(() => {
+        this._survey.setBuilding(this._params()?.get('id') || '');
+    });
 
     public readonly surveys = this._survey.building_surveys;
     public readonly building = this._survey.building;
-
-    public ngOnInit() {
-        this.subscription(
-            'route-param',
-            this._route.paramMap.subscribe((params) =>
-                this._survey.setBuilding(params.get('id') || ''),
-            ),
-        );
-    }
 
     public async remove(survey: Survey) {
         await this._survey.removeSurvey(survey);

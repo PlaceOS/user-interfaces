@@ -1,14 +1,13 @@
-import { CommonModule } from '@angular/common';
 import {
     Component,
-    OnChanges,
-    OnInit,
-    SimpleChanges,
+    computed,
+    effect,
     inject,
     input,
     model,
     output,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
     FormControl,
     FormGroup,
@@ -31,13 +30,14 @@ import {
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
+import { startWith } from 'rxjs/operators';
 
 @Component({
     selector: 'building-form',
     template: `
         @if (form) {
             <form building [formGroup]="form">
-                @if ((region_list | async)?.length) {
+                @if (region_list().length) {
                     <div class="flex flex-col">
                         <label for="region">
                             {{ 'RESOURCE.REGION' | translate }}
@@ -54,8 +54,8 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                                     {{ 'COMMON.NONE' | translate }}
                                 </mat-option>
                                 @for (
-                                    region of region_list | async;
-                                    track region
+                                    region of region_list();
+                                    track region.id
                                 ) {
                                     <mat-option [value]="region.id">
                                         {{ region.display_name || region.name }}
@@ -92,7 +92,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                         />
                     </mat-form-field>
                     <mat-autocomplete #auto="matAutocomplete">
-                        @for (tz of filtered_timezones; track tz) {
+                        @for (tz of filtered_timezones(); track tz) {
                             <mat-option [value]="tz">{{ tz }}</mat-option>
                         }
                         @if (!timezones.length) {
@@ -120,7 +120,6 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
     `,
     styles: [``],
     imports: [
-        CommonModule,
         TranslatePipe,
         IconComponent,
         ReactiveFormsModule,
@@ -130,10 +129,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
         MatInputModule,
     ],
 })
-export class BuildingFormComponent
-    extends AsyncHandler
-    implements OnInit, OnChanges
-{
+export class BuildingFormComponent extends AsyncHandler {
     private _org = inject(OrganisationService);
 
     public readonly building = input<Building | null>(null);
@@ -142,9 +138,10 @@ export class BuildingFormComponent
     public readonly loadingChange = output<boolean>();
     public readonly done = output<any>();
 
-    public timezones: string[] = [];
-    public filtered_timezones: string[] = [];
-    public readonly region_list = this._org.region_list;
+    public readonly timezones = TIMEZONES_IANA;
+    public readonly region_list = toSignal(this._org.region_list, {
+        initialValue: [],
+    });
 
     public readonly form = new FormGroup({
         id: new FormControl(''),
@@ -157,27 +154,30 @@ export class BuildingFormComponent
         ),
         location: new FormControl(''),
     });
+    private readonly _timezone = toSignal(
+        this.form.controls.timezone.valueChanges.pipe(
+            startWith(this.form.controls.timezone.value || ''),
+        ),
+        { initialValue: this.form.controls.timezone.value || '' },
+    );
+    public readonly filtered_timezones = computed(() => {
+        const timezone = (this._timezone() || '').toLowerCase();
+        return this.timezones.filter((_) => _.toLowerCase().includes(timezone));
+    });
 
     public get default_parent() {
         return this._org.organisation.id;
     }
 
-    public ngOnInit() {
-        this._updateTimezoneList();
-        this.subscription(
-            'tz-change',
-            this.form.valueChanges.subscribe(() => this._updateTimezoneList()),
-        );
-        const building = this.building();
-        if (building) this.form.patchValue(building);
-    }
-
-    public ngOnChanges(changes: SimpleChanges) {
-        const building = this.building();
-        if (changes.building && building) {
-            this.form.patchValue(building);
-        }
-        if (changes.save && this.save()) this.saveChanges();
+    constructor() {
+        super();
+        effect(() => {
+            const building = this.building();
+            if (building) this.form.patchValue(building);
+        });
+        effect(() => {
+            if (this.save()) this.saveChanges();
+        });
     }
 
     public async saveChanges() {
@@ -201,29 +201,19 @@ export class BuildingFormComponent
         };
         const building = await (
             data.id ? updateZone(data.id, body) : addZone(body)
-        )
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    i18n('APP.CONCIERGE.BUILDINGS_SAVE_ERROR', {
-                        error: e.message || e.error || e,
-                    }),
-                );
-                this.loading.set(false);
-                this.loadingChange.emit(false);
-                throw e;
-            });
+        ).catch((e) => {
+            notifyError(
+                i18n('APP.CONCIERGE.BUILDINGS_SAVE_ERROR', {
+                    error: e.message || e.error || e,
+                }),
+            );
+            this.loading.set(false);
+            this.loadingChange.emit(false);
+            throw e;
+        });
         notifySuccess(i18n('APP.CONCIERGE.BUILDINGS_SAVE_SUCCESS'));
         this.loading.set(false);
         this.loadingChange.emit(false);
         this.done.emit(building);
-    }
-
-    private _updateTimezoneList() {
-        const timezone = this.form?.value?.timezone || '';
-        this.timezones = TIMEZONES_IANA;
-        this.filtered_timezones = this.timezones.filter((_) =>
-            _.toLowerCase().includes(timezone.toLowerCase()),
-        );
     }
 }

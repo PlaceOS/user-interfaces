@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDialog } from '@angular/material/dialog';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
@@ -10,13 +10,16 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
-import { DesksStateService } from '../../app/desks/desks-state.service';
+import { BehaviorSubject } from 'rxjs';
+import {
+    DeskQrItem,
+    DesksStateService,
+} from '../../app/desks/desks-state.service';
 import { DesksTopbarComponent } from '../../app/desks/desks-topbar.component';
 import { DesksComponent } from '../../app/desks/desks.component';
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
 import { SearchbarComponent } from '../../app/ui/searchbar.component';
-import { BehaviorSubject } from 'rxjs';
 
 describe('DesksComponent', () => {
     let spectator: SpectatorRouting<DesksComponent>;
@@ -24,13 +27,16 @@ describe('DesksComponent', () => {
     let active_region: BehaviorSubject<any>;
     let current_building: any;
     let filters_signal: ReturnType<typeof signal<any>>;
+    let print_desk_signal: ReturnType<typeof signal<DeskQrItem | null>>;
     const organisation_service: any = {
         buildings: [
             { id: 'bld-1', parent_id: 'region-1' },
             { id: 'bld-2', parent_id: 'region-1' },
         ],
         levelsForBuilding: jest.fn((building) =>
-            building?.id === 'bld-2' ? [{ id: 'level-b' }] : [{ id: 'level-a' }],
+            building?.id === 'bld-2'
+                ? [{ id: 'level-b' }]
+                : [{ id: 'level-a' }],
         ),
         levelsForRegion: jest.fn(() => [{ id: 'level-a' }, { id: 'level-b' }]),
         levelWithID: jest.fn(),
@@ -56,6 +62,7 @@ describe('DesksComponent', () => {
             MockProvider(DesksStateService, {
                 refresh: jest.fn(),
                 filters: signal({}),
+                print_desk: signal(null),
                 loading: signal(false),
                 setFilters: jest.fn(),
                 rejectAllDesks: jest.fn(),
@@ -82,11 +89,13 @@ describe('DesksComponent', () => {
         organisation_service.active_building = active_building;
         organisation_service.active_region = active_region;
         filters_signal = signal({ zones: ['level-a'] });
+        print_desk_signal = signal<DeskQrItem | null>(null);
         spectator = createComponent({
             providers: [
                 MockProvider(DesksStateService, {
                     refresh: jest.fn(),
                     filters: filters_signal,
+                    print_desk: print_desk_signal,
                     loading: signal(false),
                     setFilters: jest.fn((filters) =>
                         filters_signal.set({
@@ -110,14 +119,54 @@ describe('DesksComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should update zones when the active building changes', () => {
+    it('should clear stale zones when the active building changes', () => {
+        // Events view defaults to "all levels" (empty selection). When the
+        // building changes, zones that don't belong to the new building must
+        // be dropped so the user isn't left with a stale selection.
         const update_zones = jest.spyOn(spectator.component, 'updateZones');
         update_zones.mockClear();
 
         current_building = { id: 'bld-2', parent_id: 'region-1' };
         active_building.next(current_building);
 
-        expect(update_zones).toHaveBeenCalledWith(['level-b']);
+        expect(update_zones).toHaveBeenCalledWith([]);
+    });
+
+    it('should clear search when switching desk views', () => {
+        const desks_state = spectator.inject(DesksStateService);
+        (desks_state.setFilters as jest.Mock).mockClear();
+        filters_signal.set({
+            zones: ['level-a'],
+            view: 'manage',
+            search: 'Desk 1',
+        });
+
+        spectator.component.path.set('events');
+        (spectator.component as any)._updateView();
+
+        expect(desks_state.setFilters).toHaveBeenCalledWith({
+            view: 'events',
+            search: '',
+        });
+    });
+
+    it('should render selected desk QR code outside the print-hidden content', () => {
+        print_desk_signal.set({
+            id: 'desk-1',
+            name: 'Desk 1',
+            qr_code: 'data:image/png;base64,qr-code',
+            qr_link: 'http://localhost/workplace/#/book/code?asset_id=desk-1',
+        });
+        spectator.detectChanges();
+
+        const print_content = spectator.query('.desk-qr-print-preview');
+
+        expect(print_content).toBeTruthy();
+        expect(print_content.closest('.print\\:hidden')).toBeFalsy();
+        expect(print_content.querySelector('img')?.getAttribute('src')).toBe(
+            'data:image/png;base64,qr-code',
+        );
+        expect(print_content.textContent).toContain('Desk 1');
     });
 
     it.todo('should handle routing events');

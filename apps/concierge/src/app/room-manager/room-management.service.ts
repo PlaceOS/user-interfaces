@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { PlaceSystem, querySystems, showMetadata } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, from, of } from 'rxjs';
 import {
     catchError,
     filter,
@@ -11,6 +11,7 @@ import {
     switchMap,
 } from 'rxjs/operators';
 import { RoomAlertModalComponent } from './room-alert-modal.component';
+import { RoomBookingHistoryModalComponent } from './room-booking-history-modal.component';
 import { RoomModalComponent } from './room-modal.component';
 
 export interface RoomListOptions {
@@ -48,13 +49,15 @@ export class RoomManagementService {
         filter(([b, r]) => !!b?.id),
         switchMap(([bld, region]) =>
             combineLatest([
-                querySystems({
-                    zone_id:
-                        (this._settings.get('app.use_region')
-                            ? region.id
-                            : '') || bld.id,
-                    limit: 2500,
-                }).pipe(
+                from(
+                    querySystems({
+                        zone_id:
+                            (this._settings.get('app.use_region')
+                                ? region.id
+                                : '') || bld.id,
+                        limit: 2500,
+                    }),
+                ).pipe(
                     map(({ data }) => data),
                     catchError(() => of([])),
                 ),
@@ -119,6 +122,18 @@ export class RoomManagementService {
         });
         ref.afterClosed().subscribe((data) => {
             if (data) setTimeout(() => this._change.next(Date.now()), 300);
+        });
+    }
+
+    public viewBookingHistory(room: PlaceSystem) {
+        if (!room) return;
+        this._dialog.open(RoomBookingHistoryModalComponent, {
+            data: { room },
+            panelClass: 'fullscreen-dialog',
+            maxWidth: '100vw',
+            maxHeight: '100vh',
+            width: '100vw',
+            height: '100vh',
         });
     }
 }

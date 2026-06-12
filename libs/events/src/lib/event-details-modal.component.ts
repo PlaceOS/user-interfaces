@@ -105,7 +105,9 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                             </div>
                         </status-pill>
                         @if (event().recurring_event_id) {
-                            <icon class="text-2xl" [matTooltip]="recurr_tooltip"
+                            <icon
+                                class="text-2xl"
+                                [matTooltip]="recurr_tooltip()"
                                 >event_repeat</icon
                             >
                         }
@@ -154,7 +156,7 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                                     </div>
                                 </button>
                             }
-                            @if (allow_edit) {
+                            @if (allow_edit()) {
                                 <button
                                     icon
                                     matRipple
@@ -228,13 +230,13 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                         </div>
                     }
                     @if (event().creator !== event().host) {
+                        @let creator =
+                            (event().creator | user | async)?.name ||
+                            event().creator;
                         <div class="flex items-center space-x-2 px-2">
                             <icon matTooltip="Created By">person</icon>
                             <div>
-                                {{
-                                    (event().creator | user | async)?.name ||
-                                        event().creator
-                                }}
+                                {{ creator }}
                             </div>
                         </div>
                     }
@@ -332,13 +334,13 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                         {{ 'FORM.HOST' | translate }}
                     </h3>
                     <div class="flex items-center space-x-2 px-2" host>
+                        @let host =
+                            (event().host | user | async)?.name || event().host;
                         <a-user-avatar
                             [user]="event().organiser"
                         ></a-user-avatar>
                         <div class="w-px flex-1 text-sm">
-                            <div class="w-full truncate">
-                                {{ event().organiser?.name }}
-                            </div>
+                            <div class="w-full truncate">{{ host }}</div>
                             <div
                                 class="w-full truncate opacity-60"
                                 [title]="event().host"
@@ -377,7 +379,7 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                                                                       order.deliver_at
                                                                       | date
                                                                           : 'MMM d, ' +
-                                                                                time_format,
+                                                                                time_format(),
                                                               }
                                                 }}
                                             </div>
@@ -566,7 +568,7 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                                                                       request.deliver_at
                                                                       | date
                                                                           : 'MMM d, ' +
-                                                                                time_format,
+                                                                                time_format(),
                                                               }
                                                 }}
                                             </div>
@@ -657,9 +659,10 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                 }
                 <button
                     icon
+                    default
                     matRipple
                     mat-dialog-close
-                    class="bg-neutral absolute top-2 left-2 text-white print:hidden"
+                    class="absolute top-2 left-2 print:hidden"
                 >
                     <icon>close</icon>
                 </button>
@@ -888,9 +891,13 @@ export class EventDetailsModalComponent implements OnInit {
         EMPTY_ACTIONS,
     );
 
-    public get time_format() {
-        return this._settings.time_format;
-    }
+    private readonly _use_24_hour = settingSignal<boolean>(
+        'use_24_hour_time',
+        false,
+    );
+    public readonly time_format = computed(() =>
+        this._use_24_hour() ? 'HH:mm' : 'h:mm a',
+    );
 
     public get currency_code() {
         return this._org.currency_code;
@@ -932,9 +939,9 @@ export class EventDetailsModalComponent implements OnInit {
         const all_day = this.event().all_day;
         const tz_format = this._date.transform(date, 'zzzz', tz);
         const start_date = this._date.transform(date, 'MMM d', tz);
-        const start_time = this._date.transform(date, this.time_format, tz);
+        const start_time = this._date.transform(date, this.time_format(), tz);
         const end_date = this._date.transform(date_end, 'MMM d', tz);
-        const end_time = this._date.transform(date_end, this.time_format, tz);
+        const end_time = this._date.transform(date_end, this.time_format(), tz);
         const is_multiday = this.event()?.duration > 24 * 60;
 
         if (is_multiday) {
@@ -949,12 +956,13 @@ export class EventDetailsModalComponent implements OnInit {
         return item.option_list?.map((_) => _.name).join('\n');
     }
 
-    public get recurr_tooltip() {
-        return (
-            formatRecurrence(fromEventRecurrence(this.event().recurrence)) ||
-            i18n('CALENDAR_EVENT.RECURRING_TOOLTIP')
-        );
-    }
+    public readonly recurr_tooltip = computed(
+        () =>
+            formatRecurrence(
+                fromEventRecurrence(this.event().recurrence),
+                this.event()?.date,
+            ) || i18n('CALENDAR_EVENT.RECURRING_TOOLTIP'),
+    );
 
     public async checkin() {
         const mod = getModule(this.space()?.id, 'Bookings');

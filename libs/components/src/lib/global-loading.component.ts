@@ -1,19 +1,32 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import {
     AsyncHandler,
+    autoConfirmNativeDomain,
     firstTruthyValueFrom,
     getLoadingMessage,
+    nativeDomainError,
+    needsNativeDomain,
+    OrganisationService,
+    PlaceOS_Service,
     SettingsService,
 } from '@placeos/common';
 import { authority, isOnline, token } from '@placeos/ts-client';
 
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { OrganisationService } from '@placeos/common';
+import { NativeDomainOverlayComponent } from './native-domain-overlay.component';
+import { ServiceWorkerUpdateCardComponent } from './service-worker-update-card.component';
 import { TranslatePipe } from './translate.pipe';
 
 @Component({
     selector: 'global-loading',
     template: `
+        @if (show_domain_overlay()) {
+            <native-domain-overlay
+                [serverError]="domain_error()"
+                [autoAccept]="auto_confirm()"
+                (domainSet)="onDomainSet()"
+            ></native-domain-overlay>
+        }
         @if (!online()) {
             <div
                 class="bg-error fixed top-2 left-1/2 z-9999 -translate-x-1/2 rounded-3xl px-4 py-2 text-xs text-white shadow-sm"
@@ -24,15 +37,15 @@ import { TranslatePipe } from './translate.pipe';
         @if (loading()) {
             <div
                 loader
-                class="bg-base-300 pointer-events-auto fixed inset-0 z-9998 flex items-center justify-center"
+                class="bg-base-300 pointer-events-auto fixed inset-0 z-9998 flex flex-col items-center justify-end space-y-2 p-4"
             >
                 <div
-                    class="border-base-300 bg-base-100 absolute bottom-5 left-1/2 w-[24rem] max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-lg border p-2 text-center text-xs shadow-sm"
+                    class="border-base-300 bg-base-100 w-[24rem] max-w-[calc(100vw-2rem)] rounded-lg border p-2 text-center text-xs shadow-sm"
                 >
                     <p class="text-center font-mono">{{ message() }}</p>
                 </div>
                 <div
-                    class="border-base-300 absolute bottom-2 left-1/2 w-[24rem] max-w-[calc(100vw-2rem)] -translate-x-1/2 overflow-hidden rounded-full border shadow-sm"
+                    class="border-base-300 w-[24rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-full border shadow-sm"
                 >
                     <mat-progress-bar
                         mode="indeterminate"
@@ -41,6 +54,7 @@ import { TranslatePipe } from './translate.pipe';
                 </div>
             </div>
         }
+        <placeos-service-worker-update-card />
     `,
     styles: [
         `
@@ -57,15 +71,28 @@ import { TranslatePipe } from './translate.pipe';
             }
         `,
     ],
-    imports: [MatProgressBarModule, TranslatePipe],
+    imports: [
+        MatProgressBarModule,
+        NativeDomainOverlayComponent,
+        ServiceWorkerUpdateCardComponent,
+        TranslatePipe,
+    ],
 })
 export class GlobalLoadingComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
+    private _placeos = inject(PlaceOS_Service);
     private _settings = inject(SettingsService);
 
     public loading = signal(true);
     public readonly online = signal(true);
     public readonly message = getLoadingMessage();
+    public readonly show_domain_overlay = needsNativeDomain();
+    public readonly domain_error = nativeDomainError();
+    public readonly auto_confirm = autoConfirmNativeDomain();
+
+    public onDomainSet(): void {
+        this._placeos.onNativeDomainSet();
+    }
 
     public async ngOnInit() {
         this.loading.set(true);

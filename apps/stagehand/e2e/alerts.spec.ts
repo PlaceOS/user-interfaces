@@ -1,15 +1,15 @@
 import { expect, test } from '@playwright/test';
 import {
-    LOAD_TIMEOUT,
     ACTION_TIMEOUT,
     ALERTS_URL,
-    navigateWithMock,
-    waitForAlertsPage,
-    getAlertCount,
     enterSearchTerm,
-    selectSeverityFilter,
-    selectDeviceTypeFilter,
+    getAlertCount,
     isTableVisible,
+    LOAD_TIMEOUT,
+    navigateWithMock,
+    selectDeviceTypeFilter,
+    selectSeverityFilter,
+    waitForAlertsPage,
 } from './test-utils';
 
 /**
@@ -75,10 +75,18 @@ test.describe('US-SM-001: View All System Alerts', () => {
         await expect(table).toBeVisible({ timeout: LOAD_TIMEOUT });
 
         // Check for column headers - simple-table uses [header] attribute for header buttons
-        const severity_header = page.locator('simple-table [header]:has-text("Severity")');
-        const issue_header = page.locator('simple-table [header]:has-text("Issue")');
-        const device_header = page.locator('simple-table [header]:has-text("Device")');
-        const location_header = page.locator('simple-table [header]:has-text("Location")');
+        const severity_header = page.locator(
+            'simple-table [header]:has-text("Severity")',
+        );
+        const issue_header = page.locator(
+            'simple-table [header]:has-text("Issue")',
+        );
+        const device_header = page.locator(
+            'simple-table [header]:has-text("Device")',
+        );
+        const location_header = page.locator(
+            'simple-table [header]:has-text("Location")',
+        );
 
         await expect(severity_header).toBeVisible({ timeout: ACTION_TIMEOUT });
         await expect(issue_header).toBeVisible({ timeout: ACTION_TIMEOUT });
@@ -92,7 +100,10 @@ test.describe('US-SM-002: Filter Alerts by Severity', () => {
         await navigateWithMock(page, ALERTS_URL);
         await waitForAlertsPage(page);
 
-        const select = page.locator('mat-select').filter({ hasText: /All Severities|Critical|Warning|Info/ }).first();
+        const select = page
+            .locator('mat-select')
+            .filter({ hasText: /All Severities|Critical|Warning|Info/ })
+            .first();
         await expect(select).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
 
@@ -154,7 +165,12 @@ test.describe('US-SM-003: Filter Alerts by Device Type', () => {
         await navigateWithMock(page, ALERTS_URL);
         await waitForAlertsPage(page);
 
-        const select = page.locator('mat-select').filter({ hasText: /All Devices|Display|Audio|Video|Network|Control/ }).first();
+        const select = page
+            .locator('mat-select')
+            .filter({
+                hasText: /All Devices|Display|Audio|Video|Network|Control/,
+            })
+            .first();
         await expect(select).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
 
@@ -198,7 +214,7 @@ test.describe('US-SM-004: Search Alerts', () => {
         await waitForAlertsPage(page);
 
         const search_input = page.locator(
-            'input[placeholder*="Search for alert or location"]'
+            'input[placeholder*="Search for alert or location"]',
         );
         await expect(search_input).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
@@ -251,7 +267,10 @@ test.describe('US-SM-006: View Alerts from Specific Dashboard', () => {
         await navigateWithMock(page, ALERTS_URL);
         await waitForAlertsPage(page);
 
-        const select = page.locator('mat-select').filter({ hasText: /Select dashboard|Disconnected Devices/ }).first();
+        const select = page
+            .locator('mat-select')
+            .filter({ hasText: /Select dashboard|Disconnected Devices/ })
+            .first();
         await expect(select).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
 
@@ -259,11 +278,16 @@ test.describe('US-SM-006: View Alerts from Specific Dashboard', () => {
         await navigateWithMock(page, ALERTS_URL);
         await waitForAlertsPage(page);
 
-        const select = page.locator('mat-select').filter({ hasText: /Select dashboard|Disconnected Devices/ }).first();
+        const select = page
+            .locator('mat-select')
+            .filter({ hasText: /Select dashboard|Disconnected Devices/ })
+            .first();
         await select.click();
         await page.waitForTimeout(200);
 
-        const option = page.locator('mat-option:has-text("Disconnected Devices")');
+        const option = page.locator(
+            'mat-option:has-text("Disconnected Devices")',
+        );
         await expect(option).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
 
@@ -275,20 +299,24 @@ test.describe('US-SM-006: View Alerts from Specific Dashboard', () => {
 
         // The settings icon appears when a dashboard is selected
         // By default, no dashboard is selected so the icon should not be visible
-        const settings_icon = page.locator('header a[matTooltip="Manage Dashboard"]');
+        const settings_icon = page.locator(
+            'header a[matTooltip="Manage Dashboard"]',
+        );
         const is_visible = await settings_icon.isVisible().catch(() => false);
         expect(is_visible === true || is_visible === false).toBeTruthy();
     });
 });
 
 test.describe('Alerts Page - URL Parameter Persistence', () => {
-    test('should update URL when search filter is applied', async ({ page }) => {
+    test('should update URL when search filter is applied', async ({
+        page,
+    }) => {
         await navigateWithMock(page, ALERTS_URL);
         await waitForAlertsPage(page);
 
         // Type a search term
         const search_input = page.locator(
-            'input[placeholder*="Search for alert or location"]'
+            'input[placeholder*="Search for alert or location"]',
         );
         await search_input.fill('conference');
         await page.waitForTimeout(500);
@@ -304,7 +332,10 @@ test.describe('Alerts Page - URL Parameter Persistence', () => {
         await waitForAlertsPage(page);
 
         // The severity filter should be visible
-        const select = page.locator('stagehand-alerts mat-select').filter({ hasText: /All Severities|Critical|Warning|Info/ }).first();
+        const select = page
+            .locator('stagehand-alerts mat-select')
+            .filter({ hasText: /All Severities|Critical|Warning|Info/ })
+            .first();
         await expect(select).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
 
@@ -313,7 +344,12 @@ test.describe('Alerts Page - URL Parameter Persistence', () => {
         await waitForAlertsPage(page);
 
         // The device type filter should be visible
-        const select = page.locator('stagehand-alerts mat-select').filter({ hasText: /All Devices|Display|Audio|Video|Network|Control/ }).first();
+        const select = page
+            .locator('stagehand-alerts mat-select')
+            .filter({
+                hasText: /All Devices|Display|Audio|Video|Network|Control/,
+            })
+            .first();
         await expect(select).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
 
@@ -322,7 +358,7 @@ test.describe('Alerts Page - URL Parameter Persistence', () => {
         await waitForAlertsPage(page);
 
         const search_input = page.locator(
-            'input[placeholder*="Search for alert or location"]'
+            'input[placeholder*="Search for alert or location"]',
         );
         await expect(search_input).toBeVisible({ timeout: ACTION_TIMEOUT });
         await search_input.fill('test');

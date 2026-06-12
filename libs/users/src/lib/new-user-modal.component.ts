@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { AsyncHandler, DialogEvent, User } from '@placeos/common';
@@ -71,11 +71,11 @@ import { generateUserForm } from './user.utilities';
         MatProgressSpinnerModule,
     ],
 })
-export class NewUserModalComponent extends AsyncHandler implements OnInit {
+export class NewUserModalComponent extends AsyncHandler {
     private _data = inject(MAT_DIALOG_DATA);
 
     /** Emitter for user action on the modal */
-    @Output() public event = new EventEmitter<DialogEvent>();
+    public readonly event = output<DialogEvent>();
     /** Form fields for the new user */
     public form = generateUserForm(this.user || new User());
     /** New user data store */
@@ -88,8 +88,6 @@ export class NewUserModalComponent extends AsyncHandler implements OnInit {
         this.user = this._data.user || {};
         this.form = generateUserForm(this.user);
     }
-
-    public ngOnInit(): void {}
 
     public saveChanges() {
         if (!this.form) return;

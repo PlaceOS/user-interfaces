@@ -8,8 +8,6 @@ import {
     query,
     token,
 } from '@placeos/ts-client';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 const ENDPOINT = '/api/engine/v2/short_url';
 
@@ -33,17 +31,20 @@ export interface ShortURL {
     updated_at: number;
 }
 
-export function queryShortURLs(q: Record<string, any> = {}) {
-    return query<ShortURL>({
+export async function queryShortURLs(
+    q: Record<string, any> = {},
+): Promise<ShortURL[]> {
+    const { data } = await query<ShortURL>({
         query_params: q,
         fn: (item) => item as ShortURL,
         endpoint: ENDPOINT,
         path: '',
-    }).pipe(map((_) => _.data));
+    });
+    return data;
 }
 
-export function showShortURL(id: string): Observable<ShortURL> {
-    return get(`${ENDPOINT}/${id}`).pipe(map((_) => _ as ShortURL));
+export async function showShortURL(id: string): Promise<ShortURL> {
+    return (await get(`${ENDPOINT}/${id}`)) as ShortURL;
 }
 
 const QR_STORE = new Map<string, string>();
@@ -69,28 +70,28 @@ export async function getShortUrlQRCode(
     return url;
 }
 
-export function createShortURL(data: ShortURL): Observable<ShortURL> {
-    return post(ENDPOINT, data).pipe(map((_) => _ as ShortURL));
+export async function createShortURL(data: ShortURL): Promise<ShortURL> {
+    return (await post(ENDPOINT, data)) as ShortURL;
 }
 
-export function updateShortURL(
+export async function updateShortURL(
     id: string,
     data: ShortURL,
-): Observable<ShortURL> {
-    return put(`${ENDPOINT}/${id}`, data).pipe(map((_) => _ as ShortURL));
+): Promise<ShortURL> {
+    return (await put(`${ENDPOINT}/${id}`, data)) as ShortURL;
 }
 
-export function saveShortURL(data: ShortURL): Observable<ShortURL> {
+export function saveShortURL(data: ShortURL): Promise<ShortURL> {
     return data.id ? updateShortURL(data.id, data) : createShortURL(data);
 }
 
-export function patchShortURL(
+export async function patchShortURL(
     id: string,
     data: Partial<ShortURL>,
-): Observable<ShortURL> {
-    return patch(`${ENDPOINT}/${id}`, data).pipe(map((_) => _ as ShortURL));
+): Promise<ShortURL> {
+    return (await patch(`${ENDPOINT}/${id}`, data)) as ShortURL;
 }
 
-export function deleteShortURL(id: string): Observable<void> {
-    return del(`${ENDPOINT}/${id}`).pipe(map((_) => null));
+export async function deleteShortURL(id: string): Promise<void> {
+    await del(`${ENDPOINT}/${id}`);
 }

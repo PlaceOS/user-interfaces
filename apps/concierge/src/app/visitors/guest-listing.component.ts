@@ -1,8 +1,8 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { showMetadata } from '@placeos/ts-client';
 import { lastValueFrom } from 'rxjs';
 
-import { MatDialog } from '@angular/material/dialog';
 import { saveBooking } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -30,7 +30,7 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { UserLabelModalComponent } from '@placeos/users';
+import { UserDetails, UserLabelComponent } from '@placeos/users';
 import { ParkingStateService } from '../parking/parking-state.service';
 import { VisitorsStateService } from './visitors-state.service';
 
@@ -38,9 +38,9 @@ import { VisitorsStateService } from './visitors-state.service';
     selector: 'guest-listings',
     template: `
         <simple-table
-            class="z-0 block text-sm"
-            [style.min-width]="68 + extra_width + 'rem'"
-            [data]="guests"
+            class="z-0 block text-sm print:hidden"
+            [style.min-width]="72 + extra_width + 'rem'"
+            [data]="guests()"
             [columns]="[
                 {
                     key: 'state',
@@ -146,7 +146,7 @@ import { VisitorsStateService } from './visitors-state.service';
                                 : {
                                       time:
                                           (row.checked_out_at * 1000
-                                          | date: time_format : tz),
+                                          | date: time_format : tz()),
                                   }
                     "
                     matTooltipPosition="right"
@@ -175,7 +175,7 @@ import { VisitorsStateService } from './visitors-state.service';
                                 : {
                                       time:
                                           (row.checked_in_at * 1000
-                                          | date: time_format : tz),
+                                          | date: time_format : tz()),
                                   }
                     "
                     matTooltipPosition="right"
@@ -409,10 +409,10 @@ import { VisitorsStateService } from './visitors-state.service';
         </ng-template>
         <ng-template #time_template let-data="data">
             <div class="px-4">
-                {{ data * 1000 | date: time_format : tz }}
-                @if (timezone) {
+                {{ data * 1000 | date: time_format : tz() }}
+                @if (timezone()) {
                     <span class="text-xs opacity-30">
-                        {{ data * 1000 | date: 'zzzz' : tz }}
+                        {{ data * 1000 | date: 'zzzz' : tz() }}
                     </span>
                 }
             </div>
@@ -441,14 +441,14 @@ import { VisitorsStateService } from './visitors-state.service';
                 {{
                     row.date
                         | date
-                            : ((filters | async)?.period > 1
+                            : (filters()?.period > 1
                                   ? 'MMM d, ' + time_format
                                   : time_format)
-                            : tz
+                            : tz()
                 }}
-                @if (timezone) {
+                @if (timezone()) {
                     <span class="text-xs opacity-30">
-                        {{ row.date | date: 'zzzz' : tz }}
+                        {{ row.date | date: 'zzzz' : tz() }}
                     </span>
                 }
             </div>
@@ -632,7 +632,7 @@ import { VisitorsStateService } from './visitors-state.service';
                             </div>
                         </button>
                     }
-                    @if (row.linked_event) {
+                    @if (canShowAllVisitorActions(row)) {
                         <button mat-menu-item (click)="checkinAllVisitors(row)">
                             <div class="flex items-center space-x-2">
                                 <icon class="text-2xl"> event_available </icon>
@@ -694,9 +694,9 @@ import { VisitorsStateService } from './visitors-state.service';
                 }
             </div>
         </ng-template>
-        @if ((guests | async)?.length) {
+        @if (guests().length) {
             <button
-                class="bg-secondary absolute right-4 bottom-4 z-20 h-12 w-12 text-white shadow-sm hover:shadow-lg"
+                class="bg-secondary absolute right-4 bottom-4 z-20 h-12 w-12 text-white shadow-sm hover:shadow-lg print:hidden"
                 [matTooltip]="'APP.CONCIERGE.VISITORS_DOWNLOAD' | translate"
                 matTooltipPosition="left"
                 icon
@@ -705,6 +705,16 @@ import { VisitorsStateService } from './visitors-state.service';
             >
                 <icon>download</icon>
             </button>
+        }
+        @if (printing()) {
+            <div class="print-only fixed top-0 left-0">
+                <user-label
+                    [user]="$any(user_pass())"
+                    [width]="label_size().width"
+                    [height]="label_size().height"
+                    [style.font-size]="label_size().scale + 'mm'"
+                />
+            </div>
         }
         <div class="h-8 w-full"></div>
     `,
@@ -721,6 +731,7 @@ import { VisitorsStateService } from './visitors-state.service';
         SimpleTableComponent,
         CustomTooltipComponent,
         FormsModule,
+        UserLabelComponent,
     ],
 })
 export class GuestListingComponent extends AsyncHandler implements OnInit {
@@ -728,16 +739,36 @@ export class GuestListingComponent extends AsyncHandler implements OnInit {
     private _parking = inject(ParkingStateService);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
-    private _dialog = inject(MatDialog);
 
     public readonly printing = signal('');
-    public readonly guests = this._state.filtered_bookings;
+    public readonly guests = toSignal(this._state.filtered_bookings, {
+        initialValue: [],
+    });
     public readonly search = this._state.search;
-    public readonly filters = this._state.filters;
+    public readonly filters = toSignal<any>(this._state.filters, {
+        initialValue: {} as any,
+    });
     public readonly inductions_enabled = signal(false);
     public readonly qr_code = signal('');
     public readonly pass_number = signal('');
-    public readonly user_pass = signal({});
+    public readonly user_pass = signal<UserDetails>({} as UserDetails);
+    public readonly label_size = signal({ width: 25, height: 15, scale: 4 });
+    public readonly active_building = toSignal(this._org.active_building, {
+        initialValue: this._org.building,
+    });
+    public readonly timezone = computed(() => {
+        this.active_building();
+        const use_tz = this._settings.get('app.bookings.use_building_timezone');
+        const bld_tz = this._org.building.timezone;
+        return use_tz &&
+            bld_tz !== Intl.DateTimeFormat().resolvedOptions().timeZone
+            ? bld_tz
+            : '';
+    });
+    public readonly tz = computed(() => {
+        const tz = this.timezone();
+        return tz ? getTimezoneOffsetString(tz) : '';
+    });
 
     public hide_field(id: string) {
         return (this._settings.get('app.visitors.hide_fields') || []).includes(
@@ -748,21 +779,6 @@ export class GuestListingComponent extends AsyncHandler implements OnInit {
     public get extra_width() {
         const hide = this._settings.get('app.visitors.hide_fields') || [];
         return Math.max(0, 3 - hide.length) * 6;
-    }
-
-    public get timezone() {
-        const use_tz = this._settings.get('app.bookings.use_building_timezone');
-        const bld_tz = this._org.building.timezone;
-        return use_tz &&
-            bld_tz !== Intl.DateTimeFormat().resolvedOptions().timeZone
-            ? bld_tz
-            : '';
-    }
-
-    public get tz() {
-        const tz = this.timezone;
-        if (!tz) return '';
-        return getTimezoneOffsetString(tz);
     }
 
     public get allow_printing_label() {
@@ -820,6 +836,22 @@ export class GuestListingComponent extends AsyncHandler implements OnInit {
         return this._settings.time_format;
     }
 
+    public get all_visitor_action_window() {
+        const value = Number(
+            this._settings.get('app.visitors.all_visitors_action_window') ?? 15,
+        );
+        return Number.isFinite(value) && value >= 0 ? value : 15;
+    }
+
+    public canShowAllVisitorActions(item: Booking) {
+        if (!item?.linked_event) return false;
+        const offset = this.all_visitor_action_window * 60 * 1000;
+        const start = item.date - offset;
+        const end = item.date_end + offset;
+        const now = Date.now();
+        return now >= start && now <= end;
+    }
+
     public get logo() {
         return this._settings.theme === 'dark'
             ? this._settings.get('app.logo_dark')
@@ -839,11 +871,11 @@ export class GuestListingComponent extends AsyncHandler implements OnInit {
             extra_details: item?.extension_data?.extra_details,
             pass_number: item?.extension_data?.pass_number,
             qr_code: this.qr_code(),
+        } as UserDetails);
+        window.addEventListener('afterprint', () => this.printing.set(''), {
+            once: true,
         });
-        const ref = this._dialog.open(UserLabelModalComponent, {
-            data: this.user_pass(),
-        });
-        ref.afterClosed().subscribe(() => this.printing.set(''));
+        this.timeout('print', () => window.print());
     }
 
     public inducted(item: Booking) {
@@ -863,16 +895,24 @@ export class GuestListingComponent extends AsyncHandler implements OnInit {
                 const visitor_kiosk_app =
                     this._settings.get('app.visitor_kiosk_app') ||
                     'visitor-kiosk_app';
-                const metadata: any = await lastValueFrom(
-                    showMetadata(bld.id, visitor_kiosk_app),
+                const metadata: any = await showMetadata(
+                    bld.id,
+                    visitor_kiosk_app,
                 );
-                const org_metadata: any = await lastValueFrom(
-                    showMetadata(this._org.organisation.id, visitor_kiosk_app),
+                const org_metadata: any = await showMetadata(
+                    this._org.organisation.id,
+                    visitor_kiosk_app,
                 );
                 const data = {
                     ...(org_metadata.details || {}),
                     ...(metadata.details || {}),
                 };
+                const label_size = data.visitor_label_size || {};
+                this.label_size.set({
+                    width: label_size.width || 25,
+                    height: label_size.height || 15,
+                    scale: label_size.scale || 4,
+                });
                 this.inductions_enabled.set(
                     data?.induction_enabled && data?.induction_details,
                 );

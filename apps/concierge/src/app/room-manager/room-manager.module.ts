@@ -3,7 +3,9 @@ import { Route, RouterModule } from '@angular/router';
 
 import { RoomManagerComponent } from './room-manager.component';
 
-const ROUTES: Route[] = [{ path: '', component: RoomManagerComponent }];
+const ROUTES: Route[] = [
+    { path: '', component: RoomManagerComponent, title: 'Room Management' },
+];
 
 @NgModule({
     declarations: [],

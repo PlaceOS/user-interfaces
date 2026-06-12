@@ -269,11 +269,14 @@ export class MeetingFlowConfirmComponent
     }
 
     public get formatted_recurrence() {
+        const recurrence_start =
+            this.event.recurrence.start || this.event.date;
         return formatRecurrence(
             fromEventRecurrence({
                 ...this.event.recurrence,
-                start: this.event.date || this.event.recurrence.start,
+                start: recurrence_start,
             }),
+            recurrence_start,
         );
     }
 

@@ -38,6 +38,7 @@ describe('RoomBookingsComponent', () => {
                 options: of({}),
                 filtered: of([]),
                 spaces: of([]),
+                loading: of(false),
                 filters: {},
                 setZones: jest.fn((zone_ids: string[]) => zones.next(zone_ids)),
                 setPeriod: jest.fn(),
@@ -46,10 +47,9 @@ describe('RoomBookingsComponent', () => {
                 newBooking: jest.fn(),
                 getDate: jest.fn(() => Date.now()),
             } as any),
-            MockProvider(
-                SettingsService,
-                { get: ((_: string) => false) as any } as any,
-            ),
+            MockProvider(SettingsService, {
+                get: ((_: string) => false) as any,
+            } as any),
         ],
         imports: [
             FormsModule,
@@ -76,9 +76,9 @@ describe('RoomBookingsComponent', () => {
         const router = spectator.inject(Router);
         jest.spyOn(router, 'navigate');
         spectator.component.updateZones([]);
-        expect(spectator.inject(EventsStateService).setZones).toHaveBeenCalledWith(
-            [],
-        );
+        expect(
+            spectator.inject(EventsStateService).setZones,
+        ).toHaveBeenCalledWith([]);
         expect(router.navigate).toHaveBeenCalledWith(
             [],
             expect.objectContaining({

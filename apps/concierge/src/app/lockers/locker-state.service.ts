@@ -1,10 +1,16 @@
 import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
+    deleteLockerAsset,
+    deleteLockerBankAsset,
+    queryLockerAssetsForZones,
+    queryLockerBankAssetsForZones,
+    saveLockerAsset,
+    saveLockerBankAsset,
+} from '@placeos/assets';
+import {
     approveBooking,
     checkinBooking,
-    loadLockerBanks,
-    loadLockers,
     Locker,
     LockerBank,
     queryBookings,
@@ -17,31 +23,33 @@ import {
 import {
     AsyncHandler,
     Booking,
+    getTimezoneDifferenceInHours,
     i18n,
     nextValueFrom,
     notifyError,
     notifyInfo,
     notifySuccess,
     OrganisationService,
-    randomInt,
     RecurrenceDays,
+    setTimeInTimezone,
     SettingsService,
     StaffUser,
     unique,
     User,
 } from '@placeos/common';
-import { QueryResponse, updateMetadata } from '@placeos/ts-client';
+import { PlaceAsset, QueryResponse } from '@placeos/ts-client';
 import {
     addHours,
+    addMinutes,
     endOfDay,
     getUnixTime,
-    set,
     startOfDay,
     subDays,
 } from 'date-fns';
 import {
     BehaviorSubject,
     combineLatest,
+    from,
     lastValueFrom,
     Observable,
     of,
@@ -73,6 +81,96 @@ export interface LockerFilters {
 
 const addToken = (l: string, t: string) => l.replace(t, '') + t;
 const removeToken = (l: string, t: string) => l.replace(t, '');
+
+function lockerBankFromAsset(asset: PlaceAsset): LockerBank {
+    const data = asset.other_data || {};
+    const tags = data.tags ? JSON.parse(data.tags) : [];
+    return {
+        id: asset.id,
+        map_id: asset.map_id || data.map_id || '',
+        level_id: asset.zone_id,
+        name: asset.identifier || data.name || '',
+        height: +(data.height || 3),
+        notes: asset.notes || '',
+        zones: asset.zones || [asset.zone_id].filter((_) => _),
+        tags: (asset as any).tags || tags,
+        images: data.images ? JSON.parse(data.images) : [],
+    } as LockerBank;
+}
+
+function lockerBankToAsset(
+    bank: Partial<LockerBank>,
+    zone_id: string,
+): Partial<PlaceAsset> {
+    return {
+        ...(bank.id ? { id: bank.id } : {}),
+        identifier: bank.name || '',
+        map_id: bank.map_id || '',
+        notes: (bank as any).notes || '',
+        zone_id,
+        zones: bank.zones || [zone_id],
+        tags: bank.tags || [],
+        other_data: {
+            name: bank.name || '',
+            map_id: bank.map_id || '',
+            height: `${bank.height || 3}`,
+            tags: JSON.stringify(bank.tags || []),
+            images: JSON.stringify(bank.images || []),
+        },
+    } as unknown as Partial<PlaceAsset>;
+}
+
+function lockerFromAsset(asset: PlaceAsset, banks: LockerBank[]): Locker {
+    const data = asset.other_data || {};
+    const position = data.position ? JSON.parse(data.position) : [0, 0];
+    const size = data.size ? JSON.parse(data.size) : [1, 1];
+    const features = data.features ? JSON.parse(data.features) : [];
+    const bank_id = (asset as any).parent_id || '';
+    const bank = banks.find((_) => _.id === bank_id);
+    return {
+        id: asset.id,
+        bank_id,
+        map_id: asset.map_id || data.map_id,
+        assigned_to: (asset as any).assigned_to || data.assigned_to,
+        assigned_name: (asset as any).assigned_name || data.assigned_name,
+        name: asset.identifier || data.name || '',
+        accessible: data.accessible === 'true',
+        bookable: asset.bookable !== false,
+        position,
+        size,
+        bank,
+        zone: bank?.zone,
+        features: asset.features || features,
+    } as Locker;
+}
+
+function lockerToAsset(
+    locker: Partial<Locker>,
+    zone_id: string,
+): Partial<PlaceAsset> {
+    return {
+        ...(locker.id ? { id: locker.id } : {}),
+        identifier: locker.name || '',
+        map_id: locker.map_id || '',
+        zone_id,
+        zones: locker.bank?.zones || [],
+        features: locker.features || [],
+        bookable: locker.bookable !== false,
+        parent_id: locker.bank_id || '',
+        assigned_to: locker.assigned_to || '',
+        assigned_name: (locker as any).assigned_name || '',
+        other_data: {
+            name: locker.name || '',
+            map_id: locker.map_id || '',
+            assigned_to: locker.assigned_to || '',
+            assigned_name: (locker as any).assigned_name || '',
+            accessible: locker.accessible ? 'true' : 'false',
+            position: JSON.stringify(locker.position || [0, 0]),
+            size: JSON.stringify(locker.size || [1, 1]),
+            features: JSON.stringify(locker.features || []),
+        },
+    } as unknown as Partial<PlaceAsset>;
+}
 
 @Injectable({
     providedIn: 'root',
@@ -106,31 +204,82 @@ export class LockerStateService extends AsyncHandler {
             return _.filter((lvl) => lvl.parent_id === this._org.building.id);
         }),
     );
-
     public readonly loading = this._loading.asObservable();
+
+    public get tz_offset() {
+        const tz = this._settings.get('app.bookings.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
+        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        return !tz ? 0 : getTimezoneDifferenceInHours(current_tz, tz);
+    }
 
     public readonly filters = this._filters.asObservable();
 
     public readonly search = this._search.asObservable();
 
-    public readonly lockers_banks$: Observable<LockerBank[]> = loadLockerBanks(
-        this._org,
-        combineLatest([
-            this._org.active_building,
-            this._org.active_region,
-            this._change,
-        ]),
-        () => this._settings.get('app.use_region'),
+    public readonly lockers_banks$: Observable<LockerBank[]> = combineLatest([
+        this._org.active_building,
+        this._org.active_region,
+        this._change,
+    ]).pipe(
+        debounceTime(300),
+        switchMap(([building, region]) => {
+            const scope_id = this._settings.get('app.use_region')
+                ? region?.id
+                : building?.id;
+            if (!scope_id) return of([] as LockerBank[]);
+            return queryLockerBankAssetsForZones([scope_id]).pipe(
+                map((assets) => assets.map(lockerBankFromAsset)),
+            );
+        }),
+        shareReplay(1),
     );
-    public readonly lockers$: Observable<Locker[]> = loadLockers(
-        this._org,
-        combineLatest([
-            this._org.active_building,
-            this._org.active_region,
-            this._change,
-        ]),
+    public readonly lockers$: Observable<Locker[]> = combineLatest([
+        this._org.active_building,
+        this._org.active_region,
+        this._change,
         this.lockers_banks$,
-        () => this._settings.get('app.use_region'),
+    ]).pipe(
+        debounceTime(300),
+        switchMap(([building, region, _change, banks]) => {
+            const scope_id = this._settings.get('app.use_region')
+                ? region?.id
+                : building?.id;
+            if (!scope_id) return of([] as Locker[]);
+            return queryLockerAssetsForZones([scope_id]).pipe(
+                map((assets) => {
+                    const lockers = assets.map((_) =>
+                        lockerFromAsset(_, banks),
+                    );
+                    for (const bank of banks) {
+                        bank.lockers = lockers
+                            .filter((_) => _.bank_id === bank.id)
+                            .map((_) => ({ ..._ }));
+                    }
+                    return lockers;
+                }),
+            );
+        }),
+        map((lockers) => lockers.filter((_) => _.bank)),
+        shareReplay(1),
+    );
+    /** List of levels with bookable locker resources */
+    public bookable_levels = combineLatest([this.levels, this.lockers$]).pipe(
+        map(([levels, lockers]) =>
+            levels.filter((level) =>
+                lockers.some(
+                    (locker) =>
+                        locker.bookable &&
+                        (
+                            (locker as any).zones ||
+                            locker.bank?.zones ||
+                            []
+                        ).includes(level.id),
+                ),
+            ),
+        ),
+        shareReplay(1),
     );
 
     public filtered_lockers = combineLatest([
@@ -164,9 +313,14 @@ export class LockerStateService extends AsyncHandler {
         this.filters,
         this._search,
         this.lockers_banks$,
+        this.lockers$,
     ]).pipe(
-        map(([{ zones }, search, list]) => {
+        map(([{ zones }, search, list, lockers]) => {
             search = (search || '').toLowerCase();
+            list = list.map((bank) => ({
+                ...bank,
+                lockers: lockers.filter((locker) => locker.bank_id === bank.id),
+            }));
             if (!zones?.length && !search) return list;
             return list.filter((item) => {
                 let match = true;
@@ -183,7 +337,9 @@ export class LockerStateService extends AsyncHandler {
         }),
     );
 
-    private _next_page = new Subject<() => QueryResponse<Booking>>();
+    private _next_page = new Subject<
+        () => Observable<any> | QueryResponse<Booking>
+    >();
     private _call_next_page = new Subject<string>();
     private _all_zones_keys = ['All', -1, '-1'];
     public readonly setup_paging = combineLatest([
@@ -194,6 +350,11 @@ export class LockerStateService extends AsyncHandler {
         tap(([filters, loaded]) => {
             if (!loaded) return;
             const date = filters.date || Date.now();
+            const period_start = addMinutes(
+                startOfDay(date),
+                this.tz_offset * 60,
+            );
+            const period_end = addMinutes(endOfDay(date), this.tz_offset * 60);
             const zones =
                 !filters.zones ||
                 filters.zones.some((z) => this._all_zones_keys.includes(z))
@@ -203,8 +364,8 @@ export class LockerStateService extends AsyncHandler {
                     : filters.zones;
             this._next_page.next(() =>
                 queryPagedBookings({
-                    period_start: getUnixTime(startOfDay(date)),
-                    period_end: getUnixTime(endOfDay(date)),
+                    period_start: getUnixTime(period_start),
+                    period_end: getUnixTime(period_end),
                     type: 'locker',
                     zones: zones.join(','),
                     include_checked_out: true,
@@ -234,11 +395,11 @@ export class LockerStateService extends AsyncHandler {
             }
             // If reset is true, start over
             if (action.includes('RESET')) {
-                return next_page().pipe(
+                return from(next_page() as any).pipe(
                     map((data: any) => ({ ...data, reset: true })),
                 );
             }
-            return next_page().pipe(
+            return from(next_page() as any).pipe(
                 map((data: any) => ({ ...data, reset: false })),
             );
         }),
@@ -486,25 +647,14 @@ export class LockerStateService extends AsyncHandler {
                 .toPromise(),
         ]);
         if (state?.reason !== 'done') return;
-        const zone = this._org.building.id;
+        const zone_id = state.metadata.level_id || this._org.building.id;
         const new_bank = {
             ...state.metadata,
-            zone,
-            id: bank.id || `locker-bank-${randomInt(999_999)}`,
+            id: bank.id,
         };
-        const banks = await nextValueFrom(this.lockers_banks$);
-        const idx = banks.findIndex((_) => _.id === new_bank.id);
-        if (idx >= 0) banks[idx] = new_bank;
-        else banks.push(new_bank);
-        const new_locker_list = banks.map((_) => ({ ..._ }));
-        for (const bank of new_locker_list) {
-            delete bank.lockers;
-        }
-        await updateMetadata(zone, {
-            name: 'locker_banks',
-            details: new_locker_list,
-            description: 'List of available locker banks',
-        }).toPromise();
+        await saveLockerBankAsset(
+            lockerBankToAsset(new_bank, zone_id),
+        ).toPromise();
         this._change.next(Date.now());
         ref.close();
     }
@@ -521,26 +671,32 @@ export class LockerStateService extends AsyncHandler {
                 .toPromise(),
         ]);
         if (state?.reason !== 'done') return;
-        const zone = this._org.building.id;
+        const zone_id = bank.zones?.[0] || this._org.building.id;
         const new_locker = {
             ...state.metadata,
             bank_id: bank.id,
-            zone,
-            id: locker.id || `locker-${zone}.${randomInt(999_999)}`,
+            bank,
+            id: locker.id,
         };
-        const lockers = await nextValueFrom(this.lockers$);
-        const idx = lockers.findIndex((_) => _.id === new_locker.id);
         if (
             locker.assigned_to &&
             locker.assigned_to !== new_locker.assigned_to
         ) {
-            this._clearAssignedBooking(locker);
+            await this._clearAssignedBooking(locker);
         }
+        const saved = await saveLockerAsset(
+            lockerToAsset(new_locker, zone_id),
+        ).toPromise();
         if (
             locker.assigned_to !== new_locker.assigned_to &&
             new_locker.assigned_to
         ) {
-            const date = set(Date.now(), { hours: 2, minutes: 0, seconds: 0 });
+            const timezone = this._settings.get(
+                'app.bookings.use_building_timezone',
+            )
+                ? this._org.building?.timezone
+                : '';
+            const date = setTimeInTimezone(Date.now(), 2, 0, timezone);
             await saveBooking(
                 new Booking({
                     user_id: new_locker.assigned_to,
@@ -550,7 +706,7 @@ export class LockerStateService extends AsyncHandler {
                     booking_end: getUnixTime(addHours(date, 20)),
                     type: 'locker',
                     booking_type: 'locker',
-                    asset_id: new_locker.id,
+                    asset_id: saved.id,
                     asset_name: new_locker.name,
                     recurrence_type: 'daily',
                     recurrence_days:
@@ -563,8 +719,7 @@ export class LockerStateService extends AsyncHandler {
                         this._org.organisation.id,
                         this._org.region?.id,
                         this._org.building?.id,
-                        new_locker.zone?.id,
-                        new_locker.zone,
+                        zone_id,
                         ...(bank?.zones || []),
                     ]).filter((_) => !!_),
                     tags: bank?.tags || [],
@@ -576,18 +731,6 @@ export class LockerStateService extends AsyncHandler {
                 }),
             ).toPromise();
         }
-        if (idx >= 0) lockers[idx] = new_locker;
-        else lockers.push(new_locker);
-        const new_locker_list = lockers;
-        for (const locker of new_locker_list) {
-            if (locker.bank) delete locker.bank;
-            if (locker.zone) delete locker.zone;
-        }
-        await updateMetadata(zone, {
-            name: 'lockers',
-            details: new_locker_list,
-            description: 'List of available lockers',
-        }).toPromise();
         this._change.next(Date.now());
         ref.close();
     }
@@ -605,13 +748,7 @@ export class LockerStateService extends AsyncHandler {
         );
         if (state?.reason !== 'done') return;
         state.loading(i18n('APP.CONCIERGE.LOCKERS_BANK_REMOVE_LOADING'));
-        const zone = this._org.building.id;
-        const banks = await nextValueFrom(this.lockers_banks$);
-        await updateMetadata(zone, {
-            name: 'locker_banks',
-            details: banks.filter((_) => _.id !== bank.id),
-            description: 'List of available locker banks',
-        })
+        await deleteLockerBankAsset(bank.id)
             .toPromise()
             .catch((e) => {
                 notifyError(
@@ -639,14 +776,8 @@ export class LockerStateService extends AsyncHandler {
         );
         if (state?.reason !== 'done') return;
         state.loading(i18n('APP.CONCIERGE.LOCKERS_REMOVE_LOADING'));
-        const zone = this._org.building.id;
-        const lockers = await nextValueFrom(this.lockers$);
-        this._clearAssignedBooking(locker);
-        await updateMetadata(zone, {
-            name: 'lockers',
-            details: lockers.filter((_) => _.id !== locker.id),
-            description: 'List of available lockers',
-        })
+        await this._clearAssignedBooking(locker);
+        await deleteLockerAsset(locker.id)
             .toPromise()
             .catch((e) => {
                 notifyError(
@@ -817,15 +948,15 @@ export class LockerStateService extends AsyncHandler {
         );
         const filtered = booking_list.filter((_) => _.asset_id === resource.id);
         for (const booking of filtered) {
-            const is_recurring =
-                booking.recurrence_type && booking.recurrence_type !== 'none';
-            if (is_recurring && booking.instance) {
-                // Set recurrence_end to end of yesterday to preserve past instances
+            const is_recurring = booking.instance;
+            if (is_recurring) {
                 const yesterday_end = getUnixTime(endOfDay(subDays(today, 1)));
                 await lastValueFrom(
-                    updateBooking(booking.id, {
-                        recurrence_end: yesterday_end,
-                    }),
+                    updateBooking(
+                        booking.id,
+                        { recurrence_end: yesterday_end },
+                        'patch',
+                    ),
                 );
             } else {
                 await lastValueFrom(removeBooking(booking.id));

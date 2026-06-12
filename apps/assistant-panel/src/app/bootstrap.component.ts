@@ -7,7 +7,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler, OrganisationService, Space, VERSION } from '@placeos/common';
+import {
+    AsyncHandler,
+    OrganisationService,
+    Space,
+    VERSION,
+} from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { querySystems } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
@@ -147,7 +152,9 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
 
-    public get version() { return VERSION; }
+    public get version() {
+        return VERSION;
+    }
 
     public loading = '';
     /** ID of the system to bootstrap */

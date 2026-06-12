@@ -20,6 +20,7 @@ import { MockProvider } from 'ng-mocks';
 
 import {
     Building,
+    CalendarEvent,
     nextValueFrom,
     OrganisationService,
     Region,
@@ -28,6 +29,7 @@ import {
 
 describe('EventsStateService', () => {
     let spectator: SpectatorService<EventsStateService>;
+    let week_start = 0;
     const createService = createServiceFactory({
         service: EventsStateService,
         providers: [
@@ -44,7 +46,8 @@ describe('EventsStateService', () => {
                 ]),
             } as any),
             MockProvider(SettingsService, {
-                get: (() => false) as any,
+                get: ((name: string) =>
+                    name === 'app.week_start' ? week_start : false) as any,
             } as any),
             MockProvider(SpacesService, { find: jest.fn() }),
             MockProvider(MatDialog, { open: jest.fn() }),
@@ -52,6 +55,7 @@ describe('EventsStateService', () => {
     });
 
     beforeEach(() => {
+        week_start = 0;
         // Mock requestSpacesForZone to return spaces without room_booking_url
         (events_mod as any).requestSpacesForZone = jest.fn(() =>
             of([
@@ -116,6 +120,70 @@ describe('EventsStateService', () => {
         // expect(events).toHaveLength(1);
     });
 
+    it('should hide setup and breakdown events unless overflow is enabled', () => {
+        const booking = new CalendarEvent({
+            id: 'booking',
+            date: Date.now(),
+            duration: 60,
+            resources: [],
+        });
+        const setup = new CalendarEvent({
+            id: 'setup',
+            body: 'main_event_id=booking',
+            date: Date.now(),
+            duration: 30,
+            resources: [],
+        });
+        const start = new Date(Date.now() - 60 * 60 * 1000);
+        const end = new Date(Date.now() + 2 * 60 * 60 * 1000);
+
+        expect(
+            (spectator.service as any)
+                .filterEvents([booking, setup], start, end, {}, [], {})
+                .map((event) => event.id),
+        ).toEqual(['booking']);
+        expect(
+            (spectator.service as any)
+                .filterEvents([booking, setup], start, end, {}, [], {
+                    show_overflow: true,
+                })
+                .map((event) => event.id),
+        ).toEqual(['booking', 'setup']);
+    });
+
+    it('should keep only the latest local update for a replaced event', () => {
+        const original = new CalendarEvent({
+            id: 'booking',
+            date: Date.now(),
+            duration: 60,
+            resources: [
+                {
+                    email: 'room@example.com',
+                    response_status: 'tentative',
+                } as any,
+            ],
+        });
+        const updated = new CalendarEvent({
+            ...original,
+            resources: [
+                {
+                    email: 'room@example.com',
+                    response_status: 'accepted',
+                } as any,
+            ],
+        });
+        spectator.service.replace(original);
+        spectator.service.replace(updated);
+        const added = (spectator.service as any)._added_events.getValue();
+        const removed = (spectator.service as any)._removed_events.getValue();
+
+        expect(added.map((event) => event.status)).toEqual(['approved']);
+        expect(removed.map((event) => event.id)).toEqual([
+            'booking',
+            'booking',
+        ]);
+    });
+
     it('should load building events when no levels are selected', async () => {
         (events_mod as any).queryEvents = jest.fn(() => of([]));
         spectator.service.event_list.subscribe();
@@ -124,7 +192,7 @@ describe('EventsStateService', () => {
         await timer(5).toPromise();
         spectator.service.stopPolling();
         await timer(650).toPromise();
-        expect(events_mod.queryEvents).toBeCalledWith({
+        expect(events_mod.queryEvents).toHaveBeenCalledWith({
             zone_ids: 'bld-123',
             strict: 'limit',
             period_start: getUnixTime(startOfDay(Date.now())),
@@ -141,7 +209,7 @@ describe('EventsStateService', () => {
         await timer(5).toPromise();
         spectator.service.stopPolling();
         await timer(650).toPromise(); // Increased wait time for spaces + event_list debounce
-        expect(events_mod.queryEvents).toBeCalledWith({
+        expect(events_mod.queryEvents).toHaveBeenCalledWith({
             zone_ids: 'bld-123',
             strict: 'limit',
             period_start: getUnixTime(startOfDay(Date.now())),
@@ -158,11 +226,31 @@ describe('EventsStateService', () => {
         await timer(5).toPromise();
         spectator.service.stopPolling();
         await timer(650).toPromise(); // Increased wait time for spaces + event_list debounce
-        expect(events_mod.queryEvents).toBeCalledWith({
+        expect(events_mod.queryEvents).toHaveBeenCalledWith({
             zone_ids: 'bld-123',
             strict: 'limit',
             period_start: getUnixTime(startOfWeek(Date.now())),
             period_end: getUnixTime(endOfWeek(Date.now())),
+        });
+    });
+
+    it('should respect the configured week start when polling for week', async () => {
+        week_start = 1;
+        (events_mod as any).queryEvents = jest.fn(() => of([]));
+        spectator.service.setZones(['bld-123']);
+        spectator.service.event_list.subscribe();
+        spectator.service.filtered.subscribe();
+        spectator.service.startPolling('week', 2);
+        await timer(5).toPromise();
+        spectator.service.stopPolling();
+        await timer(650).toPromise();
+        expect(events_mod.queryEvents).toHaveBeenCalledWith({
+            zone_ids: 'bld-123',
+            strict: 'limit',
+            period_start: getUnixTime(
+                startOfWeek(Date.now(), { weekStartsOn: 1 }),
+            ),
+            period_end: getUnixTime(endOfWeek(Date.now(), { weekStartsOn: 1 })),
         });
     });
 
@@ -175,7 +263,7 @@ describe('EventsStateService', () => {
         await timer(5).toPromise();
         spectator.service.stopPolling();
         await timer(650).toPromise(); // Increased wait time for spaces + event_list debounce
-        expect(events_mod.queryEvents).toBeCalledWith({
+        expect(events_mod.queryEvents).toHaveBeenCalledWith({
             zone_ids: 'bld-123',
             strict: 'limit',
             period_start: getUnixTime(startOfMonth(Date.now())),

@@ -53,7 +53,15 @@ import { DashboardsService } from './dashboards.service';
             </ng-template>
             <ng-template #actions_template let-dashboard="row">
                 <div class="p-2">
-                    <button icon matRipple class="rounded-sm">
+                    <button
+                        icon
+                        type="button"
+                        matRipple
+                        class="rounded-sm"
+                        [attr.aria-label]="
+                            'More actions for alert ' + dashboard.name
+                        "
+                    >
                         <icon>more_vert</icon>
                     </button>
                 </div>

@@ -1,6 +1,6 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { first, map } from 'rxjs/operators';
 
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -8,10 +8,8 @@ import {
     CateringStateService,
     ChargeCodeListModalComponent,
 } from '@placeos/catering';
-import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
-import { combineLatest } from 'rxjs';
+import { AsyncHandler, nextValueFrom, settingSignal } from '@placeos/common';
 
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -42,7 +40,7 @@ import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.com
             </a>
             <h2 class="text-2xl font-medium">
                 {{
-                    (page === 'menu' ? 'CATERING.MENU' : 'CATERING.ORDERS')
+                    (page() === 'menu' ? 'CATERING.MENU' : 'CATERING.ORDERS')
                         | translate
                 }}
             </h2>
@@ -51,7 +49,7 @@ import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.com
                 <input
                     matInput
                     [placeholder]="'COMMON.SEARCH' | translate"
-                    [ngModel]="filters?.search"
+                    [ngModel]="filters()?.search"
                     (ngModelChange)="setSearch($event)"
                 />
                 <icon class="text-xl" matSuffix>search</icon>
@@ -61,15 +59,15 @@ import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.com
             <div class="w-12"></div>
             <mat-form-field appearance="outline" class="no-subscript w-60">
                 <mat-select
-                    [ngModel]="filters?.zones"
+                    [ngModel]="filters()?.zones"
                     (ngModelChange)="updateZones($event)"
                     [placeholder]="'COMMON.LEVEL_ALL' | translate"
                     multiple
                 >
-                    @for (level of levels | async; track level) {
+                    @for (level of levels(); track level) {
                         <mat-option [value]="level.id">
                             <div class="flex flex-col-reverse">
-                                @if (use_region) {
+                                @if (use_region()) {
                                     <div class="text-xs opacity-30">
                                         {{
                                             (level.parent_id | building)
@@ -86,17 +84,17 @@ import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.com
                     }
                 </mat-select>
             </mat-form-field>
-            @if ((caterers | async)?.length > 1) {
+            @if (caterers().length > 1) {
                 <mat-form-field appearance="outline" class="no-subscript w-60">
                     <mat-select
-                        [ngModel]="filters?.caterer"
+                        [ngModel]="filters()?.caterer"
                         (ngModelChange)="setCaterer($event)"
                         [placeholder]="'CATERING.CATERERS_ALL' | translate"
                     >
                         <mat-option value="">{{
                             'CATERING.CATERERS_ALL' | translate
                         }}</mat-option>
-                        @for (caterer of caterers | async; track caterer) {
+                        @for (caterer of caterers(); track caterer) {
                             <mat-option [value]="caterer || '<empty>'">
                                 {{ caterer || '[No Caterer]' }}
                             </mat-option>
@@ -104,10 +102,13 @@ import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.com
                     </mat-select>
                 </mat-form-field>
             }
-            @if (page === 'menu') {
+            @if (page() === 'menu') {
                 <div class="w-2 flex-1"></div>
             }
-            @if (page === 'menu' && (!zones[0] || zones[0] === building?.id)) {
+            @if (
+                page() === 'menu' &&
+                (!zones()[0] || zones()[0] === building()?.id)
+            ) {
                 <button
                     icon
                     matRipple
@@ -118,7 +119,7 @@ import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.com
                     <icon class="text-2xl">add</icon>
                 </button>
             }
-            @if (page === 'menu') {
+            @if (page() === 'menu') {
                 <button
                     icon
                     matRipple
@@ -129,7 +130,7 @@ import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.com
                     <icon class="text-2xl">menu_book</icon>
                 </button>
             }
-            @if (page === 'menu') {
+            @if (page() === 'menu') {
                 <button
                     icon
                     matRipple
@@ -140,7 +141,7 @@ import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.com
                     <icon class="text-2xl">cloud_upload</icon>
                 </button>
             }
-            @if (page === 'menu') {
+            @if (page() === 'menu') {
                 <button
                     icon
                     matRipple
@@ -151,7 +152,7 @@ import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.com
                     <icon class="text-2xl">event_available</icon>
                 </button>
             }
-            @if (page === 'menu') {
+            @if (page() === 'menu') {
                 <button
                     icon
                     matRipple
@@ -162,11 +163,11 @@ import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.com
                     <icon class="text-2xl">payments</icon>
                 </button>
             }
-            @if (page !== 'menu') {
+            @if (page() !== 'menu') {
                 <div class="w-2 flex-1"></div>
             }
             <!-- <searchbar class="mr-2"></searchbar> -->
-            @if (page !== 'menu') {
+            @if (page() !== 'menu') {
                 <date-options (dateChange)="setDate($event)"></date-options>
             }
         </div>
@@ -180,7 +181,6 @@ import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.com
         `,
     ],
     imports: [
-        CommonModule,
         DateOptionsComponent,
         MatRippleModule,
         IconComponent,
@@ -194,31 +194,51 @@ import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.com
         MatTooltipModule,
     ],
 })
-export class CateringTopbarComponent extends AsyncHandler implements OnInit {
+export class CateringTopbarComponent extends AsyncHandler {
     private _orders = inject(CateringOrdersService);
     private _catering = inject(CateringStateService);
     private _org = inject(OrganisationService);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _dialog = inject(MatDialog);
-    private _settings = inject(SettingsService);
+
+    private readonly _org_initialised = toSignal(this._org.initialised, {
+        initialValue: false,
+    });
+    private readonly _param_map = toSignal(this._route.paramMap, {
+        initialValue: this._route.snapshot.paramMap,
+    });
+    private readonly _query_param_map = toSignal(this._route.queryParamMap, {
+        initialValue: this._route.snapshot.queryParamMap,
+    });
+    private readonly _region = toSignal(this._org.active_region, {
+        initialValue: this._org.region,
+    });
 
     /** List of selected levels */
-    public zones: string[] = [];
+    public readonly zones = signal<string[]>([]);
     /** Currently active page */
-    public page: string;
-    public readonly filters = this._orders.filters;
-    public readonly caterers = this._catering.caterers;
+    public readonly page = computed(
+        () =>
+            (this._param_map().has('view')
+                ? this._param_map().get('view')
+                : '') || '',
+    );
+    public readonly filters = toSignal(this._orders.order_filters, {
+        initialValue: this._orders.filters,
+    });
+    public readonly caterers = toSignal(this._catering.caterers, {
+        initialValue: [],
+    });
+    public readonly building = toSignal(this._org.active_building, {
+        initialValue: this._org.building,
+    });
+    public readonly use_region = settingSignal('use_region', false);
     /** List of levels for the active building */
-    public readonly levels = combineLatest([
-        this._org.active_building,
-        this._org.active_region,
-    ]).pipe(
-        map(([bld, region]) =>
-            this._settings.get('app.use_region')
-                ? this._org.levelsForRegion(region)
-                : this._org.levelsForBuilding(bld),
-        ),
+    public readonly levels = computed(() =>
+        this.use_region()
+            ? this._org.levelsForRegion(this._region())
+            : this._org.levelsForBuilding(this.building()),
     );
     /** Set filtered date */
     public readonly setDate = (date) =>
@@ -232,7 +252,7 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
             queryParams: { zone_ids: z.join(',') },
             queryParamsHandling: 'merge',
         });
-        this._orders.filters = { ...this._orders.filters, zones: [z] };
+        this._orders.filters = { ...this._orders.filters, zones: z };
         this._catering.zone = z[0];
     };
 
@@ -242,45 +262,35 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
     public readonly setCaterer = (caterer: string) =>
         (this._orders.filters = { ...this._orders.filters, caterer });
 
-    public get building() {
-        return this._org.building;
-    }
+    constructor() {
+        super();
 
-    public get use_region() {
-        return !!this._settings.get('app.use_region');
-    }
+        effect(() => {
+            if (!this._org_initialised()) return;
+            this._catering.zone =
+                (this._orders.filters?.zones || [])[0] ||
+                this._org.building?.id;
+        });
 
-    public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
-        this._catering.zone =
-            (this._orders.filters?.zones || [])[0] || this._org.building?.id;
-        this.subscription(
-            'route.query',
-            this._route.queryParamMap.subscribe((params) => {
-                if (params.has('zone_ids')) {
-                    const zones = params.get('zone_ids').split(',');
-                    if (!zones.length) return;
-                    const level = this._org.levelWithID(zones);
-                    this.zones = zones;
-                    if (!level) return;
-                    this._org.building = this._org.buildings.find(
-                        (bld) => bld.id === level.parent_id,
-                    );
-                }
-                if (params.has('building_id')) {
-                    this._org.building = this._org.buildings.find(
-                        (bld) => bld.id === params.get('building_id'),
-                    );
-                }
-            }),
-        );
-        this.subscription(
-            'route.params',
-            this._route.paramMap.subscribe(
-                (params) =>
-                    (this.page = params.has('view') ? params.get('view') : ''),
-            ),
-        );
+        effect(() => {
+            if (!this._org_initialised()) return;
+            const params = this._query_param_map();
+            if (params.has('zone_ids')) {
+                const zones = params.get('zone_ids').split(',');
+                if (!zones.length) return;
+                const level = this._org.levelWithID(zones);
+                this.zones.set(zones);
+                if (!level) return;
+                this._org.building = this._org.buildings.find(
+                    (bld) => bld.id === level.parent_id,
+                );
+            }
+            if (params.has('building_id')) {
+                this._org.building = this._org.buildings.find(
+                    (bld) => bld.id === params.get('building_id'),
+                );
+            }
+        });
     }
 
     public async setRoomAvailability() {

@@ -8,7 +8,7 @@ import {
 import { queryEvents } from '@placeos/events';
 import { querySystemsWithEmails } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, from, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -57,7 +57,7 @@ export class GroupEventsStateService {
         switchMap((bld) =>
             !bld
                 ? of(null)
-                : querySystemsWithEmails({ in: this.calendar }).pipe(
+                : from(querySystemsWithEmails({ in: this.calendar })).pipe(
                       map((r) => r.data?.[0]),
                       catchError(() => of(null)),
                   ),

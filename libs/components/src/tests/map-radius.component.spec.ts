@@ -1,7 +1,6 @@
 import { fakeAsync } from '@angular/core/testing';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
 import { getUnixTime, subMinutes } from 'date-fns';
-import { of } from 'rxjs';
 
 import { MAP_FEATURE_DATA } from '@placeos/common';
 import { MapRadiusComponent } from '../lib/map-radius.component';
@@ -15,7 +14,6 @@ describe('MapRadiusComponent', () => {
                 provide: MAP_FEATURE_DATA,
                 useValue: {
                     message: 'Test',
-                    zoom$: of(1),
                 },
             },
         ],

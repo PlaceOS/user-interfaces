@@ -1,15 +1,16 @@
-import { inject, Injectable, OnDestroy } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { ViewAction, ViewerFeature } from '@placeos/svg-viewer';
-import { getModule, showMetadata } from '@placeos/ts-client';
-import { combineLatest, Observable, of } from 'rxjs';
 import {
-    catchError,
-    filter,
-    map,
-    shareReplay,
-    switchMap,
-} from 'rxjs/operators';
+    computed,
+    effect,
+    inject,
+    Injectable,
+    OnDestroy,
+    resource,
+    untracked,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { MatDialog } from '@angular/material/dialog';
+import { ViewAction, ViewerFeature } from '@placeos/common';
+import { getModule, showMetadata } from '@placeos/ts-client';
 
 import {
     AsyncHandler,
@@ -18,14 +19,14 @@ import {
     currentUser,
     HashMap,
     i18n,
-    nextValueFrom,
+    isWithinBookableHours,
     OrganisationService,
     rulesForResource,
     SettingsService,
     Space,
 } from '@placeos/common';
 import { notifyError } from 'libs/common/src/lib/notifications';
-import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
+import { EventFormService } from 'libs/events/src/lib/event-form.service';
 
 import { ExploreBookQrComponent } from './explore-book-qr.component';
 import { ExploreBookingModalComponent } from './explore-booking-modal.component';
@@ -51,84 +52,90 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
     private _dialog = inject(MatDialog);
     private _org = inject(OrganisationService);
 
+    private _building = toSignal(this._org.active_building, {
+        initialValue: null,
+    });
+
     private _bookings: Record<string, CalendarEvent[]> = {};
     private _statuses: Record<string, string> = {};
     private _presence: Record<string, boolean> = {};
     private _panning = true;
     private _last_action = '';
 
-    public readonly booking_rules: Observable<BookingRuleset[]> =
-        this._org.active_building.pipe(
-            filter((bld) => !!bld),
-            switchMap((bld) =>
-                showMetadata(bld.id, `room_booking_rules`).pipe(
-                    catchError(() => of({ details: [] })),
-                ),
-            ),
-            map((_) => (_?.details instanceof Array ? _.details : [])),
-            shareReplay(1),
-        );
-
-    public readonly room_alerts = this._org.active_building.pipe(
-        filter((bld) => !!bld),
-        switchMap(() =>
-            showMetadata(this._org.organisation.id, `room_alerts`).pipe(
-                catchError(() => of({ details: {} })),
-            ),
-        ),
-        map((_) => _.details || {}),
-        shareReplay(1),
+    private _booking_rules = resource({
+        params: () => this._building() || undefined,
+        loader: ({ params: bld }) =>
+            showMetadata(bld.id, `room_booking_rules`)
+                .then((_) =>
+                    _?.details instanceof Array
+                        ? (_.details as any as BookingRuleset[])
+                        : [],
+                )
+                .catch(() => [] as BookingRuleset[]),
+    });
+    public readonly booking_rules = computed<BookingRuleset[]>(
+        () => this._booking_rules.value() ?? [],
     );
 
-    private _bind = combineLatest([
-        this._state.spaces,
-        this._state.options,
-    ]).pipe(
-        filter(([_, { is_public }]) => !is_public),
-        map(([list]) => {
-            this.unsubWith('b-');
-            this.unsubWith('s-');
-            this.unsubWith('c-');
-            this._statuses = {};
-            if (!list?.length) return;
-            for (const space of list) {
-                const mod = getModule(space.id, 'Bookings');
-                let binding = mod.variable('bookings');
-                this.subscription(
-                    `b-${space.id}`,
-                    binding.bindThenSubscribe((d) =>
-                        this.handleBookingsChange(list, space, d),
-                    ),
-                );
-                binding = mod.variable('status');
-                this.subscription(
-                    `s-${space.id}`,
-                    binding.bindThenSubscribe((d) =>
-                        this.handleStatusChange(list, space, d),
-                    ),
-                );
-                binding = mod.variable('presence');
-                this.subscription(
-                    `c-${space.id}`,
-                    binding.bindThenSubscribe((d) =>
-                        this.handlePresenceChange(list, space, d),
-                    ),
-                );
-            }
-            this.updateActions(list);
-            this._updateHoverElements(list);
-        }),
+    private _room_alerts = resource({
+        params: () => this._building() || undefined,
+        loader: () =>
+            showMetadata(this._org.organisation.id, `room_alerts`)
+                .then((_) => _.details || {})
+                .catch(() => ({})),
+    });
+    public readonly room_alerts = computed<HashMap>(
+        () => this._room_alerts.value() ?? {},
     );
 
     constructor() {
         super();
-        this.subscription('spaces', this._bind.subscribe());
+        effect(() => {
+            const list = this._state.spaces();
+            const { is_public } = this._state.options();
+            if (is_public) return;
+            untracked(() => this._bindToSpaces(list));
+        });
+    }
+
+    private _bindToSpaces(list: Space[]) {
+        this.unsubWith('b-');
+        this.unsubWith('s-');
+        this.unsubWith('c-');
+        this._statuses = {};
+        if (!list?.length) return;
+        for (const space of list) {
+            const mod = getModule(space.id, 'Bookings');
+            let binding = mod.variable('bookings');
+            this.subscription(
+                `b-${space.id}`,
+                binding.bindThenSubscribe((d) =>
+                    this.handleBookingsChange(list, space, d),
+                ),
+            );
+            binding = mod.variable('status');
+            this.subscription(
+                `s-${space.id}`,
+                binding.bindThenSubscribe((d) =>
+                    this.handleStatusChange(list, space, d),
+                ),
+            );
+            binding = mod.variable('presence');
+            this.subscription(
+                `c-${space.id}`,
+                binding.bindThenSubscribe((d) =>
+                    this.handlePresenceChange(list, space, d),
+                ),
+            );
+        }
+        this.updateActions(list);
+        this._updateHoverElements(list);
     }
 
     public async bookSpace(space: Space, force = false) {
         if (this._panning && this._last_action === 'down') return;
-        const booking_rules = await nextValueFrom(this.booking_rules);
-        const room_alerts = await nextValueFrom(this.room_alerts);
+        const booking_rules = this.booking_rules();
+        const room_alerts = this.room_alerts();
         const { hidden } =
             rulesForResource(
                 {
@@ -154,6 +161,13 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         }
         if (room_alerts[space.id]?.[0] === 'closed') {
             return notifyError(`${room_alerts[space.id][1]}`);
+        }
+        const bookable_hours = this._settings.get('app.events.bookable_hours');
+        if (
+            bookable_hours &&
+            !isWithinBookableHours(Date.now(), bookable_hours)
+        ) {
+            return notifyError(i18n('EXPLORE.OUTSIDE_BOOKABLE_HOURS'));
         }
         if (this._settings.get('app.events.booking_unavailable')) {
             return this._event_form.openEventLinkModal();

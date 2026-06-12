@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
 import * as DEFAULT_LOCALE from 'shared/assets/locale/en-AU.json';
 
@@ -75,6 +75,7 @@ export class LocaleService {
     private _current_locale_short = this._current_locale.split('-')[0];
     private _cache_time = 7 * 24 * 60 * 60 * 1000;
     private _load_promises: Record<string, Promise<void>> = {};
+    private readonly _changes = signal(0);
 
     private _default_mappings: Record<string, string> =
         removeNesting(DEFAULT_LOCALE);
@@ -82,6 +83,7 @@ export class LocaleService {
 
     public locale_folder = 'assets/locale';
     public zone_id: string;
+    public readonly changes = this._changes.asReadonly();
 
     constructor() {
         this._current_locale =
@@ -111,6 +113,7 @@ export class LocaleService {
     }
 
     public get(key: string, args: Record<string, any> = {}, plural = 0) {
+        this.changes();
         let key_value = key;
         let value = key;
         const map = this._locale_mappings[this._current_locale] || {};
@@ -164,6 +167,7 @@ export class LocaleService {
     public setLocale(locale: string) {
         this._current_locale = locale;
         this._current_locale_short = this._current_locale.split('-')[0];
+        this._changes.update((value) => value + 1);
         if (!this._locale_mappings[locale] && !this._load_promises[locale]) {
             this._load_promises[locale] = this._loadLocale(locale);
         }
@@ -187,10 +191,7 @@ export class LocaleService {
             }
             const locale_data = await resp.json();
             const locale_override_data = this.zone_id
-                ? await showMetadata(
-                      this.zone_id,
-                      `locale_${locale}`,
-                  ).toPromise()
+                ? await showMetadata(this.zone_id, `locale_${locale}`)
                 : { details: {} };
             const base_locale_values = removeNesting(locale_data);
             const override_locale_values = removeNesting(
@@ -214,6 +215,7 @@ export class LocaleService {
         } else {
             this._locale_mappings[locale] = existing.mappings;
         }
+        this._changes.update((value) => value + 1);
         delete this._load_promises[locale];
     }
 }

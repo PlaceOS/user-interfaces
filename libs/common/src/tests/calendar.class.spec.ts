@@ -1,4 +1,5 @@
 import { Calendar } from '../lib/types/calendar.class';
+import { CalendarEvent } from '../lib/types/event.class';
 
 describe('Calendar', () => {
     let calendar: Calendar;
@@ -30,5 +31,13 @@ describe('Calendar', () => {
         expect(calendar.can_edit).toBeTruthy();
         expect(calendar.availability).toEqual([]);
         expect(calendar.hidden).toBeTruthy();
+    });
+});
+
+describe('CalendarEvent', () => {
+    it('should identify system events from the body', () => {
+        const event = new CalendarEvent({ body: 'main_event_id=event-1' });
+
+        expect(event.is_system_event).toBe(true);
     });
 });

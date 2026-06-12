@@ -1,4 +1,5 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
@@ -16,16 +17,16 @@ import { LockerStateService } from './locker-state.service';
 @Component({
     selector: 'locker-bookings',
     template: `
-        @let more_pages = has_more_pages | async;
+        @let more_pages = has_more_pages();
         <div class="h-4 w-full"></div>
         <div
             class="flex h-full w-full flex-col pt-4"
-            [class.pb-16]="!loading && more_pages"
-            [class.pb-4]="!(!loading && more_pages)"
+            [class.pb-16]="!loading() && more_pages"
+            [class.pb-4]="!(!loading() && more_pages)"
         >
             <simple-table
                 class="mr-4 block w-full min-w-6xl flex-1 overflow-auto text-sm"
-                [data]="bookings"
+                [data]="bookings()"
                 [columns]="[
                     {
                         key: 'date',
@@ -64,7 +65,7 @@ import { LockerStateService } from './locker-state.service';
                 [sortable]="true"
                 [page_size]="100"
                 [empty_message]="
-                    ((search | async)
+                    (search()
                         ? 'APP.CONCIERGE.LOCKERS_BOOK_SEARCH_EMPTY'
                         : 'APP.CONCIERGE.LOCKERS_BOOK_EMPTY'
                     ) | translate
@@ -104,9 +105,11 @@ import { LockerStateService } from './locker-state.service';
                             class="bg-error rounded-3xl px-4 py-2 text-xs text-white"
                         >
                             {{
-                                (row.status === 'ended'
-                                    ? 'APP.CONCIERGE.BOOKING_ENDED'
-                                    : 'APP.CONCIERGE.BOOKING_EXPIRED'
+                                (row.deleted
+                                    ? 'APP.CONCIERGE.BOOKING_DELETED'
+                                    : row.status === 'ended'
+                                      ? 'APP.CONCIERGE.BOOKING_ENDED'
+                                      : 'APP.CONCIERGE.BOOKING_EXPIRED'
                                 ) | translate
                             }}
                         </div>
@@ -141,31 +144,43 @@ import { LockerStateService } from './locker-state.service';
                         matRipple
                         class="bg-warning text-warning-content h-10 w-30 rounded-3xl border-none"
                         [class.text-success-content!]="
-                            row?.status === 'approved'
+                            row?.status === 'approved' && !row.deleted
                         "
-                        [class.bg-success!]="row?.status === 'approved'"
-                        [class.text-error-content!]="row?.status === 'declined'"
-                        [class.bg-error!]="row?.status === 'declined'"
+                        [class.bg-success!]="
+                            row?.status === 'approved' && !row.deleted
+                        "
+                        [class.text-neutral-content!]="row.deleted"
+                        [class.bg-neutral!]="row.deleted"
+                        [class.text-error-content!]="
+                            row?.status === 'declined' && !row.deleted
+                        "
+                        [class.bg-error!]="
+                            row?.status === 'declined' && !row.deleted
+                        "
                         [class.text-neutral-content!]="row?.status === 'ended'"
                         [class.bg-neutral!]="row?.status === 'ended'"
                         [class.opacity-30]="row?.status === 'ended'"
                         [matMenuTriggerFor]="menu"
-                        [disabled]="row?.status === 'ended'"
+                        [disabled]="row?.status === 'ended' || row.deleted"
                     >
                         <div class="flex items-center space-x-2 pr-2 pl-4">
                             <div class="flex-1 text-left">
                                 {{
-                                    (row?.status === 'ended'
-                                        ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
-                                        : row?.status === 'approved'
-                                          ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
-                                          : row?.status === 'declined'
-                                            ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                                            : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
+                                    (row.deleted
+                                        ? 'APP.CONCIERGE.BOOKING_STATUS_DELETED'
+                                        : row?.status === 'ended'
+                                          ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
+                                          : row?.status === 'approved'
+                                            ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
+                                            : row?.status === 'declined'
+                                              ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
+                                              : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
                                     ) | translate
                                 }}
                             </div>
-                            <icon class="text-2xl"> arrow_drop_down </icon>
+                            @if (!(row?.status === 'ended' || row.deleted)) {
+                                <icon class="text-2xl"> arrow_drop_down </icon>
+                            }
                         </div>
                     </button>
                 </div>
@@ -237,7 +252,7 @@ import { LockerStateService } from './locker-state.service';
                 </mat-menu>
             </ng-template>
         </div>
-        @if (!loading && more_pages) {
+        @if (!loading() && more_pages) {
             <button
                 btn
                 matRipple
@@ -273,17 +288,22 @@ export class LockerBookingsComponent {
     private _state = inject(LockerStateService);
     private _settings = inject(SettingsService);
 
-    public loading: string;
+    public readonly loading = signal('');
     public readonly filters = this._state.filters;
-    public readonly search = this._state.search;
-    public readonly has_more_pages = this._state.has_more_pages;
-    public readonly bookings = this._state.filtered_bookings.pipe(
-        map((i) =>
-            i.map((booking) => ({
-                ...booking,
-                end: booking.date + booking.duration * 60 * 1000,
-            })),
+    public readonly search = toSignal(this._state.search, { initialValue: '' });
+    public readonly has_more_pages = toSignal(this._state.has_more_pages, {
+        initialValue: false,
+    });
+    public readonly bookings = toSignal(
+        this._state.filtered_bookings.pipe(
+            map((i) =>
+                i.map((booking) => ({
+                    ...booking,
+                    end: booking.date + booking.duration * 60 * 1000,
+                })),
+            ),
         ),
+        { initialValue: [] },
     );
 
     public readonly loadMore = () => this._state.nextPage();
@@ -303,8 +323,8 @@ export class LockerBookingsComponent {
     }
 
     private async runMethod(name: string, fn: () => Promise<any>) {
-        this.loading = name;
+        this.loading.set(name);
         await fn().catch((i) => null);
-        this.loading = '';
+        this.loading.set('');
     }
 }

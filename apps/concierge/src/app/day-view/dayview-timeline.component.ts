@@ -1,7 +1,8 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { AsyncHandler, OrganisationService, Space } from '@placeos/common';
 import { querySystems } from '@placeos/ts-client';
-import { combineLatest, of } from 'rxjs';
+import { combineLatest, from, of } from 'rxjs';
 import {
     catchError,
     filter,
@@ -30,7 +31,7 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
                     <div
                         change-transform
                         class="border-base-300 relative z-10 h-16 border-r"
-                        [style.transform]="'translateY(-' + scroll.y + 'px)'"
+                        [style.transform]="'translateY(-' + scroll().y + 'px)'"
                     >
                         <div
                             class="absolute top-0 w-full -translate-y-1/2 transform text-center text-xs opacity-40"
@@ -49,12 +50,12 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
                     header
                     class="border-base-300 border-opacity-50 bg-base-100 relative flex h-16 w-full overflow-hidden border-b"
                 >
-                    @for (space of space_list | async; track space) {
+                    @for (space of space_list(); track space) {
                         <div
                             change-transform
                             class="relative h-16 w-48 min-w-48"
                             [style.transform]="
-                                'translateX(-' + scroll.x + 'px)'
+                                'translateX(-' + scroll().x + 'px)'
                             "
                         >
                             <div
@@ -73,7 +74,7 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
                     class="relative flex flex-1 overflow-auto"
                     (scroll)="onScroll($event)"
                 >
-                    @for (space of space_list | async; track space) {
+                    @for (space of space_list(); track space) {
                         <dayview-space
                             [space]="space"
                             class="border-base-300 h-384 w-48 min-w-48 border-r"
@@ -82,24 +83,20 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
                     @for (time of blocks; track time; let i = $index) {
                         <div
                             class="bg-base-300 absolute left-0 h-px min-w-full"
-                            [style.width]="
-                                (space_list | async)?.length * 12 + 'rem'
-                            "
+                            [style.width]="space_list().length * 12 + 'rem'"
                             [style.top]="i * 4 + 'rem'"
                         ></div>
                     }
                 </div>
             </div>
-            @if (loading | async) {
+            @if (loading()) {
                 <mat-progress-bar
                     mode="indeterminate"
                     class="absolute right-0 bottom-0 left-0"
                 ></mat-progress-bar>
             }
-            @if (event | async) {
-                <view-event-details
-                    [event]="event | async"
-                ></view-event-details>
+            @if (event()) {
+                <view-event-details [event]="event()"></view-event-details>
             }
         </div>
     `,
@@ -128,16 +125,20 @@ export class DayviewTimelineComponent
     /** Time blocks to display */
     public readonly blocks: string[] = HOUR_BLOCKS;
     /** Current scroll position of the content */
-    public scroll: { x: number; y: number } = { x: 0, y: 0 };
+    public readonly scroll = signal({ x: 0, y: 0 });
     /** Whether event data is loading */
-    public readonly loading = this._state.loading;
+    public readonly loading = toSignal(this._state.loading || of(false), {
+        initialValue: false,
+    });
     /** Event to show more details about */
-    public readonly event = this._state.event;
+    public readonly event = toSignal(this._state.event || of(null), {
+        initialValue: null,
+    });
 
     public readonly spaces = this._org.active_building.pipe(
         filter((_) => !!_),
         switchMap(({ id }) =>
-            querySystems({ zone_id: id, limit: 1000 }).pipe(
+            from(querySystems({ zone_id: id, limit: 1000 })).pipe(
                 catchError(() => of({ data: [] })),
             ),
         ),
@@ -153,18 +154,18 @@ export class DayviewTimelineComponent
         shareReplay(1),
     );
     /** List of spaces to display */
-    public readonly space_list = combineLatest([
-        this.spaces,
-        this._state.zones,
-    ]).pipe(
-        map(
-            ([spaces, zones]) =>
-                spaces.filter(
-                    (space) =>
-                        !zones?.length ||
-                        space.zones.find((z) => zones.includes(z)),
-                ) || [],
+    public readonly space_list = toSignal(
+        combineLatest([this.spaces, this._state.zones || of([])]).pipe(
+            map(
+                ([spaces, zones]) =>
+                    spaces.filter(
+                        (space) =>
+                            !zones?.length ||
+                            space.zones.find((z) => zones.includes(z)),
+                    ) || [],
+            ),
         ),
+        { initialValue: [] },
     );
 
     public ngOnInit() {
@@ -176,12 +177,11 @@ export class DayviewTimelineComponent
     }
 
     public onScroll(e) {
-        requestAnimationFrame(
-            () =>
-                (this.scroll = {
-                    x: e.srcElement.scrollLeft,
-                    y: e.srcElement.scrollTop,
-                }),
+        requestAnimationFrame(() =>
+            this.scroll.set({
+                x: e.srcElement.scrollLeft,
+                y: e.srcElement.scrollTop,
+            }),
         );
     }
 }

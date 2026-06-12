@@ -13,12 +13,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import {
     CalendarEvent,
+    OrganisationService,
     settingSignal,
-    SettingsService,
     Space,
 } from '@placeos/common';
-
-import { OrganisationService } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
@@ -50,7 +48,7 @@ import { SpacePipe } from './space.pipe';
                 <div class="h-1/2 w-full flex-1 p-4">
                     <div class="text-left text-sm opacity-60">
                         {{ event().date | date: 'EEE d MMM' }},
-                        {{ event().date | date: time_format }}
+                        {{ event().date | date: time_format() }}
                     </div>
                     <h2
                         class="mb-2 w-full truncate text-left text-xl"
@@ -149,10 +147,10 @@ import { SpacePipe } from './space.pipe';
                         <h3 class="text-left">{{ event().title }}</h3>
                         <div time class="text-left text-sm opacity-30">
                             {{ event().date | date: 'EEEE' }}
-                            {{ event().date | date: time_format }} -
+                            {{ event().date | date: time_format() }} -
                             {{
                                 event().date + event().duration * 60 * 1000
-                                    | date: time_format
+                                    | date: time_format()
                             }}
                         </div>
                         <div class="h-20 overflow-hidden text-left">
@@ -237,7 +235,6 @@ import { SpacePipe } from './space.pipe';
     ],
 })
 export class GroupEventCardComponent implements OnInit {
-    private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
     private _org = inject(OrganisationService);
 
@@ -264,10 +261,10 @@ export class GroupEventCardComponent implements OnInit {
                 (user) => user.email !== this.group_event_calendar(),
             )?.length || 0,
     );
-
-    public get time_format(): string {
-        return this._settings.time_format;
-    }
+    private readonly _use_24_hour = settingSignal<boolean>('use_24_hour_time');
+    public readonly time_format = computed(() =>
+        this._use_24_hour() ? 'HH:mm' : 'h:mm a',
+    );
 
     public async ngOnInit() {
         const space_pipe = new SpacePipe();

@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -14,6 +13,8 @@ import {
     endOfDay,
     startOfDay,
 } from 'date-fns';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { AssetStateService } from '../asset-state.service';
@@ -21,7 +22,14 @@ import { AssetStateService } from '../asset-state.service';
 @Component({
     selector: 'asset-filters',
     template: `
-        <div class="mt-3 mb-2 px-4" [class.sm:hidden]="!search()">
+        <div
+            class="border-base-300 bg-base-100 sticky top-0 z-10 flex items-center border-b px-4 py-4"
+        >
+            <h3 class="text-xl font-medium">
+                {{ 'COMMON.FILTERS' | translate }}
+            </h3>
+        </div>
+        <div class="mt-3 mb-2 px-2" [class.sm:hidden]="!search()">
             <mat-form-field appearance="outline" class="h-14 w-full">
                 <icon matPrefix class="text-xl">search</icon>
                 <input
@@ -38,16 +46,13 @@ import { AssetStateService } from '../asset-state.service';
             </h3>
         }
         @if (!search()) {
-            <div class="flex flex-col px-2">
-                <mat-checkbox
+            <div class="flex flex-col space-y-2 px-2">
+                <settings-toggle
+                    [name]="'BOOKINGS.ASSETS_DELIVER_TOGGLE' | translate"
                     [ngModel]="at_time()"
-                    (ngModelChange)="
-                        at_timeChange.emit($event); at_time.set($event)
-                    "
+                    (ngModelChange)="at_timeChange.emit($event)"
                     [matTooltip]="exact_tooltip"
-                >
-                    {{ 'BOOKINGS.ASSETS_DELIVER_TOGGLE' | translate }}
-                </mat-checkbox>
+                ></settings-toggle>
                 @if (day_options.length > 1) {
                     <label>{{
                         'BOOKINGS.ASSETS_DELIVER_DATE' | translate
@@ -58,10 +63,7 @@ import { AssetStateService } from '../asset-state.service';
                     >
                         <mat-select
                             [ngModel]="offset_day()"
-                            (ngModelChange)="
-                                offset_dayChange.emit($event);
-                                offset_day.set($event)
-                            "
+                            (ngModelChange)="offset_dayChange.emit($event)"
                         >
                             @for (day of day_options; track day) {
                                 <mat-option [value]="day.id">
@@ -74,9 +76,7 @@ import { AssetStateService } from '../asset-state.service';
                 <label>{{ 'BOOKINGS.ASSETS_DELIVER_TIME' | translate }}</label>
                 <a-duration-field
                     [ngModel]="offset()"
-                    (ngModelChange)="
-                        offsetChange.emit($event); offset.set($event)
-                    "
+                    (ngModelChange)="offsetChange.emit($event)"
                     [time]="
                         offset_day() > 0
                             ? start_of_date
@@ -85,26 +85,20 @@ import { AssetStateService } from '../asset-state.service';
                     [step]="step_interval"
                     [min]="min_offset"
                     [max]="max_offset - 1"
-                    [use_24hr]="use_24hr"
+                    [use_24hr]="use_24hr()"
                 ></a-duration-field>
             </div>
         }
-        @if (!search()) {
-            <h3 class="hidden px-2 py-4 font-medium sm:block">Catergories</h3>
-        }
-        <div
-            class="flex flex-col px-2"
-            [class.sm:hidden]="search()"
-            [class.sm:pt-1]="!search()"
-        >
-            @for (item of categories | async; track item) {
-                <mat-checkbox
-                    [attr.name]="item"
-                    [ngModel]="(category | async) === item.id"
+        <h3 class="hidden px-2 py-4 font-medium sm:block">
+            {{ 'COMMON.CATEGORIES' | translate }}
+        </h3>
+        <div class="flex flex-col space-y-2 px-2">
+            @for (item of categories | async; track item.id) {
+                <settings-toggle
+                    [name]="item.name"
+                    [ngModel]="(category | async)?.includes(item.id)"
                     (ngModelChange)="toggleCategory(item.id)"
-                >
-                    {{ item.name }}
-                </mat-checkbox>
+                ></settings-toggle>
             }
         </div>
     `,
@@ -121,12 +115,13 @@ import { AssetStateService } from '../asset-state.service';
         CommonModule,
         MatFormFieldModule,
         MatInputModule,
-        MatCheckboxModule,
+        SettingsToggleComponent,
         FormsModule,
         MatSelectModule,
+        MatTooltipModule,
         TranslatePipe,
         DurationFieldComponent,
-        MatTooltipModule,
+        IconComponent,
     ],
 })
 export class AssetFiltersComponent extends AsyncHandler {
@@ -149,6 +144,22 @@ export class AssetFiltersComponent extends AsyncHandler {
     public readonly category = this._state.category;
     public readonly categories = this._state.category_list;
     public readonly options = this._state.options;
+    private readonly _step_interval = this._settings.signal(
+        'assets.step_interval',
+        5,
+    );
+    private readonly _use_24hr = this._settings.signal(
+        'use_24_hour_time',
+        false,
+    );
+    private readonly _min_offset_setting = this._settings.signal(
+        'assets.min_offset',
+        0,
+    );
+    private readonly _end_offset = this._settings.signal(
+        'assets.end_offset',
+        0,
+    );
 
     public readonly exact_tooltip =
         'Deliver at exactly specified time. \nNote that changes to the booking will not be \nreflected in the order if this is set.';
@@ -164,7 +175,7 @@ export class AssetFiltersComponent extends AsyncHandler {
     }
 
     public get step_interval() {
-        return this._settings.get('app.assets.step_interval') || 5;
+        return this._step_interval();
     }
 
     public get max_offset() {
@@ -181,9 +192,7 @@ export class AssetFiltersComponent extends AsyncHandler {
         return Math.min(diff, Math.min(24 * 60 - 1, this._max_offset));
     }
 
-    public get use_24hr() {
-        return this._settings.get('app.use_24_hour_time');
-    }
+    public readonly use_24hr = this._use_24hr;
 
     public day_options = [];
 
@@ -195,17 +204,14 @@ export class AssetFiltersComponent extends AsyncHandler {
     }
 
     public ngOnInit() {
-        this._min_offset = Math.max(
-            this._settings.get('app.assets.min_offset'),
-            0,
-        );
+        this._min_offset = Math.max(this._min_offset_setting(), 0);
         this.subscription(
             'filters',
             this._state.options.subscribe(() => {
                 this._max_offset = Math.max(
                     15,
                     (this._state.getOptions().duration || 60) -
-                        this._settings.get('app.assets.end_offset'),
+                        this._end_offset(),
                 );
                 this._updateDayOptions();
             }),

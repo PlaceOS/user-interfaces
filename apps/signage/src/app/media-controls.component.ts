@@ -1,5 +1,14 @@
-import { Component, model, output } from '@angular/core';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
+import {
+    Component,
+    ElementRef,
+    input,
+    model,
+    OnDestroy,
+    OnInit,
+    output,
+    viewChild,
+} from '@angular/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import {
@@ -7,6 +16,7 @@ import {
     MediaDurationPipe,
     TranslatePipe,
 } from '@placeos/components';
+import { time } from './media-helpers';
 import { MediaPlayerState } from './types';
 
 type MediaLoop = 'NONE' | 'ONE' | 'ALL';
@@ -20,6 +30,75 @@ type MediaEvent =
     | 'MUTE';
 
 @Component({
+    selector: 'media-progress-bar',
+    template: `
+        <div
+            class="bg-base-300 relative h-1 overflow-hidden rounded-full"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            [attr.aria-valuenow]="progress()"
+        >
+            <div #bar class="bg-primary absolute inset-0 origin-left"></div>
+        </div>
+    `,
+    styles: [
+        `
+            :host {
+                display: block;
+                width: 100%;
+            }
+        `,
+    ],
+})
+export class MediaProgressBarComponent implements OnInit, OnDestroy {
+    public readonly progress = input(0);
+    public readonly playback_start = input(0);
+    public readonly playback_duration = input(0);
+    public readonly state = input<MediaPlayerState>('PAUSED');
+    public readonly waiting = input(false);
+
+    private readonly _bar = viewChild<ElementRef<HTMLDivElement>>('bar');
+    private _animation_frame = 0;
+    private _destroyed = false;
+
+    public ngOnInit() {
+        this._updateProgress();
+    }
+
+    public ngOnDestroy() {
+        this._destroyed = true;
+        cancelAnimationFrame(this._animation_frame);
+    }
+
+    private _updateProgress = () => {
+        if (this._destroyed) return;
+        const progress = Math.min(100, Math.max(0, this._progress()));
+        const bar = this._bar()?.nativeElement;
+        if (bar) bar.style.transform = `scaleX(${progress / 100})`;
+        let synchronous_frame = true;
+        this._animation_frame = requestAnimationFrame(() => {
+            if (!synchronous_frame) this._updateProgress();
+        });
+        synchronous_frame = false;
+    };
+
+    private _progress() {
+        const playback_start = this.playback_start();
+        const playback_duration = this.playback_duration();
+        if (
+            this.state() === 'PLAYING' &&
+            playback_start > 0 &&
+            playback_duration > 0 &&
+            !this.waiting()
+        ) {
+            return ((time() - playback_start) / playback_duration) * 100;
+        }
+        return this.progress() || 0;
+    }
+}
+
+@Component({
     selector: 'media-controls',
     template: `
         <div class="flex flex-col items-center justify-center p-2">
@@ -28,13 +107,17 @@ type MediaEvent =
                 [matTooltip]="duration() | mediaDuration"
                 matTooltipPosition="above"
             >
-                <mat-progress-bar
-                    class="overflow-hidden rounded-full"
-                    mode="determinate"
-                    [value]="progress()"
-                ></mat-progress-bar>
+                <media-progress-bar
+                    [progress]="progress()"
+                    [playback_start]="playback_start()"
+                    [playback_duration]="playback_duration()"
+                    [state]="state()"
+                    [waiting]="loading()"
+                />
                 @if (animating()) {
-                    <div class="bg-success absolute inset-1 rounded-full"></div>
+                    <div
+                        class="bg-success absolute inset-x-2 inset-y-1 rounded-full"
+                    ></div>
                 }
             </div>
             <div
@@ -52,7 +135,7 @@ type MediaEvent =
                 <button
                     icon
                     matRipple
-                    class="hover:bg-base-200"
+                    class="hover:bg-base-200 relative"
                     (click)="event.emit(state() ? 'PAUSE' : 'PLAY')"
                     [matTooltip]="
                         (state() === 'PLAYING'
@@ -61,9 +144,15 @@ type MediaEvent =
                         ) | translate
                     "
                 >
-                    <icon>{{
+                    <icon [class.opacity-30]="loading()">{{
                         state() === 'PLAYING' ? 'pause' : 'play_arrow'
                     }}</icon>
+                    @if (loading()) {
+                        <mat-spinner
+                            class="absolute inset-0 m-auto"
+                            [diameter]="24"
+                        ></mat-spinner>
+                    }
                 </button>
                 <button
                     icon
@@ -142,15 +231,19 @@ type MediaEvent =
         IconComponent,
         TranslatePipe,
         MatTooltipModule,
-        MatProgressBarModule,
+        MatProgressSpinnerModule,
         MediaDurationPipe,
+        MediaProgressBarComponent,
     ],
 })
 export class MediaControlsComponent {
     public readonly animating = model(false);
     public readonly duration = model(0);
     public readonly progress = model(0);
+    public readonly playback_start = model(0);
+    public readonly playback_duration = model(0);
     public readonly muted = model(false);
+    public readonly loading = model(false);
     public readonly loop = model<MediaLoop>('NONE');
     public readonly state = model<MediaPlayerState>('PAUSED');
     public readonly shuffle = model(false);

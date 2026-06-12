@@ -8,8 +8,8 @@ import {
     AsyncHandler,
     OrganisationService,
     SettingsService,
-    settingSignal,
     notifyError,
+    settingSignal,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 
@@ -27,9 +27,7 @@ const DEFAULT_SPACE_RESTRICTION_OPTIONS = [
             class="bg-base-200 sticky top-2 z-10 mx-auto mb-4 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none px-4 py-2"
         >
             <h2 class="m-0 flex-1 text-xl font-medium capitalize">
-                {{
-                    'APP.WORKPLACE.PARKING_REQUEST_CONFIRM_TITLE' | translate
-                }}
+                {{ 'APP.WORKPLACE.PARKING_REQUEST_CONFIRM_TITLE' | translate }}
             </h2>
             <div class="">
                 @if (loading | async) {
@@ -72,10 +70,7 @@ const DEFAULT_SPACE_RESTRICTION_OPTIONS = [
                 </div>
             </div>
         </section>
-        <section
-            vehicle
-            class="flex space-x-1 border-t px-2 py-4 text-base"
-        >
+        <section vehicle class="flex space-x-1 border-t px-2 py-4 text-base">
             <icon class="text-success text-2xl">done</icon>
             <div details class="space-y-2 text-base">
                 <h3 class="text-xl">
@@ -85,9 +80,8 @@ const DEFAULT_SPACE_RESTRICTION_OPTIONS = [
                     <icon>directions_car</icon>
                     <span>
                         {{
-                            'BOOKINGS.PARKING_VEHICLE_'
-                                + (booking.vehicle_type | uppercase)
-                                | translate
+                            'BOOKINGS.PARKING_VEHICLE_' +
+                                (booking.vehicle_type | uppercase) | translate
                         }}
                     </span>
                 </div>
@@ -101,9 +95,8 @@ const DEFAULT_SPACE_RESTRICTION_OPTIONS = [
                     <icon>category</icon>
                     <span>
                         {{
-                            'BOOKINGS.PARKING_REQUEST_'
-                                + (booking.request_type | uppercase)
-                                | translate
+                            'BOOKINGS.PARKING_REQUEST_' +
+                                (booking.request_type | uppercase) | translate
                         }}
                     </span>
                 </div>
@@ -115,7 +108,16 @@ const DEFAULT_SPACE_RESTRICTION_OPTIONS = [
                         </span>
                     </div>
                 }
-                @if (booking.recurrence_type && booking.recurrence_type !== 'none') {
+                @for (label of extra_space_restriction_labels; track $index) {
+                    <div class="flex items-center space-x-2">
+                        <icon>warning</icon>
+                        <span>{{ label | translate }}</span>
+                    </div>
+                }
+                @if (
+                    booking.recurrence_type &&
+                    booking.recurrence_type !== 'none'
+                ) {
                     <div class="flex items-center space-x-2">
                         <icon>repeat</icon>
                         <span class="capitalize">
@@ -178,10 +180,10 @@ export class ParkingRequestConfirmComponent extends AsyncHandler {
     public readonly loading = this._state.loading;
     public readonly space_restriction_options = settingSignal<
         { id: string; name: string }[]
-    >(
-        'parking.request_space_restrictions',
-        DEFAULT_SPACE_RESTRICTION_OPTIONS,
-    );
+    >('parking.request_space_restrictions', DEFAULT_SPACE_RESTRICTION_OPTIONS);
+    public readonly extra_space_restriction_options = settingSignal<
+        { id: string; name: string }[]
+    >('parking.extra_space_restrictions', []);
 
     public readonly postForm = async () => {
         const r = await this._state.postForm().catch((_) => {
@@ -214,8 +216,15 @@ export class ParkingRequestConfirmComponent extends AsyncHandler {
             return 'BOOKINGS.PARKING_SPACE_RESTRICTIONS';
         }
         return (
-            this.space_restriction_options().find((_) => _.id === value)?.name ||
-            value
+            this.space_restriction_options().find((_) => _.id === value)
+                ?.name || value
         );
+    }
+
+    public get extra_space_restriction_labels(): string[] {
+        const value = this.booking.extra_space_restrictions;
+        if (!Array.isArray(value) || !value.length) return [];
+        const options = this.extra_space_restriction_options();
+        return value.map((id) => options.find((_) => _.id === id)?.name || id);
     }
 }

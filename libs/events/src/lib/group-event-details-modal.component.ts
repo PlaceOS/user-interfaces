@@ -1,3 +1,4 @@
+import { Clipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import {
     Component,
@@ -23,12 +24,12 @@ import {
     GuestUser,
     notifyInfo,
     OrganisationService,
-    SettingsService,
+    settingSignal,
     Space,
     unique,
 } from '@placeos/common';
 import { MapLocateModalComponent, MapPinComponent } from '@placeos/components';
-import { ViewerFeature } from '@placeos/svg-viewer';
+import { ViewerFeature } from '@placeos/common';
 import { lastValueFrom } from 'rxjs';
 
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
@@ -172,7 +173,11 @@ import {
                                 </div>
                             </div>
                         </button>
-                        <button mat-menu-item [disabled]="true">
+                        <button
+                            mat-menu-item
+                            [disabled]="!public_event_link()"
+                            (click)="copyPublicEventLink()"
+                        >
                             <div class="flex items-center space-x-2">
                                 <icon class="text-2xl">content_copy</icon>
                                 <div class="mr-2">
@@ -277,10 +282,10 @@ import {
                             </div>
                             <div class="text-sm opacity-30">
                                 {{ event().date | date: 'EEEE, d MMMM, yyyy' }}
-                                . {{ event().date | date: time_format }} -
+                                . {{ event().date | date: time_format() }} -
                                 {{
                                     event().date + event().duration * 60 * 1000
-                                        | date: time_format
+                                        | date: time_format()
                                 }}
                             </div>
                         </div>
@@ -476,8 +481,8 @@ export class GroupEventDetailsModalComponent implements OnInit {
         concierge: boolean;
     }>(MAT_DIALOG_DATA, { optional: true });
     private _org = inject(OrganisationService);
-    private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
+    private _clipboard = inject(Clipboard);
     private _dialog_ref = inject<MatDialogRef<GroupEventDetailsModalComponent>>(
         MatDialogRef,
         { optional: true },
@@ -540,7 +545,7 @@ export class GroupEventDetailsModalComponent implements OnInit {
     public readonly attendees = computed(
         () =>
             this.event().attendees?.filter(
-                (user) => user.email !== this.group_event_calendar,
+                (user) => user.email !== this.group_event_calendar(),
             )?.length || 0,
     );
 
@@ -551,26 +556,45 @@ export class GroupEventDetailsModalComponent implements OnInit {
     public readonly is_interested = computed(() => !!this.guest_details());
     public readonly is_going = computed(() => this.guest_details()?.checked_in);
     public readonly system_id = computed(() => this.space().id);
+    public readonly public_event_link = computed(() => {
+        const system_id = this.calendar_space().id;
+        const event_id = this.event()?.id;
+        if (!system_id || !event_id) return '';
+        const path = `${this.public_url_path() || '/public'}`.replace(
+            /\/$/,
+            '',
+        );
+        return `${window.location.origin}${path}/#/event/${encodeURIComponent(system_id)}/${encodeURIComponent(event_id)}`;
+    });
 
-    public get group_event_calendar() {
-        return this._settings.get<string>('app.group_events_calendar') || '';
-    }
+    public readonly group_event_calendar = settingSignal<string>(
+        'group_events_calendar',
+        '',
+    );
+    public readonly public_url_path = settingSignal<string>(
+        'public_url_path',
+        '/public',
+    );
 
-    public get time_format() {
-        return this._settings.time_format;
-    }
+    private readonly _use_24_hour = settingSignal<boolean>(
+        'use_24_hour_time',
+        false,
+    );
+    public readonly time_format = computed(() =>
+        this._use_24_hour() ? 'HH:mm' : 'h:mm a',
+    );
 
     public async ngOnInit() {
         const space_pipe = new SpacePipe();
         space_pipe.org = this._org;
         const resource = this.event().resources.find(
-            (_) => _.email !== this.group_event_calendar,
+            (_) => _.email !== this.group_event_calendar(),
         );
         this.space.set(
             await space_pipe.transform(resource?.id || resource?.email),
         );
         this.calendar_space.set(
-            await space_pipe.transform(this.group_event_calendar),
+            await space_pipe.transform(this.group_event_calendar()),
         );
         const map_id = (this.event().extension_data as any)?.map_id;
         const id = this.space()?.map_id || map_id;
@@ -613,13 +637,12 @@ export class GroupEventDetailsModalComponent implements OnInit {
 
     public async toggleInterest() {
         let user = this.guest_details();
-        console.log('System', this.event, this.calendar_space);
         const _user = new GuestUser(currentUser());
         if (this.is_interested() && user) {
             await lastValueFrom(
                 removeEventGuest(this.event().id, _user, {
                     system_id: this.calendar_space().id,
-                    calendar: this.group_event_calendar,
+                    calendar: this.group_event_calendar(),
                 }),
             );
             this.event.update((e) => {
@@ -632,7 +655,7 @@ export class GroupEventDetailsModalComponent implements OnInit {
             user = await lastValueFrom(
                 addEventGuest(this.event().id, _user, {
                     system_id: this.calendar_space().id,
-                    calendar: this.group_event_calendar,
+                    calendar: this.group_event_calendar(),
                 }),
             );
             this.event.update((e) => {
@@ -645,6 +668,14 @@ export class GroupEventDetailsModalComponent implements OnInit {
         }
     }
 
+    public copyPublicEventLink() {
+        const link = this.public_event_link();
+        if (!link) return;
+        if (this._clipboard.copy(link)) {
+            notifyInfo('Copied public event link to clipboard.');
+        }
+    }
+
     public async toggleAttendance() {
         let user = this.guest_details();
         const _user = new GuestUser(currentUser());
@@ -652,7 +683,7 @@ export class GroupEventDetailsModalComponent implements OnInit {
             user = await lastValueFrom(
                 addEventGuest(this.event().id, _user, {
                     system_id: this.event().system?.id,
-                    calendar: this.group_event_calendar,
+                    calendar: this.group_event_calendar(),
                 }),
             );
             (this.event as any).attendees = unique(

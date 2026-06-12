@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     downloadFile,
     i18n,
     jsonToCsv,
-    nextValueFrom,
     SettingsService,
 } from '@placeos/common';
 import {
@@ -15,7 +15,37 @@ import {
 } from '@placeos/components';
 import { format } from 'date-fns';
 import { map } from 'rxjs/operators';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { VisitorsReportService } from './visitors-report.service';
+
+const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Name',
+        description:
+            'Uses asset name, extension asset name, description, then asset ID as fallback.',
+    },
+    {
+        label: 'Host',
+        description: 'Booking user name, falling back to user email.',
+    },
+    {
+        label: 'Checked in',
+        description: 'True when the visitor booking checked-in flag is set.',
+    },
+    {
+        label: 'Self registered',
+        description:
+            'True when the visitor booking extension data marks the visitor as self registered.',
+    },
+    {
+        label: 'International',
+        description:
+            'Shown only when international visitors are enabled, using the booking extension international flag.',
+    },
+];
 
 @Component({
     selector: 'visitor-report-list',
@@ -32,6 +62,7 @@ import { VisitorsReportService } from './visitors-report.service';
                 @if (!print()) {
                     <button
                         icon
+                        default
                         matRipple
                         [matTooltip]="
                             'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
@@ -41,10 +72,15 @@ import { VisitorsReportService } from './visitors-report.service';
                         <icon>download</icon>
                     </button>
                 }
+                <placeos-report-metric-guide
+                    title="Table column calculations"
+                    [items]="table_metric_guide"
+                    [inline]="true"
+                />
             </div>
             <simple-table
                 class="block w-full text-sm"
-                [data]="visitor_bookings"
+                [data]="visitor_bookings()"
                 [columns]="[
                     { key: 'visitor_name', name: 'FORM.NAME' | translate },
                     {
@@ -89,6 +125,7 @@ import { VisitorsReportService } from './visitors-report.service';
         TranslatePipe,
         IconComponent,
         MatTooltipModule,
+        ReportMetricGuideComponent,
     ],
 })
 export class VisitorReportListComponent {
@@ -100,45 +137,57 @@ export class VisitorReportListComponent {
         return !!this._settings.get('app.visitors.allow_international');
     }
 
-    public readonly visitor_bookings = this._state.bookings$.pipe(
-        map((bookings) => {
-            const list = [];
-            for (const booking of bookings) {
-                list.push({
-                    visitor_name:
-                        booking.asset_name ||
-                        booking.extension_data?.asset_name ||
-                        booking.description ||
-                        booking.asset_id,
-                    visitor_email:
-                        booking.asset_id ||
-                        booking.extension_data?.visitor_email ||
-                        '',
-                    date: booking.date,
-                    host: booking.user_name || booking.user_email,
-                    host_email: booking.user_email || booking.booked_by_email,
+    public get table_metric_guide() {
+        return this.allow_international
+            ? TABLE_METRIC_GUIDE
+            : TABLE_METRIC_GUIDE.filter(
+                  (item) => item.label !== 'International',
+              );
+    }
 
-                    checked_in: i18n(
-                        booking.checked_in ? 'COMMON.TRUE' : 'COMMON.FALSE',
-                    ),
-                    self_registered: i18n(
-                        booking.extension_data?.self_registered
-                            ? 'COMMON.TRUE'
-                            : 'COMMON.FALSE',
-                    ),
-                    international: i18n(
-                        booking.extension_data?.international
-                            ? 'COMMON.TRUE'
-                            : 'COMMON.FALSE',
-                    ),
-                });
-            }
-            return list;
-        }),
+    public readonly visitor_bookings = toSignal(
+        this._state.bookings$.pipe(
+            map((bookings) => {
+                const list = [];
+                for (const booking of bookings) {
+                    list.push({
+                        visitor_name:
+                            booking.asset_name ||
+                            booking.extension_data?.asset_name ||
+                            booking.description ||
+                            booking.asset_id,
+                        visitor_email:
+                            booking.asset_id ||
+                            booking.extension_data?.visitor_email ||
+                            '',
+                        date: booking.date,
+                        host: booking.user_name || booking.user_email,
+                        host_email:
+                            booking.user_email || booking.booked_by_email,
+
+                        checked_in: i18n(
+                            booking.checked_in ? 'COMMON.TRUE' : 'COMMON.FALSE',
+                        ),
+                        self_registered: i18n(
+                            booking.extension_data?.self_registered
+                                ? 'COMMON.TRUE'
+                                : 'COMMON.FALSE',
+                        ),
+                        international: i18n(
+                            booking.extension_data?.international
+                                ? 'COMMON.TRUE'
+                                : 'COMMON.FALSE',
+                        ),
+                    });
+                }
+                return list;
+            }),
+        ),
+        { initialValue: [] },
     );
 
     public readonly download = async () => {
-        const data = await nextValueFrom(this.visitor_bookings);
+        const data = this.visitor_bookings().map((item) => ({ ...item }));
         for (const bkn of data) {
             bkn.date = format(bkn.date, 'yyyy-MM-dd HH:mm');
         }

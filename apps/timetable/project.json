@@ -126,7 +126,8 @@
             "executor": "@nx/jest:jest",
             "outputs": ["{workspaceRoot}/coverage/apps/timetable"],
             "options": {
-                "jestConfig": "apps/timetable/jest.config.ts"
+                "jestConfig": "apps/timetable/jest.config.ts",
+                "tsConfig": "apps/timetable/tsconfig.spec.json"
             }
         }
     }

@@ -1,8 +1,13 @@
 import { del, get, patch } from '@placeos/ts-client';
-import { Observable } from 'rxjs';
+import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { CalendarEvent, GuestUser, toQueryString } from '@placeos/common';
+import {
+    CalendarEvent,
+    CateringItem,
+    GuestUser,
+    toQueryString,
+} from '@placeos/common';
 
 const GUEST_ENDPOINT = '/api/staff/v1/guests';
 
@@ -23,7 +28,7 @@ export interface GuestsQueryParams {
  */
 export function searchGuests(q: string): Observable<GuestUser[]> {
     const query = toQueryString({ q });
-    return get(`${GUEST_ENDPOINT}${q ? '?' + query : ''}`).pipe(
+    return from(get(`${GUEST_ENDPOINT}${q ? '?' + query : ''}`)).pipe(
         map((list) => list.map((item) => new GuestUser(item))),
     );
 }
@@ -32,11 +37,10 @@ export function searchGuests(q: string): Observable<GuestUser[]> {
  * List guests
  * @param q Parameters to pass to the API request
  */
-export function queryGuests(q: GuestsQueryParams): Observable<GuestUser[]> {
+export async function queryGuests(q: GuestsQueryParams): Promise<GuestUser[]> {
     const query = toQueryString({ ...q });
-    return get(`${GUEST_ENDPOINT}${query ? '?' + query : ''}`).pipe(
-        map((list) => list.map((item) => new GuestUser(item))),
-    );
+    const list = await get(`${GUEST_ENDPOINT}${query ? '?' + query : ''}`);
+    return list.map((item) => new GuestUser(item));
 }
 
 /**
@@ -44,7 +48,7 @@ export function queryGuests(q: GuestsQueryParams): Observable<GuestUser[]> {
  * @param id ID of the guest
  */
 export function showGuest(id: string) {
-    return get(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`).pipe(
+    return from(get(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`)).pipe(
         map((item) => new GuestUser(item)),
     );
 }
@@ -55,9 +59,9 @@ export function showGuest(id: string) {
  * @param data New metadata state
  */
 export function updateGuest(id: string, data: Partial<GuestUser>) {
-    return patch(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`, data).pipe(
-        map((item) => new GuestUser(item)),
-    );
+    return from(
+        patch(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`, data),
+    ).pipe(map((item) => new GuestUser(item)));
 }
 
 /**
@@ -74,8 +78,56 @@ export function removeGuest(id: string) {
  * List upcoming meetings for a guest
  * @param id ID of the guest
  */
-export function listGuestMeetings(id: string) {
-    return get(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}/meetings`).pipe(
-        map((list) => list.map((item) => new CalendarEvent(item))),
+export async function listGuestMeetings(id: string): Promise<CalendarEvent[]> {
+    const list = await get(
+        `${GUEST_ENDPOINT}/${encodeURIComponent(id)}/meetings`,
     );
+    return list.map((item) => new CalendarEvent(item));
+}
+
+/**
+ * Get the catering item requested for the specified guest
+ * @param email Email address of the guest
+ * @param booking_id Optional ID of the related visitor booking to get from
+ */
+export function getGuestCateringItem(email: string, booking_id = '') {
+    const path = `${GUEST_ENDPOINT}/${encodeURIComponent(email)}/catering`;
+    const query = booking_id
+        ? `?booking_id=${encodeURIComponent(booking_id)}`
+        : '';
+    return from(get(`${path}${query}`)).pipe(
+        map((item) => (item ? new CateringItem(item) : null)),
+    );
+}
+
+/**
+ * Set the catering item requested for the specified guest
+ * @param email Email address of the guest
+ * @param booking_id Optional ID of the related visitor booking to set on
+ */
+export function setGuestCateringItem(
+    email: string,
+    catering_item: CateringItem,
+    booking_id = '',
+) {
+    const path = `${GUEST_ENDPOINT}/${encodeURIComponent(email)}/catering`;
+    const query = booking_id
+        ? `?booking_id=${encodeURIComponent(booking_id)}`
+        : '';
+    return from(patch(`${path}${query}`, catering_item)).pipe(
+        map((item) => (item ? new CateringItem(item) : null)),
+    );
+}
+
+/**
+ * Clears any set catering for the specified guest
+ * @param email Email address of the guest
+ * @param booking_id Optional ID of the related visitor booking to clear
+ */
+export function clearGuestCateringItem(email: string, booking_id = '') {
+    const path = `${GUEST_ENDPOINT}/${encodeURIComponent(email)}/catering`;
+    const query = booking_id
+        ? `?booking_id=${encodeURIComponent(booking_id)}`
+        : '';
+    return del(`${path}${query}`);
 }

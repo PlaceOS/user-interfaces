@@ -1,69 +1,85 @@
 import {
     Component,
-    EventEmitter,
-    Input,
-    OnInit,
-    Output,
+    DestroyRef,
     inject,
+    input,
+    OnInit,
+    output,
+    signal,
 } from '@angular/core';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { debounceTime, map } from 'rxjs/operators';
-
-import { CommonModule } from '@angular/common';
+import {
+    takeUntilDestroyed,
+    toObservable,
+    toSignal,
+} from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import {
+    BuildingLevel,
+    settingSignal,
+    SettingsService,
+    Space,
+} from '@placeos/common';
+import { combineLatest } from 'rxjs';
+import { debounceTime, map, tap } from 'rxjs/operators';
 
-import { BuildingLevel, OrganisationService, Space } from '@placeos/common';
+import { OrganisationService } from '@placeos/common';
 import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
+import { EventFormService } from 'libs/events/src/lib/event-form.service';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 import { SpaceLocationPinComponent } from './space-location-pin.component';
 
 @Component({
     selector: `space-map`,
     template: `
-        <div class="border-base-200 bg-base-100 w-full border-b p-2">
-            <mat-form-field
-                appearance="outline"
-                class="w-full"
-                *ngIf="(levels | async)?.length"
-            >
-                <mat-select
-                    name="location"
-                    [(ngModel)]="level"
-                    (ngModelChange)="setOptions({ zone_ids: [$event.id] })"
-                    [ngModelOptions]="{ standalone: true }"
-                    [placeholder]="'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate"
+        @if (levels()?.length) {
+            <div class="border-base-200 bg-base-100 w-full border-b p-2">
+                <mat-form-field
+                    appearance="outline"
+                    class="no-subscript w-full"
                 >
-                    <mat-option
-                        *ngFor="let lvl of levels | async"
-                        [value]="lvl"
+                    <mat-select
+                        name="location"
+                        [(ngModel)]="level"
+                        (ngModelChange)="setOptions({ zone_ids: [$event.id] })"
+                        [ngModelOptions]="{ standalone: true }"
+                        [placeholder]="
+                            'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate
+                        "
                     >
-                        <div class="flex flex-col-reverse">
-                            <div class="text-xs opacity-30" *ngIf="use_region">
-                                {{ (lvl.parent_id | building)?.display_name }}
-                                <span class="opacity-0"> - </span>
-                            </div>
-                            <div>
-                                {{ lvl.display_name || lvl.name }}
-                            </div>
-                        </div>
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
-        </div>
+                        @for (lvl of levels(); track lvl) {
+                            <mat-option [value]="lvl">
+                                <div class="flex flex-col-reverse">
+                                    @if (use_region()) {
+                                        <div class="text-xs opacity-30">
+                                            {{
+                                                (lvl.parent_id | building)
+                                                    ?.display_name
+                                            }}
+                                            <span class="opacity-0"> - </span>
+                                        </div>
+                                    }
+                                    <div>
+                                        {{ lvl.display_name || lvl.name }}
+                                    </div>
+                                </div>
+                            </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+            </div>
+        }
         <div class="relative w-full flex-1">
             <interactive-map
                 [src]="map_url"
                 [(zoom)]="zoom"
                 [(center)]="center"
-                [styles]="styles | async"
-                [features]="features | async"
-                [actions]="actions | async"
+                [styles]="styles()"
+                [features]="features()"
+                [actions]="actions()"
                 [options]="{ controls: true }"
             ></interactive-map>
         </div>
@@ -76,14 +92,9 @@ import { SpaceLocationPinComponent } from './space-location-pin.component';
                 display: flex;
                 flex-direction: column;
             }
-
-            button {
-                border-radius: 0;
-            }
         `,
     ],
     imports: [
-        CommonModule,
         InteractiveMapComponent,
         MatFormFieldModule,
         MatSelectModule,
@@ -92,55 +103,67 @@ import { SpaceLocationPinComponent } from './space-location-pin.component';
         BuildingPipe,
     ],
 })
-export class SpaceSelectMapComponent extends AsyncHandler implements OnInit {
+export class SpaceMapComponent implements OnInit {
     private _event_form = inject(EventFormService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private _destroy_ref = inject(DestroyRef);
 
-    @Input() public selected: string[] = [];
-    @Input() public active: string;
-    @Input() public is_displayed = false;
-    @Output() public onSelect = new EventEmitter<Space>();
+    public readonly selected = input<string[]>([]);
+    public readonly active = input<string>(undefined);
+    public readonly is_displayed = input(false);
+    public readonly onSelect = output<Space>();
 
     public zoom = 1;
     public center = { x: 0.5, y: 0.5 };
     public coordinates = undefined;
+    public readonly use_region = settingSignal('use_region', false);
 
     private _seletedSpace = (s) => () => {
         this.onSelect.emit(s);
-        this._change.next(Date.now());
+        this._change.set(Date.now());
     };
     public level: BuildingLevel = null;
-    private _change = new BehaviorSubject(0);
+    private _change = signal(0);
 
     public get map_url() {
         return this.level?.map_id || '';
     }
 
-    public readonly levels = combineLatest([
+    private readonly _levels$ = combineLatest([
         this._org.active_region,
         this._org.active_building,
     ]).pipe(
         map(([region, bld]) => {
-            const level_list = this.use_region
+            const level_list = this.use_region()
                 ? this._org.levelsForRegion(region)
                 : this._org.levelsForBuilding(bld);
             const viewable_levels = level_list.filter(
                 (lvl) => !lvl.tags.includes('parking'),
             );
+            if (!this.level && viewable_levels.length) {
+                this.level = viewable_levels[0];
+            }
             return viewable_levels.sort(
                 (a, b) =>
                     a.parent_id.localeCompare(b.parent_id) ||
                     (a.display_name || '').localeCompare(b.display_name || ''),
             );
         }),
+        tap((l) => console.log('Levels:', l)),
     );
+
+    public readonly levels = toSignal(this._levels$, {
+        initialValue: [] as BuildingLevel[],
+    });
 
     public readonly setOptions = (o) => this._event_form.setOptions(o);
 
-    public readonly features = combineLatest([
+    private readonly _change$ = toObservable(this._change);
+
+    private readonly _features$ = combineLatest([
         this._event_form.available_spaces,
-        this._change,
+        this._change$,
     ]).pipe(
         debounceTime(300),
         map(([l]) =>
@@ -149,14 +172,16 @@ export class SpaceSelectMapComponent extends AsyncHandler implements OnInit {
                 content: SpaceLocationPinComponent,
                 data: {
                     ...space,
-                    active: this.active === space.id,
-                    selected: this.selected.includes(space.id),
+                    active: this.active() === space.id,
+                    selected: this.selected().includes(space.id),
                 },
             })),
         ),
     );
 
-    public readonly actions = this._event_form.available_spaces.pipe(
+    public readonly features = toSignal(this._features$, { initialValue: [] });
+
+    private readonly _actions$ = this._event_form.available_spaces.pipe(
         map((l) =>
             l.map((space) => ({
                 id: space.map_id,
@@ -166,7 +191,9 @@ export class SpaceSelectMapComponent extends AsyncHandler implements OnInit {
         ),
     );
 
-    public readonly styles = combineLatest([
+    public readonly actions = toSignal(this._actions$, { initialValue: [] });
+
+    private readonly _styles$ = combineLatest([
         this._event_form.spaces$,
         this._event_form.available_spaces,
     ]).pipe(
@@ -187,22 +214,15 @@ export class SpaceSelectMapComponent extends AsyncHandler implements OnInit {
         ),
     );
 
-    public get use_region() {
-        return !!this._settings.get('app.use_region');
-    }
-
-    constructor() {
-        super();
-    }
+    public readonly styles = toSignal(this._styles$, { initialValue: {} });
 
     public ngOnInit() {
-        this.subscription(
-            'levels_update',
-            this._event_form.options$.subscribe(({ zones }) => {
+        this._event_form.options$
+            .pipe(takeUntilDestroyed(this._destroy_ref))
+            .subscribe(({ zones }) => {
                 const level = this._org.levelWithID(zones);
                 if (level) this.level = level;
-            }),
-        );
+            });
     }
 
     public setLevel(level: BuildingLevel) {

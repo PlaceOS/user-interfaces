@@ -1,7 +1,7 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
-import { CommonModule } from '@angular/common';
+
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -35,8 +35,7 @@ import { SignageStateService } from './signage-state.service';
                     <input
                         matInput
                         [placeholder]="'COMMON.SEARCH' | translate"
-                        [ngModel]="search()"
-                        (ngModelChange)="search.set($event)"
+                        [(ngModel)]="search"
                     />
                 </mat-form-field>
                 <a
@@ -176,7 +175,6 @@ import { SignageStateService } from './signage-state.service';
         `,
     ],
     imports: [
-        CommonModule,
         MatFormFieldModule,
         MatInputModule,
         IconComponent,
@@ -206,18 +204,14 @@ export class SignageMediaComponent extends AsyncHandler {
             _.name.toLowerCase().includes(search_value.toLowerCase()),
         );
     });
-    public readonly selected_playlist = signal('');
+    private readonly _route_query = toSignal(this._route.queryParamMap);
+    public readonly selected_playlist = computed(
+        () => this._route_query()?.get('playlist') || '',
+    );
     public readonly show_dropzone = signal(false);
-    private _route_query = toSignal(this._route.queryParamMap);
 
     constructor() {
         super();
-        effect(() => {
-            const params = this._route_query();
-            if (params?.has('playlist')) {
-                this.selected_playlist.set(params.get('playlist'));
-            }
-        });
     }
 
     public readonly addPlaylist = async () => {
@@ -251,9 +245,7 @@ export class SignageMediaComponent extends AsyncHandler {
         event: CdkDragDrop<SignagePlaylist[]>,
     ) {
         const media = event.previousContainer.data[event.previousIndex];
-        const media_list = await listSignagePlaylistMedia(
-            playlist.id,
-        ).toPromise();
+        const media_list = await listSignagePlaylistMedia(playlist.id);
         const new_media_list = [...media_list.items, media.id];
         await this._state.updatePlaylistMedia(playlist.id, new_media_list);
     }

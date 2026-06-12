@@ -45,7 +45,7 @@ import { MapLocateModalComponent } from './map-locate-modal.component';
 import { MapPinComponent } from './map-pin.component';
 import { MapPolygonComponent } from './map-polygon.component';
 import { MapRadiusComponent } from './map-radius.component';
-import { MapRendererComponent } from './map-renderer.component';
+import { DynamicMapComponent } from './dynamic-map.component';
 import { MapsIndoorsComponent } from './maps-indoors.component';
 import { MediaDurationPipe } from './media-duration.pipe';
 import { MisconfiguredComponent } from './misconfigured.component';
@@ -54,6 +54,7 @@ import { RedirectComponent } from './redirect.component';
 import { RegionSelectComponent } from './region-select.component';
 import { SafePipe } from './safe.pipe';
 import { SanitizePipe } from './sanitise.pipe';
+import { ServiceWorkerUpdateCardComponent } from './service-worker-update-card.component';
 import { SettingsToggleComponent } from './settings-toggle.component';
 import { SimpleTableComponent } from './simple-table.component';
 import { StatusOverlayComponent } from './status-overlay.component';
@@ -73,11 +74,12 @@ const STANDALONE_COMPONENTS = [
     ConfirmModalComponent,
     CustomTooltipComponent,
     SettingsToggleComponent,
+    ServiceWorkerUpdateCardComponent,
     GlobalBannerComponent,
     GlobalLoadingComponent,
     ChatComponent,
     InteractiveMapComponent,
-    MapRendererComponent,
+    DynamicMapComponent,
     MapsIndoorsComponent,
     VirtualKeyboardComponent,
     SimpleTableComponent,

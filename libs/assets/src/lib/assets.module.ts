@@ -4,8 +4,6 @@ import { AssetGroupPipe } from './asset-group.pipe';
 import { AssetListFieldComponent } from './asset-list-field.component';
 import { AssetSelectModalComponent } from './asset-select-modal/asset-select-modal.component';
 
-export * from './asset-select-modal/asset-select-modal.component';
-
 const STANDALONE_COMPONENTS = [
     AssetSelectModalComponent,
     AssetListFieldComponent,

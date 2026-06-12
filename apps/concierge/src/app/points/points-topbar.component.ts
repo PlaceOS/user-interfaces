@@ -1,6 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
+import { startWith } from 'rxjs/operators';
 import { DateOptionsComponent } from '../ui/date-options.component';
 
 @Component({
@@ -28,4 +31,19 @@ import { DateOptionsComponent } from '../ui/date-options.component';
     ],
     imports: [DateOptionsComponent, TranslatePipe],
 })
-export class PointsTopbarComponent extends AsyncHandler {}
+export class PointsTopbarComponent extends AsyncHandler {
+    private _router = inject(Router);
+
+    private readonly _url = toSignal(
+        this._router.events.pipe(startWith(null)),
+        {
+            initialValue: null,
+        },
+    );
+
+    public readonly path = computed(() => {
+        this._url();
+        const parts = this._router.url.split('/');
+        return parts[parts.length - 1].split('?')[0];
+    });
+}

@@ -333,22 +333,16 @@ export class AutoAssignedDeskModalComponent
             // Fallback to original logic if no nearby desk found
             if (!assigned_desk) {
                 // Group desks by level and find level with most available desks
-                const desks_by_level = available_desks.reduce(
-                    (acc, desk) => {
-                        const zone_id = desk.zone?.id || 'unknown';
-                        if (!acc[zone_id]) {
-                            acc[zone_id] = [];
-                        }
-                        acc[zone_id].push(desk);
-                        return acc;
-                    },
-                    {} as Record<string, typeof available_desks>,
-                );
+                const desks_by_level: Record<string, BookingAsset[]> = {};
+                for (const desk of available_desks) {
+                    const zone_id = desk.zone?.id || 'unknown';
+                    desks_by_level[zone_id] ||= [];
+                    desks_by_level[zone_id].push(desk);
+                }
 
                 // Find the level with the most available desks
-                const level_with_most_desks = Object.entries(
-                    desks_by_level,
-                ).sort(([, a], [, b]) => b.length - a.length)[0];
+                const level_with_most_desks = Object.entries(desks_by_level)
+                    .sort(([, a], [, b]) => b.length - a.length)[0];
 
                 // Pick the first desk from the level with most availability
                 assigned_desk = level_with_most_desks[1][0];

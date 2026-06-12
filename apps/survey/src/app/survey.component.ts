@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 
@@ -12,7 +11,7 @@ import { SurveyOutletComponent } from '@placeos/components';
         </div>
     `,
     styles: [],
-    imports: [CommonModule, SurveyOutletComponent, RouterModule],
+    imports: [SurveyOutletComponent, RouterModule],
 })
 export class SurveyComponent {
     private _router = inject(Router);

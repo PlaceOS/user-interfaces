@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test';
 import {
     LOAD_TIMEOUT,
-    SURVEY_ID_EMPLOYEE,
     SURVEY_ID_COMPREHENSIVE,
+    SURVEY_ID_EMPLOYEE,
     initializeAppWithMock,
     navigateToSurvey,
     waitForSurveyLoaded,
@@ -64,8 +64,11 @@ test.describe('US-16: Toggle Dark Mode', () => {
         await page.waitForTimeout(500);
 
         // Check body element for theme-dark class
-        const afterSecondToggle = await page.locator('body').getAttribute('class');
-        const isDarkAfterSecond = afterSecondToggle?.includes('theme-dark') || false;
+        const afterSecondToggle = await page
+            .locator('body')
+            .getAttribute('class');
+        const isDarkAfterSecond =
+            afterSecondToggle?.includes('theme-dark') || false;
 
         // Should be opposite
         expect(isDarkAfterSecond).not.toBe(isDarkAfterToggle);

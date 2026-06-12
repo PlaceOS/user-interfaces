@@ -15,7 +15,13 @@ import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { CateringStateService } from '../lib/catering-state.service';
 
 jest.mock('@placeos/ts-client');
+jest.mock('@placeos/assets', () => ({
+    deleteCateringItem: jest.fn(),
+    queryCateringItems: jest.fn(),
+    saveCateringItem: jest.fn(),
+}));
 
+import * as assets_mod from '@placeos/assets';
 import * as ts_client from '@placeos/ts-client';
 
 const dialog_fn = (has_delay, metadata?) => () => ({
@@ -44,7 +50,13 @@ describe('CateringStateService', () => {
     });
 
     beforeEach(() => {
-        (ts_client as any).showMetadata = jest.fn(() => of({}));
+        jest.clearAllMocks();
+        (ts_client as any).showMetadata = jest.fn(() => Promise.resolve({}));
+        (assets_mod.queryCateringItems as jest.Mock).mockReturnValue(of([]));
+        (assets_mod.saveCateringItem as jest.Mock).mockImplementation((item) =>
+            of(item),
+        );
+        (assets_mod.deleteCateringItem as jest.Mock).mockReturnValue(of({}));
         spectator = createService();
     });
 
@@ -52,60 +64,41 @@ describe('CateringStateService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
-    it('should allow user to manage catering orders', async () => {
-        const dialog = spectator.inject(MatDialog);
-        const input_order = new CateringOrder();
-        (dialog.open as any).mockImplementation(dialog_fn(true));
-        let order = await spectator.service.manageCateringOrder(input_order);
-        expect(order).toBe(input_order);
-        (dialog.open as any).mockImplementation(
-            dialog_fn(false, { order: new CateringOrder() }),
-        );
-        order = await spectator.service.manageCateringOrder(input_order);
-        expect(order).not.toBe(input_order);
-    });
-
     it('should allow user to add new catering items to menu', async () => {
         const dialog = spectator.inject(MatDialog);
-        (ts_client as any).updateMetadata = jest.fn(() => of({}));
         (dialog.open as any).mockImplementation(dialog_fn(true));
         await spectator.service.addItem();
-        expect(ts_client.updateMetadata).not.toHaveBeenCalled();
+        expect(assets_mod.saveCateringItem).not.toHaveBeenCalled();
         (dialog.open as any).mockImplementation(
             dialog_fn(false, { item: new CateringItem() }),
         );
         await spectator.service.addItem(new CateringItem());
-        expect(ts_client.updateMetadata).toHaveBeenCalledWith('bld-1', {
-            id: 'bld-1',
-            name: 'catering',
-            details: [new CateringItem()],
-            description: 'Catering menu for bld-1',
-        });
+        expect(assets_mod.saveCateringItem).toHaveBeenCalledWith(
+            new CateringItem(),
+            'bld-1',
+        );
     });
 
     it('should allow user to add new catering options to menu items', async () => {
         const dialog = spectator.inject(MatDialog);
-        (ts_client as any).updateMetadata = jest.fn(() => of({}));
         (dialog.open as any).mockImplementation(dialog_fn(true));
         await spectator.service.addOption(new CateringItem());
-        expect(ts_client.updateMetadata).not.toHaveBeenCalled();
+        expect(assets_mod.saveCateringItem).not.toHaveBeenCalled();
         (dialog.open as any).mockImplementation(
             dialog_fn(false, {
                 item: new CateringItem({ options: [{} as any] }),
             }),
         );
         await spectator.service.addOption(new CateringItem(), {} as any);
-        expect(ts_client.updateMetadata).toHaveBeenCalledWith('bld-1', {
-            id: 'bld-1',
-            name: 'catering',
-            details: [new CateringItem({ options: [{} as any] })],
-            description: 'Catering menu for bld-1',
-        });
+        expect(assets_mod.saveCateringItem).toHaveBeenCalledWith(
+            new CateringItem({ options: [{} as any] }),
+            'bld-1',
+        );
     });
 
     it('should allow user to select catering options to orders', async () => {
         const dialog = spectator.inject(MatDialog);
-        (ts_client as any).updateMetadata = jest.fn(() => of({}));
+        (ts_client as any).updateMetadata = jest.fn(() => Promise.resolve({}));
         (dialog.open as any).mockImplementation(dialog_fn(true));
         let options = await spectator.service.selectOptions([]);
         expect(options).toEqual([]);
@@ -118,40 +111,31 @@ describe('CateringStateService', () => {
 
     it('should allow user to remove catering items from menu', async () => {
         const dialog = spectator.inject(MatDialog);
-        (ts_client as any).updateMetadata = jest.fn(() => of({}));
         (dialog.open as any).mockImplementation(dialog_fn(true));
         await spectator.service.deleteItem(new CateringItem());
-        expect(ts_client.updateMetadata).not.toHaveBeenCalled();
+        expect(assets_mod.deleteCateringItem).not.toHaveBeenCalled();
         (dialog.open as any).mockImplementation(dialog_fn(false, [{}]));
         await spectator.service.deleteItem(new CateringItem());
-        expect(ts_client.updateMetadata).toHaveBeenCalledWith('bld-1', {
-            id: 'bld-1',
-            name: 'catering',
-            details: [],
-            description: 'Catering menu for bld-1',
-        });
+        expect(assets_mod.deleteCateringItem).toHaveBeenCalledWith('');
     });
 
     it('should allow user to remove catering options to menu items', async () => {
         const dialog = spectator.inject(MatDialog);
-        (ts_client as any).updateMetadata = jest.fn(() => of({}));
         (dialog.open as any).mockImplementation(dialog_fn(true));
         await spectator.service.deleteOption(new CateringItem(), {} as any);
-        expect(ts_client.updateMetadata).not.toHaveBeenCalled();
+        expect(assets_mod.saveCateringItem).not.toHaveBeenCalled();
         (dialog.open as any).mockImplementation(dialog_fn(false, [{}]));
         await spectator.service.deleteOption(new CateringItem(), {} as any);
-        expect(ts_client.updateMetadata).toHaveBeenCalledWith('bld-1', {
-            id: 'bld-1',
-            name: 'catering',
-            details: [new CateringItem()],
-            description: 'Catering menu for bld-1',
-        });
+        expect(assets_mod.saveCateringItem).toHaveBeenCalledWith(
+            new CateringItem(),
+            'bld-1',
+        );
     });
 
     it('should allow user to edit catering config', async () => {
         const dialog = spectator.inject(MatDialog);
-        (ts_client as any).showMetadata = jest.fn(() => of({}));
-        (ts_client as any).updateMetadata = jest.fn(() => of({}));
+        (ts_client as any).showMetadata = jest.fn(() => Promise.resolve({}));
+        (ts_client as any).updateMetadata = jest.fn(() => Promise.resolve({}));
         (dialog.open as any).mockImplementation(dialog_fn(true));
         await spectator.service.editConfig();
         expect(ts_client.updateMetadata).not.toHaveBeenCalled();
@@ -166,14 +150,14 @@ describe('CateringStateService', () => {
     });
 
     it('should allow user to get catering config', async () => {
-        (ts_client as any).showMetadata = jest.fn(() => of({}));
+        (ts_client as any).showMetadata = jest.fn(() => Promise.resolve({}));
         let config = await spectator.service.getCateringConfig();
         expect(config).toEqual([]);
         expect(ts_client.showMetadata).toHaveBeenCalledWith(
             'bld-1',
             'catering_config',
         );
-        (ts_client as any).showMetadata = jest.fn(() => of([]));
+        (ts_client as any).showMetadata = jest.fn(() => Promise.resolve([]));
         config = await spectator.service.getCateringConfig('bld-2');
         expect(config).toEqual([]);
         expect(ts_client.showMetadata).toHaveBeenCalledWith(

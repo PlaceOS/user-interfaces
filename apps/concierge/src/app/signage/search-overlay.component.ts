@@ -1,9 +1,8 @@
 import { CommonModule } from '@angular/common';
 import {
     Component,
-    OnChanges,
-    SimpleChanges,
     TemplateRef,
+    computed,
     input,
     output,
     signal,
@@ -32,8 +31,7 @@ interface SearchItem {
             >
                 <input
                     class="border-base-300 bg-base-100 text-base-content w-full rounded-[4rem] border py-4 pr-6 pl-14 text-xl shadow-sm"
-                    [ngModel]="search()"
-                    (ngModelChange)="search.set($event)"
+                    [(ngModel)]="search"
                     [placeholder]="'COMMON.SEARCH' | translate"
                 />
                 <icon
@@ -46,7 +44,7 @@ interface SearchItem {
                 class="z-10 mx-auto max-h-[65%] w-lg max-w-[calc(100%-2rem)] overflow-auto rounded-sm"
                 (click)="$event.stopPropagation()"
             >
-                @for (item of item_list(); track item) {
+                @for (item of filtered_items(); track item) {
                     <button
                         matRipple
                         class="w-full text-left"
@@ -68,7 +66,7 @@ interface SearchItem {
                         }
                     </button>
                 }
-                @if (!item_list()?.length) {
+                @if (!filtered_items().length) {
                     <button
                         matRipple
                         class="text-base-100 w-full p-4"
@@ -100,7 +98,7 @@ interface SearchItem {
         CommonModule,
     ],
 })
-export class SearchOverlayComponent implements OnChanges {
+export class SearchOverlayComponent {
     public readonly item_list = input<SearchItem[]>([]);
     public readonly result_template = input<TemplateRef<any>>(undefined);
 
@@ -108,11 +106,12 @@ export class SearchOverlayComponent implements OnChanges {
     public readonly close = output<void>();
 
     public readonly search = signal('');
-    private _items = signal<SearchItem[]>([]);
-
-    public ngOnChanges(changes: SimpleChanges) {
-        if (changes.item_list) {
-            this._items.set(this.item_list() || []);
-        }
-    }
+    public readonly filtered_items = computed(() => {
+        const term = this.search().trim().toLowerCase();
+        const items = this.item_list() || [];
+        if (!term) return items;
+        return items.filter((item) =>
+            `${item?.name || item || ''}`.toLowerCase().includes(term),
+        );
+    });
 }

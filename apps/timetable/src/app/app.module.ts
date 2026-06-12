@@ -10,8 +10,10 @@ import { Router, RouterModule } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
 import {
+    AuthorisedUserGuard,
     GlobalBannerComponent,
     GlobalLoadingComponent,
+    UnauthorisedComponent,
 } from '@placeos/components';
 
 import { environment } from '../environments/environment';
@@ -22,7 +24,11 @@ import { AppTimetableComponent } from './timetable.component';
 import * as Sentry from '@sentry/angular';
 import { AppComponent } from './app.component';
 
-const STANDALONE_COMPONENTS = [GlobalLoadingComponent, GlobalBannerComponent];
+const STANDALONE_COMPONENTS = [
+    GlobalLoadingComponent,
+    GlobalBannerComponent,
+    UnauthorisedComponent,
+];
 
 @NgModule({
     declarations: [AppComponent],
@@ -36,7 +42,12 @@ const STANDALONE_COMPONENTS = [GlobalLoadingComponent, GlobalBannerComponent];
         ...STANDALONE_COMPONENTS,
         RouterModule.forRoot(
             [
-                { path: '', component: AppTimetableComponent },
+                { path: 'unauthorised', component: UnauthorisedComponent },
+                {
+                    path: '',
+                    component: AppTimetableComponent,
+                    canActivate: [AuthorisedUserGuard],
+                },
                 { path: '**', redirectTo: '' },
             ],
             { useHash: true },

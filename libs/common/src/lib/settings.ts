@@ -5,10 +5,19 @@ export interface SettingsOptions {
     debug: boolean;
     /** Settings for initialising composer service */
     composer: ComposerSettings;
+    /** Settings for service worker update handling */
+    service_worker: ServiceWorkerSettings;
     /** Settings for the application */
     app: ApplicationSettings;
     /** Whether to use mock systems and services */
     mock?: boolean;
+}
+
+export interface ServiceWorkerSettings {
+    /** Whether to reload the app as soon as a new service worker version is ready */
+    auto_reload: boolean;
+    /** Time between checks for new versions, in milliseconds. Minimum of 1 minute */
+    interval?: number;
 }
 
 export interface ComposerSettings {
@@ -24,6 +33,8 @@ export interface ComposerSettings {
     local_login?: boolean;
     /** Whether composer should use the settings domain instead of the origin */
     use_domain?: boolean;
+    /** Which browser keystore ts-client should use for auth credentials */
+    storage?: 'local' | 'session';
 }
 
 export interface ApplicationSettings {
@@ -39,6 +50,8 @@ export interface ApplicationSettings {
     logo_light?: ApplicationIcon;
     /** Generalised settings for the application */
     general: GeneralAppSettings;
+    /** Colour for thin environment identifier bars shown at the top and bottom of the app */
+    environment_bar?: string;
 }
 
 export interface GeneralAppSettings {}
@@ -50,7 +63,14 @@ const app: any = {
     logo_light: 'assets/logo-light.svg',
     logo_dark: 'assets/logo-dark.svg',
     general: {},
+    bookings: {
+        force_current_user_for_booking_rules: false,
+    },
+    events: {
+        force_current_user_for_booking_rules: false,
+    },
     allow_dark_mode: true,
+    show_changelog: true,
 };
 
 /**
@@ -65,6 +85,9 @@ export const DEFAULT_SETTINGS: SettingsOptions = {
         port: '',
         use_domain: false,
         local_login: false,
+    },
+    service_worker: {
+        auto_reload: false,
     },
     app,
 };

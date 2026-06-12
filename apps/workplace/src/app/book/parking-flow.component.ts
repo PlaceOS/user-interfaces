@@ -1,9 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BookingFormService, ParkingService } from '@placeos/bookings';
-import { AsyncHandler } from '@placeos/common';
+import {
+    AsyncHandler,
+    firstTruthyValueFrom,
+    OrganisationService,
+} from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
+import { lastValueFrom, timer } from 'rxjs';
 import { NewParkingFlowConfirmComponent } from './parking-flow/parking-flow-confirm.component';
 import { ParkingFlowFormComponent } from './parking-flow/parking-flow-form.component';
 import { ParkingFlowSuccessComponent } from './parking-flow/parking-flow-success.component';
@@ -11,71 +16,78 @@ import { ParkingFlowSuccessComponent } from './parking-flow/parking-flow-success
 @Component({
     selector: 'placeos-parking-flow',
     template: `
-        @if (!(deny_parking_access | async)) {
-            @if (is_home_location | async) {
-                <div
-                    class="bg-base-100 z-50 flex h-full w-full flex-col items-center justify-center space-y-4"
-                >
-                    <img
-                        src="assets/icons/permission-none.svg"
-                        class="h-64 w-64"
-                    />
-                    <p>
-                        {{
-                            'APP.WORKPLACE.PARKING_HOME_LOCATION_RESTRICTED'
-                                | translate
-                        }}
-                    </p>
-                </div>
-            } @else if (!(assigned_space | async) || !(has_booking | async)) {
-                <div class="bg-base-100 z-50 h-full w-full">
-                    @switch (view()) {
-                        @case ('success') {
-                            <parking-flow-success> </parking-flow-success>
+        @if (ready()) {
+            @if (!(deny_parking_access | async)) {
+                @if (is_home_location | async) {
+                    <div
+                        class="bg-base-100 z-50 flex h-full w-full flex-col items-center justify-center space-y-4"
+                    >
+                        <img
+                            src="assets/icons/permission-none.svg"
+                            class="h-64 w-64"
+                        />
+                        <p>
+                            {{
+                                'APP.WORKPLACE.PARKING_HOME_LOCATION_RESTRICTED'
+                                    | translate
+                            }}
+                        </p>
+                    </div>
+                } @else if (!(assigned_space | async) || !(has_booking | async)) {
+                    <div class="bg-base-100 z-50 h-full w-full">
+                        @switch (view()) {
+                            @case ('success') {
+                                <parking-flow-success> </parking-flow-success>
+                            }
+                            @case ('confirm') {
+                                <parking-flow-confirm> </parking-flow-confirm>
+                            }
+                            @default {
+                                <parking-flow-form></parking-flow-form>
+                            }
                         }
-                        @case ('confirm') {
-                            <parking-flow-confirm> </parking-flow-confirm>
-                        }
-                        @default {
-                            <parking-flow-form></parking-flow-form>
-                        }
-                    }
-                </div>
+                    </div>
+                } @else {
+                    <div
+                        class="bg-base-100 z-50 flex h-full w-full flex-col items-center justify-center space-y-4"
+                    >
+                        <img
+                            src="assets/icons/parking-success.svg"
+                            class="h-64 w-64"
+                        />
+                        <p>
+                            {{
+                                'APP.WORKPLACE.PARKING_ASSIGNED'
+                                    | translate
+                                        : {
+                                              name: (assigned_space | async)
+                                                  ?.name,
+                                          }
+                            }}
+                        </p>
+                        <a
+                            btn
+                            matRipple
+                            class="w-48"
+                            [routerLink]="['/your-bookings']"
+                        >
+                            {{ 'APP.WORKPLACE.VIEW_SCHEDULE' | translate }}
+                        </a>
+                    </div>
+                }
             } @else {
                 <div
                     class="bg-base-100 z-50 flex h-full w-full flex-col items-center justify-center space-y-4"
                 >
-                    <img
-                        src="assets/icons/parking-success.svg"
-                        class="h-64 w-64"
-                    />
+                    <img src="assets/icons/permission-none.svg" class="h-64 w-64" />
                     <p>
-                        {{
-                            'APP.WORKPLACE.PARKING_ASSIGNED'
-                                | translate
-                                    : { name: (assigned_space | async)?.name }
-                        }}
+                        Your user account is not allowed to book parking in this
+                        building.
                     </p>
-                    <a
-                        btn
-                        matRipple
-                        class="w-48"
-                        [routerLink]="['/your-bookings']"
-                    >
-                        {{ 'APP.WORKPLACE.VIEW_SCHEDULE' | translate }}
-                    </a>
                 </div>
             }
         } @else {
-            <div
-                class="bg-base-100 z-50 flex h-full w-full flex-col items-center justify-center space-y-4"
-            >
-                <img src="assets/icons/permission-none.svg" class="h-64 w-64" />
-                <p>
-                    Your user account is not allowed to book parking in this
-                    building.
-                </p>
-            </div>
+            <div class="bg-base-100 h-full w-full"></div>
         }
     `,
     styles: [
@@ -99,22 +111,31 @@ export class NewParkingFlowComponent extends AsyncHandler implements OnInit {
     private _state = inject(BookingFormService);
     private _route = inject(ActivatedRoute);
     private _parking = inject(ParkingService);
+    private _org = inject(OrganisationService);
 
     public readonly deny_parking_access = this._parking.deny_parking_access;
     public readonly assigned_space = this._parking.assigned_space;
     public readonly has_booking = this._parking.has_booking;
     public readonly is_home_location = this._parking.is_home_location;
     public readonly view = this._state.view;
+    public readonly ready = signal(false);
 
     public get last_success() {
         return this._state.last_success;
     }
 
-    public ngOnInit() {
-        this._state.loadForm();
+    public async ngOnInit() {
+        await firstTruthyValueFrom(this._org.initialised);
+        await lastValueFrom(timer(300));
+        const active_form = this._state.form.getRawValue();
+        const has_edit_state =
+            !!active_form?.id && active_form?.booking_type === 'parking';
+        if (!has_edit_state) this._state.loadForm();
         this._state.setOptions({ type: 'parking' });
-        if (!this._state.form.value.id) this._state.newForm('parking');
+        const { id, booking_type } = this._state.form.value;
+        if (!id || booking_type !== 'parking') this._state.newForm('parking');
         this._state.form.patchValue({ booking_type: 'parking' });
+        this.ready.set(true);
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((param) => {

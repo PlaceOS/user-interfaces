@@ -1,12 +1,10 @@
 import { Component, effect, inject, OnInit } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import {
     ExploreDesksService,
     ExploreStateService,
     ExploreZoomControlComponent,
 } from '@placeos/explore';
 
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AsyncHandler, OrganisationService } from '@placeos/common';
 import { InteractiveMapComponent } from '@placeos/components';
@@ -62,7 +60,6 @@ import { DesksStateService } from './desks-state.service';
     ],
     providers: [ExploreDesksService],
     imports: [
-        CommonModule,
         InteractiveMapComponent,
         ExploreZoomControlComponent,
         UserSearchFieldComponent,
@@ -76,15 +73,15 @@ export class DeskMapViewComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
 
     /** Signal for the active map */
-    public readonly url = toSignal(this._state.map_url, { initialValue: '' });
+    public readonly url = this._state.map_url;
     /** Signal for the active map */
-    public readonly styles = toSignal(this._state.map_styles);
+    public readonly styles = this._state.map_styles;
     /** Signal for the active map */
-    public readonly positions = toSignal(this._state.map_positions);
+    public readonly positions = this._state.map_positions;
     /** Signal for the active map */
-    public readonly actions = toSignal(this._state.map_actions);
+    public readonly actions = this._state.map_actions;
     /** Signal for the active map */
-    public readonly features = toSignal(this._state.map_features);
+    public readonly features = this._state.map_features;
 
     public readonly setHost = (u) => this._desks_state.setOptions({ host: u });
 

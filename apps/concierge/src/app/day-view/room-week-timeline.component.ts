@@ -1,5 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -25,11 +26,11 @@ import {
     startOfMinute,
     startOfWeek,
 } from 'date-fns';
-import { combineLatest, lastValueFrom } from 'rxjs';
-import { map, shareReplay, startWith } from 'rxjs/operators';
+import { lastValueFrom } from 'rxjs';
 import { DateOptionsComponent } from '../ui/date-options.component';
-import { EventsStateService } from './events-state.service';
+import { BookingUIOptions, EventsStateService } from './events-state.service';
 import { RoomBookingSearchComponent } from './room-booking-search.component';
+import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
 
 @Component({
     selector: 'room-week-bookings-timeline',
@@ -45,13 +46,15 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
             class="border-base-200 relative z-20 flex items-center justify-center space-x-2 border-b p-2"
         >
             <date-options
-                [date]="date | async"
+                [date]="date()"
                 [step]="7"
+                display_mode="week"
+                [week_start]="week_start"
                 (dateChange)="setDate($event)"
                 [is_new]="true"
                 [hide_today]="true"
             ></date-options>
-            @if (this_week | async) {
+            @if (this_week()) {
                 <div
                     class="text-info absolute top-1/2 left-4 -translate-y-1/2 text-sm"
                 >
@@ -70,7 +73,7 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                 class="bg-base-100 sticky top-0 left-0 z-30 flex items-center justify-center"
             >
                 <div class="text-xs opacity-30">
-                    {{ date | async | date: 'zzzz' : tz }}
+                    {{ date() | date: 'zzzz' : tz }}
                 </div>
                 <div
                     class="bg-base-300 absolute right-0 bottom-0 h-2 w-px"
@@ -82,9 +85,9 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
             <div
                 day-headers
                 class="border-base-300 bg-base-100 sticky top-0 z-20 flex min-w-[calc(100%-3rem)] items-center border-b"
-                [style.width]="(days | async)?.length * 12 + 'rem'"
+                [style.width]="days().length * 12 + 'rem'"
             >
-                @for (date of days | async; track date) {
+                @for (date of days(); track date) {
                     <div
                         class="relative flex h-full min-w-48 flex-1 flex-col items-center justify-center leading-tight"
                     >
@@ -108,24 +111,19 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                 empty-block
                 class="border-base-300 bg-base-100 sticky left-0 z-10 min-h-full border-r"
                 [style.height]="
-                    (event_max_count | async)
-                        ? (event_max_count | async) * 5.375 + 'rem'
-                        : ''
+                    event_max_count() ? event_max_count() * 5.375 + 'rem' : ''
                 "
             ></div>
             <div
                 date-blocks
                 class="relative flex min-w-[calc(100%-3rem)] overflow-hidden"
-                [style.width]="(days | async)?.length * 12 + 'rem'"
+                [style.width]="days().length * 12 + 'rem'"
             >
-                @for (date of days | async; track date; let i = $index) {
+                @for (date of days(); track date; let i = $index) {
                     <div
                         class="border-base-200 min-w-48 flex-1 overflow-hidden border-r p-2"
                     >
-                        @for (
-                            event of (events | async)[date] || [];
-                            track event
-                        ) {
+                        @for (event of events()[date] || []; track event) {
                             <button
                                 matRipple
                                 class="hover:bg-base-200 flex w-full space-x-2 rounded-sm p-2 text-left"
@@ -210,94 +208,100 @@ export class RoomWeekBookingsTimelineComponent
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
+    private _building = toSignal(this._org.active_building, {
+        initialValue: this._org.building,
+    });
+    private _filtered = toSignal(this._state.filtered, { initialValue: [] });
+    private _zones = toSignal(this._state.zones, { initialValue: [] });
 
     public hours = Array.from({ length: 24 }, (_, i) => i);
-    public readonly ui_options = this._state.options;
-    public readonly date = this._state.date;
+    public readonly ui_options = toSignal(this._state.options, {
+        initialValue: {} as BookingUIOptions,
+    });
+    public readonly date = toSignal(this._state.date, {
+        initialValue: this._state.getDate(),
+    });
 
     public readonly remove = this._state.removeBooking;
 
-    public types = [
+    public readonly types = signal([
         { id: 'internal', name: 'Internal', color: '#D81B60' },
         { id: 'external', name: 'External', color: '#1E88E5' },
         { id: 'cancelled', name: 'Cancelled', color: '#eeeeee' },
-    ];
+    ]);
 
-    public readonly days = combineLatest([
-        this.date,
-        this._org.active_building,
-    ]).pipe(
-        map(([d]) =>
-            new Array(7)
-                .fill(0)
-                .map((_, idx) =>
-                    addDays(
-                        setHours(
-                            startOfWeek(d, { weekStartsOn: this._week_start }),
-                            12 - Math.floor(this.timezone_offset / 60),
-                        ),
-                        idx,
-                    ).valueOf(),
-                ),
-        ),
-    );
-    public readonly this_week = this.date.pipe(
-        map((d) => isSameWeek(d, Date.now())),
+    public readonly days = computed(() => {
+        this._building();
+        const date = this.date();
+        return new Array(7)
+            .fill(0)
+            .map((_, idx) =>
+                addDays(
+                    setHours(
+                        startOfWeek(date, { weekStartsOn: this._week_start }),
+                        12 - Math.floor(this.timezone_offset / 60),
+                    ),
+                    idx,
+                ).valueOf(),
+            );
+    });
+    public readonly this_week = computed(() =>
+        isSameWeek(this.date(), Date.now(), {
+            weekStartsOn: this._week_start,
+        }),
     );
 
     private _data_pipe = new DatePipe('en');
 
-    public readonly events = combineLatest([
-        this.days,
-        this._state.filtered,
-        this._state.zones,
-    ]).pipe(
-        map(([day_list, events, zones]) => {
-            if (zones.length) {
-                events = events.filter((_) =>
-                    _.system?.zones.find((_) => zones.includes(_)),
-                );
-            }
+    public readonly events = computed(() => {
+        const day_list = this.days();
+        let events = this._filtered().filter(isActiveRoomTimelineEvent);
+        const zones = this._zones();
+        if (zones.length) {
+            events = events.filter((event) =>
+                event.system?.zones.find((zone) => zones.includes(zone)),
+            );
+        }
 
-            const map: Record<string, CalendarEvent[]> = {};
-            for (const date of day_list) {
-                const date_value = this._data_pipe.transform(
-                    date,
-                    'yyyy-MM-dd',
-                    this.tz,
-                );
-                map[date] = events
-                    .filter((event) => {
-                        const event_date_value = this._data_pipe.transform(
-                            event.date,
-                            'yyyy-MM-dd',
-                            this.tz,
-                        );
-                        return (
-                            date_value === event_date_value &&
-                            !event.is_system_event
-                        );
-                    })
-                    .sort((a, b) => a.date - b.date);
-            }
-            return map;
-        }),
-        startWith({}),
-        shareReplay(1),
-    );
+        const event_map: Record<string, CalendarEvent[]> = {};
+        for (const date of day_list) {
+            const date_value = this._data_pipe.transform(
+                date,
+                'yyyy-MM-dd',
+                this.tz,
+            );
+            event_map[date] = events
+                .filter((event) => {
+                    const event_date_value = this._data_pipe.transform(
+                        event.date,
+                        'yyyy-MM-dd',
+                        this.tz,
+                    );
+                    return (
+                        date_value === event_date_value &&
+                        !event.is_system_event
+                    );
+                })
+                .sort((a, b) => a.date - b.date);
+        }
+        return event_map;
+    });
 
-    public readonly event_max_count = this.events.pipe(
-        map((e) => {
-            let length = 0;
-            for (const date in e) {
-                if (e[date].length > length) length = e[date].length;
-            }
-            return length;
-        }),
-    );
+    public readonly event_max_count = computed(() => {
+        const events = this.events();
+        let length = 0;
+        for (const date in events) {
+            if (events[date].length > length) length = events[date].length;
+        }
+        return length;
+    });
 
     private get _week_start() {
         return this._settings.get('app.week_start');
+    }
+
+    public get week_start() {
+        return this._week_start;
     }
 
     private _local_tz = getTimezoneOffsetString(
@@ -340,7 +344,7 @@ export class RoomWeekBookingsTimelineComponent
 
     public ngOnInit() {
         this.subscription('poll', this._state.poll());
-        this.types = [
+        this.types.set([
             {
                 id: 'internal',
                 name: i18n('COMMON.TYPE_INTERNAL'),
@@ -356,11 +360,11 @@ export class RoomWeekBookingsTimelineComponent
                 name: i18n('COMMON.TYPE_CANCELLED'),
                 color: '#eeeeee',
             },
-        ];
+        ]);
     }
 
     public typeColor(type: string) {
-        return this.types.find((_) => _.id === type)?.color || '#EEE';
+        return this.types().find((_) => _.id === type)?.color || '#EEE';
     }
 
     public viewEvent(

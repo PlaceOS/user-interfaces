@@ -21,12 +21,160 @@ describe('OrganisationService', () => {
     });
 
     beforeEach(() => {
+        sessionStorage.clear();
         (ts_client as any).onlineState = jest.fn(() => of(true));
+        (ts_client as any).waitForSignal = jest.fn(() => Promise.resolve(true));
+        (ts_client as any).authority = jest.fn(() => ({ id: 'auth-1' }));
         spectator = createService();
     });
 
     it('should create service', () => {
         expect(spectator.service).toBeTruthy();
+    });
+
+    it('should sort levels by parent, name then display name', () => {
+        spectator.service.addZone({
+            id: 'region-1',
+            tags: ['region'],
+            name: 'Region 1',
+        } as any);
+        spectator.service.addZone({
+            id: 'bld-b',
+            parent_id: 'region-1',
+            tags: ['building'],
+            name: 'Building B',
+        } as any);
+        spectator.service.addZone({
+            id: 'bld-a',
+            parent_id: 'region-1',
+            tags: ['building'],
+            name: 'Building A',
+        } as any);
+        spectator.service.addZone({
+            id: 'lvl-b2',
+            parent_id: 'bld-b',
+            tags: ['level'],
+            name: 'Level 2',
+            display_name: 'Z Display',
+        } as any);
+        spectator.service.addZone({
+            id: 'lvl-b2-display',
+            parent_id: 'bld-b',
+            tags: ['level'],
+            name: 'Level 2',
+            display_name: 'A Display',
+        } as any);
+        spectator.service.addZone({
+            id: 'lvl-a2',
+            parent_id: 'bld-a',
+            tags: ['level'],
+            name: 'Level 2',
+        } as any);
+        spectator.service.addZone({
+            id: 'lvl-b1',
+            parent_id: 'bld-b',
+            tags: ['level'],
+            name: 'Level 1',
+        } as any);
+
+        expect(
+            spectator.service
+                .levelsForRegion(spectator.service.regions[0])
+                .map(({ id }) => id),
+        ).toEqual(['lvl-a2', 'lvl-b1', 'lvl-b2-display', 'lvl-b2']);
+    });
+
+    it('should cache zone data for the browser session', async () => {
+        (ts_client as any).queryZones = jest.fn(() =>
+            Promise.resolve({ data: [{ id: 'bld-1', tags: ['building'] }] }),
+        );
+
+        const first_list = await spectator.service.loadBuildings('org-1');
+        const second_list = await spectator.service.loadBuildings('org-1');
+
+        expect(ts_client.queryZones).toHaveBeenCalledTimes(1);
+        expect(first_list.map(({ id }) => id)).toEqual(['bld-1']);
+        expect(second_list.map(({ id }) => id)).toEqual(['bld-1']);
+    });
+
+    it('should expire cached zone data using the authority config', async () => {
+        (ts_client as any).authority = jest.fn(() => ({
+            id: 'auth-1',
+            config: { metadata_cache_duration: 0 },
+        }));
+        (ts_client as any).queryZones = jest.fn(() =>
+            Promise.resolve({ data: [{ id: 'bld-1', tags: ['building'] }] }),
+        );
+
+        await spectator.service.loadBuildings('org-1');
+        await spectator.service.loadBuildings('org-1');
+
+        expect(ts_client.queryZones).toHaveBeenCalledTimes(2);
+    });
+
+    it('should invalidate cached zone data when metadata cache id changes', async () => {
+        let metadata_cache_id = 'cache-1';
+        (ts_client as any).authority = jest.fn(() => ({
+            id: 'auth-1',
+            config: { metadata_cache_id },
+        }));
+        (ts_client as any).queryZones = jest.fn(() =>
+            Promise.resolve({ data: [{ id: 'bld-1', tags: ['building'] }] }),
+        );
+
+        await spectator.service.loadBuildings('org-1');
+        await spectator.service.loadBuildings('org-1');
+        metadata_cache_id = 'cache-2';
+        await spectator.service.loadBuildings('org-1');
+
+        expect(ts_client.queryZones).toHaveBeenCalledTimes(2);
+    });
+
+    it('should cache bulk metadata for the browser session', async () => {
+        (ts_client as any).bulkMetadata = jest.fn((name) =>
+            Promise.resolve({ bld_1: { details: { name } } }),
+        );
+
+        await spectator.service.loadBuildingData({ id: 'bld_1' } as any);
+        (spectator.service as any)._loaded_data.length = 0;
+        await spectator.service.loadBuildingData({ id: 'bld_1' } as any);
+
+        expect(ts_client.bulkMetadata).toHaveBeenCalledTimes(3);
+    });
+
+    it('should clear org caches when reloading metadata', async () => {
+        (ts_client as any).queryZones = jest.fn(() =>
+            Promise.resolve({ data: [{ id: 'bld-1', tags: ['building'] }] }),
+        );
+        jest.spyOn(spectator.service as any, 'load').mockResolvedValue(
+            undefined,
+        );
+
+        await spectator.service.loadBuildings('org-1');
+        await spectator.service.loadBuildings('org-1');
+        await spectator.service.reloadMetadata();
+        await spectator.service.loadBuildings('org-1');
+
+        expect(ts_client.queryZones).toHaveBeenCalledTimes(2);
+    });
+
+    it('should load building metadata in bulk', async () => {
+        (ts_client as any).bulkMetadata = jest.fn((name) =>
+            Promise.resolve({ bld_1: { details: { name } } }),
+        );
+
+        await spectator.service.loadBuildingData({ id: 'bld_1' } as any);
+
+        expect(ts_client.bulkMetadata).toHaveBeenCalledWith('workplace_app', {
+            parent_ids: 'bld_1',
+        });
+        expect(ts_client.bulkMetadata).toHaveBeenCalledWith('bindings', {
+            parent_ids: 'bld_1',
+        });
+        expect(ts_client.bulkMetadata).toHaveBeenCalledWith('booking_rules', {
+            parent_ids: 'bld_1',
+        });
+        expect(ts_client.showMetadata).not.toHaveBeenCalled();
     });
 
     /// TODO: fix

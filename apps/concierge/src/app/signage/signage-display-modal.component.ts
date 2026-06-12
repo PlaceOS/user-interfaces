@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -15,7 +15,6 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { addSystem, PlaceSystem, updateSystem } from '@placeos/ts-client';
-import { lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'signage-display-modal',
@@ -29,7 +28,7 @@ import { lastValueFrom } from 'rxjs';
             "
             (confirm)="save()"
             [loading]="
-                loading
+                loading()
                     ? ('APP.CONCIERGE.SIGNAGE_DISPLAYS_SAVING' | translate)
                     : ''
             "
@@ -122,7 +121,7 @@ export class SignageDisplayModalComponent {
         inject<MatDialogRef<SignageDisplayModalComponent>>(MatDialogRef);
     private _org = inject(OrganisationService);
 
-    public loading = false;
+    public readonly loading = signal(false);
     public readonly display = this._data.display;
 
     public readonly form = new FormGroup({
@@ -140,7 +139,7 @@ export class SignageDisplayModalComponent {
         this.form.markAllAsTouched();
         this.form.updateValueAndValidity();
         if (this.form.invalid) return;
-        this.loading = true;
+        this.loading.set(true);
         const form_value = this.form.getRawValue();
         const new_display = new PlaceSystem({
             ...form_value,
@@ -159,7 +158,7 @@ export class SignageDisplayModalComponent {
         const method = this.display.id
             ? updateSystem(this.display.id, new_display)
             : addSystem(new_display);
-        const result = await lastValueFrom(method);
+        const result = await method;
         this._dialog_ref.close(result);
     }
 }

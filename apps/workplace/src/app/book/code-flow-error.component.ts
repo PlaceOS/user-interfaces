@@ -10,7 +10,7 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
 @Component({
     selector: 'code-flow-success',
     template: `
-        <div class="bg-base-100 absolute inset-0 z-50 flex flex-col">
+        <div class="bg-base-100 z-50 flex h-full w-full flex-col">
             <main
                 class="flex flex-1 flex-col items-center justify-center space-y-2 p-8"
             >
@@ -59,7 +59,7 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
                         matRipple
                         class="w-full max-w-lg"
                         [routerLink]="['/book', 'desk']"
-                        [queryParams]="{ asset_id: asset_id }"
+                        [queryParams]="{ asset_id: asset_id() }"
                     >
                         {{ 'COMMON.BOOK' | translate }}
                     </a>
@@ -75,7 +75,15 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
             </footer>
         </div>
     `,
-    styles: [``],
+    styles: [
+        `
+            :host {
+                width: 100%;
+                height: 50%;
+                flex: 1;
+            }
+        `,
+    ],
     imports: [MatRippleModule, TranslatePipe, RouterModule],
 })
 export class CodeFlowErrorComponent extends AsyncHandler {

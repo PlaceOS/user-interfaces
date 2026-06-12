@@ -2,29 +2,31 @@
 import { CommonModule } from '@angular/common';
 import {
     Component,
+    computed,
     ElementRef,
     forwardRef,
-    inject,
     input,
     model,
     signal,
     viewChild,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import {
     ControlValueAccessor,
     FormsModule,
     NG_VALUE_ACCESSOR,
 } from '@angular/forms';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import {
+    MatAutocompleteModule,
+    MatAutocompleteTrigger,
+} from '@angular/material/autocomplete';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AsyncHandler, SettingsService, User } from '@placeos/common';
-import { authority, queryUsers } from '@placeos/ts-client';
-import { searchGuests } from 'libs/users/src/lib/guests.fn';
-import { searchStaff } from 'libs/users/src/lib/staff.fn';
-import { BehaviorSubject, forkJoin, Observable, of } from 'rxjs';
+import { AsyncHandler, settingSignal, User } from '@placeos/common';
+import { authority, queryUsers, showUser } from '@placeos/ts-client';
+import { forkJoin, from, Observable, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -35,9 +37,14 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import { UserAvatarComponent } from '@placeos/components';
+import {
+    UserAvatarComponent,
+    VirtualKeyboardComponent,
+} from '@placeos/components';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { searchGuests } from 'libs/users/src/lib/guests.fn';
+import { searchStaff } from 'libs/users/src/lib/staff.fn';
 
 @Component({
     selector: 'a-user-search-field',
@@ -46,20 +53,31 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
             <mat-form-field
                 appearance="outline"
                 class="w-1/2 flex-1"
-                [class.no-subscript]="!error()"
+                [class.no-subscript]="!error() && !selected_user()"
             >
-                <icon
+                <div
                     matPrefix
-                    class="block flex w-6 items-center justify-center text-2xl"
-                    >search</icon
+                    class="mr-2 -ml-1 flex h-8 w-8 items-center justify-center"
                 >
+                    @if (selected_user(); as user) {
+                        <a-user-avatar [user]="user" />
+                    } @else {
+                        <icon
+                            class="block flex w-6 items-center justify-center text-2xl"
+                            >search</icon
+                        >
+                    }
+                </div>
                 <input
+                    #input
+                    keyboard
                     matInput
-                    [ngModel]="search_term.getValue()"
-                    (ngModelChange)="search_term.next($event)"
+                    [ngModel]="search_term()"
+                    (ngModelChange)="search_term.set($event)"
                     [disabled]="disabled()"
                     [matAutocomplete]="auto"
                     [placeholder]="placeholder() | translate"
+                    (focus)="selectInputText()"
                     (blur)="resetTerm()"
                 />
                 @if (loading()) {
@@ -71,7 +89,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     (optionSelected)="setValue($event.option.value)"
                 >
                     @let user_list = search_results | async;
-                    @let term = search_term.getValue();
+                    @let term = search_term();
                     @for (user of user_list; track $index) {
                         <mat-option [value]="user">
                             <div class="flex items-center space-x-2">
@@ -91,7 +109,9 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                                 class="pointer-events-auto absolute inset-0 px-4"
                                 (mousedown)="stopEvent($event)"
                                 (touchstart)="stopEvent($event)"
-                                (click)="setValue(term); stopEvent($event)"
+                                (click)="
+                                    setExternalValue(term); stopEvent($event)
+                                "
                             >
                                 <div class="pointer-events-none">
                                     {{
@@ -103,8 +123,31 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                         </mat-option>
                     }
                     @if (
+                        term &&
+                        allow_externals() &&
+                        isValidEmail(term) &&
+                        !(validate() && validate()(term))
+                    ) {
+                        <mat-option class="pointer-events-none relative">
+                            <div
+                                class="pointer-events-auto absolute inset-0 flex items-center px-4"
+                                (mousedown)="stopEvent($event)"
+                                (touchstart)="stopEvent($event)"
+                                (click)="
+                                    setValueFromEmail(term); stopEvent($event)
+                                "
+                            >
+                                {{
+                                    'FORM.USER_SET_EXTERNAL'
+                                        | translate: { name: term }
+                                }}
+                            </div>
+                        </mat-option>
+                    }
+                    @if (
                         !user_list?.length &&
-                        (search_term.getValue() || error())
+                        (search_term() || error()) &&
+                        !disable_search()
                     ) {
                         <mat-option
                             [disabled]="!empty_fn()"
@@ -158,17 +201,22 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
         IconComponent,
         TranslatePipe,
         UserAvatarComponent,
+        VirtualKeyboardComponent,
     ],
 })
 export class UserSearchFieldComponent
     extends AsyncHandler
     implements ControlValueAccessor
 {
-    private _settings = inject(SettingsService);
+    private use_basic_search = settingSignal('basic_user_search', true);
 
-    public readonly search_term = new BehaviorSubject<string>('');
+    public readonly search_term = signal<string>('');
     public readonly loading = signal(false);
     public readonly user = signal<User | null>(null);
+    public readonly selected_user = computed<User | null>(() => {
+        const term = this.search_term() as string | User;
+        return term && typeof term !== 'string' ? term : null;
+    });
 
     /** Whether form field is disabled */
     public readonly disabled = model<boolean>(undefined);
@@ -178,6 +226,10 @@ export class UserSearchFieldComponent
     public readonly options = input<User[]>(undefined);
     /** Whether guests should also show when searching for users */
     public readonly guests = input<boolean>(undefined);
+    /** Whether only guests should show when searching for users */
+    public readonly guests_only = input<boolean>(false);
+    /** Whether directory search should be disabled */
+    public readonly disable_search = input<boolean>(false);
     /** Whether to show clear button */
     public readonly clear = input<boolean>(false);
     /** Message to display when no user matches have been found */
@@ -186,30 +238,34 @@ export class UserSearchFieldComponent
     public readonly validate = input<(s: string) => boolean>(undefined);
     /** Function to call when empty list option is clicked */
     public readonly empty_fn = input<() => void>(undefined);
+    /** Whether to allow selecting an external user from a typed email address */
+    public readonly allow_externals = input<boolean>(false);
     /** Function for filtering the results of the user list */
     public readonly filter = input<(_: any, s?: string) => boolean>(undefined);
     /** Function for querying the user list */
-    public readonly query_fn = input<(_: string) => Observable<User[]>>((q) =>
-        this._settings.get('app.basic_user_search')
-            ? queryUsers({ q, authority_id: authority()?.id }).pipe(
+    public readonly query_fn = input<(_: string) => Observable<User[]>>((q) => {
+        const staff_query = this.use_basic_search()
+            ? from(queryUsers({ q, authority_id: authority()?.id })).pipe(
                   map((_) => _.data.map((_) => new User(_))),
                   catchError(() => of([])),
               )
-            : this.guests()
-              ? forkJoin([
-                    searchStaff(q).pipe(catchError(() => of([]))),
-                    searchGuests(q).pipe(catchError(() => of([]))),
-                ])
-              : searchStaff(q).pipe(catchError(() => of([]))),
-    );
+            : searchStaff(q).pipe(catchError(() => of([])));
+        const guest_query = searchGuests(q).pipe(catchError(() => of([])));
+        if (this.guests_only()) return guest_query;
+        if (!this.guests()) return staff_query;
+        return forkJoin([staff_query, guest_query]).pipe(
+            map(([staff, guests]) => [...staff, ...guests]),
+        );
+    });
 
-    public readonly search_results = this.search_term.pipe(
+    public readonly search_results = toObservable(this.search_term).pipe(
         debounceTime(300),
         switchMap((term) => {
             if (term && typeof term !== 'string') return of([term]);
             if (term === this.user()?.name) return of([this.user()]);
+            if (this.disable_search()) return of([]);
             this.loading.set(true);
-            const s = (term || '').toLowerCase();
+            const s = `${term || ''}`.toLowerCase();
             return this.options()?.length
                 ? of(
                       this.options().filter(
@@ -235,6 +291,7 @@ export class UserSearchFieldComponent
     public readonly setDisabledState = (s) => this.disabled.set(s);
 
     private readonly _input_el = viewChild('input', { read: ElementRef });
+    private readonly _autocomplete_trigger = viewChild(MatAutocompleteTrigger);
 
     /**
      * Update the form field value
@@ -248,7 +305,30 @@ export class UserSearchFieldComponent
         this._onChange ? this._onChange(value) : null;
         this._onTouch ? this._onTouch(value) : null;
         this.user.set(value);
-        console.log('Set User:', value);
+        this.search_term.set(value as any);
+        if (
+            typeof new_value !== 'string' &&
+            !this.use_basic_search() &&
+            (value?.id || value?.email)
+        ) {
+            showUser(value.email || value.id)
+                .then((details) => {
+                    if (!details) return;
+                    const updated = new User({
+                        ...value,
+                        ...new User(details),
+                    });
+                    this._onChange ? this._onChange(updated) : null;
+                    this.user.set(updated);
+                    this.search_term.set(updated as any);
+                })
+                .catch(() => value);
+        }
+    }
+
+    public setExternalValue(name: string): void {
+        this.setValue(name);
+        this.dismissAutocomplete();
     }
 
     /**
@@ -269,6 +349,23 @@ export class UserSearchFieldComponent
         event.preventDefault();
     }
 
+    /** Check if a string is a valid email address */
+    public isValidEmail(value: string): boolean {
+        const re =
+            /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(value);
+    }
+
+    /**
+     * Set the value from a typed email address
+     * @param email Email address to create a user from
+     */
+    public setValueFromEmail(email: string): void {
+        const name = email.split('@')[0];
+        this.setValue(name, email);
+        this.dismissAutocomplete();
+    }
+
     public clearUser() {
         this.user.set(null);
         this._onChange ? this._onChange(null) : null;
@@ -276,9 +373,24 @@ export class UserSearchFieldComponent
         this.resetTerm();
     }
 
+    public blurInput() {
+        this._input_el()?.nativeElement?.blur();
+    }
+
+    public selectInputText() {
+        setTimeout(() => this._input_el()?.nativeElement?.select());
+    }
+
+    public dismissAutocomplete() {
+        setTimeout(() => {
+            this._autocomplete_trigger()?.closePanel();
+            this.blurInput();
+        });
+    }
+
     public resetTerm() {
-        this.search_term.next(this.user() as any);
+        this.search_term.set(this.user() as any);
         const input = this._input_el()?.nativeElement;
-        if (input) input.value = this.search_term.getValue();
+        if (input) input.value = this.displayFn(this.user());
     }
 }

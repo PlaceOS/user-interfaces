@@ -1,6 +1,6 @@
+import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { Booking, MAP_FEATURE_DATA } from '@placeos/common';
-import { signal } from '@angular/core';
 import { ngMocks } from 'ng-mocks';
 
 import { ExploreDeskInfoComponent } from '../lib/explore-desk-info.component';
@@ -39,9 +39,9 @@ describe('ExploreDeskInfoComponent', () => {
                         id: 'desk-1',
                         map_id: 'desk-1',
                         name: 'Desk 1',
-                        user: '',
+                        user: signal(''),
                         status: signal('free'),
-                        bookings: [booking],
+                        bookings: signal([booking]),
                         date: selected.valueOf(),
                     },
                 },
@@ -50,10 +50,8 @@ describe('ExploreDeskInfoComponent', () => {
         spectator.component.now.set(selected.valueOf());
 
         expect(spectator.component.display_user()).toBe('Taylor');
-        expect(spectator.component.current_booking()).toBe(false);
-        expect(spectator.component.next_booking()?.date).toBe(
-            booking.date,
-        );
+        expect(spectator.component.current_booking()).toBeFalsy();
+        expect(spectator.component.next_booking()?.date).toBe(booking.date);
     });
 
     it('should show free at for the current booking', () => {
@@ -77,9 +75,9 @@ describe('ExploreDeskInfoComponent', () => {
                         id: 'desk-1',
                         map_id: 'desk-1',
                         name: 'Desk 1',
-                        user: '',
+                        user: signal(''),
                         status: signal('busy'),
-                        bookings: [booking],
+                        bookings: signal([booking]),
                         date: current.valueOf(),
                     },
                 },
@@ -87,7 +85,9 @@ describe('ExploreDeskInfoComponent', () => {
         });
         spectator.component.now.set(current.valueOf());
 
-        expect(spectator.component.current_booking()).toBe(true);
-        expect(spectator.component.display_end()).toBe(booking.date_end);
+        expect(spectator.component.current_booking()).toBeTruthy();
+        expect(spectator.component.current_booking()?.date_end).toBe(
+            booking.date_end,
+        );
     });
 });

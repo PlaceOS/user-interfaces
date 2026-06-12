@@ -12,6 +12,7 @@ import {
 } from '@angular/material/dialog';
 import {
     currentUser,
+    notifyError,
     notifySuccess,
     OrganisationService,
     SettingsService,
@@ -31,7 +32,11 @@ import {
     SettingsToggleComponent,
 } from '@placeos/components';
 import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
-import { lastValueFrom } from 'rxjs';
+import { firstValueFrom, from } from 'rxjs';
+import {
+    EXPLORE_FEATURE_OPTIONS,
+    MAX_DURATION_MINI_OPTIONS,
+} from './settings-option.constants';
 import { UploadButtonComponent } from './upload-button.component';
 
 @Component({
@@ -276,19 +281,11 @@ import { UploadButtonComponent } from './upload-button.component';
                                 placeholder="No disabled features"
                                 multiple
                             >
-                                <mat-option value="devices">Devices</mat-option>
-                                <mat-option value="desks">Desks</mat-option>
-                                <mat-option value="lockers">
-                                    Lockers
-                                </mat-option>
-                                <mat-option value="parking">
-                                    parking
-                                </mat-option>
-                                <mat-option value="spaces"> Rooms </mat-option>
-                                <mat-option value="spaces-presence">
-                                    Room Presence
-                                </mat-option>
-                                <mat-option value="zones">Zones</mat-option>
+                                @for (opt of EXPLORE_FEATURE; track opt.value) {
+                                    <mat-option [value]="opt.value">{{
+                                        opt.label
+                                    }}</mat-option>
+                                }
                             </mat-select>
                         </mat-form-field>
                     </div>
@@ -304,23 +301,14 @@ import { UploadButtonComponent } from './upload-button.component';
                                     placeholder="No disabled actions"
                                     multiple
                                 >
-                                    <mat-option value="devices"
-                                        >Devices</mat-option
-                                    >
-                                    <mat-option value="desks">Desks</mat-option>
-                                    <mat-option value="lockers">
-                                        Lockers
-                                    </mat-option>
-                                    <mat-option value="parking">
-                                        parking
-                                    </mat-option>
-                                    <mat-option value="spaces">
-                                        Rooms
-                                    </mat-option>
-                                    <mat-option value="spaces-presence">
-                                        Room Presence
-                                    </mat-option>
-                                    <mat-option value="zones">Zones</mat-option>
+                                    @for (
+                                        opt of EXPLORE_FEATURE;
+                                        track opt.value
+                                    ) {
+                                        <mat-option [value]="opt.value">{{
+                                            opt.label
+                                        }}</mat-option>
+                                    }
                                 </mat-select>
                             </mat-form-field>
                         </div>
@@ -335,23 +323,14 @@ import { UploadButtonComponent } from './upload-button.component';
                                     placeholder="No disabled labels"
                                     multiple
                                 >
-                                    <mat-option value="devices"
-                                        >Devices</mat-option
-                                    >
-                                    <mat-option value="desks">Desks</mat-option>
-                                    <mat-option value="lockers">
-                                        Lockers
-                                    </mat-option>
-                                    <mat-option value="parking">
-                                        parking
-                                    </mat-option>
-                                    <mat-option value="spaces">
-                                        Rooms
-                                    </mat-option>
-                                    <mat-option value="spaces-presence">
-                                        Room Presence
-                                    </mat-option>
-                                    <mat-option value="zones">Zones</mat-option>
+                                    @for (
+                                        opt of EXPLORE_FEATURE;
+                                        track opt.value
+                                    ) {
+                                        <mat-option [value]="opt.value">{{
+                                            opt.label
+                                        }}</mat-option>
+                                    }
                                 </mat-select>
                             </mat-form-field>
                         </div>
@@ -368,23 +347,14 @@ import { UploadButtonComponent } from './upload-button.component';
                                     placeholder="No disabled displays"
                                     multiple
                                 >
-                                    <mat-option value="devices"
-                                        >Devices</mat-option
-                                    >
-                                    <mat-option value="desks">Desks</mat-option>
-                                    <mat-option value="lockers">
-                                        Lockers
-                                    </mat-option>
-                                    <mat-option value="parking">
-                                        parking
-                                    </mat-option>
-                                    <mat-option value="spaces">
-                                        Rooms
-                                    </mat-option>
-                                    <mat-option value="spaces-presence">
-                                        Room Presence
-                                    </mat-option>
-                                    <mat-option value="zones">Zones</mat-option>
+                                    @for (
+                                        opt of EXPLORE_FEATURE;
+                                        track opt.value
+                                    ) {
+                                        <mat-option [value]="opt.value">{{
+                                            opt.label
+                                        }}</mat-option>
+                                    }
                                 </mat-select>
                             </mat-form-field>
                         </div>
@@ -399,23 +369,14 @@ import { UploadButtonComponent } from './upload-button.component';
                                     placeholder="No disabled styles"
                                     multiple
                                 >
-                                    <mat-option value="devices"
-                                        >Devices</mat-option
-                                    >
-                                    <mat-option value="desks">Desks</mat-option>
-                                    <mat-option value="lockers">
-                                        Lockers
-                                    </mat-option>
-                                    <mat-option value="parking">
-                                        parking
-                                    </mat-option>
-                                    <mat-option value="spaces">
-                                        Rooms
-                                    </mat-option>
-                                    <mat-option value="spaces-presence">
-                                        Room Presence
-                                    </mat-option>
-                                    <mat-option value="zones">Zones</mat-option>
+                                    @for (
+                                        opt of EXPLORE_FEATURE;
+                                        track opt.value
+                                    ) {
+                                        <mat-option [value]="opt.value">{{
+                                            opt.label
+                                        }}</mat-option>
+                                    }
                                 </mat-select>
                             </mat-form-field>
                         </div>
@@ -532,17 +493,14 @@ import { UploadButtonComponent } from './upload-button.component';
                                 name="max-duration"
                                 formControlName="max_duration"
                             >
-                                <mat-option [value]="60">1 Hour</mat-option>
-                                <mat-option [value]="90"
-                                    >1 Hour 30 Minutes</mat-option
-                                >
-                                <mat-option [value]="120">2 Hours</mat-option>
-                                <mat-option [value]="180">3 Hours</mat-option>
-                                <mat-option [value]="240">4 Hours</mat-option>
-                                <mat-option [value]="300">5 Hours</mat-option>
-                                <mat-option [value]="360">6 Hours</mat-option>
-                                <mat-option [value]="420">7 Hours</mat-option>
-                                <mat-option [value]="480">8 Hours</mat-option>
+                                @for (
+                                    opt of MAX_DURATION_MINI;
+                                    track opt.value
+                                ) {
+                                    <mat-option [value]="opt.value">{{
+                                        opt.label
+                                    }}</mat-option>
+                                }
                             </mat-select>
                         </mat-form-field>
                     </div>
@@ -594,6 +552,8 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
     public old_settings: Record<string, any> = {};
     public readonly loading = signal('');
     public readonly zone = this._data.zone;
+    public readonly MAX_DURATION_MINI = MAX_DURATION_MINI_OPTIONS;
+    public readonly EXPLORE_FEATURE = EXPLORE_FEATURE_OPTIONS;
     public readonly settings_key =
         this._settings.get('app.visitor_kiosk_metadata_key') ||
         'visitor-kiosk_app';
@@ -733,17 +693,20 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
                   ? 'Support'
                   : 'User',
         };
-        await lastValueFrom(
-            updateMetadata(zone.id, {
+        try {
+            await updateMetadata(zone.id, {
                 name: `${this.settings_key}`,
                 details: new_settings,
                 description: `[${VERSION.hash}|C] Visitor-kiosk Application Settings`,
-            }),
-        ).catch((e) => {
+            });
+        } catch (e) {
             console.error(e);
             this.loading.set('');
+            notifyError(
+                `Failed to save settings: ${e.message || e.error || e}`,
+            );
             throw e;
-        });
+        }
         this.loading.set('');
         notifySuccess('Successfully saved visitor kiosk app settings');
         this._dialog_ref.close();
@@ -759,9 +722,9 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
     }
 
     private _getMetadata(id) {
-        return lastValueFrom(
-            showMetadata(id, this.settings_key).pipe(
-                map((m) => m.details as Record<string, any>),
+        return firstValueFrom(
+            from(showMetadata(id, this.settings_key) as any).pipe(
+                map((m: any) => m.details as Record<string, any>),
             ),
         );
     }

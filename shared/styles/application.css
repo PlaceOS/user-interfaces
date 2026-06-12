@@ -166,6 +166,10 @@ body {
     color: var(--base-content);
 }
 
+body.has-environment-bar {
+    padding-block: 0.5rem;
+}
+
 * {
     user-select: none;
     font-family: var(--font);
@@ -887,6 +891,32 @@ a[icon] {
         font-size: 1.5em;
     }
 
+    &[default] {
+        background: var(--base-100);
+        border: 1px solid var(--base-300);
+        border-radius: 0.5rem;
+        color: var(--base-content);
+
+        &:hover {
+            background: var(--base-200);
+            border-color: var(--base-400);
+            --tw-shadow:
+                0 4px 6px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1)),
+                0 2px 4px -2px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+            box-shadow:
+                var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+                var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
+                var(--tw-shadow);
+        }
+
+        &[error] {
+            --base-200: var(--error-light);
+            --base-300: var(--error);
+            --base-400: var(--error);
+            --base-content: var(--error);
+        }
+    }
+
     &[disabled] {
         opacity: 0.35;
     }
@@ -914,6 +944,14 @@ a[icon] {
 
         [disabled='true'] {
             opacity: 0.6;
+        }
+    }
+
+    mat-form-field {
+        font-size: 1rem;
+
+        label {
+            width: auto;
         }
     }
 
@@ -968,12 +1006,6 @@ a[icon] {
 
     .cdk-overlay-pane {
         max-width: none !important;
-    }
-
-    .svg-viewer__label {
-        top: -200%;
-        left: -200%;
-        line-height: 1.1;
     }
 
     .mdc-datepicker-toggle {
@@ -1677,10 +1709,6 @@ a[link] {
 }
 
 #placeos {
-    .svg-viewer__label {
-        min-width: 12rem;
-    }
-
     ::placeholder,
     .mat-form-field-label,
     .mat-mdc-select-placeholder {
@@ -1690,6 +1718,30 @@ a[link] {
     input {
         caret-color: var(--primary);
     }
+}
+
+/* Map viewer overlays */
+
+.map-label {
+    display: block;
+    text-shadow: black 1px 1px;
+    color: white;
+    white-space: pre-line;
+    text-align: center;
+    min-width: 10em;
+    line-height: 1.1;
+}
+
+.map-overlay-hover {
+    pointer-events: auto;
+}
+
+.map-overlay-hover > * {
+    display: none;
+}
+
+.map-overlay-hover:hover > * {
+    display: revert;
 }
 
 /* Utility Classes */

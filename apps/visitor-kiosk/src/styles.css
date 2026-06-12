@@ -6,6 +6,7 @@ html,
 body {
     height: 100%;
     font-size: 2vmin !important;
+    overflow: hidden;
 }
 
 body {
@@ -51,7 +52,19 @@ body {
     }
 
     /* Prevent regular app content from affecting print pagination */
-    body#placeos > *:not(.cdk-overlay-container) {
+    body#placeos > *:not(.cdk-overlay-container):not(app-root) {
+        display: none !important;
+    }
+
+    app-root {
+        display: block !important;
+        height: auto !important;
+        width: auto !important;
+    }
+
+    app-root > global-banner,
+    app-root > global-chat,
+    app-root > global-loading {
         display: none !important;
     }
 

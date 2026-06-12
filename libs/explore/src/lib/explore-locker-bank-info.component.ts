@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 
@@ -36,22 +36,22 @@ export interface LockerBankInfoData {
         <ng-template #desk_tooltip>
             <div
                 name="space-info"
-                [id]="bank?.map_id || bank?.id"
+                [id]="bank().map_id || bank().id"
                 [class]="
                     'bg-base-100 pointer-events-none absolute top-0 left-0 rounded-sm p-4 shadow-sm ' +
-                    x_pos +
+                    x_pos() +
                     ' ' +
-                    y_pos
+                    y_pos()
                 "
             >
-                <h3 class="font-medium">{{ bank.name }}</h3>
+                <h3 class="font-medium">{{ bank().name }}</h3>
                 <p class="text-sm whitespace-nowrap">
                     {{
                         'EXPLORE.LOCKERS_USE'
                             | translate
                                 : {
-                                      used: in_use_count,
-                                      count: bank.lockers.length || 1,
+                                      used: in_use_count(),
+                                      count: bank().lockers.length || 1,
                                   }
                     }}
                 </p>
@@ -66,10 +66,10 @@ export class ExploreLockerBankInfoComponent implements OnInit {
     private _element = inject<ElementRef<HTMLElement>>(ElementRef);
     private _dialog = inject(MatDialog);
 
-    public bank: LockerBank = this._details.bank;
-    public in_use_count: number = this._details.in_use_count;
-    public y_pos: 'top' | 'bottom';
-    public x_pos: 'left' | 'right';
+    public readonly bank = signal<LockerBank>(this._details.bank);
+    public readonly in_use_count = signal(this._details.in_use_count);
+    public readonly y_pos = signal<'top' | 'bottom'>('top');
+    public readonly x_pos = signal<'left' | 'right'>('left');
 
     public ngOnInit(tries = 0) {
         if (tries > 10) return;
@@ -81,8 +81,8 @@ export class ExploreLockerBankInfoComponent implements OnInit {
                 y: parseInt(parent.style.top, 10) / 100,
                 x: parseInt(parent.style.left, 10) / 100,
             };
-            this.y_pos = position.y >= 0.5 ? 'bottom' : 'top';
-            this.x_pos = position.x >= 0.5 ? 'right' : 'left';
+            this.y_pos.set(position.y >= 0.5 ? 'bottom' : 'top');
+            this.x_pos.set(position.x >= 0.5 ? 'right' : 'left');
         }, 200);
     }
 

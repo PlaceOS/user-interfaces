@@ -1,5 +1,11 @@
-import { addMilliseconds } from 'date-fns';
-import { getTimezoneOffset } from 'date-fns-tz';
+import {
+    addMilliseconds,
+    endOfDay,
+    set,
+    startOfDay,
+    startOfMinute,
+} from 'date-fns';
+import { fromZonedTime, getTimezoneOffset, toZonedTime } from 'date-fns-tz';
 import { padLength } from './general';
 
 export const LOCAL_TIMEZONE =
@@ -23,6 +29,22 @@ export function timezoneToLocal(
     return addMilliseconds(date, offset_diff).valueOf();
 }
 
+export function startOfDayInTimezone(
+    date: Date | number,
+    tz: string = LOCAL_TIMEZONE,
+) {
+    if (!tz) return startOfDay(date).valueOf();
+    return fromZonedTime(startOfDay(toZonedTime(date, tz)), tz).valueOf();
+}
+
+export function endOfDayInTimezone(
+    date: Date | number,
+    tz: string = LOCAL_TIMEZONE,
+) {
+    if (!tz) return endOfDay(date).valueOf();
+    return fromZonedTime(endOfDay(toZonedTime(date, tz)), tz).valueOf();
+}
+
 const TIMZONE_OFFSET_STRINGS = {};
 
 export function getTimezoneOffsetString(tz: string) {
@@ -30,7 +52,7 @@ export function getTimezoneOffsetString(tz: string) {
     const offset = getTimezoneOffsetInMinutes(tz);
     const hours = Math.floor(Math.abs(offset) / 60);
     const minutes = Math.abs(offset) % 60;
-    const output = `${offset > 0 ? '+' : '-'}${padLength(hours, 2)}${padLength(
+    const output = `${offset >= 0 ? '+' : '-'}${padLength(hours, 2)}${padLength(
         minutes,
         2,
     )}`;
@@ -42,9 +64,17 @@ export function getTimezoneOffsetInMinutes(timeZone, date = new Date()) {
     const options: Intl.DateTimeFormatOptions = {
         timeZone,
         hour12: false,
-        timeZoneName: 'short',
+        timeZoneName: 'shortOffset',
     };
-    const formatter = new Intl.DateTimeFormat([], options);
+    let formatter: Intl.DateTimeFormat;
+    try {
+        formatter = new Intl.DateTimeFormat([], options);
+    } catch (e) {
+        if (e instanceof RangeError) {
+            return getTimezoneOffset(timeZone, date) / 60 / 1000;
+        }
+        throw e;
+    }
     const parts = formatter.formatToParts(date);
 
     // Find the timeZoneName part which contains the GMT offset
@@ -52,7 +82,7 @@ export function getTimezoneOffsetInMinutes(timeZone, date = new Date()) {
     const tzOffsetString = tzOffsetPart ? tzOffsetPart.value : 'GMT';
 
     // Match the offset from the string (e.g., "GMT+0530")
-    const offsetMatch = tzOffsetString.match(/GMT([+-])(\d{1,2})(\d{2})?/);
+    const offsetMatch = tzOffsetString.match(/GMT([+-])(\d{1,2})(?::?(\d{2}))?/);
     if (!offsetMatch) {
         return 0; // If no match, assume UTC (offset 0)
     }
@@ -74,4 +104,52 @@ export function getTimezoneDifferenceInHours(
 
     // Calculate the difference in hours
     return (offset1 - offset2) / 60;
+}
+
+/**
+ * Get the hours and minutes of a date as they appear in a target timezone.
+ * Returns { hours, minutes } in the wall-clock time of the given timezone.
+ */
+export function getTimeInTimezone(
+    date: Date | number,
+    tz?: string,
+): { hours: number; minutes: number } {
+    if (!tz) {
+        const d = new Date(date);
+        return { hours: d.getHours(), minutes: d.getMinutes() };
+    }
+    const zoned = toZonedTime(date, tz);
+    return { hours: zoned.getHours(), minutes: zoned.getMinutes() };
+}
+
+/**
+ * Format a date's time as 'HH:mm' in a target timezone.
+ * If no timezone is provided, uses the local timezone.
+ */
+export function formatTimeInTimezone(date: Date | number, tz?: string): string {
+    const { hours, minutes } = getTimeInTimezone(date, tz);
+    return `${padLength(hours, 2)}:${padLength(minutes, 2)}`;
+}
+
+/**
+ * Set hours and minutes on a date, interpreting them as wall-clock time in the
+ * given timezone, and return the resulting UTC epoch milliseconds.
+ * If no timezone is provided, interprets in local timezone.
+ */
+export function setTimeInTimezone(
+    date: Date | number,
+    hours: number,
+    minutes: number,
+    tz?: string,
+): number {
+    if (!tz) {
+        const d = set(new Date(date), { hours, minutes });
+        return startOfMinute(d).valueOf();
+    }
+    // Convert the date to the target timezone's wall-clock representation
+    const zoned = toZonedTime(date, tz);
+    // Set the desired hours and minutes on the zoned representation
+    const adjusted = set(zoned, { hours, minutes });
+    // Convert back from the target timezone's wall-clock to UTC epoch
+    return startOfMinute(fromZonedTime(adjusted, tz)).valueOf();
 }

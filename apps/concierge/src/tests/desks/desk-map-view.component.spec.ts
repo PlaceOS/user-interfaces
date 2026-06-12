@@ -9,7 +9,6 @@ import {
     ExploreZoomControlComponent,
 } from '@placeos/explore';
 import { UserSearchFieldComponent } from '@placeos/form-fields';
-import { of } from 'rxjs';
 
 import { InteractiveMapComponent } from '@placeos/components';
 import { DeskMapViewComponent } from '../../app/desks/desk-map-view.component';
@@ -38,11 +37,14 @@ describe('DeskMapViewComponent', () => {
             {
                 provide: ExploreStateService,
                 useValue: {
-                    map_url: of(''),
-                    map_styles: of([]),
-                    map_positions: of({ zoom: 1, center: { x: 0.5, y: 0.5 } }),
-                    map_actions: of([]),
-                    map_features: of([]),
+                    map_url: signal(''),
+                    map_styles: signal([]),
+                    map_positions: signal({
+                        zoom: 1,
+                        center: { x: 0.5, y: 0.5 },
+                    }),
+                    map_actions: signal([]),
+                    map_features: signal([]),
                 },
             },
         ],

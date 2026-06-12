@@ -1,7 +1,13 @@
 import { formatDate } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
+import {
+    queryLockerAssetsForZones,
+    queryLockerBankAssetsForZones,
+    queryParkingSpacesForZones,
+} from '@placeos/assets';
 import { queryAllBookings } from '@placeos/bookings';
 import {
+    BookableHoursRange,
     Booking,
     CalendarEvent,
     downloadFile,
@@ -34,6 +40,7 @@ import {
     BehaviorSubject,
     combineLatest,
     forkJoin,
+    from,
     Observable,
     of,
     Subject,
@@ -49,8 +56,15 @@ import {
     takeUntil,
 } from 'rxjs/operators';
 import {
+    activeReportBookings,
+    activeReportEvents,
     generateReportForBookings,
     generateReportForDeskBookings,
+    isDeclinedReportEvent,
+    reportBookableMinutes,
+    reportBookedTimeUtilisationPercent,
+    reportBookingStatusStats,
+    reportEventStatusStats,
 } from './reports.utilities';
 
 export interface ReportOptions {
@@ -127,6 +141,18 @@ export class ReportsStateService {
             .filter((_) => !!_);
     }
 
+    private get _event_bookable_hours(): BookableHoursRange | null {
+        return (
+            this._settings.get('app.events.bookable_hours') ||
+            this._settings.get('app.bookings.bookable_hours') ||
+            null
+        );
+    }
+
+    private get _event_bookable_minutes() {
+        return reportBookableMinutes(this._event_bookable_hours);
+    }
+
     private _bookings_list = this._generate.pipe(
         debounceTime(500),
         switchMap((_) => {
@@ -147,11 +173,16 @@ export class ReportsStateService {
                 period_start: getUnixTime(start),
                 period_end: getUnixTime(end),
             };
+            const bookings_query = {
+                ...query,
+                include_deleted: true as any,
+                include_checked_out: true,
+            };
             let request$: Observable<(CalendarEvent | Booking)[]>;
             switch (options.type) {
                 case 'desks':
                     request$ = queryAllBookings({
-                        ...query,
+                        ...bookings_query,
                         zones: zones,
                         type: 'desk',
                         limit: 1000,
@@ -159,7 +190,7 @@ export class ReportsStateService {
                     break;
                 case 'parking':
                     request$ = queryAllBookings({
-                        ...query,
+                        ...bookings_query,
                         zones: zones,
                         type: 'parking',
                         limit: 1000,
@@ -167,7 +198,7 @@ export class ReportsStateService {
                     break;
                 case 'lockers':
                     request$ = queryAllBookings({
-                        ...query,
+                        ...bookings_query,
                         zones: zones,
                         type: 'locker',
                         limit: 1000,
@@ -175,7 +206,7 @@ export class ReportsStateService {
                     break;
                 case 'assets':
                     request$ = queryAllBookings({
-                        ...query,
+                        ...bookings_query,
                         zones: zones,
                         type: 'asset-request',
                         limit: 1000,
@@ -183,7 +214,7 @@ export class ReportsStateService {
                     break;
                 case 'catering':
                     request$ = queryAllBookings({
-                        ...query,
+                        ...bookings_query,
                         zones: zones,
                         type: 'catering-order',
                         limit: 1000,
@@ -193,6 +224,7 @@ export class ReportsStateService {
                     request$ = queryAllEvents({
                         ...query,
                         zone_ids: zones,
+                        include_cancelled: true,
                         limit: 1000,
                     }).pipe(catchError((_) => of([])));
                     break;
@@ -209,12 +241,11 @@ export class ReportsStateService {
             if (!list?.length) {
                 notifyError('No bookings for the selected levels and period');
             }
-            list = list.filter(
-                (bkn) =>
-                    !this._ignore_days.includes(
-                        DAYS_OF_WEEK_INDEX[new Date(bkn.date).getDay()],
-                    ),
-            );
+            list = list.filter((bkn) => {
+                return !this._ignore_days.includes(
+                    DAYS_OF_WEEK_INDEX[new Date(bkn.date).getDay()],
+                );
+            });
             this._active_bookings.next(list || []);
             return list;
         }),
@@ -258,7 +289,7 @@ export class ReportsStateService {
                     ? this._org.levelsForRegion().map((_) => _.id)
                     : this._org.levelsForBuilding().map((_) => _.id);
             }
-            if (filters.type === 'events') {
+            if (filters.type === 'events' || filters.type === 'catering') {
                 return this.spaces.pipe(
                     map((_) =>
                         zones.map((z) => [
@@ -268,14 +299,25 @@ export class ReportsStateService {
                     ),
                 );
             }
+            if (filters.type === 'parking') {
+                const scope_id = this._settings.get('app.use_region')
+                    ? this._org.region?.id
+                    : this._org.building?.id;
+                if (!scope_id) return of([]);
+                return queryParkingSpacesForZones([scope_id]).pipe(
+                    map((spaces) =>
+                        zones.map((z) => [
+                            z,
+                            spaces.filter((space) => space.zones?.includes(z))
+                                .length,
+                        ]),
+                    ),
+                    catchError(() => of([])),
+                );
+            }
             if (!zones.length) return of([]);
             return forkJoin(
-                zones.map((z) =>
-                    showMetadata(z, 'desks').pipe(
-                        catchError(() => of({ details: [] })),
-                        map((m) => [z, m.details.length] as [string, number]),
-                    ),
-                ),
+                zones.map((z) => this._resourceCountForZone(z, filters.type)),
             );
         }),
         map((list: [string, number][]) => {
@@ -287,6 +329,55 @@ export class ReportsStateService {
         shareReplay(1),
     );
 
+    private _resourceCountForZone(
+        zone_id: string,
+        resource_type: ReportOptions['type'],
+    ): Observable<[string, number]> {
+        switch (resource_type) {
+            case 'lockers':
+                const parent_id = this._org.levels.find(
+                    (level) => level.id === zone_id,
+                )?.parent_id;
+                if (!parent_id) {
+                    return of([zone_id, 0]);
+                }
+                return forkJoin([
+                    queryLockerBankAssetsForZones([parent_id]).pipe(
+                        catchError(() => of([])),
+                    ),
+                    queryLockerAssetsForZones([parent_id]).pipe(
+                        catchError(() => of([])),
+                    ),
+                ]).pipe(
+                    map(([banks, lockers]) => {
+                        const bank_ids = banks
+                            .filter((bank) => bank.zones?.includes(zone_id))
+                            .map((bank) => bank.id);
+                        const count = lockers.filter(
+                            (locker) =>
+                                locker.bookable !== false &&
+                                bank_ids.includes((locker as any).parent_id),
+                        ).length;
+                        return [zone_id, count] as [string, number];
+                    }),
+                    catchError(() => of([zone_id, 0] as [string, number])),
+                );
+            case 'desks':
+                return from(showMetadata(zone_id, 'desks')).pipe(
+                    catchError(() => of({ details: [] })),
+                    map(
+                        (metadata) =>
+                            [zone_id, metadata.details.length] as [
+                                string,
+                                number,
+                            ],
+                    ),
+                );
+            default:
+                return of([zone_id, 0]);
+        }
+    }
+
     public readonly stats: Observable<HashMap> = combineLatest([
         this.counts,
         this.bookings,
@@ -294,17 +385,28 @@ export class ReportsStateService {
         debounceTime(300),
         switchMap(async ([counts, list]) => {
             if (list[0] instanceof CalendarEvent) {
-                return generateReportForBookings(
-                    list as CalendarEvent[],
-                    this.duration * 8,
-                    counts,
-                );
+                const events = (list as CalendarEvent[]) || [];
+                return {
+                    ...generateReportForBookings(
+                        activeReportEvents(events),
+                        (this.duration * this._event_bookable_minutes) / 60,
+                        this._event_bookable_minutes,
+                        counts,
+                    ),
+                    ...reportEventStatusStats(events),
+                    all_events: events,
+                };
             }
-            return generateReportForDeskBookings(
-                (list as Booking[]) || [],
-                this.duration,
-                counts,
-            );
+            const bookings = (list as Booking[]) || [];
+            return {
+                ...generateReportForDeskBookings(
+                    activeReportBookings(bookings),
+                    this.duration,
+                    counts,
+                ),
+                ...reportBookingStatusStats(bookings),
+                all_events: bookings,
+            };
         }),
         shareReplay(1),
     );
@@ -326,7 +428,16 @@ export class ReportsStateService {
                 }
                 const s = startOfDay(date).valueOf();
                 const e = endOfDay(s).valueOf();
-                const events: Booking[] =
+                const all_events: (Booking | CalendarEvent)[] =
+                    stats.all_events?.filter((bkn) =>
+                        timePeriodsIntersect(
+                            s,
+                            e,
+                            bkn.date,
+                            bkn.date + bkn.duration * 60 * 1000,
+                        ),
+                    ) || [];
+                const events: (Booking | CalendarEvent)[] =
                     stats.events?.filter((bkn) =>
                         timePeriodsIntersect(
                             s,
@@ -336,7 +447,7 @@ export class ReportsStateService {
                         ),
                     ) || [];
                 const usage =
-                    options.type === 'desks'
+                    options.type === 'events'
                         ? unique(events, 'system_id').length
                         : unique(events, 'asset_id').length;
                 dates.push({
@@ -346,14 +457,23 @@ export class ReportsStateService {
                     free: stats.total - events.length,
                     approved: events.reduce(
                         (c, e) =>
-                            c + (e.approved || e.status === 'approved' ? 1 : 0),
+                            c +
+                            ((e as Booking).approved || e.status === 'approved'
+                                ? 1
+                                : 0),
                         0,
                     ),
-                    count: events.length,
-                    utilisation: (
-                        (events.length /
-                            Math.max(events.length || 1, stats.total)) *
-                        100
+                    cancelled: all_events.filter(
+                        (event) =>
+                            !event.deleted &&
+                            isDeclinedReportEvent(event as CalendarEvent),
+                    ).length,
+                    deleted: all_events.filter((event) => event.deleted).length,
+                    count: all_events.length,
+                    utilisation: reportBookedTimeUtilisationPercent(
+                        events as CalendarEvent[],
+                        stats.total,
+                        this._event_bookable_minutes,
                     ).toFixed(1),
                 });
                 date = addDays(date, 1);

@@ -51,7 +51,7 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                     (ngModelChange)="setFilter($event)"
                     (blur)="hideInput()"
                 />
-                @if (loading | async) {
+                @if (loading()) {
                     <mat-spinner [diameter]="32"></mat-spinner>
                 }
             </div>
@@ -67,14 +67,14 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                         'pointer-events-none': !show(),
                     }"
                 >
-                    @if (!(results | async)?.length && filter_str()) {
+                    @if (!results().length && filter_str()) {
                         <div empty class="w-full p-4 text-center opacity-60">
                             {{
                                 'APP.WORKPLACE.GLOBAL_SEARCH_EMPTY' | translate
                             }}
                         </div>
                     } @else {
-                        @if (!(results | async)?.length) {
+                        @if (!results().length) {
                             <div
                                 empty
                                 class="w-full p-4 text-center opacity-60"
@@ -86,9 +86,9 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                             </div>
                         }
                     }
-                    @if (!(loading | async) && filter_str()) {
+                    @if (!loading() && filter_str()) {
                         @for (
-                            option of results | async | slice: 0 : 100;
+                            option of results() | slice: 0 : 100;
                             track option.id + $index
                         ) {
                             <a
@@ -150,7 +150,7 @@ export class GlobalSearchComponent extends AsyncHandler implements OnInit {
     private _service = inject(ExploreSearchService);
     private _schedule = inject(ScheduleStateService);
 
-    public readonly results = this._service.search_results;
+    public readonly results = this._service.global_search_results;
     public readonly loading = this._service.loading;
     public readonly show = signal(false);
 

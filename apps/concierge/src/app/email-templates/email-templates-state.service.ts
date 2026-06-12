@@ -16,13 +16,7 @@ import {
     updateMetadata,
 } from '@placeos/ts-client';
 import { getUnixTime } from 'date-fns';
-import {
-    BehaviorSubject,
-    combineLatest,
-    forkJoin,
-    lastValueFrom,
-    of,
-} from 'rxjs';
+import { BehaviorSubject, combineLatest, forkJoin, from, of } from 'rxjs';
 import {
     catchError,
     filter,
@@ -76,34 +70,35 @@ export class EmailTemplatesStateService extends AsyncHandler {
     ]).pipe(
         filter(([bld]) => !!bld),
         switchMap(() =>
-            showMetadata(this._org.organisation.id, 'email_template_fields')
-                .pipe(
-                    map((_) => {
-                        const definitions =
-                            (_ as any)?.details ||
-                            ({} as Record<string, EmailTemplateDefinition>);
-                        return Object.keys(definitions).map(
-                            (key) =>
-                                ({
-                                    id: key,
-                                    name: definitions[key].name,
-                                    module_name: definitions[key].module_name,
-                                    name_details:
-                                        definitions[key].name.split(':'),
-                                    description:
-                                        definitions[key].description || '',
-                                    fields: definitions[key].fields.map(
-                                        (field) => ({
-                                            name: field.name,
-                                            description:
-                                                field.description || '',
-                                        }),
-                                    ),
-                                }) as EmailTemplateDefinition,
-                        );
-                    }),
-                )
-                .pipe(catchError(() => of([] as EmailTemplateDefinition[]))),
+            from(
+                showMetadata(
+                    this._org.organisation.id,
+                    'email_template_fields',
+                ),
+            ).pipe(
+                map((_) => {
+                    const definitions =
+                        (_ as any)?.details ||
+                        ({} as Record<string, EmailTemplateDefinition>);
+                    return Object.keys(definitions).map(
+                        (key) =>
+                            ({
+                                id: key,
+                                name: definitions[key].name,
+                                module_name: definitions[key].module_name,
+                                name_details: definitions[key].name.split(':'),
+                                description: definitions[key].description || '',
+                                fields: definitions[key].fields.map(
+                                    (field) => ({
+                                        name: field.name,
+                                        description: field.description || '',
+                                    }),
+                                ),
+                            }) as EmailTemplateDefinition,
+                    );
+                }),
+                catchError(() => of([] as EmailTemplateDefinition[])),
+            ),
         ),
         tap((_) => console.log('Templates:', _)),
         shareReplay(1),
@@ -135,18 +130,20 @@ export class EmailTemplatesStateService extends AsyncHandler {
         filter(([bld]) => !!bld),
         switchMap(([bld, region]) =>
             forkJoin([
-                showMetadata(this._org.organisation.id, 'email_templates').pipe(
+                from(
+                    showMetadata(this._org.organisation.id, 'email_templates'),
+                ).pipe(
                     map((_) =>
                         this._processTemplates(_, this._org.organisation.id),
                     ),
                     catchError(() => of([] as EmailTemplate[])),
                 ),
-                showMetadata(bld.id, 'email_templates').pipe(
+                from(showMetadata(bld.id, 'email_templates')).pipe(
                     map((_) => this._processTemplates(_, bld.id)),
                     catchError(() => of([] as EmailTemplate[])),
                 ),
                 region
-                    ? showMetadata(region.id, 'email_templates').pipe(
+                    ? from(showMetadata(region.id, 'email_templates')).pipe(
                           map((_) => this._processTemplates(_, region.id)),
                           catchError(() => of([] as EmailTemplate[])),
                       )
@@ -180,19 +177,18 @@ export class EmailTemplatesStateService extends AsyncHandler {
     public async saveTemplate(template: EmailTemplate, old_zone = '') {
         if (!template.zone_id) throw 'A building is required';
         if (template.id && old_zone) {
-            const old_metadata = await lastValueFrom(
-                showMetadata(old_zone, 'email_templates'),
+            const old_metadata = await showMetadata(
+                old_zone,
+                'email_templates',
             );
             if (old_metadata.details instanceof Array) {
-                await lastValueFrom(
-                    updateMetadata(old_zone, {
-                        name: 'email_templates',
-                        details: old_metadata.details.filter(
-                            (_) => _.id !== template.id,
-                        ),
-                        description: old_metadata.description,
-                    }),
-                );
+                await updateMetadata(old_zone, {
+                    name: 'email_templates',
+                    details: old_metadata.details.filter(
+                        (_) => _.id !== template.id,
+                    ),
+                    description: old_metadata.description,
+                });
             }
         }
         if (!template.id) {
@@ -201,8 +197,9 @@ export class EmailTemplatesStateService extends AsyncHandler {
         }
         template.updated_at = getUnixTime(Date.now());
 
-        const metadata = await lastValueFrom(
-            showMetadata(template.zone_id, 'email_templates'),
+        const metadata = await showMetadata(
+            template.zone_id,
+            'email_templates',
         );
         const template_list =
             metadata.details instanceof Array ? metadata.details : [];
@@ -213,13 +210,11 @@ export class EmailTemplatesStateService extends AsyncHandler {
             ...zone_templates.filter((_) => _.id !== template.id),
             template,
         ];
-        await lastValueFrom(
-            updateMetadata(template.zone_id, {
-                name: `email_templates`,
-                details: new_template_list,
-                description: 'Email Templates for Zone',
-            }),
-        ).catch((e) => {
+        await updateMetadata(template.zone_id, {
+            name: `email_templates`,
+            details: new_template_list,
+            description: 'Email Templates for Zone',
+        }).catch((e) => {
             notifyError(
                 i18n('APP.CONCIERGE.EMAIL_TEMPLATES_SAVE_ERROR', {
                     error: e,
@@ -243,16 +238,14 @@ export class EmailTemplatesStateService extends AsyncHandler {
             name: `email_templates`,
             details: new_template_list,
             description: 'Email Templates for Zone',
-        })
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    i18n('APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE_ERROR', {
-                        error: e,
-                    }),
-                );
-                throw e;
-            });
+        }).catch((e) => {
+            notifyError(
+                i18n('APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE_ERROR', {
+                    error: e,
+                }),
+            );
+            throw e;
+        });
         notifySuccess(i18n('APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE_SUCCESS'));
         this.timeout('changed', () => this._change.next(Date.now()));
     }

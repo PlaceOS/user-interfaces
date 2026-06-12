@@ -17,7 +17,7 @@ import { RoomManagementService } from './room-management.service';
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
-                class="block min-w-4xl text-sm"
+                class="block min-w-6xl text-sm"
                 [data]="rooms"
                 empty_message="No rooms for selected level or building"
                 [columns]="[
@@ -41,6 +41,12 @@ import { RoomManagementService } from './room-management.service';
                         key: 'type',
                         name: 'APP.CONCIERGE.ROOMS_TYPE' | translate,
                         size: '8rem',
+                    },
+                    {
+                        key: 'features',
+                        name: 'COMMON.FEATURES' | translate,
+                        content: feature_list_template,
+                        size: '16rem',
                     },
                     {
                         key: 'approval',
@@ -88,6 +94,17 @@ import { RoomManagementService } from './room-management.service';
         <ng-template #level_template let-data="data">
             <div class="p-4">
                 {{ (data | level)?.display_name || (data | level)?.name }}
+            </div>
+        </ng-template>
+        <ng-template #feature_list_template let-data="data">
+            <div class="flex flex-wrap p-2">
+                @for (feature of data || []; track feature) {
+                    <span
+                        class="bg-info text-info-content m-1 rounded-2xl px-2 py-1 font-mono text-xs"
+                    >
+                        {{ feature }}
+                    </span>
+                }
             </div>
         </ng-template>
         <ng-template #bool_template let-data="data">
@@ -151,11 +168,19 @@ import { RoomManagementService } from './room-management.service';
                         }}</span>
                     </div>
                 </button>
-                @if (row.support_url || control_path) {
+                <button mat-menu-item (click)="viewBookingHistory(row)">
+                    <div class="flex items-center space-x-2">
+                        <icon class="text-xl">history</icon>
+                        <span>{{
+                            'APP.CONCIERGE.ROOMS_VIEW_HISTORY' | translate
+                        }}</span>
+                    </div>
+                </button>
+                @if (row.support_url || control_path()) {
                     <a
                         mat-menu-item
                         [href]="
-                            row.support_url || control_path + row.id
+                            row.support_url || control_path() + row.id
                                 | sanitize: 'url'
                         "
                         target="_blank"
@@ -193,16 +218,19 @@ export class RoomListComponent {
     private _settings = inject(SettingsService);
 
     public readonly rooms = this._manager.filtered_rooms;
+    public readonly control_path = this._settings.signal(
+        'app.control_path',
+        '',
+        true,
+    );
 
     public readonly editRoom = (room) => this._manager.editRoom(room);
     public readonly setRoomAlert = (room) => this._manager.setRoomAlert(room);
+    public readonly viewBookingHistory = (room) =>
+        this._manager.viewBookingHistory(room);
 
     public readonly copyToClipboard = (id: string) => {
         const success = this._clipboard.copy(id);
         if (success) notifySuccess(i18n('APP.CONCIERGE.ROOMS_COPIED_ID'));
     };
-
-    public get control_path() {
-        return this._settings.get('app.control_path') || '';
-    }
 }

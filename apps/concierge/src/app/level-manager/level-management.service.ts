@@ -98,15 +98,13 @@ export class LevelManagementService {
         );
         if (ref.reason !== 'done') return ref.close();
         ref.loading(i18n('APP.CONCIERGE.LEVELS_REMOVE_LOADING'));
-        await removeZone(level.id)
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    i18n('APP.CONCIERGE.LEVELS_REMOVE_ERROR', { error: e }),
-                );
-                ref.close();
-                throw e;
-            });
+        await removeZone(level.id).catch((e) => {
+            notifyError(
+                i18n('APP.CONCIERGE.LEVELS_REMOVE_ERROR', { error: e }),
+            );
+            ref.close();
+            throw e;
+        });
         this._org.removeZone({ id: level.id, tags: ['level'] } as any);
         notifySuccess(i18n('APP.CONCIERGE.LEVELS_REMOVE_SUCCESS'));
         ref.close();

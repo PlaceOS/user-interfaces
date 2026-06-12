@@ -14,7 +14,7 @@ import { SurveyComponent } from './survey.component';
 
 // import * as Sentry from '@sentry/angular';
 
-export const appRoutes: Route[] = [
+const appRoutes: Route[] = [
     {
         path: 'not-found',
         component: NotFoundComponent,

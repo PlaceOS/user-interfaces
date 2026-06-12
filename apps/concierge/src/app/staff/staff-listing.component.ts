@@ -1,10 +1,18 @@
-import { Component, ElementRef, inject, viewChild } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    computed,
+    effect,
+    inject,
+    signal,
+    viewChild,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { AsyncHandler } from '@placeos/common';
-import { map } from 'rxjs/operators';
 
-import { CommonModule } from '@angular/common';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TranslatePipe } from '@placeos/components';
+import { of } from 'rxjs';
 import { StaffDetailsComponent } from './staff-details.component';
 import { StaffStateService } from './staff-state.service';
 
@@ -18,8 +26,8 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
                 <div
                     letter
                     class="flex h-6 w-6 cursor-pointer items-center justify-center text-xs capitalize"
-                    [class.disabled]="(user_list | async)[group].length <= 0"
-                    [class.active]="group === active_group"
+                    [class.disabled]="user_list()[group].length <= 0"
+                    [class.active]="group === active_group()"
                     (click)="scrollTo(group)"
                 >
                     {{ group }}
@@ -32,9 +40,9 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
             #container
             (scroll)="onScroll($event)"
         >
-            @if (user_count | async) {
+            @if (user_count()) {
                 @for (group of groups; track group) {
-                    @if ((user_list | async)[group].length) {
+                    @if (user_list()[group].length) {
                         <div
                             group
                             [id]="'letter-' + (group === '#' ? '0' : group)"
@@ -43,7 +51,7 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
                             {{ group }}
                         </div>
                         @for (
-                            user of (user_list | async)[group];
+                            user of user_list()[group];
                             track user;
                             let i = $index
                         ) {
@@ -51,9 +59,7 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
                                 [id]="'letter-' + group + '-' + i"
                                 [user]="user"
                                 [onsite]="
-                                    (events | async)
-                                        ? (events | async)[user.email]
-                                        : false
+                                    events() ? events()[user.email] : false
                                 "
                             ></staff-details>
                         }
@@ -69,7 +75,7 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
                 </div>
             }
         </div>
-        @if (loading | async) {
+        @if (loading()) {
             <mat-progress-bar mode="indeterminate" />
         }
     `,
@@ -105,46 +111,57 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
             }
         `,
     ],
-    imports: [
-        CommonModule,
-        MatProgressBarModule,
-        StaffDetailsComponent,
-        TranslatePipe,
-    ],
+    imports: [MatProgressBarModule, StaffDetailsComponent, TranslatePipe],
 })
 export class StaffListingComponent extends AsyncHandler {
     private _state = inject(StaffStateService);
 
-    public active_group = '#';
+    public readonly active_group = signal('#');
 
     public readonly groups = CHARS;
-    public readonly events = this._state.user_events;
-    public readonly loading = this._state.loading;
-
-    public readonly user_count = this._state.filtered_users.pipe(
-        map((list) => list.length),
+    public readonly events = toSignal(this._state.user_events || of({}), {
+        initialValue: {},
+    });
+    public readonly loading = toSignal(this._state.loading || of(false), {
+        initialValue: false,
+    });
+    public readonly filtered_users = toSignal(
+        this._state.filtered_users || of([]),
+        {
+            initialValue: [],
+        },
     );
 
-    public readonly user_list = this._state.filtered_users.pipe(
-        map((list) => {
-            const user_map = {};
-            for (const char of CHARS) {
-                user_map[char] = (list || []).filter(
-                    (user) =>
-                        user.name.toLowerCase()[0].startsWith(char) ||
-                        (char === '#' &&
-                            !CHARS.includes(user.name.toLowerCase()[0])),
-                );
-            }
-            this.timeout('scroll', () => this.onScroll({}), 30);
-            return user_map;
-        }),
-    );
+    public readonly user_count = computed(() => this.filtered_users().length);
+
+    public readonly user_list = computed(() => {
+        const list = this.filtered_users() || [];
+        const user_map = {};
+        for (const char of CHARS) {
+            user_map[char] = list.filter(
+                (user) =>
+                    user.name.toLowerCase()[0].startsWith(char) ||
+                    (char === '#' &&
+                        !CHARS.includes(user.name.toLowerCase()[0])),
+            );
+        }
+        return user_map;
+    });
 
     private readonly _el = viewChild<ElementRef<HTMLDivElement>>('container');
 
+    constructor() {
+        super();
+        effect(() => {
+            this.user_list();
+            this.timeout('scroll', () => this.onScroll({}), 30);
+        });
+    }
+
     public onScroll(_) {
-        const scroll_top = this._el().nativeElement.scrollTop;
+        const container = this._el();
+        if (!container) return;
+        const scroll_top = container.nativeElement.scrollTop;
         for (const group of CHARS) {
             const el: HTMLDivElement = document.querySelector(
                 `#letter-${group === '#' ? '0' : group}`,
@@ -153,7 +170,7 @@ export class StaffListingComponent extends AsyncHandler {
                 if (el.offsetTop - scroll_top > 0) {
                     break;
                 }
-                this.active_group = group;
+                this.active_group.set(group);
             }
         }
     }
@@ -162,7 +179,7 @@ export class StaffListingComponent extends AsyncHandler {
         const el = document.querySelector(`#letter-${group}-0`);
         if (el) {
             el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            this.active_group = group;
+            this.active_group.set(group);
         }
     }
 }

@@ -1,5 +1,4 @@
-import { Injectable, inject } from '@angular/core';
-import { Title } from '@angular/platform-browser';
+import { Injectable } from '@angular/core';
 import { log } from './general';
 
 declare global {
@@ -15,23 +14,17 @@ declare global {
     providedIn: 'root',
 })
 export class GoogleAnalyticsService {
-    private title = inject(Title);
-
     /** Google Analytics API object */
     private service: any;
-    /** Application prefix to add to event categories */
-    public app_prefix: string;
     /** Whether posting analytics events is enabled */
     public enabled = true;
     /** Name of the application */
     public app_name = 'GA_APP';
 
-    /** Last route posted to the API */
-    private last_route: string;
     /** Store for timer ids */
     private timers: { [name: string]: number } = {};
 
-    public init(tracking_id: string = '') {
+    public init(tracking_id = '') {
         if (!window.gtag) {
             window.dataLayer = window.dataLayer || [];
             (function (w, d, s, l, i) {
@@ -40,9 +33,9 @@ export class GoogleAnalyticsService {
                     'gtm.start': new Date().getTime(),
                     event: 'gtm.js',
                 });
-                var f = d.getElementsByTagName(s)[0],
-                    j = d.createElement(s) as any,
-                    dl = l != 'dataLayer' ? '&l=' + l : '';
+                const f = d.getElementsByTagName(s)[0];
+                const j = d.createElement(s) as any;
+                const dl = l != 'dataLayer' ? '&l=' + l : '';
                 j.async = true;
                 j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
                 f.parentNode.insertBefore(j, f);
@@ -143,7 +136,6 @@ export class GoogleAnalyticsService {
                             value ? ', ' + value : ''
                         }`,
                     );
-                    const prefix = this.app_prefix ? this.app_prefix + '_' : '';
                     this.push({
                         event: 'event',
                         category: category,
@@ -192,14 +184,13 @@ export class GoogleAnalyticsService {
      * @param route Activated route
      * @param origin Add origin to routh path
      */
-    public page(route: string, origin: boolean = false) {
+    public page(route: string, origin = false) {
         if (!this.service) {
             throw new Error(
                 "Google Analytics hasn't been installed on this page",
             );
         }
         if (this.enabled) {
-            this.last_route = route || '/';
             this.timeout(
                 `page|${route}`,
                 () => {
@@ -262,7 +253,7 @@ export class GoogleAnalyticsService {
      * @param fn Timer callback
      * @param delay Timer delay
      */
-    private timeout(name: string, fn: () => void, delay: number = 300) {
+    private timeout(name: string, fn: () => void, delay = 300) {
         if (this.timers[name]) {
             clearTimeout(this.timers[name]);
             delete this.timers[name];

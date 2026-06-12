@@ -1,13 +1,17 @@
 import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
+    deleteCateringItem,
+    queryCateringItems,
+    saveCateringItem,
+} from '@placeos/assets';
+import {
     PlaceMetadata,
     showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, lastValueFrom, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, lastValueFrom } from 'rxjs';
 import {
-    catchError,
     filter,
     first,
     map,
@@ -40,10 +44,6 @@ import {
     CateringItemOptionModalComponent,
     CateringItemOptionModalData,
 } from './catering-option-modal.component';
-import {
-    CateringOrderModalComponent,
-    CateringOrderModalData,
-} from './catering-order-modal.component';
 import {
     CateringOrderOptionsModalComponent,
     CateringOrderOptionsModalData,
@@ -95,8 +95,8 @@ export class CateringStateService extends AsyncHandler {
     ]).pipe(
         filter(([_]) => !!_),
         switchMap(([_]) =>
-            showMetadata(_.id, 'catering-settings').pipe(
-                catchError((_) => of({} as PlaceMetadata)),
+            showMetadata(_.id, 'catering-settings').catch(
+                () => ({}) as PlaceMetadata,
             ),
         ),
         map((_) => (_.details as CateringSettings) || {}),
@@ -164,9 +164,9 @@ export class CateringStateService extends AsyncHandler {
                 if (bld) {
                     this._loading.next(true);
                     this._menu.next([]);
-                    const menu = (
-                        await this.getCateringForZone(bld.id).catch(() => [])
-                    ).map((i) => new CateringItem(i));
+                    const menu = await queryCateringItems(bld.id)
+                        .toPromise()
+                        .catch(() => []);
                     this._currency.next(
                         this._settings.get('app.currency') ||
                             bld.currency ||
@@ -178,34 +178,6 @@ export class CateringStateService extends AsyncHandler {
                 }
             }),
         );
-    }
-
-    /**
-     * Create/Edit catering order
-     * @param order Order to manipulate
-     */
-    public async manageCateringOrder(order: CateringOrder) {
-        const ref = this._dialog.open<
-            CateringOrderModalComponent,
-            CateringOrderModalData
-        >(CateringOrderModalComponent, {
-            data: {
-                code: this._currency.getValue(),
-                order,
-                menu: this.menu,
-                loading: this.loading,
-                getCateringConfig: (_) => this.getCateringConfig(_),
-                selectOptions: (_) => this.selectOptions(_),
-            },
-        });
-        const details = await Promise.race([
-            ref.componentInstance.event
-                .pipe(first((_) => _.reason === 'done'))
-                .toPromise(),
-            ref.afterClosed().toPromise(),
-        ]);
-        ref.close();
-        return details?.metadata?.order || order;
     }
 
     public async addItem(item: CateringItem = new CateringItem()) {
@@ -226,30 +198,39 @@ export class CateringStateService extends AsyncHandler {
             ref.afterClosed().toPromise(),
         ]);
         if (details?.reason !== 'done') return;
-        const menu = this._menu.getValue();
-        const index = menu.findIndex((itm) => itm.id === item.id);
-        if (index >= 0) {
-            menu.splice(index, 1, details.metadata.item);
-        } else {
-            menu.push(details.metadata.item);
-        }
-        this.updateMenu(this._org.building.id, menu).then(
-            () => {
-                this._menu.next([...menu]);
-                ref.close();
-            },
-            () => (ref.componentInstance.loading = false),
-        );
+        saveCateringItem(details.metadata.item, this._org.building.id)
+            .toPromise()
+            .then(
+                (saved_item) => {
+                    const menu = this._menu.getValue();
+                    const index = menu.findIndex((itm) => itm.id === item.id);
+                    if (index >= 0) {
+                        menu.splice(index, 1, saved_item);
+                    } else {
+                        menu.push(saved_item);
+                    }
+                    this._menu.next([...menu]);
+                    ref.close();
+                },
+                () => (ref.componentInstance.loading = false),
+            );
     }
 
     public updateItem(item: CateringItem) {
-        const menu = this._menu.getValue();
-        const index = menu.findIndex((itm) => itm.id === item.id);
-        if (index >= 0) menu.splice(index, 1, item);
-        else menu.push(item);
-        this.updateMenu(this._org.building.id, menu).then(() =>
-            this._menu.next([...menu]),
-        );
+        saveCateringItem(item, this._org.building.id)
+            .toPromise()
+            .then(
+                (saved_item) => {
+                    const menu = this._menu.getValue();
+                    const index = menu.findIndex((itm) => itm.id === item.id);
+                    if (index >= 0) menu.splice(index, 1, saved_item);
+                    else menu.push(saved_item);
+                    this._menu.next([...menu]);
+                },
+                () => {
+                    notifyError(i18n('CATERING.ITEM_SAVE_ERROR'));
+                },
+            );
     }
 
     public async addOption(
@@ -274,20 +255,22 @@ export class CateringStateService extends AsyncHandler {
             ref.afterClosed().toPromise(),
         ]);
         if (details?.reason !== 'done') return;
-        const menu = this._menu.getValue();
-        const index = menu.findIndex((itm) => itm.id === item.id);
-        if (index >= 0) {
-            menu.splice(index, 1, details.metadata.item);
-        } else {
-            menu.push(details.metadata.item);
-        }
-        this.updateMenu(this._org.building.id, menu).then(
-            () => {
-                this._menu.next([...menu]);
-                ref.close();
-            },
-            () => (ref.componentInstance.loading = false),
-        );
+        saveCateringItem(details.metadata.item, this._org.building.id)
+            .toPromise()
+            .then(
+                (saved_item) => {
+                    const menu = this._menu.getValue();
+                    const index = menu.findIndex((itm) => itm.id === item.id);
+                    if (index >= 0) {
+                        menu.splice(index, 1, saved_item);
+                    } else {
+                        menu.push(saved_item);
+                    }
+                    this._menu.next([...menu]);
+                    ref.close();
+                },
+                () => (ref.componentInstance.loading = false),
+            );
     }
 
     public async selectOptions(options: CateringOption[]) {
@@ -326,9 +309,11 @@ export class CateringStateService extends AsyncHandler {
         );
         if (details.reason !== 'done') return;
         details.loading(i18n('CATERING.ITEM_REMOVE_LOADING'));
-        const menu = this._menu.getValue().filter((itm) => item.id !== itm.id);
-        this.updateMenu(this._org.building.id, menu).then(
+        lastValueFrom(deleteCateringItem(item.id)).then(
             () => {
+                const menu = this._menu
+                    .getValue()
+                    .filter((itm) => item.id !== itm.id);
                 this._menu.next([...menu]);
                 notifySuccess(i18n('CATERING.ITEM_REMOVE_SUCCESS'));
                 details.close();
@@ -358,34 +343,37 @@ export class CateringStateService extends AsyncHandler {
         );
         if (details.reason !== 'done') return;
         details.loading(i18n('CATERING.ITEM_OPTION_REMOVE_LOADING'));
-        const menu = this._menu.getValue();
-        menu.splice(
-            menu.findIndex((itm) => itm.id === item.id),
-            1,
-            new CateringItem({
-                ...item,
-                options: item.options.filter((opt) => opt.id !== option.id),
-            }),
-        );
-        this.updateMenu(this._org.building.id, menu).then(
-            () => {
-                this._menu.next([...menu]);
-                notifySuccess(
-                    i18n('CATERING.ITEM_OPTION_REMOVE_SUCCESS', {
-                        item: item.name,
-                    }),
-                );
-                details.close();
-            },
-            () => {
-                notifySuccess(
-                    i18n('CATERING.ITEM_OPTION_REMOVE_ERROR', {
-                        item: item.name,
-                    }),
-                );
-                details.loading('');
-            },
-        );
+        const updated_item = new CateringItem({
+            ...item,
+            options: item.options.filter((opt) => opt.id !== option.id),
+        });
+        saveCateringItem(updated_item, this._org.building.id)
+            .toPromise()
+            .then(
+                (saved_item) => {
+                    const menu = this._menu.getValue();
+                    menu.splice(
+                        menu.findIndex((itm) => itm.id === item.id),
+                        1,
+                        saved_item,
+                    );
+                    this._menu.next([...menu]);
+                    notifySuccess(
+                        i18n('CATERING.ITEM_OPTION_REMOVE_SUCCESS', {
+                            item: item.name,
+                        }),
+                    );
+                    details.close();
+                },
+                () => {
+                    notifySuccess(
+                        i18n('CATERING.ITEM_OPTION_REMOVE_ERROR', {
+                            item: item.name,
+                        }),
+                    );
+                    details.loading('');
+                },
+            );
     }
 
     public async editConfig() {
@@ -412,8 +400,10 @@ export class CateringStateService extends AsyncHandler {
         ]);
         if (details?.reason !== 'done') return;
         this.updateConfig(this._org.building.id, details.metadata).then(
-            () => ref.close(),
-            () => (ref.componentInstance.loading = false),
+            () => {
+                ref.close();
+            },
+            () => ref.componentInstance.loading.set(false),
         );
     }
 
@@ -427,14 +417,19 @@ export class CateringStateService extends AsyncHandler {
         ]);
         if (details?.reason !== 'done') return;
         ref.componentInstance.loading = i18n('CATERING.MENU_IMPORT_LOADING');
-        const menu = this._menu.getValue();
         const bld = this._org.building;
+        const menu = this._menu.getValue();
         const updated_menu = unique(details.metadata.concat(menu), 'id');
-        await this.updateMenu(bld.id, updated_menu).catch((_) => {
+        const saved_menu = await Promise.all(
+            updated_menu.map((item) =>
+                saveCateringItem(item, bld.id).toPromise(),
+            ),
+        ).catch((_) => {
             notifyError(i18n('CATERING.MENU_IMPORT_ERROR'));
             ref.close();
             throw _;
         });
+        this._menu.next(saved_menu);
         notifySuccess(
             i18n('CATERING.MENU_IMPORT_SUCCESS', {
                 count: details.metadata.length,
@@ -443,43 +438,22 @@ export class CateringStateService extends AsyncHandler {
         ref.close();
     }
 
-    private updateMenu(zone_id: string, menu: CateringItem[]) {
-        return lastValueFrom(
-            updateMetadata(zone_id, {
-                id: zone_id,
-                name: 'catering',
-                details: menu,
-                description: `Catering menu for ${zone_id}`,
-            }),
-        );
-    }
-
     public async saveSettings(settings: CateringSettings) {
         const old_settings = await nextValueFrom(this.settings);
-        const result = await lastValueFrom(
-            updateMetadata(this._org.building.id, {
-                id: this._org.building.id,
-                name: 'catering-settings',
-                details: { ...old_settings, ...settings },
-                description: `Catering settings for ${this._org.building.id}`,
-            }),
-        );
+        const result = await updateMetadata(this._org.building.id, {
+            id: this._org.building.id,
+            name: 'catering-settings',
+            details: { ...old_settings, ...settings },
+            description: `Catering settings for ${this._org.building.id}`,
+        });
         this._change.next(Date.now());
         return result;
-    }
-
-    private async getCateringForZone(zone_id: string): Promise<CateringItem[]> {
-        const menu = (await showMetadata(zone_id, 'catering').toPromise())
-            .details;
-        return menu instanceof Array ? menu : [];
     }
 
     public async getCateringConfig(
         zone_id: string = this._org.building.id,
     ): Promise<AttachedResourceRuleset[]> {
-        const rules = (
-            await showMetadata(zone_id, 'catering_config').toPromise()
-        ).details;
+        const rules = (await showMetadata(zone_id, 'catering_config')).details;
         return rules instanceof Array ? (rules as any) : [];
     }
 
@@ -489,7 +463,7 @@ export class CateringStateService extends AsyncHandler {
             name: 'catering_config',
             details: config,
             description: `Catering menu config for ${zone_id}`,
-        }).toPromise();
+        });
     }
 
     public addItemToOrder(order: CateringOrder, new_item: CateringItem) {

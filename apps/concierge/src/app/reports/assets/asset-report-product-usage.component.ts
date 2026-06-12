@@ -1,14 +1,35 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { downloadFile, jsonToCsv, nextValueFrom } from '@placeos/common';
+import { downloadFile, jsonToCsv } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { map } from 'rxjs/operators';
+import {
+    ReportMetricGuideComponent,
+    ReportMetricGuideItem,
+} from '../report-metric-guide.component';
 import { AssetsReportService } from './assets-report.service';
+
+const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
+    {
+        label: 'Bookings',
+        description:
+            'Active asset request bookings that include at least one asset from the product.',
+    },
+    {
+        label: 'Assets booked',
+        description:
+            'Number of booked asset IDs across active requests that belong to the product.',
+    },
+    {
+        label: 'Assets available',
+        description: 'Total assets configured for the product.',
+    },
+];
 
 @Component({
     selector: 'asset-report-product-usage',
@@ -26,6 +47,7 @@ import { AssetsReportService } from './assets-report.service';
                 @if (!print()) {
                     <button
                         icon
+                        default
                         matRipple
                         [matTooltip]="
                             'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
@@ -35,10 +57,15 @@ import { AssetsReportService } from './assets-report.service';
                         <icon>download</icon>
                     </button>
                 }
+                <placeos-report-metric-guide
+                    title="Table column calculations"
+                    [items]="table_metric_guide"
+                    [inline]="true"
+                />
             </div>
             <simple-table
                 class="block w-full text-sm"
-                [data]="products"
+                [data]="products()"
                 [columns]="[
                     { key: 'name', name: 'FORM.NAME' | translate },
                     {
@@ -71,39 +98,60 @@ import { AssetsReportService } from './assets-report.service';
         IconComponent,
         MatRippleModule,
         MatTooltipModule,
+        ReportMetricGuideComponent,
     ],
 })
 export class AssetReportProductUsageComponent {
     private _state = inject(AssetsReportService);
 
     public readonly print = input(false);
-    public readonly products = this._state.stats$.pipe(
-        map(({ events, bookings, products }) =>
-            products
-                .map((p) => {
-                    const product_bookings = bookings.filter((b) =>
-                        p.assets.find(({ id }) => b.asset_ids.includes(id)),
-                    );
-                    return {
-                        name: p.name,
-                        booking_count: product_bookings.length,
-                        booked_count: product_bookings.reduce(
-                            (acc, b) =>
-                                acc +
-                                b.asset_ids.filter((asset_id) =>
-                                    p.assets.find(({ id }) => asset_id === id),
-                                ).length,
-                            0,
-                        ),
-                        asset_count: p.assets.length,
-                    };
-                })
-                .filter((p) => p.booking_count > 0),
-        ),
-    );
+    public readonly table_metric_guide = TABLE_METRIC_GUIDE;
+    private readonly _stats = toSignal(this._state.stats$, {
+        initialValue: {
+            events: [],
+            bookings: [],
+            all_bookings: [],
+            products: [],
+            booking_count: 0,
+            active_count: 0,
+            cancelled_count: 0,
+            deleted_count: 0,
+            inactive_count: 0,
+            total_count: 0,
+            event_count: 0,
+            total_booked_items: 0,
+            unique_items: 0,
+            products_booked: [],
+        },
+    });
+    public readonly products = computed(() => {
+        const { bookings, products } = this._stats();
+        return products
+            .map((p) => {
+                const product_bookings = bookings.filter((b) =>
+                    p.assets.find(({ id }) => b.asset_ids.includes(id)),
+                );
+                return {
+                    name: p.name,
+                    booking_count: product_bookings.length,
+                    booked_count: product_bookings.reduce(
+                        (acc, b) =>
+                            acc +
+                            b.asset_ids.filter((asset_id) =>
+                                p.assets.find(({ id }) => asset_id === id),
+                            ).length,
+                        0,
+                    ),
+                    asset_count: p.assets.length,
+                };
+            })
+            .filter((p) => p.booking_count > 0);
+    });
 
     public readonly download = async () => {
-        const data = await nextValueFrom(this.products);
-        downloadFile('report-assets-product-usage.csv', jsonToCsv(data));
+        downloadFile(
+            'report-assets-product-usage.csv',
+            jsonToCsv(this.products()),
+        );
     };
 }

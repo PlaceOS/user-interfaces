@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -35,7 +35,7 @@ import { SettingsService } from '@placeos/common';
                     btn
                     matRipple
                     class="w-32"
-                    [disabled]="!agree"
+                    [disabled]="!agree()"
                     [mat-dialog-close]="true"
                 >
                     Accept
@@ -49,7 +49,7 @@ import { SettingsService } from '@placeos/common';
 export class VisitorInductionModalComponent {
     private _settings = inject(SettingsService);
 
-    public agree = false;
+    public readonly agree = signal(false);
 
     public get induction_details() {
         return this._settings.get('app.induction_details');

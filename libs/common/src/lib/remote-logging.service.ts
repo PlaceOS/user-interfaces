@@ -4,7 +4,7 @@ import { BehaviorSubject, combineLatest, of, Subject } from 'rxjs';
 import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
 
 import { AsyncHandler } from './async-handler.class';
-import { log, randomInt, randomString } from './general';
+import { log, observableFromSignal, randomInt, randomString } from './general';
 
 export interface ClientEvent {
     id: string;
@@ -114,6 +114,6 @@ export class RemoteLoggingService extends AsyncHandler {
     private _bindTo(id: string, name: string, mod = 'Logger') {
         const module = getModule(id, mod).variable(name);
         this.subscription(`bind:${name}`, module.bind());
-        return module.listen();
+        return observableFromSignal(module.listen());
     }
 }

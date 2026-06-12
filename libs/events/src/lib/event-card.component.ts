@@ -1,13 +1,14 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import {
     Component,
+    computed,
+    effect,
     inject,
     input,
-    OnChanges,
     OnInit,
     signal,
-    SimpleChanges,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -20,7 +21,7 @@ import {
     fromEventRecurrence,
     getTimezoneOffsetString,
     i18n,
-    SettingsService,
+    settingSignal,
 } from '@placeos/common';
 import { format, isSameDay } from 'date-fns';
 
@@ -39,9 +40,9 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
         @if (event()) {
             <h4 class="mb-2 flex items-center px-2" date>
                 @if (show_day()) {
-                    <span day>{{ day }},&nbsp;</span>
+                    <span day>{{ day() }},&nbsp;</span>
                 }
-                {{ event()?.date | date: time_format }}
+                {{ event()?.date | date: time_format() }}
                 <span class="px-2 text-xs"
                     >({{ event()?.date | date: 'zzzz' }})</span
                 >
@@ -72,21 +73,23 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                     </div>
                     <h4 class="px-4 text-lg">{{ event()?.title }}</h4>
                     <div class="mx-4 my-2 flex items-center space-x-2">
-                        <status-pill [status]="status">
+                        <status-pill [status]="status()">
                             <div
                                 class="flex flex-col leading-tight"
-                                [class.pr-4]="timezone && tz"
+                                [class.pr-4]="timezone() && tz()"
                             >
-                                <div>{{ period }}</div>
-                                @if (timezone && tz) {
+                                <div>{{ period() }}</div>
+                                @if (timezone() && tz()) {
                                     <div class="text-xs opacity-30">
-                                        {{ period_tz }}
+                                        {{ period_tz() }}
                                     </div>
                                 }
                             </div>
                         </status-pill>
                         @if (event().recurring_event_id) {
-                            <icon class="text-2xl" [matTooltip]="recurr_tooltip"
+                            <icon
+                                class="text-2xl"
+                                [matTooltip]="recurr_tooltip()"
                                 >event_repeat</icon
                             >
                         }
@@ -198,15 +201,11 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
         UserAvatarComponent,
     ],
 })
-export class EventCardComponent
-    extends AsyncHandler
-    implements OnInit, OnChanges
-{
+export class EventCardComponent extends AsyncHandler implements OnInit {
     private _dialog = inject(MatDialog);
     private _route = inject(ActivatedRoute);
     private _org = inject(OrganisationService);
     private _space_pipe = inject(SpacePipe);
-    private _settings = inject(SettingsService);
 
     public readonly event = input<CalendarEvent>(undefined);
     public readonly show_day = input(false);
@@ -219,38 +218,50 @@ export class EventCardComponent
         Intl.DateTimeFormat().resolvedOptions().timeZone,
     );
 
-    public get timezone() {
-        return this._settings.get('app.events.use_building_timezone')
-            ? this._org.building.timezone
-            : '';
-    }
+    private readonly _use_bld_tz = settingSignal<boolean>(
+        'events.use_building_timezone',
+        false,
+    );
+    private readonly _active_building = toSignal(this._org.active_building);
 
-    public get tz() {
-        const tz = this.timezone;
+    public readonly timezone = computed(() =>
+        this._use_bld_tz() ? this._active_building()?.timezone || '' : '',
+    );
+
+    public readonly tz = computed(() => {
+        const tz = this.timezone();
         if (!tz) return '';
         const tz_offset = getTimezoneOffsetString(tz);
         return tz_offset === this._local_tz ? '' : tz_offset;
-    }
+    });
 
-    public get time_format() {
-        return this._settings.time_format;
-    }
+    private readonly _use_24_hour = settingSignal<boolean>(
+        'use_24_hour_time',
+        false,
+    );
 
-    public get period() {
+    public readonly time_format = computed(() =>
+        this._use_24_hour() ? 'HH:mm' : 'h:mm a',
+    );
+
+    public readonly period = computed(() => {
         if (this.event()?.all_day) return i18n('COMMON.ALL_DAY');
         return this.formattedTime();
-    }
+    });
 
-    public get period_tz() {
-        return this.formattedTime(this.tz);
-    }
+    public readonly period_tz = computed(() => {
+        return this.formattedTime(this.tz());
+    });
 
-    public get recurr_tooltip() {
+    public readonly recurr_tooltip = computed(() => {
         return (
-            formatRecurrence(fromEventRecurrence(this.event().recurrence)) ||
+            formatRecurrence(
+                fromEventRecurrence(this.event()?.recurrence),
+                this.event()?.date,
+            ) ||
             i18n('CALENDAR_EVENT.RECURRING_TOOLTIP')
         );
-    }
+    });
 
     private _date: DatePipe = new DatePipe('en');
 
@@ -260,9 +271,9 @@ export class EventCardComponent
         const all_day = this.event().all_day;
         const tz_format = this._date.transform(date, 'zzzz', tz);
         const start_date = this._date.transform(date, 'MMM d', tz);
-        const start_time = this._date.transform(date, this.time_format, tz);
+        const start_time = this._date.transform(date, this.time_format(), tz);
         const end_date = this._date.transform(date_end, 'MMM d', tz);
-        const end_time = this._date.transform(date_end, this.time_format, tz);
+        const end_time = this._date.transform(date_end, this.time_format(), tz);
         const is_multiday = this.event()?.duration > 24 * 60;
 
         if (is_multiday) {
@@ -273,14 +284,27 @@ export class EventCardComponent
         return `${start_time} - ${end_time} ${'(' + tz_format + ')'}`;
     }
 
-    public get status() {
+    public readonly status = computed(() => {
         const event = this.event();
         if (event?.state === 'done') return 'neutral';
         if (event?.status === 'approved') return 'success';
         if (event?.status === 'tentative') return 'warning';
         if (event?.status === 'declined') return 'error';
         return 'warning';
-    }
+    });
+
+    public readonly day = computed(() => {
+        const date = this.event()?.date || Date.now();
+        const is_today = isSameDay(Date.now(), date);
+        return `${is_today ? i18n('COMMON.TODAY') : format(date, 'EEEE')}`;
+    });
+
+    private _event_effect = effect(() => {
+        const event = this.event();
+        if (event) {
+            this.getLocationString().then((loc) => this.location.set(loc));
+        }
+    });
 
     public get typeIcon() {
         return this.event()?.extension_data?.shared_event
@@ -316,19 +340,6 @@ export class EventCardComponent
                 }
             }),
         );
-        this.location.set(await this.getLocationString());
-    }
-
-    public async ngOnChanges(changes: SimpleChanges) {
-        if (changes.event && this.event()) {
-            this.location.set(await this.getLocationString());
-        }
-    }
-
-    public get day() {
-        const date = this.event()?.date || Date.now();
-        const is_today = isSameDay(Date.now(), date);
-        return `${is_today ? i18n('COMMON.TODAY') : format(date, 'EEEE')}`;
     }
 
     public async getLocationString() {

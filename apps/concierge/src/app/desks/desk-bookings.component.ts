@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { SettingsService } from '@placeos/common';
+import { settingSignal, SettingsService } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
@@ -82,6 +82,7 @@ import { DesksStateService } from './desks-state.service';
                         name: ' ',
                         content: action_template,
                         size: '3.5rem',
+                        show: can_delete(),
                         sortable: false,
                     },
                 ]"
@@ -112,30 +113,22 @@ import { DesksStateService } from './desks-state.service';
                 </div>
             </ng-template>
             <ng-template #period_template let-row="row">
-                <div class="p-2">
-                    @if (
-                        row.status !== 'declined' &&
-                        !row.deleted &&
-                        row.status !== 'ended'
-                    ) {
-                        <div class="p-2">
-                            @if (!row.all_day && row.duration <= 12 * 60) {
-                                {{ row.date | date: time_format }} &ndash;
-                                {{ row.date_end | date: time_format }}
-                            }
-                            @if (row.all_day || row.duration > 12 * 60) {
-                                {{ 'COMMON.ALL_DAY' | translate }}
-                            }
-                        </div>
-                    }
+                <div class="flex flex-col p-2">
+                    <div>
+                        @if (!row.all_day && row.duration <= 12 * 60) {
+                            {{ row.date | date: time_format }} &ndash;
+                            {{ row.date_end | date: time_format }}
+                        }
+                        @if (row.all_day || row.duration > 12 * 60) {
+                            {{ 'COMMON.ALL_DAY' | translate }}
+                        }
+                    </div>
                     @if (
                         row.status === 'declined' ||
                         row.deleted ||
                         row.status === 'ended'
                     ) {
-                        <div
-                            class="bg-error rounded-3xl px-4 py-2 text-xs text-white"
-                        >
+                        <div class="text-error text-xs">
                             {{
                                 (row.deleted
                                     ? 'APP.CONCIERGE.BOOKING_DELETED'
@@ -169,31 +162,60 @@ import { DesksStateService } from './desks-state.service';
                         matRipple
                         class="bg-warning text-warning-content h-10 w-30 rounded-3xl border-none"
                         [class.text-success-content!]="
-                            row?.status === 'approved'
+                            row?.status === 'approved' && !row.deleted
                         "
-                        [class.bg-success!]="row?.status === 'approved'"
-                        [class.text-error-content!]="row?.status === 'declined'"
-                        [class.bg-error!]="row?.status === 'declined'"
-                        [class.text-neutral-content!]="row?.status === 'ended'"
-                        [class.bg-neutral!]="row?.status === 'ended'"
-                        [class.opacity-30]="row?.status === 'ended'"
+                        [class.bg-success!]="
+                            row?.status === 'approved' && !row.deleted
+                        "
+                        [class.text-neutral-content!]="row.deleted"
+                        [class.bg-neutral!]="row.deleted"
+                        [class.text-error-content!]="
+                            row?.status === 'declined' && !row.deleted
+                        "
+                        [class.bg-error!]="
+                            row?.status === 'declined' && !row.deleted
+                        "
+                        [class.text-neutral-content!]="
+                            row?.status === 'ended' || row?.has_ended
+                        "
+                        [class.bg-neutral!]="
+                            row?.status === 'ended' || row?.has_ended
+                        "
+                        [class.opacity-30]="
+                            row?.status === 'ended' || row?.has_ended
+                        "
                         [matMenuTriggerFor]="menu"
-                        [disabled]="row?.status === 'ended'"
+                        [disabled]="
+                            row?.status === 'ended' ||
+                            row?.has_ended ||
+                            row.deleted
+                        "
                     >
                         <div class="flex items-center space-x-2 pr-2 pl-4">
                             <div class="flex-1 text-left">
                                 {{
-                                    (row?.status === 'ended'
-                                        ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
-                                        : row?.status === 'approved'
-                                          ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
-                                          : row?.status === 'declined'
-                                            ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                                            : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
+                                    (row.deleted
+                                        ? 'APP.CONCIERGE.BOOKING_STATUS_DELETED'
+                                        : row?.status === 'ended' ||
+                                            row?.has_ended
+                                          ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
+                                          : row?.status === 'approved'
+                                            ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
+                                            : row?.status === 'declined'
+                                              ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
+                                              : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
                                     ) | translate
                                 }}
                             </div>
-                            <icon class="text-2xl"> arrow_drop_down </icon>
+                            @if (
+                                !(
+                                    row?.status === 'ended' ||
+                                    row?.has_ended ||
+                                    row.deleted
+                                )
+                            ) {
+                                <icon class="text-2xl"> arrow_drop_down </icon>
+                            }
                         </div>
                     </button>
                 </div>
@@ -277,18 +299,24 @@ import { DesksStateService } from './desks-state.service';
                         <icon class="text-2xl">more_vert</icon>
                     </button>
                     <mat-menu #actionMenu="matMenu">
-                        <button mat-menu-item (click)="cancel(row)">
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-2xl">event_busy</icon>
-                                <div>
-                                    {{ 'COMMON.CANCEL_BOOKING' | translate }}
+                        @if (can_delete()) {
+                            <button mat-menu-item (click)="cancel(row)">
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-2xl">event_busy</icon>
+                                    <div>
+                                        {{
+                                            'COMMON.CANCEL_BOOKING' | translate
+                                        }}
+                                    </div>
                                 </div>
-                            </div>
-                        </button>
-                        @if (row.instance) {
+                            </button>
+                        }
+                        @if (row.instance && can_delete()) {
                             <button mat-menu-item (click)="cancelSeries(row)">
                                 <div class="flex items-center space-x-2">
-                                    <icon class="text-error text-2xl">delete</icon>
+                                    <icon class="text-error text-2xl"
+                                        >delete</icon
+                                    >
                                     <div>
                                         {{
                                             'BOOKINGS.ACTION_DELETE_SERIES'
@@ -342,6 +370,7 @@ export class DeskBookingsComponent {
     public loading = signal<string>('');
     public readonly filters = this._state.filters;
     public readonly has_more_pages = this._state.has_more_pages;
+    public readonly can_delete = settingSignal('desks.allow_deleting', false);
     public readonly bookings = computed(() => {
         const all_bookings = this._state.bookings();
         if (!this._state.loading()) return all_bookings;

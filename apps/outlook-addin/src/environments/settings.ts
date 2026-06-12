@@ -134,7 +134,7 @@ const app: any = {
     name: 'Workplace',
     title: 'Workplace Application',
     description: 'PlaceOS Workplace UI written with Angular Framework',
-    short_name: 'STAFF',
+    short_name: 'WorkMate Outlook',
     logo_light: 'assets/logo-light.svg',
     logo_dark: 'assets/logo-dark.svg',
     features: ['spaces', 'desks', 'explore', 'parking', 'help', 'schedule'],

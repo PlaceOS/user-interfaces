@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -33,7 +33,9 @@ import { RichTextInputComponent } from '@placeos/form-fields';
                 ) | translate
             "
             (confirm)="save()"
-            [loading]="loading ? ('APP.CONCIERGE.URLS_SAVING' | translate) : ''"
+            [loading]="
+                loading() ? ('APP.CONCIERGE.URLS_SAVING' | translate) : ''
+            "
         >
             <form [formGroup]="form">
                 @if (form.controls.name) {
@@ -124,7 +126,7 @@ export class ShortUrlModalComponent extends AsyncHandler {
     private _dialog_ref =
         inject<MatDialogRef<ShortUrlModalComponent>>(MatDialogRef);
 
-    public loading = false;
+    public readonly loading = signal(false);
 
     public readonly form = new FormGroup({
         id: new FormControl(this._data?.id || ''),
@@ -152,11 +154,11 @@ export class ShortUrlModalComponent extends AsyncHandler {
             );
         }
         const data: any = this.form.getRawValue();
-        this.loading = true;
-        const resp = await saveShortURL(data)
-            .toPromise()
-            .catch((e) => notifyError(`Error saving Short URL: ${e.message}`));
+        this.loading.set(true);
+        const resp = await saveShortURL(data).catch((e) =>
+            notifyError(`Error saving Short URL: ${e.message}`),
+        );
         if ((resp as any).id) this._dialog_ref.close(resp);
-        this.loading = false;
+        this.loading.set(false);
     }
 }

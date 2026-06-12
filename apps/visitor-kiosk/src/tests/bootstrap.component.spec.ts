@@ -7,7 +7,6 @@ import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import {
     Building,
     BuildingLevel,
-    nextValueFrom,
     OrganisationService,
     Region,
     SettingsService,
@@ -68,9 +67,7 @@ describe('BootstrapComponent', () => {
 
         expect(spectator.component.active_building()?.id).toBe('1');
         expect(spectator.component.active_level()).toBeFalsy();
-        expect((await nextValueFrom(spectator.component.levels)).length).toBe(
-            2,
-        );
+        expect(spectator.component.levels().length).toBe(2);
         expect('[level]').toExist();
         spectator.click('[level]');
         spectator.click(document.querySelector('mat-option'));
@@ -109,11 +106,11 @@ describe('BootstrapComponent', () => {
             'KIOSK.location',
             'kiosk-1',
         );
-        spectator.component.active_rotation = { id: '90', name: '' };
-        spectator.component.active_location = {
+        spectator.component.active_rotation.set({ id: '90', name: '' });
+        spectator.component.active_location.set({
             id: 'kiosk-1',
             name: 'South West',
-        };
+        });
         spectator.component.bootstrapKiosk();
         expect(localStorage.setItem).toHaveBeenCalledWith(
             'KIOSK.orientation',
@@ -149,12 +146,12 @@ describe('BootstrapComponent', () => {
 
         spectator.component.bootstrapKiosk();
 
-        expect(router.navigate).toHaveBeenCalledWith([
-            '/checkin',
-            'preferences',
-        ], {
-            queryParams: { action: 'preferences', token: 'abc.123' },
-        });
+        expect(router.navigate).toHaveBeenCalledWith(
+            ['/checkin', 'preferences'],
+            {
+                queryParams: { action: 'preferences', token: 'abc.123' },
+            },
+        );
     });
 
     it('should bypass bootstrap when action is preferences on load', async () => {
@@ -163,12 +160,12 @@ describe('BootstrapComponent', () => {
         spectator.setRouteQueryParam('token', 'abc.123');
         await spectator.component.ngOnInit();
 
-        expect(router.navigate).toHaveBeenCalledWith([
-            '/checkin',
-            'preferences',
-        ], {
-            queryParams: { action: 'preferences', token: 'abc.123' },
-        });
+        expect(router.navigate).toHaveBeenCalledWith(
+            ['/checkin', 'preferences'],
+            {
+                queryParams: { action: 'preferences', token: 'abc.123' },
+            },
+        );
     });
 
     it('should re-direct if already bootstrapped', fakeAsync(async () => {

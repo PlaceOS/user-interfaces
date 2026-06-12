@@ -1,0 +1,113 @@
+import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { IconComponent, TranslatePipe } from '@placeos/components';
+import { SignageService } from '../signage.service';
+
+@Component({
+    selector: 'playlist-select-modal',
+    template: `
+        <header
+            class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
+        >
+            <h2 class="px-2 text-xl font-medium">
+                {{ 'SIGNAGE_MANAGER.ADD_TO_PLAYLIST' | translate }}
+            </h2>
+            <button
+                icon
+                type="button"
+                matRipple
+                mat-dialog-close
+                [attr.aria-label]="
+                    'SIGNAGE_MANAGER.CLOSE_ADD_PLAYLIST' | translate
+                "
+            >
+                <icon>close</icon>
+            </button>
+        </header>
+        <main
+            class="h-[65vh] max-w-lg min-w-lg space-y-2 overflow-auto px-4 pt-2 pb-4 text-center max-md:h-auto max-md:max-w-none max-md:min-w-0 max-md:flex-1"
+        >
+            <mat-form-field
+                appearance="outline"
+                class="no-subscript bg-base-100 sticky top-0 z-10 w-full"
+            >
+                <input
+                    matInput
+                    [ngModel]="search()"
+                    (ngModelChange)="search.set($event)"
+                    [placeholder]="'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate
+                    "
+                />
+            </mat-form-field>
+            @if (filtered_playlists()?.length > 0) {
+                @for (playlist of filtered_playlists(); track playlist.id) {
+                    <button
+                        type="button"
+                        matRipple
+                        class="border-base-300 hover:bg-base-200 z-0 flex h-16 w-full items-center space-x-2 rounded-sm border p-2 text-left"
+                        [mat-dialog-close]="playlist.id"
+                    >
+                        <icon class="text-base-content/60 shrink-0 text-2xl"
+                            >playlist_play</icon
+                        >
+                        <div class="min-w-0 flex-1">
+                            <div class="truncate">
+                                {{ playlist.name }}
+                            </div>
+                            @if (playlist.description) {
+                                <div
+                                    class="text-base-content/70 truncate text-xs"
+                                >
+                                    {{ playlist.description }}
+                                </div>
+                            }
+                        </div>
+                    </button>
+                }
+            } @else {
+                <div
+                    class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center space-y-4 rounded-lg p-16"
+                >
+                    <icon class="text-base-content/70 text-8xl"
+                        >playlist_play</icon
+                    >
+                    <div class="text-base-content/70">
+                        {{ 'SIGNAGE_MANAGER.NO_PLAYLISTS' | translate }}
+                    </div>
+                </div>
+            }
+        </main>
+    `,
+    imports: [
+        FormsModule,
+        MatRippleModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        IconComponent,
+        TranslatePipe,
+    ],
+})
+export class PlaylistSelectModalComponent {
+    private readonly _data: { media_id: string } = inject(MAT_DIALOG_DATA);
+    private readonly _service = inject(SignageService);
+
+    private readonly _playlists = toSignal(this._service.playlists, {
+        initialValue: [],
+    });
+
+    public readonly search = signal('');
+
+    public readonly filtered_playlists = computed(() => {
+        const term = this.search().toLowerCase();
+        const list = this._playlists();
+        return list.filter((_) => _.name.toLowerCase().includes(term));
+    });
+}

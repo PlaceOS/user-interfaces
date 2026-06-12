@@ -9,7 +9,7 @@ import {
 import { openConfirmModal } from '@placeos/components';
 import { ExplorePointOfInterestModalComponent } from '@placeos/explore';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, from, of } from 'rxjs';
 import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
 import { POIModalComponent } from './poi-modal.component';
 
@@ -49,9 +49,9 @@ export class POIManagementService {
         this._change,
     ]).pipe(
         switchMap(() =>
-            showMetadata(this._org.organisation.id, 'points-of-interest').pipe(
-                catchError((_) => of({ details: {} })),
-            ),
+            from(
+                showMetadata(this._org.organisation.id, 'points-of-interest'),
+            ).pipe(catchError((_) => of({ details: {} }))),
         ),
         map((_) => {
             const mapping = _.details || {};
@@ -112,7 +112,7 @@ export class POIManagementService {
         const old_metadata = await showMetadata(
             this._org.organisation.id,
             'points-of-interest',
-        ).toPromise();
+        );
         const metadata = old_metadata.details || {};
         for (const lvl in metadata) {
             if (metadata[lvl])
@@ -122,13 +122,11 @@ export class POIManagementService {
             name: 'points-of-interest',
             details: metadata,
             description: '',
-        })
-            .toPromise()
-            .catch((e) => {
-                notifyError(e);
-                ref.close();
-                throw e;
-            });
+        }).catch((e) => {
+            notifyError(e);
+            ref.close();
+            throw e;
+        });
         notifySuccess('Successfully removed point of interest.');
         ref.close();
         this._change.next(Date.now());
