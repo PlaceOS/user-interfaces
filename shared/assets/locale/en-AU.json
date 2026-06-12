@@ -871,7 +871,7 @@
         "ASSETS_QUANTITY_ERROR": "Not enough assets available to meet request [{{ name }}].\nAnother request for this asset has been made in this meeting."
     },
     "EXPLORE": {
-        "AREAS": "Areas",
+        "AREAS": "Show Areas",
         "LEGEND": "Legend",
         "LOCATE_USER": "{{ name }} is here",
         "LOCATE_FAILED": "Failed to locate \"{{ name }}\"",

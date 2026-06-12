@@ -4,7 +4,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Point } from '@placeos/common';
 
 import { MatRippleModule } from '@angular/material/core';
-import { MatSlideToggle } from '@angular/material/slide-toggle';
 
 import {
     AsyncHandler,
@@ -30,6 +29,7 @@ import { MapLocation } from 'libs/users/src/lib/location.class';
 import { showStaff } from 'libs/users/src/lib/staff.fn';
 
 import { FormsModule } from '@angular/forms';
+import { SettingsToggleComponent } from '@placeos/components';
 import { ExploreDesksService } from './explore-desks.service';
 import { ExploreLockersService } from './explore-lockers.service';
 import { ExploreMapControlComponent } from './explore-map-control.component';
@@ -57,21 +57,16 @@ const EMPTY = [];
         @if (!use_mapsindoors()) {
             <div
                 controls
-                class="border-base-200 bg-base-100 absolute top-2 left-2 max-w-[calc(100vw-1rem)] space-y-2 overflow-hidden rounded-sm border p-2"
+                class="border-base-300 bg-base-100 absolute top-2 left-2 max-w-[calc(100vw-1rem)] space-y-2 overflow-hidden rounded-lg border p-2 shadow-xl"
             >
                 <explore-map-controls></explore-map-controls>
                 @if (!hide_zones()) {
-                    <div class="flex items-center space-x-2">
-                        <mat-slide-toggle
-                            name="zones"
-                            class="ml-2"
-                            [ngModel]="!options()?.disable?.includes('zones')"
-                            (ngModelChange)="toggleZones($event)"
-                        ></mat-slide-toggle>
-                        <label for="zones" class="mb-0">{{
-                            'EXPLORE.AREAS' | translate
-                        }}</label>
-                    </div>
+                    <settings-toggle
+                        class="mt-2"
+                        [name]="'EXPLORE.AREAS' | translate"
+                        [ngModel]="!options()?.disable?.includes('zones')"
+                        (ngModelChange)="toggleZones($event)"
+                    />
                 }
             </div>
         }
@@ -152,10 +147,10 @@ const EMPTY = [];
     imports: [
         TranslatePipe,
         InteractiveMapComponent,
-        MatSlideToggle,
         MatRippleModule,
         ExploreMapControlComponent,
         FormsModule,
+        SettingsToggleComponent,
     ],
 })
 export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
