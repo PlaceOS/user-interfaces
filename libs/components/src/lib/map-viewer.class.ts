@@ -131,6 +131,40 @@ function getSvgDimensions(svg_element: SVGSVGElement): {
     return { x, y, width: width || 1, height: height || 1 };
 }
 
+/**
+ * Axis-aligned bounds of an element in the root SVG's user (viewBox)
+ * coordinate space. getBBox() alone is in the element's local space and
+ * ignores its own and ancestor transforms, which the canvas render applies,
+ * so the bbox corners are mapped through the element's screen CTM and back
+ * through the inverse of the root SVG's screen CTM.
+ */
+function getElementBoundsInSvgSpace(
+    element: SVGGraphicsElement,
+    svg_inverse_ctm: DOMMatrix | null,
+): { x: number; y: number; width: number; height: number } {
+    const bbox = element.getBBox();
+    const ctm = svg_inverse_ctm && element.getScreenCTM?.();
+    if (!ctm) return bbox;
+    const matrix = svg_inverse_ctm.multiply(ctm);
+    const corners = [
+        { x: bbox.x, y: bbox.y },
+        { x: bbox.x + bbox.width, y: bbox.y },
+        { x: bbox.x, y: bbox.y + bbox.height },
+        { x: bbox.x + bbox.width, y: bbox.y + bbox.height },
+    ].map((p) => ({
+        x: matrix.a * p.x + matrix.c * p.y + matrix.e,
+        y: matrix.b * p.x + matrix.d * p.y + matrix.f,
+    }));
+    const min_x = Math.min(...corners.map((p) => p.x));
+    const min_y = Math.min(...corners.map((p) => p.y));
+    return {
+        x: min_x,
+        y: min_y,
+        width: Math.max(...corners.map((p) => p.x)) - min_x,
+        height: Math.max(...corners.map((p) => p.y)) - min_y,
+    };
+}
+
 /** Take SVG image as a string render in place and generate normalised bounds for each element with an ID */
 function generateElementBounds(data: string): ElementBoundsResult {
     const bounds_map = new Map<string, MapElementBounds>();
@@ -159,6 +193,11 @@ function generateElementBounds(data: string): ElementBoundsResult {
     } = getSvgDimensions(svg_element);
     const aspect_ratio = svg_width / svg_height;
 
+    // Inverse of the root SVG's screen transform, used to map element
+    // bounds (own + ancestor transforms included) into viewBox space
+    const svg_ctm = svg_element.getScreenCTM?.();
+    const svg_inverse_ctm = svg_ctm ? svg_ctm.inverse() : null;
+
     // Find all elements with an ID and calculate their bounds
     const elements_with_id = svg_element.querySelectorAll('[id]');
     elements_with_id.forEach((element) => {
@@ -168,7 +207,10 @@ function generateElementBounds(data: string): ElementBoundsResult {
         // SVG elements have getBBox() for accurate geometry bounds
         if (typeof (element as SVGGraphicsElement).getBBox === 'function') {
             try {
-                const bbox = (element as SVGGraphicsElement).getBBox();
+                const bbox = getElementBoundsInSvgSpace(
+                    element as SVGGraphicsElement,
+                    svg_inverse_ctm,
+                );
                 // Normalize bounds relative to the SVG coordinate space (0 to
                 // 1 range), offset by the viewBox origin which may be non-zero
                 bounds_map.set(id, {
@@ -798,6 +840,43 @@ export class MapViewer {
         const svg_element = doc.querySelector('svg');
         if (!svg_element) return;
 
+        // Size the texture to match the SVG's aspect ratio, with the
+        // longest side at the target size
+        const target_size = this.high_resolution
+            ? HIGH_RES_TEXTURE_SIZE
+            : BASE_TEXTURE_SIZE;
+        const aspect = this.map.aspect_ratio;
+        const width =
+            aspect >= 1 ? target_size : Math.round(target_size * aspect);
+        const height =
+            aspect >= 1 ? Math.round(target_size / aspect) : target_size;
+
+        // Without a viewBox, changing width/height crops the drawing
+        // instead of scaling it, so derive one from the declared size first
+        if (!svg_element.getAttribute('viewBox')) {
+            const attr_width = parseFloat(
+                svg_element.getAttribute('width') || '',
+            );
+            const attr_height = parseFloat(
+                svg_element.getAttribute('height') || '',
+            );
+            if (attr_width > 0 && attr_height > 0) {
+                svg_element.setAttribute(
+                    'viewBox',
+                    `0 0 ${attr_width} ${attr_height}`,
+                );
+            }
+        }
+
+        // Force the SVG's intrinsic size to the texture size. Width/height
+        // attributes that disagree with the viewBox aspect ratio otherwise
+        // letterbox the drawing (preserveAspectRatio), offsetting it from
+        // the element bounds which are computed in viewBox space
+        if (svg_element.getAttribute('viewBox')) {
+            svg_element.setAttribute('width', `${width}`);
+            svg_element.setAttribute('height', `${height}`);
+        }
+
         // Inject the styles at the end of the SVG so they are applied after
         // (and win over equal-specificity rules in) the SVG's own stylesheets
         if (this.styles_string) {
@@ -823,18 +902,6 @@ export class MapViewer {
         svg_image.onload = () => {
             URL.revokeObjectURL(url);
             if (generation !== this._image_generation) return;
-
-            const target_size = this.high_resolution
-                ? HIGH_RES_TEXTURE_SIZE
-                : BASE_TEXTURE_SIZE;
-
-            // Size the texture to match the SVG's aspect ratio, with the
-            // longest side at the target size
-            const aspect = this.map.aspect_ratio;
-            const width =
-                aspect >= 1 ? target_size : Math.round(target_size * aspect);
-            const height =
-                aspect >= 1 ? Math.round(target_size / aspect) : target_size;
 
             const canvas = document.createElement('canvas');
             canvas.width = width;
