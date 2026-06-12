@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["team-schedule-table.component.ts"],
+  "sourcesContent": ["\n            .schedule-grid {\n                display: grid;\n                grid-template-columns:\n                    minmax(18rem, 20rem)\n                    repeat(5, minmax(7rem, 1fr));\n            }\n        "],
+  "mappings": ";AACY,CAAA;AACI,WAAA;AACA;AAGJ;",
+  "names": []
+}
