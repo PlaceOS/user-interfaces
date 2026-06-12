@@ -25,6 +25,7 @@ import {
     notifyError,
     OrganisationService,
     randomInt,
+    settingSignal,
     SettingsService,
 } from '@placeos/common';
 import { UserPipe } from '@placeos/users';
@@ -217,22 +218,25 @@ import { DesksStateService } from './desks-state.service';
                         >
                             <icon>event_busy</icon>
                         </button>
-                        <button
-                            icon
-                            default
-                            matRipple
-                            [matTooltip]="
-                                'APP.CONCIERGE.DOWNLOAD_USER_LIST' | translate
-                            "
-                            [disabled]="downloading()"
-                            (click)="downloadCsv()"
-                        >
-                            @if (downloading()) {
-                                <mat-spinner diameter="24"></mat-spinner>
-                            } @else {
-                                <icon>download</icon>
-                            }
-                        </button>
+                        @if (hide_user_list_download()) {
+                            <button
+                                icon
+                                default
+                                matRipple
+                                [matTooltip]="
+                                    'APP.CONCIERGE.DOWNLOAD_USER_LIST'
+                                        | translate
+                                "
+                                [disabled]="downloading()"
+                                (click)="downloadCsv()"
+                            >
+                                @if (downloading()) {
+                                    <mat-spinner diameter="24"></mat-spinner>
+                                } @else {
+                                    <icon>download</icon>
+                                }
+                            </button>
+                        }
                     }
                     @if (path() === 'manage') {
                         <button
@@ -364,6 +368,9 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     private readonly _desk_levels_loaded = signal(false);
     /** Signal for filters */
     public readonly filters = this._state.filters;
+    public readonly hide_user_list_download = settingSignal(
+        'desks.hide_user_list_download',
+    );
     private readonly _all_levels$ = combineLatest([
         this._org.active_building,
         this._org.active_region,
