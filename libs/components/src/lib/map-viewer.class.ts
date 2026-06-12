@@ -261,6 +261,19 @@ export class MapViewer {
     public disable_pan = false;
     /** Callback invoked when view changes from user interaction */
     public onViewChange: ((event: MapViewChangeEvent) => void) | null = null;
+    /** Whether to render debugging info (element bounds, overlay outlines, draw stats) */
+    public debug = false;
+    /** Live debugging details, populated while debug mode is active */
+    public debug_info = {
+        /** Pointer position in normalised map coordinates */
+        pointer: null as Point | null,
+        /** ID of the smallest map element under the pointer */
+        hover_id: '',
+        /** Duration of the last map draw in milliseconds */
+        last_draw_ms: 0,
+        /** Number of map draws over the last second */
+        draws_last_second: 0,
+    };
 
     /** URL of the most recently requested map, used to discard stale loads */
     private _map_path = '';
@@ -269,6 +282,8 @@ export class MapViewer {
     private _image_frame_id: number | null = null;
     private _draw_frame_id: number | null = null;
     private _notify_frame_id: number | null = null;
+    private _debug_draw_count = 0;
+    private _debug_count_start = 0;
     private _ctx: CanvasRenderingContext2D;
     private _events = new Map<string, (e) => void>();
     private _resize_observer: ResizeObserver | null = null;
@@ -367,6 +382,61 @@ export class MapViewer {
         this.disable_pan = !!options?.disable_pan;
     }
 
+    /** Number of overlays currently attached to the map */
+    public get overlay_count(): number {
+        return this._overlay_instances.length;
+    }
+
+    /** Toggle rendering of debugging info over the map */
+    public setDebug(enabled: boolean) {
+        if (this.debug === enabled) return;
+        this.debug = enabled;
+        if (enabled) {
+            // Track the pointer to show its map position and hovered element
+            const move = (e: PointerEvent) => {
+                this.debug_info.pointer = this._eventToMap(e);
+                this.debug_info.hover_id = this._elementAt(
+                    this.debug_info.pointer,
+                );
+                this._renderMap();
+            };
+            const leave = () => {
+                this.debug_info.pointer = null;
+                this.debug_info.hover_id = '';
+                this._renderMap();
+            };
+            const click = (e: MouseEvent) => {
+                const point = this._eventToMap(e);
+                console.log(
+                    `[MAP][DEBUG] Click at { x: ${point.x.toFixed(4)}, y: ${point.y.toFixed(4)} } on "${this._elementAt(point) || 'no element'}"`,
+                );
+            };
+            this._events.set('debug_move', move);
+            this._events.set('debug_leave', leave);
+            this._events.set('debug_click', click);
+            this.container.addEventListener('pointermove', move);
+            this.container.addEventListener('pointerleave', leave);
+            this.container.addEventListener('click', click);
+        } else {
+            for (const name of ['debug_move', 'debug_leave', 'debug_click']) {
+                const handler = this._events.get(name);
+                if (!handler) continue;
+                const event_name =
+                    name === 'debug_move'
+                        ? 'pointermove'
+                        : name === 'debug_leave'
+                          ? 'pointerleave'
+                          : 'click';
+                this.container.removeEventListener(event_name, handler);
+                this._events.delete(name);
+            }
+            this.debug_info.pointer = null;
+            this.debug_info.hover_id = '';
+        }
+        this._applyOverlayOutlines();
+        this._renderMap();
+    }
+
     /** Center the view on the map element with the given ID */
     public focusOn(ref: string) {
         const bounds = this.map?.element_bounds.get(ref);
@@ -412,8 +482,39 @@ export class MapViewer {
             this._overlay_instances.push({ overlay, element });
         }
 
+        this._applyOverlayOutlines();
+
         // Update positions
         this._updateOverlayPositions();
+    }
+
+    /** Outline overlay elements while debug mode is active */
+    private _applyOverlayOutlines() {
+        for (const { element } of this._overlay_instances) {
+            element.style.outline = this.debug ? '1px dashed #f0f' : '';
+        }
+    }
+
+    /** ID of the smallest map element containing the given point */
+    private _elementAt(point: Point): string {
+        let best = '';
+        let best_area = Number.POSITIVE_INFINITY;
+        for (const [id, bounds] of this.map?.element_bounds || []) {
+            if (
+                point.x < bounds.x ||
+                point.x > bounds.x + bounds.w ||
+                point.y < bounds.y ||
+                point.y > bounds.y + bounds.h
+            ) {
+                continue;
+            }
+            const area = bounds.w * bounds.h;
+            if (area < best_area) {
+                best = id;
+                best_area = area;
+            }
+        }
+        return best;
     }
 
     public setActions(actions: MapAction[]) {
@@ -465,6 +566,7 @@ export class MapViewer {
     }
 
     public destroy() {
+        this.setDebug(false);
         this._resize_observer?.disconnect();
         this._resize_observer = null;
         this.container.removeEventListener('wheel', this._events.get('wheel'));
@@ -766,6 +868,7 @@ export class MapViewer {
 
     private _drawMap() {
         if (!this.map_image) return;
+        const draw_start = this.debug ? performance.now() : 0;
 
         const width = this.container.clientWidth || 1;
         const height = this.container.clientHeight || 1;
@@ -814,8 +917,79 @@ export class MapViewer {
             );
         }
 
+        if (this.debug) {
+            this._drawDebugInfo(scale, view_left, view_top);
+            const now = performance.now();
+            this.debug_info.last_draw_ms = now - draw_start;
+            this._debug_draw_count++;
+            if (now - this._debug_count_start >= 1000) {
+                this.debug_info.draws_last_second = this._debug_draw_count;
+                this._debug_draw_count = 0;
+                this._debug_count_start = now;
+            }
+        }
+
         // Update overlay positions after rendering
         this._updateOverlayPositions();
+    }
+
+    /** Draw element bounds, map border and view crosshair over the map */
+    private _drawDebugInfo(scale: Point, view_left: number, view_top: number) {
+        if (!this.map) return;
+        const ctx = this._ctx;
+        const width = this.container.clientWidth || 1;
+        const height = this.container.clientHeight || 1;
+        const toScreenX = (x: number) => (x - view_left) * scale.x;
+        const toScreenY = (y: number) => (y - view_top) * scale.y;
+
+        // Border of the map image
+        ctx.strokeStyle = '#f0f';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(toScreenX(0), toScreenY(0), scale.x, scale.y);
+
+        // Bounds of every mapped element within the view
+        ctx.strokeStyle = 'rgba(0, 200, 255, 0.6)';
+        ctx.lineWidth = 1;
+        for (const [, bounds] of this.map.element_bounds) {
+            const x = toScreenX(bounds.x);
+            const y = toScreenY(bounds.y);
+            const w = bounds.w * scale.x;
+            const h = bounds.h * scale.y;
+            if (x + w < 0 || y + h < 0 || x > width || y > height) continue;
+            ctx.strokeRect(x, y, w, h);
+        }
+
+        // Highlight and label the hovered element
+        const hover_bounds = this.debug_info.hover_id
+            ? this.map.element_bounds.get(this.debug_info.hover_id)
+            : null;
+        if (hover_bounds) {
+            const x = toScreenX(hover_bounds.x);
+            const y = toScreenY(hover_bounds.y);
+            ctx.fillStyle = 'rgba(255, 0, 255, 0.25)';
+            ctx.fillRect(
+                x,
+                y,
+                hover_bounds.w * scale.x,
+                hover_bounds.h * scale.y,
+            );
+            const label = `#${this.debug_info.hover_id}`;
+            ctx.font = '12px monospace';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.fillRect(x, y - 16, ctx.measureText(label).width + 8, 16);
+            ctx.fillStyle = '#fff';
+            ctx.fillText(label, x + 4, y - 4);
+        }
+
+        // Crosshair marking the view center
+        ctx.strokeStyle = '#f00';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(width / 2 - 8, height / 2);
+        ctx.lineTo(width / 2 + 8, height / 2);
+        ctx.moveTo(width / 2, height / 2 - 8);
+        ctx.lineTo(width / 2, height / 2 + 8);
+        ctx.stroke();
     }
 
     private _updateOverlayPositions() {
