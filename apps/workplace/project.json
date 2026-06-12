@@ -244,6 +244,20 @@
             "options": {
                 "command": "node tools/capacitor/run.mjs run workplace ios"
             }
+        },
+        "mobile:clear:android": {
+            "executor": "nx:run-commands",
+            "cache": false,
+            "options": {
+                "command": "node tools/capacitor/run.mjs clear workplace android"
+            }
+        },
+        "mobile:clear:ios": {
+            "executor": "nx:run-commands",
+            "cache": false,
+            "options": {
+                "command": "node tools/capacitor/run.mjs clear workplace ios"
+            }
         }
     }
 }

@@ -19,19 +19,26 @@ import {
 const [action, app_name, platform] = process.argv.slice(2);
 const SUPPORTED_PLATFORMS = new Set(['android', 'ios']);
 
-main();
+await main();
 
-function main() {
+async function main() {
     if (!action || !app_name || !platform) {
         throw new Error(
-            'Usage: node tools/capacitor/run.mjs <sync|open|build|run> <app> <android|ios>',
+            'Usage: node tools/capacitor/run.mjs <sync|open|build|run|clear> <app> <android|ios>',
         );
     }
     if (!SUPPORTED_PLATFORMS.has(platform)) {
         throw new Error(`Unsupported platform: ${platform}`);
     }
 
-    ensureWorkspace(app_name);
+    // Clearing app data only talks to the connected device/simulator — no
+    // need to generate the native workspace or assets for it.
+    if (action === 'clear') {
+        clearAppData(app_name, platform);
+        return;
+    }
+
+    await ensureWorkspace(app_name);
     ensurePlatform(app_name, platform);
     generateAssets(app_name, platform);
 
@@ -385,6 +392,38 @@ function buildIos(app_name) {
         products_root,
     );
     console.log(zip_path);
+}
+
+function clearAppData(app_name, platform) {
+    const app_config = getAppConfig(app_name);
+    if (platform === 'android') {
+        runCommand('adb', ['shell', 'pm', 'clear', app_config.bundle_id]);
+        console.log(
+            `Cleared ${app_config.display_name} app data on Android device`,
+        );
+        return;
+    }
+
+    if (process.platform !== 'darwin') {
+        throw new Error('iOS simulator requires macOS');
+    }
+    const booted_device = getBootedSimulator();
+    if (!booted_device) {
+        throw new Error(
+            'No booted iOS Simulator found. Open Simulator.app or run: xcrun simctl boot <device-udid>',
+        );
+    }
+    // simctl has no "clear data" — uninstalling removes the app container,
+    // so the next `run` installs with fresh state.
+    runCommand('xcrun', [
+        'simctl',
+        'uninstall',
+        booted_device,
+        app_config.bundle_id,
+    ]);
+    console.log(
+        `Uninstalled ${app_config.display_name} from iOS Simulator (${booted_device})`,
+    );
 }
 
 function runAndroid(app_name) {
