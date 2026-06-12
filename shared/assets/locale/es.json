@@ -551,6 +551,8 @@
         "DESK_LIST_LOADING": "Buscando escritorios disponibles...",
         "DESK_LIST_EMPTY": "No hay escritorios disponibles para la hora y/o filtros seleccionados",
         "DESK_SELECT_MSG": "Seleccione un escritorio para ver sus detalles",
+        "DESK_RESERVED_TITLE": "Tiene un escritorio reservado",
+        "DESK_RESERVED_MESSAGE": "Ya tiene un escritorio reservado, por lo que no puede reservar otro escritorio.",
         "ITEM_BOOKED": "¡{{ name }} reservado!",
         "DESK_SUCCESS_LONE": "Su reserva de escritorio ha sido realizada con éxito para el {{ date }} a las {{ time }}",
         "DESK_SUCCESS_GROUP": "Su grupo de {{ size }} escritorios ha sido reservado con éxito para el {{ date }} a las {{ time }}",

@@ -551,6 +551,8 @@
         "DESK_LIST_LOADING": "Recherche des bureaux disponibles...",
         "DESK_LIST_EMPTY": "Aucun bureau disponible pour la plage horaire sélectionnée et/ou les filtres",
         "DESK_SELECT_MSG": "Sélectionnez un bureau pour afficher ses détails",
+        "DESK_RESERVED_TITLE": "Vous avez un bureau réservé",
+        "DESK_RESERVED_MESSAGE": "Un bureau vous est déjà réservé, vous ne pouvez donc pas en réserver un autre.",
         "ITEM_BOOKED": "{{ name }} réservé!",
         "DESK_SUCCESS_LONE": "Votre réservation de bureau a été effectuée avec succès pour le {{ date }} à {{ time }}",
         "DESK_SUCCESS_GROUP": "Votre groupe de {{ size }} bureaux a été réservé avec succès pour le {{ date }} à {{ time }}",

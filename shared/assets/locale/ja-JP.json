@@ -550,6 +550,8 @@
         "DESK_LIST_LOADING": "利用可能なデスクを検索中...",
         "DESK_LIST_EMPTY": "選択された時間および/またはフィルターで利用可能なデスクがありません",
         "DESK_SELECT_MSG": "詳細を表示するにはデスクを選択してください",
+        "DESK_RESERVED_TITLE": "予約済みのデスクがあります",
+        "DESK_RESERVED_MESSAGE": "すでにデスクが割り当てられているため、別のデスクを予約できません。",
         "ITEM_BOOKED": "{{ name }}を予約しました！",
         "DESK_SUCCESS_LONE": "デスクの予約が{{ date }}の{{ time }}に正常に完了しました",
         "DESK_SUCCESS_GROUP": "{{ size }}個のデスクのグループ予約が{{ date }}の{{ time }}に正常に完了しました",

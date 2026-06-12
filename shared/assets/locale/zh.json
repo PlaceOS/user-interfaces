@@ -551,6 +551,8 @@
         "DESK_LIST_LOADING": "正在查找可用工位...",
         "DESK_LIST_EMPTY": "没有符合所选时间或筛选条件的可用工位",
         "DESK_SELECT_MSG": "选择一个工位以查看其详情",
+        "DESK_RESERVED_TITLE": "您已有预留工位",
+        "DESK_RESERVED_MESSAGE": "已为您预留了工位，因此无法预订其他工位。",
         "ITEM_BOOKED": "{{ name }} 已预订！",
         "DESK_SUCCESS_LONE": "您的工位已成功预订，时间为 {{ date }} {{ time }}",
         "DESK_SUCCESS_GROUP": "您的 {{ size }} 个工位群组已成功预订，时间为 {{ date }} {{ time }}",

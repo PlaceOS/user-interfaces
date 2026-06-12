@@ -1039,6 +1039,8 @@
         "DESK_LIST_LOADING": "Finding available desks...",
         "DESK_LIST_EMPTY": "No available desks for selected time and/or filters",
         "DESK_SELECT_MSG": "Select a desk to view its details",
+        "DESK_RESERVED_TITLE": "You have a reserved desk",
+        "DESK_RESERVED_MESSAGE": "A desk has already been reserved for you, so you are unable to book another desk.",
         "DESK_AUTO_ASSIGNED_TITLE": "Auto-Assigned Desk",
         "DESK_REQUESTING": "Requesting desk...",
         "DESK_FOUND": "Desk Found!",

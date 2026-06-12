@@ -582,6 +582,172 @@ describe('BookingFormService', () => {
         );
     });
 
+    it('should block self desk bookings by default when the user has an assigned desk', async () => {
+        const save_booking = booking_mod.saveBooking as jest.Mock;
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        (ts_client as any).listChildMetadata = jest.fn(() =>
+            of([
+                {
+                    metadata: {
+                        desks: {
+                            details: [
+                                {
+                                    id: 'assigned-desk',
+                                    assigned_to: '<empty>@dev.place.tech',
+                                },
+                            ],
+                        },
+                    },
+                    zone: { id: 'lvl-1' },
+                },
+            ]),
+        );
+        save_booking.mockReset();
+        save_booking.mockImplementation((booking: Booking) => of(booking));
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                booking_type: 'desk',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'desk-1',
+            }),
+        );
+        spectator.service.form.patchValue({
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            resources: [
+                {
+                    id: 'desk-1',
+                    name: 'Desk 1',
+                    zone: { id: 'lvl-1', parent_id: 'bld-1' },
+                    features: [],
+                },
+            ],
+        });
+
+        await expect(spectator.service.postForm(true)).rejects.toBe(
+            'You have an assigned desk and cannot book another desk.',
+        );
+        expect(save_booking).not.toHaveBeenCalled();
+    });
+
+    it('should allow self desk bookings for users with an assigned desk when the setting is enabled', async () => {
+        const get = spectator.inject(SettingsService).get as jest.Mock;
+        const save_booking = booking_mod.saveBooking as jest.Mock;
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        get.mockImplementation((key: string) => {
+            if (key === 'app.desks.allow_booking_with_reserved_desk') {
+                return true;
+            }
+            return undefined;
+        });
+        (ts_client as any).listChildMetadata = jest.fn(() =>
+            of([
+                {
+                    metadata: {
+                        desks: {
+                            details: [
+                                {
+                                    id: 'assigned-desk',
+                                    assigned_to: '<empty>@dev.place.tech',
+                                },
+                            ],
+                        },
+                    },
+                    zone: { id: 'lvl-1' },
+                },
+            ]),
+        );
+        save_booking.mockReset();
+        save_booking.mockImplementation((booking: Booking) => of(booking));
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                booking_type: 'desk',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'desk-1',
+            }),
+        );
+        spectator.service.form.patchValue({
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            resources: [
+                {
+                    id: 'desk-1',
+                    name: 'Desk 1',
+                    zone: { id: 'lvl-1', parent_id: 'bld-1' },
+                    features: [],
+                },
+            ],
+        });
+
+        await spectator.service.postForm(true);
+
+        expect(save_booking).toHaveBeenCalledTimes(1);
+    });
+
+    it('should block self desk bookings when the legacy prevent setting overrides the allow setting', async () => {
+        const get = spectator.inject(SettingsService).get as jest.Mock;
+        const save_booking = booking_mod.saveBooking as jest.Mock;
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        get.mockImplementation((key: string) => {
+            if (key === 'app.desks.allow_booking_with_reserved_desk') {
+                return true;
+            }
+            if (key === 'app.desks.prevent_self_booking_if_assigned_desk') {
+                return true;
+            }
+            return undefined;
+        });
+        (ts_client as any).listChildMetadata = jest.fn(() =>
+            of([
+                {
+                    metadata: {
+                        desks: {
+                            details: [
+                                {
+                                    id: 'assigned-desk',
+                                    assigned_to: '<empty>@dev.place.tech',
+                                },
+                            ],
+                        },
+                    },
+                    zone: { id: 'lvl-1' },
+                },
+            ]),
+        );
+        save_booking.mockReset();
+        save_booking.mockImplementation((booking: Booking) => of(booking));
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                booking_type: 'desk',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'desk-1',
+            }),
+        );
+        spectator.service.form.patchValue({
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            resources: [
+                {
+                    id: 'desk-1',
+                    name: 'Desk 1',
+                    zone: { id: 'lvl-1', parent_id: 'bld-1' },
+                    features: [],
+                },
+            ],
+        });
+
+        await expect(spectator.service.postForm(true)).rejects.toBe(
+            'You have an assigned desk and cannot book another desk.',
+        );
+        expect(save_booking).not.toHaveBeenCalled();
+    });
+
     it('should clear saved host changes after a permission error', async () => {
         const save_booking = booking_mod.saveBooking as jest.Mock;
         const current_user = currentUser();

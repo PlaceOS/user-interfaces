@@ -551,6 +551,8 @@
         "DESK_LIST_LOADING": "Ricerca di scrivanie disponibili...",
         "DESK_LIST_EMPTY": "Nessuna scrivania disponibile per l'orario e/o filtri selezionati",
         "DESK_SELECT_MSG": "Seleziona una scrivania per visualizzare i suoi dettagli",
+        "DESK_RESERVED_TITLE": "Hai una scrivania riservata",
+        "DESK_RESERVED_MESSAGE": "Una scrivania è già riservata per te, quindi non puoi prenotarne un'altra.",
         "ITEM_BOOKED": "{{ name }} prenotato!",
         "DESK_SUCCESS_LONE": "La tua prenotazione scrivania è stata prenotata con successo per {{ date }} alle {{ time }}",
         "DESK_SUCCESS_GROUP": "Il tuo gruppo di {{ size }} scrivanie è stato prenotato con successo per {{ date }} alle {{ time }}",
