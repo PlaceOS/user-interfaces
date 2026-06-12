@@ -164,6 +164,11 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
         const { id, booking_type } = this._booking_form.form.getRawValue();
         if (!id || booking_type !== 'desk') this._booking_form.newForm('desk');
         this._booking_form.form.patchValue({ booking_type: 'desk' });
+        // Parking request form may have marked plate_number as required on
+        // the shared booking form; desks don't use it so clear it here.
+        const plate_number = this._booking_form.form.get('plate_number');
+        plate_number?.clearValidators();
+        plate_number?.updateValueAndValidity({ emitEvent: false });
         if (!this._booking_form.form.value.id)
             this._booking_form.form.patchValue({ title: 'Booking' });
         this.subscription(
