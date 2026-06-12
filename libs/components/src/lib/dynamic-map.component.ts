@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import {
     Component,
+    computed,
     effect,
     ElementRef,
     inject,
@@ -29,6 +30,7 @@ import {
     ViewerLabel,
     ViewerStyles,
 } from '@placeos/common';
+import { HotkeysService } from 'libs/common/src/lib/hotkeys.service';
 
 import {
     MapAction,
@@ -71,6 +73,12 @@ import { TranslatePipe } from './translate.pipe';
         <ng-content />
         @if (options()?.controls) {
             <map-zoom-controls [(zoom)]="zoom" [(reset)]="reset" />
+        }
+        @if (debug()) {
+            <div
+                class="pointer-events-none absolute top-2 right-2 z-40 rounded bg-black/80 p-2 font-mono text-[11px] leading-4 whitespace-pre text-white"
+                >{{ debug_text() }}</div
+            >
         }
         @if (injectors?.length) {
             <div hidden>
@@ -160,6 +168,8 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
     public zoom = model(1);
     public center = model<Point>({ x: 0.5, y: 0.5 });
     public highResolution = input(false);
+    /** Show debugging info over the map. Also toggled with Ctrl+Alt+Shift+G */
+    public debug = model(false);
     public reset = model(0);
     public styles = input<ViewerStyles>({});
     public features = input<ViewerFeature[]>([]);
@@ -177,6 +187,51 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
     private _element_mappings = signal<Record<string, MapElementBounds> | null>(
         null,
     );
+
+    private _hotkey_sub = inject(HotkeysService).listen(
+        ['Control', 'Alt', 'Shift', 'KeyG'],
+        () => this.debug.update((state) => !state),
+    );
+
+    /** Viewer state polled for the debug panel while debug mode is active */
+    private _debug_state = signal<{
+        texture: string;
+        aspect: string;
+        view: string;
+        pointer: string;
+        hover: string;
+        elements: number;
+        overlays: number;
+        draw: string;
+    } | null>(null);
+
+    public readonly debug_text = computed(() => {
+        const state = this._debug_state();
+        if (!state) return '';
+        const center = this.center();
+        const status = this.error()
+            ? 'error'
+            : this.loading()
+              ? 'loading'
+              : this.src()
+                ? 'ready'
+                : 'no map';
+        return [
+            'MAP DEBUG (Ctrl+Alt+Shift+G)',
+            `src:      ${this.src().split('/').pop() || '—'}`,
+            `status:   ${status}`,
+            `texture:  ${state.texture}${this.highResolution() ? ' (high-res)' : ''}`,
+            `aspect:   ${state.aspect}`,
+            `view:     ${state.view}`,
+            `zoom:     ${this.zoom().toFixed(2)}`,
+            `center:   ${center.x.toFixed(3)}, ${center.y.toFixed(3)}`,
+            `pointer:  ${state.pointer}`,
+            `hover:    ${state.hover}`,
+            `elements: ${state.elements}`,
+            `overlays: ${state.overlays}`,
+            `draw:     ${state.draw}`,
+        ].join('\n');
+    });
 
     constructor() {
         // Effect to load map when src changes
@@ -265,6 +320,36 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
                 this._map_viewer?.focusOn(focus);
             }
         });
+
+        // Effect to sync debug mode and poll viewer state for the debug panel
+        effect((onCleanup) => {
+            this._map_viewer?.setDebug(this.debug());
+            if (!this.debug()) {
+                this._debug_state.set(null);
+                return;
+            }
+            const update = () => {
+                const viewer = this._map_viewer;
+                if (!viewer) return;
+                const image = viewer.map_image;
+                const info = viewer.debug_info;
+                this._debug_state.set({
+                    texture: image ? `${image.width}×${image.height}` : 'none',
+                    aspect: (viewer.map?.aspect_ratio || 1).toFixed(3),
+                    view: `${viewer.container.clientWidth}×${viewer.container.clientHeight}`,
+                    pointer: info.pointer
+                        ? `${info.pointer.x.toFixed(3)}, ${info.pointer.y.toFixed(3)}`
+                        : '—',
+                    hover: info.hover_id ? `#${info.hover_id}` : '—',
+                    elements: viewer.map?.element_bounds.size || 0,
+                    overlays: viewer.overlay_count,
+                    draw: `${info.last_draw_ms.toFixed(1)}ms · ${info.draws_last_second}/s`,
+                });
+            };
+            update();
+            const interval = setInterval(update, 250);
+            onCleanup(() => clearInterval(interval));
+        });
     }
 
     public ngOnInit() {
@@ -289,6 +374,7 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
     }
 
     public ngOnDestroy() {
+        this._hotkey_sub.unsubscribe();
         this._map_viewer?.destroy();
         this._map_viewer = null;
     }
