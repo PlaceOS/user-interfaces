@@ -439,6 +439,32 @@ export function getNativeSystemId(): string {
     return localStorage.getItem(SYSTEM_ID_STORAGE_KEY) || '';
 }
 
+let _managed_config_sync: Promise<{
+    config: NativeManagedConfig | null;
+    changed: boolean;
+}> | null = null;
+
+/**
+ * Load and persist the MDM managed configuration exactly once per launch.
+ * Callers racing on startup (app initialisation and the bootstrap screens)
+ * share the same read, so awaiting this guarantees the managed settings are
+ * in localStorage before acting on them.
+ */
+export function syncNativeManagedConfig(): Promise<{
+    config: NativeManagedConfig | null;
+    changed: boolean;
+}> {
+    if (!_managed_config_sync) {
+        _managed_config_sync = loadNativeManagedConfig()
+            .then((config) => ({
+                config,
+                changed: config ? applyNativeManagedConfig(config) : false,
+            }))
+            .catch(() => ({ config: null, changed: false }));
+    }
+    return _managed_config_sync;
+}
+
 let _restart_timer: ReturnType<typeof setTimeout> | null = null;
 
 /**

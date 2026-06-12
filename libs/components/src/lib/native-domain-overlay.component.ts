@@ -1,4 +1,12 @@
-import { Component, effect, input, output, signal } from '@angular/core';
+import {
+    Component,
+    effect,
+    input,
+    OnDestroy,
+    output,
+    signal,
+    untracked,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -15,6 +23,9 @@ import {
 } from '@placeos/common';
 
 import { IconComponent } from './icon.component';
+
+/** Seconds of no user activity before MDM-provided settings auto-accept. */
+const AUTO_ACCEPT_SECONDS = 15;
 
 @Component({
     selector: 'native-domain-overlay',
@@ -44,6 +55,14 @@ import { IconComponent } from './icon.component';
                             class="bg-error/10 text-error rounded-sm px-3 py-2 text-xs"
                         >
                             {{ error() }}
+                        </p>
+                    }
+                    @if (auto_accept_in() > 0) {
+                        <p
+                            class="bg-info/10 text-info rounded-sm px-3 py-2 text-xs"
+                        >
+                            Settings provided by your administrator will be
+                            applied automatically in {{ auto_accept_in() }}s.
                         </p>
                     }
                     @if (manual_entry()) {
@@ -142,9 +161,15 @@ import { IconComponent } from './icon.component';
         MatInputModule,
         MatRippleModule,
     ],
+    host: {
+        '(window:pointerdown)': 'resetAutoAccept()',
+        '(window:keydown)': 'resetAutoAccept()',
+    },
 })
-export class NativeDomainOverlayComponent {
+export class NativeDomainOverlayComponent implements OnDestroy {
     public readonly serverError = input('');
+    /** Whether to accept the prefilled settings after a period of no activity. */
+    public readonly autoAccept = input(false);
     public readonly domainSet = output<string>();
     public readonly email = signal(getNativeEmail() ?? '');
     public readonly server_address = signal(getNativeDomain() ?? '');
@@ -154,12 +179,53 @@ export class NativeDomainOverlayComponent {
     public readonly manual_entry = signal(!!getNativeDomain());
     public readonly error = signal('');
     public readonly loading = signal(false);
+    /** Seconds remaining before the prefilled settings are auto-accepted. */
+    public readonly auto_accept_in = signal(0);
+
+    private _auto_accept_timer: ReturnType<typeof setInterval> | null = null;
 
     constructor() {
         effect(() => {
             const msg = this.serverError();
-            if (msg) this.error.set(msg);
+            if (msg) {
+                this.error.set(msg);
+                // An error needs a human — never auto-accept over it.
+                untracked(() => this.stopAutoAccept());
+            }
         });
+        effect(() => {
+            if (this.autoAccept() && untracked(this.server_address)) {
+                untracked(() => this.startAutoAccept());
+            }
+        });
+    }
+
+    public ngOnDestroy() {
+        this.stopAutoAccept();
+    }
+
+    /** Restart the inactivity countdown — any user activity delays it. */
+    public resetAutoAccept() {
+        if (!this._auto_accept_timer) return;
+        this.auto_accept_in.set(AUTO_ACCEPT_SECONDS);
+    }
+
+    private startAutoAccept() {
+        this.auto_accept_in.set(AUTO_ACCEPT_SECONDS);
+        if (this._auto_accept_timer) return;
+        this._auto_accept_timer = setInterval(() => {
+            const remaining = this.auto_accept_in() - 1;
+            this.auto_accept_in.set(remaining);
+            if (remaining > 0) return;
+            this.stopAutoAccept();
+            this.submit();
+        }, 1000);
+    }
+
+    private stopAutoAccept() {
+        if (this._auto_accept_timer) clearInterval(this._auto_accept_timer);
+        this._auto_accept_timer = null;
+        this.auto_accept_in.set(0);
     }
 
     public toggleManualEntry() {
@@ -170,6 +236,7 @@ export class NativeDomainOverlayComponent {
 
     public async submit() {
         if (this.loading()) return;
+        this.stopAutoAccept();
         if (this.manual_entry()) return this.submitManual();
         const raw = this.email().trim();
         if (!raw) {

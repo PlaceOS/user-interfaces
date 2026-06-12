@@ -9,6 +9,7 @@ import {
     AsyncHandler,
     getNativeSystemId,
     OrganisationService,
+    syncNativeManagedConfig,
     VERSION,
 } from '@placeos/common';
 
@@ -227,8 +228,11 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     /**
      * Check if the application has previously been bootstrapped
      */
-    private checkBootstrapped(): void {
+    private async checkBootstrapped(): Promise<void> {
         this.loading.set('Checking');
+        // Wait for any MDM managed configuration to be stored locally, as it
+        // takes precedence over previously stored bootstrap settings.
+        await syncNativeManagedConfig();
         if (localStorage) {
             const system_id = localStorage.getItem('PLACEOS.BOOKINGS.system');
             this._event =

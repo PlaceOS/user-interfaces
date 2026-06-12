@@ -17,6 +17,7 @@ import {
     getNativeSystemId,
     OrganisationService,
     Space,
+    syncNativeManagedConfig,
     VERSION,
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
@@ -229,9 +230,13 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     /**
      * Check if the application has previously been bootstrapped
      */
-    private checkBootstrapped(): void {
+    private async checkBootstrapped(): Promise<void> {
         if (this.system_id()) return;
         this.loading.set('Checks');
+        // Wait for any MDM managed configuration to be stored locally, as it
+        // takes precedence over previously stored bootstrap settings.
+        await syncNativeManagedConfig();
+        if (this.system_id()) return;
         if (localStorage) {
             const system_id = localStorage.getItem(STORE_KEY);
             // A system pushed via MDM managed config overrides the stored one

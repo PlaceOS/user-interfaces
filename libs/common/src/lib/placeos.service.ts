@@ -34,7 +34,6 @@ import { HotkeysService } from './hotkeys.service';
 import { LocaleService, setTranslationService } from './locale.service';
 import { MapsPeopleService } from './mapspeople.service';
 import {
-    applyNativeManagedConfig,
     bindNativeAuthRedirects,
     clearNativeApiKey,
     clearNativeDomain,
@@ -46,12 +45,12 @@ import {
     getNativeDomain,
     hideNativeStatusBar,
     isNativeApp,
-    loadNativeManagedConfig,
     markNativeAuthRedirectConsumed,
     openNativeBrowser,
     restoreNativePkceVerifier,
     scheduleNativeRestart,
     setNativeAuthError,
+    syncNativeManagedConfig,
 } from './native-app';
 import { notifySuccess, setNotifyOutlet } from './notifications';
 import { OrganisationService } from './org/organisation.service';
@@ -71,6 +70,7 @@ declare global {
 const LOADING_MESSAGE = signal('Loading...');
 const NEEDS_DOMAIN = signal(false);
 const DOMAIN_ERROR = signal('');
+const AUTO_CONFIRM_DOMAIN = signal(false);
 
 export function getLoadingMessage() {
     return LOADING_MESSAGE;
@@ -88,6 +88,15 @@ export function needsNativeDomain() {
 /** Signal containing an error message to display in the domain overlay. */
 export function nativeDomainError() {
     return DOMAIN_ERROR;
+}
+
+/**
+ * Signal indicating the domain overlay can auto-accept its settings after a
+ * period of no user activity — set when the MDM managed configuration
+ * provides everything needed to run unattended.
+ */
+export function autoConfirmNativeDomain() {
+    return AUTO_CONFIRM_DOMAIN;
 }
 
 export function initSentry(dsn: string, sample_rate = 0.1) {
@@ -203,6 +212,7 @@ export class PlaceOS_Service extends AsyncHandler {
     public onNativeDomainSet(): void {
         NEEDS_DOMAIN.set(false);
         DOMAIN_ERROR.set('');
+        AUTO_CONFIRM_DOMAIN.set(false);
         this._domain_resolve?.();
         this._domain_resolve = null;
     }
@@ -309,9 +319,9 @@ export class PlaceOS_Service extends AsyncHandler {
         let confirm_managed = false;
         if (isNativeApp()) {
             setLoadingMessage('Checking managed configuration...');
-            const managed = await loadNativeManagedConfig().catch(() => null);
+            const { config: managed, changed } =
+                await syncNativeManagedConfig();
             if (managed) {
-                const changed = applyNativeManagedConfig(managed);
                 if (options.allow_mdm_restart && managed.restart_enabled) {
                     scheduleNativeRestart(managed.restart_time);
                 }
@@ -321,6 +331,15 @@ export class PlaceOS_Service extends AsyncHandler {
                     changed &&
                     !!managed.domain &&
                     !managed.skip_interactive_setup;
+                // When the MDM provides everything a panel app needs to run
+                // unattended, the confirmation accepts itself after a period
+                // of no user activity.
+                AUTO_CONFIRM_DOMAIN.set(
+                    confirm_managed &&
+                        !!options.allow_mdm_restart &&
+                        !!managed.api_key &&
+                        !!managed.system_id,
+                );
             }
         }
         /** On native platforms, ensure we have a server domain before auth. */
