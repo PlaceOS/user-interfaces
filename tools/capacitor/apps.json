@@ -8,7 +8,7 @@
         "icon_background_color": "#0A1020",
         "icon_background_color_dark": "#0A1020",
         "splash_background_color": "#fafafa",
-        "splash_background_color_dark": "#1976d2"
+        "splash_background_color_dark": "#0A1020"
     },
     "booking-panel": {
         "project_name": "booking-panel",
@@ -19,7 +19,7 @@
         "icon_background_color": "#0A1020",
         "icon_background_color_dark": "#0A1020",
         "splash_background_color": "#fafafa",
-        "splash_background_color_dark": "#1976d2"
+        "splash_background_color_dark": "#0A1020"
     },
     "control": {
         "project_name": "control",
@@ -30,6 +30,6 @@
         "icon_background_color": "#0A1020",
         "icon_background_color_dark": "#0A1020",
         "splash_background_color": "#fafafa",
-        "splash_background_color_dark": "#1976d2"
+        "splash_background_color_dark": "#0A1020"
     }
 }
