@@ -525,6 +525,13 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public setOptions(value: Partial<BookingFlowOptions>) {
+        if (value.type && value.type !== 'parking') {
+            // Parking request form marks plate_number as required; other
+            // booking types don't use it so remove any stale validator.
+            const plate_number = this.form.get('plate_number');
+            plate_number?.clearValidators();
+            plate_number?.updateValueAndValidity({ emitEvent: false });
+        }
         this._options.next({ ...this._options.getValue(), ...value });
     }
 
