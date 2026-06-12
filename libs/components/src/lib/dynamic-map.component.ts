@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import {
     Component,
     computed,
@@ -42,6 +43,8 @@ import { MapZoomControlsComponent } from './map-zoom-controls.component';
 import { SanitizePipe } from './sanitise.pipe';
 import { TranslatePipe } from './translate.pipe';
 
+type DebugSection = 'styles' | 'features' | 'labels' | 'actions';
+
 @Component({
     selector: 'dynamic-map',
     template: `
@@ -76,9 +79,36 @@ import { TranslatePipe } from './translate.pipe';
         }
         @if (debug()) {
             <div
-                class="pointer-events-none absolute top-2 right-2 z-40 rounded bg-black/80 p-2 font-mono text-[11px] leading-4 whitespace-pre text-white"
-                >{{ debug_text() }}</div
+                class="absolute top-2 right-2 z-40 flex max-h-[80%] max-w-[32rem] flex-col rounded bg-black/80 font-mono text-[11px] leading-4 text-white"
             >
+                <div class="pointer-events-none p-2 whitespace-pre">{{
+                    debug_text()
+                }}</div>
+                <div class="flex gap-1 px-2 pb-2">
+                    @for (section of debug_sections(); track section.key) {
+                        <button
+                            class="rounded border border-white/30 px-1 hover:bg-white/20"
+                            [class.bg-white/30]="
+                                debug_section() === section.key
+                            "
+                            (click)="toggleDebugSection(section.key)"
+                        >
+                            {{ section.key }} ({{ section.count }})
+                        </button>
+                    }
+                </div>
+                @if (debug_section()) {
+                    <input
+                        class="mx-2 mb-2 rounded border border-white/30 bg-white/10 px-1 outline-none placeholder:text-white/40"
+                        placeholder="Filter..."
+                        [(ngModel)]="debug_filter"
+                    />
+                    <div
+                        class="overflow-auto border-t border-white/20 p-2 whitespace-pre select-text"
+                        >{{ debug_detail_text() }}</div
+                    >
+                }
+            </div>
         }
         @if (injectors?.length) {
             <div hidden>
@@ -145,6 +175,7 @@ import { TranslatePipe } from './translate.pipe';
     ],
     imports: [
         CommonModule,
+        FormsModule,
         TranslatePipe,
         SanitizePipe,
         MatProgressSpinnerModule,
@@ -232,6 +263,57 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
             `draw:     ${state.draw}`,
         ].join('\n');
     });
+
+    /** Currently expanded section of the debug panel */
+    public readonly debug_section = signal<DebugSection | null>(null);
+    /** Text filter applied to entries of the expanded debug section */
+    public readonly debug_filter = signal('');
+
+    public readonly debug_sections = computed(
+        (): { key: DebugSection; count: number }[] => [
+            { key: 'styles', count: Object.keys(this.styles() || {}).length },
+            { key: 'features', count: (this.features() || []).length },
+            { key: 'labels', count: (this.labels() || []).length },
+            { key: 'actions', count: (this.actions() || []).length },
+        ],
+    );
+
+    public readonly debug_detail_text = computed(() => {
+        const section = this.debug_section();
+        let entries: string[];
+        switch (section) {
+            case 'styles':
+                entries = this._describeStyles();
+                break;
+            case 'features':
+                entries = this._describeFeatures();
+                break;
+            case 'labels':
+                entries = this._describeLabels();
+                break;
+            case 'actions':
+                entries = this._describeActions();
+                break;
+            default:
+                return '';
+        }
+        const filter = this.debug_filter().trim().toLowerCase();
+        if (filter) {
+            entries = entries.filter((entry) =>
+                entry.toLowerCase().includes(filter),
+            );
+        }
+        if (!entries.length) {
+            return filter ? 'No matches' : `No ${section}`;
+        }
+        return entries.join('\n');
+    });
+
+    public toggleDebugSection(section: DebugSection) {
+        this.debug_section.update((current) =>
+            current === section ? null : section,
+        );
+    }
 
     constructor() {
         // Effect to load map when src changes
@@ -326,6 +408,8 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
             this._map_viewer?.setDebug(this.debug());
             if (!this.debug()) {
                 this._debug_state.set(null);
+                this.debug_section.set(null);
+                this.debug_filter.set('');
                 return;
             }
             const update = () => {
@@ -587,6 +671,80 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
         }
 
         return unique(events);
+    }
+
+    private _formatLocation(location: string | Point) {
+        return typeof location === 'string'
+            ? `#${location}`
+            : `${location.x.toFixed(3)}, ${location.y.toFixed(3)}`;
+    }
+
+    private _describeStyles(): string[] {
+        return Object.entries(this.styles() || {}).map(([selector, style]) =>
+            [
+                `${selector} {`,
+                ...Object.entries(style).map(
+                    ([prop, value]) => `  ${prop}: ${value};`,
+                ),
+                '}',
+            ].join('\n'),
+        );
+    }
+
+    private _describeFeatures(): string[] {
+        return (this.features() || []).map((feature, index) => {
+            const content =
+                feature.content instanceof HTMLElement
+                    ? 'element'
+                    : feature.content
+                      ? this.contentType(feature.content)
+                      : 'none';
+            return [
+                `${index}: ${this._formatLocation(feature.location)}`,
+                feature.track_id ? `track: ${feature.track_id}` : '',
+                `content: ${content}`,
+                feature.hover ? 'hover' : '',
+                feature.full_size ? 'full-size' : '',
+                feature.z_index != null ? `z: ${feature.z_index}` : '',
+                feature.data && Object.keys(feature.data).length
+                    ? `data: ${Object.keys(feature.data).join(', ')}`
+                    : '',
+            ]
+                .filter(Boolean)
+                .join(' · ');
+        });
+    }
+
+    private _describeLabels(): string[] {
+        return (this.labels() || []).map((label, index) =>
+            [
+                `${index}: ${this._formatLocation(label.location)}`,
+                `"${label.content}"`,
+                label.zoom_level != null ? `zoom ≥ ${label.zoom_level}` : '',
+                label.css_class?.length
+                    ? `class: ${label.css_class.join(' ')}`
+                    : '',
+                label.z_index != null ? `z: ${label.z_index}` : '',
+            ]
+                .filter(Boolean)
+                .join(' · '),
+        );
+    }
+
+    private _describeActions(): string[] {
+        return (this.actions() || []).map((action, index) => {
+            const types = Array.isArray(action.action)
+                ? action.action
+                : [action.action];
+            return [
+                `${index}: #${action.id}`,
+                types.join(', '),
+                action.priority != null ? `priority: ${action.priority}` : '',
+                action.zone ? 'zone' : '',
+            ]
+                .filter(Boolean)
+                .join(' · ');
+        });
     }
 
     private _updateInjectors() {
