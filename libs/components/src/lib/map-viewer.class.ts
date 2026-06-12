@@ -50,11 +50,15 @@ export interface MapViewChangeEvent {
 interface OverlayInstance {
     overlay: MapOverlay;
     element: HTMLDivElement;
+    /** Cached style values to avoid redundant style writes while panning */
+    last_display?: string;
+    last_transform?: string;
+    last_size?: string;
 }
 
 const MAX_ZOOM = 10;
 const MIN_ZOOM = 1;
-/** Fraction of the view height reserved as padding on each side of the map at 100% zoom */
+/** Fraction of the view reserved as padding around the map at 100% zoom */
 const VIEW_PADDING = 0.05;
 const BASE_TEXTURE_SIZE = 4096;
 const HIGH_RES_TEXTURE_SIZE = 8192;
@@ -64,11 +68,32 @@ interface ElementBoundsResult {
     aspect_ratio: number;
 }
 
-/** Get the dimensions of an SVG element from its viewBox or width/height attributes */
+/**
+ * Escape CSS special characters in selectors so that map element IDs
+ * containing characters like `.` from CAD exports still match. Leaves `:`
+ * untouched so pseudo-selectors keep working, and preserves the leading
+ * `#`/`.` of each selector part.
+ */
+function cleanCssSelector(selector: string): string {
+    const escaped = selector.replace(
+        /[!"#$%&'()*+,.\/;<=>?@[\\\]^`{|}~]/g,
+        '\\$&',
+    );
+    return escaped
+        .split(' ')
+        .map((part) => part.replace(/^\\/, ''))
+        .join(' ');
+}
+
+/** Get the coordinate space of an SVG element from its viewBox or width/height attributes */
 function getSvgDimensions(svg_element: SVGSVGElement): {
+    x: number;
+    y: number;
     width: number;
     height: number;
 } {
+    let x = 0;
+    let y = 0;
     let width = 0;
     let height = 0;
     const view_box = svg_element.getAttribute('viewBox');
@@ -76,6 +101,8 @@ function getSvgDimensions(svg_element: SVGSVGElement): {
     if (view_box) {
         const parts = view_box.split(/[\s,]+/).map(parseFloat);
         if (parts.length >= 4) {
+            x = parts[0] || 0;
+            y = parts[1] || 0;
             width = parts[2];
             height = parts[3];
         }
@@ -92,6 +119,8 @@ function getSvgDimensions(svg_element: SVGSVGElement): {
     if (!width || !height) {
         try {
             const bbox = svg_element.getBBox();
+            x = bbox.x;
+            y = bbox.y;
             width = bbox.width;
             height = bbox.height;
         } catch {
@@ -99,7 +128,7 @@ function getSvgDimensions(svg_element: SVGSVGElement): {
         }
     }
 
-    return { width: width || 1, height: height || 1 };
+    return { x, y, width: width || 1, height: height || 1 };
 }
 
 /** Take SVG image as a string render in place and generate normalised bounds for each element with an ID */
@@ -122,8 +151,12 @@ function generateElementBounds(data: string): ElementBoundsResult {
         return { bounds: bounds_map, aspect_ratio: 1 };
     }
 
-    const { width: svg_width, height: svg_height } =
-        getSvgDimensions(svg_element);
+    const {
+        x: svg_x,
+        y: svg_y,
+        width: svg_width,
+        height: svg_height,
+    } = getSvgDimensions(svg_element);
     const aspect_ratio = svg_width / svg_height;
 
     // Find all elements with an ID and calculate their bounds
@@ -136,10 +169,11 @@ function generateElementBounds(data: string): ElementBoundsResult {
         if (typeof (element as SVGGraphicsElement).getBBox === 'function') {
             try {
                 const bbox = (element as SVGGraphicsElement).getBBox();
-                // Normalize bounds relative to SVG dimensions (0 to 1 range)
+                // Normalize bounds relative to the SVG coordinate space (0 to
+                // 1 range), offset by the viewBox origin which may be non-zero
                 bounds_map.set(id, {
-                    x: bbox.x / svg_width,
-                    y: bbox.y / svg_height,
+                    x: (bbox.x - svg_x) / svg_width,
+                    y: (bbox.y - svg_y) / svg_height,
                     w: bbox.width / svg_width,
                     h: bbox.height / svg_height,
                 });
@@ -211,13 +245,13 @@ export class MapViewer {
     public readonly canvas: HTMLCanvasElement;
     public readonly overlays: HTMLElement;
     public map: MapDetails;
-    /** Square canvas with the styled SVG rendered centered on it */
+    /** Canvas matching the SVG's aspect ratio with the styled SVG rendered on it */
     public map_image: HTMLCanvasElement | null = null;
     /** CSS to apply to the SVG before it is rendered */
     public styles_string = '';
-    /** Target point for the view on the map texture. { 0.5, 0.5 } is the center of the map image */
+    /** Target point for the view on the map image, normalised 0-1 on each axis. { 0.5, 0.5 } is the center of the map image */
     public center: Point = { x: 0.5, y: 0.5 };
-    /** Zoom level of the map. 1 represents the map texture height fitting the view height */
+    /** Zoom level of the map. 1 represents the whole map image fitting within the view */
     public zoom = 1;
     /** Whether to render the map texture at double resolution (8192×8192) */
     public high_resolution = false;
@@ -228,8 +262,13 @@ export class MapViewer {
     /** Callback invoked when view changes from user interaction */
     public onViewChange: ((event: MapViewChangeEvent) => void) | null = null;
 
+    /** URL of the most recently requested map, used to discard stale loads */
+    private _map_path = '';
+    /** Generation counter for map image renders, used to discard stale renders */
+    private _image_generation = 0;
     private _image_frame_id: number | null = null;
     private _draw_frame_id: number | null = null;
+    private _notify_frame_id: number | null = null;
     private _ctx: CanvasRenderingContext2D;
     private _events = new Map<string, (e) => void>();
     private _resize_observer: ResizeObserver | null = null;
@@ -291,7 +330,11 @@ export class MapViewer {
     }
 
     public async setMap(path: string) {
-        this.map = await STORE.get(path);
+        this._map_path = path;
+        const map = await STORE.get(path);
+        // Ignore out of order resolutions when the map has changed again
+        if (this._map_path !== path) return;
+        this.map = map;
         this._renderMapImage();
     }
 
@@ -328,12 +371,10 @@ export class MapViewer {
     public focusOn(ref: string) {
         const bounds = this.map?.element_bounds.get(ref);
         if (!bounds) return;
-        this.setCenter(
-            this.normToTexture({
-                x: bounds.x + bounds.w / 2,
-                y: bounds.y + bounds.h / 2,
-            }),
-        );
+        this.setCenter({
+            x: bounds.x + bounds.w / 2,
+            y: bounds.y + bounds.h / 2,
+        });
         this._notifyViewChange();
     }
 
@@ -348,9 +389,11 @@ export class MapViewer {
         for (const overlay of overlays) {
             const element = document.createElement('div');
             // Wrappers ignore pointer events by default so map interactions
-            // pass through, contents can opt-in with their own styles
+            // pass through, contents can opt-in with their own styles.
+            // Positioned from 0,0 with transforms so per-frame position
+            // updates while panning don't force layout
             element.style.cssText =
-                'position: absolute; display: flex; align-items: center; justify-content: center; transform-origin: center center; pointer-events: none;';
+                'position: absolute; top: 0; left: 0; display: flex; align-items: center; justify-content: center; transform-origin: center center; pointer-events: none;';
             if (overlay.z_index != null) {
                 element.style.zIndex = `${overlay.z_index}`;
             }
@@ -408,7 +451,9 @@ export class MapViewer {
         let style_content = '';
         for (const [selector, css_text] of Object.entries(styles)) {
             if (css_text) {
-                style_content += `${selector} { ${css_text} }\n`;
+                // Prefix with `svg` so applied styles take specificity
+                // precedence over rules in the SVG's own stylesheets
+                style_content += `svg ${cleanCssSelector(selector)} { ${css_text} }\n`;
             }
         }
 
@@ -417,19 +462,6 @@ export class MapViewer {
             this.styles_string = style_content;
             this._renderMapImage();
         }
-    }
-
-    /** Convert normalised SVG coordinates (0-1) to map texture coordinates (0-1) */
-    public normToTexture(point: Point): Point {
-        const aspect = this.map?.aspect_ratio ?? 1;
-        if (aspect >= 1) {
-            // Wider than tall: SVG fills width, centered vertically
-            const v_offset = (1 - 1 / aspect) / 2;
-            return { x: point.x, y: v_offset + point.y / aspect };
-        }
-        // Taller than wide: SVG fills height, centered horizontally
-        const u_offset = (1 - aspect) / 2;
-        return { x: u_offset + point.x * aspect, y: point.y };
     }
 
     public destroy() {
@@ -464,6 +496,9 @@ export class MapViewer {
         }
         this._action_pointerdown_pos = null;
 
+        // Invalidate any in-flight map image render
+        this._image_generation++;
+        this._map_path = '';
         if (this._image_frame_id !== null) {
             cancelAnimationFrame(this._image_frame_id);
             this._image_frame_id = null;
@@ -471,6 +506,10 @@ export class MapViewer {
         if (this._draw_frame_id !== null) {
             cancelAnimationFrame(this._draw_frame_id);
             this._draw_frame_id = null;
+        }
+        if (this._notify_frame_id !== null) {
+            cancelAnimationFrame(this._notify_frame_id);
+            this._notify_frame_id = null;
         }
         // Clean up overlay instances
         for (const instance of this._overlay_instances) {
@@ -481,22 +520,32 @@ export class MapViewer {
         this.container.innerHTML = '';
     }
 
-    /** Pixels per map texture unit at the given zoom level */
-    private _viewScale(zoom = this.zoom): number {
-        return (
-            (this.container.clientHeight || 1) * (1 - VIEW_PADDING * 2) * zoom
-        );
+    /**
+     * Pixels per normalised map unit on each axis at the given zoom level.
+     * At zoom 1 the whole map image fits within the view.
+     */
+    private _viewScale(zoom = this.zoom): Point {
+        const aspect = this.map?.aspect_ratio || 1;
+        const width = this.container.clientWidth || 1;
+        const height = this.container.clientHeight || 1;
+        const fit_height =
+            Math.min(height, width / aspect) * (1 - VIEW_PADDING * 2) * zoom;
+        return { x: fit_height * aspect, y: fit_height };
     }
 
-    /** Convert a pointer event position to map texture coordinates (0-1) */
-    private _eventToTexture(
+    /** Convert a pointer event position to normalised map coordinates (0-1) */
+    private _eventToMap(
         e: { clientX: number; clientY: number },
         rect = this.container.getBoundingClientRect(),
     ): Point {
         const scale = this._viewScale();
         return {
-            x: (e.clientX - rect.left - rect.width / 2) / scale + this.center.x,
-            y: (e.clientY - rect.top - rect.height / 2) / scale + this.center.y,
+            x:
+                (e.clientX - rect.left - rect.width / 2) / scale.x +
+                this.center.x,
+            y:
+                (e.clientY - rect.top - rect.height / 2) / scale.y +
+                this.center.y,
         };
     }
 
@@ -515,7 +564,7 @@ export class MapViewer {
         if (new_zoom === old_zoom) return;
 
         const rect = this.container.getBoundingClientRect();
-        const fixed_point = this._eventToTexture(
+        const fixed_point = this._eventToMap(
             { clientX: position.x, clientY: position.y },
             rect,
         );
@@ -523,10 +572,10 @@ export class MapViewer {
         const new_center = {
             x:
                 fixed_point.x -
-                (position.x - rect.left - rect.width / 2) / new_scale,
+                (position.x - rect.left - rect.width / 2) / new_scale.x,
             y:
                 fixed_point.y -
-                (position.y - rect.top - rect.height / 2) / new_scale,
+                (position.y - rect.top - rect.height / 2) / new_scale.y,
         };
 
         this.zoom = new_zoom;
@@ -603,8 +652,8 @@ export class MapViewer {
 
         const scale = this._viewScale();
         this.center = this._clampCenter({
-            x: this.center.x - (e.clientX - last.x) / scale,
-            y: this.center.y - (e.clientY - last.y) / scale,
+            x: this.center.x - (e.clientX - last.x) / scale.x,
+            y: this.center.y - (e.clientY - last.y) / scale.y,
         });
 
         this._renderMap();
@@ -635,6 +684,11 @@ export class MapViewer {
 
     private _doRenderMapImage() {
         if (!this.map?.raw_data) return;
+        // Image loading is async and renders can overlap, only the most
+        // recently requested render is allowed to apply its result. Without
+        // this a slow stale render (e.g. without the latest styles) can
+        // complete after a newer one and overwrite it.
+        const generation = ++this._image_generation;
 
         // Parse the SVG and inject styles
         const parser = new DOMParser();
@@ -642,7 +696,8 @@ export class MapViewer {
         const svg_element = doc.querySelector('svg');
         if (!svg_element) return;
 
-        // Inject the styles at the beginning of the SVG
+        // Inject the styles at the end of the SVG so they are applied after
+        // (and win over equal-specificity rules in) the SVG's own stylesheets
         if (this.styles_string) {
             // Create style element in SVG namespace so it works when serialized
             const style_element = doc.createElementNS(
@@ -650,7 +705,7 @@ export class MapViewer {
                 'style',
             );
             style_element.textContent = this.styles_string;
-            svg_element.insertBefore(style_element, svg_element.firstChild);
+            svg_element.appendChild(style_element);
         }
 
         // Serialize the SVG back to a string
@@ -665,37 +720,30 @@ export class MapViewer {
         const svg_image = new Image();
         svg_image.onload = () => {
             URL.revokeObjectURL(url);
+            if (generation !== this._image_generation) return;
 
             const target_size = this.high_resolution
                 ? HIGH_RES_TEXTURE_SIZE
                 : BASE_TEXTURE_SIZE;
+
+            // Size the texture to match the SVG's aspect ratio, with the
+            // longest side at the target size
+            const aspect = this.map.aspect_ratio;
+            const width =
+                aspect >= 1 ? target_size : Math.round(target_size * aspect);
+            const height =
+                aspect >= 1 ? Math.round(target_size / aspect) : target_size;
+
             const canvas = document.createElement('canvas');
-            canvas.width = target_size;
-            canvas.height = target_size;
+            canvas.width = width;
+            canvas.height = height;
             const ctx = canvas.getContext('2d');
             if (!ctx) {
                 console.error('Failed to get canvas context');
                 return;
             }
 
-            // Fit the SVG within the square texture maintaining aspect ratio
-            const aspect = this.map.aspect_ratio;
-            const scaled_width =
-                aspect >= 1 ? target_size : target_size * aspect;
-            const scaled_height =
-                aspect >= 1 ? target_size / aspect : target_size;
-
-            // Center the image on the canvas
-            const offset_x = (target_size - scaled_width) / 2;
-            const offset_y = (target_size - scaled_height) / 2;
-
-            ctx.drawImage(
-                svg_image,
-                offset_x,
-                offset_y,
-                scaled_width,
-                scaled_height,
-            );
+            ctx.drawImage(svg_image, 0, 0, width, height);
 
             this.map_image = canvas;
             this._renderMap();
@@ -734,16 +782,37 @@ export class MapViewer {
             this.canvas.style.height = `${height}px`;
         }
 
-        // Draw the map texture with the current pan/zoom transform
+        // Map coordinates of the view edges with the current pan/zoom
         const scale = this._viewScale();
-        const offset_x = width / 2 - this.center.x * scale;
-        const offset_y = height / 2 - this.center.y * scale;
+        const view_left = this.center.x - width / 2 / scale.x;
+        const view_top = this.center.y - height / 2 / scale.y;
+
+        // Only draw the visible portion of the map texture, sampling the
+        // whole texture every frame causes hitches when zoomed in
+        const sx0 = Math.max(0, view_left);
+        const sy0 = Math.max(0, view_top);
+        const sx1 = Math.min(1, view_left + width / scale.x);
+        const sy1 = Math.min(1, view_top + height / scale.y);
 
         this._ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         this._ctx.clearRect(0, 0, width, height);
-        this._ctx.imageSmoothingEnabled = true;
-        this._ctx.imageSmoothingQuality = 'high';
-        this._ctx.drawImage(this.map_image, offset_x, offset_y, scale, scale);
+        if (sx1 > sx0 && sy1 > sy0) {
+            this._ctx.imageSmoothingEnabled = true;
+            this._ctx.imageSmoothingQuality = 'high';
+            const img_w = this.map_image.width;
+            const img_h = this.map_image.height;
+            this._ctx.drawImage(
+                this.map_image,
+                sx0 * img_w,
+                sy0 * img_h,
+                (sx1 - sx0) * img_w,
+                (sy1 - sy0) * img_h,
+                (sx0 - view_left) * scale.x,
+                (sy0 - view_top) * scale.y,
+                (sx1 - sx0) * scale.x,
+                (sy1 - sy0) * scale.y,
+            );
+        }
 
         // Update overlay positions after rendering
         this._updateOverlayPositions();
@@ -755,16 +824,36 @@ export class MapViewer {
         const width = this.container.clientWidth || 1;
         const height = this.container.clientHeight || 1;
         const scale = this._viewScale();
-        const textureToScreen = (point: Point): Point => ({
-            x: (point.x - this.center.x) * scale + width / 2,
-            y: (point.y - this.center.y) * scale + height / 2,
+        const mapToScreen = (point: Point): Point => ({
+            x: (point.x - this.center.x) * scale.x + width / 2,
+            y: (point.y - this.center.y) * scale.y + height / 2,
         });
 
+        // Style writes are skipped when the value is unchanged so frames
+        // that don't move an overlay don't trigger style recalculation
+        const setDisplay = (instance: OverlayInstance, value: string) => {
+            if (instance.last_display === value) return;
+            instance.last_display = value;
+            instance.element.style.display = value;
+        };
+        const setTransform = (instance: OverlayInstance, value: string) => {
+            if (instance.last_transform === value) return;
+            instance.last_transform = value;
+            instance.element.style.transform = value;
+        };
+        const setSize = (instance: OverlayInstance, w: string, h: string) => {
+            const size = `${w} ${h}`;
+            if (instance.last_size === size) return;
+            instance.last_size = size;
+            instance.element.style.width = w;
+            instance.element.style.height = h;
+        };
+
         for (const instance of this._overlay_instances) {
-            const { overlay, element } = instance;
+            const { overlay } = instance;
 
             if (overlay.min_zoom && this.zoom < overlay.min_zoom) {
-                element.style.display = 'none';
+                setDisplay(instance, 'none');
                 continue;
             }
 
@@ -773,49 +862,42 @@ export class MapViewer {
             if (typeof overlay.ref === 'string') {
                 bounds = this.map.element_bounds.get(overlay.ref);
                 if (!bounds) {
-                    element.style.display = 'none';
+                    setDisplay(instance, 'none');
                     continue;
                 }
             } else {
                 bounds = { ...overlay.ref, w: 0, h: 0 };
             }
 
-            element.style.display = '';
+            setDisplay(instance, '');
 
             if (overlay.type === 'box' && bounds.w > 0 && bounds.h > 0) {
                 // For box overlays, position and size to match the element bounds
-                const top_left = textureToScreen(
-                    this.normToTexture({ x: bounds.x, y: bounds.y }),
+                const top_left = mapToScreen({ x: bounds.x, y: bounds.y });
+                setTransform(
+                    instance,
+                    `translate(${top_left.x}px, ${top_left.y}px)`,
                 );
-                const bottom_right = textureToScreen(
-                    this.normToTexture({
-                        x: bounds.x + bounds.w,
-                        y: bounds.y + bounds.h,
-                    }),
+                setSize(
+                    instance,
+                    `${bounds.w * scale.x}px`,
+                    `${bounds.h * scale.y}px`,
                 );
-
-                element.style.left = `${top_left.x}px`;
-                element.style.top = `${top_left.y}px`;
-                element.style.width = `${bottom_right.x - top_left.x}px`;
-                element.style.height = `${bottom_right.y - top_left.y}px`;
-                element.style.transform = '';
             } else {
                 // For point overlays, just position at the center of the bounds
-                const screen_pos = textureToScreen(
-                    this.normToTexture({
-                        x: bounds.x + bounds.w / 2,
-                        y: bounds.y + bounds.h / 2,
-                    }),
-                );
+                const screen_pos = mapToScreen({
+                    x: bounds.x + bounds.w / 2,
+                    y: bounds.y + bounds.h / 2,
+                });
 
-                element.style.left = `${screen_pos.x}px`;
-                element.style.top = `${screen_pos.y}px`;
-                element.style.width = '';
-                element.style.height = '';
+                setSize(instance, '', '');
                 // Apply zoom scaling if requested
-                element.style.transform = overlay.scale_with_zoom
-                    ? `translate(-50%, -50%) scale(${this.zoom})`
-                    : 'translate(-50%, -50%)';
+                setTransform(
+                    instance,
+                    overlay.scale_with_zoom
+                        ? `translate(${screen_pos.x}px, ${screen_pos.y}px) translate(-50%, -50%) scale(${this.zoom})`
+                        : `translate(${screen_pos.x}px, ${screen_pos.y}px) translate(-50%, -50%)`,
+                );
             }
         }
     }
@@ -839,7 +921,7 @@ export class MapViewer {
         }
 
         // Convert event position to normalized map coordinates
-        const norm = this._textureToNormalized(this._eventToTexture(e));
+        const norm = this._eventToMap(e);
         if (norm.x < 0 || norm.x > 1 || norm.y < 0 || norm.y > 1) return;
 
         // Find the best matching action for the event position
@@ -891,26 +973,19 @@ export class MapViewer {
         best.callback(norm);
     }
 
-    /** Convert map texture coordinates (0-1) to normalised SVG coordinates (0-1) */
-    private _textureToNormalized(point: Point): Point {
-        const aspect = this.map?.aspect_ratio ?? 1;
-        if (aspect >= 1) {
-            // Wider than tall: SVG fills width, centered vertically
-            const v_offset = (1 - 1 / aspect) / 2;
-            return { x: point.x, y: (point.y - v_offset) * aspect };
-        }
-        // Taller than wide: SVG fills height, centered horizontally
-        const u_offset = (1 - aspect) / 2;
-        return { x: (point.x - u_offset) / aspect, y: point.y };
-    }
-
-    /** Notify listeners of view changes from user interaction */
+    /**
+     * Notify listeners of view changes from user interaction. Notifications
+     * are coalesced to one per animation frame as pointer events can fire
+     * more often than the display refreshes and listeners may be expensive
+     */
     private _notifyViewChange() {
-        if (this.onViewChange) {
-            this.onViewChange({
+        if (!this.onViewChange || this._notify_frame_id !== null) return;
+        this._notify_frame_id = requestAnimationFrame(() => {
+            this._notify_frame_id = null;
+            this.onViewChange?.({
                 zoom: this.zoom,
                 center: { ...this.center },
             });
-        }
+        });
     }
 }
