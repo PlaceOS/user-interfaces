@@ -128,7 +128,7 @@ function patchAndroidRestrictions(app_root) {
         '        android:restrictionType="string"',
         '        android:title="@string/restriction_api_key" />',
         '    <restriction',
-        '        android:key="SystemId"',
+        '        android:key="systemId"',
         '        android:restrictionType="string"',
         '        android:title="@string/restriction_system_id" />',
         '    <restriction',
