@@ -7,6 +7,7 @@ import {
     Injector,
     input,
     model,
+    NgZone,
     OnDestroy,
     OnInit,
     output,
@@ -144,6 +145,7 @@ import { TranslatePipe } from './translate.pipe';
 })
 export class DynamicMapComponent implements OnInit, OnDestroy {
     private _injector = inject(Injector);
+    private _zone = inject(NgZone);
     private _map_viewer: MapViewer | null = null;
     /** Previously loaded map URL, used to reset the view on map changes */
     private _last_src = '';
@@ -194,7 +196,7 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
         // Effect to update styles when styles change
         effect(() => {
             const styles = this.styles() || {};
-            if (this._map_viewer && Object.keys(styles).length > 0) {
+            if (this._map_viewer) {
                 this._applyStyles(styles);
             }
         });
@@ -268,14 +270,22 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
     public ngOnInit() {
         const container = this._map_container()?.nativeElement;
         if (!container) return;
-        this._map_viewer = new MapViewer(container);
+        // Pointer, wheel and resize handlers fire on every frame while
+        // interacting with the map, keep them outside the Angular zone so
+        // they don't each trigger change detection
+        this._map_viewer = this._zone.runOutsideAngular(
+            () => new MapViewer(container),
+        );
 
         // Sync view changes from user interaction back to the models.
         // The constructor effects apply all other initial state.
-        this._map_viewer.onViewChange = (event: MapViewChangeEvent) => {
-            this.zoom.set(event.zoom);
-            this.center.set(event.center);
-        };
+        // View change events are coalesced to one per frame by the viewer,
+        // so re-entering the zone here is at most one tick per frame.
+        this._map_viewer.onViewChange = (event: MapViewChangeEvent) =>
+            this._zone.run(() => {
+                this.zoom.set(event.zoom);
+                this.center.set(event.center);
+            });
     }
 
     public ngOnDestroy() {
