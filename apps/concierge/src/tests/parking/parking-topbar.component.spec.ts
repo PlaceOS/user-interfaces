@@ -2,6 +2,7 @@ import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { OrganisationService, SettingsService } from '@placeos/common';
@@ -15,7 +16,7 @@ import { SearchbarComponent } from '../../app/ui/searchbar.component';
 
 describe('ParkingTopbarComponent', () => {
     let spectator: SpectatorRouting<ParkingTopbarComponent>;
-    let hide_level_selector_on_booking_list = false;
+    let hide_level_selector_on_booking_list = signal(false);
     let request_filter = 'all';
 
     const createComponent = createRoutingFactory({
@@ -39,6 +40,7 @@ describe('ParkingTopbarComponent', () => {
                 period: of('day'),
                 setOptions: jest.fn(),
                 setPeriod: jest.fn(),
+                activeBookings: jest.fn((list) => list || []),
                 editSpace: jest.fn(),
                 downloadSpacesCSV: jest.fn(),
                 uploadSpacesCSV: jest.fn(),
@@ -58,10 +60,15 @@ describe('ParkingTopbarComponent', () => {
             MockProvider(SettingsService, {
                 get: jest.fn((name: string) =>
                     name === 'app.parking.hide_level_selector_on_booking_list'
-                        ? hide_level_selector_on_booking_list
+                        ? hide_level_selector_on_booking_list()
                         : name === 'app.parking.show_requests'
                           ? false
                           : false,
+                ),
+                signal: jest.fn((name: string, default_value: any) =>
+                    name === 'parking.hide_level_selector_on_booking_list'
+                        ? hide_level_selector_on_booking_list
+                        : signal(default_value),
                 ),
             } as any),
             MockProvider(MatDialog, {
@@ -72,8 +79,9 @@ describe('ParkingTopbarComponent', () => {
     });
 
     beforeEach(() => {
-        hide_level_selector_on_booking_list = false;
+        hide_level_selector_on_booking_list = signal(false);
         request_filter = 'all';
+        localStorage.clear();
     });
 
     function setRequestFilter(filter: string) {
@@ -106,30 +114,30 @@ describe('ParkingTopbarComponent', () => {
         spectator.component.section.set('events');
         spectator.component.view.set('list');
 
-        expect(spectator.component.hide_level_selector_on_booking_list).toBe(
+        expect(spectator.component.hide_level_selector_on_booking_list()).toBe(
             false,
         );
     });
 
     it('should hide the level selector on the booking list when enabled', () => {
-        hide_level_selector_on_booking_list = true;
+        hide_level_selector_on_booking_list.set(true);
         spectator = createComponent();
         setOptions({ request_filter: 'all', zones: ['lvl-1'] });
         spectator.component.section.set('events');
         spectator.component.view.set('list');
 
-        expect(spectator.component.hide_level_selector_on_booking_list).toBe(
+        expect(spectator.component.hide_level_selector_on_booking_list()).toBe(
             true,
         );
     });
 
     it('should keep the level selector on other parking views', () => {
-        hide_level_selector_on_booking_list = true;
+        hide_level_selector_on_booking_list.set(true);
         spectator = createComponent();
         spectator.component.section.set('events');
         spectator.component.view.set('map');
 
-        expect(spectator.component.hide_level_selector_on_booking_list).toBe(
+        expect(spectator.component.hide_level_selector_on_booking_list()).toBe(
             false,
         );
     });
@@ -142,7 +150,7 @@ describe('ParkingTopbarComponent', () => {
         spectator.component.view.set('list');
 
         expect(
-            spectator.component.disable_level_selector_on_booking_list,
+            spectator.component.disable_level_selector_on_booking_list(),
         ).toBe(true);
     });
 
@@ -154,7 +162,7 @@ describe('ParkingTopbarComponent', () => {
         spectator.component.view.set('list');
 
         expect(
-            spectator.component.disable_level_selector_on_booking_list,
+            spectator.component.disable_level_selector_on_booking_list(),
         ).toBe(false);
     });
 
@@ -166,7 +174,7 @@ describe('ParkingTopbarComponent', () => {
         spectator.component.view.set('list');
 
         expect(
-            spectator.component.disable_level_selector_on_booking_list,
+            spectator.component.disable_level_selector_on_booking_list(),
         ).toBe(false);
     });
 
@@ -249,7 +257,7 @@ describe('ParkingTopbarComponent', () => {
     });
 
     it('should clear selected levels when the booking list selector is hidden', () => {
-        hide_level_selector_on_booking_list = true;
+        hide_level_selector_on_booking_list.set(true);
         spectator = createComponent();
         spectator.component.section.set('events');
         spectator.component.view.set('list');
@@ -295,6 +303,26 @@ describe('ParkingTopbarComponent', () => {
             queryParams: { zone_ids: null },
             queryParamsHandling: 'merge',
         });
+    });
+
+    it('should clear stuck levels when the hide setting loads after selection', () => {
+        spectator = createComponent();
+        spectator.component.section.set('events');
+        spectator.component.view.set('list');
+        const router = spectator.inject(Router);
+        Object.defineProperty(router, 'url', {
+            value: '/parking/events/list',
+            configurable: true,
+        });
+        jest.spyOn(router, 'navigate').mockResolvedValue(true);
+        spectator.component.updateZones(['lvl-1']);
+        expect(spectator.component.zones()).toEqual(['lvl-1']);
+
+        // Setting overrides can arrive after zones were already applied
+        hide_level_selector_on_booking_list.set(true);
+        spectator.detectChanges();
+
+        expect(spectator.component.zones()).toEqual([]);
     });
 
     it('should clear search when switching parking views', () => {

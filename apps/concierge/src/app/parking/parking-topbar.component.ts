@@ -183,7 +183,7 @@ import {
                     </a>
                 </div>
             }
-            @if (!hide_level_selector_on_booking_list) {
+            @if (!hide_level_selector_on_booking_list()) {
                 <mat-form-field appearance="outline" class="no-subscript w-56">
                     @if (view() === 'map') {
                         <mat-select
@@ -218,7 +218,9 @@ import {
                         <mat-select
                             [(ngModel)]="zones"
                             (ngModelChange)="updateZones($event)"
-                            [disabled]="disable_level_selector_on_booking_list"
+                            [disabled]="
+                                disable_level_selector_on_booking_list()
+                            "
                             [placeholder]="
                                 (section() === 'manage'
                                     ? 'COMMON.LEVEL_SELECT'
@@ -488,10 +490,10 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     public readonly updateZones = (z) => {
         let zones = (z || []).filter((_) => !!_);
         if (!this._router.url.includes('parking')) return;
-        if (
-            this.hide_level_selector_on_booking_list ||
-            this.disable_level_selector_on_booking_list
-        ) {
+        const selector_inactive =
+            this.hide_level_selector_on_booking_list() ||
+            this.disable_level_selector_on_booking_list();
+        if (selector_inactive) {
             zones = [];
         } else if (this.section() === 'events' && this.view() === 'map') {
             zones = zones.slice(0, 1);
@@ -522,11 +524,15 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         }
         if (!selected_zones_match) this.zones.set(zones);
         if (!option_zones_match) this._state.setOptions({ zones });
-        persistZones(
-            this.section() === 'manage' ? 'parking-manage' : 'parking',
-            this._persistScopeId(),
-            zones,
-        );
+        // Forced clears while the selector is hidden/disabled must not wipe
+        // the user's persisted selection.
+        if (!selector_inactive) {
+            persistZones(
+                this.section() === 'manage' ? 'parking-manage' : 'parking',
+                this._persistScopeId(),
+                zones,
+            );
+        }
     };
 
     public readonly updateSingleZone = (zone: string) => {
@@ -554,17 +560,19 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         return this._settings.get('app.parking.show_waitlist') !== false;
     }
 
-    public get hide_level_selector_on_booking_list() {
-        return (
+    private readonly _hide_level_selector_setting = this._settings.signal(
+        'parking.hide_level_selector_on_booking_list',
+        false,
+    );
+    /** Reactive so zone clearing effects re-run when the setting loads late */
+    public readonly hide_level_selector_on_booking_list = computed(
+        () =>
             this.section() === 'events' &&
             this.view() === 'list' &&
-            !!this._settings.get(
-                'app.parking.hide_level_selector_on_booking_list',
-            )
-        );
-    }
+            !!this._hide_level_selector_setting(),
+    );
 
-    public get disable_level_selector_on_booking_list() {
+    public readonly disable_level_selector_on_booking_list = computed(() => {
         const request_filter = this.options().request_filter;
         return (
             this.section() === 'events' &&
@@ -572,7 +580,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
             request_filter !== 'all' &&
             request_filter !== 'bookings'
         );
-    }
+    });
 
     public get hide_availability_counter() {
         return !!this._settings.get('app.parking.hide_availability_counter');
@@ -614,10 +622,14 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
                 );
             }
             if (
-                this.hide_level_selector_on_booking_list ||
-                this.disable_level_selector_on_booking_list
+                this.hide_level_selector_on_booking_list() ||
+                this.disable_level_selector_on_booking_list()
             ) {
-                if (params.has('zone_ids') || this.zones().length) {
+                if (
+                    params.has('zone_ids') ||
+                    this.zones().length ||
+                    this.options().zones?.length
+                ) {
                     this.updateZones([]);
                 }
                 return;
@@ -639,10 +651,12 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         effect(() => {
             if (!this._ready() || this.use_region) return;
             if (
-                this.hide_level_selector_on_booking_list ||
-                this.disable_level_selector_on_booking_list
+                this.hide_level_selector_on_booking_list() ||
+                this.disable_level_selector_on_booking_list()
             ) {
-                if (this.zones().length) this.updateZones([]);
+                if (this.zones().length || this.options().zones?.length) {
+                    this.updateZones([]);
+                }
                 return;
             }
             const levels = this.levels();
@@ -773,9 +787,9 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
             );
         }
         if (
-            (this.hide_level_selector_on_booking_list ||
-                this.disable_level_selector_on_booking_list) &&
-            this.zones().length
+            (this.hide_level_selector_on_booking_list() ||
+                this.disable_level_selector_on_booking_list()) &&
+            (this.zones().length || this.options().zones?.length)
         ) {
             this.updateZones([]);
         }
