@@ -438,7 +438,13 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
                     /[A-Z]/g,
                     (match) => `-${match.toLowerCase()}`,
                 );
-                return `${kebab_prop}: ${value}`;
+                // Important so applied styles also override inline style
+                // attributes on map elements (e.g. polylines exported with
+                // style="fill:none"), not just the SVG's own stylesheets
+                const important = `${value}`.includes('!important')
+                    ? ''
+                    : ' !important';
+                return `${kebab_prop}: ${value}${important}`;
             })
             .join('; ');
     }
