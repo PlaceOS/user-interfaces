@@ -29,8 +29,8 @@ describe('ExploreDesksService', () => {
         service: ExploreDesksService,
         providers: [
             MockProvider(ExploreStateService, {
-                level: new BehaviorSubject(null),
-                options: new BehaviorSubject({ is_public: false }),
+                level: signal(null) as any,
+                options: signal({ is_public: false }) as any,
                 setFeatures: jest.fn(),
                 setStyles: jest.fn(),
                 setActions: jest.fn(),
@@ -52,8 +52,8 @@ describe('ExploreDesksService', () => {
     beforeEach(() => {
         (ts_client as any).showMetadata = jest.fn((_, name) =>
             name.includes('restrictions')
-                ? of([])
-                : of({
+                ? Promise.resolve([])
+                : Promise.resolve({
                       details: [
                           { id: 'desk-1', name: '1', bookable: true },
                           { id: 'desk-2', name: '2', bookable: false },

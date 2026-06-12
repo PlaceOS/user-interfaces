@@ -1,8 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
-import { first } from 'rxjs/operators';
+import { AsyncHandler, firstTruthyValueFrom } from '@placeos/common';
 
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -90,7 +89,7 @@ export class ExploreMapControlComponent extends AsyncHandler implements OnInit {
         initialValue: [],
     });
     /** Currently active level */
-    public readonly level = toSignal(this._state.level, { initialValue: null });
+    public readonly level = this._state.level;
     /** Set the currently active level */
     public readonly setLevel = (lvl) => {
         this._state.setFeatures('_located', []);
@@ -112,7 +111,7 @@ export class ExploreMapControlComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await firstTruthyValueFrom(this._org.initialised);
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) =>

@@ -1,10 +1,16 @@
+import { signal } from '@angular/core';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
-import { Building, Organisation, OrganisationService } from '@placeos/common';
+import {
+    Building,
+    MapsPeopleService,
+    Organisation,
+    OrganisationService,
+} from '@placeos/common';
 import { BehaviorSubject, of } from 'rxjs';
 
 import {
-    ExploreSearchService,
     compareSearchResultsAscending,
+    ExploreSearchService,
     sortGlobalSearchResults,
 } from '../lib/explore-search.service';
 
@@ -30,8 +36,11 @@ describe('ExploreSearchService', () => {
                 get: jest.fn(),
             }),
             MockProvider(ExploreStateService, {
-                level: new BehaviorSubject(null),
-                options: new BehaviorSubject({}),
+                level: signal(null),
+                options: signal({}),
+            } as any),
+            MockProvider(MapsPeopleService, {
+                available$: of(false),
             } as any),
         ],
     });

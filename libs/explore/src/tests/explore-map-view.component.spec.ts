@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { fakeAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
@@ -64,8 +65,15 @@ describe('ExploreMapViewComponent', () => {
             } as any),
             MockProvider(SpacesService, { initialised: of(true) }),
             MockProvider(ExploreStateService, {
-                level: new BehaviorSubject({ id: 'lvl-1' } as any),
-                options: new BehaviorSubject({ is_public: true }),
+                level: signal({ id: 'lvl-1' }),
+                options: signal({ is_public: true }),
+                map_url: signal(''),
+                map_styles: signal({}),
+                map_positions: signal({ zoom: 1, center: { x: 0.5, y: 0.5 } }),
+                map_features: signal([]),
+                map_actions: signal([]),
+                map_labels: signal([]),
+                message: signal(''),
                 reset: jest.fn(),
                 setLevel: jest.fn(),
                 setFeatures: jest.fn(),

@@ -51,11 +51,11 @@ describe('ParkingMapComponent', () => {
             {
                 provide: ExploreStateService,
                 useValue: {
-                    map_url: of('map-1'),
-                    map_styles: of(style_map),
-                    map_features: of(feature_list),
-                    map_actions: of([]),
-                    map_labels: of([]),
+                    map_url: signal('map-1'),
+                    map_styles: signal(style_map),
+                    map_features: signal(feature_list),
+                    map_actions: signal([]),
+                    map_labels: signal([]),
                     setLevel: jest.fn(),
                 },
             },

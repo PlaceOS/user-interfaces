@@ -1,9 +1,5 @@
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
-import {
-    nextValueFrom,
-    OrganisationService,
-    SettingsService,
-} from '@placeos/common';
+import { OrganisationService, SettingsService } from '@placeos/common';
 import { SpacesService } from '@placeos/events';
 import { BehaviorSubject, of } from 'rxjs';
 
@@ -62,53 +58,53 @@ describe('ExploreStateService', () => {
     //     const space = new Space({ id: 'space-1', zones: ['bld-1', 'lvl-1'] });
     //     const space2 = new Space({ id: 'space-2', zones: ['bld-2', 'lvl-2'] });
     //     (client.querySystems as any) = jest.fn(() => of({ data: [space] }));
-    //     let level = await nextValueFrom(spectator.service.level);
+    //     let level = spectator.service.level();
     //     expect(level).toEqual({ id: 'lvl-1' });
-    //     let spaces = await nextValueFrom(spectator.service.spaces);
+    //     let spaces = spectator.service.spaces();
     //     expect(spaces).toHaveLength(1);
     //     expect(spaces[0]).toEqual(space);
     //     (client.querySystems as any) = jest.fn(() => of({ data: [space2] }));
     //     spectator.service.setLevel('lvl-2');
-    //     level = await nextValueFrom(spectator.service.level);
+    //     level = spectator.service.level();
     //     expect(level).toEqual({ id: 'lvl-2' });
-    //     spaces = await nextValueFrom(spectator.service.spaces);
+    //     spaces = spectator.service.spaces();
     //     expect(spaces).toHaveLength(1);
     //     expect(spaces[0]).toEqual(space2);
     // });
 
     it('should handle changes to map features', async () => {
-        let feats = await nextValueFrom(spectator.service.map_features);
+        let feats = spectator.service.map_features();
         expect(feats).toEqual([]);
         spectator.service.setFeatures('spaces', [{ id: 'first' } as any]);
-        feats = await nextValueFrom(spectator.service.map_features);
+        feats = spectator.service.map_features();
         expect(feats).toEqual([{ id: 'first' }]);
         spectator.service.setFeatures('other', [{ id: 'second' } as any]);
-        feats = await nextValueFrom(spectator.service.map_features);
+        feats = spectator.service.map_features();
         expect(feats).toEqual([{ id: 'first' }, { id: 'second' }]);
     });
 
     it('should handle changes to map actions', async () => {
-        let actions = await nextValueFrom(spectator.service.map_actions);
+        let actions = spectator.service.map_actions();
         expect(actions).toEqual([]);
         spectator.service.setActions('spaces', [{ id: 'first' } as any]);
-        actions = await nextValueFrom(spectator.service.map_actions);
+        actions = spectator.service.map_actions();
         expect(actions).toEqual([{ id: 'first' }]);
         spectator.service.setActions('other', [{ id: 'second' } as any]);
-        actions = await nextValueFrom(spectator.service.map_actions);
+        actions = spectator.service.map_actions();
         expect(actions).toEqual([{ id: 'first' }, { id: 'second' }]);
     });
 
     it('should handle changes to map labels', async () => {
-        let labels = await nextValueFrom(spectator.service.map_labels);
+        let labels = spectator.service.map_labels();
         expect(labels).toEqual([]);
         spectator.service.setLabels('spaces', [{ id: 'first' } as any]);
-        labels = await nextValueFrom(spectator.service.map_labels);
+        labels = spectator.service.map_labels();
         expect(labels).toEqual([{ id: 'first' }]);
         spectator.service.setLabels('zones', [{ id: 'second' } as any]);
-        labels = await nextValueFrom(spectator.service.map_labels);
+        labels = spectator.service.map_labels();
         expect(labels).toEqual([{ id: 'first' }]);
         spectator.service.setOptions({ disable: [] });
-        labels = await nextValueFrom(spectator.service.map_labels);
+        labels = spectator.service.map_labels();
         expect(labels).toEqual([{ id: 'first' }, { id: 'second' }]);
     });
 
@@ -118,13 +114,13 @@ describe('ExploreStateService', () => {
             '#Zones': { display: 'none' },
             text: { display: 'none' },
         };
-        let styles = await nextValueFrom(spectator.service.map_styles);
+        let styles = spectator.service.map_styles();
         expect(styles).toEqual({ ...DEFAULTS });
         spectator.service.setStyles('spaces', { space1: {} });
-        styles = await nextValueFrom(spectator.service.map_styles);
+        styles = spectator.service.map_styles();
         expect(styles).toEqual({ ...DEFAULTS, space1: {} });
         spectator.service.setStyles('other', { zones1: {} });
-        styles = await nextValueFrom(spectator.service.map_styles);
+        styles = spectator.service.map_styles();
         expect(styles).toEqual({ ...DEFAULTS, space1: {}, zones1: {} });
     });
 
@@ -137,7 +133,7 @@ describe('ExploreStateService', () => {
         spectator.service.setStyles('parking', { parking1: {} });
         spectator.service.setStyles('spaces', { space1: {} });
 
-        const styles = await nextValueFrom(spectator.service.map_styles);
+        const styles = spectator.service.map_styles();
         expect(styles).toEqual({
             '#zones': { display: 'none' },
             '#Zones': { display: 'none' },
@@ -153,20 +149,18 @@ describe('ExploreStateService', () => {
         );
         spectator.service.setActions('parking', [{ id: 'park-1' } as any]);
         spectator.service.setActions('spaces', [{ id: 'space-1' } as any]);
-        const actions = await nextValueFrom(spectator.service.map_actions);
+        const actions = spectator.service.map_actions();
         expect(actions).toEqual([{ id: 'space-1' }]);
     });
 
     it('should apply disabled features from settings', async () => {
         (spectator.inject(SettingsService) as any).get = jest.fn(
             (name: string) =>
-                name === 'app.explore.disable_features'
-                    ? 'parking'
-                    : undefined,
+                name === 'app.explore.disable_features' ? 'parking' : undefined,
         );
         spectator.service.setFeatures('parking', [{ id: 'park-1' } as any]);
         spectator.service.setFeatures('spaces', [{ id: 'space-1' } as any]);
-        const features = await nextValueFrom(spectator.service.map_features);
+        const features = spectator.service.map_features();
         expect(features).toEqual([{ id: 'space-1' }]);
     });
 
@@ -177,7 +171,7 @@ describe('ExploreStateService', () => {
         );
         spectator.service.setLabels('parking', [{ id: 'park-1' } as any]);
         spectator.service.setLabels('spaces', [{ id: 'space-1' } as any]);
-        const labels = await nextValueFrom(spectator.service.map_labels);
+        const labels = spectator.service.map_labels();
         expect(labels).toEqual([{ id: 'space-1' }]);
     });
 
@@ -189,7 +183,7 @@ describe('ExploreStateService', () => {
         spectator.service.reset();
         spectator.service.setActions('parking', [{ id: 'park-1' } as any]);
         spectator.service.setActions('spaces', [{ id: 'space-1' } as any]);
-        const actions = await nextValueFrom(spectator.service.map_actions);
+        const actions = spectator.service.map_actions();
         expect(actions).toEqual([{ id: 'space-1' }]);
     });
 
@@ -204,7 +198,7 @@ describe('ExploreStateService', () => {
         spectator.service.reset();
         spectator.service.setStyles('parking', { parking1: {} });
 
-        let styles = await nextValueFrom(spectator.service.map_styles);
+        let styles = spectator.service.map_styles();
         expect(styles).toEqual({
             '#zones': { display: 'none' },
             '#Zones': { display: 'none' },
@@ -215,7 +209,7 @@ describe('ExploreStateService', () => {
         disable_styles = 'parking';
         settings_overrides.next([{ explore: { disable_styles } }]);
 
-        styles = await nextValueFrom(spectator.service.map_styles);
+        styles = spectator.service.map_styles();
         expect(styles).toEqual({
             '#zones': { display: 'none' },
             '#Zones': { display: 'none' },

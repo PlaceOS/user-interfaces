@@ -1,6 +1,7 @@
 import {
     Component,
     computed,
+    effect,
     HostListener,
     inject,
     OnInit,
@@ -14,12 +15,12 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
+    firstTruthyValueFrom,
     flatten,
     log,
-    MapsPeopleService,
-    nextValueFrom,
     notifyError,
     OrganisationService,
+    Point,
     SettingsService,
     unique,
     User,
@@ -27,6 +28,7 @@ import {
 import {
     AuthenticatedImageDirective,
     CustomTooltipComponent,
+    DynamicMapComponent,
     IconComponent,
     MapPinComponent,
     MapRadiusComponent,
@@ -41,13 +43,9 @@ import {
     ExploreStateService,
     ExploreZonesService,
 } from '@placeos/explore';
-import { Point } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
 import { MapLocation, showStaff } from '@placeos/users';
-import { combineLatest } from 'rxjs';
-import { first, map } from 'rxjs/operators';
 import { AccessibilityControlsComponent } from './accessibility-controls.component';
-import { DynamicMapComponent } from '@placeos/components';
 
 @Component({
     selector: '[app-explore]',
@@ -307,7 +305,6 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _space_pipe = inject(SpacePipe);
-    private _maps = inject(MapsPeopleService);
 
     /** Number of seconds after a user action to reset the kiosk state */
     public reset_delay = 180;
@@ -320,35 +317,31 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         { id: 'pending', name: 'Space Pending', color: '#ffb300' },
         { id: 'not-bookable', name: 'Space Not-bookable', color: '#ccc' },
     ];
-    public readonly levels = toSignal(
-        combineLatest([
-            this._org.active_region,
-            this._org.active_building,
-        ]).pipe(
-            map(([region, building]) => {
-                return (
-                    (this._settings.get('app.use_region')
-                        ? flatten(
-                              this._org.buildings
-                                  .filter((bld) => region.id === bld.parent_id)
-                                  .map((bld) =>
-                                      this._org
-                                          .levelsForBuilding(bld)
-                                          .map((_) => ({
-                                              ..._,
-                                              display_name: `${bld.display_name} - ${_.display_name}`,
-                                          })),
-                                  ),
-                          )
-                        : this._org.levelsForBuilding(building)) || []
-                );
-            }),
-        ),
-        { initialValue: [] },
-    );
-    public readonly level = toSignal(this._state.level, {
-        initialValue: undefined,
+    private readonly _region = toSignal(this._org.active_region, {
+        initialValue: null,
     });
+    private readonly _building = toSignal(this._org.active_building, {
+        initialValue: null,
+    });
+    public readonly levels = computed(() => {
+        const region = this._region();
+        const building = this._building();
+        return (
+            (this._settings.get('app.use_region')
+                ? flatten(
+                      this._org.buildings
+                          .filter((bld) => region?.id === bld.parent_id)
+                          .map((bld) =>
+                              this._org.levelsForBuilding(bld).map((_) => ({
+                                  ..._,
+                                  display_name: `${bld.display_name} - ${_.display_name}`,
+                              })),
+                          ),
+                  )
+                : this._org.levelsForBuilding(building)) || []
+        );
+    });
+    public readonly level = this._state.level;
 
     public readonly logo = computed(() =>
         this._settings.theme_signal() === 'dark'
@@ -359,32 +352,29 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         () => this._settings.signal('explore.show_legend')() !== false,
     );
     public readonly hide_zones = this._settings.signal('explore.hide_zones');
-    /** Observable for the active map */
-    public readonly url = toSignal(this._state.map_url, { initialValue: '' });
-    /** Observable for the active map */
-    public readonly styles = toSignal(this._state.map_styles, {
-        initialValue: { text: { display: 'none' } },
-    });
-    /** Observable for the active map */
-    public readonly positions = toSignal(this._state.map_positions, {
-        initialValue: this._state.positions,
-    });
-    /** Observable for the active map */
-    public readonly features = toSignal(this._state.map_features, {
-        initialValue: [],
-    });
-    /** Observable for the active map */
-    public readonly actions = toSignal(this._state.map_actions, {
-        initialValue: [],
-    });
-    /** Observable for the labels map */
-    public readonly labels = toSignal(this._state.map_labels, {
-        initialValue: [],
-    });
-    /** Observable for the active map */
+    /** Signal for the active map */
+    public readonly url = this._state.map_url;
+    /** Signal for the active map */
+    public readonly styles = this._state.map_styles;
+    /** Signal for the active map */
+    public readonly positions = this._state.map_positions;
+    /** Signal for the active map */
+    public readonly features = this._state.map_features;
+    /** Signal for the active map */
+    public readonly actions = this._state.map_actions;
+    /** Signal for the labels map */
+    public readonly labels = this._state.map_labels;
+    /** Signal for the active map */
     public readonly options = this._state.options;
 
     public readonly locate = signal('');
+
+    private readonly _clear_located_on_level_change = effect(() => {
+        this._state.level();
+        this.timeout('update_location', () => {
+            this._state.setFeatures('_located', []);
+        });
+    });
 
     @HostListener('window:mousedown') public onMouse = () =>
         this.timeout('reset', () => this.resetKiosk(), this.reset_delay * 1000);
@@ -403,7 +393,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     }
 
     public async toggleZones(enabled: boolean) {
-        const options = await nextValueFrom(this.options);
+        const options = this.options();
         const disable = !enabled
             ? unique([...(options.disable || []), 'zones', 'devices'])
             : options.disable.filter((_) => _ !== 'zones' && _ !== 'devices') ||
@@ -415,8 +405,6 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         () => !!this._settings.signal('explore.search_enabled')(),
     );
 
-    public readonly use_mapsindoors$ = this._maps.available$;
-
     public async ngOnInit() {
         if (
             location.hash.includes('public=true') ||
@@ -424,21 +412,13 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         ) {
             this._state.setOptions({ is_public: true });
         }
-        await this._spaces.initialised.pipe(first((_) => _)).toPromise();
+        await firstTruthyValueFrom(this._spaces.initialised);
         this._desks.setOptions({ custom: true });
         this.reset_delay =
             this._settings.get('app.inactivity_timeout_secs') || 180;
         this.resetKiosk(false);
         VirtualKeyboardComponent.enabled =
             localStorage.getItem('OSK.enabled') === 'true';
-        this.subscription(
-            'level',
-            this._state.level.subscribe(() =>
-                this.timeout('update_location', () => {
-                    this._state.setFeatures('_located', []);
-                }),
-            ),
-        );
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe(async (params) => {

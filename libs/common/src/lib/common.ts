@@ -16,6 +16,7 @@ export * from './native-app';
 export * from './notifications';
 export * from './placeos';
 export * from './settings';
+export * from './signal.utilities';
 export * from './spec-helpers';
 export * from './timezones';
 export * from './types';

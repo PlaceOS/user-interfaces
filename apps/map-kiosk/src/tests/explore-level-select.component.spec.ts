@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { of } from 'rxjs';
 
@@ -14,7 +15,7 @@ describe('ExploreLevelSelectComponent', () => {
             {
                 provide: ExploreStateService,
                 useValue: {
-                    level: of({ id: 'lvl-2' }),
+                    level: signal({ id: 'lvl-2' }),
                     setLevel: jest.fn(),
                 },
             },
