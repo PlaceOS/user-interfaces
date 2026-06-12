@@ -21,19 +21,24 @@ describe('report utilities', () => {
     });
 
     describe('reportBookingDuration', () => {
-        it('should count all day bookings as one full bookable day', () => {
+        it('should use timestamps for all day bookings with actual start and end times', () => {
+            const date = new Date('2026-04-06T08:00:00').valueOf();
             expect(
                 reportBookingDuration(
-                    { all_day: true, duration: 24 * 60 } as any,
-                    720,
+                    {
+                        all_day: true,
+                        date,
+                        date_end: new Date('2026-04-06T18:00:00').valueOf(),
+                        duration: 24 * 60,
+                    } as any,
                 ),
-            ).toBe(720);
+            ).toBe(600);
         });
 
-        it('should treat 24 hour bookings as all day when the flag is absent', () => {
+        it('should preserve stored duration when timestamps are unavailable', () => {
             expect(
-                reportBookingDuration({ duration: 24 * 60 } as any, 600),
-            ).toBe(600);
+                reportBookingDuration({ duration: 24 * 60 } as any),
+            ).toBe(24 * 60);
         });
 
         it('should preserve normal booking duration', () => {
@@ -60,12 +65,15 @@ describe('report utilities', () => {
             expect(report.utilisation).toBe(0.16);
         });
 
-        it('should cap all day bookings at one full bookable day', () => {
+        it('should calculate utilisation from actual all day booking times', () => {
+            const date = new Date('2026-04-06T08:00:00').valueOf();
             const report = generateReportForBookings(
                 [
                     {
                         all_day: true,
                         attendees: [],
+                        date,
+                        date_end: new Date('2026-04-06T18:00:00').valueOf(),
                         duration: 24 * 60,
                         system: { capacity: 10 },
                     } as any,
@@ -74,7 +82,8 @@ describe('report utilities', () => {
                 720,
             );
 
-            expect(report.utilisation).toBe(1);
+            expect(report.avg_length).toBe(600);
+            expect(report.utilisation).toBe(0.83);
         });
     });
 
@@ -92,10 +101,20 @@ describe('report utilities', () => {
             ).toBe(12.5);
         });
 
-        it('should cap all day bookings at one full bookable day', () => {
+        it('should calculate all day bookings from actual start and end times', () => {
+            const date = new Date('2026-04-06T08:00:00').valueOf();
             expect(
                 reportBookedTimeUtilisationPercent(
-                    [{ all_day: true, duration: 24 * 60 } as any],
+                    [
+                        {
+                            all_day: true,
+                            date,
+                            date_end: new Date(
+                                '2026-04-06T18:00:00',
+                            ).valueOf(),
+                            duration: 24 * 60,
+                        } as any,
+                    ],
                     2,
                     600,
                 ),

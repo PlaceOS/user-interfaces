@@ -27,7 +27,11 @@ import {
 import { BehaviorSubject, forkJoin, from, of } from 'rxjs';
 import { catchError, finalize, map, skip, takeUntil } from 'rxjs/operators';
 
-import { activeReportBookings, activeReportEvents } from '../reports.utilities';
+import {
+    activeReportBookings,
+    activeReportEvents,
+    reportBookingDuration,
+} from '../reports.utilities';
 
 export interface ReportOptions {
     zones?: string[];
@@ -748,9 +752,16 @@ export class SiteAttendanceReportService {
         };
     }
 
-    private getAverageLength(bookings: { duration: number }[]) {
+    private getAverageLength(
+        bookings: ({ date: number; duration: number; date_end?: number } & {
+            all_day?: boolean;
+        })[],
+    ) {
         const minutes = Math.floor(
-            bookings.reduce((count, booking) => count + booking.duration, 0) /
+            bookings.reduce(
+                (count, booking) => count + reportBookingDuration(booking),
+                0,
+            ) /
                 Math.max(1, bookings.length),
         );
         return formatDuration({ minutes }) || '0';

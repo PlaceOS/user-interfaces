@@ -302,6 +302,40 @@ describe('SiteAttendanceReportService', () => {
         );
     });
 
+    it('should calculate all day desk average length from actual start and end times', async () => {
+        features = ['desks'];
+        spectator = createService();
+        const start = new Date('2026-04-06T08:00:00').valueOf();
+        const end = new Date('2026-04-06T18:00:00').valueOf();
+        (booking_mod.queryAllBookings as jest.Mock).mockReturnValue(
+            of([
+                {
+                    all_day: true,
+                    asset_id: 'desk-1',
+                    user_email: 'desk.user@example.com',
+                    date: start,
+                    date_end: end,
+                    duration: 24 * 60,
+                    checked_in: true,
+                },
+            ]),
+        );
+        spectator.service.setOptions({ start, end });
+
+        const report_promise = firstValueFrom(
+            spectator.service.report$.pipe(skip(1), take(1)),
+        );
+        spectator.service.generateReport();
+        const report = await report_promise;
+
+        expect(report.cards.find((card) => card.id === 'desks')).toEqual(
+            expect.objectContaining({
+                average_length: '600m',
+                bookings: 1,
+            }),
+        );
+    });
+
     it('should exclude system events from site attendance', async () => {
         features = ['spaces'];
         spectator = createService();

@@ -68,12 +68,19 @@ export function reportBookableMinutes(
 }
 
 export function reportBookingDuration(
-    event: CalendarEvent,
+    event: Pick<CalendarEvent, 'date' | 'duration'> & {
+        date_end?: number;
+        all_day?: boolean;
+    },
     bookable_minutes = 8 * 60,
 ): number {
-    return event.all_day || event.duration >= 24 * 60
-        ? bookable_minutes
-        : event.duration;
+    const start = Number(event.date);
+    const end = Number(event.date_end);
+    if (Number.isFinite(start) && Number.isFinite(end) && end > start) {
+        return Math.floor((end - start) / (60 * 1000));
+    }
+    if (!Number.isFinite(event.duration)) return bookable_minutes;
+    return event.duration || 0;
 }
 
 function totalReportBookingDuration(
@@ -187,7 +194,7 @@ export function generateReportForBookings(
         count: bookings.length,
         avg_length:
             Math.floor(
-                (bookings.reduce((c, i) => c + i.duration, 0) /
+                (bookings.reduce((c, i) => c + reportBookingDuration(i), 0) /
                     bookings.length) *
                     100,
             ) / 100,
