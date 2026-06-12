@@ -51,7 +51,7 @@ describe('CateringStateService', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-        (ts_client as any).showMetadata = jest.fn(() => of({}));
+        (ts_client as any).showMetadata = jest.fn(() => Promise.resolve({}));
         (assets_mod.queryCateringItems as jest.Mock).mockReturnValue(of([]));
         (assets_mod.saveCateringItem as jest.Mock).mockImplementation((item) =>
             of(item),
@@ -98,7 +98,7 @@ describe('CateringStateService', () => {
 
     it('should allow user to select catering options to orders', async () => {
         const dialog = spectator.inject(MatDialog);
-        (ts_client as any).updateMetadata = jest.fn(() => of({}));
+        (ts_client as any).updateMetadata = jest.fn(() => Promise.resolve({}));
         (dialog.open as any).mockImplementation(dialog_fn(true));
         let options = await spectator.service.selectOptions([]);
         expect(options).toEqual([]);
@@ -134,8 +134,8 @@ describe('CateringStateService', () => {
 
     it('should allow user to edit catering config', async () => {
         const dialog = spectator.inject(MatDialog);
-        (ts_client as any).showMetadata = jest.fn(() => of({}));
-        (ts_client as any).updateMetadata = jest.fn(() => of({}));
+        (ts_client as any).showMetadata = jest.fn(() => Promise.resolve({}));
+        (ts_client as any).updateMetadata = jest.fn(() => Promise.resolve({}));
         (dialog.open as any).mockImplementation(dialog_fn(true));
         await spectator.service.editConfig();
         expect(ts_client.updateMetadata).not.toHaveBeenCalled();
@@ -150,14 +150,14 @@ describe('CateringStateService', () => {
     });
 
     it('should allow user to get catering config', async () => {
-        (ts_client as any).showMetadata = jest.fn(() => of({}));
+        (ts_client as any).showMetadata = jest.fn(() => Promise.resolve({}));
         let config = await spectator.service.getCateringConfig();
         expect(config).toEqual([]);
         expect(ts_client.showMetadata).toHaveBeenCalledWith(
             'bld-1',
             'catering_config',
         );
-        (ts_client as any).showMetadata = jest.fn(() => of([]));
+        (ts_client as any).showMetadata = jest.fn(() => Promise.resolve([]));
         config = await spectator.service.getCateringConfig('bld-2');
         expect(config).toEqual([]);
         expect(ts_client.showMetadata).toHaveBeenCalledWith(

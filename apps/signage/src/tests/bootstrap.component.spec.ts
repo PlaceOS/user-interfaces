@@ -39,7 +39,7 @@ describe('BootstrapComponent', () => {
             limit_init: false,
         };
         (ts_client.querySystems as jest.Mock).mockReturnValue(
-            of({
+            Promise.resolve({
                 data: [
                     {
                         id: 'display-1',
