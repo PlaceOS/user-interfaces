@@ -1,5 +1,5 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
@@ -219,13 +219,30 @@ export class ParkingRequestFormComponent
             title: this.form.value.title || 'Parking Request',
         });
         const building = this._org.building;
+        const location =
+            building?.display_name ||
+            building?.name ||
+            this.form.value.location;
+        const extension_data = {
+            ...((this.form.getRawValue() as any).extension_data || {}),
+            location,
+        };
         this.form.patchValue({
             zones: [
                 this._org.organisation.id,
                 this._org.region?.id,
                 building?.id,
             ].filter(Boolean),
+            location,
         });
+        if ((this.form.controls as any).extension_data) {
+            this.form.patchValue({ extension_data } as any);
+        } else {
+            this.form.addControl(
+                'extension_data' as any,
+                new FormControl(extension_data),
+            );
+        }
         if (!this.form.valid)
             return notifyError(
                 `Some fields are invalid. [${getInvalidFields(this.form).join(', ')}]`,
