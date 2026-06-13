@@ -410,21 +410,6 @@ export class OrganisationService {
                 throw err;
             });
         }
-        setTimeout(() => {
-            if (this._skip_auto_selection) return;
-            if (localStorage.getItem('PLACEOS.region')) {
-                this.region = this.regions.find(
-                    (region) =>
-                        region.id === localStorage.getItem('PLACEOS.region'),
-                );
-            }
-            if (localStorage.getItem('PLACEOS.building')) {
-                this.building = this.buildings.find(
-                    (bld) =>
-                        bld.id === localStorage.getItem('PLACEOS.building'),
-                );
-            }
-        }, 1000);
         if (window.debug) {
             if (!window.app) window.app = {};
             window.app.org = this;
@@ -569,9 +554,12 @@ export class OrganisationService {
                 : {},
             this.loadBuildings(region.id),
         ]);
-        this._buildings.next(
-            unique([...this._buildings.getValue(), ...buildings], 'id'),
+        const building_list = unique(
+            [...this._buildings.getValue(), ...buildings],
+            'id',
         );
+        this._buildings.next(building_list);
+        this.buildings_signal.set(building_list);
         this._loaded_data[region.id] = true;
         (region as any).bindings = bindings;
         this._region_settings[region.id] = settings;
@@ -673,17 +661,20 @@ export class OrganisationService {
         this._updateSettingOverrides();
     }
 
-    private _initialiseActiveBuilding() {
-        return new Promise<void>((resolve) => {
-            const id = sessionStorage.getItem(`PLACEOS.building`);
-            if (id && this.buildings.find((bld) => bld.id === id)) {
-                this.building = this.buildings.find((bld) => bld.id === id);
-                return resolve();
-            }
-            const use_location = !!this._service.get('app.use_geolocation');
-            if (use_location && 'geolocation' in navigator) {
+    private async _initialiseActiveBuilding() {
+        const id =
+            sessionStorage.getItem(`PLACEOS.building`) ||
+            localStorage.getItem(`PLACEOS.building`);
+        const building = this.buildings.find((bld) => bld.id === id);
+        if (building) {
+            this.building = building;
+            return;
+        }
+        const use_location = !!this._service.get('app.use_geolocation');
+        if (use_location && 'geolocation' in navigator) {
+            await new Promise<void>((resolve) => {
                 navigator.geolocation.getCurrentPosition(
-                    (position) => {
+                    async (position) => {
                         const { latitude, longitude } = position.coords;
                         let closest_bld = null;
                         for (const bld of this.buildings) {
@@ -709,37 +700,49 @@ export class OrganisationService {
                             }
                         }
                         if (closest_bld) this.building = closest_bld;
-                        if (!this.building?.id) this._setDefaultBuilding();
+                        if (!this.building?.id)
+                            await this._setDefaultBuilding();
                         resolve();
                     },
-                    () => {
-                        if (!this.building?.id) this._setDefaultBuilding();
+                    async () => {
+                        if (!this.building?.id)
+                            await this._setDefaultBuilding();
                         resolve();
                     },
                 );
-            } else {
-                if (!this.building?.id) this._setDefaultBuilding();
-                resolve();
-            }
-        });
+            });
+        } else {
+            if (!this.building?.id) await this._setDefaultBuilding();
+        }
     }
 
     private async _setDefaultBuilding() {
-        if (!this.buildings.length) return;
         const region_id = localStorage.getItem(`PLACEOS.region`);
+        const building_id =
+            sessionStorage.getItem(`PLACEOS.building`) ||
+            localStorage.getItem(`PLACEOS.building`);
+        if (!this.buildings.length && !region_id) return;
 
         await (region_id
             ? this.setRegion(
                   this._regions.getValue().find((_) => _.id === region_id),
               )
             : this._setRegionFromTimezone());
+        if (!this.buildings.length) return;
+        if (building_id) {
+            const building = this.buildings.find((_) => _.id === building_id);
+            if (building) {
+                this.building = building;
+                return;
+            }
+        }
         this._setBuildingFromTimezone();
-        if (this.building) return;
+        if (this.building?.id) return;
         const bld_id = this._service.get('app.default_building');
         if (bld_id) {
             this.building = this.buildings.find(({ id }) => id === bld_id);
         }
-        if (!this.building) this.building = this.buildings[0];
+        if (!this.building?.id) this.building = this.buildings[0];
     }
 
     private async _setRegionFromTimezone() {
