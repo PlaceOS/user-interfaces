@@ -554,6 +554,8 @@
         "DESK_LIST_LOADING": "Finding available desks...",
         "DESK_LIST_EMPTY": "No available desks for selected time and/or filters",
         "DESK_SELECT_MSG": "Select a desk to view it's details",
+        "DESK_RESERVED_TITLE": "You have a reserved desk",
+        "DESK_RESERVED_MESSAGE": "A desk has already been reserved for you, so you are unable to book another desk.",
         "ITEM_BOOKED": "{{ name }} booked!",
         "DESK_SUCCESS_LONE": "Your desk booking at {{ location }} has been successfully booked for {{ date }} at {{ time }}",
         "DESK_SUCCESS_GROUP": "Your group of {{ size }} desks at {{ location }} have been successfully booked for {{ date }} at {{ time }}",

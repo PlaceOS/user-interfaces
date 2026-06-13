@@ -283,7 +283,8 @@ export class BookingFormService extends AsyncHandler {
         shareReplay(1),
     );
 
-    private readonly _has_assigned_desk = this._org.building_list.pipe(
+    /** Whether the current user has a desk reserved (assigned) to them */
+    public readonly has_assigned_desk = this._org.building_list.pipe(
         filter((buildings) => buildings?.length > 0),
         switchMap((buildings) => {
             const email = currentUser()?.email?.toLowerCase();
@@ -1795,16 +1796,29 @@ export class BookingFormService extends AsyncHandler {
         ref.close();
     }
 
+    /**
+     * Whether users with a desk reserved (assigned) to them are allowed to
+     * book another desk for themselves. Blocked by default; enable with the
+     * `allow_booking_with_reserved_desk` setting. The legacy
+     * `prevent_self_booking_if_assigned_desk` setting forces blocking.
+     */
+    public canBookWithReservedDesk() {
+        return (
+            this.setting('allow_booking_with_reserved_desk') === true &&
+            this.setting('prevent_self_booking_if_assigned_desk') !== true
+        );
+    }
+
     private async _checkAssignedDeskRestriction(
         user_email: string,
         type: BookingType,
     ) {
         if (type !== 'desk') return true;
-        if (!this.setting('prevent_self_booking_if_assigned_desk')) return true;
+        if (this.canBookWithReservedDesk()) return true;
         if (user_email?.toLowerCase() !== currentUser()?.email?.toLowerCase()) {
             return true;
         }
-        if (await nextValueFrom(this._has_assigned_desk)) {
+        if (await nextValueFrom(this.has_assigned_desk)) {
             throw 'You have an assigned desk and cannot book another desk.';
         }
         return true;

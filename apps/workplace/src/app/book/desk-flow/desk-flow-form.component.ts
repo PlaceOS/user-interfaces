@@ -1,10 +1,10 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
     MatBottomSheet,
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
-import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
@@ -15,10 +15,10 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { TranslatePipe } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { isBefore, startOfMinute } from 'date-fns';
 import { lastValueFrom } from 'rxjs';
-import { first } from 'rxjs/operators';
+import { first, map } from 'rxjs/operators';
 import { NewDeskFlowConfirmComponent } from './desk-flow-confirm.component';
 import { NewDeskFormDetailsComponent } from './desk-form-details.component';
 
@@ -26,50 +26,89 @@ import { NewDeskFormDetailsComponent } from './desk-form-details.component';
     selector: 'desk-flow-form',
     styles: [],
     template: `
-        <div class="bg-base-200 h-full w-full overflow-auto">
+        <div class="relative h-full w-full">
             <div
-                class="border-base-200 bg-base-100 mx-auto w-3xl max-w-full border sm:my-4"
+                class="bg-base-200 h-full w-full"
+                [class.overflow-auto]="!show_reserved_desk_overlay()"
+                [class.overflow-hidden]="show_reserved_desk_overlay()"
             >
-                <h2
-                    class="border-base-200 w-full border-b p-4 text-2xl font-medium sm:px-16 sm:py-4"
+                <div
+                    class="border-base-200 bg-base-100 mx-auto w-3xl max-w-full border sm:my-4"
                 >
-                    {{ 'BOOKINGS.DESK_TITLE' | translate }}
-                </h2>
-                <desk-form-details
-                    class="block p-0 sm:px-16 sm:py-4"
-                    [form]="form"
-                ></desk-form-details>
-                <div class="border-base-200 w-full border-b sm:mb-2"></div>
-                <section
-                    class="flex flex-col items-center p-2 sm:mb-2 sm:flex-row sm:space-x-2 sm:px-16"
-                >
-                    <button
-                        btn
-                        name="open-desk-confirm"
-                        matRipple
-                        confirm
-                        class="w-full sm:w-auto"
-                        (click)="viewConfirm()"
+                    <h2
+                        class="border-base-200 w-full border-b p-4 text-2xl font-medium sm:px-16 sm:py-4"
                     >
-                        {{ 'BOOKINGS.DESK_CONFIRM' | translate }}
-                    </button>
-                </section>
+                        {{ 'BOOKINGS.DESK_TITLE' | translate }}
+                    </h2>
+                    <desk-form-details
+                        class="block p-0 sm:px-16 sm:py-4"
+                        [form]="form"
+                    ></desk-form-details>
+                    <div class="border-base-200 w-full border-b sm:mb-2"></div>
+                    <section
+                        class="flex flex-col items-center p-2 sm:mb-2 sm:flex-row sm:space-x-2 sm:px-16"
+                    >
+                        <button
+                            btn
+                            name="open-desk-confirm"
+                            matRipple
+                            confirm
+                            class="w-full sm:w-auto"
+                            (click)="viewConfirm()"
+                        >
+                            {{ 'BOOKINGS.DESK_CONFIRM' | translate }}
+                        </button>
+                    </section>
+                </div>
             </div>
+            @if (show_reserved_desk_overlay()) {
+                <div
+                    name="reserved-desk-overlay"
+                    class="bg-base-200/80 absolute inset-0 z-20 flex items-center justify-center p-4 backdrop-blur-sm"
+                >
+                    <div
+                        class="bg-base-100 border-base-200 flex w-[26rem] max-w-full flex-col items-center space-y-2 rounded-lg border p-8 text-center shadow-lg"
+                    >
+                        <icon class="text-info text-6xl">chair_alt</icon>
+                        <h3 class="text-xl font-medium">
+                            {{ 'BOOKINGS.DESK_RESERVED_TITLE' | translate }}
+                        </h3>
+                        <p class="opacity-60">
+                            {{ 'BOOKINGS.DESK_RESERVED_MESSAGE' | translate }}
+                        </p>
+                    </div>
+                </div>
+            }
         </div>
     `,
-    imports: [TranslatePipe, NewDeskFormDetailsComponent, MatRippleModule],
+    imports: [
+        TranslatePipe,
+        NewDeskFormDetailsComponent,
+        MatRippleModule,
+        IconComponent,
+    ],
 })
 export class NewDeskFlowFormComponent implements OnInit {
     private _state = inject(BookingFormService);
     private _router = inject(Router);
     private _org = inject(OrganisationService);
     private _bottom_sheet = inject(MatBottomSheet);
-    private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
 
     public sheet_ref: MatBottomSheetRef<NewDeskFlowConfirmComponent>;
     public level = '';
     public levels = [];
+
+    /** Block the form when the user has a reserved desk and isn't allowed to book another */
+    public readonly show_reserved_desk_overlay = toSignal(
+        this._state.has_assigned_desk.pipe(
+            map(
+                (has_desk) =>
+                    has_desk && !this._state.canBookWithReservedDesk(),
+            ),
+        ),
+        { initialValue: false },
+    );
 
     public get form() {
         return this._state.form;

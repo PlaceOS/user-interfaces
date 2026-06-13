@@ -311,6 +311,8 @@ export class MapViewer {
         pointer: null as Point | null,
         /** ID of the smallest map element under the pointer */
         hover_id: '',
+        /** ID of the map element explicitly highlighted from debug controls */
+        highlight_id: '',
         /** Duration of the last map draw in milliseconds */
         last_draw_ms: 0,
         /** Number of map draws over the last second */
@@ -474,9 +476,17 @@ export class MapViewer {
             }
             this.debug_info.pointer = null;
             this.debug_info.hover_id = '';
+            this.debug_info.highlight_id = '';
         }
         this._applyOverlayOutlines();
         this._renderMap();
+    }
+
+    /** Highlight a map element while debug mode is active */
+    public setDebugHighlight(ref: string) {
+        if (this.debug_info.highlight_id === ref) return;
+        this.debug_info.highlight_id = ref;
+        if (this.debug) this._renderMap();
     }
 
     /** Center the view on the map element with the given ID */
@@ -1026,9 +1036,11 @@ export class MapViewer {
             ctx.strokeRect(x, y, w, h);
         }
 
-        // Highlight and label the hovered element
-        const hover_bounds = this.debug_info.hover_id
-            ? this.map.element_bounds.get(this.debug_info.hover_id)
+        // Highlight and label the hovered or debug-selected element
+        const highlight_id =
+            this.debug_info.highlight_id || this.debug_info.hover_id;
+        const hover_bounds = highlight_id
+            ? this.map.element_bounds.get(highlight_id)
             : null;
         if (hover_bounds) {
             const x = toScreenX(hover_bounds.x);
@@ -1040,7 +1052,7 @@ export class MapViewer {
                 hover_bounds.w * scale.x,
                 hover_bounds.h * scale.y,
             );
-            const label = `#${this.debug_info.hover_id}`;
+            const label = `#${highlight_id}`;
             ctx.font = '12px monospace';
             ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
             ctx.fillRect(x, y - 16, ctx.measureText(label).width + 8, 16);

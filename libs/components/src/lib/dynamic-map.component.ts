@@ -45,6 +45,12 @@ import { TranslatePipe } from './translate.pipe';
 
 type DebugSection = 'styles' | 'features' | 'labels' | 'actions';
 
+interface DebugDetailEntry {
+    text: string;
+    ref?: string;
+    missing?: boolean;
+}
+
 @Component({
     selector: 'dynamic-map',
     template: `
@@ -138,7 +144,25 @@ type DebugSection = 'styles' | 'features' | 'labels' | 'actions';
                                 }}</span>
                             }
                         } @else {
-                            <span>{{ debug_detail_text() }}</span>
+                            @for (entry of debug_detail_entries(); track entry.text) {
+                                <div
+                                    class="rounded px-1"
+                                    [class.bg-red-500/20]="entry.missing"
+                                    [class.text-red-200]="entry.missing"
+                                    [class.cursor-default]="entry.ref"
+                                    (mouseenter)="highlightDebugEntry(entry)"
+                                    (mouseleave)="clearDebugHighlight(entry)"
+                                >
+                                    <span>{{ entry.text }}</span>
+                                    @if (entry.missing) {
+                                        <span class="ml-1 text-red-300">
+                                            [missing on map]
+                                        </span>
+                                    }
+                                </div>
+                            } @empty {
+                                <span>{{ debug_detail_empty_text() }}</span>
+                            }
                         }
                     </div>
                 }
@@ -346,9 +370,9 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
         );
     });
 
-    public readonly debug_detail_text = computed(() => {
+    public readonly debug_detail_entries = computed(() => {
         const section = this.debug_section();
-        let entries: string[];
+        let entries: DebugDetailEntry[];
         switch (section) {
             case 'features':
                 entries = this._describeFeatures();
@@ -360,24 +384,37 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
                 entries = this._describeActions();
                 break;
             default:
-                return '';
+                return [];
         }
         const filter = this.debug_filter().trim().toLowerCase();
         if (filter) {
             entries = entries.filter((entry) =>
-                entry.toLowerCase().includes(filter),
+                entry.text.toLowerCase().includes(filter),
             );
         }
-        if (!entries.length) {
-            return filter ? 'No matches' : `No ${section}`;
-        }
-        return entries.join('\n');
+        return entries;
+    });
+
+    public readonly debug_detail_empty_text = computed(() => {
+        const section = this.debug_section();
+        const filter = this.debug_filter().trim();
+        return filter ? 'No matches' : `No ${section}`;
     });
 
     public toggleDebugSection(section: DebugSection) {
         this.debug_section.update((current) =>
             current === section ? null : section,
         );
+    }
+
+    public highlightDebugEntry(entry: DebugDetailEntry) {
+        if (!entry.ref || entry.missing) return;
+        this._map_viewer?.setDebugHighlight(entry.ref);
+    }
+
+    public clearDebugHighlight(entry: DebugDetailEntry) {
+        if (!entry.ref || entry.missing) return;
+        this._map_viewer?.setDebugHighlight('');
     }
 
     constructor() {
@@ -753,59 +790,94 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
             : `${location.x.toFixed(3)}, ${location.y.toFixed(3)}`;
     }
 
-    private _describeFeatures(): string[] {
+    private _debugRef(ref: string | Point): {
+        ref?: string;
+        location: string;
+        missing: boolean;
+    } {
+        if (typeof ref !== 'string') {
+            return { location: this._formatLocation(ref), missing: false };
+        }
+        return {
+            ref,
+            location: this._formatLocation(ref),
+            missing:
+                !!this._element_mappings() && !this._element_mappings()?.[ref],
+        };
+    }
+
+    private _describeFeatures(): DebugDetailEntry[] {
         return (this.features() || []).map((feature, index) => {
+            const target = this._debugRef(feature.location);
             const content =
                 feature.content instanceof HTMLElement
                     ? 'element'
                     : feature.content
                       ? this.contentType(feature.content)
                       : 'none';
-            return [
-                `${index}: ${this._formatLocation(feature.location)}`,
-                feature.track_id ? `track: ${feature.track_id}` : '',
-                `content: ${content}`,
-                feature.hover ? 'hover' : '',
-                feature.full_size ? 'full-size' : '',
-                feature.z_index != null ? `z: ${feature.z_index}` : '',
-                feature.data && Object.keys(feature.data).length
-                    ? `data: ${Object.keys(feature.data).join(', ')}`
-                    : '',
-            ]
-                .filter(Boolean)
-                .join(' · ');
+            return {
+                ref: target.ref,
+                missing: target.missing,
+                text: [
+                    `${index}: ${target.location}`,
+                    feature.track_id ? `track: ${feature.track_id}` : '',
+                    `content: ${content}`,
+                    feature.hover ? 'hover' : '',
+                    feature.full_size ? 'full-size' : '',
+                    feature.z_index != null ? `z: ${feature.z_index}` : '',
+                    feature.data && Object.keys(feature.data).length
+                        ? `data: ${Object.keys(feature.data).join(', ')}`
+                        : '',
+                ]
+                    .filter(Boolean)
+                    .join(' · '),
+            };
         });
     }
 
-    private _describeLabels(): string[] {
-        return (this.labels() || []).map((label, index) =>
-            [
-                `${index}: ${this._formatLocation(label.location)}`,
-                `"${label.content}"`,
-                label.zoom_level != null ? `zoom ≥ ${label.zoom_level}` : '',
-                label.css_class?.length
-                    ? `class: ${label.css_class.join(' ')}`
-                    : '',
-                label.z_index != null ? `z: ${label.z_index}` : '',
-            ]
-                .filter(Boolean)
-                .join(' · '),
-        );
+    private _describeLabels(): DebugDetailEntry[] {
+        return (this.labels() || []).map((label, index) => {
+            const target = this._debugRef(label.location);
+            return {
+                ref: target.ref,
+                missing: target.missing,
+                text: [
+                    `${index}: ${target.location}`,
+                    `"${label.content}"`,
+                    label.zoom_level != null
+                        ? `zoom ≥ ${label.zoom_level}`
+                        : '',
+                    label.css_class?.length
+                        ? `class: ${label.css_class.join(' ')}`
+                        : '',
+                    label.z_index != null ? `z: ${label.z_index}` : '',
+                ]
+                    .filter(Boolean)
+                    .join(' · '),
+            };
+        });
     }
 
-    private _describeActions(): string[] {
+    private _describeActions(): DebugDetailEntry[] {
         return (this.actions() || []).map((action, index) => {
             const types = Array.isArray(action.action)
                 ? action.action
                 : [action.action];
-            return [
-                `${index}: #${action.id}`,
-                types.join(', '),
-                action.priority != null ? `priority: ${action.priority}` : '',
-                action.zone ? 'zone' : '',
-            ]
-                .filter(Boolean)
-                .join(' · ');
+            const target = this._debugRef(action.id);
+            return {
+                ref: target.ref,
+                missing: target.missing,
+                text: [
+                    `${index}: ${target.location}`,
+                    types.join(', '),
+                    action.priority != null
+                        ? `priority: ${action.priority}`
+                        : '',
+                    action.zone ? 'zone' : '',
+                ]
+                    .filter(Boolean)
+                    .join(' · '),
+            };
         });
     }
 

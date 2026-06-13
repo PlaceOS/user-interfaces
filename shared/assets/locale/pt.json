@@ -551,6 +551,8 @@
         "DESK_LIST_LOADING": "Buscando mesas disponíveis...",
         "DESK_LIST_EMPTY": "Nenhuma mesa disponível para o horário e/ou filtros selecionados",
         "DESK_SELECT_MSG": "Selecione uma mesa para ver seus detalhes",
+        "DESK_RESERVED_TITLE": "Você tem uma mesa reservada",
+        "DESK_RESERVED_MESSAGE": "Uma mesa já está reservada para você, portanto não é possível reservar outra mesa.",
         "ITEM_BOOKED": "{{ name }} reservada!",
         "DESK_SUCCESS_LONE": "Sua reserva de mesa foi realizada para {{ date }} às {{ time }}",
         "DESK_SUCCESS_GROUP": "Seu grupo de {{ size }} mesas foi reservado com sucesso para {{ date }} às {{ time }}",
