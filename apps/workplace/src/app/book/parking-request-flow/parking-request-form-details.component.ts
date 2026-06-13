@@ -1069,13 +1069,11 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                         >
                                             Checking...
                                         </div>
-                                    } @else if (
-                                        available_space_count() !== null
-                                    ) {
+                                    } @else {
                                         @let percent = usage_ratio();
                                         <div class="flex items-center">
-                                            {{ spaces_in_use_count() }} of
-                                            {{ total_space_count() }}
+                                            {{ spaces_in_use_count() || 0 }} of
+                                            {{ total_space_count() || 9 }}
                                             <icon class="ml-1! text-lg"
                                                 >car_lock</icon
                                             >
@@ -1402,8 +1400,8 @@ export class ParkingRequestFormDetailsComponent
         }),
     );
     public readonly desk_booking_building_id = signal('');
-    public readonly available_space_count = signal<number | null>(null);
-    public readonly total_space_count = signal<number | null>(null);
+    public readonly available_space_count = signal<number>(0);
+    public readonly total_space_count = signal<number>(0);
     public readonly availability_loading = signal(false);
     public readonly spaces_in_use_count = computed(() => {
         const available = this.available_space_count();
