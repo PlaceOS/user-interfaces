@@ -5,6 +5,7 @@ import { of } from 'rxjs';
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { OrganisationService } from '../lib/org/organisation.service';
+import { Building, Region } from '../lib/types/org.classes';
 
 jest.mock('@placeos/ts-client');
 
@@ -21,6 +22,7 @@ describe('OrganisationService', () => {
     });
 
     beforeEach(() => {
+        localStorage.clear();
         sessionStorage.clear();
         (ts_client as any).onlineState = jest.fn(() => of(true));
         (ts_client as any).waitForSignal = jest.fn(() => Promise.resolve(true));
@@ -175,6 +177,49 @@ describe('OrganisationService', () => {
             parent_ids: 'bld_1',
         });
         expect(ts_client.showMetadata).not.toHaveBeenCalled();
+    });
+
+    it('should initialise the active building from local storage', async () => {
+        const region = new Region({ id: 'region-1', tags: ['region'] });
+        const first_building = new Building({
+            id: 'bld-1',
+            parent_id: region.id,
+            tags: ['building'],
+        });
+        const saved_building = new Building({
+            id: 'bld-2',
+            parent_id: region.id,
+            tags: ['building'],
+        });
+        localStorage.setItem('PLACEOS.region', region.id);
+        localStorage.setItem('PLACEOS.building', saved_building.id);
+        (spectator.service as any)._regions.next([region]);
+        (spectator.service as any)._buildings.next([first_building]);
+        jest.spyOn(spectator.service, 'loadRegionData').mockImplementation(
+            async () => {
+                await Promise.resolve();
+                (spectator.service as any)._buildings.next([
+                    first_building,
+                    saved_building,
+                ]);
+            },
+        );
+
+        await (spectator.service as any)._initialiseActiveBuilding();
+
+        expect(spectator.service.region.id).toBe(region.id);
+        expect(spectator.service.building.id).toBe(saved_building.id);
+    });
+
+    it('should fall back to the first building when no stored or timezone building matches', async () => {
+        const building = new Building({ id: 'bld-1', tags: ['building'] });
+        (spectator.service as any)._buildings.next([building]);
+        jest.spyOn(spectator.service as any, '_setRegionFromTimezone')
+            .mockResolvedValue(undefined);
+
+        await (spectator.service as any)._setDefaultBuilding();
+
+        expect(spectator.service.building.id).toBe(building.id);
     });
 
     /// TODO: fix

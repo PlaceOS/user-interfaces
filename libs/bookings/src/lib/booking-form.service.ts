@@ -898,9 +898,10 @@ export class BookingFormService extends AsyncHandler {
             [
                 this._org.organisation?.id,
                 this._org.region?.id,
-                zone?.parent_id,
-                zone?.id,
-                ...value.zones,
+                ...(zone && zone instanceof Object
+                    ? [zone.parent_id, zone.id]
+                    : [this._org.building?.id]),
+                ...(value.zones || []),
             ].filter((_) => _),
         );
         const q: Record<string, any> = event_id
