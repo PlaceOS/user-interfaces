@@ -96,6 +96,16 @@ import { LevelManagementService } from './level-management.service';
                     </button>
                     <button
                         mat-menu-item
+                        [disabled]="!row.map_id"
+                        (click)="editLevelMap(row)"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <icon class="text-2xl">map</icon>
+                            <span>Edit SVG map</span>
+                        </div>
+                    </button>
+                    <button
+                        mat-menu-item
                         (click)="editBookingPanelSettings(row)"
                     >
                         <div class="flex items-center space-x-2">
@@ -141,6 +151,7 @@ export class LevelListComponent {
     });
 
     public readonly editLevel = (level) => this._manager.editLevel(level);
+    public readonly editLevelMap = (level) => this._manager.editLevelMap(level);
     public readonly removeLevel = (level) => this._manager.removeLevel(level);
 
     public readonly copyToClipboard = (id: string) => {

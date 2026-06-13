@@ -12,6 +12,7 @@ import { requestSpacesForZone } from '@placeos/events';
 import { PlaceZone, removeZone } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { shareReplay, switchMap } from 'rxjs/operators';
+import { LevelMapEditorModalComponent } from './level-map-editor-modal.component';
 import { LevelModalComponent } from './level-modal.component';
 
 export interface LevelListOptions {
@@ -77,6 +78,15 @@ export class LevelManagementService {
 
     public editLevel(level: PlaceZone = new PlaceZone()) {
         const ref = this._dialog.open(LevelModalComponent, {
+            data: level,
+        });
+        ref.afterClosed().subscribe((data) => {
+            if (data) this._org.addZone(data);
+        });
+    }
+
+    public editLevelMap(level: BuildingLevel) {
+        const ref = this._dialog.open(LevelMapEditorModalComponent, {
             data: level,
         });
         ref.afterClosed().subscribe((data) => {
