@@ -926,7 +926,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                         @let percent = usage_ratio();
                                         <div class="flex items-center">
                                             {{ spaces_in_use_count() || 0 }} of
-                                            {{ total_space_count() || 9 }}
+                                            {{ total_space_count() || 0 }}
                                             <icon class="ml-1! text-lg"
                                                 >car_lock</icon
                                             >

@@ -800,7 +800,7 @@ export class BookingFormService extends AsyncHandler {
                       zone.parent_id,
                       zone.id,
                   ])
-                : [this._org.organisation.id, this._org.region?.id];
+                : [this._org.organisation.id, this._org.region?.id, this._org.building?.id];
         const q: Record<string, any> = event_id
             ? { ical_uid: value.ical_uid, event_id: event_id }
             : parent_id
