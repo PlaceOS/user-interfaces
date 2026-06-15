@@ -188,10 +188,11 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
             return;
         }
         this._event_form.newForm();
-        this._event_form.form.patchValue({
+        this._event_form.model.update((m) => ({
+            ...m,
             host: currentUser()?.email,
             resources: [space],
-        });
+        }));
         this._dialog.open(
             (this._settings.get('app.explore.show_booking_qr')
                 ? ExploreBookQrComponent

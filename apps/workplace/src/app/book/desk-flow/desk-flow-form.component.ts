@@ -14,7 +14,7 @@ import {
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
-    getInvalidFields,
+    getInvalidSignalFields,
     i18n,
     notifyError,
     OrganisationService,
@@ -48,6 +48,7 @@ import { NewDeskFormDetailsComponent } from './desk-form-details.component';
                     <desk-form-details
                         class="block p-0 sm:px-16 sm:py-4"
                         [form]="form"
+                        [model_input]="model"
                     ></desk-form-details>
                     <div class="border-base-200 w-full border-b sm:mb-2"></div>
                     <section
@@ -112,6 +113,10 @@ export class NewDeskFlowFormComponent implements OnInit {
         return this._state.form;
     }
 
+    public get model() {
+        return this._state.model;
+    }
+
     public readonly clearForm = () => {
         this.level = this._org.building.id;
         this._state.clearForm();
@@ -130,14 +135,17 @@ export class NewDeskFlowFormComponent implements OnInit {
                 );
             }
         }
-        const { asset_id, resources } = this.form.getRawValue();
+        const { asset_id, resources } = this.model();
         if (resources?.length && !asset_id) {
-            this.form.patchValue({ asset_id: resources[0].id });
+            this.model.update((m) => ({ ...m, asset_id: resources[0].id }));
         }
-        if (!this.form.valid)
+        if (!this.form().valid())
             return notifyError(
                 i18n('FORM.INVALID_FIELDS', {
-                    field_list: getInvalidFields(this.form).join(', '),
+                    field_list: getInvalidSignalFields(
+                        this.form,
+                        this.model,
+                    ).join(', '),
                 }),
             );
         this.sheet_ref = this._bottom_sheet.open(NewDeskFlowConfirmComponent);
@@ -163,14 +171,18 @@ export class NewDeskFlowFormComponent implements OnInit {
             { id: this._org.building?.id, name: 'Any Level' },
             ...this._org.levelsForBuilding(this._org.building),
         ];
-        if (!this.form.value.id && isBefore(this.form.value.date, Date.now())) {
-            this.form.patchValue({ date: startOfMinute(Date.now()).valueOf() });
+        if (!this.model().id && isBefore(this.model().date, Date.now())) {
+            this.model.update((m) => ({
+                ...m,
+                date: startOfMinute(Date.now()).valueOf(),
+            }));
         }
-        if (!this.form.value.id) {
-            this.form.patchValue({
+        if (!this.model().id) {
+            this.model.update((m) => ({
+                ...m,
                 duration:
                     this._settings.get('app.desks.default_duration') || 60,
-            });
+            }));
         }
     }
 }

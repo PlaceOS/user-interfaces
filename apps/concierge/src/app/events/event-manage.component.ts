@@ -8,8 +8,8 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
@@ -30,7 +30,7 @@ import {
     TIMEZONES_IANA,
     currentUser,
     formatDuration,
-    getInvalidFields,
+    getInvalidSignalFields,
     notifyError,
     unique,
 } from '@placeos/common';
@@ -53,7 +53,6 @@ import {
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import { differenceInMinutes, format, startOfDay } from 'date-fns';
-import { startWith } from 'rxjs/operators';
 import { EventStateService } from './event-state.service';
 
 const EMPTY = [];
@@ -68,7 +67,7 @@ const EMPTY = [];
                 >
                     <h2 class="text-xl font-medium">
                         {{
-                            (form.value.id
+                            (model().id
                                 ? 'APP.CONCIERGE.EVENTS_EDIT'
                                 : 'APP.CONCIERGE.EVENTS_NEW'
                             ) | translate
@@ -86,7 +85,6 @@ const EMPTY = [];
                 </header>
                 <form
                     class="mx-auto my-2 flex w-160 max-w-full flex-col px-4 pb-16"
-                    [formGroup]="form"
                 >
                     <section class="flex flex-col space-y-2">
                         <label for="title"
@@ -95,8 +93,7 @@ const EMPTY = [];
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 matInput
-                                name="title"
-                                formControlName="title"
+                                [formField]="form.title"
                                 placeholder="e.g. Team Meeting"
                             />
                             <mat-error>
@@ -108,8 +105,7 @@ const EMPTY = [];
                         >
                         <div class="pb-4">
                             <a-user-search-field
-                                name="host"
-                                formControlName="organiser"
+                                [formField]="form.organiser"
                             ></a-user-search-field>
                         </div>
                         <label for="tags">{{
@@ -144,14 +140,14 @@ const EMPTY = [];
                                 [name]="
                                     'CALENDAR_EVENT.GROUP_FEATURED' | translate
                                 "
-                                formControlName="featured"
+                                [formField]="form.featured"
                             >
                             </settings-toggle>
                             <mat-form-field
                                 appearance="outline"
                                 class="no-subscript"
                             >
-                                <mat-select formControlName="view_access">
+                                <mat-select [formField]="form.view_access">
                                     <mat-option value="PRIVATE">{{
                                         'APP.CONCIERGE.EVENTS_DRAFT' | translate
                                     }}</mat-option>
@@ -177,8 +173,7 @@ const EMPTY = [];
                                     {{ 'FORM.DATE' | translate }}<span>*</span>
                                 </label>
                                 <a-date-field
-                                    name="date"
-                                    formControlName="date"
+                                    [formField]="form.date"
                                     [to]="end_date"
                                 >
                                     {{ 'FORM.DATE_ERROR' | translate }}
@@ -190,8 +185,7 @@ const EMPTY = [];
                                     <span>*</span>
                                 </label>
                                 <a-date-field
-                                    name="date"
-                                    formControlName="date_end"
+                                    [formField]="form.date_end"
                                     [from]="start_date()"
                                     [to]="end_date"
                                 >
@@ -199,7 +193,7 @@ const EMPTY = [];
                                 </a-date-field>
                             </div>
                         </div>
-                        @if (!form.value.all_day) {
+                        @if (!model().all_day) {
                             <div class="flex items-center space-x-2">
                                 <div class="w-1/3 flex-1">
                                     <label for="start-time">
@@ -208,13 +202,14 @@ const EMPTY = [];
                                     </label>
                                     <a-time-field
                                         name="start-time"
-                                        [ngModel]="form.getRawValue().date"
+                                        [ngModel]="model().date"
                                         (ngModelChange)="
-                                            form.patchValue({
+                                            model.update((m) => ({
+                                                ...m,
                                                 date: $event,
-                                            })
+                                            }))
                                         "
-                                        [disabled]="form.controls.date.disabled"
+                                        [disabled]="form.date().disabled()"
                                         [ngModelOptions]="{
                                             standalone: true,
                                         }"
@@ -229,22 +224,20 @@ const EMPTY = [];
                                     <a-time-field
                                         name="end-time"
                                         [ngModel]="
-                                            form.value.date_end ||
-                                            form.value.date +
-                                                form.value.duration * 60 * 1000
+                                            model().date_end ||
+                                            model().date +
+                                                model().duration * 60 * 1000
                                         "
                                         (ngModelChange)="
-                                            form.patchValue({
+                                            model.update((m) => ({
+                                                ...m,
                                                 date_end: $event,
-                                            })
+                                            }))
                                         "
                                         [ngModelOptions]="{
                                             standalone: true,
                                         }"
-                                        [from]="
-                                            form?.getRawValue()?.date +
-                                            30 * 60 * 1000
-                                        "
+                                        [from]="model().date + 30 * 60 * 1000"
                                         [use_24hr]="use_24hr"
                                         [extra_info_fn]="duration_info"
                                     ></a-time-field>
@@ -259,7 +252,7 @@ const EMPTY = [];
                                 <icon matPrefix class="text-2xl"> search </icon>
                                 <input
                                     matInput
-                                    formControlName="timezone"
+                                    [formField]="form.timezone"
                                     [placeholder]="
                                         'COMMON.TIMEZONE' | translate
                                     "
@@ -293,12 +286,13 @@ const EMPTY = [];
                                 class="flex-1"
                                 [class.inverse]="false"
                                 [class.inverse]="
-                                    form.value.attendance_type !== 'ONSITE'
+                                    model().attendance_type !== 'ONSITE'
                                 "
                                 (click)="
-                                    form.patchValue({
+                                    model.update((m) => ({
+                                        ...m,
                                         attendance_type: 'ONSITE',
-                                    })
+                                    }))
                                 "
                             >
                                 <icon class="text-2xl">domain</icon>
@@ -314,12 +308,13 @@ const EMPTY = [];
                                 matRipple
                                 class="flex-1"
                                 [class.inverse]="
-                                    form.value.attendance_type !== 'ONLINE'
+                                    model().attendance_type !== 'ONLINE'
                                 "
                                 (click)="
-                                    form.patchValue({
+                                    model.update((m) => ({
+                                        ...m,
                                         attendance_type: 'ONLINE',
-                                    })
+                                    }))
                                 "
                             >
                                 <icon class="text-2xl">laptop_mac</icon>
@@ -335,12 +330,13 @@ const EMPTY = [];
                                 matRipple
                                 class="flex-1"
                                 [class.inverse]="
-                                    form.value.attendance_type !== 'ANY'
+                                    model().attendance_type !== 'ANY'
                                 "
                                 (click)="
-                                    form.patchValue({
+                                    model.update((m) => ({
+                                        ...m,
                                         attendance_type: 'ANY',
-                                    })
+                                    }))
                                 "
                             >
                                 <icon class="text-2xl">add</icon>
@@ -352,7 +348,7 @@ const EMPTY = [];
                                 </div>
                             </button>
                         </div>
-                        @if (form.value.attendance_type !== 'ONLINE') {
+                        @if (model().attendance_type !== 'ONLINE') {
                             <label for="location">
                                 {{ 'RESOURCE.BUILDING' | translate }}
                             </label>
@@ -460,14 +456,14 @@ const EMPTY = [];
                             </label>
                             <div class="mb-16">
                                 <rich-text-input
-                                    formControlName="body"
+                                    [formField]="form.body"
                                 ></rich-text-input>
                             </div>
                             <label for="images">
                                 {{ 'COMMON.IMAGES' | translate }}
                             </label>
                             <image-list-field
-                                formControlName="images"
+                                [formField]="form.images"
                             ></image-list-field>
                         </ng-container>
                     </section>
@@ -506,7 +502,7 @@ const EMPTY = [];
         MatChipsModule,
         MatAutocompleteModule,
         FormsModule,
-        ReactiveFormsModule,
+        FormField,
         SettingsToggleComponent,
         DateFieldComponent,
         TimeFieldComponent,
@@ -526,10 +522,8 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
     public resource: string;
 
     public readonly form = this._form_state.form;
-    private readonly _form_value = toSignal(
-        this.form.valueChanges.pipe(startWith(this.form.getRawValue())),
-        { initialValue: this.form.getRawValue() },
-    );
+    public readonly model = this._form_state.model;
+    private readonly _form_value = this.model;
     public readonly separators: number[] = [ENTER, COMMA, SPACE];
     public readonly building_list = this._org.building_list;
     public readonly active_levels = this._org.active_levels;
@@ -578,7 +572,7 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
     }
 
     public readonly duration_info = (time: number) => {
-        const date = this.form.getRawValue().date;
+        const date = this.model().date;
         if (format(date, 'yyyy-MM-dd') !== format(time, 'yyyy-MM-dd'))
             return '';
         const diff = differenceInMinutes(time, date);
@@ -591,15 +585,16 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
         const space_pipe = new SpacePipe();
-        this.form.patchValue({
+        this.model.update((m) => ({
+            ...m,
             location:
                 this._org.building.address || this._org.building.display_name,
             organiser: currentUser(),
             attendance_type: 'ONSITE',
             shared_event: true,
-        });
-        if (!this.form.value.view_access)
-            this.form.patchValue({ view_access: 'OPEN' });
+        }));
+        if (!this.model().view_access)
+            this.model.update((m) => ({ ...m, view_access: 'OPEN' }));
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe(async (params) => {
@@ -631,7 +626,8 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
                     this.resource = booking.resources.find(
                         (_) => _.email !== this._state.calendar,
                     )?.email;
-                    this.form.patchValue({
+                    this.model.update((m) => ({
+                        ...m,
                         tags: booking.extension_data?.tags || [],
                         organiser: new StaffUser({
                             id: booking.organiser?.id,
@@ -642,9 +638,12 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
                             (_) => _.email !== this._state.calendar,
                         ),
                         ...metadata,
-                    });
-                    if (!this.form.value.view_access)
-                        this.form.patchValue({ view_access: 'OPEN' });
+                    }));
+                    if (!this.model().view_access)
+                        this.model.update((m) => ({
+                            ...m,
+                            view_access: 'OPEN',
+                        }));
                 }
             }),
         );
@@ -669,13 +668,13 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
      * @param event Input event
      */
     public addTag(event: MatChipInputEvent): void {
-        if (!this.form || !this.form.controls.tags) return;
+        if (!this.form || !this.form.tags) return;
         const input = event.chipInput.inputElement;
         const value = event.value;
         const feature_list = [...this.tag_list()];
         if ((value || '').trim()) {
             feature_list.push(value);
-            this.form.controls.tags.setValue(feature_list);
+            this.model.update((m) => ({ ...m, tags: feature_list }));
         }
         if (input) input.value = '';
     }
@@ -685,25 +684,28 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
      * @param existing_tag Feature to remove
      */
     public removeTag(existing_tag: string): void {
-        if (!this.form || !this.form.controls.tags) return;
+        if (!this.form || !this.form.tags) return;
         const tag_list = [...this.tag_list()];
         const index = tag_list.indexOf(existing_tag);
 
         if (index >= 0) {
             tag_list.splice(index, 1);
-            this.form.controls.tags.setValue(tag_list);
+            this.model.update((m) => ({ ...m, tags: tag_list }));
         }
     }
 
     public async save() {
-        this.form.markAllAsTouched();
-        if (!this.form.valid) {
+        this.form().markAsTouched();
+        if (!this.form().valid()) {
             return notifyError(
-                `Some form fields are invalid. [${getInvalidFields(this.form)}]`,
+                `Some form fields are invalid. [${getInvalidSignalFields(
+                    this.form,
+                    this.model,
+                )}]`,
             );
         }
         this.loading.set(true);
-        let resources = this.form.getRawValue().resources;
+        let resources = this.model().resources;
         const space = await new SpacePipe().transform(this._state.calendar);
         resources.push(
             space ||
@@ -717,13 +719,14 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
             resources.push(resource);
         }
         resources = unique(resources, 'email');
-        this.form.patchValue({
+        this.model.update((m) => ({
+            ...m,
             resources,
             creator: currentUser()?.email,
             host: this._state.calendar,
             shared_event: true,
-        });
-        const date = this.form.getRawValue().date;
+        }));
+        const date = this.model().date;
         const res = await this._form_state
             .postForm(false, [this._state.calendar], true, true)
             .catch((e) => notifyError(e));

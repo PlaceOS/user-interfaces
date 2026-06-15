@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { NavigationEnd, Router } from '@angular/router';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
@@ -8,6 +8,7 @@ import { of, Subject } from 'rxjs';
 
 import { Booking, currentUser, OrganisationService } from '@placeos/common';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import { BookingFormService } from '../lib/booking-form.service';
 import * as booking_utility_mod from '../lib/booking.utilities';
 import * as booking_mod from '../lib/bookings.fn';
@@ -61,6 +62,11 @@ describe('BookingFormService', () => {
             MockProvider(PaymentsService, {
                 makePayment: jest.fn(),
                 enabled: true,
+            }),
+            // Mock the asset state service so its async `resource()`/effects do
+            // not run away when effects are flushed synchronously in tests.
+            MockProvider(AssetStateService, {
+                setOptions: jest.fn(),
             }),
         ],
     });
@@ -128,30 +134,33 @@ describe('BookingFormService', () => {
     it('should handle form changes', () => {
         spectator.service.newForm('desk');
         const form = spectator.service.form;
-        expect(spectator.service.form).toBeInstanceOf(FormGroup);
+        expect(spectator.service.form).toBeTruthy();
         const spy = jest.spyOn(spectator.service, 'storeForm');
         expect(spectator.service.storeForm).not.toHaveBeenCalled();
         const date = endOfYear(Date.now()).valueOf();
-        spectator.service.form.patchValue({ date });
+        spectator.service.model.update((m) => ({ ...m, date }));
+        // The form-change side effect (storeForm) runs on the reactive flush,
+        // not synchronously, so trigger it before asserting it ran.
+        TestBed.flushEffects();
         expect(spectator.service.storeForm).toHaveBeenCalled();
-        expect(spectator.service.form.value.date).toBe(date);
+        expect(spectator.service.model().date).toBe(date);
         spectator.service.resetForm();
         expect(form).toBe(spectator.service.form);
-        expect(spectator.service.form.value.date).not.toBe(date);
-        spectator.service.form.patchValue({ date });
-        expect(spectator.service.form.value.date).toBe(date);
+        expect(spectator.service.model().date).not.toBe(date);
+        spectator.service.model.update((m) => ({ ...m, date }));
+        expect(spectator.service.model().date).toBe(date);
         spectator.service.clearForm();
-        expect(spectator.service.form.value.date).not.toBe(date);
+        expect(spectator.service.model().date).not.toBe(date);
         spy.mockRestore();
     });
 
     it('should allow reloading previous form details', () => {
         spectator.service.loadForm();
-        expect(spectator.service.form).toBeInstanceOf(FormGroup);
-        expect(spectator.service.form.value.title).toBe('Booking');
+        expect(spectator.service.form).toBeTruthy();
+        expect(spectator.service.model().title).toBe('Booking');
         sessionStorage.setItem('PLACEOS.booking_form', '{ "title": "Test" }');
         spectator.service.loadForm();
-        expect(spectator.service.form.value.title).toBe('Test');
+        expect(spectator.service.model().title).toBe('Test');
     });
 
     it.todo('should list asset features');
@@ -190,7 +199,7 @@ describe('BookingFormService', () => {
         (booking_mod as any).findBookingClashes = jest.fn(() =>
             Promise.resolve(['desk-2']),
         );
-        spectator.service.form.patchValue({
+        spectator.service.model.update((m) => ({ ...m,
             date: new Date(2028, 5, 15, 15, 0, 0).valueOf(),
             duration: 60,
             recurrence_type: 'daily',
@@ -198,7 +207,7 @@ describe('BookingFormService', () => {
             recurrence_end: Math.floor(
                 new Date(2028, 5, 18, 23, 59, 59).valueOf() / 1000,
             ),
-        });
+        }));
 
         const clashes = await (
             spectator.service as any
@@ -262,7 +271,7 @@ describe('BookingFormService', () => {
 
     it('should show user friendly names for invalid form fields', async () => {
         spectator.service.newForm('desk');
-        spectator.service.form.patchValue({ asset_id: '' });
+        spectator.service.model.update((m) => ({ ...m, asset_id: '' }));
         const error = `${await spectator.service
             .postForm()
             .catch((err) => err)}`;
@@ -287,7 +296,7 @@ describe('BookingFormService', () => {
         );
         jest.runAllTimers();
 
-        expect(spectator.service.form.getRawValue().date).toBe(booking_date);
+        expect(spectator.service.model().date).toBe(booking_date);
         jest.useRealTimers();
     });
 
@@ -308,7 +317,7 @@ describe('BookingFormService', () => {
 
         spectator.service.newForm('parking');
 
-        expect(spectator.service.form.getRawValue().date).toBe(
+        expect(spectator.service.model().date).toBe(
             new Date(2026, 2, 21, 8, 0, 0, 0).valueOf(),
         );
         jest.useRealTimers();
@@ -319,17 +328,17 @@ describe('BookingFormService', () => {
         jest.setSystemTime(new Date(2026, 2, 20, 9, 0, 0));
 
         spectator.service.newForm('parking');
-        spectator.service.form.patchValue({
+        spectator.service.model.update((m) => ({ ...m,
             date: new Date(2026, 2, 21, 8, 0, 0).valueOf(),
             duration: 240,
-        });
+        }));
 
         jest.runAllTimers();
 
-        expect(spectator.service.form.getRawValue().date).toBe(
+        expect(spectator.service.model().date).toBe(
             new Date(2026, 2, 21, 8, 0, 0).valueOf(),
         );
-        expect(spectator.service.form.getRawValue().duration).toBe(240);
+        expect(spectator.service.model().duration).toBe(240);
         jest.useRealTimers();
     });
 
@@ -360,7 +369,7 @@ describe('BookingFormService', () => {
         spectator.service.loadForm();
         jest.runAllTimers();
 
-        expect(spectator.service.form.getRawValue().date).toBe(
+        expect(spectator.service.model().date).toBe(
             new Date(2028, 5, 15, 8, 0, 0, 0).valueOf(),
         );
         jest.useRealTimers();
@@ -390,7 +399,7 @@ describe('BookingFormService', () => {
         spectator.service.loadForm();
         jest.runAllTimers();
 
-        expect(spectator.service.form.getRawValue().date).toBe(
+        expect(spectator.service.model().date).toBe(
             new Date(2028, 5, 16, 8, 0, 0, 0).valueOf(),
         );
         jest.useRealTimers();
@@ -412,12 +421,12 @@ describe('BookingFormService', () => {
                 asset_id: 'visitor@example.com',
             }),
         );
-        spectator.service.form.patchValue({
+        spectator.service.model.update((m) => ({ ...m,
             booking_type: 'visitor',
             asset_id: 'visitor@example.com',
             asset_name: 'Visitor One',
             title: 'Vendor Interview',
-        });
+        }));
 
         await spectator.service.postForm(true);
 
@@ -447,7 +456,7 @@ describe('BookingFormService', () => {
                 asset_id: 'unallocated-parking',
             }),
         );
-        spectator.service.form.patchValue({
+        spectator.service.model.update((m) => ({ ...m,
             booking_type: 'parking',
             asset_id: 'unallocated-parking',
             asset_name: 'Parking Request',
@@ -457,7 +466,7 @@ describe('BookingFormService', () => {
                 name: 'Driver One',
                 groups: ['PlaceOS P1 Parking', 'After Hours Parking'],
             } as any,
-        });
+        }));
 
         await spectator.service.postForm(true);
 
@@ -506,7 +515,7 @@ describe('BookingFormService', () => {
                 asset_id: 'desk-1',
             }),
         );
-        spectator.service.form.patchValue({
+        spectator.service.model.update((m) => ({ ...m,
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
             resources: [
@@ -517,7 +526,7 @@ describe('BookingFormService', () => {
                     features: [],
                 },
             ],
-        });
+        }));
 
         await expect(spectator.service.postForm(true)).rejects.toBe(
             'You have an assigned desk and cannot book another desk.',
@@ -563,7 +572,7 @@ describe('BookingFormService', () => {
                 asset_id: 'desk-1',
             }),
         );
-        spectator.service.form.patchValue({
+        spectator.service.model.update((m) => ({ ...m,
             user: {
                 email: 'other.user@example.com',
                 name: 'Other User',
@@ -579,7 +588,7 @@ describe('BookingFormService', () => {
                     features: [],
                 },
             ],
-        });
+        }));
 
         await spectator.service.postForm(true);
 
@@ -620,7 +629,7 @@ describe('BookingFormService', () => {
                 asset_id: 'desk-1',
             }),
         );
-        spectator.service.form.patchValue({
+        spectator.service.model.update((m) => ({ ...m,
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
             resources: [
@@ -631,7 +640,7 @@ describe('BookingFormService', () => {
                     features: [],
                 },
             ],
-        });
+        }));
 
         await expect(spectator.service.postForm(true)).rejects.toBe(
             'You have an assigned desk and cannot book another desk.',
@@ -677,7 +686,7 @@ describe('BookingFormService', () => {
                 asset_id: 'desk-1',
             }),
         );
-        spectator.service.form.patchValue({
+        spectator.service.model.update((m) => ({ ...m,
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
             resources: [
@@ -688,7 +697,7 @@ describe('BookingFormService', () => {
                     features: [],
                 },
             ],
-        });
+        }));
 
         await spectator.service.postForm(true);
 
@@ -736,7 +745,7 @@ describe('BookingFormService', () => {
                 asset_id: 'desk-1',
             }),
         );
-        spectator.service.form.patchValue({
+        spectator.service.model.update((m) => ({ ...m,
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
             resources: [
@@ -747,7 +756,7 @@ describe('BookingFormService', () => {
                     features: [],
                 },
             ],
-        });
+        }));
 
         await expect(spectator.service.postForm(true)).rejects.toBe(
             'You have an assigned desk and cannot book another desk.',
@@ -772,7 +781,7 @@ describe('BookingFormService', () => {
                 asset_id: 'desk-1',
             }),
         );
-        spectator.service.form.patchValue({
+        spectator.service.model.update((m) => ({ ...m,
             user: {
                 email: 'unauthorised.user@example.com',
                 name: 'Unauthorised User',
@@ -780,7 +789,7 @@ describe('BookingFormService', () => {
             } as any,
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
-        });
+        }));
 
         await expect(spectator.service.postForm(true)).rejects.toMatchObject({
             message: 'Forbidden',
@@ -792,7 +801,7 @@ describe('BookingFormService', () => {
         );
         expect(saved_form.user_email).toBe(current_user.email);
         expect(saved_form.user.email).toBe(current_user.email);
-        expect(spectator.service.form.getRawValue().user_email).toBe(
+        expect(spectator.service.model().user_email).toBe(
             current_user.email,
         );
     });
@@ -816,12 +825,12 @@ describe('BookingFormService', () => {
             );
 
             spectator.service.newForm('desk');
-            spectator.service.form.patchValue({
+            spectator.service.model.update((m) => ({ ...m,
                 asset_id: 'desk-1',
                 asset_name: 'Desk 1',
                 date: new Date(2026, 2, 20, 8, 0, 0, 0).valueOf(),
-            });
-            spectator.service.form.controls.all_day.setValue(true);
+            }));
+            spectator.service.model.update((m) => ({ ...m, all_day: true }));
 
             await spectator.service.postForm(true);
 
@@ -882,7 +891,7 @@ describe('BookingFormService', () => {
         const saved_desks: string[] = [];
         jest.spyOn(spectator.service, 'postForm').mockImplementation(
             async () => {
-                const value = spectator.service.form.getRawValue();
+                const value = spectator.service.model();
                 saved_desks.push(value.asset_id);
                 return new Booking({
                     id: `booking-${saved_desks.length}`,
@@ -901,11 +910,11 @@ describe('BookingFormService', () => {
                 extension_data: { map_id: 'map-1' },
             }),
         );
-        spectator.service.form.patchValue({
+        spectator.service.model.update((m) => ({ ...m,
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
             map_id: 'map-1',
-        });
+        }));
         spectator.service.setOptions({
             type: 'desk',
             group: true,
@@ -965,7 +974,7 @@ describe('BookingFormService', () => {
         const saved_forms: { asset_id: string; resource_id: string }[] = [];
         jest.spyOn(spectator.service, 'postForm').mockImplementation(
             async () => {
-                const value = spectator.service.form.getRawValue();
+                const value = spectator.service.model();
                 saved_forms.push({
                     asset_id: value.asset_id,
                     resource_id: value.resources?.[0]?.id,
@@ -987,12 +996,12 @@ describe('BookingFormService', () => {
                 extension_data: { map_id: 'map-1' },
             }),
         );
-        spectator.service.form.patchValue({
+        spectator.service.model.update((m) => ({ ...m,
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
             map_id: 'map-1',
             resources: [desk_list[0]],
-        });
+        }));
         spectator.service.setOptions({
             type: 'desk',
             group: true,
@@ -1055,7 +1064,7 @@ describe('BookingFormService', () => {
         const child_parent_ids: string[] = [];
         jest.spyOn(spectator.service, 'postForm').mockImplementation(
             async () => {
-                const value = spectator.service.form.getRawValue();
+                const value = spectator.service.model();
                 child_parent_ids.push(value.parent_id);
                 return new Booking({
                     id: `booking-child-${child_parent_ids.length}`,
@@ -1075,11 +1084,11 @@ describe('BookingFormService', () => {
                 extension_data: { map_id: 'map-1' },
             }),
         );
-        spectator.service.form.patchValue({
+        spectator.service.model.update((m) => ({ ...m,
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
             map_id: 'map-1',
-        });
+        }));
         spectator.service.setOptions({
             type: 'desk',
             group: true,
@@ -1166,7 +1175,7 @@ describe('BookingFormService', () => {
         const saved_users: string[] = [];
         jest.spyOn(spectator.service, 'postForm').mockImplementation(
             async () => {
-                const value = spectator.service.form.getRawValue();
+                const value = spectator.service.model();
                 saved_users.push(value.user_email);
                 if (value.user_email === 'member.one@example.com') {
                     throw new Error('Save failed');
@@ -1189,11 +1198,11 @@ describe('BookingFormService', () => {
                 extension_data: { map_id: 'map-1' },
             }),
         );
-        spectator.service.form.patchValue({
+        spectator.service.model.update((m) => ({ ...m,
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
             map_id: 'map-1',
-        });
+        }));
         spectator.service.setOptions({
             type: 'desk',
             group: true,
@@ -1283,7 +1292,7 @@ describe('BookingFormService', () => {
         const saved_names: string[] = [];
         jest.spyOn(spectator.service, 'postForm').mockImplementation(
             async () => {
-                const value = spectator.service.form.getRawValue();
+                const value = spectator.service.model();
                 saved_names.push(value.asset_name);
                 return new Booking({
                     id: `booking-${saved_names.length}`,
@@ -1302,11 +1311,11 @@ describe('BookingFormService', () => {
                 extension_data: { map_id: 'map-1' },
             }),
         );
-        spectator.service.form.patchValue({
+        spectator.service.model.update((m) => ({ ...m,
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
             map_id: 'map-1',
-        });
+        }));
         spectator.service.setOptions({
             type: 'desk',
             group: true,
@@ -1369,7 +1378,7 @@ describe('BookingFormService', () => {
         const saved_forms: { user_email: string; asset_id: string }[] = [];
         jest.spyOn(spectator.service, 'postForm').mockImplementation(
             async () => {
-                const value = spectator.service.form.getRawValue();
+                const value = spectator.service.model();
                 saved_forms.push({
                     user_email: value.user_email,
                     asset_id: value.asset_id,
@@ -1394,12 +1403,12 @@ describe('BookingFormService', () => {
                 extension_data: { map_id: 'map-1' },
             }),
         );
-        spectator.service.form.patchValue({
+        spectator.service.model.update((m) => ({ ...m,
             id: 'booking-parent',
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
             map_id: 'map-1',
-        });
+        }));
         spectator.service.setOptions({
             type: 'desk',
             group: true,
@@ -1482,7 +1491,7 @@ describe('BookingFormService', () => {
         const saved_forms: { id: string; parent_id: string }[] = [];
         jest.spyOn(spectator.service, 'postForm').mockImplementation(
             async () => {
-                const value = spectator.service.form.getRawValue();
+                const value = spectator.service.model();
                 saved_forms.push({ id: value.id, parent_id: value.parent_id });
                 return new Booking({
                     id: value.id || `booking-child-${saved_forms.length}`,
@@ -1512,13 +1521,13 @@ describe('BookingFormService', () => {
                 },
             }),
         );
-        spectator.service.form.patchValue({
+        spectator.service.model.update((m) => ({ ...m,
             id: 'booking-current-child',
             parent_id: 'booking-group',
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
             map_id: 'map-1',
-        });
+        }));
         spectator.service.setOptions({
             type: 'desk',
             group: true,
@@ -1630,7 +1639,7 @@ describe('BookingFormService', () => {
         let booking_count = 0;
         jest.spyOn(spectator.service, 'postForm').mockImplementation(
             async () => {
-                const value = spectator.service.form.getRawValue();
+                const value = spectator.service.model();
                 booking_count++;
                 return new Booking({
                     id: `booking-${booking_count}`,
@@ -1650,11 +1659,11 @@ describe('BookingFormService', () => {
                 extension_data: { map_id: 'map-1' },
             }),
         );
-        spectator.service.form.patchValue({
+        spectator.service.model.update((m) => ({ ...m,
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
             map_id: 'map-1',
-        });
+        }));
         spectator.service.setOptions({
             type: 'desk',
             group: true,
@@ -1696,7 +1705,7 @@ describe('BookingFormService', () => {
         const post_form = jest
             .spyOn(spectator.service, 'postForm')
             .mockImplementation(async () => {
-                const value = spectator.service.form.getRawValue();
+                const value = spectator.service.model();
                 saved_forms.push({
                     asset_id: value.asset_id,
                     zones: [...(value.zones || [])],
@@ -1721,7 +1730,7 @@ describe('BookingFormService', () => {
                 extension_data: { location: 'Main Lobby' },
             }),
         );
-        spectator.service.form.patchValue({
+        spectator.service.model.update((m) => ({ ...m,
             id: 'booking-parent',
             booking_type: 'visitor',
             title: 'Vendor Visit',
@@ -1729,7 +1738,7 @@ describe('BookingFormService', () => {
             asset_name: 'Visitor One',
             zones: ['org-1', 'bld-1'],
             location: 'Main Lobby',
-        });
+        }));
         spectator.service.setOptions({
             type: 'visitor',
             group: true,

@@ -1,5 +1,4 @@
 import { Component, computed, inject, input, output } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { SettingsService } from '@placeos/common';
 
 import { CommonModule } from '@angular/common';
@@ -99,14 +98,12 @@ export class LockerFiltersDisplayComponent {
     public readonly options = this._state.options;
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
-    private readonly _form_value = toSignal(this._state.form.valueChanges, {
-        initialValue: this._state.form.value,
-    });
+    private readonly _model = this._state.model;
 
-    public readonly start = computed(() => this._form_value().date);
+    public readonly start = computed(() => this._model().date);
 
     public readonly end = computed(() => {
-        const { date, duration, all_day } = this._form_value();
+        const { date, duration, all_day } = this._model();
         if (all_day) return endOfDay(date);
         return date + duration * 60 * 1000;
     });

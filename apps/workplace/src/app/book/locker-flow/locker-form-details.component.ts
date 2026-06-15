@@ -10,13 +10,14 @@ import {
     input,
     output,
 } from '@angular/core';
-import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { toObservable } from '@angular/core/rxjs-interop';
 import {
+    BookingForm,
     BookingFormService,
     Locker,
     LockerListFieldComponent,
@@ -25,6 +26,7 @@ import {
     AsyncHandler,
     OrganisationService,
     SettingsService,
+    onFieldChange,
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import {
@@ -32,7 +34,6 @@ import {
     DurationFieldComponent,
     TimeFieldComponent,
 } from '@placeos/form-fields';
-import { combineLatest } from 'rxjs';
 
 @Component({
     selector: 'new-locker-form-details',
@@ -41,7 +42,6 @@ import { combineLatest } from 'rxjs';
         @if (form()) {
             <div
                 class="divide-base-200 space-y-2 divide-y p-0 sm:px-16 sm:py-4"
-                [formGroup]="form()"
             >
                 <section class="p-2">
                     <h3 class="mb-4 flex items-center space-x-2">
@@ -79,15 +79,14 @@ import { combineLatest } from 'rxjs';
                                 {{ 'FORM.DATE' | translate }}<span>*</span>
                             </label>
                             <a-date-field
-                                name="date"
-                                formControlName="date"
+                                [formField]="form().date"
                                 [timezone]="timezone"
                             >
                                 {{ 'FORM.DATE_REQUIRED' | translate }}
                             </a-date-field>
                             @if (allow_all_day && !disable_date) {
                                 <mat-checkbox
-                                    formControlName="all_day"
+                                    [formField]="form().all_day"
                                     class="absolute -top-2 right-0"
                                 >
                                     {{ 'COMMON.ALL_DAY' | translate }}
@@ -95,7 +94,7 @@ import { combineLatest } from 'rxjs';
                             }
                         </div>
                     </div>
-                    @if (!form().value.all_day) {
+                    @if (!model().all_day) {
                         <div class="flex items-center space-x-2">
                             <div class="w-1/3 flex-1">
                                 <label for="start-time">
@@ -104,15 +103,18 @@ import { combineLatest } from 'rxjs';
                                 </label>
                                 <a-time-field
                                     name="start-time"
-                                    [ngModel]="form().getRawValue().date"
+                                    [ngModel]="model().date"
                                     (ngModelChange)="
-                                        form().patchValue({ date: $event })
+                                        model.update((m) => ({
+                                            ...m,
+                                            date: $event,
+                                        }))
                                     "
                                     [ngModelOptions]="{ standalone: true }"
                                     [use_24hr]="use_24hr"
                                     [disabled]="
-                                        form().controls.date.disabled ||
-                                        form().value.duration > 24 * 60 - 1 ||
+                                        form().date().disabled() ||
+                                        model().duration > 24 * 60 - 1 ||
                                         disable_start
                                     "
                                     [timezone]="timezone"
@@ -125,9 +127,8 @@ import { combineLatest } from 'rxjs';
                                         }}<span>*</span>
                                     </label>
                                     <a-duration-field
-                                        name="end-time"
-                                        formControlName="duration"
-                                        [time]="form().getRawValue().value"
+                                        [formField]="form().duration"
+                                        [time]="model().date"
                                         [max]="max_duration"
                                         [min]="60"
                                         [step]="60"
@@ -141,7 +142,7 @@ import { combineLatest } from 'rxjs';
                         </div>
                     }
                 </section>
-                @if (form().contains('resources')) {
+                @if (form().resources) {
                     <section class="p-2">
                         <h3 class="mb-4 flex items-center space-x-2">
                             <div
@@ -154,7 +155,7 @@ import { combineLatest } from 'rxjs';
                             </div>
                         </h3>
                         <locker-list-field
-                            formControlName="resources"
+                            [formField]="form().resources"
                         ></locker-list-field>
                     </section>
                 }
@@ -166,7 +167,7 @@ import { combineLatest } from 'rxjs';
         CommonModule,
         TranslatePipe,
         FormsModule,
-        ReactiveFormsModule,
+        FormField,
         LockerListFieldComponent,
         DateFieldComponent,
         TimeFieldComponent,
@@ -183,11 +184,12 @@ export class LockerFormDetailsComponent
     private _state = inject(BookingFormService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
-    private _dialog = inject(MatDialog);
     private _injector = inject(Injector);
 
-    public readonly form = input<FormGroup>(undefined);
+    public readonly form = input<BookingForm>(undefined);
     public readonly find = output<void>();
+    /** Writable signal holding the raw booking form value */
+    public readonly model = this._state.model;
     /** List of available buildings to select */
     public readonly buildings = toObservable(this._org.building_list);
     /** List of available levels for the selected building */
@@ -260,50 +262,29 @@ export class LockerFormDetailsComponent
 
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
-        this._state.form.patchValue({
-            all_day: !this.allow_time_changes || this._state.form.value.all_day,
-        });
-        this.subscription(
-            'bld',
-            combineLatest([
-                toObservable(this._org.active_building, {
-                    injector: this._injector,
-                }),
-                this._dialog.afterAllClosed,
-                this.form().controls.duration.valueChanges,
-            ]).subscribe(() => {
-                this.timeout(
-                    'disable',
-                    () => {
-                        if (this.disable_date) {
-                            this.form().controls.date.disable();
-                        }
-                    },
-                    50,
-                );
-            }),
-        );
+        this._state.model.update((m) => ({
+            ...m,
+            all_day: !this.allow_time_changes || m.all_day,
+        }));
     }
 
     public ngOnChanges(changes: SimpleChanges) {
         const form = this.form();
         if (changes.form && form) {
-            this.subscription(
-                'change',
-                form
-                    .get('resources')
-                    ?.valueChanges?.subscribe((list) =>
-                        list?.length ? this.setBookingAsset(list[0]) : '',
-                    ),
+            const resource_change = onFieldChange(
+                this._state.model,
+                (m) => m.resources,
+                (list) => (list?.length ? this.setBookingAsset(list[0]) : ''),
+                this._injector,
             );
-            this.subscription(
-                'date',
-                form
-                    .get('date')
-                    ?.valueChanges?.subscribe(() =>
-                        this._setCustomDateOptions(),
-                    ),
+            this.subscription('change', () => resource_change.destroy());
+            const date_change = onFieldChange(
+                this._state.model,
+                (m) => m.date,
+                () => this._setCustomDateOptions(),
+                this._injector,
             );
+            this.subscription('date', () => date_change.destroy());
             this._setCustomDateOptions();
         }
     }
@@ -319,10 +300,11 @@ export class LockerFormDetailsComponent
     }
 
     private setBookingAsset(locker: Locker) {
-        this._state.form.patchValue({ asset_id: undefined });
+        this._state.model.update((m) => ({ ...m, asset_id: undefined }));
         if (!locker) return;
         this.selected_locker = locker;
-        this._state.form.patchValue({
+        this._state.model.update((m) => ({
+            ...m,
             asset_id: locker?.id,
             asset_name: locker.name,
             map_id: locker.map_id || locker?.bank_id || locker?.id,
@@ -331,6 +313,6 @@ export class LockerFormDetailsComponent
             zones: [this.building.id],
             booking_asset: locker,
             tags: locker.bank?.tags || [],
-        });
+        }));
     }
 }

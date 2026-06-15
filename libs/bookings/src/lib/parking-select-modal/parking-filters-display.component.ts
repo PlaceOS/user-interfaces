@@ -8,7 +8,6 @@ import {
     output,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -81,15 +80,12 @@ export class ParkingFiltersDisplayComponent {
     public readonly viewChange = output<'map' | 'list'>();
     public readonly options = this._event_form.options;
     public readonly location = signal('');
-    private readonly _form_value = toSignal(
-        this._event_form.form.valueChanges,
-        { initialValue: this._event_form.form.value },
-    );
+    private readonly _model = this._event_form.model;
 
-    public readonly start = computed(() => this._form_value().date);
+    public readonly start = computed(() => this._model().date);
 
     public readonly end = computed(() => {
-        const { date, duration } = this._form_value();
+        const { date, duration } = this._model();
         return date + duration * 60 * 1000;
     });
 

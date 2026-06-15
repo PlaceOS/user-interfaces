@@ -7,7 +7,8 @@ import {
     signal,
 } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -45,7 +46,6 @@ import { SpacesService } from '../spaces.service';
         </div>
         <form
             class="divide-base-200 max-h-[65vh] w-full max-w-[100vw] divide-y overflow-x-hidden overflow-y-auto p-2"
-            [formGroup]="form"
         >
             <section details>
                 <h2 class="mb-1 text-lg font-medium">
@@ -142,8 +142,10 @@ import { SpacesService } from '../spaces.service';
                         </label>
                         <a-date-field
                             name="date"
-                            [ngModel]="form.getRawValue().date"
-                            (ngModelChange)="form.patchValue({ date: $event })"
+                            [ngModel]="model().date"
+                            (ngModelChange)="
+                                model.update((m) => ({ ...m, date: $event }))
+                            "
                             [ngModelOptions]="{ standalone: true }"
                             [to]="end_date()"
                             [short]="true"
@@ -160,9 +162,12 @@ import { SpacesService } from '../spaces.service';
                             </label>
                             <a-date-field
                                 name="date"
-                                [ngModel]="form.getRawValue().date_end"
+                                [ngModel]="model().date_end"
                                 (ngModelChange)="
-                                    form.patchValue({ date_end: $event })
+                                    model.update((m) => ({
+                                        ...m,
+                                        date_end: $event
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [from]="start_date"
@@ -180,9 +185,9 @@ import { SpacesService } from '../spaces.service';
                 @if (allow_all_day()) {
                     <div class="-mt-2 mb-2 flex justify-end">
                         <mat-checkbox
-                            [ngModel]="form.value.all_day"
+                            [ngModel]="model().all_day"
                             (ngModelChange)="
-                                form.patchValue({ all_day: $event })
+                                model.update((m) => ({ ...m, all_day: $event }))
                             "
                             [ngModelOptions]="{ standalone: true }"
                         >
@@ -190,7 +195,7 @@ import { SpacesService } from '../spaces.service';
                         </mat-checkbox>
                     </div>
                 }
-                @if (!form.value.all_day) {
+                @if (!model().all_day) {
                     <div class="flex items-center space-x-2">
                         <div class="w-1/3 flex-1">
                             <label for="start-time">
@@ -199,9 +204,9 @@ import { SpacesService } from '../spaces.service';
                             </label>
                             <a-time-field
                                 name="start-time"
-                                [ngModel]="form.getRawValue().date"
+                                [ngModel]="model().date"
                                 (ngModelChange)="
-                                    form.patchValue({ date: $event })
+                                    model.update((m) => ({ ...m, date: $event }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr()"
@@ -218,12 +223,15 @@ import { SpacesService } from '../spaces.service';
                                 </label>
                                 <a-time-field
                                     name="end-time"
-                                    [ngModel]="form.value.date_end"
+                                    [ngModel]="model().date_end"
                                     (ngModelChange)="
-                                        form.patchValue({ date_end: $event })
+                                        model.update((m) => ({
+                                            ...m,
+                                            date_end: $event
+                                        }))
                                     "
                                     [ngModelOptions]="{ standalone: true }"
-                                    [from]="form?.getRawValue()?.date"
+                                    [from]="model().date"
                                     [use_24hr]="use_24hr()"
                                     [timezone]="timezone()"
                                     [range]="bookable_hours()"
@@ -237,9 +245,8 @@ import { SpacesService } from '../spaces.service';
                                     }}<span>*</span>
                                 </label>
                                 <a-duration-field
-                                    name="end-time"
-                                    formControlName="duration"
-                                    [time]="form?.getRawValue()?.date"
+                                    [formField]="form.duration"
+                                    [time]="model().date"
                                     [max]="max_duration()"
                                     [min]="min_duration()"
                                     [step]="duration_step()"
@@ -332,7 +339,7 @@ import { SpacesService } from '../spaces.service';
         MatFormFieldModule,
         MatSelectModule,
         FormsModule,
-        ReactiveFormsModule,
+        FormField,
         BuildingPipe,
     ],
 })
@@ -440,6 +447,10 @@ export class SpaceFiltersComponent {
         return this._event_form.form;
     }
 
+    public get model() {
+        return this._event_form.model;
+    }
+
     public readonly bookable_hours = settingSignal<{
         start: number;
         end: number;
@@ -485,7 +496,7 @@ export class SpaceFiltersComponent {
     );
 
     public get start_date() {
-        return startOfDay(this.form.getRawValue().date).valueOf();
+        return startOfDay(this.model().date).valueOf();
     }
 
     private readonly _allowed_future_days = settingSignal<number>(

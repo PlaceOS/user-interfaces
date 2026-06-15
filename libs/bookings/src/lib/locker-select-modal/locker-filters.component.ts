@@ -10,7 +10,8 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { addDays, endOfDay } from 'date-fns';
 
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -46,10 +47,7 @@ import { BookingFormService } from '../booking-form.service';
                 {{ 'COMMON.FILTERS' | translate }}
             </h3>
         </div>
-        <form
-            class="divide-base-200 relative z-0 w-full divide-y p-2"
-            [formGroup]="form"
-        >
+        <form class="divide-base-200 relative z-0 w-full divide-y p-2">
             <section details>
                 <h2 class="mb-1 text-lg font-medium">
                     {{ 'BOOKINGS.DETAILS' | translate }}
@@ -152,8 +150,7 @@ import { BookingFormService } from '../booking-form.service';
                 <div class="min-w-[256px] flex-1">
                     <label>{{ 'FORM.DATE' | translate }}</label>
                     <a-date-field
-                        name="date"
-                        formControlName="date"
+                        [formField]="form.date"
                         [to]="end_date()"
                     >
                         {{ 'FORM.DATE_ERROR' | translate }}
@@ -162,21 +159,21 @@ import { BookingFormService } from '../booking-form.service';
                 <!-- All Day -->
                 @if (allow_all_day()) {
                     <div class="-mt-2 mb-2 flex justify-end">
-                        <mat-checkbox formControlName="all_day">
+                        <mat-checkbox [formField]="form.all_day">
                             {{ 'COMMON.ALL_DAY' | translate }}
                         </mat-checkbox>
                     </div>
                 }
                 <!-- Start End -->
-                @if (!form.value.all_day) {
+                @if (!model().all_day) {
                     <div class="flex items-center space-x-2">
                         <div class="w-1/3 flex-1">
                             <label>{{ 'FORM.TIME_START' | translate }}</label>
                             <a-time-field
                                 name="start-time"
-                                [ngModel]="form.value.date"
+                                [ngModel]="model().date"
                                 (ngModelChange)="
-                                    form.patchValue({ date: $event })
+                                    model.update((m) => ({ ...m, date: $event }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr()"
@@ -188,12 +185,15 @@ import { BookingFormService } from '../booking-form.service';
                             <div class="w-1/3 flex-1">
                                 <label>{{ 'FORM.TIME_END' | translate }}</label>
                                 <a-duration-field
-                                    [ngModel]="form.value.duration"
+                                    [ngModel]="model().duration"
                                     (ngModelChange)="
-                                        form.patchValue({ duration: $event })
+                                        model.update((m) => ({
+                                            ...m,
+                                            duration: $event,
+                                        }))
                                     "
                                     [ngModelOptions]="{ standalone: true }"
-                                    [time]="form.get('date')?.value"
+                                    [time]="model().date"
                                     [max]="10 * 60"
                                     [min]="60"
                                     [step]="60"
@@ -268,7 +268,7 @@ import { BookingFormService } from '../booking-form.service';
         DateFieldComponent,
         MatFormFieldModule,
         MatSelectModule,
-        ReactiveFormsModule,
+        FormField,
         FormsModule,
         MatCheckboxModule,
         BuildingPipe,
@@ -287,6 +287,7 @@ export class LockerFiltersComponent extends AsyncHandler implements OnInit {
     public readonly buildings = this._org.active_buildings;
     public readonly building = this._org.active_building;
     public readonly form = this._state.form;
+    public readonly model = this._state.model;
     public readonly regions = this._org.region_list;
     public readonly region = this._org.active_region;
 
@@ -377,38 +378,13 @@ export class LockerFiltersComponent extends AsyncHandler implements OnInit {
     public readonly use_24hr = this._use_24hr;
     public readonly use_region = this._use_region;
 
-    private readonly _active_building$ = toObservable(this._org.active_building);
-
     constructor() {
         super();
     }
 
     public ngOnInit() {
-        this.subscription(
-            'bld',
-            combineLatest([
-                this._active_building$,
-                this.form.controls.duration.valueChanges,
-            ]).subscribe(() => {
-                this.timeout(
-                    'disable',
-                    () => {
-                        if (this.disable_date) {
-                            this.form.controls.date.disable();
-                        }
-                    },
-                    50,
-                );
-            }),
-        );
-        this.timeout(
-            'disable',
-            () => {
-                if (this.disable_date) {
-                    this.form.controls.date.disable();
-                }
-            },
-            50,
-        );
+        // The booking form's `date` field disabled state is now driven by the
+        // signal-form schema (see `generateBookingForm`), so no imperative
+        // disable handling is required here.
     }
 }

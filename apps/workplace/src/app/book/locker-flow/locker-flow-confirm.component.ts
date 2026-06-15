@@ -130,7 +130,7 @@ export class BookLockerFlowConfirmComponent extends AsyncHandler {
     public readonly postForm = async () => {
         try {
             if (this._state.options()?.group) {
-                const booking = new Booking(this._state.form.getRawValue());
+                const booking = new Booking(this._state.model() as any);
                 if (booking.id) {
                     const sibling_list =
                         await this._state.loadGroupSiblings(booking);
@@ -155,7 +155,7 @@ export class BookLockerFlowConfirmComponent extends AsyncHandler {
     }
 
     public get booking() {
-        return this._state.form.getRawValue() as any;
+        return this._state.model() as any;
     }
 
     public get assets() {

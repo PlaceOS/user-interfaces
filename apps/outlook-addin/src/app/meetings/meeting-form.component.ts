@@ -4,7 +4,8 @@ import {
     computed,
     inject,
 } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -38,10 +39,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
     selector: 'meeting-booking-form',
     template: `
         @if (form) {
-            <div
-                class="divide-base-200 z-0 space-y-2 divide-y"
-                [formGroup]="form"
-            >
+            <div class="divide-base-200 z-0 space-y-2 divide-y">
                 <section class="p-4">
                     <h3 class="flex items-center space-x-2">
                         <div
@@ -106,8 +104,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                                 >
                                     <input
                                         matInput
-                                        name="title"
-                                        formControlName="title"
+                                        [formField]="form.title"
                                         placeholder="e.g. Team Meeting"
                                     />
                                     <mat-error
@@ -118,21 +115,20 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                             <div class="relative w-full sm:flex-1">
                                 <label for="date">Date<span>*</span></label>
                                 <a-date-field
-                                    name="date"
-                                    formControlName="date"
+                                    [formField]="form.date"
                                 >
                                     Date and time must be in the future
                                 </a-date-field>
                                 @if (allow_all_day()) {
                                     <mat-checkbox
-                                        formControlName="all_day"
+                                        [formField]="form.all_day"
                                         class="absolute -top-2 right-0"
                                         >All Day</mat-checkbox
                                     >
                                 }
                             </div>
                         </div>
-                        @if (!form.value.all_day) {
+                        @if (!model().all_day) {
                             <div class="flex flex-col sm:flex-row sm:space-x-2">
                                 <div class="w-full sm:flex-1">
                                     <label for="start-time"
@@ -140,9 +136,12 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                                     >
                                     <a-time-field
                                         name="start-time"
-                                        [ngModel]="form.value.date"
+                                        [ngModel]="model().date"
                                         (ngModelChange)="
-                                            form.patchValue({ date: $event })
+                                            model.update((m) => ({
+                                                ...m,
+                                                date: $event,
+                                            }))
                                         "
                                         [ngModelOptions]="{ standalone: true }"
                                         [range]="bookable_hours()"
@@ -156,9 +155,8 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                                         >End Time<span>*</span></label
                                     >
                                     <a-duration-field
-                                        name="end-time"
-                                        formControlName="duration"
-                                        [time]="form?.value?.date"
+                                        [formField]="form.duration"
+                                        [time]="model().date"
                                         [max]="max_duration()"
                                         [custom_options]="
                                             custom_duration_options()
@@ -173,8 +171,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                             <div class="w-full">
                                 <label for="host">Host<span>*</span></label>
                                 <host-select-field
-                                    name="host"
-                                    formControlName="organiser"
+                                    [formField]="form.organiser"
                                 ></host-select-field>
                             </div>
                         }
@@ -217,7 +214,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                         >
                             <a-user-list-field
                                 class="mt-4"
-                                formControlName="attendees"
+                                [formField]="form.attendees"
                             ></a-user-list-field>
                         </div>
                     </section>
@@ -251,7 +248,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                     >
                         <space-list-field
                             class="mt-4"
-                            formControlName="resources"
+                            [formField]="form.resources"
                         ></space-list-field>
                     </div>
                 </section>
@@ -284,13 +281,12 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                             [@show]="hide_block.catering ? 'hide' : 'show'"
                         >
                             <catering-list-field
-                                formControlName="catering"
+                                [formField]="form.catering"
                                 [options]="{
-                                    date: form.value.date,
-                                    duration: form.value.duration,
+                                    date: model().date,
+                                    duration: model().duration,
                                     zone_id:
-                                        form.value.resources[0]?.level
-                                            ?.parent_id,
+                                        model().resources[0]?.level?.parent_id,
                                 }"
                             ></catering-list-field>
                         </div>
@@ -323,10 +319,10 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                     >
                         <asset-list-field
                             [options]="{
-                                date: form.value.date,
-                                duration: form.value.duration,
+                                date: model().date,
+                                duration: model().duration,
                             }"
-                            formControlName="assets"
+                            [formField]="form.assets"
                         ></asset-list-field>
                     </div>
                 </section>
@@ -345,8 +341,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                                 >General information for attendees</label
                             >
                             <rich-text-input
-                                name="notes"
-                                formControlName="body"
+                                [formField]="form.body"
                                 placeholder="Notes..."
                             ></rich-text-input>
                         </div>
@@ -361,7 +356,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
     imports: [
         MatRippleModule,
         FormsModule,
-        ReactiveFormsModule,
+        FormField,
         RichTextInputComponent,
         AssetListFieldComponent,
         CateringListFieldComponent,
@@ -384,6 +379,7 @@ export class MeetingBookingFormComponent extends AsyncHandler {
     private _org = inject(OrganisationService);
 
     public readonly form = this._service.form;
+    public readonly model = this._service.model;
 
     public hide_block: Record<string, boolean> = {};
 
@@ -430,7 +426,7 @@ export class MeetingBookingFormComponent extends AsyncHandler {
     public readonly allow_assets = settingSignal('events.allow_assets', false);
 
     public findAvailableTime() {
-        const { attendees, organiser, date, duration } = this.form.value;
+        const { attendees, organiser, date, duration } = this.model();
         const ref = this._dialog.open(FindAvailabilityModalComponent, {
             data: {
                 users: attendees,
@@ -441,11 +437,12 @@ export class MeetingBookingFormComponent extends AsyncHandler {
         });
         ref.afterClosed().subscribe((d) => {
             if (!d) return;
-            this.form.patchValue({
+            this.model.update((m) => ({
+                ...m,
                 date: ref.componentInstance.date(),
                 attendees: ref.componentInstance.users(),
                 duration: ref.componentInstance.duration(),
-            });
+            }));
         });
     }
 

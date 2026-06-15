@@ -67,16 +67,16 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
         await lastValueFrom(timer(300));
-        const active_form = this._state.form.getRawValue();
+        const active_form = this._state.model();
         const has_edit_state =
             !!active_form?.id && active_form?.booking_type === 'desk';
         if (!has_edit_state) this._state.loadForm();
         this._state.setOptions({ type: 'desk' });
-        const { id, booking_type } = this._state.form.value;
+        const { id, booking_type } = this._state.model();
         if (!id || booking_type !== 'desk') this._state.newForm('desk');
-        this._state.form.patchValue({ booking_type: 'desk' });
+        this._state.model.update((m) => ({ ...m, booking_type: 'desk' }));
         if (id && booking_type === 'desk') {
-            const booking = new Booking(this._state.form.getRawValue());
+            const booking = new Booking(this._state.model() as any);
             const is_group =
                 !!booking.parent_id ||
                 !!booking.group ||
@@ -117,7 +117,8 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
                             'Unable to find desk with given asset ID.',
                         );
                     }
-                    this._state.form.patchValue({
+                    this._state.model.update((m) => ({
+                        ...m,
                         resources: [
                             new Desk({
                                 id: asset.id,
@@ -127,7 +128,7 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
                                     (this._org.levelsForBuilding()[0] as any),
                             }),
                         ],
-                    });
+                    }));
                 }
                 if (params.has('nearby_space')) {
                     await this._initNearbyDeskBooking(
@@ -143,13 +144,14 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
         const space = await this._space_pipe.transform(space_id);
         const level = this._org.levelWithID(space?.zones);
         this._state.setOptions({ type: 'desk', zone_id: level?.id });
-        this._state.form.patchValue({
+        this._state.model.update((m) => ({
+            ...m,
             date: set(event_date, { hours: 8, minutes: 0 }).valueOf(),
             duration: 10 * 60,
             all_day: true,
             booking_type: 'desk',
             user: currentUser(),
-        });
+        }));
         const resources = await this._state.listAvailableResources();
         const bookable_desks = resources
             .map((_) => _.map_id || _.id)
@@ -162,7 +164,8 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
         if (!nearby)
             return notifyError(i18n('APP.WORKPLACE.MEETING_DESK_ERROR'));
         const resource = resources.find((_) => _.map_id === nearby);
-        this._state.form.patchValue({
+        this._state.model.update((m) => ({
+            ...m,
             date: set(event_date, { hours: 8, minutes: 0 }).valueOf(),
             duration: 10 * 60,
             all_day: true,
@@ -170,6 +173,6 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
             asset_id: nearby,
             asset_name: resource.name,
             resources: [resource],
-        });
+        }));
     }
 }

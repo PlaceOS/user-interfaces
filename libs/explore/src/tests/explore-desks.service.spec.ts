@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { Injector, signal } from '@angular/core';
 import { fakeAsync } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
@@ -125,11 +125,17 @@ describe('ExploreDesksService', () => {
 
     it('should use the desk map id as the asset id when booking a map-only desk', async () => {
         const booking_service = spectator.inject(BookingFormService) as any;
-        booking_service.form = generateBookingForm();
-        booking_service.form.patchValue({
+        const { model, form } = generateBookingForm(
+            undefined,
+            spectator.inject(Injector),
+        );
+        booking_service.model = model;
+        booking_service.form = form;
+        booking_service.model.update((m: any) => ({
+            ...m,
             date: Date.now() + 60 * 60 * 1000,
             duration: 60,
-        });
+        }));
         booking_service.newForm = jest.fn();
         booking_service.setOptions = jest.fn();
         booking_service.confirmPost = jest.fn().mockResolvedValue({});
@@ -145,8 +151,8 @@ describe('ExploreDesksService', () => {
             {},
         );
 
-        expect(booking_service.form.value.asset_id).toBe('map-desk-1');
-        expect(booking_service.form.value.resources[0].id).toBe('map-desk-1');
+        expect(booking_service.model().asset_id).toBe('map-desk-1');
+        expect(booking_service.model().resources[0].id).toBe('map-desk-1');
         expect(booking_service.confirmPost).toHaveBeenCalled();
     });
 });

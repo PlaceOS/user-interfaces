@@ -41,7 +41,10 @@ describe('ScheduleComponent', () => {
             MockProvider(EventFormService, { newForm: jest.fn() }),
             MockProvider(BookingFormService, {
                 newForm: jest.fn(),
-                form: { patchValue: jest.fn() },
+                model: Object.assign(jest.fn(() => ({})), {
+                    set: jest.fn(),
+                    update: jest.fn(),
+                }),
             } as any),
             MockProvider(Router, { navigate: jest.fn() }),
             MockProvider(MatDialog, { open: jest.fn() }),
@@ -70,7 +73,7 @@ describe('ScheduleComponent', () => {
         jest.runAllTimers();
 
         expect(booking_form.newForm).toHaveBeenCalledWith('visitor', booking);
-        expect(booking_form.form.patchValue).not.toHaveBeenCalled();
+        expect(booking_form.model.update).not.toHaveBeenCalled();
         jest.useRealTimers();
     });
 
@@ -87,7 +90,10 @@ describe('ScheduleComponent', () => {
         spectator.component.editBooking(booking);
         jest.runAllTimers();
 
-        expect(booking_form.form.patchValue).toHaveBeenCalledWith({
+        expect(booking_form.model.update).toHaveBeenCalled();
+        const updater = (booking_form.model.update as jest.Mock).mock
+            .calls[0][0];
+        expect(updater({})).toEqual({
             resources: [{ id: 'desk-1', name: 'Desk 1' }],
             asset_id: 'desk-1',
         });

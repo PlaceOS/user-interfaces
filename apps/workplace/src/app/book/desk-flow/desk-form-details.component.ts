@@ -8,13 +8,20 @@ import {
     OnChanges,
     output,
     SimpleChanges,
+    WritableSignal,
 } from '@angular/core';
-import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { AssetListFieldComponent } from '@placeos/assets';
-import { BookingFormService, DeskListFieldComponent } from '@placeos/bookings';
+import {
+    BookingForm,
+    BookingFormService,
+    BookingFormValue,
+    DeskListFieldComponent,
+} from '@placeos/bookings';
 import {
     AsyncHandler,
     BookingRecurrence,
@@ -45,11 +52,8 @@ const MINUTES_IN_DAY = 24 * 60;
         The selected desk hasn't been booked. Please book the desk to be
         able to check-in.
         </div> -->
-        @if (form()) {
-            <div
-                class="divide-base-200 space-y-2 divide-y"
-                [formGroup]="form()"
-            >
+        @if (form() && model) {
+            <div class="divide-base-200 space-y-2 divide-y">
                 @if (allow_groups) {
                     <section class="flex items-center">
                         <button
@@ -103,7 +107,7 @@ const MINUTES_IN_DAY = 24 * 60;
                                 'FORM.HOST' | translate
                             }}</label>
                             <a-user-search-field
-                                formControlName="user"
+                                [formField]="form().user"
                                 class="mb-4"
                             ></a-user-search-field>
                         </div>
@@ -117,8 +121,7 @@ const MINUTES_IN_DAY = 24 * 60;
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
-                                    name="title"
-                                    formControlName="title"
+                                    [formField]="form().title"
                                     [placeholder]="
                                         'BOOKINGS.DESK_TITLE_PLACEHOLDER'
                                             | translate
@@ -134,8 +137,7 @@ const MINUTES_IN_DAY = 24 * 60;
                                 {{ 'FORM.DATE' | translate }}<span>*</span>
                             </label>
                             <a-date-field
-                                name="date"
-                                formControlName="date"
+                                [formField]="form().date"
                                 [to]="end_date()"
                                 [timezone]="timezone"
                             >
@@ -143,7 +145,7 @@ const MINUTES_IN_DAY = 24 * 60;
                             </a-date-field>
                             @if (allow_all_day) {
                                 <mat-checkbox
-                                    formControlName="all_day"
+                                    [formField]="form().all_day"
                                     class="absolute -top-2 right-0"
                                 >
                                     {{ 'COMMON.ALL_DAY' | translate }}
@@ -151,7 +153,7 @@ const MINUTES_IN_DAY = 24 * 60;
                             }
                         </div>
                     </div>
-                    @if (!form().value.all_day && allow_time_changes) {
+                    @if (!model().all_day && allow_time_changes) {
                         <div class="flex items-center space-x-2">
                             <div class="w-1/3 flex-1">
                                 <label for="start-time">
@@ -160,9 +162,12 @@ const MINUTES_IN_DAY = 24 * 60;
                                 </label>
                                 <a-time-field
                                     name="start-time"
-                                    [ngModel]="form().value.date"
+                                    [ngModel]="model().date"
                                     (ngModelChange)="
-                                        form().patchValue({ date: $event })
+                                        model.update((m) => ({
+                                            ...m,
+                                            date: $event,
+                                        }))
                                     "
                                     [ngModelOptions]="{ standalone: true }"
                                     [range]="bookable_hours"
@@ -177,9 +182,8 @@ const MINUTES_IN_DAY = 24 * 60;
                                     }}<span>*</span>
                                 </label>
                                 <a-duration-field
-                                    name="end-time"
-                                    formControlName="duration"
-                                    [time]="form().get('date')?.value"
+                                    [formField]="form().duration"
+                                    [time]="model().date"
                                     [max]="max_duration"
                                     [min]="min_duration"
                                     [step]="duration_step"
@@ -200,15 +204,15 @@ const MINUTES_IN_DAY = 24 * 60;
                             </label>
                             <recurrence-field
                                 name="recurrence"
-                                [date]="form().getRawValue().date"
-                                [ngModel]="form().value"
+                                [date]="model().date"
+                                [ngModel]="model()"
                                 (ngModelChange)="onRecurrenceChange($event)"
                                 (first_instance)="onFirstInstanceChange($event)"
                                 [ngModelOptions]="{ standalone: true }"
                                 [available_days]="available_days()"
                             ></recurrence-field>
-                            @if (form().value.id) {
-                                <mat-checkbox formControlName="update_master">
+                            @if (model().id) {
+                                <mat-checkbox [formField]="form().update_master">
                                     {{ 'FORM.UPDATE_FUTURE' | translate }}
                                 </mat-checkbox>
                             }
@@ -218,15 +222,14 @@ const MINUTES_IN_DAY = 24 * 60;
                         <div class="flex items-center space-x-2">
                             <div class="w-1/3 flex-1">
                                 <mat-checkbox
-                                    [ngModel]="
-                                        !!form().value.secondary_resource
-                                    "
+                                    [ngModel]="!!model().secondary_resource"
                                     (ngModelChange)="
-                                        form().patchValue({
+                                        model.update((m) => ({
+                                            ...m,
                                             secondary_resource: $event
                                                 ? 'locker'
                                                 : '',
-                                        })
+                                        }))
                                     "
                                     [ngModelOptions]="{ standalone: true }"
                                 >
@@ -264,7 +267,7 @@ const MINUTES_IN_DAY = 24 * 60;
                         </div>
                     </section>
                 }
-                @if (form().contains('resources') && !auto_allocation) {
+                @if (model().resources && !auto_allocation) {
                     <section class="p-2">
                         <h3 class="mb-4 flex items-center space-x-2">
                             <div
@@ -282,7 +285,7 @@ const MINUTES_IN_DAY = 24 * 60;
                             </div>
                         </h3>
                         <desk-list-field
-                            formControlName="resources"
+                            [formField]="form().resources"
                         ></desk-list-field>
                         @if (options()?.group) {
                             <p
@@ -318,11 +321,11 @@ const MINUTES_IN_DAY = 24 * 60;
                         </h3>
                         <asset-list-field
                             [options]="{
-                                date: form().getRawValue().date,
-                                duration: form().value.duration,
-                                all_day: form().value.all_day,
+                                date: model().date,
+                                duration: model().duration,
+                                all_day: model().all_day,
                             }"
-                            formControlName="assets"
+                            [formField]="form().assets"
                         ></asset-list-field>
                     </section>
                 }
@@ -343,7 +346,7 @@ const MINUTES_IN_DAY = 24 * 60;
         TimeFieldComponent,
         DateFieldComponent,
         FormsModule,
-        ReactiveFormsModule,
+        FormField,
         MatFormFieldModule,
         MatInputModule,
         UserSearchFieldComponent,
@@ -357,8 +360,15 @@ export class NewDeskFormDetailsComponent
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    public readonly form = input<FormGroup>(undefined);
+    public readonly form = input<BookingForm>(undefined);
+    public readonly model_input =
+        input<WritableSignal<BookingFormValue>>(undefined);
     public readonly find = output<void>();
+
+    /** Writable signal holding the raw booking form value */
+    public get model() {
+        return this.model_input();
+    }
     /** List of available buildings to select */
     public readonly buildings = this._org.building_list;
     /** List of available levels for the selected building */
@@ -497,19 +507,22 @@ export class NewDeskFormDetailsComponent
     }
 
     public ngOnChanges(changes: SimpleChanges) {
-        const form = this.form();
-        if (changes.form && form) {
+        const model = this.model;
+        if (changes.form && model) {
             if (this.selected_desk?.id) {
-                form.patchValue({ resources: [this.selected_desk] });
+                model.update((m) => ({
+                    ...m,
+                    resources: [this.selected_desk],
+                }));
             }
         }
     }
 
     public onRecurrenceChange(recurrence: BookingRecurrence) {
-        this.form().patchValue(recurrence);
+        this.model.update((m) => ({ ...m, ...recurrence }));
     }
 
     public onFirstInstanceChange(date: number) {
-        this.form().patchValue({ date });
+        this.model.update((m) => ({ ...m, date }));
     }
 }

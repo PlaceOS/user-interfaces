@@ -21,9 +21,9 @@ import {
     firstValueWhere,
     flatten,
     getAllDayTimeRange,
-    getFormTimeSyncHandle,
-    getInvalidFields,
+    getInvalidSignalFields,
     getTimeInTimezone,
+    onFieldChange,
     i18n,
     isWithinBookableHours,
     rulesForResource,
@@ -56,7 +56,11 @@ import {
     removeEvent,
     saveEvent,
 } from './events.fn';
-import { generateEventForm, newCalendarEventFromBooking } from './utilities';
+import {
+    eventFormValue,
+    generateEventForm,
+    newCalendarEventFromBooking,
+} from './utilities';
 
 const BOOKING_URLS = [
     'book/rooms',
@@ -119,7 +123,15 @@ export class EventFormService extends AsyncHandler {
     });
     private _loading = signal('');
     private _event = signal(new CalendarEvent());
-    private _form = generateEventForm(undefined, this._settings);
+    private _form_ref = generateEventForm(
+        undefined,
+        this._settings,
+        this._injector,
+    );
+    /** FieldTree for the event form (used for template binding + validation). */
+    private _form = this._form_ref.form;
+    /** Writable signal holding the raw event form value. */
+    private _model = this._form_ref.model;
     private _space_pipe = new SpacePipe();
 
     private removeLoadingTag = (t) =>
@@ -305,6 +317,10 @@ export class EventFormService extends AsyncHandler {
         return this._form;
     }
 
+    public get model() {
+        return this._model;
+    }
+
     public get event() {
         return this._event();
     }
@@ -339,14 +355,23 @@ export class EventFormService extends AsyncHandler {
     public async init() {
         await firstValueWhere(userSignal());
         setDefaultCreator(currentUser());
-        this.form.controls.date.valueChanges.subscribe((date) =>
-            this.setOptions({ date }),
+        onFieldChange(
+            this._model,
+            (v) => v.date,
+            (date) => this.setOptions({ date }),
+            this._injector,
         );
-        this.form.controls.duration.valueChanges.subscribe((duration) =>
-            this.setOptions({ duration }),
+        onFieldChange(
+            this._model,
+            (v) => v.duration,
+            (duration) => this.setOptions({ duration }),
+            this._injector,
         );
-        this.form.controls.all_day.valueChanges.subscribe((all_day) =>
-            this.setOptions({ all_day }),
+        onFieldChange(
+            this._model,
+            (v) => v.all_day,
+            (all_day) => this.setOptions({ all_day }),
+            this._injector,
         );
         this.subscription(
             'router.events',
@@ -360,28 +385,30 @@ export class EventFormService extends AsyncHandler {
             }),
         );
         const previous = {};
-        this.form.valueChanges.subscribe(({ date, duration }) => {
-            const { date: raw_date, duration: raw_duration } =
-                this.form.getRawValue();
-            if (
-                (raw_date && raw_date !== previous['date']) ||
-                (raw_duration && raw_duration !== previous['duration'])
-            ) {
-                this._assets.setOptions({
-                    date: raw_date,
-                    duration: raw_duration,
-                });
-                previous['date'] = raw_date;
-                previous['duration'] = raw_duration;
-            }
-            this.storeForm();
-        });
+        effect(
+            () => {
+                const { date: raw_date, duration: raw_duration } = this._model();
+                if (
+                    (raw_date && raw_date !== previous['date']) ||
+                    (raw_duration && raw_duration !== previous['duration'])
+                ) {
+                    this._assets.setOptions({
+                        date: raw_date,
+                        duration: raw_duration,
+                    });
+                    previous['date'] = raw_date;
+                    previous['duration'] = raw_duration;
+                }
+                this.storeForm();
+            },
+            { injector: this._injector },
+        );
         this.loadLastSuccess();
     }
 
     /** Push the current building's duration and bookable-hours settings into the time sync. */
     private _applyDurationSettings() {
-        const handle = getFormTimeSyncHandle(this._form);
+        const handle = this._form_ref.time_sync;
         const period = this._settings.get<{ start?: number; end?: number }>(
             'app.events.all_day_period',
         );
@@ -409,7 +436,7 @@ export class EventFormService extends AsyncHandler {
             this.timezone,
             period?.start,
             period?.end,
-            this._form.getRawValue().id ? undefined : Date.now(),
+            this._model().id ? undefined : Date.now(),
         );
     }
 
@@ -510,20 +537,13 @@ export class EventFormService extends AsyncHandler {
         const lock_start_time =
             !!event.id &&
             (event.state === 'started' || event.state === 'in_progress');
-        (this._form as any)._lock_start_time = lock_start_time;
-        this._form.reset({
-            ...event,
-            catering: event.extension_data.catering,
-            catering_charge_code:
-                event.extension_data.catering?.[0]?.charge_code,
-            catering_notes: event.extension_data.catering?.[0]?.notes,
-            assets: (event.extension_data.assets || []).map(
-                (_) => new AssetRequest({ ..._, event }),
-            ),
-        });
-        this._form.controls.date[lock_start_time ? 'disable' : 'enable']({
-            emitEvent: false,
-        });
+        this._form_ref.lock_start_time.set(lock_start_time);
+        const value = eventFormValue(event);
+        value.assets = (event.extension_data.assets || []).map(
+            (_) => new AssetRequest({ ..._, event }),
+        );
+        this._model.set(value);
+        this._form().reset();
         this._applyDurationSettings();
         if (!event.id) return;
         sessionStorage.setItem(
@@ -534,14 +554,15 @@ export class EventFormService extends AsyncHandler {
     }
 
     public resetForm() {
-        this._form.reset(this._event() || {});
+        this._model.set(eventFormValue(this._event() || new CalendarEvent()));
+        this._form().reset();
     }
 
     public storeForm() {
         this.timeout('store', () => {
             sessionStorage.setItem(
                 'PLACEOS.event_form',
-                JSON.stringify(this._form.getRawValue() || {}),
+                JSON.stringify(this._model() || {}),
             );
         });
     }
@@ -555,7 +576,7 @@ export class EventFormService extends AsyncHandler {
         const form_data = JSON.parse(
             sessionStorage.getItem('PLACEOS.event_form') || '{}',
         );
-        this._form.patchValue({ ...event, ...form_data });
+        this._model.update((m) => ({ ...m, ...(event as any), ...form_data }));
     }
 
     public clearForm() {
@@ -565,10 +586,9 @@ export class EventFormService extends AsyncHandler {
     }
 
     public openEventLinkModal(force = false) {
-        const form = this._form;
-        form.markAllAsTouched();
-        if (!form.valid && !force) return;
-        const event = new CalendarEvent({ ...form.getRawValue(), assets: [] });
+        this._form().markAsTouched();
+        if (!this._form().valid() && !force) return;
+        const event = new CalendarEvent({ ...(this._model() as any), assets: [] });
         const ref = this._dialog.open(EventLinkModalComponent, { data: event });
         ref.afterClosed().subscribe((d) =>
             d ? this._router.navigate(['/']) : '',
@@ -583,10 +603,13 @@ export class EventFormService extends AsyncHandler {
         ignore_owner = false,
         force_calendar = false,
     ) {
-        this.form.markAllAsTouched();
-        if (this.form.invalid && !force) {
+        this._form().markAsTouched();
+        if (this._form().invalid() && !force) {
             throw i18n('FORM.INVALID_FIELDS', {
-                field_list: getInvalidFields(this.form).join(', '),
+                field_list: getInvalidSignalFields(
+                    this._form,
+                    this._model,
+                ).join(', '),
             });
         }
         const on_error = (e) => {
@@ -596,17 +619,18 @@ export class EventFormService extends AsyncHandler {
         this.addLoadingTag(Tags.PostBooking);
         try {
             const event = this._event();
-            const space_list = this.form.value.resources || [];
+            const space_list = this._model().resources || [];
             let spaces = space_list.filter(
                 (_) => !ignore_space_check.includes(_.id),
             );
-            const recurr = this.form.value.recurrence;
-            const raw_value = this.form.getRawValue();
-            this.form.patchValue({
+            const recurr = this._model().recurrence;
+            const raw_value = this._model();
+            this._model.update((m) => ({
+                ...m,
                 recurring: recurr?._pattern && recurr?._pattern !== 'none',
-            });
-            if (!this.form.value.recurring) {
-                this.form.patchValue({ recurrence: null });
+            }));
+            if (!this._model().recurring) {
+                this._model.update((m) => ({ ...m, recurrence: null }));
             }
             const changed_spaces = spaces.filter(
                 (_) => !event.resources.find((s) => s.id === _.id),
@@ -622,10 +646,10 @@ export class EventFormService extends AsyncHandler {
                 !event.id ||
                 event.date !== raw_value.date ||
                 event.duration !== raw_value.duration;
-            this.form.patchValue(
-                { timezone: this.timezone || raw_value.timezone },
-                { emitEvent: false },
-            );
+            this._model.update((m) => ({
+                ...m,
+                timezone: this.timezone || raw_value.timezone,
+            }));
             const bookable_hours = this._settings.get(
                 'app.events.bookable_hours',
             );
@@ -683,17 +707,17 @@ export class EventFormService extends AsyncHandler {
                     space_list,
                     date,
                     duration,
-                    this._host(this.form.value.host, spaces[0]?.email),
+                    this._host(this._model().host, spaces[0]?.email),
                 ).catch(on_error);
             } else if (!space_list.length && this.lone_space) {
                 spaces = [await this._space_pipe.transform(this.lone_space)];
-                this.form.patchValue({ resources: spaces });
+                this._model.update((m) => ({ ...m, resources: spaces }));
             }
             // Check for clashing events in recurring series
-            if (this.form.value.recurring && spaces.length) {
+            if (this._model().recurring && spaces.length) {
                 await this._checkRecurringClashes(
                     new CalendarEvent({
-                        ...this.form.getRawValue(),
+                        ...(this._model() as any),
                         date: all_day_period.date,
                         duration: all_day_period.duration,
                         date_end: all_day_period.date_end,
@@ -702,19 +726,17 @@ export class EventFormService extends AsyncHandler {
                 ).catch(on_error);
             }
             // Make sure host is an attendee
-            this.form.patchValue({
+            this._model.update((m) => ({
+                ...m,
                 attendees: unique(
-                    [
-                        ...this.form.value.attendees,
-                        this.form.value.organiser || currentUser(),
-                    ],
+                    [...m.attendees, m.organiser || currentUser()],
                     'email',
                 ),
-            });
+            }));
             // Prevent meeting with external users without a space set
             if (
                 !spaces.length &&
-                this.form.value.attendees.find((_) => _.is_external)
+                this._model().attendees.find((_) => _.is_external)
             ) {
                 this.removeLoadingTag(Tags.PostBooking);
                 throw i18n('CALENDAR_EVENT.SPACE_EXTERNALS_ERROR');
@@ -722,22 +744,23 @@ export class EventFormService extends AsyncHandler {
             // Handle setup and breakdown times
             const default_oflow = this._overflow();
             let [setup, breakdown] = [
-                this.form.value.setup_time || default_oflow.setup,
-                this.form.value.breakdown_time || default_oflow.breakdown,
+                this._model().setup_time || default_oflow.setup,
+                this._model().breakdown_time || default_oflow.breakdown,
             ];
             for (const space of spaces) {
                 const overflow = this._overflow(space.id);
                 setup = Math.max(overflow.setup || 0, setup);
                 breakdown = Math.max(overflow.breakdown || 0, breakdown);
             }
-            this.form.patchValue({
+            this._model.update((m) => ({
+                ...m,
                 setup_time: setup,
                 breakdown_time: breakdown,
-            });
+            }));
             // Apply shared catering fields to all orders
-            for (const order of this.form.value.catering || []) {
-                order.notes = this.form.value.catering_notes;
-                order.charge_code = this.form.value.catering_charge_code;
+            for (const order of this._model().catering || []) {
+                order.notes = this._model().catering_notes;
+                order.charge_code = this._model().catering_charge_code;
             }
             // Perform Booking
             const query: any = event.id
@@ -769,28 +792,28 @@ export class EventFormService extends AsyncHandler {
             )
                 query.calendar = query_calendar;
             if (force_calendar) delete query.system_id;
-            const processed_assets = (this.form.value.assets || []).map((_) =>
+            const processed_assets = (this._model().assets || []).map((_) =>
                 new AssetRequest(_).toJSON(),
             );
-            const host = this._host(this.form.value.host, spaces[0]?.email);
+            const host = this._host(this._model().host, spaces[0]?.email);
             const ext: any = {
                 department:
-                    this.form.value.organiser?.department ||
+                    this._model().organiser?.department ||
                     currentUser()?.department,
             };
-            if (this.form.value.host !== host)
-                ext.host_override = this.form.value.host;
-            const value = this.form.getRawValue();
+            if (this._model().host !== host)
+                ext.host_override = this._model().host;
+            const value = this._model();
             const created_event = await this._performBooking(
                 new CalendarEvent({
-                    ...this.form.getRawValue(),
+                    ...(this._model() as any),
                     date: all_day_period.date,
                     duration: all_day_period.duration,
                     date_end: all_day_period.date_end,
                     old_system: event?.system,
                     host,
-                    title: this.form.value.title || 'Space Booking',
-                    attendees: this.form.value.attendees.map((_: any) => {
+                    title: this._model().title || 'Space Booking',
+                    attendees: this._model().attendees.map((_: any) => {
                         const v: any = { ..._ };
                         delete v.visit_expected;
                         delete v.extension_data;
@@ -803,7 +826,7 @@ export class EventFormService extends AsyncHandler {
             ).catch(on_error);
             // Create visitor bookings for external attendees
             const domain = (currentUser()?.email || '@').split('@')[1];
-            const visitors = this.form.value.attendees.filter(
+            const visitors = this._model().attendees.filter(
                 (user) =>
                     user.is_external &&
                     user.email !== event.host &&
@@ -825,11 +848,11 @@ export class EventFormService extends AsyncHandler {
                 );
             }
             // Create bookings for each catering order in the event
-            if (this.form.value.catering?.length) {
+            if (this._model().catering?.length) {
                 await createBookingsForEvent(
                     created_event,
                     'catering-order',
-                    this.form.value.catering as any,
+                    this._model().catering as any,
                 ).catch((e) =>
                     this._removeBookingAfterError(
                         !event.id,
@@ -841,7 +864,7 @@ export class EventFormService extends AsyncHandler {
             }
             // Create asset bookings for each request in the event
             const assets =
-                this.form.value.assets || event.extension_data.assets || [];
+                this._model().assets || event.extension_data.assets || [];
             if (assets.length) {
                 const requests = await validateAssetRequestsForResource(
                     created_event,
@@ -915,7 +938,7 @@ export class EventFormService extends AsyncHandler {
             creator: user.email,
             calendar: user.email,
         };
-        this.form.patchValue(host_data, { emitEvent: false });
+        this._model.update((m) => ({ ...m, ...host_data }));
         const saved_form = JSON.parse(
             sessionStorage.getItem('PLACEOS.event_form') || '{}',
         );
@@ -1105,7 +1128,7 @@ export class EventFormService extends AsyncHandler {
                 event.resources.length
                     ? {
                           calendar:
-                              this.form.value.host || currentUser()?.email,
+                              this._model().host || currentUser()?.email,
                           system_id: event.resources[0].id,
                       }
                     : {},

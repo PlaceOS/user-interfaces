@@ -6,14 +6,13 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { Router, RouterModule } from '@angular/router';
 import { startOfMinute } from 'date-fns';
 
 import {
     AsyncHandler,
-    getInvalidFields,
+    getInvalidSignalFields,
     i18n,
     notifyError,
     OrganisationService,
@@ -59,7 +58,6 @@ import { CheckinStateService } from './checkin/checkin-state.service';
             @if (!loading()) {
                 <div
                     class="bg-base-100 absolute top-1/2 left-4 max-h-[80vh] w-lg max-w-[calc(100%-2rem)] -translate-y-1/2 overflow-auto rounded-sm shadow-sm"
-                    [formGroup]="form"
                 >
                     <div
                         class="bg-base-200 sticky top-0 z-10 m-2 flex w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none p-2"
@@ -79,8 +77,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             <input
                                 keyboard
                                 matInput
-                                name="name"
-                                formControlName="asset_name"
+                                [formField]="form.asset_name"
                                 [placeholder]="
                                     'APP.VISITOR_KIOSK.NAME' | translate
                                 "
@@ -97,8 +94,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             <input
                                 keyboard
                                 matInput
-                                name="email"
-                                formControlName="asset_id"
+                                [formField]="form.asset_id"
                                 [placeholder]="
                                     'APP.VISITOR_KIOSK.EMAIL' | translate
                                 "
@@ -107,8 +103,8 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                         </mat-form-field>
                         <label for="user">Host</label>
                         <a-user-search-field
-                            formControlName="user"
-                            [class.mb-4]="!form.value.user"
+                            [formField]="form.user"
+                            [class.mb-4]="!form_value().user"
                         ></a-user-search-field>
                         <label form="phone">
                             {{ 'APP.VISITOR_KIOSK.PHONE' | translate }}</label
@@ -117,9 +113,8 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             <input
                                 keyboard
                                 matInput
-                                name="phone"
                                 type="tel"
-                                formControlName="phone"
+                                [formField]="form.phone"
                                 [placeholder]="
                                     'APP.VISITOR_KIOSK.PHONE' | translate
                                 "
@@ -134,8 +129,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             <input
                                 keyboard
                                 matInput
-                                name="org"
-                                formControlName="company"
+                                [formField]="form.company"
                                 [placeholder]="
                                     'APP.VISITOR_KIOSK.ORGANISATION' | translate
                                 "
@@ -151,8 +145,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             <input
                                 keyboard
                                 matInput
-                                name="reason"
-                                formControlName="title"
+                                [formField]="form.title"
                                 [placeholder]="
                                     'BOOKINGS.VISITOR_REASON_PLACEHOLDER'
                                         | translate
@@ -170,8 +163,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                                 <input
                                     keyboard
                                     matInput
-                                    name="pass"
-                                    formControlName="pass_number"
+                                    [formField]="form.pass_number"
                                     [placeholder]="
                                         'BOOKINGS.VISITOR_PASS_PLACEHOLDER'
                                             | translate
@@ -184,7 +176,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                                 <div class="relative mt-4 flex justify-end">
                                     <mat-checkbox
                                         class="absolute -top-2 right-0"
-                                        formControlName="all_day"
+                                        [formField]="form.all_day"
                                     >
                                         {{ 'COMMON.ALL_DAY' | translate }}
                                     </mat-checkbox>
@@ -194,9 +186,8 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                                 {{ 'FORM.DURATION' | translate }}
                             </label>
                             <a-duration-field
-                                name="duration"
                                 class="text-base"
-                                formControlName="duration"
+                                [formField]="form.duration"
                                 [time]="form_value().date"
                                 [max]="max_duration()"
                                 [disabled]="form_value().all_day"
@@ -236,7 +227,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
         MatProgressSpinnerModule,
         MatFormFieldModule,
         MatInputModule,
-        ReactiveFormsModule,
+        FormField,
         UserSearchFieldComponent,
         DurationFieldComponent,
         RouterModule,
@@ -271,9 +262,7 @@ export class VisitorRegistrationComponent
     private readonly _induction_details = settingSignal('induction_details');
 
     public readonly form = this._booking_form.form;
-    public readonly form_value = toSignal(this.form.valueChanges, {
-        initialValue: this.form.getRawValue(),
-    });
+    public readonly form_value = this._booking_form.model;
     public readonly loading = signal(false);
     public readonly now = signal(startOfMinute(Date.now()).valueOf());
     public readonly background = settingSignal('welcome_background');
@@ -316,13 +305,11 @@ export class VisitorRegistrationComponent
         this._booking_form.clearOldState();
         this._booking_form.newForm('visitor');
         this._booking_form.setOptions({ type: 'visitor' });
-        this.form
-            .get('asset_id')
-            .setValidators([Validators.required, Validators.email]);
-        this._booking_form.form.patchValue({
+        this._booking_form.model.update((m) => ({
+            ...m,
             booking_type: 'visitor',
             title: 'Visit',
-        });
+        }));
         setTimeout(() => {
             if (this.allow_self_registration()) return;
             this._router.navigate(['/welcome']);
@@ -330,18 +317,22 @@ export class VisitorRegistrationComponent
     }
 
     public async register() {
-        this.form.markAllAsTouched();
-        if (!this.form.valid) {
+        this.form().markAsTouched();
+        if (!this.form().valid()) {
             return notifyError(
                 i18n('FORM.INVALID_FIELDS', {
-                    field_list: getInvalidFields(this.form).join(', '),
+                    field_list: getInvalidSignalFields(
+                        this.form,
+                        this._booking_form.model,
+                    ).join(', '),
                 }),
             );
         }
         this.loading.set(true);
         try {
-            const value = this.form.value;
-            this._booking_form.form.patchValue({
+            const value = this._booking_form.model();
+            this._booking_form.model.update((m) => ({
+                ...m,
                 booking_type: 'visitor',
                 self_registered: true,
                 name: value.asset_name,
@@ -359,7 +350,7 @@ export class VisitorRegistrationComponent
                     this._org.region?.id,
                     this._org.building?.id,
                 ]),
-            });
+            }));
             const result = await this._booking_form.postForm(true);
             this._checkin.setBooking(result, 'registered');
             if (

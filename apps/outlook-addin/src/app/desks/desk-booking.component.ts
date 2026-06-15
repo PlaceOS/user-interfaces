@@ -4,7 +4,6 @@ import {
     computed,
     inject,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
@@ -56,10 +55,8 @@ export class DeskBookingComponent {
     private _router = inject(Router);
 
     public readonly form = this._service.form;
-    public readonly form_value = toSignal(this.form.valueChanges, {
-        initialValue: this.form.getRawValue(),
-    });
-    public readonly can_book = computed(() => !!this.form_value().asset_id);
+    public readonly model = this._service.model;
+    public readonly can_book = computed(() => !!this.model().asset_id);
     public readonly clearForm = () => this._service.clearForm();
 
     public async makeBooking() {

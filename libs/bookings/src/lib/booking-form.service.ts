@@ -23,8 +23,8 @@ import {
     firstValueWhere,
     flatten,
     getAllDayTimeRange,
-    getFormTimeSyncHandle,
-    getInvalidFields,
+    getInvalidSignalFields,
+    onFieldChange,
     i18n,
     isWithinBookableHours,
     notifyError,
@@ -46,6 +46,8 @@ import { addDays, addMinutes, endOfDay, format, getUnixTime } from 'date-fns';
 import { openRecurringClashModal } from 'libs/components/src/lib/recurring-clash-modal.component';
 import { BookingLinkModalComponent } from './booking-link-modal.component';
 import {
+    bookingFormValue,
+    type BookingFormValue,
     findNearbyFeature,
     generateBookingForm,
     loadLockerResources,
@@ -146,8 +148,17 @@ export class BookingFormService extends AsyncHandler {
     public readonly loading = this._loading.asReadonly();
     /** Signal for the active booking flow options */
     public readonly options = this._options.asReadonly();
-    public readonly form = generateBookingForm();
+    private _form_ref = generateBookingForm(new Booking(), this._injector);
+    /** FieldTree for the booking form (used for template binding + validation). */
+    public readonly form = this._form_ref.form;
+    /** Writable signal holding the raw booking form value. */
+    public readonly model = this._form_ref.model;
     public readonly view = signal<BookingFlowView>('form');
+
+    /** Apply a partial patch to the booking form model. */
+    private _patch(value: Partial<BookingFormValue>, _opts?: unknown) {
+        this.model.update((m) => ({ ...m, ...value }));
+    }
 
     /** Latest raw form value, used to drive availability recalculation */
     private readonly _form_value = signal<Record<string, any>>(null);
@@ -238,7 +249,7 @@ export class BookingFormService extends AsyncHandler {
             form: this._form_value_debounced(),
         }),
         loader: ({ params: { options, resources, rules } }) => {
-            const raw = this.form.getRawValue();
+            const raw = this.model();
             if (!(raw.date > 0 && raw.duration > 0)) {
                 return Promise.resolve([] as BookingAsset[]);
             }
@@ -450,8 +461,9 @@ export class BookingFormService extends AsyncHandler {
         if (!booking.id) {
             (booking as any).all_day = this.setting('all_day_default');
         }
-        this.form.reset();
-        this.form.patchValue(
+        this.model.set(bookingFormValue(new Booking()));
+        this.form().reset();
+        this._patch(
             cleanObject(
                 {
                     ...booking.extension_data,
@@ -462,14 +474,17 @@ export class BookingFormService extends AsyncHandler {
             { emitEvent: false },
         );
         this.applyDurationSettings();
-        this.subscription(
-            'form_change',
-            this.form.valueChanges.subscribe(() => {
-                const { date, duration } = this.form.getRawValue();
+        const form_change = effect(
+            () => {
+                const { date, duration } = this.model();
                 this._assets.setOptions({ date, duration });
                 this.storeForm();
-            }),
+            },
+            { injector: this._injector },
         );
+        this.subscription('form_change', {
+            unsubscribe: () => form_change.destroy(),
+        } as any);
         this._syncWindowIfUnchanged(
             'date',
             initial_date,
@@ -483,13 +498,13 @@ export class BookingFormService extends AsyncHandler {
         // reloads from session before async form change events occur.
         this.storeForm();
         this.timeout('set-resource', async () => {
-            const resources = this.form.getRawValue().resources;
+            const resources = this.model().resources;
             if (!resources?.length) return;
             const item_list = await this.listResources();
             const new_list = resources.map(
                 (asset) => item_list.find((_) => _.id == asset.id) || asset,
             );
-            this.form.patchValue({ resources: new_list });
+            this._patch({ resources: new_list });
         });
     }
 
@@ -508,13 +523,13 @@ export class BookingFormService extends AsyncHandler {
             }),
         );
         this._org.waitUntilInitialised().then(() => this.setOptions({}));
-        this._form_value.set(this.form.getRawValue());
-        this.subscription(
-            'form_value',
-            this.form.valueChanges.subscribe(() =>
-                this._form_value.set(this.form.getRawValue()),
-            ),
-        );
+        this._form_value.set(this.model());
+        const form_value = effect(() => this._form_value.set(this.model()), {
+            injector: this._injector,
+        });
+        this.subscription('form_value', {
+            unsubscribe: () => form_value.destroy(),
+        } as any);
         // Re-apply duration settings when the settings overrides change
         effect(() => {
             const overrides = this._settings.overrides();
@@ -524,7 +539,7 @@ export class BookingFormService extends AsyncHandler {
 
     /** Push the current building's duration and bookable-hours settings into the time sync. */
     public applyDurationSettings() {
-        const handle = getFormTimeSyncHandle(this.form);
+        const handle = this._form_ref.time_sync;
         const period = this.setting('all_day_period');
         handle?.updateOptions({
             min_duration: this.setting('min_duration') ?? 30,
@@ -546,7 +561,7 @@ export class BookingFormService extends AsyncHandler {
             this.timezone,
             period?.start,
             period?.end,
-            this.form.getRawValue().id ? undefined : Date.now(),
+            this.model().id ? undefined : Date.now(),
         );
     }
 
@@ -562,14 +577,14 @@ export class BookingFormService extends AsyncHandler {
         duration: number,
     ) {
         this.timeout(timeout_name, async () => {
-            const window = this.form.getRawValue();
+            const window = this.model();
             if (
                 window.date !== initial_date ||
                 window.duration !== initial_duration
             ) {
                 return;
             }
-            this.form.patchValue({ date, duration });
+            this._patch({ date, duration });
         });
     }
 
@@ -578,13 +593,9 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public setOptions(value: Partial<BookingFlowOptions>) {
-        if (value.type && value.type !== 'parking') {
-            // Parking request form marks plate_number as required; other
-            // booking types don't use it so remove any stale validator.
-            const plate_number = this.form.get('plate_number');
-            plate_number?.clearValidators();
-            plate_number?.updateValueAndValidity({ emitEvent: false });
-        }
+        // Field-level validators (e.g. the parking form's required
+        // plate_number) are now declared in the signal-form schema, so there
+        // is no stale reactive validator to clear when switching types.
         this._options.set({ ...this._options(), ...value });
     }
 
@@ -605,8 +616,13 @@ export class BookingFormService extends AsyncHandler {
             return this.newForm(this._options().type);
         }
         const booking = this._booking();
-        this.form.reset({ user: currentUser(), booked_by: currentUser() });
-        this.form.patchValue(
+        this.model.set({
+            ...bookingFormValue(new Booking()),
+            user: currentUser(),
+            booked_by: currentUser(),
+        });
+        this.form().reset();
+        this._patch(
             cleanObject(
                 {
                     ...(booking || {}),
@@ -629,7 +645,7 @@ export class BookingFormService extends AsyncHandler {
             'PLACEOS.booking_form',
             JSON.stringify({
                 ...this._booking(),
-                ...cleanObject(this.form.getRawValue() || {}, [
+                ...cleanObject(this.model() || {}, [
                     null,
                     undefined,
                     '',
@@ -643,7 +659,12 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public loadForm() {
-        this.form.reset({ user: currentUser(), booked_by: currentUser() });
+        this.model.set({
+            ...bookingFormValue(new Booking()),
+            user: currentUser(),
+            booked_by: currentUser(),
+        });
+        this.form().reset();
         const data = JSON.parse(
             sessionStorage.getItem('PLACEOS.booking_form') || '{}',
         );
@@ -664,7 +685,7 @@ export class BookingFormService extends AsyncHandler {
             },
             [null, undefined, ''],
         );
-        this.form.patchValue(booking_data, { emitEvent: false });
+        this._patch(booking_data, { emitEvent: false });
         this.applyDurationSettings();
         this._syncWindowIfUnchanged(
             'load-date',
@@ -686,11 +707,11 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public openBookingLinkModal(force = false) {
-        this.form.markAllAsTouched();
-        if (!this.form.valid && !force) return;
+        this.form().markAsTouched();
+        if (!this.form().valid() && !force) return;
         const event = new Booking({
             ...this.booking,
-            ...this.form.getRawValue(),
+            ...(this.model() as any),
         });
         this._dialog.open(BookingLinkModalComponent, { data: event });
     }
@@ -698,7 +719,7 @@ export class BookingFormService extends AsyncHandler {
     public async confirmPost() {
         await this.checkQuestions();
         const options = this._options();
-        const value = this.form.getRawValue();
+        const value = this.model() as any;
 
         const content = i18n(
             options.group
@@ -741,20 +762,33 @@ export class BookingFormService extends AsyncHandler {
 
     public async postForm(ignore_check = false, reset_form = true) {
         if (!this.form) throw 'No form for booking';
-        if (!this.form.valid) {
-            const invalid_fields = getInvalidFields(
+        // For all-day bookings the date/duration window is derived from the
+        // all-day period at post time. Apply that clamped window up-front so the
+        // form's duration validator sees the real (valid) window rather than a
+        // stale duration left over from before the all-day toggle. The time-sync
+        // effect does this asynchronously; doing it here keeps posting correct
+        // even when the reactive flush has not yet run.
+        if (this.model().all_day && this.model().date) {
+            const { date, duration, date_end } = this._allDayTimeRange(
+                this.model().date,
+            );
+            this._patch({ date, duration, date_end });
+        }
+        if (!this.form().valid()) {
+            const invalid_fields = getInvalidSignalFields(
                 this.form,
+                this.model,
                 this._invalid_field_mappings(),
             );
             throw i18n('FORM.INVALID_FIELDS', {
                 field_list: invalid_fields.join(', '),
             });
         }
-        this.form.patchValue({
+        this._patch({
             booking_type:
-                this.form.getRawValue().booking_type || this._options().type,
+                this.model().booking_type || this._options().type,
         });
-        const value = this.form.getRawValue();
+        const value = this.model() as any;
         const booking = this._booking() || new Booking();
         const all_day_period = value.all_day
             ? this._allDayTimeRange(value.date)
@@ -991,7 +1025,7 @@ export class BookingFormService extends AsyncHandler {
         const { booking_type } = value;
         if (reset_form) {
             this.clearForm();
-            this.form?.patchValue({ booking_type });
+            this._patch({ booking_type });
         }
         this.last_success = result;
         sessionStorage.setItem(
@@ -1046,7 +1080,7 @@ export class BookingFormService extends AsyncHandler {
         const selected =
             candidates[Math.floor(Math.random() * candidates.length)];
         const zone = selected.zone;
-        this.form.patchValue({
+        this._patch({
             resources: [selected],
             asset_id: selected.id,
             asset_name: selected.name || selected.id,
@@ -1075,7 +1109,7 @@ export class BookingFormService extends AsyncHandler {
             (_) => _.email !== currentUser().email,
         );
         if (extra_members.length <= 0) throw i18n('BOOKINGS.GROUP_NO_MEMBERS');
-        const form = this.form.getRawValue();
+        const form = this.model() as any;
         const group_members = unique(
             [currentUser(), ...extra_members],
             'email',
@@ -1155,7 +1189,7 @@ export class BookingFormService extends AsyncHandler {
                 const asset = resources[i];
                 const assets =
                     user.email == currentUser().email ? form.assets : [];
-                this.form.patchValue({
+                this._patch({
                     ...form,
                     assets,
                     parent_id,
@@ -1225,7 +1259,7 @@ export class BookingFormService extends AsyncHandler {
             );
         }
         this.clearForm();
-        this.form?.patchValue({ booking_type: type });
+        this._patch({ booking_type: type });
         this.setView('success');
         return user_booking;
     }
@@ -1236,7 +1270,7 @@ export class BookingFormService extends AsyncHandler {
         if (!members?.length) throw i18n('BOOKINGS.GROUP_NO_MEMBERS');
         const rollback_on_group_error =
             this.setting('rollback_group_bookings') === true;
-        const form = this.form.getRawValue();
+        const form = this.model() as any;
         const group_name = `${currentUser().email}[${format(
             Date.now(),
             'yyyy-MM-dd',
@@ -1256,7 +1290,7 @@ export class BookingFormService extends AsyncHandler {
             for (const visitor of members) {
                 if (!visitor.email) continue;
                 const visitor_name = visitor.name || visitor.email;
-                this.form.patchValue({
+                this._patch({
                     ...form,
                     id: '',
                     asset_id: visitor.email,
@@ -1296,7 +1330,7 @@ export class BookingFormService extends AsyncHandler {
             throw this._error_message(error);
         }
         this.clearForm();
-        this.form?.patchValue({ booking_type: 'visitor' });
+        this._patch({ booking_type: 'visitor' });
         this.setView('success');
         return first_booking;
     }
@@ -1334,7 +1368,7 @@ export class BookingFormService extends AsyncHandler {
     ): Promise<Booking> {
         const { members, type } = this._options();
         if (!members?.length) throw i18n('BOOKINGS.GROUP_NO_MEMBERS');
-        const form = this.form.getRawValue();
+        const form = this.model() as any;
         const base_form = { ...form, id: '' };
         const parent_id = form.parent_id || form.id;
         const group_name =
@@ -1381,7 +1415,7 @@ export class BookingFormService extends AsyncHandler {
                 const booking_id = existing?.id || '';
                 if (is_visitor) {
                     const member_name = member.name || member.email;
-                    this.form.patchValue({
+                    this._patch({
                         ...base_form,
                         id: booking_id,
                         parent_id: booking_id === parent_id ? '' : parent_id,
@@ -1412,7 +1446,7 @@ export class BookingFormService extends AsyncHandler {
                     });
                 } else {
                     const asset = desk_resources[index];
-                    this.form.patchValue({
+                    this._patch({
                         ...base_form,
                         id: booking_id,
                         parent_id: booking_id === parent_id ? '' : parent_id,
@@ -1430,7 +1464,7 @@ export class BookingFormService extends AsyncHandler {
             throw this._error_message(error);
         }
         this.clearForm();
-        this.form?.patchValue({ booking_type: type });
+        this._patch({ booking_type: type });
         this.setView('success');
         return first_result;
     }
@@ -1477,6 +1511,13 @@ export class BookingFormService extends AsyncHandler {
         id = '',
     ) {
         const group_members = this.mapGroupMembers(resource_type, members);
+        // The form model carries a stale top-level `group_members` (spread from
+        // the source booking's extension_data when the form was created). The
+        // Booking constructor copies unknown top-level keys into
+        // `extension_data`, so that stale value would clobber the freshly
+        // computed `group_members` below. Drop it from the spread.
+        const { group_members: _stale_group_members, ...form_data } =
+            form as any;
         const zones = unique(
             [
                 ...(form.zones || []),
@@ -1486,7 +1527,7 @@ export class BookingFormService extends AsyncHandler {
         );
         return saveBooking(
             new Booking({
-                ...form,
+                ...form_data,
                 id,
                 parent_id: '',
                 asset_id: group_name,
@@ -1541,7 +1582,7 @@ export class BookingFormService extends AsyncHandler {
             user_email: user.email,
             user_name: user.name,
         };
-        this.form.patchValue(host_data, { emitEvent: false });
+        this._patch(host_data, { emitEvent: false });
         const saved_form = JSON.parse(
             sessionStorage.getItem('PLACEOS.booking_form') || '{}',
         );
@@ -1561,7 +1602,7 @@ export class BookingFormService extends AsyncHandler {
     }
 
     private _resource_type_label(): string {
-        const form_booking_type = this.form.getRawValue().booking_type;
+        const form_booking_type = this.model().booking_type;
         const booking_type =
             form_booking_type && form_booking_type !== ' '
                 ? form_booking_type
@@ -1936,7 +1977,7 @@ export class BookingFormService extends AsyncHandler {
         resources: BookingAsset[],
         zones: string,
     ): Promise<string[]> {
-        const value = this.form.getRawValue();
+        const value = this.model() as any;
         const booking = new Booking({
             ...value,
             booking_type: 'desk',

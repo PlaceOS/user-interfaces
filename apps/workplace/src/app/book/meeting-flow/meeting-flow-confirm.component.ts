@@ -287,7 +287,7 @@ export class MeetingFlowConfirmComponent
     }
 
     public get event(): CalendarEvent {
-        return this._event_form.form.getRawValue() as any;
+        return this._event_form.model() as any;
     }
 
     public get space() {

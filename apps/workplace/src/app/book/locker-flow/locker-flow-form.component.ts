@@ -15,7 +15,7 @@ import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
     OrganisationService,
-    getInvalidFields,
+    getInvalidSignalFields,
     i18n,
     nextValueFrom,
     notifyError,
@@ -78,16 +78,23 @@ export class BookLockerFlowFormComponent implements OnInit {
         return this._state.form;
     }
 
+    public get model() {
+        return this._state.model;
+    }
+
     public readonly clearForm = () => {
         this.level = this._org.building.id;
         this._state.clearForm();
     };
 
     public readonly viewConfirm = () => {
-        if (!this.form.valid)
+        if (!this.form().valid())
             return notifyError(
                 i18n('FORM.INVALID_FIELDS', {
-                    field_list: getInvalidFields(this.form).join(', '),
+                    field_list: getInvalidSignalFields(
+                        this.form,
+                        this.model,
+                    ).join(', '),
                 }),
             );
         this.sheet_ref = this._bottom_sheet.open(
@@ -115,8 +122,11 @@ export class BookLockerFlowFormComponent implements OnInit {
             { id: this._org.building?.id, name: 'Any Level' },
             ...this._org.levelsForBuilding(this._org.building),
         ];
-        if (isBefore(this.form.value.date, Date.now())) {
-            this.form.patchValue({ date: startOfMinute(Date.now()).valueOf() });
+        if (isBefore(this.model().date, Date.now())) {
+            this.model.update((m) => ({
+                ...m,
+                date: startOfMinute(Date.now()).valueOf(),
+            }));
         }
     }
 }

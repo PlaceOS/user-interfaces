@@ -3,7 +3,7 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { SettingsService } from '@placeos/common';
 import { addDays, endOfDay } from 'date-fns';
 
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -39,10 +39,7 @@ import { BookingFormService } from '../booking-form.service';
                 {{ 'COMMON.FILTERS' | translate }}
             </h3>
         </div>
-        <form
-            class="divide-base-200 relative z-0 w-full divide-y p-2"
-            [formGroup]="form"
-        >
+        <form class="divide-base-200 relative z-0 w-full divide-y p-2">
             <section details>
                 <h2 class="mb-1 text-lg font-medium">
                     {{ 'BOOKINGS.DETAILS' | translate }}
@@ -132,10 +129,12 @@ import { BookingFormService } from '../booking-form.service';
                     <label>{{ 'FORM.DATE' | translate }}</label>
                     <a-date-field
                         name="date"
-                        [ngModel]="form.getRawValue().date"
-                        (ngModelChange)="form.patchValue({ date: $event })"
+                        [ngModel]="model().date"
+                        (ngModelChange)="
+                            model.update((m) => ({ ...m, date: $event }))
+                        "
                         [ngModelOptions]="{ standalone: true }"
-                        [disabled]="form.controls.date.disabled"
+                        [disabled]="form.date().disabled()"
                         [to]="end_date()"
                         [timezone]="timezone()"
                     >
@@ -143,12 +142,12 @@ import { BookingFormService } from '../booking-form.service';
                     </a-date-field>
                 </div>
                 <!-- All Day -->
-                @if (allow_all_day() && !form.controls.date.disabled) {
+                @if (allow_all_day() && !form.date().disabled()) {
                     <div class="-mt-2 mb-2 flex justify-end">
                         <mat-checkbox
-                            [ngModel]="form.value.all_day"
+                            [ngModel]="model().all_day"
                             (ngModelChange)="
-                                form.patchValue({ all_day: $event })
+                                model.update((m) => ({ ...m, all_day: $event }))
                             "
                             [ngModelOptions]="{ standalone: true }"
                         >
@@ -157,15 +156,15 @@ import { BookingFormService } from '../booking-form.service';
                     </div>
                 }
                 <!-- Start End -->
-                @if (!form.value.all_day) {
+                @if (!model().all_day) {
                     <div class="flex items-center space-x-2">
                         <div class="w-1/3 flex-1">
                             <label>{{ 'FORM.TIME_START' | translate }}</label>
                             <a-time-field
                                 name="start-time"
-                                [ngModel]="form.value.date"
+                                [ngModel]="model().date"
                                 (ngModelChange)="
-                                    form.patchValue({ date: $event })
+                                    model.update((m) => ({ ...m, date: $event }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr()"
@@ -176,12 +175,15 @@ import { BookingFormService } from '../booking-form.service';
                         <div class="w-1/3 flex-1">
                             <label>{{ 'FORM.TIME_END' | translate }}</label>
                             <a-duration-field
-                                [ngModel]="form.value.duration"
+                                [ngModel]="model().duration"
                                 (ngModelChange)="
-                                    form.patchValue({ duration: $event })
+                                    model.update((m) => ({
+                                        ...m,
+                                        duration: $event,
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
-                                [time]="form.get('date')?.value"
+                                [time]="model().date"
                                 [max]="10 * 60"
                                 [min]="60"
                                 [step]="60"
@@ -256,7 +258,6 @@ import { BookingFormService } from '../booking-form.service';
         DateFieldComponent,
         MatFormFieldModule,
         MatSelectModule,
-        ReactiveFormsModule,
         FormsModule,
         BuildingPipe,
     ],
@@ -275,6 +276,7 @@ export class ParkingFiltersComponent {
     public readonly buildings = this._org.active_buildings;
     public readonly building = this._org.active_building;
     public readonly form = this._state.form;
+    public readonly model = this._state.model;
     public readonly regions = this._org.region_list;
     public readonly region = this._org.active_region;
 

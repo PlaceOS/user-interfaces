@@ -25,7 +25,7 @@ export interface BookingModalData {
     selector: 'booking-modal',
     template: `
         <header>
-            <h2>{{ form?.value.id ? 'Edit' : 'New' }} Booking</h2>
+            <h2>{{ model()?.id ? 'Edit' : 'New' }} Booking</h2>
             <div class="w-0 flex-1"></div>
             <button icon mat-dialog-close>
                 <icon>close</icon>
@@ -83,6 +83,10 @@ export class BookingModalComponent implements OnInit {
         return this._service.form;
     }
 
+    public get model() {
+        return this._service.model;
+    }
+
     public async ngOnInit() {
         let event = this._data.event;
         if (event?.creator !== event?.mailbox) {
@@ -101,17 +105,19 @@ export class BookingModalComponent implements OnInit {
                 event.all_day;
         }
         this._service.newForm(event);
-        this.form.patchValue({
+        this.model.update((m) => ({
+            ...m,
             organiser: currentUser(),
             host: currentUser().email,
-        });
+        }));
     }
 
     public async save() {
-        if (!this.form.value.host) {
-            this.form.patchValue({
+        if (!this.model().host) {
+            this.model.update((m) => ({
+                ...m,
                 host: currentUser().email,
-            });
+            }));
         }
         const event = await this._service.postForm().catch((_) => {
             notifyError(_);

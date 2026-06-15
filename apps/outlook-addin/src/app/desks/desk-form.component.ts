@@ -2,16 +2,22 @@ import {
     ChangeDetectionStrategy,
     Component,
     inject,
+    Injector,
     OnInit,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { AssetListFieldComponent } from '@placeos/assets';
 import { BookingFormService, DeskListFieldComponent } from '@placeos/bookings';
-import { AsyncHandler, Desk, settingSignal } from '@placeos/common';
+import {
+    AsyncHandler,
+    Desk,
+    onFieldChange,
+    settingSignal,
+} from '@placeos/common';
 import {
     DateFieldComponent,
     DurationFieldComponent,
@@ -22,7 +28,7 @@ import {
     selector: 'desk-booking-form',
     template: `
         @if (form) {
-            <div class="divide-base-200 space-y-2 divide-y" [formGroup]="form">
+            <div class="divide-base-200 space-y-2 divide-y">
                 <section class="p-4">
                     <h3 class="mb-4 flex items-center space-x-2">
                         <div
@@ -38,8 +44,7 @@ import {
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
-                                    name="title"
-                                    formControlName="title"
+                                    [formField]="form.title"
                                     placeholder="e.g. Focus Time"
                                 />
                                 <mat-error
@@ -49,7 +54,7 @@ import {
                         </div>
                         <div class="w-full sm:flex-1">
                             <label for="date">Date<span>*</span></label>
-                            <a-date-field name="date" formControlName="date">
+                            <a-date-field [formField]="form.date">
                                 Date and time must be in the future
                             </a-date-field>
                         </div>
@@ -61,9 +66,9 @@ import {
                             >
                             <a-time-field
                                 name="start-time"
-                                [ngModel]="form_value().date"
+                                [ngModel]="model().date"
                                 (ngModelChange)="
-                                    form.patchValue({ date: $event })
+                                    model.update((m) => ({ ...m, date: $event }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                             ></a-time-field>
@@ -71,9 +76,8 @@ import {
                         <div class="w-full sm:flex-1">
                             <label for="end-time">End Time<span>*</span></label>
                             <a-duration-field
-                                name="end-time"
-                                formControlName="duration"
-                                [time]="form_value().date"
+                                [formField]="form.duration"
+                                [time]="model().date"
                                 [max]="10 * 60"
                                 [min]="60"
                                 [step]="60"
@@ -81,7 +85,7 @@ import {
                             </a-duration-field>
                             @if (allow_all_day()) {
                                 <mat-checkbox
-                                    formControlName="all_day"
+                                    [formField]="form.all_day"
                                     class="absolute top-0 right-0"
                                 >
                                     All Day
@@ -94,14 +98,15 @@ import {
                             <div class="w-1/3 flex-1">
                                 <mat-checkbox
                                     [ngModel]="
-                                        !!form_value().secondary_resource
+                                        !!model().secondary_resource
                                     "
                                     (ngModelChange)="
-                                        form.patchValue({
+                                        model.update((m) => ({
+                                            ...m,
                                             secondary_resource: $event
                                                 ? 'locker'
                                                 : '',
-                                        })
+                                        }))
                                     "
                                     [ngModelOptions]="{ standalone: true }"
                                 >
@@ -121,7 +126,7 @@ import {
                         <div class="text-xl">Desk</div>
                     </h3>
                     <desk-list-field
-                        formControlName="resources"
+                        [formField]="form.resources"
                     ></desk-list-field>
                 </section>
                 @if (allow_assets()) {
@@ -136,10 +141,10 @@ import {
                         </h3>
                         <asset-list-field
                             [options]="{
-                                date: form_value().date,
-                                duration: form_value().duration,
+                                date: model().date,
+                                duration: model().duration,
                             }"
-                            formControlName="assets"
+                            [formField]="form.assets"
                         ></asset-list-field>
                     </section>
                 }
@@ -153,7 +158,7 @@ import {
         DeskListFieldComponent,
         MatCheckboxModule,
         FormsModule,
-        ReactiveFormsModule,
+        FormField,
         DurationFieldComponent,
         TimeFieldComponent,
         DateFieldComponent,
@@ -163,11 +168,10 @@ import {
 })
 export class DeskBookingFormComponent extends AsyncHandler implements OnInit {
     private _service = inject(BookingFormService);
+    private _injector = inject(Injector);
 
     public readonly form = this._service.form;
-    public readonly form_value = toSignal(this.form.valueChanges, {
-        initialValue: this.form.getRawValue(),
-    });
+    public readonly model = this._service.model;
     public readonly allow_assets = settingSignal('desks.allow_assets', false);
     public readonly allow_all_day = settingSignal('desks.allow_all_day', false);
     public readonly can_book_lockers = settingSignal(
@@ -177,19 +181,18 @@ export class DeskBookingFormComponent extends AsyncHandler implements OnInit {
 
     public ngOnInit() {
         this._service.setOptions({ type: 'desk' });
-        this.subscription(
-            'change',
-            this._service.form
-                .get('resources')
-                ?.valueChanges?.subscribe((list) =>
-                    list.length ? this.setBookingAsset(list[0]) : '',
-                ),
+        onFieldChange(
+            this._service.model,
+            (m) => m.resources,
+            (list) => (list?.length ? this.setBookingAsset(list[0]) : ''),
+            this._injector,
         );
     }
 
     private setBookingAsset(desk: Desk) {
         if (!desk) return;
-        this._service.form.patchValue({
+        this._service.model.update((m) => ({
+            ...m,
             asset_id: desk?.id,
             asset_name: desk.name,
             map_id: desk?.map_id || desk?.id,
@@ -197,6 +200,6 @@ export class DeskBookingFormComponent extends AsyncHandler implements OnInit {
             booking_type: 'desk',
             zones: desk.zone ? [desk.zone?.parent_id, desk.zone?.id] : [],
             booking_asset: desk,
-        });
+        }));
     }
 }

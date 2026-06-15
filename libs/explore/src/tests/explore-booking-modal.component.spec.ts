@@ -1,7 +1,7 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
-import { signal } from '@angular/core';
-import { MockProvider, ngMocks } from 'ng-mocks';
+import { inject, Injector, signal } from '@angular/core';
+import { MockProvider, MockService, ngMocks } from 'ng-mocks';
 import { timer } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
@@ -18,12 +18,28 @@ describe('ExploreBookingModalComponent', () => {
             MockProvider(MAT_DIALOG_DATA, {
                 space: { id: 'one', name: 'Test Space', email: '1' },
             }),
-            MockProvider(EventFormService, {
-                form: generateEventForm(),
-                newForm: jest.fn(),
-                postForm: jest.fn(async () => ({})),
-                loading: signal(''),
-            } as any),
+            {
+                provide: EventFormService,
+                useFactory: () => {
+                    // `generateEventForm` calls `form()` which uses
+                    // `inject()`, so it must run in an injection context.
+                    const { model, form } = generateEventForm(
+                        undefined,
+                        undefined,
+                        inject(Injector),
+                    );
+                    // Return a plain partial — wrapping in MockService mocks
+                    // away the real signal-forms FieldTree, breaking
+                    // `[formField]` bindings (`this.field(...) is not a function`).
+                    return {
+                        model,
+                        form,
+                        newForm: jest.fn(),
+                        postForm: jest.fn(async () => ({})),
+                        loading: signal(''),
+                    } as Partial<EventFormService>;
+                },
+            },
             MockProvider(SettingsService, {
                 get: jest.fn(),
                 app_name: 'workplace',
@@ -40,7 +56,7 @@ describe('ExploreBookingModalComponent', () => {
 
     it('should allow changing the title and duration', () => {
         spectator.detectChanges();
-        expect('input[name="title"]').toExist();
+        expect('input#title').toExist();
         expect('a-duration-field').toExist();
     });
 
@@ -50,10 +66,11 @@ describe('ExploreBookingModalComponent', () => {
     });
 
     it('should allow booking space', async () => {
-        spectator.component.form.patchValue({
+        spectator.component.model.update((m) => ({
+            ...m,
             host: 'host@place.tech',
             creator: 'creator@place.tech',
-        });
+        }));
         spectator.typeInElement('Freedom Booking', 'input[name="title"]');
         const spy = jest.spyOn(spectator.component, 'save');
         spectator.click('footer button');

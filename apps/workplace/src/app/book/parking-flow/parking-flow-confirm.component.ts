@@ -153,7 +153,7 @@ export class NewParkingFlowConfirmComponent extends AsyncHandler {
     }
 
     public get booking() {
-        return this._state.form.getRawValue() as any;
+        return this._state.model() as any;
     }
 
     public get assets() {

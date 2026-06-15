@@ -600,7 +600,7 @@ export class MeetingFlowConfirmModalComponent
     }
 
     public get event() {
-        return this._event_form.form.getRawValue() as any;
+        return this._event_form.model() as any;
     }
 
     public get space(): Space {
@@ -665,7 +665,7 @@ export class MeetingFlowConfirmModalComponent
             !this._event_form.event ||
             this.event.date !== this._event_form.event.date ||
             this.event.date_end !== this._event_form.event.date_end;
-        const event = this._event_form.form.getRawValue();
+        const event = this._event_form.model();
         this._loading.next(true);
         if (this.has_assets && event.assets?.length) {
             await validateAssetRequestsForResource(
@@ -692,7 +692,10 @@ export class MeetingFlowConfirmModalComponent
                     (this as any).assets = event.assets?.map(
                         (_) => new AssetRequest({ ..._, event }),
                     );
-                    this._event_form.form.patchValue({ assets: event.assets });
+                    this._event_form.model.update((m) => ({
+                        ...m,
+                        assets: event.assets,
+                    }));
                 },
                 100,
             );

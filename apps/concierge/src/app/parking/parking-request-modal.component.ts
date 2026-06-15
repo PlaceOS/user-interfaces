@@ -15,7 +15,7 @@ import {
     AsyncHandler,
     Booking,
     currentUser,
-    getInvalidFields,
+    getInvalidSignalFields,
     i18n,
     notifyError,
     notifySuccess,
@@ -39,7 +39,7 @@ import { ParkingRequestFormDetailsComponent } from '../../../../workplace/src/ap
     template: `
         <fullscreen-modal-shell
             [heading]="
-                form.value.id
+                model().id
                     ? ('APP.CONCIERGE.PARKING_REQUEST_EDIT' | translate)
                     : ('APP.CONCIERGE.PARKING_REQUEST_NEW' | translate)
             "
@@ -56,7 +56,7 @@ import { ParkingRequestFormDetailsComponent } from '../../../../workplace/src/ap
                         <icon>local_parking</icon>
                         <div>
                             {{
-                                form.value.id
+                                model().id
                                     ? ('APP.CONCIERGE.PARKING_REQUEST_EDIT'
                                       | translate)
                                     : ('BOOKINGS.PARKING_REQUEST_TITLE'
@@ -165,12 +165,14 @@ export class ParkingRequestModalComponent
     );
 
     public form = this._booking_form.form;
+    public model = this._booking_form.model;
 
     public async ngOnInit() {
         this._booking_form.newForm('parking', this._data.booking);
         this._booking_form.setOptions({ type: 'parking' });
-        const form_value = this.form.getRawValue();
-        this.form.patchValue({
+        const form_value = this.model();
+        this.model.update((m) => ({
+            ...m,
             user: form_value.user || currentUser(),
             title: form_value.title || 'Parking Request',
             booking_type: 'parking',
@@ -180,57 +182,59 @@ export class ParkingRequestModalComponent
             extra_space_restrictions: form_value.extra_space_restrictions || [],
             prefer_booked_location_first:
                 form_value.prefer_booked_location_first ?? false,
-            date: this.form.value.date || this._defaultStartDate(),
-            duration: this.form.value.duration || 540,
+            date: form_value.date || this._defaultStartDate(),
+            duration: form_value.duration || 540,
             all_day: form_value.all_day ?? false,
             recurrence_type: form_value.recurrence_type || 'none',
-        });
+        }));
         const parking_user = this._parking.user_details();
         if (parking_user?.email) {
-            if (!this.form.value.plate_number) {
-                this.form.patchValue({
+            if (!this.model().plate_number) {
+                this.model.update((m) => ({
+                    ...m,
                     plate_number:
                         this._settings.get('plate_number') ||
                         parking_user.plate_number ||
                         '',
-                });
+                }));
             }
             this.show_special_needs.set(!!parking_user.special_needs);
         }
     }
 
     public async postForm() {
-        if (!this.form.getRawValue().date) {
-            const was_disabled = this.form.controls.date.disabled;
-            if (was_disabled) this.form.controls.date.enable();
-            this.form.patchValue({
+        if (!this.model().date) {
+            this.model.update((m) => ({
+                ...m,
                 date: roundToNearestMinutes(Date.now(), {
                     nearestTo: 5,
                     roundingMethod: 'ceil',
                 }).valueOf(),
-            });
-            if (was_disabled) this.form.controls.date.disable();
+            }));
         }
         const building = this._org.building;
-        const form_value = this.form.getRawValue();
-        this.form.patchValue({
+        const form_value = this.model();
+        this.model.update((m) => ({
+            ...m,
             asset_id: form_value.asset_id || `unallocated-${randomString(8)}`,
             asset_name: 'Parking Request',
             description: 'Parking Request',
-            title: this.form.value.title || 'Parking Request',
+            title: form_value.title || 'Parking Request',
             booking_type: 'parking',
             zones: unique([
                 this._org.organisation.id,
                 this._org.region?.id,
                 building?.id,
             ]).filter((_) => _),
-        });
-        this.form.markAllAsTouched();
-        this.form.updateValueAndValidity();
-        if (this.form.invalid) {
+        }));
+        this.form().markAsTouched();
+        if (this.form().invalid()) {
             return notifyError(
                 i18n('FORM.INVALID_FIELDS', {
-                    field_list: getInvalidFields(this.form).join(', '),
+                    field_list: getInvalidSignalFields(
+                        this.form,
+                        this.model,
+                    ).join(', '),
                 }),
             );
         }

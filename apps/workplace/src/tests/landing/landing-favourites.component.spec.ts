@@ -27,7 +27,10 @@ describe('LandingFavouritesComponent', () => {
                 loadParkingResources: jest.fn(() => of([])),
                 newForm: jest.fn(),
                 setOptions: jest.fn(),
-                form: { patchValue: jest.fn() },
+                model: Object.assign(jest.fn(() => ({})), {
+                    update: jest.fn(),
+                    set: jest.fn(),
+                }),
             } as any),
             MockProvider(Router, { navigate: jest.fn() }),
             MockProvider(SpacePipe),
@@ -53,7 +56,7 @@ describe('LandingFavouritesComponent', () => {
         });
         expect(booking_form.newForm).not.toHaveBeenCalled();
         expect(booking_form.setOptions).not.toHaveBeenCalled();
-        expect(booking_form.form.patchValue).not.toHaveBeenCalled();
+        expect(booking_form.model.update).not.toHaveBeenCalled();
         jest.useRealTimers();
     });
 
@@ -75,7 +78,10 @@ describe('LandingFavouritesComponent', () => {
         expect(booking_form.setOptions).toHaveBeenCalledWith({
             type: 'parking',
         });
-        expect(booking_form.form.patchValue).toHaveBeenCalledWith({
+        expect(booking_form.model.update).toHaveBeenCalled();
+        const update_fn = (booking_form.model.update as jest.Mock).mock
+            .calls[0][0];
+        expect(update_fn({})).toEqual({
             resources: [item],
             asset_id: 'park-123',
             booking_type: 'parking',

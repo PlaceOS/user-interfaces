@@ -9,20 +9,20 @@ import {
     input,
     OnInit,
     signal,
+    untracked,
+    WritableSignal,
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
-import {
-    FormGroup,
-    FormsModule,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     bookedResourceList,
+    BookingForm,
+    BookingFormValue,
     ParkingService,
     queryBookings,
 } from '@placeos/bookings';
@@ -48,8 +48,8 @@ import {
     startOfDay,
     startOfWeek,
 } from 'date-fns';
-import { combineLatest, defer, from, of } from 'rxjs';
-import { catchError, filter, map, startWith, switchMap } from 'rxjs/operators';
+import { combineLatest, defer, from, Observable, of } from 'rxjs';
+import { catchError, filter, map, switchMap } from 'rxjs/operators';
 import { SettingsToggleComponent } from '../../../../../../libs/components/src/lib/settings-toggle.component';
 
 interface ParkingRequestShiftOption {
@@ -147,8 +147,8 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
 @Component({
     selector: 'parking-request-form-details',
     template: `
-        @if (form()) {
-            <div class="space-y-4" [formGroup]="form()">
+        @if (form() && model) {
+            <div class="space-y-4">
                 <!-- BOOKING FREQUENCY -->
                 <div class="border-base-300 space-y-3 rounded-lg border p-4">
                     <h3
@@ -158,8 +158,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                         {{ 'BOOKINGS.PARKING_BOOKING_FREQUENCY' | translate }}
                     </h3>
                     <a-date-field
-                        name="date"
-                        formControlName="date"
+                        [formField]="form().date"
                         [to]="end_date()"
                         [timezone]="timezone"
                     ></a-date-field>
@@ -391,24 +390,24 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                             <div
                                 class="flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors"
                                 [class.border-info]="
-                                    form().value.request_type === type.id
+                                    model().request_type === type.id
                                 "
                                 [class.border-base-300]="
-                                    form().value.request_type !== type.id
+                                    model().request_type !== type.id
                                 "
                                 (click)="setRequestType(type.id)"
                             >
                                 <div
                                     class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2"
                                     [class.border-info]="
-                                        form().value.request_type === type.id
+                                        model().request_type === type.id
                                     "
                                     [class.border-base-300]="
-                                        form().value.request_type !== type.id
+                                        model().request_type !== type.id
                                     "
                                 >
                                     @if (
-                                        form().value.request_type === type.id
+                                        model().request_type === type.id
                                     ) {
                                         <div
                                             class="bg-info h-2.5 w-2.5 rounded-full"
@@ -442,7 +441,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                 {{ 'BOOKINGS.REQUEST_SPACE_FOR' | translate }}
                             </h4>
                             <a-user-search-field
-                                formControlName="user"
+                                [formField]="form().user"
                                 [guests]="
                                     allow_any_host() ||
                                     (can_book_for_anyone() &&
@@ -474,7 +473,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                             <mat-form-field appearance="outline" class="w-full">
                                 <textarea
                                     matInput
-                                    formControlName="notes"
+                                    [formField]="form().notes"
                                     rows="3"
                                 ></textarea>
                             </mat-form-field>
@@ -877,7 +876,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                         </div>
                         @if (!hide_prefer_toggle()) {
                             <settings-toggle
-                                formControlName="prefer_booked_location_first"
+                                [formField]="form().prefer_booked_location_first"
                             >
                                 {{
                                     'BOOKINGS.PARKING_PREFER_BOOKED_LOCATION_FIRST'
@@ -975,7 +974,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                 }}
                             </label>
                             <mat-form-field appearance="outline" class="w-full">
-                                <mat-select formControlName="vehicle_type">
+                                <mat-select [formField]="form().vehicle_type">
                                     @for (
                                         vtype of vehicle_type_options();
                                         track vtype.id
@@ -999,7 +998,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
-                                    formControlName="plate_number"
+                                    [formField]="form().plate_number"
                                     [placeholder]="
                                         'BOOKINGS.PARKING_REGISTRATION_PLACEHOLDER'
                                             | translate
@@ -1035,7 +1034,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                         </h3>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
-                                formControlName="approver_group"
+                                [formField]="form().approver_group"
                                 [placeholder]="
                                     'BOOKINGS.PARKING_APPROVER_GROUP_PLACEHOLDER'
                                         | translate
@@ -1129,8 +1128,8 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
-        ReactiveFormsModule,
         FormsModule,
+        FormField,
         MatFormFieldModule,
         MatInputModule,
         MatSelectModule,
@@ -1179,34 +1178,29 @@ export class ParkingRequestFormDetailsComponent
             if (this.forced_request_time()) return;
             this._applyPreferredShift();
         });
+        // Plate-number `required` validation lives in the booking form
+        // schema; nothing to toggle here.
         effect(() => {
             const form = this.form();
-            if (!form) return;
-            const control = form.controls.plate_number;
-            if (!control) return;
-            if (this.require_plate_number()) {
-                control.addValidators(Validators.required);
-            } else {
-                control.removeValidators(Validators.required);
-            }
-            control.updateValueAndValidity({ emitEvent: false });
-        });
-        effect(() => {
-            const form = this.form();
-            if (!form) return;
+            const model = this.model;
+            if (!form || !model) return;
             const requires_manual_approval =
                 !!this.selected_request_type()?.requires_manual_approval;
-            if (
-                form.getRawValue().requires_manual_approval ===
-                requires_manual_approval
-            )
+            if (model().requires_manual_approval === requires_manual_approval)
                 return;
-            form.patchValue({ requires_manual_approval });
+            model.update((m) => ({ ...m, requires_manual_approval }));
         });
     }
 
-    public readonly form = input<FormGroup>(undefined);
+    public readonly form = input<BookingForm>(undefined);
+    public readonly model_input =
+        input<WritableSignal<BookingFormValue>>(undefined);
     public readonly show_special_needs = input<boolean>(false);
+
+    /** Writable signal holding the raw booking form value */
+    public get model() {
+        return this.model_input();
+    }
     public readonly force_show_host_select = input<boolean>(false);
     public readonly force_allow_any_host = input<boolean>(false);
     public readonly building = toObservable(this._org.active_building);
@@ -1460,7 +1454,7 @@ export class ParkingRequestFormDetailsComponent
         return all_options.filter((_) => allowed_ids.includes(_.id));
     });
     public readonly selected_space_restriction = computed(() => {
-        const value = this.form()?.getRawValue()?.space_restrictions;
+        const value = this.model()?.space_restrictions;
         if (typeof value === 'string' && value) return value;
         return this.space_restriction_options()[0]?.id || '';
     });
@@ -1545,7 +1539,9 @@ export class ParkingRequestFormDetailsComponent
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
         const form = this.form();
-        if (!form) return;
+        const model = this.model;
+        if (!form || !model) return;
+        const value$ = toObservable(model, { injector: this._injector });
         this.subscription(
             'ensure_valid_building',
             combineLatest([this.building_list, this.building])
@@ -1567,7 +1563,7 @@ export class ParkingRequestFormDetailsComponent
                 toObservable(this._parking.spaces, {
                     injector: this._injector,
                 }),
-                form.valueChanges.pipe(startWith(form.getRawValue())),
+                value$,
             ])
                 .pipe(
                     filter(([bld]) => !!bld?.id),
@@ -1616,18 +1612,14 @@ export class ParkingRequestFormDetailsComponent
             'default_building_from_desk_booking',
             combineLatest([
                 this.building_list,
-                form.controls.date.valueChanges.pipe(
-                    startWith(form.getRawValue().date),
-                ),
-                form.controls.user.valueChanges.pipe(
-                    startWith(form.getRawValue().user),
-                ),
+                value$.pipe(map((v) => v.date)),
+                value$.pipe(map((v) => v.user)),
             ])
                 .pipe(
                     switchMap(([buildings, date, user]) => {
                         if (
                             !this.default_location_from_desk_booking() ||
-                            form.getRawValue().id ||
+                            model().id ||
                             !date ||
                             buildings?.length <= 1
                         ) {
@@ -1669,33 +1661,34 @@ export class ParkingRequestFormDetailsComponent
                     }
                 }),
         );
-        this._initShiftStateFromForm(form);
-        if (form.value.request_type) {
-            this.selected_request_type_id.set(form.value.request_type);
+        this._initShiftStateFromForm(model);
+        if (model().request_type) {
+            this.selected_request_type_id.set(model().request_type);
         }
         this._syncRequestTypeTime();
-        this._syncRequestTypeUser(form);
-        this._syncPrefilledPlateNumber(form);
-        this._syncPlateNumberUser(form);
+        this._syncRequestTypeUser(model);
+        this._syncPrefilledPlateNumber(model, value$);
+        this._syncPlateNumberUser(model, value$);
         if (
             this.filtered_approver_group_options().length &&
             !this.is_auto_approved()
         ) {
-            const current = form.value.approver_group;
+            const current = model().approver_group;
             if (
                 !current ||
                 !this.filtered_approver_group_options().find(
                     (_) => _.id === current,
                 )
             ) {
-                form.patchValue({
+                model.update((m) => ({
+                    ...m,
                     approver_group:
                         this.filtered_approver_group_options()[0].id,
-                });
+                }));
             }
         }
         if (this.space_restriction_options().length) {
-            const current = form.value.space_restrictions;
+            const current = model().space_restrictions;
             if (
                 !current ||
                 current === true ||
@@ -1710,30 +1703,31 @@ export class ParkingRequestFormDetailsComponent
             }
         }
         const is_daily =
-            this.allow_recurrence() && form.value.recurrence_type === 'daily';
+            this.allow_recurrence() && model().recurrence_type === 'daily';
         this.booking_frequency.set(is_daily ? 'daily' : 'single');
-        if (!this.allow_recurrence() && form.value.recurrence_type !== 'none') {
-            form.patchValue({
+        if (!this.allow_recurrence() && model().recurrence_type !== 'none') {
+            model.update((m) => ({
+                ...m,
                 recurrence_type: 'none',
                 recurrence_days: null,
                 recurrence_interval: null,
                 recurrence_end: null,
-            });
+            }));
         }
         if (is_daily) {
-            if (form.value.recurrence_days) {
+            if (model().recurrence_days) {
                 const days = new Set<number>();
                 for (let i = 1; i <= 7; i++) {
-                    if (form.value.recurrence_days & (1 << i)) days.add(i);
+                    if (model().recurrence_days & (1 << i)) days.add(i);
                 }
                 if (days.size > 0) this.selected_days.set(days);
             }
-            const raw_date = form.getRawValue().date;
-            if (form.value.recurrence_end && raw_date) {
+            const raw_date = model().date;
+            if (model().recurrence_end && raw_date) {
                 const recurrence_end =
-                    form.value.recurrence_end < 1e12
-                        ? form.value.recurrence_end * 1000
-                        : form.value.recurrence_end;
+                    model().recurrence_end < 1e12
+                        ? model().recurrence_end * 1000
+                        : model().recurrence_end;
                 const reference = startOfDay(raw_date);
                 const ref_dow =
                     reference.getDay() === 0 ? 7 : reference.getDay();
@@ -1779,16 +1773,16 @@ export class ParkingRequestFormDetailsComponent
 
     public setRequestType(type_id: string) {
         this.selected_request_type_id.set(type_id);
-        const form = this.form();
-        if (!form) return;
-        form.patchValue({ request_type: type_id });
+        const model = this.model;
+        if (!model) return;
+        model.update((m) => ({ ...m, request_type: type_id }));
         this._syncRequestTypeTime();
-        this._syncRequestTypeUser(form);
+        this._syncRequestTypeUser(model);
         const options = this.filtered_approver_group_options();
         if (options.length && !this.is_auto_approved()) {
-            const current = form.value.approver_group;
+            const current = model().approver_group;
             if (!current || !options.find((_) => _.id === current)) {
-                form.patchValue({ approver_group: options[0].id });
+                model.update((m) => ({ ...m, approver_group: options[0].id }));
             }
         }
     }
@@ -1796,23 +1790,25 @@ export class ParkingRequestFormDetailsComponent
     public setBookingFrequency(freq: 'single' | 'daily') {
         if (freq === 'daily' && !this.allow_recurrence()) return;
         this.booking_frequency.set(freq);
-        const form = this.form();
-        if (!form) return;
+        const model = this.model;
+        if (!model) return;
         if (freq === 'single') {
-            form.patchValue({
+            model.update((m) => ({
+                ...m,
                 recurrence_type: 'none',
                 recurrence_days: null,
                 recurrence_interval: null,
                 recurrence_end: null,
-            });
+            }));
         } else {
             this.selected_days.set(new Set([1, 2, 3, 4, 5]));
             this.num_weeks.set(1);
-            form.patchValue({
+            model.update((m) => ({
+                ...m,
                 recurrence_type: 'daily',
                 recurrence_interval: 1,
                 recurrence_days: this._computeDaysBitmask(),
-            });
+            }));
             this._updateRecurrenceEnd();
         }
     }
@@ -1886,28 +1882,28 @@ export class ParkingRequestFormDetailsComponent
     }
 
     public setSpaceRestriction(value: string) {
-        const form = this.form();
-        if (!form) return;
-        form.patchValue({
-            space_restrictions: value || false,
-        });
+        const model = this.model;
+        if (!model) return;
+        model.update((m) => ({
+            ...m,
+            space_restrictions: (value || false) as any,
+        }));
     }
 
     public isExtraRestrictionSelected(id: string): boolean {
-        const form = this.form();
-        const value = form?.getRawValue()?.extra_space_restrictions;
+        const value = this.model?.()?.extra_space_restrictions;
         return Array.isArray(value) && value.includes(id);
     }
 
     public setExtraRestriction(id: string, enabled: boolean) {
-        const form = this.form();
-        if (!form) return;
-        const current = form.getRawValue()?.extra_space_restrictions;
+        const model = this.model;
+        if (!model) return;
+        const current = model()?.extra_space_restrictions;
         const list = Array.isArray(current) ? [...current] : [];
         const index = list.indexOf(id);
         if (enabled && index === -1) list.push(id);
         if (!enabled && index !== -1) list.splice(index, 1);
-        form.patchValue({ extra_space_restrictions: list });
+        model.update((m) => ({ ...m, extra_space_restrictions: list }));
     }
 
     public setBuilding(bld) {
@@ -1916,7 +1912,7 @@ export class ParkingRequestFormDetailsComponent
     }
 
     public shiftTime(mins: number): number {
-        const raw_date = this.form()?.getRawValue()?.date || Date.now();
+        const raw_date = this.model?.()?.date || Date.now();
         const tz = this.timezone;
         return startOfDayInTimezone(raw_date, tz) + mins * 60 * 1000;
     }
@@ -1948,9 +1944,14 @@ export class ParkingRequestFormDetailsComponent
     }
 
     private _updateFormTimes(start_mins: number, end_mins: number) {
-        const form = this.form();
-        if (!form) return;
-        const raw_date = form.getRawValue().date || Date.now();
+        const model = this.model;
+        if (!model) return;
+        // Read the current model value without creating a reactive dependency:
+        // `_updateFormTimes` is invoked from inside the preferred-shift
+        // `effect()`, and tracking `model()` here would make the effect
+        // re-run on its own write — an infinite loop.
+        const current = untracked(model);
+        const raw_date = current.date || Date.now();
         const tz = this.timezone;
         const day = startOfDayInTimezone(raw_date, tz);
         let new_date = day + start_mins * 60 * 1000;
@@ -1963,35 +1964,33 @@ export class ParkingRequestFormDetailsComponent
         // forward by whole days until the window ends in the future, so the
         // `endInFuture` validator on `duration` passes. Only applied to new
         // bookings — existing ones may legitimately represent past windows.
-        if (!form.value.id) {
+        if (!current.id) {
             while (new_date + duration * 60 * 1000 <= Date.now()) {
                 new_date = addDays(new_date, 1).valueOf();
             }
         }
-        const was_disabled = form.controls.date.disabled;
-        if (was_disabled) form.controls.date.enable({ emitEvent: false });
-        // Clear `all_day` first so the booking-form time sync doesn't
-        // bail out of its date/duration handlers (which short-circuit when
-        // `all_day` is set) and so `postForm` doesn't substitute the
-        // building's all-day period for the shift window we're about to
-        // write. The parking shift _is_ the time window — it must win.
-        if (form.controls.all_day) {
-            form.controls.all_day.patchValue(false, { emitEvent: false });
+        const new_date_end = new_date + duration * 60 * 1000;
+        // Nothing to do if the window already matches — avoids redundant
+        // model writes that would needlessly re-trigger reactive consumers.
+        if (
+            current.all_day === false &&
+            current.date === new_date &&
+            current.date_end === new_date_end &&
+            current.duration === duration
+        ) {
+            return;
         }
-        // Patch `date` silently so the generic booking-form time sync does
-        // not snap shift start times earlier in the day back to `now` or
-        // realign them to bookable hours — the shift select must
-        // authoritatively set the form's start time and duration.
-        form.controls.date.patchValue(new_date, { emitEvent: false });
-        if (form.controls.date_end) {
-            form.controls.date_end.patchValue(new_date + duration * 60 * 1000, {
-                emitEvent: false,
-            });
-        }
-        // Patch `duration` loudly so downstream subscriptions (availability,
-        // asset lookups, etc.) see the updated window.
-        form.controls.duration.patchValue(duration);
-        if (was_disabled) form.controls.date.disable({ emitEvent: false });
+        // The parking shift _is_ the time window — it must win. Clear
+        // `all_day`, set the date window and duration in one update so the
+        // booking-form time sync doesn't substitute the building's all-day
+        // period for the shift window we're writing.
+        model.update((m) => ({
+            ...m,
+            all_day: false,
+            date: new_date,
+            date_end: new_date_end,
+            duration,
+        }));
     }
 
     private _computeDaysBitmask(): number {
@@ -2001,25 +2000,29 @@ export class ParkingRequestFormDetailsComponent
     }
 
     private _updateRecurrenceDays() {
-        const form = this.form();
-        if (!form || this.booking_frequency() !== 'daily') return;
-        form.patchValue({ recurrence_days: this._computeDaysBitmask() });
+        const model = this.model;
+        if (!model || this.booking_frequency() !== 'daily') return;
+        model.update((m) => ({
+            ...m,
+            recurrence_days: this._computeDaysBitmask(),
+        }));
     }
 
     private _updateRecurrenceEnd() {
-        const form = this.form();
-        if (!form || this.booking_frequency() !== 'daily') return;
+        const model = this.model;
+        if (!model || this.booking_frequency() !== 'daily') return;
         const dates = this._computeRecurrenceDates();
         if (!dates.length) return;
-        form.patchValue({
+        model.update((m) => ({
+            ...m,
             recurrence_end: getUnixTime(endOfDay(dates[dates.length - 1])),
-        });
+        }));
     }
 
     private _computeRecurrenceDates(): number[] {
-        const form = this.form();
-        if (!form) return [];
-        const raw_date = form.getRawValue()?.date || Date.now();
+        const model = this.model;
+        if (!model) return [];
+        const raw_date = model()?.date || Date.now();
         const reference = startOfDay(raw_date);
         const latest_date = this.end_date();
         const ref_dow = reference.getDay() === 0 ? 7 : reference.getDay();
@@ -2135,18 +2138,20 @@ export class ParkingRequestFormDetailsComponent
      * pick the preferred shift for the active configuration. Called once
      * on initialisation.
      */
-    private _initShiftStateFromForm(form: FormGroup) {
+    private _initShiftStateFromForm(
+        model: WritableSignal<BookingFormValue>,
+    ) {
         const default_custom_shift = this._defaultCustomShift();
         this.custom_start_time_mins.set(default_custom_shift.start_time);
         this.custom_end_time_mins.set(default_custom_shift.end_time);
-        const date = form.getRawValue().date;
+        const date = model().date;
         if (date) {
             const { hours, minutes } = getTimeInTimezone(
                 date,
                 this.timezone || undefined,
             );
             const start = hours * 60 + minutes;
-            const duration = form.value.duration || DEFAULT_DAY_DURATION_MINS;
+            const duration = model().duration || DEFAULT_DAY_DURATION_MINS;
             this.start_time_mins.set(start);
             this.end_time_mins.set(start + duration);
             const { start_time, end_time } = this._normaliseShiftTime(
@@ -2250,19 +2255,19 @@ export class ParkingRequestFormDetailsComponent
         this._applyShift(CUSTOM_SHIFT_ID);
     }
 
-    private _syncRequestTypeUser(form: FormGroup) {
+    private _syncRequestTypeUser(model: WritableSignal<BookingFormValue>) {
         const current_user = currentUser();
-        const selected_user = form.getRawValue().user;
+        const selected_user = model().user;
         if (this.allow_any_host()) return;
         if (!this.can_book_for_anyone() || !this.host_book_as()) {
             if (this.force_show_host_select()) {
                 if (selected_user?.is_external) {
-                    form.patchValue({ user: current_user || null });
+                    model.update((m) => ({ ...m, user: current_user || null }));
                 }
                 return;
             }
             if (current_user && selected_user?.email !== current_user.email) {
-                form.patchValue({ user: current_user });
+                model.update((m) => ({ ...m, user: current_user }));
             }
             return;
         }
@@ -2270,23 +2275,26 @@ export class ParkingRequestFormDetailsComponent
             this.host_book_as() === 'externals' &&
             !selected_user?.is_external
         ) {
-            form.patchValue({ user: null });
+            model.update((m) => ({ ...m, user: null }));
             return;
         }
         if (this.host_book_as() === 'internals' && selected_user?.is_external) {
-            form.patchValue({ user: current_user || null });
+            model.update((m) => ({ ...m, user: current_user || null }));
         }
     }
 
-    private _syncPrefilledPlateNumber(form: FormGroup) {
+    private _syncPrefilledPlateNumber(
+        model: WritableSignal<BookingFormValue>,
+        value$: Observable<BookingFormValue>,
+    ) {
         this.subscription(
             'prefilled_plate_number',
-            form.controls.plate_number.valueChanges
-                .pipe(startWith(form.getRawValue().plate_number))
+            value$
+                .pipe(map((v) => v.plate_number))
                 .subscribe((plate_number) => {
                     if (this._prefilled_plate_number) return;
                     if (
-                        this._userEmail(form.getRawValue().user) !==
+                        this._userEmail(model().user) !==
                         this._userEmail(currentUser())
                     ) {
                         return;
@@ -2297,11 +2305,14 @@ export class ParkingRequestFormDetailsComponent
         );
     }
 
-    private _syncPlateNumberUser(form: FormGroup) {
-        let previous_email = this._userEmail(form.getRawValue().user);
+    private _syncPlateNumberUser(
+        model: WritableSignal<BookingFormValue>,
+        value$: Observable<BookingFormValue>,
+    ) {
+        let previous_email = this._userEmail(model().user);
         this.subscription(
             'plate_number_user',
-            form.controls.user.valueChanges.subscribe((selected_user) => {
+            value$.pipe(map((v) => v.user)).subscribe((selected_user) => {
                 const current_email = this._userEmail(currentUser());
                 const selected_email = this._userEmail(selected_user);
                 const user_changed = selected_email !== previous_email;
@@ -2310,17 +2321,17 @@ export class ParkingRequestFormDetailsComponent
                 if (selected_email === current_email) {
                     if (
                         this._prefilled_plate_number &&
-                        form.getRawValue().plate_number !==
-                            this._prefilled_plate_number
+                        model().plate_number !== this._prefilled_plate_number
                     ) {
-                        form.patchValue({
+                        model.update((m) => ({
+                            ...m,
                             plate_number: this._prefilled_plate_number,
-                        });
+                        }));
                     }
                     return;
                 }
-                if (!form.getRawValue().plate_number) return;
-                form.patchValue({ plate_number: '' });
+                if (!model().plate_number) return;
+                model.update((m) => ({ ...m, plate_number: '' }));
             }),
         );
     }

@@ -1,12 +1,13 @@
 import {
     Component,
     computed,
-    effect,
     inject,
+    Injector,
     input,
     signal,
 } from '@angular/core';
-import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -15,6 +16,7 @@ import {
     AsyncHandler,
     currentUser,
     formatDuration,
+    onFieldChange,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
@@ -51,7 +53,7 @@ const ALLOWED_CALENDAR_ROLES = [
     selector: 'meeting-form-details',
     template: `
         @if (form()) {
-            <div [formGroup]="form()">
+            <div>
                 <div class="flex flex-wrap items-center sm:space-x-2">
                     <div class="min-w-[256px] flex-1">
                         <label for="title">{{
@@ -59,9 +61,9 @@ const ALLOWED_CALENDAR_ROLES = [
                         }}</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
+                                id="title"
                                 matInput
-                                name="title"
-                                formControlName="title"
+                                [formField]="form().title"
                                 [placeholder]="
                                     'CALENDAR_EVENT.TITLE_PLACEHOLDER'
                                         | translate
@@ -78,8 +80,8 @@ const ALLOWED_CALENDAR_ROLES = [
                                 {{ 'FORM.DATE' | translate }}<span>*</span>
                             </label>
                             <a-date-field
-                                name="date"
-                                formControlName="date"
+                                id="date"
+                                [formField]="form().date"
                                 [to]="end_date()"
                                 [use_24hr]="use_24hr()"
                                 [timezone]="timezone()"
@@ -88,7 +90,7 @@ const ALLOWED_CALENDAR_ROLES = [
                             </a-date-field>
                             @if (allow_all_day()) {
                                 <mat-checkbox
-                                    formControlName="all_day"
+                                    [formField]="form().all_day"
                                     class="absolute -top-2 right-2"
                                 >
                                     {{ 'COMMON.ALL_DAY' | translate }}
@@ -104,8 +106,7 @@ const ALLOWED_CALENDAR_ROLES = [
                                 {{ 'FORM.DATE' | translate }}<span>*</span>
                             </label>
                             <a-date-field
-                                name="date"
-                                formControlName="date"
+                                [formField]="form().date"
                                 [to]="end_date()"
                                 [use_24hr]="use_24hr()"
                                 [timezone]="timezone()"
@@ -115,7 +116,7 @@ const ALLOWED_CALENDAR_ROLES = [
                             </a-date-field>
                             @if (allow_all_day()) {
                                 <mat-checkbox
-                                    formControlName="all_day"
+                                    [formField]="form().all_day"
                                     class="absolute -top-2 right-2"
                                 >
                                     {{ 'COMMON.ALL_DAY' | translate }}
@@ -127,8 +128,7 @@ const ALLOWED_CALENDAR_ROLES = [
                                 {{ 'FORM.DATE_END' | translate }}<span>*</span>
                             </label>
                             <a-date-field
-                                name="date"
-                                formControlName="date_end"
+                                [formField]="form().date_end"
                                 [from]="start_date"
                                 [to]="end_date()"
                                 [use_24hr]="use_24hr()"
@@ -140,7 +140,7 @@ const ALLOWED_CALENDAR_ROLES = [
                         </div>
                     </div>
                 }
-                @if (!form().value.all_day) {
+                @if (!model().all_day) {
                     <div class="flex items-center space-x-2">
                         <div class="w-1/3 flex-1">
                             <label for="start-time">
@@ -149,12 +149,12 @@ const ALLOWED_CALENDAR_ROLES = [
                             </label>
                             <a-time-field
                                 name="start-time"
-                                [ngModel]="form().getRawValue().date"
+                                [ngModel]="model().date"
                                 (ngModelChange)="
-                                    form().patchValue({ date: $event })
+                                    model.update((m) => ({ ...m, date: $event }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
-                                [disabled]="form().controls.date.disabled"
+                                [disabled]="form().date().disabled()"
                                 [range]="bookable_hours()"
                                 [min_duration]="effective_min_duration()"
                                 [use_24hr]="use_24hr()"
@@ -169,15 +169,15 @@ const ALLOWED_CALENDAR_ROLES = [
                                 </label>
                                 <a-time-field
                                     name="end-time"
-                                    [ngModel]="form().value.date_end"
+                                    [ngModel]="model().date_end"
                                     (ngModelChange)="
-                                        form().patchValue({ date_end: $event })
+                                        model.update((m) => ({
+                                            ...m,
+                                            date_end: $event,
+                                        }))
                                     "
                                     [ngModelOptions]="{ standalone: true }"
-                                    [from]="
-                                        form()?.getRawValue()?.date +
-                                        30 * 60 * 1000
-                                    "
+                                    [from]="model()?.date + 30 * 60 * 1000"
                                     [range]="bookable_hours()"
                                     [use_24hr]="use_24hr()"
                                     [extra_info_fn]="duration_info"
@@ -192,9 +192,9 @@ const ALLOWED_CALENDAR_ROLES = [
                                     }}<span>*</span>
                                 </label>
                                 <a-duration-field
-                                    name="end-time"
-                                    formControlName="duration"
-                                    [time]="form()?.getRawValue()?.date"
+                                    id="end-time"
+                                    [formField]="form().duration"
+                                    [time]="model()?.date"
                                     [max]="max_duration()"
                                     [min]="min_duration()"
                                     [step]="duration_step()"
@@ -213,8 +213,7 @@ const ALLOWED_CALENDAR_ROLES = [
                             {{ 'FORM.HOST' | translate }}<span>*</span>
                         </label>
                         <a-user-search-field
-                            name="host"
-                            formControlName="organiser"
+                            [formField]="form().organiser"
                         ></a-user-search-field>
                         @if (checking_permission()) {
                             <p class="text-pending mt-1 text-xs">
@@ -233,8 +232,7 @@ const ALLOWED_CALENDAR_ROLES = [
                             {{ 'FORM.HOST' | translate }}<span>*</span>
                         </label>
                         <host-select-field
-                            name="host"
-                            formControlName="organiser"
+                            [formField]="form().organiser"
                         ></host-select-field>
                     </div>
                 }
@@ -244,15 +242,14 @@ const ALLOWED_CALENDAR_ROLES = [
                             {{ 'FORM.RECURRENCE' | translate }}<span>*</span>
                         </label>
                         <recurrence-field
-                            name="recurrence"
                             type="event"
-                            [date]="form().getRawValue().date"
+                            [date]="model().date"
                             [available_days]="allowed_future_days()"
                             (first_instance)="onFirstInstanceChange($event)"
-                            formControlName="recurrence"
+                            [formField]="form().recurrence"
                         ></recurrence-field>
-                        @if (form().value.id) {
-                            <mat-checkbox formControlName="update_master">
+                        @if (model().id) {
+                            <mat-checkbox [formField]="form().update_master">
                                 {{ 'FORM.UPDATE_FUTURE' | translate }}
                             </mat-checkbox>
                         }
@@ -264,7 +261,7 @@ const ALLOWED_CALENDAR_ROLES = [
                             {{ 'COMMON.VISIBILITY' | translate }}<span>*</span>
                         </label>
                         <mat-form-field appearance="outline">
-                            <mat-select formControlName="visibility">
+                            <mat-select [formField]="form().visibility">
                                 @for (
                                     option of visibility_options;
                                     track option.value
@@ -283,14 +280,15 @@ const ALLOWED_CALENDAR_ROLES = [
                 @if (allow_online_meetings()) {
                     <settings-toggle
                         [ngModel]="
-                            form().value.meeting_provider === 'teamsForBusiness'
+                            model().meeting_provider === 'teamsForBusiness'
                         "
                         (ngModelChange)="
-                            form().patchValue({
+                            model.update((m) => ({
+                                ...m,
                                 meeting_provider: $event
                                     ? 'teamsForBusiness'
                                     : null,
-                            })
+                            }))
                         "
                         [ngModelOptions]="{ standalone: true }"
                     >
@@ -314,7 +312,7 @@ const ALLOWED_CALENDAR_ROLES = [
         DateFieldComponent,
         MatFormFieldModule,
         MatInputModule,
-        ReactiveFormsModule,
+        FormField,
         FormsModule,
         SettingsToggleComponent,
     ],
@@ -384,24 +382,26 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
         [],
     );
 
-    public readonly form = input<FormGroup>(undefined);
+    private _injector = inject(Injector);
+
+    public readonly form = input<EventFormService['form']>(undefined);
     public readonly checking_permission = signal(false);
     public readonly permission_error = signal('');
 
     public readonly minimum_duration = 30;
 
+    public get model() {
+        return this._event_form.model;
+    }
+
     constructor() {
         super();
-        effect(() => {
-            const form = this.form();
-            if (!form) return;
-            this.subscription(
-                'organiser_permission_check',
-                form.get('organiser').valueChanges.subscribe((user) => {
-                    this._checkCalendarPermission(user);
-                }),
-            );
-        });
+        onFieldChange(
+            this.model,
+            (m) => m.organiser,
+            (user) => this._checkCalendarPermission(user),
+            this._injector,
+        );
     }
 
     private async _checkCalendarPermission(user: any) {
@@ -413,7 +413,7 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
         this.checking_permission.set(true);
         try {
             const permission = await queryCalendarPermission(checked_email);
-            if (this.form()?.value?.organiser?.email !== checked_email) return;
+            if (this.model()?.organiser?.email !== checked_email) return;
             const can_book =
                 (permission.has_access &&
                     ALLOWED_CALENDAR_ROLES.includes(permission.role)) ||
@@ -425,7 +425,7 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
                 this._resetHostToCurrentUser();
             }
         } catch (_) {
-            if (this.form()?.value?.organiser?.email !== checked_email) return;
+            if (this.model()?.organiser?.email !== checked_email) return;
             this.permission_error.set(
                 `You don't have permission to book on behalf of the user "${checked_email}", please select a user which has shared their calendar with Edit or Delegate permissions.`,
             );
@@ -437,16 +437,14 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
 
     private _resetHostToCurrentUser() {
         const user = currentUser();
-        this.form()?.patchValue(
-            {
-                host: user.email,
-                organiser: user,
-                user,
-                creator: user.email,
-                calendar: user.email,
-            },
-            { emitEvent: false },
-        );
+        this.model.update((m) => ({
+            ...m,
+            host: user.email,
+            organiser: user,
+            user,
+            creator: user.email,
+            calendar: user.email,
+        }));
         this._event_form.storeForm();
     }
 
@@ -458,7 +456,7 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
     public readonly allow_visibility = this._allow_visibility;
     public readonly allow_online_meetings = this._allow_online_meetings;
     public readonly allow_recurrence = computed(
-        () => this._allow_recurrence() && this.form().value.duration <= 24 * 60,
+        () => this._allow_recurrence() && this.model().duration <= 24 * 60,
     );
     public readonly allow_multiday = computed(
         () => this._allow_multiday() || this._event_form.is_multiday,
@@ -468,10 +466,9 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
     );
 
     public get start_date() {
-        const date = this.form().getRawValue().date || Date.now();
+        const date = this.model().date || Date.now();
         const date_end =
-            this.form().getRawValue().date_end ||
-            addMinutes(date, 30).valueOf();
+            this.model().date_end || addMinutes(date, 30).valueOf();
         const is_next_day =
             format(date, 'yyyy-MM-dd') !== format(date_end, 'yyyy-MM-dd');
         return is_next_day
@@ -492,7 +489,7 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
     );
 
     public readonly duration_info = (time: number) => {
-        const date = this.form().getRawValue().date;
+        const date = this.model().date;
         if (format(date, 'yyyy-MM-dd') !== format(time, 'yyyy-MM-dd'))
             return '';
         const diff = differenceInMinutes(time, date);
@@ -503,7 +500,7 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
     };
 
     public onFirstInstanceChange(date: number) {
-        this.form().patchValue({ date });
+        this.model.update((m) => ({ ...m, date }));
     }
 
     public readonly visibility_options = [

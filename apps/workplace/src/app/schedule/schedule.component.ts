@@ -304,7 +304,8 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
         this._booking_form.newForm(event.booking_type, event);
         if (event.booking_type === 'visitor') return;
         setTimeout(() => {
-            this._booking_form.form.patchValue({
+            this._booking_form.model.update((m) => ({
+                ...m,
                 resources: [
                     {
                         id: event.asset_id,
@@ -312,7 +313,7 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
                     },
                 ],
                 asset_id: event.asset_id,
-            });
+            }));
         }, 100);
     }
 

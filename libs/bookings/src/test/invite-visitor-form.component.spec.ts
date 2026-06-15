@@ -7,8 +7,8 @@ import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 
 import { Booking, OrganisationService, User } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
-import { signal } from '@angular/core';
-import { MockModule, MockProvider } from 'ng-mocks';
+import { inject, Injector, signal } from '@angular/core';
+import { MockModule, MockProvider, MockService } from 'ng-mocks';
 import { BookingFormService } from '../lib/booking-form.service';
 import { generateBookingForm } from '../lib/booking.utilities';
 
@@ -25,16 +25,30 @@ describe('InviteVisitorFormComponent', () => {
         component: InviteVisitorFormComponent,
         shallow: true,
         providers: [
-            MockProvider(BookingFormService, {
-                form: generateBookingForm(),
-                booking: new Booking(),
-                loading: signal(''),
-                setOptions: jest.fn(),
-                postForm: jest.fn(async () => new Booking()),
-                postFormForVisitorGroup: jest.fn(async () => new Booking()),
-                loadGroupSiblings: jest.fn(async () => []),
-                editFormForGroup: jest.fn(async () => new Booking()),
-            }),
+            {
+                provide: BookingFormService,
+                useFactory: () => {
+                    // `generateBookingForm` calls `form()` which uses
+                    // `inject()`, so it must run in an injection context.
+                    const { model, form } = generateBookingForm(
+                        new Booking(),
+                        inject(Injector),
+                    );
+                    return MockService(BookingFormService, {
+                        model,
+                        form,
+                        booking: new Booking(),
+                        loading: signal(''),
+                        setOptions: jest.fn(),
+                        postForm: jest.fn(async () => new Booking()),
+                        postFormForVisitorGroup: jest.fn(
+                            async () => new Booking(),
+                        ),
+                        loadGroupSiblings: jest.fn(async () => []),
+                        editFormForGroup: jest.fn(async () => new Booking()),
+                    });
+                },
+            },
             MockProvider(
                 OrganisationService as any,
                 {
@@ -75,44 +89,56 @@ describe('InviteVisitorFormComponent', () => {
     it('should resolve selected building from booking zones and patch selected building', async () => {
         const service = spectator.inject(BookingFormService);
         await spectator.component.ngOnInit();
-        service.form.patchValue({
+        service.model.update((m) => ({
+            ...m,
             zones: ['org-1', 'bld-2'],
-        });
+        }));
 
         expect(spectator.component.selected_building_id()).toBe('bld-2');
 
         spectator.component.setBuilding('bld-1');
 
-        expect(service.form.value.zones).toEqual(['bld-1']);
+        expect(service.model().zones).toEqual(['bld-1']);
     });
 
     it('should contain form fields', () => {
         expect('a-date-field').toExist();
         expect('a-time-field').toExist();
         expect('a-duration-field').toExist();
-        expect('input[name="visitor-name"]').toExist();
-        expect('input[name="visitor-email"]').toExist();
-        expect('input[name="reason"]').toExist();
+        // `name` was removed from `[formField]` inputs (NG8022), so assert on
+        // the stable `id`s instead.
+        expect('input#visitor-name').toExist();
+        expect('input#visitor-email').toExist();
+        // The reason input now binds via `[formField]="form.title"`, which sets
+        // its `name` to the field path, so assert on the stable label instead.
+        expect('label[for="reason"]').toExist();
     });
 
-    it('should reflect updated form date for time and duration fields', () => {
+    it('should reflect updated form date for time and duration fields', async () => {
         const service = spectator.inject(BookingFormService);
+        // ngOnInit registers the model.date → form_date sync listener.
+        await spectator.component.ngOnInit();
         const initial_date = spectator.component.form_date();
         const new_date = Date.now() + 60 * 60 * 1000;
 
-        expect(initial_date).toBe(service.form.getRawValue().date);
+        expect(initial_date).toBe(service.model().date);
 
-        service.form.patchValue({ date: new_date });
+        service.model.update((m) => ({ ...m, date: new_date }));
 
         expect(spectator.component.form_date()).toBe(new_date);
     });
 
     it('should reflect updated date disabled state for the start time field', () => {
+        const service = spectator.inject(BookingFormService);
         expect(spectator.component.is_start_time_disabled()).toBe(false);
 
-        spectator.inject(BookingFormService).form.get('date')?.disable({
-            emitEvent: false,
-        });
+        // The date field is disabled by schema logic when a saved booking
+        // (has id) has a date in the past.
+        service.model.update((m) => ({
+            ...m,
+            id: 'booking-1',
+            date: Date.now() - 60 * 60 * 1000,
+        }));
 
         expect(spectator.component.is_start_time_disabled()).toBe(true);
     });
@@ -122,9 +148,10 @@ describe('InviteVisitorFormComponent', () => {
         expect(service.postForm).not.toHaveBeenCalled();
         spectator.click('button[send]');
         expect(service.postForm).not.toHaveBeenCalled();
-        service.form.patchValue({
+        service.model.update((m) => ({
+            ...m,
             asset_id: 'test@mail.com',
-        });
+        }));
         spectator.click('button[send]');
         expect(service.postForm).toHaveBeenCalled();
     });
@@ -164,24 +191,25 @@ describe('InviteVisitorFormComponent', () => {
                 extension_data: { company: 'Org Two' },
             }),
         ]);
-        service.form.patchValue({
+        service.model.update((m) => ({
+            ...m,
             id: 'booking-parent',
             booking_type: 'visitor',
             date: Date.now(),
             duration: 60,
             asset_name: 'Visitor One',
             asset_id: 'visitor.one@example.com',
-        });
+        }));
 
         await spectator.component.ngOnInit();
         await wait(0);
 
         expect(service.loadGroupSiblings).toHaveBeenCalled();
-        expect(service.form.value.assets).toHaveLength(2);
-        expect(service.form.value.assets[0].email).toBe(
+        expect(service.model().assets).toHaveLength(2);
+        expect(service.model().assets[0].email).toBe(
             'visitor.one@example.com',
         );
-        expect(service.form.value.assets[1].email).toBe(
+        expect(service.model().assets[1].email).toBe(
             'visitor.two@example.com',
         );
     });
@@ -208,19 +236,20 @@ describe('InviteVisitorFormComponent', () => {
                 },
             }),
         ]);
-        service.form.patchValue({
+        service.model.update((m) => ({
+            ...m,
             id: 'booking-parent',
             booking_type: 'visitor',
             date: Date.now(),
             duration: 60,
             asset_name: 'Vendor Interview',
             asset_id: 'visitor.one@example.com',
-        });
+        }));
 
         await spectator.component.ngOnInit();
         await wait(0);
 
-        expect(service.form.value.assets[0].name).toBe('Visitor One');
+        expect(service.model().assets[0].name).toBe('Visitor One');
     });
 
     it('should load group members from extension data when sibling lookup is empty', async () => {
@@ -249,22 +278,23 @@ describe('InviteVisitorFormComponent', () => {
                 ],
             },
         });
-        service.form.patchValue({
+        service.model.update((m) => ({
+            ...m,
             id: 'booking-parent',
             booking_type: 'visitor',
             date: Date.now(),
             duration: 60,
             asset_name: 'Visitor One',
             asset_id: 'visitor.one@example.com',
-        });
+        }));
 
         await spectator.component.ngOnInit();
 
-        expect(service.form.value.assets).toHaveLength(2);
-        expect(service.form.value.assets[0].email).toBe(
+        expect(service.model().assets).toHaveLength(2);
+        expect(service.model().assets[0].email).toBe(
             'visitor.one@example.com',
         );
-        expect(service.form.value.assets[1].email).toBe(
+        expect(service.model().assets[1].email).toBe(
             'visitor.two@example.com',
         );
     });
@@ -276,17 +306,18 @@ describe('InviteVisitorFormComponent', () => {
             key === 'app.bookings.multiple_visitors' ? false : undefined,
         );
         await spectator.component.ngOnInit();
-        service.form.patchValue({
+        service.model.update((m) => ({
+            ...m,
             asset_id: 'visitor@example.com',
             asset_name: 'Visitor Name',
             title: 'Vendor Interview',
             description: 'Visit',
-        });
+        }));
 
         await spectator.component.sendInvite();
 
         expect(service.postForm).toHaveBeenCalled();
-        expect(service.form.value.title).toBe('Vendor Interview');
+        expect(service.model().title).toBe('Vendor Interview');
     });
 
     it('should edit as a group when converting single visitor booking to multiple', async () => {
@@ -296,7 +327,8 @@ describe('InviteVisitorFormComponent', () => {
             (key: string) => key === 'app.bookings.multiple_visitors',
         );
         (service.loadGroupSiblings as jest.Mock).mockResolvedValue([]);
-        service.form.patchValue({
+        service.model.update((m) => ({
+            ...m,
             id: 'booking-parent',
             booking_type: 'visitor',
             date: Date.now(),
@@ -313,7 +345,7 @@ describe('InviteVisitorFormComponent', () => {
                     email: 'visitor.two@example.com',
                 },
             ],
-        });
+        }));
         await spectator.component.ngOnInit();
 
         await spectator.component.sendInvite();
@@ -331,7 +363,8 @@ describe('InviteVisitorFormComponent', () => {
         (settings.get as jest.Mock).mockImplementation(
             (key: string) => key === 'app.bookings.multiple_visitors',
         );
-        service.form.patchValue({
+        service.model.update((m) => ({
+            ...m,
             id: 'booking-parent',
             booking_type: 'visitor',
             date: Date.now(),
@@ -348,11 +381,11 @@ describe('InviteVisitorFormComponent', () => {
                     phone: '1234',
                 }),
             ],
-        });
+        }));
 
         await spectator.component.ngOnInit();
 
-        expect(service.form.value.asset_id).toBe(
+        expect(service.model().asset_id).toBe(
             'original.visitor@example.com',
         );
     });
@@ -380,7 +413,8 @@ describe('InviteVisitorFormComponent', () => {
                     asset_id: 'visitor.two@example.com',
                 }),
             ]);
-        service.form.patchValue({
+        service.model.update((m) => ({
+            ...m,
             id: 'booking-parent',
             booking_type: 'visitor',
             date: Date.now(),
@@ -393,7 +427,7 @@ describe('InviteVisitorFormComponent', () => {
                     email: 'visitor.one@example.com',
                 },
             ],
-        });
+        }));
 
         await spectator.component.ngOnInit();
         await spectator.component.sendInvite();
@@ -412,15 +446,17 @@ describe('InviteVisitorFormComponent', () => {
             key === 'app.bookings.multiple_visitors' ? false : undefined,
         );
         const booking_date = Date.now() - 10 * 60 * 1000;
-        service.form.patchValue({
+        // A saved booking (has id) with a past date disables the date field
+        // via the form schema's `disabled` rule.
+        service.model.update((m) => ({
+            ...m,
             id: 'booking-parent',
             booking_type: 'visitor',
             date: booking_date,
             duration: 60,
             asset_id: 'visitor@example.com',
             asset_name: 'Visitor',
-        });
-        service.form.get('date').disable();
+        }));
 
         await spectator.component.ngOnInit();
 
@@ -435,18 +471,19 @@ describe('InviteVisitorFormComponent', () => {
             key === 'app.bookings.multiple_visitors' ? false : undefined,
         );
         await spectator.component.ngOnInit();
-        service.form.patchValue({
+        service.model.update((m) => ({
+            ...m,
             asset_id: 'visitor@example.com',
             asset_name: 'Visitor Name',
             title: '',
             description: '',
-        });
+        }));
 
         await spectator.component.sendInvite();
 
         expect(service.postForm).toHaveBeenCalled();
-        expect(service.form.value.title).toBe('Visit');
-        expect(service.form.value.description || '').toBe('');
+        expect(service.model().title).toBe('Visit');
+        expect(service.model().description || '').toBe('');
     });
 
     it('should keep preloaded edit booking date when initialising visitor form', async () => {
@@ -458,19 +495,20 @@ describe('InviteVisitorFormComponent', () => {
         sessionStorage.removeItem('PLACEOS.booking_form');
         sessionStorage.removeItem('PLACEOS.booking_form_filters');
         const booking_date = Date.now() - 15 * 60 * 1000;
-        service.form.patchValue({
+        service.model.update((m) => ({
+            ...m,
             id: 'booking-edit',
             booking_type: 'visitor',
             date: booking_date,
             duration: 60,
             asset_id: 'visitor@example.com',
             asset_name: 'Visitor',
-        });
+        }));
 
         await spectator.component.ngOnInit();
 
-        expect(service.form.getRawValue().id).toBe('booking-edit');
-        expect(service.form.getRawValue().date).toBe(booking_date);
+        expect(service.model().id).toBe('booking-edit');
+        expect(service.model().date).toBe(booking_date);
     });
 
     it('should keep preloaded edit booking date when booking only has visitor type', async () => {
@@ -491,19 +529,20 @@ describe('InviteVisitorFormComponent', () => {
             asset_id: 'visitor@example.com',
             asset_name: 'Visitor',
         });
-        service.form.patchValue({
+        service.model.update((m) => ({
+            ...m,
             id: 'booking-edit-type-only',
             booking_type: ' ',
             date: booking_date,
             duration: 60,
             asset_id: 'visitor@example.com',
             asset_name: 'Visitor',
-        });
+        }));
 
         await spectator.component.ngOnInit();
 
-        expect(service.form.getRawValue().id).toBe('booking-edit-type-only');
-        expect(service.form.getRawValue().date).toBe(booking_date);
+        expect(service.model().id).toBe('booking-edit-type-only');
+        expect(service.model().date).toBe(booking_date);
     });
 
     it('should read bookable_hours from visitor settings with fallback', () => {
@@ -553,14 +592,15 @@ describe('InviteVisitorFormComponent', () => {
                 ],
             },
         });
-        service.form.patchValue({
+        service.model.update((m) => ({
+            ...m,
             id: 'booking-parent',
             booking_type: 'visitor',
             date: Date.now(),
             duration: 60,
             asset_id: 'visitor.one@example.com',
             asset_name: 'Visitor One',
-        });
+        }));
 
         const result = await Promise.race([
             spectator.component.ngOnInit().then(() => 'ready'),
@@ -568,6 +608,6 @@ describe('InviteVisitorFormComponent', () => {
         ]);
 
         expect(result).toBe('ready');
-        expect(service.form.value.assets).toHaveLength(2);
+        expect(service.model().assets).toHaveLength(2);
     });
 });

@@ -1,9 +1,17 @@
+import { Injector } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { CalendarEvent } from '@placeos/common';
 
 import { generateSystemsFormFields } from '../lib/space.utilities';
 import { generateEventForm } from '../lib/utilities';
 
 describe('utilities', () => {
+    let injector: Injector;
+
+    beforeEach(() => {
+        injector = TestBed.inject(Injector);
+    });
+
     describe('generateEventForm', () => {
         it('should disable start date for in-progress edited events', () => {
             const now = Date.now();
@@ -13,9 +21,11 @@ describe('utilities', () => {
                 duration: 60,
             } as any);
 
-            const form = generateEventForm(event);
+            const { form } = TestBed.runInInjectionContext(() =>
+                generateEventForm(event, undefined, injector),
+            );
 
-            expect(form.controls.date.disabled).toBe(true);
+            expect(form.date().disabled()).toBe(true);
         });
 
         it('should disable start date for started edited events', () => {
@@ -26,9 +36,11 @@ describe('utilities', () => {
                 duration: 60,
             } as any);
 
-            const form = generateEventForm(event);
+            const { form } = TestBed.runInInjectionContext(() =>
+                generateEventForm(event, undefined, injector),
+            );
 
-            expect(form.controls.date.disabled).toBe(true);
+            expect(form.date().disabled()).toBe(true);
         });
 
         it('should allow start date edits for completed events', () => {
@@ -39,23 +51,38 @@ describe('utilities', () => {
                 duration: 30,
             } as any);
 
-            const form = generateEventForm(event);
+            const { form } = TestBed.runInInjectionContext(() =>
+                generateEventForm(event, undefined, injector),
+            );
 
-            expect(form.controls.date.disabled).toBe(false);
+            expect(form.date().disabled()).toBe(false);
         });
 
-        it('should update start date lock after form creation', () => {
-            const form = generateEventForm();
+        it('should keep the start date editable after updating an unlocked form', () => {
+            const { model, form } = TestBed.runInInjectionContext(() =>
+                generateEventForm(undefined, undefined, injector),
+            );
 
-            expect(form.controls.date.disabled).toBe(false);
+            expect(form.date().disabled()).toBe(false);
 
-            (form as any)._lock_start_time = true;
-            form.patchValue({ title: 'Update' });
-            expect(form.controls.date.disabled).toBe(true);
+            model.update((m) => ({ ...m, title: 'Update' }));
+            expect(form.date().disabled()).toBe(false);
+        });
 
-            (form as any)._lock_start_time = false;
-            form.patchValue({ title: 'Update Again' });
-            expect(form.controls.date.disabled).toBe(false);
+        it('should keep the start date locked after updating a locked form', () => {
+            const event = new CalendarEvent({
+                id: 'evt-locked',
+                date: Date.now() - 5 * 60 * 1000,
+                duration: 60,
+            } as any);
+            const { model, form } = TestBed.runInInjectionContext(() =>
+                generateEventForm(event, undefined, injector),
+            );
+
+            expect(form.date().disabled()).toBe(true);
+
+            model.update((m) => ({ ...m, title: 'Update' }));
+            expect(form.date().disabled()).toBe(true);
         });
     });
 

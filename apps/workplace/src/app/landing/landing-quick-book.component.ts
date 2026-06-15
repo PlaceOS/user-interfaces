@@ -104,17 +104,18 @@ export class LandingQuickBookComponent {
             this.loading.set('');
             return;
         }
-        this._book_form.form.patchValue({
+        this._book_form.model.update((m) => ({
+            ...m,
             resources: [resources[0]],
             asset_id: resources[0].id,
             asset_name: resources[0].name,
-        });
+        }));
         console.log('Resource:', resources[0], type);
         this.loading.set('');
         try {
             await this._book_form.confirmPost();
             this._router.navigate(['/book', type, 'success']);
         } catch {}
-        this._book_form.form.reset();
+        this._book_form.resetForm();
     }
 }

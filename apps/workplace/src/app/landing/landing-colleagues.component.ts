@@ -295,7 +295,10 @@ export class LandingColleaguesComponent extends AsyncHandler {
     public newMeeting(user: StaffUser) {
         this._event_form.newForm();
         setTimeout(() => {
-            this._event_form.form.patchValue({ attendees: [user] });
+            this._event_form.model.update((m) => ({
+                ...m,
+                attendees: [user],
+            }));
         }, 300);
         if (this._settings.get('app.new_features')) {
             this._router.navigate(['/book', 'meeting']);

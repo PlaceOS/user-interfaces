@@ -1,15 +1,16 @@
 import {
     Component,
     computed,
-    DestroyRef,
     effect,
     inject,
+    Injector,
     input,
+    linkedSignal,
     output,
     signal,
 } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 
 import { CommonModule } from '@angular/common';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -23,10 +24,11 @@ import {
     alignDateToBookableHours,
     Booking,
     currentUser,
-    getInvalidFields,
+    getInvalidSignalFields,
     i18n,
     notifyError,
     notifySuccess,
+    onFieldChange,
     SettingsService,
     User,
 } from '@placeos/common';
@@ -71,7 +73,7 @@ import { BookingFormService } from './booking-form.service';
                         </h2>
                     </div>
                     @if (form) {
-                        <form [formGroup]="form" class="px-4 py-4 sm:px-16">
+                        <form class="px-4 py-4 sm:px-16">
                             @if (buildings()?.length > 1) {
                                 <div class="flex flex-col">
                                     <label for="building">
@@ -110,18 +112,17 @@ import { BookingFormService } from './booking-form.service';
                                     {{ 'FORM.DATE' | translate }}<span>*</span>
                                 </label>
                                 <a-date-field
-                                    name="date"
-                                    formControlName="date"
+                                    [formField]="form.date"
                                 ></a-date-field>
                             </div>
                             @if (allow_all_day()) {
                                 <div class="-mt-2 mb-2 flex justify-end">
-                                    <mat-checkbox formControlName="all_day">
+                                    <mat-checkbox [formField]="form.all_day">
                                         {{ 'COMMON.ALL_DAY' | translate }}
                                     </mat-checkbox>
                                 </div>
                             }
-                            @if (!form.value.all_day) {
+                            @if (!model().all_day) {
                                 <div class="flex items-center space-x-2">
                                     <div class="flex w-1/3 flex-1 flex-col">
                                         <label for="start-time">
@@ -135,9 +136,10 @@ import { BookingFormService } from './booking-form.service';
                                                 is_start_time_disabled()
                                             "
                                             (ngModelChange)="
-                                                form.patchValue({
+                                                model.update((m) => ({
+                                                    ...m,
                                                     date: $event,
-                                                })
+                                                }))
                                             "
                                             [ngModelOptions]="{
                                                 standalone: true,
@@ -154,8 +156,7 @@ import { BookingFormService } from './booking-form.service';
                                             <span>*</span>
                                         </label>
                                         <a-duration-field
-                                            name="end-time"
-                                            formControlName="duration"
+                                            [formField]="form.duration"
                                             [time]="form_date()"
                                             [max]="max_duration()"
                                             [use_24hr]="use_24hr()"
@@ -172,9 +173,8 @@ import { BookingFormService } from './booking-form.service';
                                         }}<span>*</span>
                                     </label>
                                     <a-user-search-field
-                                        name="host"
                                         class="mb-4"
-                                        formControlName="user"
+                                        [formField]="form.user"
                                     ></a-user-search-field>
                                 </div>
                             } @else if (can_book_for_others()) {
@@ -184,8 +184,7 @@ import { BookingFormService } from './booking-form.service';
                                         }}<span>*</span>
                                     </label>
                                     <host-select-field
-                                        name="host"
-                                        formControlName="user"
+                                        [formField]="form.user"
                                     ></host-select-field>
                                 </div>
                             }
@@ -200,15 +199,15 @@ import { BookingFormService } from './booking-form.service';
                                     <mat-form-field appearance="outline">
                                         <input
                                             matInput
-                                            name="visitor-name"
-                                            formControlName="asset_name"
+                                            id="visitor-name"
+                                            [formField]="form.asset_name"
                                             [placeholder]="
                                                 'BOOKINGS.VISITOR_NAME_PLACEHOLDER'
                                                     | translate
                                             "
                                             (focus)="
                                                 filterVisitors(
-                                                    form.value.asset_name
+                                                    model().asset_name
                                                 )
                                             "
                                             [matAutocomplete]="name_auto"
@@ -255,16 +254,16 @@ import { BookingFormService } from './booking-form.service';
                                     <mat-form-field appearance="outline">
                                         <input
                                             matInput
-                                            name="visitor-email"
                                             type="email"
-                                            formControlName="asset_id"
+                                            id="visitor-email"
+                                            [formField]="form.asset_id"
                                             [placeholder]="
                                                 'BOOKINGS.VISITOR_EMAIL_PLACEHOLDER'
                                                     | translate
                                             "
                                             (focus)="
                                                 filterVisitors(
-                                                    form.value.asset_id
+                                                    model().asset_id
                                                 )
                                             "
                                             [matAutocomplete]="email_auto"
@@ -314,8 +313,7 @@ import { BookingFormService } from './booking-form.service';
                                     <mat-form-field appearance="outline">
                                         <input
                                             matInput
-                                            name="company"
-                                            formControlName="company"
+                                            [formField]="form.company"
                                             [placeholder]="
                                                 'BOOKINGS.VISITOR_COMPANY'
                                                     | translate
@@ -324,7 +322,7 @@ import { BookingFormService } from './booking-form.service';
                                     </mat-form-field>
                                 </div>
                             } @else {
-                                <div class="flex flex-col" [formGroup]="form">
+                                <div class="flex flex-col">
                                     <label for="visitor-name">
                                         {{
                                             'BOOKINGS.VISITOR_LIST' | translate
@@ -332,13 +330,13 @@ import { BookingFormService } from './booking-form.service';
                                         <span>*</span>
                                     </label>
                                     <a-user-list-field
-                                        formControlName="assets"
+                                        [formField]="form.assets"
                                         [guests_only]="true"
                                     ></a-user-list-field>
                                 </div>
                                 @if (
                                     allow_international &&
-                                    form.value.assets?.length
+                                    model().assets?.length
                                 ) {
                                     <div class="mb-2 flex flex-col">
                                         <label>International Visitors</label>
@@ -346,7 +344,7 @@ import { BookingFormService } from './booking-form.service';
                                             class="flex flex-wrap gap-x-4 gap-y-2"
                                         >
                                             @for (
-                                                item of form.value.assets;
+                                                item of model().assets;
                                                 track item.id || item.email
                                             ) {
                                                 <mat-checkbox
@@ -381,9 +379,8 @@ import { BookingFormService } from './booking-form.service';
                                 }}</label>
                                 <mat-form-field appearance="outline">
                                     <input
-                                        name="reason"
                                         matInput
-                                        formControlName="title"
+                                        [formField]="form.title"
                                         [placeholder]="
                                             'BOOKINGS.VISITOR_REASON_PLACEHOLDER'
                                                 | translate
@@ -398,9 +395,8 @@ import { BookingFormService } from './booking-form.service';
                                     }}</label>
                                     <mat-form-field appearance="outline">
                                         <input
-                                            name="pass"
                                             matInput
-                                            formControlName="pass_number"
+                                            [formField]="form.pass_number"
                                             [placeholder]="
                                                 'BOOKINGS.VISITOR_PASS_PLACEHOLDER'
                                                     | translate
@@ -412,7 +408,7 @@ import { BookingFormService } from './booking-form.service';
                             @if (allow_international() && !multiple()) {
                                 <div class="-mt-2 mb-2 flex justify-end">
                                     <mat-checkbox
-                                        formControlName="international"
+                                        [formField]="form.international"
                                     >
                                         International Visitor
                                     </mat-checkbox>
@@ -579,7 +575,7 @@ import { BookingFormService } from './booking-form.service';
         MatRippleModule,
         MatCheckboxModule,
         UserListFieldComponent,
-        ReactiveFormsModule,
+        FormField,
         MatFormFieldModule,
         MatInputModule,
         MatAutocompleteModule,
@@ -599,7 +595,7 @@ export class InviteVisitorFormComponent {
     private _service = inject(BookingFormService);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
-    private _destroyRef = inject(DestroyRef);
+    private _injector = inject(Injector);
     private _existing_siblings: Booking[] = [];
 
     public readonly date = input<number>(undefined);
@@ -730,14 +726,10 @@ export class InviteVisitorFormComponent {
     public get form() {
         return this._service.form;
     }
-    private readonly _form_value = toSignal(this.form.valueChanges, {
-        initialValue: this.form.value,
-    });
-    private readonly _form_status = toSignal(this.form.statusChanges, {
-        initialValue: this.form.status,
-    });
-    private readonly _form_disabled_change = signal(0);
-    public readonly is_edit = computed(() => !!this._form_value()?.id);
+    public get model() {
+        return this._service.model;
+    }
+    public readonly is_edit = computed(() => !!this.model()?.id);
 
     public readonly time_format = this._settings.time_format_signal;
     public readonly use_24hr = this._use_24hr;
@@ -752,18 +744,16 @@ export class InviteVisitorFormComponent {
             this._visitor_min_duration() || this._booking_min_duration() || 30,
     );
 
-    public readonly form_date = signal(
-        this.form.getRawValue()?.date || Date.now(),
+    public readonly form_date = linkedSignal(
+        () => this.model()?.date || Date.now(),
     );
 
-    public readonly is_start_time_disabled = computed(() => {
-        this._form_status();
-        this._form_disabled_change();
-        return this.form?.get('date')?.disabled || false;
-    });
+    public readonly is_start_time_disabled = computed(
+        () => this.form.date().disabled() || false,
+    );
 
     public readonly selected_building_id = computed(() => {
-        const zone_list = this._form_value()?.zones || [];
+        const zone_list = this.model()?.zones || [];
         const level = this._org.levelWithID(zone_list);
         const building =
             this._org.buildings.find(
@@ -772,7 +762,7 @@ export class InviteVisitorFormComponent {
                     zone_list.includes((bld as any).zone_id),
             ) || this._org.buildings.find((bld) => level?.parent_id === bld.id);
         if (building?.id) return building.id;
-        if (this._form_value()?.id) return zone_list[0] || '';
+        if (this.model()?.id) return zone_list[0] || '';
         return this._org.building?.id || zone_list[0] || '';
     });
 
@@ -782,36 +772,17 @@ export class InviteVisitorFormComponent {
             const aligned_date = alignDateToBookableHours(
                 date,
                 this.bookable_hours(),
-                this.form.getRawValue().date,
+                this.model().date,
             );
-            this.form.patchValue({ date: aligned_date });
-            this.form_date.set(aligned_date);
+            this.model.update((m) => ({ ...m, date: aligned_date }));
         }
     });
-
-    constructor() {
-        const date_control = this.form.get('date');
-        if (!date_control) return;
-        const disable = date_control.disable.bind(date_control);
-        const enable = date_control.enable.bind(date_control);
-        date_control.disable = (...args) => {
-            disable(...args);
-            this._form_disabled_change.update((value) => value + 1);
-        };
-        date_control.enable = (...args) => {
-            enable(...args);
-            this._form_disabled_change.update((value) => value + 1);
-        };
-    }
 
     public async ngOnInit() {
         this.sent.set(false);
         this._service.clearOldState();
         await this.initFormZone();
-        this.form_date.set(this.form.getRawValue().date);
-        this.form
-            .get('asset_id')
-            .setValidators([Validators.required, Validators.email]);
+        this.form_date.set(this.model().date);
         const visitors = this._settings.get('visitor-invitees') || [];
         for (const item of visitors) {
             if (typeof item !== 'string') continue;
@@ -824,41 +795,48 @@ export class InviteVisitorFormComponent {
             });
         }
         this.filterVisitors('');
-        this.form
-            .get('date')
-            .valueChanges.pipe(takeUntilDestroyed(this._destroyRef))
-            .subscribe((date) => this.form_date.set(date));
-        this.form
-            .get('asset_id')
-            .valueChanges.pipe(takeUntilDestroyed(this._destroyRef))
-            .subscribe((_) => this.filterVisitors(_));
-        this.form
-            .get('asset_name')
-            .valueChanges.pipe(takeUntilDestroyed(this._destroyRef))
-            .subscribe((_) => this.filterVisitors(_));
-        this.syncVisitorInternational(this.form.value.assets || []);
-        this.form
-            .get('assets')
-            .valueChanges.pipe(takeUntilDestroyed(this._destroyRef))
-            .subscribe((_) => this.syncVisitorInternational(_ || []));
-        if (this.multiple() && !this.form.value.id)
-            this.form.patchValue({ asset_id: 'multiple@place.tech' });
-        if (!this.form.value.id) this.form.patchValue({ title: 'Visit' });
+        onFieldChange(
+            this.model,
+            (m) => m.asset_id,
+            (_) => this.filterVisitors(_),
+            this._injector,
+        );
+        onFieldChange(
+            this.model,
+            (m) => m.asset_name,
+            (_) => this.filterVisitors(_),
+            this._injector,
+        );
+        this.syncVisitorInternational(this.model().assets || []);
+        onFieldChange(
+            this.model,
+            (m) => m.assets,
+            (_) => this.syncVisitorInternational(_ || []),
+            this._injector,
+        );
+        if (this.multiple() && !this.model().id)
+            this.model.update((m) => ({
+                ...m,
+                asset_id: 'multiple@place.tech',
+            }));
+        if (!this.model().id)
+            this.model.update((m) => ({ ...m, title: 'Visit' }));
     }
 
     public setVisitor(item) {
-        this.form.patchValue({
+        this.model.update((m) => ({
+            ...m,
             asset_id: item.email,
             asset_name: item.name,
             company: item.company,
             phone: item.phone,
             international: !!item.international,
-        });
+        }));
     }
 
     public setBuilding(building_id: string) {
         if (!building_id) {
-            this.form.patchValue({ zones: [] });
+            this.model.update((m) => ({ ...m, zones: [] }));
             return;
         }
         const building = this._org.find(building_id);
@@ -867,7 +845,7 @@ export class InviteVisitorFormComponent {
             building?.parent_id,
             building_id,
         ].filter((_) => _);
-        this.form.patchValue({ zones });
+        this.model.update((m) => ({ ...m, zones }));
     }
 
     public setVisitorInternational(item: User, international: boolean) {
@@ -877,8 +855,9 @@ export class InviteVisitorFormComponent {
             ...this.visitor_international,
             [key]: !!international,
         };
-        this.form.patchValue({
-            assets: (this.form.value.assets || []).map((user) => {
+        this.model.update((m) => ({
+            ...m,
+            assets: (m.assets || []).map((user) => {
                 const user_key = user.email || user.id;
                 return user_key !== key
                     ? user
@@ -891,7 +870,7 @@ export class InviteVisitorFormComponent {
                           },
                       } as any);
             }),
-        });
+        }));
     }
 
     public filterVisitors(filter: string) {
@@ -914,29 +893,28 @@ export class InviteVisitorFormComponent {
     }
 
     public async sendInvite() {
-        this.form.markAllAsTouched();
-        const form_data = this.form.getRawValue();
+        this.form().markAsTouched();
+        const form_data = this.model();
         if (
-            !this.form.valid ||
+            !this.form().valid() ||
             (this.multiple() && !form_data.assets?.length)
         ) {
             return notifyError(
                 `Some fields are invalid. [${
-                    getInvalidFields(this.form).join(', ') || 'visitors'
+                    getInvalidSignalFields(this.form, this.model).join(', ') ||
+                    'visitors'
                 }]`,
             );
         }
-        if (!this.form.value.user_email || !this.can_book_for_others()) {
-            this.form.patchValue({ user: currentUser() });
+        if (!this.model().user_email || !this.can_book_for_others()) {
+            this.model.update((m) => ({ ...m, user: currentUser() }));
         }
         const visitor_reason =
             form_data.title || form_data.description || 'Visit';
-        this.form.patchValue({
-            title: visitor_reason,
-        });
+        this.model.update((m) => ({ ...m, title: visitor_reason }));
         const old_visitors = this._settings.get('visitor-invitees') || [];
         const { asset_id, asset_name, company, international, assets } =
-            this.form.getRawValue();
+            this.model();
         if (this.multiple() && assets?.length) {
             const asset_ids = assets.map((_) => _.email).filter((_) => !!_);
             this._settings.saveUserSetting('visitor-invitees', [
@@ -976,7 +954,7 @@ export class InviteVisitorFormComponent {
 
     private async initFormZone() {
         await this._org.waitUntilInitialised();
-        const form_snapshot = this.form?.getRawValue?.() as any;
+        const form_snapshot = this.model() as any;
         const booking_snapshot = this._service.booking as any;
         const is_visitor_booking = (booking: Record<string, any>) =>
             booking?.booking_type === 'visitor' || booking?.type === 'visitor';
@@ -986,31 +964,36 @@ export class InviteVisitorFormComponent {
                 is_visitor_booking(booking_snapshot));
         if (keep_preloaded_edit && !form_snapshot?.id && booking_snapshot?.id) {
             const booking = new Booking(booking_snapshot);
-            this.form.reset({ user: currentUser(), booked_by: currentUser() });
-            this.form.patchValue(
-                {
-                    ...booking_snapshot,
-                    ...booking,
-                    ...(booking.extension_data || {}),
-                    _in_progress:
-                        booking_snapshot.state === 'started' ||
-                        booking_snapshot.state === 'in_progress',
-                },
-                { emitEvent: false },
-            );
+            this.model.set({
+                user: currentUser(),
+                booked_by: currentUser(),
+                ...booking_snapshot,
+                ...booking,
+                ...(booking.extension_data || {}),
+                _in_progress:
+                    booking_snapshot.state === 'started' ||
+                    booking_snapshot.state === 'in_progress',
+            } as any);
+            this.form().reset();
         } else if (!keep_preloaded_edit) {
             this._service.loadForm();
         }
         this._service.setOptions({ type: 'visitor' });
-        if (!this.form.value.id) this._service.newForm('visitor');
-        this.form.patchValue({ booking_type: 'visitor' });
-        this.form_date.set(this.form.getRawValue().date);
-        if (!this.form.value.id && !this.form.value.zones?.length) {
-            this.form.patchValue({ zones: [this._org.building?.id] });
+        if (!this.model().id) this._service.newForm('visitor');
+        this.model.update((m) => ({ ...m, booking_type: 'visitor' }));
+        this.form_date.set(this.model().date);
+        if (!this.model().id && !this.model().zones?.length) {
+            this.model.update((m) => ({
+                ...m,
+                zones: [this._org.building?.id],
+            }));
         }
-        if (this.multiple() && !this.form.value.id)
-            this.form.patchValue({ asset_id: 'multiple@place.tech' });
-        if (this.form.value.id) {
+        if (this.multiple() && !this.model().id)
+            this.model.update((m) => ({
+                ...m,
+                asset_id: 'multiple@place.tech',
+            }));
+        if (this.model().id) {
             const booking_ref = this._service.booking;
             if (this.multiple()) {
                 // Populate quickly from cached booking extension data, then
@@ -1019,43 +1002,48 @@ export class InviteVisitorFormComponent {
                     booking_ref?.extension_data?.group_members || [],
                 );
                 if (extension_visitors.length) {
-                    this.form.patchValue({ assets: extension_visitors });
+                    this.model.update((m) => ({
+                        ...m,
+                        assets: extension_visitors,
+                    }));
                     this.syncVisitorInternational(extension_visitors);
                 }
                 this._loadSiblingVisitors(
                     booking_ref?.id
                         ? booking_ref
-                        : new Booking(this.form.getRawValue()),
+                        : new Booking(this.model() as any),
                 ).catch(() => null);
             }
-            if (!this.form.value.assets?.length) {
-                const attendees = this.form.value.attendees || [];
+            if (!this.model().assets?.length) {
+                const attendees = this.model().attendees || [];
                 if (attendees.length) {
-                    this.form.patchValue({ assets: attendees });
-                } else if (this.form.value.asset_id) {
-                    this.form.patchValue({
+                    this.model.update((m) => ({ ...m, assets: attendees }));
+                } else if (this.model().asset_id) {
+                    this.model.update((m) => ({
+                        ...m,
                         assets: [
                             new User({
-                                name: this.form.value.asset_name,
-                                email: this.form.value.asset_id,
-                                organisation: this.form.value.company,
+                                name: m.asset_name,
+                                email: m.asset_id,
+                                organisation: m.company,
                             }),
                         ],
-                    });
+                    }));
                 }
             }
-            if (!this.multiple() && this.form.value.assets?.length) {
-                const [visitor] = this.form.value.assets as User[];
+            if (!this.multiple() && this.model().assets?.length) {
+                const [visitor] = this.model().assets as User[];
                 if (visitor?.email) {
-                    this.form.patchValue({
+                    this.model.update((m) => ({
+                        ...m,
                         asset_id: visitor.email,
                         asset_name: visitor.name || visitor.email,
                         company:
                             (visitor as any).company ||
                             visitor.organisation ||
-                            this.form.value.company,
-                        phone: visitor.phone || this.form.value.phone,
-                    });
+                            m.company,
+                        phone: visitor.phone || m.phone,
+                    }));
                 }
             }
         }
@@ -1083,7 +1071,7 @@ export class InviteVisitorFormComponent {
                 },
             });
         });
-        this.form.patchValue({ assets: visitors });
+        this.model.update((m) => ({ ...m, assets: visitors }));
         this.syncVisitorInternational(visitors);
     }
 
@@ -1105,8 +1093,9 @@ export class InviteVisitorFormComponent {
     }
 
     private async _bookForOne() {
-        const value = this.form.getRawValue();
-        this.form.patchValue({
+        const value = this.model();
+        this.model.update((m) => ({
+            ...m,
             name: value.asset_name || value.asset_id,
             attendees: [
                 new User({
@@ -1116,7 +1105,7 @@ export class InviteVisitorFormComponent {
                     phone: value.phone,
                 }),
             ],
-        });
+        }));
         await this._service.postForm().catch((e) => {
             notifyError(e);
             throw e;
@@ -1125,7 +1114,7 @@ export class InviteVisitorFormComponent {
 
     private async _bookForMany() {
         this.loading_many.set(true);
-        const assets: User[] = this.form.getRawValue().assets || [];
+        const assets: User[] = this.model().assets || [];
         this.last_count.set(assets.length);
         const visitor_members = assets
             .filter((_) => !!_.email)
@@ -1150,11 +1139,11 @@ export class InviteVisitorFormComponent {
             let existing_siblings = this._existing_siblings;
             if (!existing_siblings.length) {
                 existing_siblings = await this._service.loadGroupSiblings(
-                    new Booking(this.form.getRawValue()),
+                    new Booking(this.model() as any),
                 );
             }
             if (!existing_siblings.length) {
-                existing_siblings = [new Booking(this.form.getRawValue())];
+                existing_siblings = [new Booking(this.model() as any)];
             }
             this._existing_siblings = existing_siblings;
             await this._service

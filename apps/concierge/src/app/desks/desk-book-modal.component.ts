@@ -27,7 +27,7 @@ import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/desk-fl
     template: `
         <fullscreen-modal-shell
             [heading]="
-                (form.value.id
+                (model().id
                     ? 'APP.CONCIERGE.DESKS_BOOK_EDIT'
                     : 'APP.CONCIERGE.DESKS_BOOK_NEW'
                 ) | translate
@@ -63,24 +63,29 @@ export class DeskBookModalComponent implements OnInit {
         return this._booking_form.form;
     }
 
+    public get model() {
+        return this._booking_form.model;
+    }
+
     public ngOnInit() {
         this._booking_form.newForm('desk');
-        if (!this.form.value.id) {
-            this.form.patchValue({
+        if (!this.model().id) {
+            this.model.update((m) => ({
+                ...m,
                 duration:
                     this._settings.get('app.desks.default_duration') || 60,
                 all_day: !!(
                     this._settings.get('app.desks.all_day_default') ??
                     this._settings.get('app.bookings.all_day_default')
                 ),
-            });
+            }));
             this._booking_form.applyDurationSettings();
         }
     }
 
     public async save() {
         this.loading.set(true);
-        this.form.patchValue({ booking_type: 'desk' });
+        this.model.update((m) => ({ ...m, booking_type: 'desk' }));
         let method = () => this._booking_form.postForm();
         if (this._booking_form.options()?.group) {
             method = () => this._booking_form.postFormForGroup();

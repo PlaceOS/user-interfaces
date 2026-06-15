@@ -348,7 +348,8 @@ export class ExploreParkingService extends AsyncHandler {
                 if (bookable_hours) {
                     date = alignDateToBookableHours(date, bookable_hours);
                 }
-                this._bookings.form.patchValue({
+                this._bookings.model.update((m) => ({
+                    ...m,
                     resources: [space],
                     asset_id: space.id,
                     asset_name: space.name,
@@ -366,7 +367,7 @@ export class ExploreParkingService extends AsyncHandler {
                         zone?.parent_id,
                         zone?.id,
                     ],
-                });
+                }));
                 await this._bookings.confirmPost().catch((e) => {
                     if (e === 'User cancelled') throw e;
                     notifyError(

@@ -1,9 +1,9 @@
-import { signal } from '@angular/core';
+import { inject, Injector, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
-import { AssetListFieldComponent } from '@placeos/assets';
+import { AssetListFieldComponent, AssetStateService } from '@placeos/assets';
 import {
     CateringListFieldComponent,
     CateringOrderStateService,
@@ -28,18 +28,30 @@ describe('MeetingFlowFormComponent', () => {
     const createComponent = createRoutingFactory({
         component: MeetingFlowFormComponent,
         providers: [
-            MockProvider(EventFormService, {
-                form: generateEventForm({
-                    host: 'test@test.com',
-                    title: 'Yep',
-                    creator: 'jim@j.com',
-                    date: Date.now(),
-                } as any),
-                resetForm: jest.fn(),
-            }),
+            MockProvider(AssetStateService, { setOptions: jest.fn() }),
+            {
+                provide: EventFormService,
+                useFactory: () => {
+                    const { model, form } = generateEventForm(
+                        {
+                            host: 'test@test.com',
+                            title: 'Yep',
+                            creator: 'jim@j.com',
+                            date: Date.now(),
+                        } as any,
+                        undefined,
+                        inject(Injector),
+                    );
+                    return {
+                        model,
+                        form,
+                        resetForm: jest.fn(),
+                    } as Partial<EventFormService>;
+                },
+            },
             MockProvider(CateringOrderStateService, {
-                available_menu: of([{ id: '1' }]),
-                charge_codes: of([]),
+                available_menu: signal([{ id: '1' }]),
+                charge_codes: signal([]),
             } as any),
             MockProvider(MatBottomSheet, {
                 open: jest.fn(() => ({

@@ -8,7 +8,7 @@ import {
     signal,
 } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import {
     MatBottomSheet,
     MatBottomSheetRef,
@@ -477,7 +477,6 @@ import { RoomConfirmService } from './room-confirm.service';
         FindSpaceItemComponent,
         MatButtonToggleModule,
         FormsModule,
-        ReactiveFormsModule,
         IconComponent,
         TranslatePipe,
         MatTooltipModule,
@@ -539,6 +538,10 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
 
     public get form() {
         return this._state.form;
+    }
+
+    public get model() {
+        return this._state.model;
     }
 
     public readonly book_space = signal<HashMap<boolean>>({});
@@ -639,15 +642,14 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
 
     setTimeChips() {
         this.start_time$ = of(
-            new Date(this.form?.controls?.date?.value).toLocaleTimeString(
-                'en-US',
-                { hour: 'numeric', minute: 'numeric', hour12: true },
-            ),
+            new Date(this.model()?.date).toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true,
+            }),
         );
-        this.duration_minutes = this.form?.controls?.duration?.value;
-        const end =
-            this.form?.controls?.date?.value +
-            this.duration_minutes * 60 * 1000;
+        this.duration_minutes = this.model()?.duration;
+        const end = this.model()?.date + this.duration_minutes * 60 * 1000;
         this.end_time$ = of(
             new Date(end).toLocaleTimeString('en-US', {
                 hour: 'numeric',

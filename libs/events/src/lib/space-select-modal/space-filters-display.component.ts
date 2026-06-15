@@ -107,13 +107,13 @@ export class SpaceFiltersDisplayComponent {
     public readonly location = signal('');
 
     public readonly all_day = computed(
-        () => this._event_form.form.value.all_day,
+        () => this._event_form.model().all_day,
     );
 
-    public readonly start = computed(() => this._event_form.form.value.date);
+    public readonly start = computed(() => this._event_form.model().date);
 
     public readonly end = computed(() => {
-        const { date, duration } = this._event_form.form.value;
+        const { date, duration } = this._event_form.model();
         return date + duration * 60 * 1000;
     });
 

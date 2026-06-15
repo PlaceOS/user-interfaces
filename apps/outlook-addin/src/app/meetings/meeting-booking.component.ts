@@ -10,7 +10,11 @@ import {
 } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
 import { Router } from '@angular/router';
-import { currentUser, getInvalidFields, notifyError } from '@placeos/common';
+import {
+    currentUser,
+    getInvalidSignalFields,
+    notifyError,
+} from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { MeetingFlowConfirmComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-flow-confirm.component';
 import { MeetingBookingFormComponent } from './meeting-form.component';
@@ -61,18 +65,20 @@ export class MeetingBookingComponent {
     private _bottom_sheet = inject(MatBottomSheet);
 
     public readonly form = this._service.form;
+    public readonly model = this._service.model;
     public readonly sheet_ref = signal<MatBottomSheetRef<unknown> | null>(null);
 
     public readonly clearForm = () => this._service.clearForm();
 
     public makeBooking() {
-        if (!this.form.value.host)
-            this.form.patchValue({ host: currentUser()?.email });
-        if (!this.form.valid)
+        if (!this.model().host)
+            this.model.update((m) => ({ ...m, host: currentUser()?.email }));
+        if (!this.form().valid())
             return notifyError(
-                `Some fields are invalid. [${getInvalidFields(this.form).join(
-                    ', ',
-                )}]`,
+                `Some fields are invalid. [${getInvalidSignalFields(
+                    this.form,
+                    this.model,
+                ).join(', ')}]`,
             );
         const sheet_ref = this._bottom_sheet.open(MeetingFlowConfirmComponent);
         this.sheet_ref.set(sheet_ref);

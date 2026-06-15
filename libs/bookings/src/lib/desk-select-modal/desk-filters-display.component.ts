@@ -1,5 +1,4 @@
 import { Component, computed, inject, input, output } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { SettingsService } from '@placeos/common';
 
 import { CommonModule } from '@angular/common';
@@ -91,9 +90,7 @@ export class DeskFiltersDisplayComponent {
     public readonly options = this._state.options;
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
-    private readonly _form_value = toSignal(this._state.form.valueChanges, {
-        initialValue: this._state.form.value,
-    });
+    private readonly _form_value = this._state.model;
 
     public readonly all_day = computed(() => this._form_value().all_day);
 

@@ -5,9 +5,9 @@ import { IconComponent } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
-import { signal } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { inject, Injector, signal } from '@angular/core';
 import { SettingsService } from '@placeos/common';
+import { generateEventForm } from '@placeos/events';
 import { BookingModalComponent } from '../../app/day-view/booking-modal.component';
 import { EventFormComponent } from '../../app/day-view/event-form.component';
 
@@ -24,12 +24,23 @@ describe('BookingModalComponent', () => {
             MockProvider(MatDialogRef, {
                 close: jest.fn(),
             }),
-            MockProvider(EventFormService, {
-                form: new FormGroup({}) as any,
-                newForm: jest.fn(),
-                postForm: jest.fn(async () => null),
-                loading: signal(''),
-            }),
+            {
+                provide: EventFormService,
+                useFactory: () => {
+                    const { model, form } = generateEventForm(
+                        undefined,
+                        undefined,
+                        inject(Injector),
+                    );
+                    return {
+                        model,
+                        form,
+                        newForm: jest.fn(),
+                        postForm: jest.fn(async () => null),
+                        loading: signal(''),
+                    } as Partial<EventFormService>;
+                },
+            },
             MockProvider(SettingsService, { get: jest.fn() }),
         ],
         imports: [MatProgressSpinnerModule],

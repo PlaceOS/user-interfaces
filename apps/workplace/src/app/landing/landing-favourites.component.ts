@@ -397,7 +397,10 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
             this._router.navigate(['/book', 'spaces']);
         }
         setTimeout(() => {
-            this._event_form.form.patchValue({ resources: [space] });
+            this._event_form.model.update((m) => ({
+                ...m,
+                resources: [space],
+            }));
         }, 300);
     }
 
@@ -421,11 +424,12 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
         setTimeout(() => {
             this._booking_form.newForm(type);
             this._booking_form.setOptions({ type });
-            this._booking_form.form.patchValue({
+            this._booking_form.model.update((m) => ({
+                ...m,
                 resources: [item],
                 asset_id: item.id,
                 booking_type: type,
-            });
+            }));
         }, 100);
     }
 }
