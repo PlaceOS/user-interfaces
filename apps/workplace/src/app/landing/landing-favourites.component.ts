@@ -221,10 +221,10 @@ const EMPTY = [];
                             {{ 'COMMON.BOOK' | translate }}
                         </button>
                         <button
-                            icon
+                            icon default
                             name="favourite-more"
                             [matMenuTriggerFor]="menu"
-                            class="bg-base-200 absolute top-22 right-0 m-0! rounded-sm!"
+                            class="absolute top-2 right-0"
                         >
                             <icon>more_horiz</icon>
                         </button>

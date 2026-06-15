@@ -77,9 +77,8 @@ import { LandingStateService } from './landing-state.service';
                             </div>
                         </div>
                         <button
-                            icon
+                            icon default
                             name="colleague-more"
-                            class="bg-base-200 rounded-sm!"
                             [matMenuTriggerFor]="menu"
                         >
                             <icon>more_horiz</icon>
