@@ -1,7 +1,8 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
+import { signal } from '@angular/core';
 import { MockProvider, ngMocks } from 'ng-mocks';
-import { of, timer } from 'rxjs';
+import { timer } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
 import { EventFormService, generateEventForm } from '@placeos/events';
@@ -21,7 +22,7 @@ describe('ExploreBookingModalComponent', () => {
                 form: generateEventForm(),
                 newForm: jest.fn(),
                 postForm: jest.fn(async () => ({})),
-                loading$: of(''),
+                loading: signal(''),
             } as any),
             MockProvider(SettingsService, {
                 get: jest.fn(),

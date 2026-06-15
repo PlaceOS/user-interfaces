@@ -5,7 +5,6 @@ import {
     inject,
     output,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import {
@@ -77,10 +76,8 @@ export class BookingModalComponent implements OnInit {
     private _settings = inject(SettingsService);
 
     public readonly event = output<DialogEvent>();
-    /** Observable for the loading state of the form */
-    public readonly loading = toSignal(this._service.loading$, {
-        initialValue: '',
-    });
+    /** Signal for the loading state of the form */
+    public readonly loading = this._service.loading;
 
     public get form() {
         return this._service.form;

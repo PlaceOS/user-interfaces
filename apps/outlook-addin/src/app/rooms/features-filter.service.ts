@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { nextValueFrom, Space } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
@@ -10,7 +11,9 @@ import { map } from 'rxjs/operators';
 export class FeaturesFilterService {
     private _state = inject(EventFormService);
 
-    public spaces$: Observable<Space[]> = this._state.available_spaces;
+    public spaces$: Observable<Space[]> = toObservable(
+        this._state.available_spaces,
+    );
     public updated_spaces$: Observable<Space[]>;
     public updated_spaces_emitter: BehaviorSubject<boolean> =
         new BehaviorSubject<boolean>(false);

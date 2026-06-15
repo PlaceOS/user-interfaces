@@ -1,5 +1,4 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import {
     MAT_DIALOG_DATA,
     MatDialogModule,
@@ -208,7 +207,7 @@ export class ExploreBookingModalComponent implements OnInit {
         inject<MatDialogRef<ExploreBookingModalComponent>>(MatDialogRef);
     private _router = inject(Router);
 
-    public readonly loading = toSignal(this._event_form.loading$);
+    public readonly loading = this._event_form.loading;
     public readonly alert = signal(this._data.alert);
 
     public get form() {

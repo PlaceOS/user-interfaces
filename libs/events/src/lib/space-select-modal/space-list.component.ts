@@ -1,5 +1,4 @@
 import { Component, inject, input, output } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -132,7 +131,7 @@ import { EventFormService } from 'libs/events/src/lib/event-form.service';
                                         <icon class="text-info">place</icon>
                                         <p class="truncate">
                                             {{
-                                                space.location ||
+                                                $any(space).location ||
                                                     level(space.zones)
                                                         ?.display_name ||
                                                     level(space.zones)?.name
@@ -227,17 +226,10 @@ export class SpaceListComponent {
     public readonly favorites = input<string[]>([]);
     public readonly onSelect = output<Space>();
     public readonly toggleFav = output<Space>();
-    public readonly loading = toSignal(this._event_form.loading$, {
-        initialValue: '',
-    });
+    public readonly loading = this._event_form.loading;
 
-    public readonly available_spaces = toSignal(
-        this._event_form.available_spaces,
-        { initialValue: [] as Space[] },
-    );
-    public readonly room_alerts = toSignal(this._event_form.room_alerts, {
-        initialValue: {} as Record<string, [string, string]>,
-    });
+    public readonly available_spaces = this._event_form.available_spaces;
+    public readonly room_alerts = this._event_form.room_alerts;
 
     public level(zones: string[]) {
         return this._org.levelWithID(zones);

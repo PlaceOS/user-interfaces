@@ -346,12 +346,8 @@ export class SpaceFiltersComponent {
     public readonly hide_levels = input<boolean>(undefined);
     public readonly viewing_map = input<boolean>(undefined);
     public readonly can_close = signal(false);
-    public readonly options = toSignal(this._event_form.options$, {
-        initialValue: null,
-    });
-    public readonly filters = toSignal(this._event_form.filters$, {
-        initialValue: null,
-    });
+    public readonly options = this._event_form.options;
+    public readonly filters = this._event_form.filters;
 
     public readonly use_region = settingSignal<boolean>('use_region', false);
 
@@ -362,7 +358,7 @@ export class SpaceFiltersComponent {
         combineLatest([
             toObservable(this._org.active_region),
             toObservable(this._org.active_building),
-            this._event_form.spaces$,
+            toObservable(this._event_form.spaces),
         ]).pipe(
             map(([region, bld, spaces]) => {
                 const level_list = this.use_region()
@@ -410,7 +406,7 @@ export class SpaceFiltersComponent {
     public readonly features = toSignal(
         combineLatest([
             toObservable(this._spaces.features),
-            this._event_form.available_spaces,
+            toObservable(this._event_form.available_spaces),
         ]).pipe(
             map(([features, spaces]) =>
                 unique(features.concat(flatten(spaces.map((_) => _.features)))),
@@ -516,7 +512,7 @@ export class SpaceFiltersComponent {
     }
 
     public async toggleFeature(feat: string, state: boolean) {
-        const { features } = this._event_form.filters;
+        const { features } = this._event_form.filters();
         const new_list = (features || []).filter((_) => feat !== _);
         if (state) new_list.push(feat);
         this._event_form.setFilters({ features: new_list });

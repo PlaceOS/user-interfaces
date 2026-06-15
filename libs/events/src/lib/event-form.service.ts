@@ -1,5 +1,13 @@
-import { inject, Injectable, Injector, signal } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import {
+    computed,
+    effect,
+    inject,
+    Injectable,
+    Injector,
+    resource,
+    signal,
+    type Signal,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import {
@@ -7,10 +15,10 @@ import {
     BookingClash,
     BookingRuleset,
     CalendarEvent,
-    current_user,
     currentUser,
+    debouncedSignal,
     filterResourcesFromRules,
-    firstTruthyValueFrom,
+    firstValueWhere,
     flatten,
     getAllDayTimeRange,
     getFormTimeSyncHandle,
@@ -18,27 +26,15 @@ import {
     getTimeInTimezone,
     i18n,
     isWithinBookableHours,
-    nextValueFrom,
     rulesForResource,
     setDefaultCreator,
     SettingsService,
     Space,
     unique,
     User,
+    userSignal,
 } from '@placeos/common';
 import { showMetadata } from '@placeos/ts-client';
-import { combineLatest, forkJoin, from, Observable, of } from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    distinctUntilKeyChanged,
-    filter,
-    map,
-    shareReplay,
-    startWith,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
 
 import { AssetRequest, OrganisationService } from '@placeos/common';
 import { UserPipe } from '@placeos/users';
@@ -122,7 +118,6 @@ export class EventFormService extends AsyncHandler {
         features: [],
     });
     private _loading = signal('');
-    private _changed = signal(0);
     private _event = signal(new CalendarEvent());
     private _form = generateEventForm(undefined, this._settings);
     private _space_pipe = new SpacePipe();
@@ -147,180 +142,154 @@ export class EventFormService extends AsyncHandler {
         (this._settings.get('app.events.room_as_host') ? space : '') ||
         host;
 
-    public readonly options$ = toObservable(this._options);
-    public readonly filters$ = toObservable(this._filters);
-    public readonly loading$ = toObservable(this._loading);
-    // List of all the booking rules for the available buildings
-    public readonly booking_rules$: Observable<
-        Record<string, BookingRuleset[]>
-    > = toObservable(this._org.building_list).pipe(
-        switchMap((list) => {
+    /** Signal emitting the current loading message, empty when idle */
+    public readonly loading = this._loading.asReadonly();
+    /** Signal for the active event flow view */
+    public readonly view = this._view.asReadonly();
+    /** Signal for the active event flow options */
+    public readonly options = this._options.asReadonly();
+    /** Signal for the active space filters */
+    public readonly filters = this._filters.asReadonly();
+    public readonly last_success = signal<CalendarEvent | null>(null);
+
+    /** Booking rules for the active buildings, grouped by building id */
+    private readonly _booking_rules_resource = resource({
+        params: () => {
+            const list = this._org.building_list();
+            return list.length ? list.map((bld) => bld.id) : undefined;
+        },
+        loader: ({ params: ids }) => {
             this.addLoadingTag(Tags.BookingRules);
-            return forkJoin(
-                list.map((bld) =>
-                    showMetadata(bld.id, 'room_booking_rules')
+            return Promise.all(
+                ids.map((id) =>
+                    showMetadata(id, 'room_booking_rules')
                         .then((_) => ({
-                            id: bld.id,
+                            id,
                             details:
                                 _.details instanceof Array ? _.details : [],
                         }))
-                        .catch(() => ({ id: bld.id, details: [] })),
+                        .catch(() => ({ id, details: [] })),
                 ),
-            );
-        }),
-        map((building_rules) => {
-            const mapping = {};
-            for (const rules of building_rules) {
-                mapping[rules.id] = rules?.details;
-            }
-            return mapping;
-        }),
-        tap(() => this.removeLoadingTag(Tags.BookingRules)),
-        shareReplay(1),
+            )
+                .then((building_rules) => {
+                    const mapping: Record<string, BookingRuleset[]> = {};
+                    for (const rules of building_rules) {
+                        mapping[rules.id] = rules.details;
+                    }
+                    return mapping;
+                })
+                .finally(() => this.removeLoadingTag(Tags.BookingRules));
+        },
+    });
+    /** Signal for the booking rules of the active buildings, grouped by id */
+    public readonly booking_rules = computed<Record<string, BookingRuleset[]>>(
+        () => this._booking_rules_resource.value() ?? {},
     );
-    public readonly spaces$: Observable<Space[]> = toObservable(
-        this._org.active_building,
-    ).pipe(
-        switchMap(() =>
-            this._settings.get('app.use_region')
-                ? toObservable(this._org.active_region, {
-                      injector: this._injector,
-                  }).pipe(filter((_) => !!_))
-                : toObservable(this._org.active_building, {
-                      injector: this._injector,
-                  }).pipe(filter((_) => !!_)),
-        ),
-        distinctUntilKeyChanged('id'),
-        switchMap((zone) => {
-            if (!zone) return of([]);
+
+    /** Active zone used to load the bookable space list */
+    private readonly _space_zone = computed(() => {
+        const zone = this._settings.get('app.use_region')
+            ? this._org.active_region()
+            : this._org.active_building();
+        return zone?.id || '';
+    });
+    /** Bookable spaces for the active zone */
+    private readonly _spaces_resource = resource({
+        params: () => this._space_zone() || undefined,
+        loader: ({ params: zone_id }) => {
             this.addLoadingTag(Tags.ListingRooms);
-            return requestSpacesForZone(zone.id).pipe(catchError(() => of([])));
-        }),
-        map((list: Space[]) =>
-            list.filter((_) => _.bookable && _.email && !_.room_booking_url),
-        ),
-        tap(() => this.removeLoadingTag(Tags.ListingRooms)),
-        startWith([]),
-        shareReplay(1),
+            return this._requestSpaces(zone_id)
+                .then((list) =>
+                    list.filter(
+                        (_) => _.bookable && _.email && !_.room_booking_url,
+                    ),
+                )
+                .catch(() => [] as Space[])
+                .finally(() => this.removeLoadingTag(Tags.ListingRooms));
+        },
+    });
+    /** Signal for the list of bookable spaces in the active zone */
+    public readonly spaces = computed<Space[]>(
+        () => this._spaces_resource.value() ?? [],
     );
-    public readonly features = this.spaces$.pipe(
-        map((l) => unique(flatten(l.map((_) => _.features)))),
-    );
-    public readonly room_alerts = toObservable(this._changed).pipe(
-        switchMap(() => showMetadata(this._org.organisation.id, 'room_alerts')),
-        map((r) => r.details as Record<string, [string, string]>),
-        startWith({}),
-        shareReplay(1),
-    );
-    public readonly filtered_spaces = combineLatest([
-        this.spaces$,
-        toObservable(this._options),
-        toObservable(this._filters),
-        toObservable(this._org.initialised).pipe(filter((_) => _)),
-    ]).pipe(
-        map(([list, { zones }, filters]) => {
-            if (!list.length) return list;
-            if (!zones?.length) {
-                zones = this._settings.get('app.use_region')
-                    ? [this._org.region.id]
-                    : [this._org.building.id];
-            }
-            if (zones.length) {
-                list = list.filter((space) =>
-                    zones.find((id) => space.zones.includes(id)),
-                );
-            }
-            if (filters.show_fav) {
-                list = list.filter(({ id }) =>
-                    this.favorite_spaces.includes(id),
-                );
-            }
-            if (filters.capacity > 0) {
-                list = list.filter(
-                    ({ capacity }) =>
-                        filters.capacity <= capacity || capacity < 0,
-                );
-            }
-            if (filters.features) {
-                list = list.filter(({ features }) =>
-                    filters.features.every((f) => features.includes(f)),
-                );
-            }
-            return list;
-        }),
-    );
-    public readonly available_spaces = combineLatest([
-        this.filtered_spaces,
-        this.booking_rules$,
-        toObservable(this._event),
-        toObservable(this._options),
-    ]).pipe(
-        debounceTime(300),
-        switchMap(([spaces, rules, event, { date, duration, all_day }]) => {
-            this.addLoadingTag(Tags.Availability);
-            const period = all_day
-                ? this._allDayTimeRange(date)
-                : { date, duration };
-            const method = this.book_internal
-                ? queryResourceAvailability
-                : querySpaceAvailability;
-            spaces = filterResourcesFromRules(
-                spaces,
-                {
-                    date: period.date,
-                    duration: period.duration,
-                    resource: null,
-                    host: currentUser(),
-                },
-                rules[this._org.building?.id] || [],
-            ) as Space[];
 
-            return from(
-                this.book_internal
-                    ? queryResourceAvailability(
-                          spaces.map(({ id }) => id),
-                          period.date || 60,
-                          period.duration || 60,
-                          event?.resources[0]?.id ||
-                              event?.system?.id ||
-                              event?.id,
-                          undefined,
-                      )
-                    : querySpaceAvailability(
-                          spaces.map(({ id }) => id),
-                          period.date || 60,
-                          period.duration || 60,
-                          event?.resources[0]?.id ||
-                              event?.system?.id ||
-                              event?.id,
-                          undefined,
-                          [event?.date, event?.duration],
-                      ),
-            ).pipe(
-                map((availability) => {
-                    let list = spaces.filter((_, i) => availability[i]);
-                    list = filterResourcesFromRules(
-                        list,
-                        {
-                            date: period.date,
-                            duration: period.duration,
-                            resource: null,
-                            host: currentUser(),
-                        },
-                        rules[this._org.building?.id] || [],
-                    ) as Space[];
-                    return list;
-                }),
-                catchError(() => of([])),
+    /** Signal for the available features across the loaded spaces */
+    public readonly features = computed<string[]>(() =>
+        unique(flatten(this.spaces().map((_) => _.features))),
+    );
+
+    /** Room alert messaging for the active organisation */
+    private readonly _room_alerts_resource = resource({
+        params: () => this._org.organisation?.id || undefined,
+        loader: ({ params: id }) =>
+            showMetadata(id, 'room_alerts')
+                .then((r) => r.details as Record<string, [string, string]>)
+                .catch(() => ({}) as Record<string, [string, string]>),
+    });
+    /** Signal for the room alert messaging grouped by space */
+    public readonly room_alerts = computed<Record<string, [string, string]>>(
+        () => this._room_alerts_resource.value() ?? {},
+    );
+
+    /** Signal for the spaces matching the active zone and filters */
+    public readonly filtered_spaces = computed<Space[]>(() => {
+        if (!this._org.initialised()) return [];
+        let list = this.spaces();
+        if (!list.length) return list;
+        const filters = this._filters();
+        let zones = this._options().zones;
+        if (!zones?.length) {
+            zones = this._settings.get('app.use_region')
+                ? [this._org.region.id]
+                : [this._org.building.id];
+        }
+        if (zones.length) {
+            list = list.filter((space) =>
+                zones.find((id) => space.zones.includes(id)),
             );
-        }),
-        tap(() => this.removeLoadingTag(Tags.Availability)),
-        startWith([]),
-        shareReplay(1),
-    );
+        }
+        if (filters.show_fav) {
+            list = list.filter(({ id }) => this.favorite_spaces.includes(id));
+        }
+        if (filters.capacity > 0) {
+            list = list.filter(
+                ({ capacity }) => filters.capacity <= capacity || capacity < 0,
+            );
+        }
+        if (filters.features) {
+            list = list.filter(({ features }) =>
+                filters.features.every((f) => features.includes(f)),
+            );
+        }
+        return list;
+    });
 
-    public readonly view$ = toObservable(this._view);
-    public readonly last_success = signal<CalendarEvent | null>(null);
+    /** Params driving the available space calculation */
+    private readonly _available_params = computed(() => ({
+        spaces: this.filtered_spaces(),
+        rules: this.booking_rules(),
+        event: this._event(),
+        options: this._options(),
+    }));
+    /** Debounced params to coalesce rapid form and filter changes */
+    private readonly _available_params_debounced = debouncedSignal(
+        this._available_params,
+        300,
+    );
+    /** Spaces available to book for the current event selection */
+    private readonly _available_resource = resource({
+        params: () => this._available_params_debounced(),
+        loader: ({ params: { spaces, rules, event, options } }) => {
+            this.addLoadingTag(Tags.Availability);
+            return this._computeAvailableSpaces(spaces, rules, event, options)
+                .catch(() => [] as Space[])
+                .finally(() => this.removeLoadingTag(Tags.Availability));
+        },
+    });
+    /** Signal for the spaces available to book for the current selection */
+    public readonly available_spaces = computed<Space[]>(
+        () => this._available_resource.value() ?? [],
+    );
 
     public loadLastSuccess() {
         const event = new CalendarEvent(
@@ -336,17 +305,6 @@ export class EventFormService extends AsyncHandler {
         return this._form;
     }
 
-    public get view() {
-        return this._view();
-    }
-
-    public get options() {
-        return this._options();
-    }
-
-    public get filters() {
-        return this._filters();
-    }
     public get event() {
         return this._event();
     }
@@ -370,11 +328,16 @@ export class EventFormService extends AsyncHandler {
     constructor() {
         super();
         this._space_pipe.org = this._org;
+        // Re-apply duration settings when the settings overrides change
+        effect(() => {
+            const overrides = this._settings.overrides();
+            if (overrides?.length) this._applyDurationSettings();
+        });
         this.init();
     }
 
     public async init() {
-        await firstTruthyValueFrom(current_user);
+        await firstValueWhere(userSignal());
         setDefaultCreator(currentUser());
         this.form.controls.date.valueChanges.subscribe((date) =>
             this.setOptions({ date }),
@@ -413,12 +376,6 @@ export class EventFormService extends AsyncHandler {
             }
             this.storeForm();
         });
-        this.subscription(
-            'settings_change',
-            toObservable(this._settings.overrides, { injector: this._injector })
-                .pipe(filter((_) => !!_?.length))
-                .subscribe(() => this._applyDurationSettings()),
-        );
         this.loadLastSuccess();
     }
 
@@ -454,6 +411,86 @@ export class EventFormService extends AsyncHandler {
             period?.end,
             this._form.getRawValue().id ? undefined : Date.now(),
         );
+    }
+
+    /** Resolve the bookable space list for the given zone */
+    private _requestSpaces(zone_id: string): Promise<Space[]> {
+        if (!zone_id) return Promise.resolve([]);
+        return new Promise<Space[]>((resolve) => {
+            requestSpacesForZone(zone_id).subscribe({
+                next: (list) => resolve(list || []),
+                error: () => resolve([]),
+            });
+        });
+    }
+
+    /** Filter the given spaces down to those available for the selection */
+    private async _computeAvailableSpaces(
+        spaces: Space[],
+        rules: Record<string, BookingRuleset[]>,
+        event: CalendarEvent,
+        { date, duration, all_day }: EventFormOptions,
+    ): Promise<Space[]> {
+        const period = all_day
+            ? this._allDayTimeRange(date)
+            : { date, duration };
+        spaces = filterResourcesFromRules(
+            spaces,
+            {
+                date: period.date,
+                duration: period.duration,
+                resource: null,
+                host: currentUser(),
+            },
+            rules[this._org.building?.id] || [],
+        ) as Space[];
+        const ignore =
+            event?.resources[0]?.id || event?.system?.id || event?.id;
+        const availability = await (this.book_internal
+            ? queryResourceAvailability(
+                  spaces.map(({ id }) => id),
+                  period.date || 60,
+                  period.duration || 60,
+                  ignore,
+                  undefined,
+              )
+            : querySpaceAvailability(
+                  spaces.map(({ id }) => id),
+                  period.date || 60,
+                  period.duration || 60,
+                  ignore,
+                  undefined,
+                  [event?.date, event?.duration],
+              ));
+        let list = spaces.filter((_, i) => availability[i]);
+        list = filterResourcesFromRules(
+            list,
+            {
+                date: period.date,
+                duration: period.duration,
+                resource: null,
+                host: currentUser(),
+            },
+            rules[this._org.building?.id] || [],
+        ) as Space[];
+        return list;
+    }
+
+    /** Resolve once the given resource has finished loading */
+    private _whenSettled(ref: {
+        isLoading: Signal<boolean>;
+    }): Promise<boolean> {
+        return firstValueWhere(
+            ref.isLoading,
+            (loading) => !loading,
+            this._injector,
+        );
+    }
+
+    /** Resolve with the spaces available to book once the list has loaded */
+    public async listAvailableSpaces(): Promise<Space[]> {
+        await this._whenSettled(this._available_resource);
+        return this.available_spaces();
     }
 
     public setView(value: EventFlowView) {
@@ -927,7 +964,8 @@ export class EventFormService extends AsyncHandler {
         host: string,
     ) {
         const user = await this._bookingRulesHost(host);
-        const rules = await nextValueFrom(this.booking_rules$);
+        await this._whenSettled(this._booking_rules_resource);
+        const rules = this.booking_rules();
         const space_rules = spaces.map((space) => {
             const bld = this._org.buildings.find((b) =>
                 space.zones.includes(b.id),

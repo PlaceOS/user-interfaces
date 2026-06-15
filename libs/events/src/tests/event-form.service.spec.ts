@@ -8,12 +8,17 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 
 import { EventFormService } from '../lib/event-form.service';
 import * as events_fn from '../lib/events.fn';
+
+jest.mock('@placeos/ts-client', () => ({
+    ...jest.requireActual('@placeos/ts-client'),
+    showMetadata: jest.fn(() => Promise.resolve({ details: [] })),
+}));
 
 jest.mock('../lib/events.fn', () => ({
     ...jest.requireActual('../lib/events.fn'),
@@ -49,7 +54,7 @@ describe('EventFormService', () => {
                     provide: SettingsService,
                     useValue: {
                         get: jest.fn(() => undefined),
-                        overrides$: new BehaviorSubject([]),
+                        overrides: signal([]),
                     },
                 },
                 {

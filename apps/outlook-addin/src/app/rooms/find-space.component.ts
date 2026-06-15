@@ -28,7 +28,6 @@ import {
     ViewerFeature,
     ViewerStyles,
     i18n,
-    nextValueFrom,
 } from '@placeos/common';
 import {
     IconComponent,
@@ -512,11 +511,11 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
     public readonly selected_feature_count = computed(
         () => this.selected_features()?.length || 0,
     );
-    public readonly loading = toSignal(this._state.loading$, {
-        initialValue: '',
-    });
-    public readonly spaces$: Observable<Space[]> = this._state.available_spaces;
-    public readonly spaces = toSignal(this.spaces$, { initialValue: [] });
+    public readonly loading = this._state.loading;
+    public readonly spaces$: Observable<Space[]> = toObservable(
+        this._state.available_spaces,
+    );
+    public readonly spaces = this._state.available_spaces;
     public readonly maps_list = toSignal(this._mapService.maps_list$, {
         initialValue: [],
     });
@@ -557,7 +556,7 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
 
     public readonly levels = combineLatest([
         toObservable(this._org.active_building),
-        this._state.options$,
+        toObservable(this._state.options),
     ]).pipe(
         filter(([_]) => !!_),
         map(([bld]) => [
@@ -592,7 +591,7 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
 
         await this._org.waitUntilInitialised();
         await this._spaces_initialised.pipe(first((_) => !!_)).toPromise();
-        await nextValueFrom(this._state.available_spaces);
+        await this._state.listAvailableSpaces();
 
         this.setBuilding(this._org.building);
         this.book_space.set({});

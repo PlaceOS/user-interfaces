@@ -160,7 +160,7 @@ export class RoomConfirmComponent {
     private _roomConfirmService = inject(RoomConfirmService);
 
     public readonly form = this._state.form;
-    public loading = this._state.loading$;
+    public loading = this._state.loading;
     public readonly show_submit_button = signal(true);
     public readonly space = signal<Space>(this.data as Space);
 

@@ -44,10 +44,10 @@ import { SpacePipe } from '@placeos/events';
             <h2 class="m-0 flex-1 text-xl font-medium capitalize">
                 {{ 'APP.WORKPLACE.MEETING_CONFIRM' | translate }}
             </h2>
-            @if (loading | async) {
+            @if (loading()) {
                 <mat-spinner diameter="32"></mat-spinner>
             }
-            @if (show_close() && !(loading | async)) {
+            @if (show_close() && !loading()) {
                 <button icon matRipple (click)="dismiss()">
                     <icon class="text-2xl">close</icon>
                 </button>
@@ -145,7 +145,7 @@ import { SpacePipe } from '@placeos/events';
                 name="confirm-meeting"
                 matRipple
                 class="w-full"
-                [disabled]="loading | async"
+                [disabled]="loading()"
                 (click)="postForm()"
             >
                 {{ 'COMMON.CONFIRM' | translate }}
@@ -208,7 +208,7 @@ export class MeetingFlowConfirmComponent
 
     private _date: DatePipe = new DatePipe('en');
 
-    public readonly loading = this._event_form.loading$;
+    public readonly loading = this._event_form.loading;
 
     public readonly postForm = async () => {
         if (!this.space) {

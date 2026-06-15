@@ -8,7 +8,6 @@ import {
     output,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { OrganisationService, settingSignal } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -103,8 +102,8 @@ export class SpaceFiltersDisplayComponent {
     private _org = inject(OrganisationService);
     public readonly view = input<'map' | 'list'>('list');
     public readonly viewChange = output<'map' | 'list'>();
-    public readonly options = toSignal(this._event_form.options$);
-    public readonly filters = toSignal(this._event_form.filters$);
+    public readonly options = this._event_form.options;
+    public readonly filters = this._event_form.filters;
     public readonly location = signal('');
 
     public readonly all_day = computed(
@@ -134,7 +133,7 @@ export class SpaceFiltersDisplayComponent {
     }
 
     public async removeFeature(feat: string) {
-        const { features } = this._event_form.filters || {};
+        const { features } = this._event_form.filters() || {};
         this._event_form.setFilters({
             features: (features || []).filter((_) => _ !== feat),
         });

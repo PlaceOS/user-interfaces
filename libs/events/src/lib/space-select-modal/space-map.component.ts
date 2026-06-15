@@ -159,9 +159,13 @@ export class SpaceMapComponent implements OnInit {
     public readonly setOptions = (o) => this._event_form.setOptions(o);
 
     private readonly _change$ = toObservable(this._change);
+    private readonly _spaces$ = toObservable(this._event_form.spaces);
+    private readonly _available_spaces$ = toObservable(
+        this._event_form.available_spaces,
+    );
 
     private readonly _features$ = combineLatest([
-        this._event_form.available_spaces,
+        this._available_spaces$,
         this._change$,
     ]).pipe(
         debounceTime(300),
@@ -180,7 +184,7 @@ export class SpaceMapComponent implements OnInit {
 
     public readonly features = toSignal(this._features$, { initialValue: [] });
 
-    private readonly _actions$ = this._event_form.available_spaces.pipe(
+    private readonly _actions$ = this._available_spaces$.pipe(
         map((l) =>
             l.map((space) => ({
                 id: space.map_id,
@@ -193,8 +197,8 @@ export class SpaceMapComponent implements OnInit {
     public readonly actions = toSignal(this._actions$, { initialValue: [] });
 
     private readonly _styles$ = combineLatest([
-        this._event_form.spaces$,
-        this._event_form.available_spaces,
+        this._spaces$,
+        this._available_spaces$,
     ]).pipe(
         map(([spaces, free_spaces]) =>
             spaces.reduce((styles, space) => {
@@ -215,8 +219,10 @@ export class SpaceMapComponent implements OnInit {
 
     public readonly styles = toSignal(this._styles$, { initialValue: {} });
 
+    private readonly _options$ = toObservable(this._event_form.options);
+
     public ngOnInit() {
-        this._event_form.options$
+        this._options$
             .pipe(takeUntilDestroyed(this._destroy_ref))
             .subscribe(({ zones }) => {
                 const level = this._org.levelWithID(zones);

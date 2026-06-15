@@ -533,12 +533,7 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
     public readonly separators: number[] = [ENTER, COMMA, SPACE];
     public readonly building_list = this._org.building_list;
     public readonly active_levels = this._org.active_levels;
-    public readonly available_spaces = toSignal(
-        this._form_state.available_spaces,
-        {
-            initialValue: [],
-        },
-    );
+    public readonly available_spaces = this._form_state.available_spaces;
     public readonly tag_list = computed(
         () => this._form_value()?.tags || EMPTY,
     );
@@ -578,7 +573,7 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
     }
 
     public get level_zone() {
-        const zones = this._form_state.options.zones || [];
+        const zones = this._form_state.options().zones || [];
         return this._org.levelWithID(zones);
     }
 

@@ -6,6 +6,7 @@ import {
     inject,
     model,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import {
     MatDialog,
     MatDialogModule,
@@ -507,7 +508,7 @@ export class MeetingFlowConfirmModalComponent
     private _date: DatePipe = new DatePipe('en');
 
     public readonly loading = combineLatest([
-        this._event_form.loading$,
+        toObservable(this._event_form.loading),
         this._loading,
     ]).pipe(map(([a, b]) => a || b));
     public readonly catering_orders;

@@ -4,8 +4,8 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 
+import { signal } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { SettingsService } from '@placeos/common';
 import { BookingModalComponent } from '../../app/day-view/booking-modal.component';
@@ -28,7 +28,7 @@ describe('BookingModalComponent', () => {
                 form: new FormGroup({}) as any,
                 newForm: jest.fn(),
                 postForm: jest.fn(async () => null),
-                loading$: new BehaviorSubject(''),
+                loading: signal(''),
             }),
             MockProvider(SettingsService, { get: jest.fn() }),
         ],
@@ -48,14 +48,14 @@ describe('BookingModalComponent', () => {
     it('should handle loading state', () => {
         expect('[loading]').not.toExist();
         const service = spectator.inject(EventFormService);
-        (service.loading$ as any).next('Testing');
+        (service.loading as any).set('Testing');
         spectator.detectChanges();
         expect('[loading]').toExist();
     });
 
     it('should allow submitting form', () => {
         const service = spectator.inject(EventFormService);
-        (service.loading$ as any).next('');
+        (service.loading as any).set('');
         spectator.detectChanges();
         expect(service.postForm).not.toHaveBeenCalled();
         spectator.click('footer button');
