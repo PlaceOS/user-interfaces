@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     effect,
     input,
@@ -161,6 +162,7 @@ const AUTO_ACCEPT_SECONDS = 15;
         MatInputModule,
         MatRippleModule,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     host: {
         '(window:pointerdown)': 'resetAutoAccept()',
         '(window:keydown)': 'resetAutoAccept()',

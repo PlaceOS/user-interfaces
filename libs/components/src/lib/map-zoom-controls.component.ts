@@ -1,4 +1,4 @@
-import { Component, model } from '@angular/core';
+import { ChangeDetectionStrategy, Component, model } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
@@ -42,6 +42,7 @@ import { TranslatePipe } from './translate.pipe';
     host: {
         class: 'divide-base-200 border-base-200 bg-base-100 text-base-content absolute right-1 bottom-16 z-40 flex flex-col divide-y overflow-hidden rounded-sm border shadow-sm',
     },
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [IconComponent, TranslatePipe, MatRippleModule, MatTooltipModule],
 })
 export class MapZoomControlsComponent {

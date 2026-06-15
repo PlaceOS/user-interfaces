@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
@@ -196,6 +202,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         ContactTracingOptionsComponent,

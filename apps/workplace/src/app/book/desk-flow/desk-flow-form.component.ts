@@ -1,4 +1,9 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
     MatBottomSheet,
@@ -80,6 +85,7 @@ import { NewDeskFormDetailsComponent } from './desk-form-details.component';
             }
         </div>
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, NewDeskFormDetailsComponent, IconComponent],
 })
 export class NewDeskFlowFormComponent implements OnInit {

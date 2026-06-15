@@ -1,4 +1,9 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+} from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
@@ -141,6 +146,7 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
     `,
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         ReactiveFormsModule,

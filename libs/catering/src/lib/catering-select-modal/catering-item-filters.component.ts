@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
 import {
+    ChangeDetectionStrategy,
     Component,
     inject,
     input,
-    model,
+    linkedSignal,
     OnInit,
     output,
     signal,
@@ -186,6 +187,7 @@ const ICONS = {
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,
@@ -211,7 +213,8 @@ export class CateringItemFiltersComponent
 
     public readonly at_time = input(false);
     public readonly at_timeChange = output<boolean>();
-    public readonly offset = model(0);
+    public readonly offsetInput = input(0, { alias: 'offset' });
+    public readonly offset = linkedSignal(this.offsetInput);
     public readonly offsetChange = output<number>();
     public readonly offset_day = input(0);
     public readonly offset_dayChange = output<number>();

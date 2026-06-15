@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     OnInit,
     computed,
@@ -24,6 +25,8 @@ import {
     HashMap,
     OrganisationService,
     Space,
+    ViewerFeature,
+    ViewerStyles,
     i18n,
     nextValueFrom,
 } from '@placeos/common';
@@ -33,7 +36,6 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { EventFormService, SpacesService } from '@placeos/events';
-import { ViewerFeature, ViewerStyles } from '@placeos/common';
 import { Observable, combineLatest, of } from 'rxjs';
 import { filter, first, map } from 'rxjs/operators';
 import { FeaturesFilterService } from './features-filter.service';
@@ -466,6 +468,7 @@ import { RoomConfirmService } from './room-confirm.service';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         MatProgressSpinnerModule,

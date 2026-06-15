@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -10,11 +17,11 @@ import { MatSelectModule } from '@angular/material/select';
 import {
     AsyncHandler,
     BuildingLevel,
+    MapElementBounds,
     MapsPeopleService,
     OrganisationService,
     nextValueFrom,
     unique,
-    MapElementBounds,
 } from '@placeos/common';
 import {
     IconComponent,
@@ -248,6 +255,7 @@ declare let mapsindoors: any;
         </main>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatDialogModule,
         MatRippleModule,

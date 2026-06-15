@@ -1,4 +1,10 @@
-import { Component, computed, inject, OnInit } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    OnInit,
+} from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SwUpdate } from '@angular/service-worker';
 import {
@@ -32,6 +38,7 @@ declare let OfficeRuntime: any;
         <global-loading />
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class AppComponent extends AsyncHandler implements OnInit {

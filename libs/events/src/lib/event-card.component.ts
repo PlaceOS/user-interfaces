@@ -1,5 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -174,6 +175,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
         `,
     ],
     providers: [SpacePipe],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,
@@ -242,8 +244,7 @@ export class EventCardComponent extends AsyncHandler implements OnInit {
             formatRecurrence(
                 fromEventRecurrence(this.event()?.recurrence),
                 this.event()?.date,
-            ) ||
-            i18n('CALENDAR_EVENT.RECURRING_TOOLTIP')
+            ) || i18n('CALENDAR_EVENT.RECURRING_TOOLTIP')
         );
     });
 

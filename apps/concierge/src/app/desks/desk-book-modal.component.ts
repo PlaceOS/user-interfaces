@@ -1,4 +1,11 @@
-import { Component, inject, OnInit, output, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+    output,
+    signal,
+} from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { BookingFormService } from '@placeos/bookings';
 import {
@@ -37,6 +44,7 @@ import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/desk-fl
         </fullscreen-modal-shell>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FullscreenModalShellComponent,
         NewDeskFormDetailsComponent,

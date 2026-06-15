@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnDestroy,
+    OnInit,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router, RouterModule } from '@angular/router';
 import {
@@ -103,6 +109,7 @@ import { LandingStateService } from './landing-state.service';
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         RouterModule,

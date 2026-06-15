@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
     AsyncHandler,
@@ -119,6 +126,7 @@ import { SpaceTimetableComponent } from './space-timetable.component';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         AuthenticatedImageDirective,

@@ -1,4 +1,9 @@
-import { Component, OnInit, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    inject,
+} from '@angular/core';
 import { DesksService } from '@placeos/bookings';
 import { ExploreMapViewComponent } from '@placeos/explore';
 import { FooterMenuComponent } from '../components/footer-menu.component';
@@ -36,6 +41,7 @@ import { TopbarComponent } from '../components/topbar.component';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TopbarComponent, FooterMenuComponent, ExploreMapViewComponent],
 })
 export class ExploreComponent implements OnInit {

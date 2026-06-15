@@ -1,4 +1,10 @@
-import { Component, inject, input, output } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    input,
+    output,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { SettingsService } from '@placeos/common';
 
@@ -80,6 +86,7 @@ import { BookingFormService } from '../booking-form.service';
             }
         </section>
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, IconComponent, TranslatePipe, MatRippleModule],
 })
 export class DeskFiltersDisplayComponent {

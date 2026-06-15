@@ -1,4 +1,11 @@
-import { Component, ElementRef, OnInit, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    OnInit,
+    inject,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import {
@@ -90,6 +97,7 @@ import { debounceTime, filter } from 'rxjs/operators';
         `,
     ],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [RouterModule, MatRippleModule, IconComponent],
 })
 export class ApplicationSidebarComponent

@@ -1,4 +1,9 @@
-import { Component, effect, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    effect,
+    inject,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 
@@ -157,6 +162,7 @@ import { SurveyService } from './survey.service';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatMenuModule,
         RouterModule,

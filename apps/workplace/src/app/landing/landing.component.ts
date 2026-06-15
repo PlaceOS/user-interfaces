@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     AsyncHandler,
@@ -87,7 +94,10 @@ import { LandingUpcomingComponent } from './landing-upcoming.component';
                         <div class="font-medium sm:text-xl">
                             {{
                                 'APP.WORKPLACE.WELCOME_MESSAGE'
-                                    | translate: { name: user()?.name }
+                                    | translate
+                                        : {
+                                              name: user()?.name,
+                                          }
                             }}
                         </div>
                         <div date class="text-sm sm:text-base">
@@ -142,6 +152,7 @@ import { LandingUpcomingComponent } from './landing-upcoming.component';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TopbarComponent,

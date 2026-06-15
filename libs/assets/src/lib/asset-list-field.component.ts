@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, forwardRef, inject, input } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    effect,
+    forwardRef,
+    inject,
+    input,
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -19,8 +26,8 @@ import { endOfDay, startOfDay } from 'date-fns';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { AssetStateService } from './asset-state.service';
 import { AssetSelectModalComponent } from './asset-select-modal/asset-select-modal.component';
+import { AssetStateService } from './asset-state.service';
 
 const EMPTY_FAVS: string[] = [];
 
@@ -233,6 +240,7 @@ const EMPTY_FAVS: string[] = [];
         },
     ],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         IconComponent,

@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     ElementRef,
@@ -117,6 +118,7 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         IconComponent,
         TranslatePipe,

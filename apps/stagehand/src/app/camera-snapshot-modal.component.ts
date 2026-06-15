@@ -1,5 +1,6 @@
 import { DatePipe } from '@angular/common';
 import {
+    ChangeDetectionStrategy,
     Component,
     ElementRef,
     computed,
@@ -126,7 +127,10 @@ interface MpegTsLibrary {
                         <div
                             class="absolute bottom-2 left-1/2 z-10 flex -translate-x-1/2 items-center space-x-2 rounded-full bg-black/40 px-3 py-1 text-xs text-white"
                         >
-                            <span>{{ feed_index() + 1 }} / {{ feed_count() }}</span>
+                            <span
+                                >{{ feed_index() + 1 }} /
+                                {{ feed_count() }}</span
+                            >
                         </div>
                     }
                 </div>
@@ -166,6 +170,7 @@ interface MpegTsLibrary {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         DatePipe,
         MatDialogModule,

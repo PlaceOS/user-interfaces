@@ -1,4 +1,10 @@
-import { Component, DestroyRef, forwardRef, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    DestroyRef,
+    forwardRef,
+    inject,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
     ControlValueAccessor,
@@ -161,6 +167,7 @@ function control(pattern: string) {
             multi: true,
         },
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [ReactiveFormsModule],
 })
 export class CronInputFieldComponent implements ControlValueAccessor {

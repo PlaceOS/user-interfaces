@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { OrganisationService } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
@@ -74,6 +74,7 @@ import { CateringReportStateService } from './catering-report-state.service';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, TranslatePipe],
 })
 export class CateringReportOverallComponent {

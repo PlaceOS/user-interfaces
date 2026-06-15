@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     inject,
     input,
@@ -148,6 +149,7 @@ const resource_level_cache = new Map<string, Observable<Set<string>>>();
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatFormFieldModule,
         MatSelectModule,

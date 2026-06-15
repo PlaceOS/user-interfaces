@@ -2,6 +2,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import {
     AfterViewInit,
+    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -225,6 +226,7 @@ export interface UploadDetails {
             useValue: UploadPermissionsModalComponent,
         },
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatFormFieldModule,
         MatChipsModule,

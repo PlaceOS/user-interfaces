@@ -1,4 +1,10 @@
-import { Component, NO_ERRORS_SCHEMA, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    NO_ERRORS_SCHEMA,
+    inject,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -78,6 +84,7 @@ import { IconComponent } from './icon.component';
     `,
     schemas: [NO_ERRORS_SCHEMA],
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatDialogModule,
         MatFormFieldModule,

@@ -1,5 +1,11 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, OnInit, inject, model } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    inject,
+    model,
+} from '@angular/core';
 import {
     MatBottomSheetModule,
     MatBottomSheetRef,
@@ -176,6 +182,7 @@ import { SpacePipe } from '@placeos/events';
         `,
     ],
     providers: [SpacePipe],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatProgressSpinnerModule,
@@ -269,8 +276,7 @@ export class MeetingFlowConfirmComponent
     }
 
     public get formatted_recurrence() {
-        const recurrence_start =
-            this.event.recurrence.start || this.event.date;
+        const recurrence_start = this.event.recurrence.start || this.event.date;
         return formatRecurrence(
             fromEventRecurrence({
                 ...this.event.recurrence,

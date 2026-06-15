@@ -1,4 +1,9 @@
-import { Component, computed, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignageService } from '../signage.service';
@@ -38,6 +43,7 @@ import { SignageService } from '../signage.service';
             }
         </div>
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, IconComponent, TranslatePipe],
 })
 export class PlaylistHeaderComponent {

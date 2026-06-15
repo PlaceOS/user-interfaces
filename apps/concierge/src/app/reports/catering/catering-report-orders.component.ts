@@ -1,5 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, input } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    input,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -105,6 +110,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,

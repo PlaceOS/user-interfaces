@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BookingFormService, ParkingService } from '@placeos/bookings';
 import {
@@ -33,7 +39,9 @@ import { ParkingFlowSuccessComponent } from './parking-flow/parking-flow-success
                             }}
                         </p>
                     </div>
-                } @else if (!(assigned_space | async) || !(has_booking | async)) {
+                } @else if (
+                    !(assigned_space | async) || !(has_booking | async)
+                ) {
                     <div class="bg-base-100 z-50 h-full w-full">
                         @switch (view()) {
                             @case ('success') {
@@ -79,7 +87,10 @@ import { ParkingFlowSuccessComponent } from './parking-flow/parking-flow-success
                 <div
                     class="bg-base-100 z-50 flex h-full w-full flex-col items-center justify-center space-y-4"
                 >
-                    <img src="assets/icons/permission-none.svg" class="h-64 w-64" />
+                    <img
+                        src="assets/icons/permission-none.svg"
+                        class="h-64 w-64"
+                    />
                     <p>
                         Your user account is not allowed to book parking in this
                         building.
@@ -98,6 +109,7 @@ import { ParkingFlowSuccessComponent } from './parking-flow/parking-flow-success
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         RouterModule,

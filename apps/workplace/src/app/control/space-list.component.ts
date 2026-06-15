@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { filter, map, startWith } from 'rxjs/operators';
 
 import { CommonModule } from '@angular/common';
@@ -76,6 +76,7 @@ import { ControlSpaceListItemComponent } from './list-item.component';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         FormsModule,

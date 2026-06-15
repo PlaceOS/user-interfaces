@@ -1,4 +1,9 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+} from '@angular/core';
 import { PlaceOS_Service } from '@placeos/common';
 
 @Component({
@@ -24,6 +29,7 @@ import { PlaceOS_Service } from '@placeos/common';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class AppComponent implements OnInit {

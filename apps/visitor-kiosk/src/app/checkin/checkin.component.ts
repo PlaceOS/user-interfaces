@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    DestroyRef,
+    inject,
+    signal,
+} from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { settingSignal } from '@placeos/common';
 import { AuthenticatedImageDirective } from '@placeos/components';
@@ -9,7 +15,9 @@ import { startOfMinute } from 'date-fns';
     selector: '[app-checkin]',
     template: `
         <!-- <a-topbar-header class="w-full screen-only"></a-topbar-header> -->
-        <div class="absolute inset-0 flex items-center p-8 print:static print:block print:p-0">
+        <div
+            class="absolute inset-0 flex items-center p-8 print:static print:block print:p-0"
+        >
             <img
                 auth
                 [source]="background()"
@@ -18,7 +26,9 @@ import { startOfMinute } from 'date-fns';
             <div class="z-10 flex w-full flex-col justify-center space-y-8">
                 <router-outlet></router-outlet>
             </div>
-            <div class="absolute top-4 right-4 text-2xl text-white print:hidden">
+            <div
+                class="absolute top-4 right-4 text-2xl text-white print:hidden"
+            >
                 {{ now() | date: 'mediumDate' }} {{ now() | date: 'shortTime' }}
             </div>
             @if (!hide_building_image()) {
@@ -39,6 +49,7 @@ import { startOfMinute } from 'date-fns';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, RouterModule, AuthenticatedImageDirective],
 })
 export class CheckinComponent {

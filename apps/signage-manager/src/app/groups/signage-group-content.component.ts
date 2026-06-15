@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignageService } from '../signage.service';
 import { SignageGroupUsersComponent } from './signage-group-users.component';
@@ -59,6 +59,7 @@ import { SignageGroupZonesComponent } from './signage-group-zones.component';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         IconComponent,
         SignageGroupUsersComponent,

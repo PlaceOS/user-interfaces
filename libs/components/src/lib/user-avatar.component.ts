@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { User } from '@placeos/common';
 import { AuthenticatedImageDirective } from './authenticated-image.directive';
 
@@ -28,6 +28,7 @@ import { AuthenticatedImageDirective } from './authenticated-image.directive';
         }
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [AuthenticatedImageDirective],
 })
 export class UserAvatarComponent {

@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -170,6 +171,7 @@ import { LockerFilters, LockerStateService } from './locker-state.service';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         DateOptionsComponent,
         IconComponent,

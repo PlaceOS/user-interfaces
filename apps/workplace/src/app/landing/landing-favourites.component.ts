@@ -1,4 +1,9 @@
-import { Component, OnInit, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    inject,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map, shareReplay, tap } from 'rxjs/operators';
@@ -280,6 +285,7 @@ const EMPTY = [];
         `,
     ],
     providers: [SpacePipe],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,

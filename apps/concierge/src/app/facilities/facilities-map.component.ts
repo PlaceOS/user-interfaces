@@ -1,4 +1,9 @@
-import { Component, effect, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    effect,
+    inject,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 import { AsyncHandler } from '@placeos/common';
@@ -31,6 +36,7 @@ import { EventsStateService } from '../day-view/events-state.service';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [InteractiveMapComponent, ExploreZoomControlComponent],
 })
 export class FacilitiesMapComponent extends AsyncHandler {

@@ -1,4 +1,9 @@
-import { Component, input, output } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    input,
+    output,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -83,6 +88,7 @@ import { TranslatePipe } from './translate.pipe';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         MatProgressSpinnerModule,

@@ -1,4 +1,9 @@
-import { Component, inject, output } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    output,
+} from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { MatRippleModule } from '@angular/material/core';
@@ -117,6 +122,7 @@ export interface PaymentData {
         }
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         FormsModule,

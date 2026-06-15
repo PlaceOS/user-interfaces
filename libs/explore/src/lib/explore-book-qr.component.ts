@@ -1,4 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { generateQRCode, SettingsService, Space } from '@placeos/common';
@@ -27,6 +32,7 @@ const DEFAULT_PATH = `workplace/#/explore?space={{id}}`;
         </main>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, MatRippleModule, IconComponent],
 })
 export class ExploreBookQrComponent {

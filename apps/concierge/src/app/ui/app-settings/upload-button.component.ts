@@ -1,4 +1,11 @@
-import { Component, forwardRef, inject, input, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    forwardRef,
+    inject,
+    input,
+    signal,
+} from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -33,6 +40,7 @@ import { IconComponent } from '@placeos/components';
         </button>
     `,
     imports: [MatProgressSpinnerModule, IconComponent, MatRippleModule],
+    changeDetection: ChangeDetectionStrategy.Eager,
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,

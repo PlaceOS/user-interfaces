@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -80,6 +81,7 @@ export interface Locatable {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         MatDialogModule,

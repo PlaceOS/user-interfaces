@@ -1,5 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    inject,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatRippleModule } from '@angular/material/core';
@@ -136,6 +141,7 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
         </div>
     `,
     styles: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatAutocompleteModule,
         MatFormFieldModule,

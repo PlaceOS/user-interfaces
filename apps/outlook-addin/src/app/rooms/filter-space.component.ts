@@ -1,4 +1,9 @@
-import { Component, computed, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -194,6 +199,7 @@ import { FeaturesFilterService } from './features-filter.service';
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         MatCheckboxModule,

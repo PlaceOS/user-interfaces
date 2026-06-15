@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -20,7 +20,9 @@ import { SignageService } from '../signage.service';
                 >
                     <input
                         matInput
-                        [placeholder]="'SIGNAGE_MANAGER.SEARCH_DISPLAYS' | translate"
+                        [placeholder]="
+                            'SIGNAGE_MANAGER.SEARCH_DISPLAYS' | translate
+                        "
                         [ngModel]="search()"
                         (ngModelChange)="search.set($event)"
                         [attr.aria-label]="
@@ -93,6 +95,7 @@ import { SignageService } from '../signage.service';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FormsModule,
         RouterLink,

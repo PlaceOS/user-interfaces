@@ -1,4 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    signal,
+} from '@angular/core';
 import {
     MatBottomSheet,
     MatBottomSheetRef,
@@ -47,6 +52,7 @@ import { MeetingBookingFormComponent } from './meeting-form.component';
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, MeetingBookingFormComponent],
 })
 export class MeetingBookingComponent {

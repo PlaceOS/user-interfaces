@@ -1,6 +1,12 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 import { CurrencyPipe } from '@angular/common';
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    EventEmitter,
+    Output,
+    inject,
+} from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -348,6 +354,7 @@ export interface CateringItemModalData {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         IconComponent,
         TranslatePipe,

@@ -1,4 +1,10 @@
-import { Component, computed, inject, output } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    output,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -74,6 +80,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         DateRangeFieldComponent,
         MatRippleModule,

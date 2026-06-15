@@ -1,5 +1,6 @@
 import {
     AfterViewInit,
+    ChangeDetectionStrategy,
     Component,
     ElementRef,
     inject,
@@ -181,6 +182,7 @@ import { lastValueFrom } from 'rxjs';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatInputModule,
         MatRippleModule,

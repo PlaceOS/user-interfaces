@@ -140,7 +140,7 @@ describe('CateringSelectModalComponent', () => {
             CateringItemFiltersComponent as any,
         ) as any;
         expect(filters.at_time).toBe(true);
-        expect(filters.offset).toBe(45);
+        expect(filters.offsetInput).toBe(45);
         expect(filters.offset_day).toBe(1);
     });
 

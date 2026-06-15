@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import {
     AfterViewInit,
+    ChangeDetectionStrategy,
     Component,
     computed,
     ElementRef,
@@ -273,6 +274,7 @@ export interface FindAvailabilityData {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatRippleModule,

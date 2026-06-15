@@ -1,4 +1,9 @@
-import { Component, input, output } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    input,
+    output,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { ApplicationIcon, AsyncHandler } from '@placeos/common';
 import { IconComponent } from './icon.component';
@@ -62,6 +67,7 @@ export interface PopoutAction extends ApplicationIcon {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [IconComponent, MatRippleModule],
 })
 export class PopoutMenuComponent extends AsyncHandler {

@@ -1,4 +1,9 @@
-import { Component, forwardRef, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    forwardRef,
+    signal,
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -103,6 +108,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
             useValue: UploadPermissionsModalComponent,
         },
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatProgressSpinnerModule, IconComponent, MatRippleModule],
 })
 export class UploadListFieldComponent implements ControlValueAccessor {

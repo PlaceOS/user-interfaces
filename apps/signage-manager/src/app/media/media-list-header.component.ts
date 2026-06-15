@@ -1,4 +1,10 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -59,7 +65,9 @@ function isValidUrl(url: string): boolean {
                     [placeholder]="'SIGNAGE_MANAGER.MEDIA_SEARCH' | translate"
                     [ngModel]="search()"
                     (ngModelChange)="search.set($event)"
-                    [attr.aria-label]="'SIGNAGE_MANAGER.SEARCH_MEDIA_ARIA' | translate"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.SEARCH_MEDIA_ARIA' | translate
+                    "
                 />
             </mat-form-field>
             @if (can_create()) {
@@ -72,7 +80,9 @@ function isValidUrl(url: string): boolean {
                     class="bg-secondary text-secondary-content h-12 w-12 rounded-lg"
                     [matTooltip]="'SIGNAGE_MANAGER.ADD_PLUGIN' | translate"
                     matTooltipPosition="left"
-                    [attr.aria-label]="'SIGNAGE_MANAGER.ADD_PLUGIN_ARIA' | translate"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.ADD_PLUGIN_ARIA' | translate
+                    "
                 >
                     <icon>extension</icon>
                 </button>
@@ -88,7 +98,8 @@ function isValidUrl(url: string): boolean {
                                 <mat-select
                                     [(ngModel)]="selected_plugin"
                                     [placeholder]="
-                                        'SIGNAGE_MANAGER.SELECT_PLUGIN' | translate
+                                        'SIGNAGE_MANAGER.SELECT_PLUGIN'
+                                            | translate
                                     "
                                     [attr.aria-label]="
                                         'SIGNAGE_MANAGER.SELECT_PLUGIN_ARIA'
@@ -132,7 +143,9 @@ function isValidUrl(url: string): boolean {
                     class="bg-secondary text-secondary-content h-12 w-12 rounded-lg"
                     [matTooltip]="'SIGNAGE_MANAGER.ADD_FROM_LINK' | translate"
                     matTooltipPosition="left"
-                    [attr.aria-label]="'SIGNAGE_MANAGER.ADD_FROM_LINK_ARIA' | translate"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.ADD_FROM_LINK_ARIA' | translate
+                    "
                 >
                     <icon>link</icon>
                 </button>
@@ -148,7 +161,9 @@ function isValidUrl(url: string): boolean {
                                 matInput
                                 [placeholder]="'COMMON.URL' | translate"
                                 [(ngModel)]="link"
-                                [attr.aria-label]="'SIGNAGE_MANAGER.MEDIA_URL_ARIA' | translate"
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.MEDIA_URL_ARIA' | translate
+                                "
                             />
                         </mat-form-field>
                         <button
@@ -170,7 +185,9 @@ function isValidUrl(url: string): boolean {
                     class="bg-secondary text-secondary-content h-12 w-12 rounded-lg"
                     [matTooltip]="'SIGNAGE_MANAGER.UPLOAD_MEDIA' | translate"
                     matTooltipPosition="left"
-                    [attr.aria-label]="'SIGNAGE_MANAGER.UPLOAD_MEDIA_ARIA' | translate"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.UPLOAD_MEDIA_ARIA' | translate
+                    "
                     (click)="upload_input.click()"
                 >
                     <icon>add</icon>
@@ -181,12 +198,15 @@ function isValidUrl(url: string): boolean {
                     multiple
                     class="sr-only"
                     [attr.accept]="file_accept"
-                    [attr.aria-label]="'SIGNAGE_MANAGER.UPLOAD_MEDIA_ARIA' | translate"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.UPLOAD_MEDIA_ARIA' | translate
+                    "
                     (change)="previewFile($event)"
                 />
             }
         </div>
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FormsModule,
         MatRippleModule,

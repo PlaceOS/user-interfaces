@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     input,
+    linkedSignal,
     model,
     OnChanges,
     OnInit,
@@ -98,6 +100,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, IconComponent],
 })
 export class DateRangeCalendarComponent implements OnInit, OnChanges {
@@ -111,9 +114,11 @@ export class DateRangeCalendarComponent implements OnInit, OnChanges {
     /** Index of the day to start the week on when displaying the calendar */
     public readonly offset_weekday = input(0);
     /** Start date of the selected range */
-    public readonly start = model<number>(undefined);
+    public readonly startInput = input<number>(undefined, { alias: 'start' });
+    public readonly start = linkedSignal(this.startInput);
     /** End date of the selected range */
-    public readonly end = model<number>(undefined);
+    public readonly endInput = input<number>(undefined, { alias: 'end' });
+    public readonly end = linkedSignal(this.endInput);
     /** Month to display the calendar for */
     public readonly month = model(startOfDay(Date.now()).valueOf());
     /** Emitter for when the start date changes */

@@ -1,6 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -111,6 +111,7 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
         <div class="h-20 w-full"></div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         MatProgressBarModule,

@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { AuthenticatedImageDirective } from './authenticated-image.directive';
 import { IconComponent } from './icon.component';
@@ -101,6 +101,7 @@ import { TranslatePipe } from './translate.pipe';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         TranslatePipe,

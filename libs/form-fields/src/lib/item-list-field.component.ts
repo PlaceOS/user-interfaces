@@ -1,6 +1,11 @@
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 
-import { Component, forwardRef, input } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    forwardRef,
+    input,
+} from '@angular/core';
 import {
     ControlValueAccessor,
     FormControl,
@@ -104,9 +109,12 @@ export function uniqueChipItems<T = string>(items: T[]): T[] {
             multi: true,
         },
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatFormFieldModule, MatChipsModule, IconComponent],
 })
-export class ItemListFieldComponent<T = string> implements ControlValueAccessor {
+export class ItemListFieldComponent<
+    T = string,
+> implements ControlValueAccessor {
     public readonly separators = input<number[]>([ENTER, COMMA]);
 
     public readonly placeholder = input('');

@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -85,6 +86,7 @@ import { ControlStateService, RoomInput } from '../control-state.service';
             }
         </div>
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, MatProgressSpinnerModule, MatRippleModule],
 })
 export class SourceSelectComponent {

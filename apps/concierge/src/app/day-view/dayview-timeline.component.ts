@@ -1,4 +1,11 @@
-import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnDestroy,
+    OnInit,
+    inject,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AsyncHandler, OrganisationService, Space } from '@placeos/common';
 import { querySystems } from '@placeos/ts-client';
@@ -113,6 +120,7 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class DayviewTimelineComponent

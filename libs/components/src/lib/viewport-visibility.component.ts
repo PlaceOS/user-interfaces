@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     ElementRef,
     OnDestroy,
@@ -15,6 +16,7 @@ import {
             <ng-content />
         }
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [],
 })
 export class ViewportVisibilityComponent implements OnInit, OnDestroy {

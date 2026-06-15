@@ -1,5 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+} from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -167,6 +172,7 @@ import { DateFieldComponent } from './date-field.component';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         ReactiveFormsModule,
@@ -286,10 +292,7 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
 
         if (value.end_type === 'instances' && value.end_instances) {
             value.end_date = recurrenceEndDate(value, this.date);
-            while (
-                value.end_instances > 1 &&
-                value.end_date > this.end_date
-            ) {
+            while (value.end_instances > 1 && value.end_date > this.end_date) {
                 value.end_instances--;
                 value.end_date = recurrenceEndDate(value, this.date);
             }

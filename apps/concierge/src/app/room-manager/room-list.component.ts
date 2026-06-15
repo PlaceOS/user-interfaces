@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { i18n, notifySuccess, SettingsService } from '@placeos/common';
@@ -202,6 +202,7 @@ import { RoomManagementService } from './room-management.service';
         </ng-template>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         SimpleTableComponent,
         IconComponent,

@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -280,6 +281,7 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
         SpacePipe,
     ],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         AccessibilityControlsComponent,
         MatRippleModule,

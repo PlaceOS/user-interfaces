@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     OnChanges,
     OnInit,
@@ -216,6 +217,7 @@ export function calculateModuleIndex(
             }
         </ng-template>`,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatFormFieldModule,

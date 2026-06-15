@@ -1,4 +1,11 @@
-import { Component, effect, inject, signal, untracked } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    effect,
+    inject,
+    signal,
+    untracked,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
@@ -85,7 +92,10 @@ interface QR_Codes {
                         matRipple
                         customTooltip
                         [content]="qr_menu"
-                        [data]="{ qr: qr_codes()[row.id]?.private, item: row }"
+                        [data]="{
+                            qr: qr_codes()[row.id]?.private,
+                            item: row,
+                        }"
                         (click)="loadQrCode(row)"
                     >
                         <icon>qr_code</icon>
@@ -97,7 +107,10 @@ interface QR_Codes {
                         matRipple
                         customTooltip
                         [disabled]="!row.short_link_id"
-                        [data]="{ qr: qr_codes()[row.id]?.public, item: row }"
+                        [data]="{
+                            qr: qr_codes()[row.id]?.public,
+                            item: row,
+                        }"
                         [content]="qr_menu"
                         (click)="loadPublicQrCode(row)"
                     >
@@ -169,6 +182,7 @@ interface QR_Codes {
         </ng-template>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         SimpleTableComponent,
         MatMenuModule,

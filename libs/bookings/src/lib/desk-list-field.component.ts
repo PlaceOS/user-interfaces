@@ -1,4 +1,11 @@
-import { Component, forwardRef, inject, input, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    forwardRef,
+    inject,
+    input,
+    signal,
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -148,6 +155,7 @@ const EMPTY_FAVS: string[] = [];
             multi: true,
         },
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         IconComponent,
         TranslatePipe,

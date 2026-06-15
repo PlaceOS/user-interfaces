@@ -17,7 +17,10 @@ import { DesksService } from 'libs/bookings/src/lib/desk.service';
 import { ExploreDesksService } from '../lib/explore-desks.service';
 import { ExploreStateService } from '../lib/explore-state.service';
 
-jest.mock('@placeos/ts-client');
+jest.mock('@placeos/ts-client', () => ({
+    ...jest.requireActual('@placeos/ts-client'),
+    showMetadata: jest.fn(),
+}));
 jest.mock('@placeos/bookings');
 
 import * as ts_client from '@placeos/ts-client';
@@ -50,15 +53,19 @@ describe('ExploreDesksService', () => {
     });
 
     beforeEach(() => {
-        (ts_client as any).showMetadata = jest.fn((_, name) =>
-            name.includes('restrictions')
-                ? Promise.resolve([])
-                : Promise.resolve({
-                      details: [
-                          { id: 'desk-1', name: '1', bookable: true },
-                          { id: 'desk-2', name: '2', bookable: false },
-                      ],
-                  }),
+        jest.clearAllMocks();
+        jest.mocked(ts_client.showMetadata).mockImplementation(
+            (_, name) =>
+                Promise.resolve(
+                    `${name}`.includes('restrictions')
+                        ? []
+                        : {
+                              details: [
+                                  { id: 'desk-1', name: '1', bookable: true },
+                                  { id: 'desk-2', name: '2', bookable: false },
+                              ],
+                          },
+                ) as any,
         );
         spectator = createService();
     });

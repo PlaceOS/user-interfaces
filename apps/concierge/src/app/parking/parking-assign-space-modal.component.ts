@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     ElementRef,
@@ -31,18 +32,19 @@ import {
     Booking,
     BuildingLevel,
     i18n,
+    MapElementBounds,
     notifyError,
     notifySuccess,
     OrganisationService,
     unique,
-    MapElementBounds,
+    ViewerFeature,
+    ViewerStyles,
 } from '@placeos/common';
 import {
     IconComponent,
     InteractiveMapComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { ViewerFeature, ViewerStyles } from '@placeos/common';
 import { PlaceAsset } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { ExploreParkingInfoComponent } from 'libs/explore/src/lib/explore-parking-info.component';
@@ -208,6 +210,7 @@ export function mapLocationFromClick(e: any, map_info: BoundsMap = {}) {
         </main>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatDialogModule,

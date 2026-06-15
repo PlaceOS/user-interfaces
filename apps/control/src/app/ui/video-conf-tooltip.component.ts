@@ -1,4 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CustomTooltipData, TranslatePipe } from '@placeos/components';
 
@@ -47,6 +52,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
         }
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         RouterModule,
         TranslatePipe,

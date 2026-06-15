@@ -1,4 +1,10 @@
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    EventEmitter,
+    Output,
+    inject,
+} from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -162,6 +168,7 @@ export interface CateringItemOptionModalData {
         </mat-autocomplete>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         MatRippleModule,

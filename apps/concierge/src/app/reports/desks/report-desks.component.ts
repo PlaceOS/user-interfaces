@@ -1,4 +1,11 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    effect,
+    inject,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime } from 'rxjs/operators';
 
@@ -154,6 +161,7 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         MatProgressSpinnerModule,

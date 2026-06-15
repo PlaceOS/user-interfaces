@@ -1,4 +1,10 @@
-import { Component, OnInit, inject, output } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    inject,
+    output,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
@@ -60,6 +66,7 @@ export interface BookingModalData {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class BookingModalComponent implements OnInit {

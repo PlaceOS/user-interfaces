@@ -1,4 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    signal,
+} from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -9,7 +14,10 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { FullscreenModalShellComponent , TranslatePipe } from '@placeos/components';
+import {
+    FullscreenModalShellComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { PlaceGroup } from '@placeos/ts-client';
 import { SignageService } from '../signage.service';
 
@@ -41,9 +49,13 @@ import { SignageService } from '../signage.service';
                         formControlName="name"
                         required
                     />
-                    <mat-error>{{ 'SIGNAGE_MANAGER.NAME_REQUIRED' | translate }}</mat-error>
+                    <mat-error>{{
+                        'SIGNAGE_MANAGER.NAME_REQUIRED' | translate
+                    }}</mat-error>
                 </mat-form-field>
-                <label for="signage-group-description">{{ 'COMMON.DESCRIPTION' | translate }}</label>
+                <label for="signage-group-description">{{
+                    'COMMON.DESCRIPTION' | translate
+                }}</label>
                 <mat-form-field appearance="outline" class="w-full">
                     <textarea
                         matInput
@@ -64,12 +76,16 @@ import { SignageService } from '../signage.service';
                     <mat-select
                         id="signage-group-parent"
                         name="signage-group-parent"
-                        [placeholder]="'SIGNAGE_MANAGER.SELECT_PARENT' | translate"
+                        [placeholder]="
+                            'SIGNAGE_MANAGER.SELECT_PARENT' | translate
+                        "
                         formControlName="parent_id"
                         [required]="!group.id"
                     >
                         @if (group.id) {
-                            <mat-option value="">{{ 'SIGNAGE_MANAGER.NO_PARENT' | translate }}</mat-option>
+                            <mat-option value="">{{
+                                'SIGNAGE_MANAGER.NO_PARENT' | translate
+                            }}</mat-option>
                         }
                         @for (parent of parent_groups(); track parent.id) {
                             <mat-option [value]="parent.id">
@@ -77,12 +93,15 @@ import { SignageService } from '../signage.service';
                             </mat-option>
                         }
                     </mat-select>
-                    <mat-error>{{ 'SIGNAGE_MANAGER.PARENT_REQUIRED' | translate }}</mat-error>
+                    <mat-error>{{
+                        'SIGNAGE_MANAGER.PARENT_REQUIRED' | translate
+                    }}</mat-error>
                 </mat-form-field>
             </form>
         </fullscreen-modal-shell>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FullscreenModalShellComponent,
         ReactiveFormsModule,

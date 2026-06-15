@@ -1,4 +1,10 @@
-import { Component, computed, inject, input } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    input,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
     downloadFile,
@@ -116,6 +122,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
             </div>
         </div>
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         SimpleTableComponent,
         TranslatePipe,

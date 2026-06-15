@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     inject,
     model,
@@ -88,6 +89,7 @@ import { TranslatePipe } from './translate.pipe';
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, MatRippleModule, MatSliderModule, FormsModule],
 })
 export class DeskHeightPresetsComponent implements OnInit {

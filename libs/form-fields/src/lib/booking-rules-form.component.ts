@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+    ChangeDetectionStrategy,
     Component,
     OnChanges,
     SimpleChanges,
@@ -423,6 +424,7 @@ const ITEM_LIST_CONDITIONS = ['groups', 'locations', 'tags', 'resource_ids'];
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatFormFieldModule,

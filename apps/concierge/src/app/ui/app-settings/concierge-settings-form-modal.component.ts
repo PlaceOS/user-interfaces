@@ -1,4 +1,11 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -1729,6 +1736,7 @@ import { UploadButtonComponent } from './upload-button.component';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatDialogModule,
         FullscreenModalShellComponent,

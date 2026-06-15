@@ -1,5 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, model } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    model,
+} from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -104,6 +109,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
         </footer>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,

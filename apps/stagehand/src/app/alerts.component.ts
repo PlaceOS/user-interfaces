@@ -1,5 +1,6 @@
 import { AsyncPipe, CommonModule } from '@angular/common';
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -434,6 +435,7 @@ import { SidebarComponent } from './ui/sidebar.component';
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         AsyncPipe,

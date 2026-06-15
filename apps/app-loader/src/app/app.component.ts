@@ -1,4 +1,10 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import {
     current_user,
     currentUser,
@@ -103,6 +109,7 @@ import {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     providers: [SettingsService],
 })
 export class AppComponent implements OnInit {

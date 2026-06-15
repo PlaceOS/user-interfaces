@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -66,7 +67,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         matRipple
                         class="h-12 w-32"
                         [routerLink]="[base_route, 'manage', 'group']"
-                        [queryParams]="{ id: item()?.id }"
+                        [queryParams]="{
+                            id: item()?.id,
+                        }"
                     >
                         <div class="flex items-center space-x-2">
                             <icon class="text-xl">edit</icon>
@@ -328,7 +331,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                     'manage',
                                     'purchase-order',
                                 ]"
-                                [queryParams]="{ group_id: item()?.id }"
+                                [queryParams]="{
+                                    group_id: item()?.id,
+                                }"
                             >
                                 {{
                                     'APP.CONCIERGE.ASSETS_PURCHASE_ADD'
@@ -483,6 +488,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         RouterModule,

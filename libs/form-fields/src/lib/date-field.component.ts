@@ -1,5 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import {
+    ChangeDetectionStrategy,
     Component,
     forwardRef,
     inject,
@@ -135,6 +136,7 @@ export enum TimezoneDiffRange {
             multi: true,
         },
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         FormsModule,

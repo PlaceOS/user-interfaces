@@ -1,4 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    signal,
+} from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -111,6 +116,7 @@ import { RichTextInputComponent } from '@placeos/form-fields';
         </fullscreen-modal-shell>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FullscreenModalShellComponent,
         SettingsToggleComponent,

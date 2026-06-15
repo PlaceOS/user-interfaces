@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     ElementRef,
@@ -101,6 +102,7 @@ import { AuthenticatedImageDirective } from './authenticated-image.directive';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         MatProgressSpinnerModule,

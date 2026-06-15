@@ -1,6 +1,7 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -27,9 +28,9 @@ import {
     settingSignal,
     Space,
     unique,
+    ViewerFeature,
 } from '@placeos/common';
 import { MapLocateModalComponent, MapPinComponent } from '@placeos/components';
-import { ViewerFeature } from '@placeos/common';
 import { lastValueFrom } from 'rxjs';
 
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
@@ -460,6 +461,7 @@ import {
         }
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,

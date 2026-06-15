@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
 import {
+    ChangeDetectionStrategy,
     Component,
     TemplateRef,
     computed,
     effect,
     input,
-    model,
+    linkedSignal,
     output,
     signal,
 } from '@angular/core';
@@ -282,6 +283,7 @@ export interface TableColumn {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatRippleModule,
@@ -298,7 +300,8 @@ export class SimpleTableComponent<T extends object = any> {
     public readonly filter = input('');
     public readonly sortable = input(false);
     public readonly show_header = input(true);
-    public readonly selected = model<number[]>([]);
+    public readonly selectedInput = input<number[]>([], { alias: 'selected' });
+    public readonly selected = linkedSignal(this.selectedInput);
     public readonly page_size = input(0);
     public readonly empty_message = input('No data to list');
     public readonly child_template = input<TemplateRef<any>>(null);

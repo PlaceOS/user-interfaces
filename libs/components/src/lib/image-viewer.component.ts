@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { AuthenticatedImageDirective } from './authenticated-image.directive';
 import { IconComponent } from './icon.component';
@@ -23,6 +23,7 @@ import { IconComponent } from './icon.component';
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [IconComponent, AuthenticatedImageDirective, MatDialogModule],
 })
 export class ImageViewerComponent {

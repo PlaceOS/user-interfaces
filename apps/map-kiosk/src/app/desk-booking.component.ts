@@ -1,4 +1,10 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { AsyncHandler, current_user, SettingsService } from '@placeos/common';
 import { first } from 'rxjs/operators';
@@ -22,6 +28,7 @@ import { FooterMenuComponent } from './footer-menu.component';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [FooterMenuComponent],
 })
 export class DeskBookingComponent extends AsyncHandler implements OnInit {

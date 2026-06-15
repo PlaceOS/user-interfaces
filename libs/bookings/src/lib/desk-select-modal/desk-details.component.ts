@@ -1,4 +1,10 @@
-import { Component, computed, input, output } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    input,
+    output,
+} from '@angular/core';
 import { ViewerFeature } from '@placeos/common';
 
 import { MatRippleModule } from '@angular/material/core';
@@ -147,6 +153,7 @@ import { BookingAsset } from '../booking-form.service';
             </div>
         }
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         IconComponent,

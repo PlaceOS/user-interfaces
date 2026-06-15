@@ -7,7 +7,15 @@ import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { OrganisationService } from '../lib/org/organisation.service';
 import { Building, Region } from '../lib/types/org.classes';
 
-jest.mock('@placeos/ts-client');
+jest.mock('@placeos/ts-client', () => ({
+    ...jest.requireActual('@placeos/ts-client'),
+    authority: jest.fn(),
+    bulkMetadata: jest.fn(),
+    onlineState: jest.fn(),
+    queryZones: jest.fn(),
+    showMetadata: jest.fn(),
+    waitForSignal: jest.fn(),
+}));
 
 import * as ts_client from '@placeos/ts-client';
 
@@ -22,11 +30,17 @@ describe('OrganisationService', () => {
     });
 
     beforeEach(() => {
+        jest.clearAllMocks();
         localStorage.clear();
         sessionStorage.clear();
-        (ts_client as any).onlineState = jest.fn(() => of(true));
-        (ts_client as any).waitForSignal = jest.fn(() => Promise.resolve(true));
-        (ts_client as any).authority = jest.fn(() => ({ id: 'auth-1' }));
+        jest.mocked(ts_client.onlineState).mockReturnValue(of(true) as any);
+        jest.mocked(ts_client.waitForSignal).mockResolvedValue(true as any);
+        jest.mocked(ts_client.authority).mockReturnValue({
+            id: 'auth-1',
+        } as any);
+        jest.mocked(ts_client.queryZones).mockResolvedValue({ data: [] });
+        jest.mocked(ts_client.bulkMetadata).mockResolvedValue({});
+        jest.mocked(ts_client.showMetadata).mockResolvedValue({ details: {} });
         spectator = createService();
     });
 
@@ -87,9 +101,9 @@ describe('OrganisationService', () => {
     });
 
     it('should cache zone data for the browser session', async () => {
-        (ts_client as any).queryZones = jest.fn(() =>
-            Promise.resolve({ data: [{ id: 'bld-1', tags: ['building'] }] }),
-        );
+        jest.mocked(ts_client.queryZones).mockResolvedValue({
+            data: [{ id: 'bld-1', tags: ['building'] }],
+        } as any);
 
         const first_list = await spectator.service.loadBuildings('org-1');
         const second_list = await spectator.service.loadBuildings('org-1');
@@ -100,13 +114,13 @@ describe('OrganisationService', () => {
     });
 
     it('should expire cached zone data using the authority config', async () => {
-        (ts_client as any).authority = jest.fn(() => ({
+        jest.mocked(ts_client.authority).mockReturnValue({
             id: 'auth-1',
             config: { metadata_cache_duration: 0 },
-        }));
-        (ts_client as any).queryZones = jest.fn(() =>
-            Promise.resolve({ data: [{ id: 'bld-1', tags: ['building'] }] }),
-        );
+        } as any);
+        jest.mocked(ts_client.queryZones).mockResolvedValue({
+            data: [{ id: 'bld-1', tags: ['building'] }],
+        } as any);
 
         await spectator.service.loadBuildings('org-1');
         await spectator.service.loadBuildings('org-1');
@@ -116,13 +130,16 @@ describe('OrganisationService', () => {
 
     it('should invalidate cached zone data when metadata cache id changes', async () => {
         let metadata_cache_id = 'cache-1';
-        (ts_client as any).authority = jest.fn(() => ({
-            id: 'auth-1',
-            config: { metadata_cache_id },
-        }));
-        (ts_client as any).queryZones = jest.fn(() =>
-            Promise.resolve({ data: [{ id: 'bld-1', tags: ['building'] }] }),
+        jest.mocked(ts_client.authority).mockImplementation(
+            () =>
+                ({
+                    id: 'auth-1',
+                    config: { metadata_cache_id },
+                }) as any,
         );
+        jest.mocked(ts_client.queryZones).mockResolvedValue({
+            data: [{ id: 'bld-1', tags: ['building'] }],
+        } as any);
 
         await spectator.service.loadBuildings('org-1');
         await spectator.service.loadBuildings('org-1');
@@ -133,8 +150,8 @@ describe('OrganisationService', () => {
     });
 
     it('should cache bulk metadata for the browser session', async () => {
-        (ts_client as any).bulkMetadata = jest.fn((name) =>
-            Promise.resolve({ bld_1: { details: { name } } }),
+        jest.mocked(ts_client.bulkMetadata).mockImplementation((name) =>
+            Promise.resolve({ bld_1: { details: { name } } } as any),
         );
 
         await spectator.service.loadBuildingData({ id: 'bld_1' } as any);
@@ -145,9 +162,9 @@ describe('OrganisationService', () => {
     });
 
     it('should clear org caches when reloading metadata', async () => {
-        (ts_client as any).queryZones = jest.fn(() =>
-            Promise.resolve({ data: [{ id: 'bld-1', tags: ['building'] }] }),
-        );
+        jest.mocked(ts_client.queryZones).mockResolvedValue({
+            data: [{ id: 'bld-1', tags: ['building'] }],
+        } as any);
         jest.spyOn(spectator.service as any, 'load').mockResolvedValue(
             undefined,
         );
@@ -161,8 +178,8 @@ describe('OrganisationService', () => {
     });
 
     it('should load building metadata in bulk', async () => {
-        (ts_client as any).bulkMetadata = jest.fn((name) =>
-            Promise.resolve({ bld_1: { details: { name } } }),
+        jest.mocked(ts_client.bulkMetadata).mockImplementation((name) =>
+            Promise.resolve({ bld_1: { details: { name } } } as any),
         );
 
         await spectator.service.loadBuildingData({ id: 'bld_1' } as any);
@@ -214,8 +231,10 @@ describe('OrganisationService', () => {
     it('should fall back to the first building when no stored or timezone building matches', async () => {
         const building = new Building({ id: 'bld-1', tags: ['building'] });
         (spectator.service as any)._buildings.next([building]);
-        jest.spyOn(spectator.service as any, '_setRegionFromTimezone')
-            .mockResolvedValue(undefined);
+        jest.spyOn(
+            spectator.service as any,
+            '_setRegionFromTimezone',
+        ).mockResolvedValue(undefined);
 
         await (spectator.service as any)._setDefaultBuilding();
 

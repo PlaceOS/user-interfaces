@@ -1,5 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
@@ -49,7 +54,9 @@ import { BookLockerFlowSuccessComponent } from './locker-flow/locker-flow-succes
                     {{
                         'APP.WORKPLACE.LOCKER_ASSIGNED'
                             | translate
-                                : { name: (assigned_space | async)?.name }
+                                : {
+                                      name: (assigned_space | async)?.name,
+                                  }
                     }}
                 </p>
                 <a btn matRipple class="w-48" [routerLink]="['/your-bookings']">
@@ -66,6 +73,7 @@ import { BookLockerFlowSuccessComponent } from './locker-flow/locker-flow-succes
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,

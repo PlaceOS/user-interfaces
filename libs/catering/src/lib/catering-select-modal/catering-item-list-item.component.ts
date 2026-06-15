@@ -1,5 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    input,
+    output,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { CateringItem } from '@placeos/common';
 
@@ -123,6 +128,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
         </li>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         IconComponent,

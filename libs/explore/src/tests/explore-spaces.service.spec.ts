@@ -12,7 +12,11 @@ import { EventFormService } from '@placeos/events';
 import { ExploreSpacesService } from '../lib/explore-spaces.service';
 import { ExploreStateService } from '../lib/explore-state.service';
 
-jest.mock('@placeos/ts-client');
+jest.mock('@placeos/ts-client', () => ({
+    ...jest.requireActual('@placeos/ts-client'),
+    getModule: jest.fn(),
+    showMetadata: jest.fn(),
+}));
 jest.mock('libs/common/src/lib/notifications');
 
 import * as ts_client from '@placeos/ts-client';
@@ -40,7 +44,8 @@ describe('ExploreSpacesService', () => {
     });
 
     beforeEach(() => {
-        (ts_client.showMetadata as any).mockImplementation(() => of({}));
+        jest.clearAllMocks();
+        jest.mocked(ts_client.showMetadata).mockReturnValue(of({}) as any);
         spectator = createService();
     });
 
@@ -54,7 +59,9 @@ describe('ExploreSpacesService', () => {
         const variableBinding = { bindThenSubscribe };
         const binding = jest.fn(() => variableBinding);
         const getModuleMock = jest.fn(() => ({ variable: binding }));
-        (ts_client as any).getModule = getModuleMock;
+        jest.mocked(ts_client.getModule).mockImplementation(
+            getModuleMock as any,
+        );
         const state = spectator.inject(ExploreStateService);
         (state.spaces as any).set([
             { id: 'space-1', name: 'Test', bookable: true },

@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     ElementRef,
     input,
@@ -97,6 +98,7 @@ import { TranslatePipe } from '@placeos/components';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, MatRippleModule, MatProgressSpinnerModule],
 })
 export class TakePhotoComponent

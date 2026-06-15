@@ -1,5 +1,11 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -26,7 +32,9 @@ import { SignageService } from '../signage.service';
                     matRipple
                     [matTooltip]="'SIGNAGE_MANAGER.PREV_WEEK' | translate"
                     (click)="previousWeek()"
-                    [attr.aria-label]="'SIGNAGE_MANAGER.PREV_WEEK_ARIA' | translate"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.PREV_WEEK_ARIA' | translate
+                    "
                 >
                     <icon>chevron_left</icon>
                 </button>
@@ -36,7 +44,9 @@ import { SignageService } from '../signage.service';
                     matRipple
                     [matTooltip]="'COMMON.WEEK_THIS' | translate"
                     (click)="goToToday()"
-                    [attr.aria-label]="'SIGNAGE_MANAGER.THIS_WEEK_ARIA' | translate"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.THIS_WEEK_ARIA' | translate
+                    "
                 >
                     <icon>today</icon>
                 </button>
@@ -49,7 +59,9 @@ import { SignageService } from '../signage.service';
                     matRipple
                     [matTooltip]="'SIGNAGE_MANAGER.NEXT_WEEK' | translate"
                     (click)="nextWeek()"
-                    [attr.aria-label]="'SIGNAGE_MANAGER.NEXT_WEEK_ARIA' | translate"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.NEXT_WEEK_ARIA' | translate
+                    "
                 >
                     <icon>chevron_right</icon>
                 </button>
@@ -249,6 +261,7 @@ import { SignageService } from '../signage.service';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         DatePipe,
         MatRippleModule,

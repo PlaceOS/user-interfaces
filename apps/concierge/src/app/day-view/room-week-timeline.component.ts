@@ -1,5 +1,12 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -127,7 +134,13 @@ import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
                             <button
                                 matRipple
                                 class="hover:bg-base-200 flex w-full space-x-2 rounded-sm p-2 text-left"
-                                (click)="viewEvent(event, event.system?.id)"
+                                (click)="
+                                    viewEvent(
+                                        event,
+
+                                        event.system?.id
+                                    )
+                                "
                             >
                                 <div
                                     class="my-1.5 h-2 w-2 rounded-full"
@@ -191,6 +204,7 @@ import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatRippleModule,

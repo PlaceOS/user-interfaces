@@ -1,4 +1,11 @@
-import { Component, inject, OnInit, output, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+    output,
+    signal,
+} from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -234,6 +241,7 @@ const CHARS = '0123456789ABCDEF';
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatDialogModule,
         TranslatePipe,

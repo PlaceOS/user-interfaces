@@ -1,4 +1,10 @@
-import { Component, computed, inject, input } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    input,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { SettingsService } from '@placeos/common';
 import { addDays, endOfDay } from 'date-fns';
@@ -246,6 +252,7 @@ import { BookingFormService } from '../booking-form.service';
             </div>
         }
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         TranslatePipe,

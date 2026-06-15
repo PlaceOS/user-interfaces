@@ -1,5 +1,6 @@
 import { AsyncPipe, DatePipe, UpperCasePipe } from '@angular/common';
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     ElementRef,
@@ -195,6 +196,7 @@ export interface SpaceInfoData {
         `,
     ],
 
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         AsyncPipe,
         DatePipe,

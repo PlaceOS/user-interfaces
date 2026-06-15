@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -130,6 +131,7 @@ export interface UserDetails extends User {
         `,
     ],
     encapsulation: ViewEncapsulation.None,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         UserAvatarComponent,

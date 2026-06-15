@@ -1,5 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, forwardRef, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    forwardRef,
+    signal,
+} from '@angular/core';
 import {
     ControlValueAccessor,
     FormsModule,
@@ -57,6 +62,7 @@ import { catchError, map, shareReplay } from 'rxjs/operators';
             multi: true,
         },
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatFormFieldModule, MatSelectModule, CommonModule, FormsModule],
 })
 export class HostSelectFieldComponent implements ControlValueAccessor {

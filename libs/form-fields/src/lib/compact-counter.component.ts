@@ -1,4 +1,11 @@
-import { Component, forwardRef, input, model, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    forwardRef,
+    input,
+    model,
+    signal,
+} from '@angular/core';
 import {
     ControlValueAccessor,
     FormsModule,
@@ -83,6 +90,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             multi: true,
         },
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [FormsModule, IconComponent],
 })
 export class CompactCounterComponent implements ControlValueAccessor {

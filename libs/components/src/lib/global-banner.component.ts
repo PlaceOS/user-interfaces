@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -73,6 +74,7 @@ export interface BannerDetails {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [IconComponent],
 })
 export class GlobalBannerComponent implements OnInit {

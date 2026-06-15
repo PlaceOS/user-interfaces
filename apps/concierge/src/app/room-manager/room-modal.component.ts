@@ -1,5 +1,12 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import {
@@ -463,6 +470,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,

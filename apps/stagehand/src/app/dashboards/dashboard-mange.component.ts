@@ -1,4 +1,10 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -102,6 +108,7 @@ import { DashboardsService } from './dashboards.service';
         </div>
     `,
     styles: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         IconComponent,
         TranslatePipe,

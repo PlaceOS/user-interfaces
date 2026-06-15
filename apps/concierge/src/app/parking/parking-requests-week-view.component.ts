@@ -1,5 +1,11 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, computed, inject, OnInit } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    OnInit,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
@@ -173,11 +179,11 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                                       'declined'
                                                     ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
                                                     : isVisibleWaitlisted(
-                                                          booking
-                                                      )
+                                                            booking
+                                                        )
                                                       ? 'APP.CONCIERGE.PARKING_WAITLISTED'
                                                       : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
-                                             ) | translate
+                                            ) | translate
                                         }}
                                     </button>
                                     <mat-menu #menu="matMenu">
@@ -290,6 +296,7 @@ import { isParkingAllDayBooking } from './parking.utilities';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatProgressBarModule,

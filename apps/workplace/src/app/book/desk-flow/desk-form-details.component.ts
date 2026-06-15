@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -328,6 +329,7 @@ const MINUTES_IN_DAY = 24 * 60;
             </div>
         }
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         IconComponent,

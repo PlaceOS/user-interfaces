@@ -12,7 +12,13 @@ import { BookingFormService } from '../lib/booking-form.service';
 import * as booking_utility_mod from '../lib/booking.utilities';
 import * as booking_mod from '../lib/bookings.fn';
 
-jest.mock('@placeos/ts-client');
+jest.mock('@placeos/ts-client', () => ({
+    ...jest.requireActual('@placeos/ts-client'),
+    cleanObject: jest.fn((value) => value),
+    listChildMetadata: jest.fn(),
+    showMetadata: jest.fn(),
+    showUser: jest.fn(),
+}));
 jest.mock('libs/bookings/src/lib/bookings.fn');
 
 import * as ts_client from '@placeos/ts-client';
@@ -59,7 +65,8 @@ describe('BookingFormService', () => {
     });
 
     beforeEach(() => {
-        (ts_client as any).listChildMetadata = jest.fn(() =>
+        jest.clearAllMocks();
+        jest.mocked(ts_client.listChildMetadata).mockReturnValue(
             of([
                 {
                     metadata: {
@@ -69,10 +76,10 @@ describe('BookingFormService', () => {
                     },
                     zone: { id: 'lvl-1' },
                 },
-            ]),
+            ]) as any,
         );
         spectator = createService();
-        (ts_client as any).cleanObject = jest.fn((a) => a);
+        jest.mocked(ts_client.cleanObject).mockImplementation((a) => a);
         jest.spyOn(spectator.inject(SettingsService), 'get').mockImplementation(
             () => undefined,
         );
@@ -96,7 +103,7 @@ describe('BookingFormService', () => {
                     : undefined,
         );
         const show_user = jest.fn(() => of({ email: 'other@example.com' }));
-        (ts_client as any).showUser = show_user;
+        jest.mocked(ts_client.showUser).mockImplementation(show_user as any);
 
         const immediate_host = (spectator.service as any)._bookingRulesHost({
             email: 'other@example.com',
@@ -152,7 +159,7 @@ describe('BookingFormService', () => {
     it('should exclude desks that clash with any recurring instance', async () => {
         jest.useFakeTimers();
         try {
-            (ts_client as any).listChildMetadata = jest.fn(() =>
+            jest.mocked(ts_client.listChildMetadata).mockReturnValue(
                 of([
                     {
                         metadata: {
@@ -173,10 +180,10 @@ describe('BookingFormService', () => {
                         },
                         zone: { id: 'lvl-1', parent_id: 'bld-1' },
                     },
-                ]),
+                ]) as any,
             );
-            (ts_client as any).showMetadata = jest.fn(() =>
-                of({ id: 'bld-1', details: [] }),
+            jest.mocked(ts_client.showMetadata).mockReturnValue(
+                of({ id: 'bld-1', details: [] }) as any,
             );
             (booking_mod as any).bookedResourceList = jest.fn(() => of([]));
             (booking_mod as any).findBookingClashes = jest.fn(() =>
@@ -471,7 +478,7 @@ describe('BookingFormService', () => {
             }
             return undefined;
         });
-        (ts_client as any).listChildMetadata = jest.fn(() =>
+        jest.mocked(ts_client.listChildMetadata).mockReturnValue(
             of([
                 {
                     metadata: {
@@ -486,7 +493,7 @@ describe('BookingFormService', () => {
                     },
                     zone: { id: 'lvl-1' },
                 },
-            ]),
+            ]) as any,
         );
         save_booking.mockReset();
         save_booking.mockImplementation((booking: Booking) => of(booking));
@@ -528,7 +535,7 @@ describe('BookingFormService', () => {
             }
             return undefined;
         });
-        (ts_client as any).listChildMetadata = jest.fn(() =>
+        jest.mocked(ts_client.listChildMetadata).mockReturnValue(
             of([
                 {
                     metadata: {
@@ -543,7 +550,7 @@ describe('BookingFormService', () => {
                     },
                     zone: { id: 'lvl-1' },
                 },
-            ]),
+            ]) as any,
         );
         save_booking.mockReset();
         save_booking.mockImplementation((booking: Booking) => of(booking));
@@ -585,7 +592,7 @@ describe('BookingFormService', () => {
     it('should block self desk bookings by default when the user has an assigned desk', async () => {
         const save_booking = booking_mod.saveBooking as jest.Mock;
         (spectator.inject(PaymentsService) as any).enabled = false;
-        (ts_client as any).listChildMetadata = jest.fn(() =>
+        jest.mocked(ts_client.listChildMetadata).mockReturnValue(
             of([
                 {
                     metadata: {
@@ -600,7 +607,7 @@ describe('BookingFormService', () => {
                     },
                     zone: { id: 'lvl-1' },
                 },
-            ]),
+            ]) as any,
         );
         save_booking.mockReset();
         save_booking.mockImplementation((booking: Booking) => of(booking));
@@ -642,7 +649,7 @@ describe('BookingFormService', () => {
             }
             return undefined;
         });
-        (ts_client as any).listChildMetadata = jest.fn(() =>
+        jest.mocked(ts_client.listChildMetadata).mockReturnValue(
             of([
                 {
                     metadata: {
@@ -657,7 +664,7 @@ describe('BookingFormService', () => {
                     },
                     zone: { id: 'lvl-1' },
                 },
-            ]),
+            ]) as any,
         );
         save_booking.mockReset();
         save_booking.mockImplementation((booking: Booking) => of(booking));
@@ -701,7 +708,7 @@ describe('BookingFormService', () => {
             }
             return undefined;
         });
-        (ts_client as any).listChildMetadata = jest.fn(() =>
+        jest.mocked(ts_client.listChildMetadata).mockReturnValue(
             of([
                 {
                     metadata: {
@@ -716,7 +723,7 @@ describe('BookingFormService', () => {
                     },
                     zone: { id: 'lvl-1' },
                 },
-            ]),
+            ]) as any,
         );
         save_booking.mockReset();
         save_booking.mockImplementation((booking: Booking) => of(booking));

@@ -1,6 +1,13 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 
-import { Component, computed, ElementRef, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    ElementRef,
+    inject,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -249,6 +256,7 @@ const QR_CODES = {};
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         SimpleTableComponent,
         TranslatePipe,

@@ -1,6 +1,13 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    effect,
+    inject,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
     FormControl,
@@ -293,6 +300,7 @@ import {
         </ng-template>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         RouterModule,
         MatProgressSpinnerModule,

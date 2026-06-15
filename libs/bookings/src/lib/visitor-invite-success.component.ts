@@ -1,5 +1,6 @@
 import { DatePipe } from '@angular/common';
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -138,6 +139,7 @@ import { BookingFormService } from './booking-form.service';
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         IconComponent,

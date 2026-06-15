@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -744,6 +745,7 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     providers: [SpacePipe],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,

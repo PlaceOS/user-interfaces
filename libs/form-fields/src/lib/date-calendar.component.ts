@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     forwardRef,
@@ -114,6 +115,7 @@ interface DateItem {
             multi: true,
         },
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, IconComponent, MatRippleModule],
 })
 export class DateCalendarComponent

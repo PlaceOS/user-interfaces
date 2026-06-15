@@ -1,4 +1,10 @@
-import { Component, computed, inject, OnInit } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    OnInit,
+} from '@angular/core';
 import { PlaceOS_Service, setMocks, settingSignal } from '@placeos/common';
 import { VirtualKeyboardComponent } from '@placeos/components';
 import { mocksInit } from '@placeos/mocks';
@@ -32,6 +38,7 @@ import { parseTokenFromUrl } from './checkin/token-from-url';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class AppComponent implements OnInit {

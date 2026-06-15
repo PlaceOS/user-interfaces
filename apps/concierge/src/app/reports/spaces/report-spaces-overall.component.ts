@@ -1,4 +1,9 @@
-import { Component, computed, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { formatDuration } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
@@ -76,6 +81,7 @@ import { ReportsStateService } from '../reports-state.service';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe],
 })
 export class ReportSpacesOverallComponent {

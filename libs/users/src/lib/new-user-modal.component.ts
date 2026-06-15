@@ -1,4 +1,9 @@
-import { Component, inject, output } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    output,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { AsyncHandler, DialogEvent, User } from '@placeos/common';
@@ -62,6 +67,7 @@ import { generateUserForm } from './user.utilities';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         MatRippleModule,

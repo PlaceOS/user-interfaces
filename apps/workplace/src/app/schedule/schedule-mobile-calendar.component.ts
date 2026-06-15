@@ -1,5 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, forwardRef, OnInit } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    forwardRef,
+    OnInit,
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatRipple } from '@angular/material/core';
 import { IconComponent } from '@placeos/components';
@@ -80,6 +85,7 @@ import {
             multi: true,
         },
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, MatRipple, IconComponent],
 })
 export class ScheduleMobileCalendarComponent

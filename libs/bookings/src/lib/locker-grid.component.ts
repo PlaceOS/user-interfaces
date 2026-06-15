@@ -1,4 +1,11 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    input,
+    output,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SettingsService } from '@placeos/common';
@@ -74,6 +81,7 @@ import { Locker, LockerBank } from './locker.class';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, MatTooltipModule],
 })
 export class LockerGridComponent {

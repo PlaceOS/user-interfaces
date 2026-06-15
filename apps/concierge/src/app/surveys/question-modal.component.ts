@@ -1,4 +1,11 @@
-import { Component, inject, OnInit, signal, viewChild } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+    signal,
+    viewChild,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -51,6 +58,7 @@ import { QuestionComponent } from './question.component';
             </button>
         </footer>
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         QuestionComponent,
         TranslatePipe,

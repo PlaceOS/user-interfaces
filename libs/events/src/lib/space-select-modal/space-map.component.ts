@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     DestroyRef,
     inject,
@@ -94,6 +95,7 @@ import { SpaceLocationPinComponent } from './space-location-pin.component';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         InteractiveMapComponent,
         MatFormFieldModule,

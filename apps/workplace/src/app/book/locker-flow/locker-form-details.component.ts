@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+    ChangeDetectionStrategy,
     Component,
     OnChanges,
     OnInit,
@@ -159,6 +160,7 @@ import { first } from 'rxjs/operators';
             </div>
         }
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { OrganisationService } from '@placeos/common';
@@ -37,6 +37,7 @@ import { ExploreStateService } from '@placeos/explore';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule],
 })
 export class ExploreLevelSelectComponent {

@@ -1,4 +1,10 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnDestroy,
+    OnInit,
+    inject,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -37,6 +43,7 @@ import { StaffTopbarComponent } from './staff-topbar.component';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatProgressBarModule,
         ApplicationTopbarComponent,

@@ -1,4 +1,9 @@
-import { Component, forwardRef, OnInit } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    forwardRef,
+    OnInit,
+} from '@angular/core';
 import {
     ControlValueAccessor,
     FormControl,
@@ -93,6 +98,7 @@ function listPattern(fieldPattern) {
             multi: true,
         },
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [ReactiveFormsModule],
 })
 export class CronInputFieldComponent implements ControlValueAccessor, OnInit {

@@ -1,5 +1,6 @@
 import {
     AfterViewInit,
+    ChangeDetectionStrategy,
     Component,
     computed,
     ElementRef,
@@ -277,6 +278,7 @@ import { QuestionType, QuestionTypeOptions } from './types';
             </div>
         </div>
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatFormFieldModule,
         MatSelectModule,

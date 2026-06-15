@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
@@ -18,8 +24,10 @@ import { BookingFormService } from '@placeos/bookings';
                     last_success()?.asset_name || last_success()?.asset_id
                 }}</i>
                 has been successfully booked for the
-                {{ last_success()?.date | date: 'dd MMMM yyyy' }} at
-                {{ last_success()?.date | date: 'shortTime' }} -
+                {{ last_success()?.date | date: 'dd MMMM yyyy' }}
+                at
+                {{ last_success()?.date | date: 'shortTime' }}
+                -
                 {{ end_time() | date: 'shortTime' }}
             </p>
             @if (true) {
@@ -40,6 +48,7 @@ import { BookingFormService } from '@placeos/bookings';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, RouterModule, CommonModule],
 })
 export class DeskBookingSuccessComponent {

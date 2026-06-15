@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -8,8 +9,7 @@ import {
     signal,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { Space } from '@placeos/common';
-import { ViewerFeature } from '@placeos/common';
+import { Space, ViewerFeature } from '@placeos/common';
 
 import { OrganisationService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -170,6 +170,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
         }
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         MatRippleModule,

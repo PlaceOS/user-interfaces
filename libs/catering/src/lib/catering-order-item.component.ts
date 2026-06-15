@@ -1,4 +1,9 @@
-import { Component, OnInit, input } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    input,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { OrderCateringItem } from '@placeos/common';
 
@@ -62,6 +67,7 @@ const ACTIVE_ITEMS = new Set<string>();
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, IconComponent],
 })
 export class CateringOrderItemComponent implements OnInit {

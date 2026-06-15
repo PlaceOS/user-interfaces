@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -52,6 +58,7 @@ import { NewSurveyService } from './new-survey.service';
                     [routerLink]="[
                         '/surveys',
                         'list',
+
                         (survey$ | async)?.building_id,
                     ]"
                 >
@@ -163,6 +170,7 @@ import { NewSurveyService } from './new-survey.service';
             </div>
         }
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatProgressSpinnerModule,
         CommonModule,

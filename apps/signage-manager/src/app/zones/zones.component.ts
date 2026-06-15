@@ -1,4 +1,11 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    effect,
+    inject,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -44,7 +51,8 @@ function parseZoneTab(value: string | null): 'playlists' | 'displays' {
                                     class="sm:hidden"
                                     (click)="deselectZone()"
                                     [attr.aria-label]="
-                                        'SIGNAGE_MANAGER.BACK_TO_ZONES' | translate
+                                        'SIGNAGE_MANAGER.BACK_TO_ZONES'
+                                            | translate
                                     "
                                 >
                                     <icon>arrow_back</icon>
@@ -72,7 +80,8 @@ function parseZoneTab(value: string | null): 'playlists' | 'displays' {
                                 class="bg-base-100 border-base-300 mx-2 mt-2 flex overflow-hidden rounded-lg border lg:hidden"
                                 role="tablist"
                                 [attr.aria-label]="
-                                    'SIGNAGE_MANAGER.ZONE_DETAILS_TABS' | translate
+                                    'SIGNAGE_MANAGER.ZONE_DETAILS_TABS'
+                                        | translate
                                 "
                             >
                                 <button
@@ -162,6 +171,7 @@ function parseZoneTab(value: string | null): 'playlists' | 'displays' {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         NavSidebarComponent,
         NavFooterComponent,

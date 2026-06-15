@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     OnInit,
     computed,
@@ -383,6 +384,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
     `,
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FullscreenModalShellComponent,
         RichTextInputComponent,

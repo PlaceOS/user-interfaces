@@ -1,4 +1,11 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { showMetadata } from '@placeos/ts-client';
 import { lastValueFrom } from 'rxjs';
@@ -719,6 +726,7 @@ import { VisitorsStateService } from './visitors-state.service';
         <div class="h-8 w-full"></div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatRippleModule,

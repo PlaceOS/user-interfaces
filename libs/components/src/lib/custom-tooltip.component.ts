@@ -2,6 +2,7 @@ import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
 import { CommonModule } from '@angular/common';
 import {
+    ChangeDetectionStrategy,
     Component,
     ElementRef,
     Injectable,
@@ -59,6 +60,7 @@ export class CustomTooltipData<T = any> {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, SanitizePipe],
 })
 export class CustomTooltipComponent<T = any>

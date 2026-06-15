@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -96,6 +97,7 @@ import { EventFormService } from 'libs/events/src/lib/event-form.service';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, MatRippleModule, TranslatePipe, IconComponent],
 })
 export class SpaceFiltersDisplayComponent {

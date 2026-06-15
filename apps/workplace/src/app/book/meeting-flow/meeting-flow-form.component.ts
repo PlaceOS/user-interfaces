@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+    ChangeDetectionStrategy,
     Component,
     ElementRef,
     inject,
@@ -490,6 +491,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
     `,
     styles: [],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,

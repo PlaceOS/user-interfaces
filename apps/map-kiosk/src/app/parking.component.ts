@@ -1,4 +1,10 @@
-import { Component, computed, inject, OnInit } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    OnInit,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -64,6 +70,7 @@ import {
     `,
     styles: [``],
     providers: [ExploreStateService, ExploreParkingService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [InteractiveMapComponent, IconComponent],
 })
 export class ParkingComponent extends AsyncHandler implements OnInit {

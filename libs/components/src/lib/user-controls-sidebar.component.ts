@@ -1,4 +1,9 @@
-import { Component, HostListener, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    HostListener,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent } from './icon.component';
 import { UserControlsComponent } from './user-controls.component';
@@ -50,6 +55,7 @@ import { UserControlsComponent } from './user-controls.component';
             </div>
         }
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, IconComponent, UserControlsComponent],
 })
 export class UserControlsSidebarComponent {

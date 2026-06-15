@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     DestroyRef,
@@ -95,6 +96,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         InteractiveMapComponent,
         MatFormFieldModule,

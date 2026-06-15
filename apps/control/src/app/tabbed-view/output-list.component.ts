@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
@@ -20,6 +20,7 @@ import { DeviceOutputListItemComponent } from './output-list-item.component';
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [DeviceOutputListItemComponent],
 })
 export class DeviceOutputListComponent {

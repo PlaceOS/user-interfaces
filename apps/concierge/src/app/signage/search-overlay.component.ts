@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+    ChangeDetectionStrategy,
     Component,
     TemplateRef,
     computed,
@@ -90,6 +91,7 @@ interface SearchItem {
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FormsModule,
         IconComponent,

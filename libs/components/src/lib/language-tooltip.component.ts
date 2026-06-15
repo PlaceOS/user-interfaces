@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { LocaleService, SettingsService } from '@placeos/common';
 import { CustomTooltipData } from './custom-tooltip.component';
@@ -49,6 +49,7 @@ import { TranslatePipe } from './translate.pipe';
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, MatRippleModule, IconComponent],
 })
 export class LanguageSelectComponent {

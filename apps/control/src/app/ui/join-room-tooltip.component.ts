@@ -1,4 +1,9 @@
-import { Component, computed, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { TranslatePipe } from '@placeos/components';
@@ -29,6 +34,7 @@ import { ControlStateService } from '../control-state.service';
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, MatRippleModule],
 })
 export class JoinRoomTooltipComponent {

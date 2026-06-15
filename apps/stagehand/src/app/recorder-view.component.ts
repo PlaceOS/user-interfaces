@@ -1,4 +1,10 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import {
     AsyncHandler,
     firstTruthyValueFrom,
@@ -60,6 +66,7 @@ interface RecorderStreamMetadata {
         </div>
     </div>`,
     styles: ``,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [SidebarComponent, SafePipe],
 })
 export class RecorderGridViewComponent extends AsyncHandler implements OnInit {

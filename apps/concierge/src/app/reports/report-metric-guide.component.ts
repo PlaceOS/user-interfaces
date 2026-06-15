@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CustomTooltipComponent, IconComponent } from '@placeos/components';
 
@@ -53,6 +53,7 @@ export interface ReportMetricGuideItem {
             </div>
         </ng-template>
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CustomTooltipComponent, IconComponent, MatTooltipModule],
 })
 export class ReportMetricGuideComponent {

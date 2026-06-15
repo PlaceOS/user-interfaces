@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     DestroyRef,
@@ -571,6 +572,7 @@ import { BookingFormService } from './booking-form.service';
         }
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,
@@ -751,7 +753,9 @@ export class InviteVisitorFormComponent {
             this._visitor_min_duration() || this._booking_min_duration() || 30,
     );
 
-    public readonly form_date = signal(this.form.getRawValue()?.date || Date.now());
+    public readonly form_date = signal(
+        this.form.getRawValue()?.date || Date.now(),
+    );
 
     public get is_start_time_disabled() {
         return this.form?.get('date')?.disabled || false;

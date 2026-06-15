@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     EventEmitter,
@@ -255,6 +256,7 @@ export interface AttachedResourceConfigModalData {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatDialogModule,
         MatRippleModule,

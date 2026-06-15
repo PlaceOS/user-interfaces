@@ -1,4 +1,11 @@
-import { Component, DOCUMENT, OnInit, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    DOCUMENT,
+    OnInit,
+    inject,
+    signal,
+} from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -131,6 +138,7 @@ import { FeaturesFilterService } from './features-filter.service';
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         UserListFieldComponent,

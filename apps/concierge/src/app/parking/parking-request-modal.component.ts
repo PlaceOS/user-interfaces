@@ -1,4 +1,10 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     approveBooking as approveBookingApi,
@@ -62,7 +68,9 @@ import { ParkingRequestFormDetailsComponent } from '../../../../workplace/src/ap
                     </div>
                     <div class="px-6 py-4">
                         <p class="opacity-60">
-                            {{ 'BOOKINGS.PARKING_REQUEST_SUBTITLE' | translate }}
+                            {{
+                                'BOOKINGS.PARKING_REQUEST_SUBTITLE' | translate
+                            }}
                         </p>
                     </div>
 
@@ -124,6 +132,7 @@ import { ParkingRequestFormDetailsComponent } from '../../../../workplace/src/ap
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FullscreenModalShellComponent,
         TranslatePipe,

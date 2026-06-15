@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -124,9 +125,7 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
             "
             (confirm)="saveMedia()"
             [loading]="
-                loading()
-                    ? ('SIGNAGE_MANAGER.MEDIA_SAVING' | translate)
-                    : ''
+                loading() ? ('SIGNAGE_MANAGER.MEDIA_SAVING' | translate) : ''
             "
         >
             <form [formGroup]="form">
@@ -175,7 +174,8 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
                                 [source]="thumbnail || url"
                                 [alt]="
                                     form.value.name ||
-                                    ('SIGNAGE_MANAGER.MEDIA_PREVIEW' | translate)
+                                    ('SIGNAGE_MANAGER.MEDIA_PREVIEW'
+                                        | translate)
                                 "
                             />
                         }
@@ -212,7 +212,8 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
                                 formControlName="media_uri"
                                 placeholder="https://example.com"
                                 [attr.aria-label]="
-                                    'SIGNAGE_MANAGER.WEBPAGE_URL_ARIA' | translate
+                                    'SIGNAGE_MANAGER.WEBPAGE_URL_ARIA'
+                                        | translate
                                 "
                             />
                             <mat-error>{{
@@ -249,8 +250,7 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
                     <div class="flex items-center gap-4">
                         <label for="play-time" class="m-0 w-auto min-w-0">
                             {{
-                                'SIGNAGE_MANAGER.MEDIA_PLAY_TIME'
-                                    | translate
+                                'SIGNAGE_MANAGER.MEDIA_PLAY_TIME' | translate
                             }}</label
                         >
                         <div class="font-mono text-xs">
@@ -289,41 +289,31 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
                         <mat-select
                             name="animation"
                             formControlName="animation"
-                            [placeholder]="
-                                'COMMON.DEFAULT'
-                                    | translate
-                            "
+                            [placeholder]="'COMMON.DEFAULT' | translate"
                             [attr.aria-label]="
                                 'SIGNAGE_MANAGER.ANIMATION' | translate
                             "
                         >
                             <mat-option [value]="0">{{
-                                'COMMON.DEFAULT'
-                                    | translate
+                                'COMMON.DEFAULT' | translate
                             }}</mat-option>
                             <mat-option [value]="1">{{
-                                'SIGNAGE_MANAGER.ANIM_CUT'
-                                    | translate
+                                'SIGNAGE_MANAGER.ANIM_CUT' | translate
                             }}</mat-option>
                             <mat-option [value]="2">{{
-                                'SIGNAGE_MANAGER.ANIM_CROSS_FADE'
-                                    | translate
+                                'SIGNAGE_MANAGER.ANIM_CROSS_FADE' | translate
                             }}</mat-option>
                             <mat-option [value]="3">{{
-                                'SIGNAGE_MANAGER.ANIM_SLIDE_TOP'
-                                    | translate
+                                'SIGNAGE_MANAGER.ANIM_SLIDE_TOP' | translate
                             }}</mat-option>
                             <mat-option [value]="4">{{
-                                'SIGNAGE_MANAGER.ANIM_SLIDE_LEFT'
-                                    | translate
+                                'SIGNAGE_MANAGER.ANIM_SLIDE_LEFT' | translate
                             }}</mat-option>
                             <mat-option [value]="5">{{
-                                'SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT'
-                                    | translate
+                                'SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT' | translate
                             }}</mat-option>
                             <mat-option [value]="6">{{
-                                'SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM'
-                                    | translate
+                                'SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM' | translate
                             }}</mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -406,6 +396,7 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
             useValue: UploadPermissionsModalComponent,
         },
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FullscreenModalShellComponent,
         ReactiveFormsModule,
@@ -444,8 +435,10 @@ export class MediaEditModalComponent implements OnDestroy {
     );
     public readonly thumbnail =
         this._data.file_thumbnail || this._data.media.thumbnail_url;
-    public readonly plugin_embed_schema =
-        signal<Record<string, unknown> | null>(null);
+    public readonly plugin_embed_schema = signal<Record<
+        string,
+        unknown
+    > | null>(null);
     public readonly active_plugin_schema = computed(() =>
         this._resolvePluginSchema(),
     );

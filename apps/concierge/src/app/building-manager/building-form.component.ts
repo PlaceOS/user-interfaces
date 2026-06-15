@@ -1,10 +1,11 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
     inject,
     input,
-    model,
+    linkedSignal,
     output,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -119,6 +120,7 @@ import { startWith } from 'rxjs/operators';
         }
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         IconComponent,
@@ -134,7 +136,8 @@ export class BuildingFormComponent extends AsyncHandler {
 
     public readonly building = input<Building | null>(null);
     public readonly save = input(0);
-    public readonly loading = model(false);
+    public readonly loadingInput = input(false, { alias: 'loading' });
+    public readonly loading = linkedSignal(this.loadingInput);
     public readonly loadingChange = output<boolean>();
     public readonly done = output<any>();
 

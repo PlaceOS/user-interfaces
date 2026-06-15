@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+    ChangeDetectionStrategy,
     Component,
     DestroyRef,
     inject,
@@ -74,6 +75,7 @@ import { BookingFormService } from '../booking-form.service';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, IconComponent, MatRippleModule],
 })
 export class ParkingFiltersDisplayComponent implements OnInit {

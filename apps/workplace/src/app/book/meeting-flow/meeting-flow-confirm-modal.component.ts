@@ -1,5 +1,11 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, OnInit, inject, model } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    inject,
+    model,
+} from '@angular/core';
 import {
     MatDialog,
     MatDialogModule,
@@ -145,7 +151,9 @@ import { SpacePipe } from '@placeos/events';
                             {{
                                 'CALENDAR_EVENT.ATTENDEE_COUNT'
                                     | translate
-                                        : { count: event.attendees?.length }
+                                        : {
+                                              count: event.attendees?.length,
+                                          }
                             }}
                         </h3>
                     </div>
@@ -464,6 +472,7 @@ import { SpacePipe } from '@placeos/events';
     `,
     styles: [``],
     providers: [SpacePipe],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,

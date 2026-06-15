@@ -1,4 +1,9 @@
-import { Component, forwardRef, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    forwardRef,
+    signal,
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import {
     Attachment,
@@ -84,6 +89,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
             useValue: UploadPermissionsModalComponent,
         },
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatProgressSpinnerModule, IconComponent],
 })
 export class UploadFileFieldComponent implements ControlValueAccessor {

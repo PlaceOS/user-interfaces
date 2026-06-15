@@ -1,4 +1,10 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Locker, LockerBank } from '@placeos/bookings';
@@ -27,6 +33,7 @@ export interface LockerBankModalData {
         </main>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, LockerGridComponent, IconComponent],
 })
 export class ExploreLockerBankModalComponent {

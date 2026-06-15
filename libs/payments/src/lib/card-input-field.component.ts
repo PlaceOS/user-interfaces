@@ -1,5 +1,11 @@
 import { DatePipe } from '@angular/common';
-import { Component, ElementRef, forwardRef, viewChild } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    forwardRef,
+    viewChild,
+} from '@angular/core';
 import {
     ControlValueAccessor,
     FormControl,
@@ -128,6 +134,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
             multi: true,
         },
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatFormFieldModule,
         MatInputModule,

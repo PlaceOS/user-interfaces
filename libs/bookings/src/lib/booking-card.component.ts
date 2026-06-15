@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, DestroyRef, inject, input } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    DestroyRef,
+    inject,
+    input,
+} from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -43,7 +50,9 @@ import { ParkingService } from './parking.service';
                 name="view-booking-details"
                 class="relative w-full cursor-pointer overflow-hidden"
                 [routerLink]="['./']"
-                [queryParams]="{ booking: booking()?.id }"
+                [queryParams]="{
+                    booking: booking()?.id,
+                }"
                 (click)="viewDetails()"
             >
                 <div
@@ -61,7 +70,11 @@ import { ParkingService } from './parking.service';
                             >
                                 <icon class="text-lg">person</icon>
                                 <span class="truncate">
-                                    {{ 'BOOKINGS.BOOKED_FOR' | translate: { name: booked_for_label() } }}
+                                    {{
+                                        'BOOKINGS.BOOKED_FOR'
+                                            | translate
+                                                : { name: booked_for_label() }
+                                    }}
                                 </span>
                             </div>
                         }
@@ -191,6 +204,7 @@ import { ParkingService } from './parking.service';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,
@@ -289,8 +303,7 @@ export class BookingCardComponent {
             formatRecurrence(
                 fromBookingRecurrence(this.booking()),
                 this.booking()?.date,
-            ) ||
-            i18n('CALENDAR_EVENT.RECURRING_TOOLTIP')
+            ) || i18n('CALENDAR_EVENT.RECURRING_TOOLTIP')
         );
     }
 

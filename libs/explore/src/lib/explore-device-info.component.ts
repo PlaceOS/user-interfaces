@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     ElementRef,
     afterNextRender,
@@ -165,6 +166,7 @@ const EMPTY: string[] = [];
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, CustomTooltipComponent],
 })
 export class ExploreDeviceInfoComponent {

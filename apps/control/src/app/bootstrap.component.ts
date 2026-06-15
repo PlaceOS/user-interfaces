@@ -1,4 +1,11 @@
-import { Component, OnInit, effect, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    effect,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { querySystems } from '@placeos/ts-client';
@@ -150,6 +157,7 @@ const STORE_KEY = 'PLACEOS.CONTROL.system';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,

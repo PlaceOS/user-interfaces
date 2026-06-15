@@ -1,11 +1,12 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     ElementRef,
     OnInit,
     SimpleChanges,
     inject,
     input,
-    model,
+    linkedSignal,
     output,
     signal,
     viewChild,
@@ -15,6 +16,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     AsyncHandler,
     BuildingLevel,
+    MapMetadata,
     MapService,
     MapsPeopleService,
     OrganisationService,
@@ -27,7 +29,6 @@ import {
     randomString,
 } from '@placeos/common';
 import { IconComponent } from './icon.component';
-import { MapMetadata } from '@placeos/common';
 
 declare let mapsindoors: any;
 declare let google: any;
@@ -67,17 +68,22 @@ const RESOURCE_MAP: Record<string, any> = {};
         }
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, MatProgressSpinnerModule, IconComponent],
 })
 export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
     private _maps_people = inject(MapsPeopleService);
     private _org = inject(OrganisationService);
 
-    public readonly zone = model<BuildingLevel>(undefined);
+    public readonly zoneInput = input<BuildingLevel>(undefined, {
+        alias: 'zone',
+    });
+    public readonly zone = linkedSignal(this.zoneInput);
     public readonly metadata = input<MapMetadata>(undefined);
     public readonly options = input<any>(undefined);
     public readonly focus = input<string>(undefined);
-    public readonly zoom = model(DEFAULT_ZOOM);
+    public readonly zoomInput = input(DEFAULT_ZOOM, { alias: 'zoom' });
+    public readonly zoom = linkedSignal(this.zoomInput);
     public readonly reset = input<number>(undefined);
     public readonly zoomChange = output<number>();
     public readonly zoneChange = output<BuildingLevel>();

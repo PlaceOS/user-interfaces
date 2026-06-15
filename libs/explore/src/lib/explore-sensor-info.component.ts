@@ -1,4 +1,10 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
@@ -58,6 +64,7 @@ let shown_id = '';
         </ng-template>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CustomTooltipComponent, IconComponent],
 })
 export class ExploreSensorInfoComponent extends AsyncHandler {

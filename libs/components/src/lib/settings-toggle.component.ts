@@ -1,4 +1,10 @@
-import { Component, forwardRef, input, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    forwardRef,
+    input,
+    signal,
+} from '@angular/core';
 import {
     ControlValueAccessor,
     FormsModule,
@@ -79,6 +85,7 @@ import { IconComponent } from './icon.component';
             multi: true,
         },
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatCheckboxModule, FormsModule, IconComponent, MatTooltipModule],
 })
 export class SettingsToggleComponent implements ControlValueAccessor {

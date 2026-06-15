@@ -1,4 +1,11 @@
-import { Component, ElementRef, OnInit, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    OnInit,
+    inject,
+    signal,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 
@@ -59,6 +66,7 @@ export interface LockerBankInfoData {
         >
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, CustomTooltipComponent],
 })
 export class ExploreLockerBankInfoComponent implements OnInit {

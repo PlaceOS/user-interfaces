@@ -1,6 +1,7 @@
 import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     DestroyRef,
@@ -439,6 +440,7 @@ import { SignageService } from '../signage.service';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         DragDropModule,
         MatCheckboxModule,

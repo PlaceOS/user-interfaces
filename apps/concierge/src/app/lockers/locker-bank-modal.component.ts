@@ -1,6 +1,13 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 
-import { Component, EventEmitter, inject, Output, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    EventEmitter,
+    inject,
+    Output,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
     FormControl,
@@ -198,6 +205,7 @@ import { map } from 'rxjs/operators';
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         IconComponent,

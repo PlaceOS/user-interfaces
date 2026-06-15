@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+    ChangeDetectionStrategy,
     Component,
     OnChanges,
     OnInit,
@@ -7,7 +8,7 @@ import {
     computed,
     inject,
     input,
-    model,
+    linkedSignal,
     output,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -138,6 +139,7 @@ type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         FormsModule,
@@ -161,7 +163,8 @@ export class DateOptionsComponent
     /** Index of the day to start the week on when displaying the calendar */
     public readonly week_start = input<number>(0);
     /** Currently selected date */
-    public readonly date = model<number>(Date.now());
+    public readonly dateInput = input<number>(Date.now(), { alias: 'date' });
+    public readonly date = linkedSignal(this.dateInput);
     /** How the selected date should be represented in the label */
     public readonly display_mode = input<'day' | 'week'>('day');
     public readonly step = input(1);

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
 import { combineLatest, interval } from 'rxjs';
@@ -171,6 +171,7 @@ import { currentPeriod, nextPeriod } from './helpers';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, SafePipe, IconComponent],
 })
 export class PanelViewStatusComponent {

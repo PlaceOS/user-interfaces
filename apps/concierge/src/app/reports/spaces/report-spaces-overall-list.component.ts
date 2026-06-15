@@ -1,4 +1,9 @@
-import { Component, inject, input } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    input,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { downloadFile, jsonToCsv } from '@placeos/common';
 import { format } from 'date-fns';
@@ -131,6 +136,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
             </div>
         </div>
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,

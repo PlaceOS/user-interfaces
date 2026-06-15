@@ -11,7 +11,10 @@ import { BehaviorSubject, of } from 'rxjs';
 import { ExploreStateService } from '../lib/explore-state.service';
 import { ExploreZonesService } from '../lib/explore-zones.service';
 
-jest.mock('@placeos/ts-client');
+jest.mock('@placeos/ts-client', () => ({
+    ...jest.requireActual('@placeos/ts-client'),
+    showMetadata: jest.fn(),
+}));
 
 import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
@@ -43,7 +46,8 @@ describe('ExploreStateService', () => {
     });
 
     beforeEach(() => {
-        (ts_client as any).showMetadata = jest.fn(() => Promise.resolve({}));
+        jest.clearAllMocks();
+        jest.mocked(ts_client.showMetadata).mockResolvedValue({} as any);
         spectator = createService();
     });
 

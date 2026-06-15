@@ -1,5 +1,10 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component, inject, OnInit } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+} from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SwUpdate } from '@angular/service-worker';
 import {
@@ -57,6 +62,7 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class AppComponent extends AsyncHandler implements OnInit {

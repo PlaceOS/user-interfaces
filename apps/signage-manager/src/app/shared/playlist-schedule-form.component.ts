@@ -1,5 +1,11 @@
 import { DatePipe } from '@angular/common';
-import { Component, inject, input, output } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    input,
+    output,
+} from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -9,12 +15,12 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { i18n, LocaleService } from '@placeos/common';
 import {
     IconComponent,
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { i18n, LocaleService } from '@placeos/common';
 import {
     CounterComponent,
     DateFieldComponent,
@@ -636,7 +642,9 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                             [custom_options]="[schedule().value.play_period]"
                         ></a-duration-field>
                         <settings-toggle
-                            [name]="'SIGNAGE_MANAGER.TAKEOVER_PLAYBACK' | translate"
+                            [name]="
+                                'SIGNAGE_MANAGER.TAKEOVER_PLAYBACK' | translate
+                            "
                             formControlName="play_takeover"
                         />
                     } @else if (
@@ -683,10 +691,13 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                                                 'SIGNAGE_MANAGER.MONTHLY'
                                                     | translate
                                             }}</mat-option>
-                                            <mat-option value="monthly_weekday">{{
-                                                'SIGNAGE_MANAGER.MONTHLY_BY_WEEKDAY'
-                                                    | translate
-                                            }}</mat-option>
+                                            <mat-option
+                                                value="monthly_weekday"
+                                                >{{
+                                                    'SIGNAGE_MANAGER.MONTHLY_BY_WEEKDAY'
+                                                        | translate
+                                                }}</mat-option
+                                            >
                                             @if (
                                                 schedule().value
                                                     .recurrence_type ===
@@ -735,7 +746,10 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                             ) {
                                 <div>
                                     <div class="mb-2 text-sm font-medium">
-                                        {{ 'SIGNAGE_MANAGER.PLAY_ON' | translate }}
+                                        {{
+                                            'SIGNAGE_MANAGER.PLAY_ON'
+                                                | translate
+                                        }}
                                     </div>
                                     <div class="flex flex-wrap gap-2">
                                         @for (
@@ -929,7 +943,8 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                                 }
                                 <div class="w-full flex-1">
                                     <label>{{
-                                        'SIGNAGE_MANAGER.PLAY_PERIOD' | translate
+                                        'SIGNAGE_MANAGER.PLAY_PERIOD'
+                                            | translate
                                     }}</label>
                                     <a-duration-field
                                         class="no-subscript w-full flex-1"
@@ -943,7 +958,10 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                                 </div>
                             </div>
                             <settings-toggle
-                                [name]="'SIGNAGE_MANAGER.TAKEOVER_PLAYBACK' | translate"
+                                [name]="
+                                    'SIGNAGE_MANAGER.TAKEOVER_PLAYBACK'
+                                        | translate
+                                "
                                 formControlName="play_takeover"
                             />
                         </div>
@@ -953,7 +971,10 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                             <div
                                 class="bg-base-100 absolute top-0 left-3 -translate-y-1/2 rounded px-2"
                             >
-                                {{ 'SIGNAGE_MANAGER.UPCOMING_PLAY_TIMES' | translate }}
+                                {{
+                                    'SIGNAGE_MANAGER.UPCOMING_PLAY_TIMES'
+                                        | translate
+                                }}
                             </div>
                             @for (
                                 play_time of nextCronPlayTimes();
@@ -979,6 +1000,7 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         ReactiveFormsModule,
         FormsModule,

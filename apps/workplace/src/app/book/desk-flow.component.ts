@@ -1,4 +1,9 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BookingFormService, findNearbyFeature } from '@placeos/bookings';
 import {
@@ -41,6 +46,7 @@ import { NewDeskFlowSuccessComponent } from './desk-flow/desk-flow-success.compo
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [NewDeskFlowSuccessComponent, NewDeskFlowFormComponent],
 })
 export class NewDeskFlowComponent extends AsyncHandler implements OnInit {

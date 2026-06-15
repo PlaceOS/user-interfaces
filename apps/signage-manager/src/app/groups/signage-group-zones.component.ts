@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -29,7 +29,9 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
                     <icon class="text-lg">layers</icon>
                     {{
                         'SIGNAGE_MANAGER.ZONES_COUNT'
-                            | translate: { count: zones().length } : zones().length
+                            | translate
+                                : { count: zones().length }
+                                : zones().length
                     }}
                 </h5>
                 <button
@@ -37,7 +39,9 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
                     type="button"
                     matRipple
                     class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                    [matTooltip]="'SIGNAGE_MANAGER.ADD_ZONE_TOOLTIP' | translate"
+                    [matTooltip]="
+                        'SIGNAGE_MANAGER.ADD_ZONE_TOOLTIP' | translate
+                    "
                     [attr.aria-label]="
                         'SIGNAGE_MANAGER.ADD_ZONE_ARIA' | translate
                     "
@@ -70,8 +74,8 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
                                         permissionLabels(row.permissions);
                                     @if (labels.length) {
                                         @for (label of labels; track label) {
-                                            {{ label | translate
-                                            }}@if (!$last) {
+                                            {{ label | translate }}
+                                            @if (!$last) {
                                                 ,
                                             }
                                         }
@@ -97,10 +101,12 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
                                 matRipple
                                 class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                 [matTooltip]="
-                                    'SIGNAGE_MANAGER.EDIT_ZONE_PERMS' | translate
+                                    'SIGNAGE_MANAGER.EDIT_ZONE_PERMS'
+                                        | translate
                                 "
                                 [attr.aria-label]="
-                                    'SIGNAGE_MANAGER.EDIT_ZONE_PERMS' | translate
+                                    'SIGNAGE_MANAGER.EDIT_ZONE_PERMS'
+                                        | translate
                                 "
                                 (click)="editZonePermissions(row)"
                             >
@@ -129,7 +135,9 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
                     >
                         <icon class="text-4xl">layers_clear</icon>
                         <p class="text-sm">
-                            {{ 'SIGNAGE_MANAGER.NO_ZONES_ASSIGNED' | translate }}
+                            {{
+                                'SIGNAGE_MANAGER.NO_ZONES_ASSIGNED' | translate
+                            }}
                         </p>
                     </div>
                 }
@@ -144,6 +152,7 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, MatTooltipModule, IconComponent, TranslatePipe],
 })
 export class SignageGroupZonesComponent {

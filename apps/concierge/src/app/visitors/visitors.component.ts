@@ -1,4 +1,10 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnDestroy,
+    OnInit,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -7,9 +13,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
-import { parse } from 'date-fns';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { BuildingPipe, TranslatePipe } from '@placeos/components';
+import { parse } from 'date-fns';
 import { combineLatest, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
@@ -106,6 +112,7 @@ import { VisitorsStateService } from './visitors-state.service';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatProgressBarModule,
         MatFormFieldModule,
@@ -192,6 +199,8 @@ export class VisitorsComponent implements OnInit, OnDestroy {
         const date = route_date
             ? parse(route_date, 'yyyy-MM-dd', new Date()).valueOf()
             : Date.now();
-        this._state.setFilters({ date: Number.isNaN(date) ? Date.now() : date });
+        this._state.setFilters({
+            date: Number.isNaN(date) ? Date.now() : date,
+        });
     }
 }

@@ -1,4 +1,10 @@
-import { Component, EventEmitter, OnInit, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    EventEmitter,
+    OnInit,
+    inject,
+} from '@angular/core';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
@@ -112,6 +118,7 @@ export async function openConfirmModal(
         }
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatProgressSpinnerModule,
         TranslatePipe,

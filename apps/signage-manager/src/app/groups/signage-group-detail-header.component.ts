@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -39,7 +39,9 @@ import { SignageGroupEditModalComponent } from './signage-group-edit-modal.compo
                     type="button"
                     matRipple
                     class="border-base-200 hover:bg-base-200 hover:border-base-300 mr-1 rounded-lg border hover:shadow-md"
-                    [matTooltip]="'SIGNAGE_MANAGER.EDIT_GROUP_TOOLTIP' | translate"
+                    [matTooltip]="
+                        'SIGNAGE_MANAGER.EDIT_GROUP_TOOLTIP' | translate
+                    "
                     (click)="editGroup(group)"
                 >
                     <icon>edit</icon>
@@ -59,6 +61,7 @@ import { SignageGroupEditModalComponent } from './signage-group-edit-modal.compo
             </div>
         }
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [IconComponent, MatRippleModule, MatTooltipModule, TranslatePipe],
 })
 export class SignageGroupDetailHeaderComponent {

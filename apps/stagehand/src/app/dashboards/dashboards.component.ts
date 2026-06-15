@@ -1,4 +1,11 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
@@ -74,6 +81,7 @@ import { DashboardsService } from './dashboards.service';
         </div>
     `,
     styles: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         SidebarComponent,
         MatRippleModule,

@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import {
     AfterViewInit,
+    ChangeDetectionStrategy,
     Component,
     computed,
     forwardRef,
@@ -154,6 +155,7 @@ export interface TimeFieldRange {
             multi: true,
         },
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, MatMenuModule, MatFormFieldModule, IconComponent],
 })
 export class TimeFieldComponent

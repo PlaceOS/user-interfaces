@@ -1,6 +1,6 @@
 import { OverlayContainer, OverlayModule } from '@angular/cdk/overlay';
 import { PortalModule } from '@angular/cdk/portal';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import {
     SpectatorDirective,
     createDirectiveFactory,
@@ -13,9 +13,17 @@ import {
 } from '../lib/custom-tooltip.component';
 import { SanitizePipe } from '../lib/sanitise.pipe';
 
-@Component({ selector: 'fake', template: 'Fake Component' })
+@Component({
+    selector: 'fake',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    template: 'Fake Component',
+})
 export class FakeComponent {}
-@Component({ selector: 'fake-data', template: '<span>{{ data }}<span>' })
+@Component({
+    selector: 'fake-data',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    template: '<span>{{ data }}<span>',
+})
 export class FakeDataComponent {
     private _data = inject(CustomTooltipData);
 

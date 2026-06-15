@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     ElementRef,
     afterNextRender,
@@ -74,6 +75,7 @@ export interface MapRadiusData {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe],
 })
 export class MapRadiusComponent {

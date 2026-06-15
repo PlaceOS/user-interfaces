@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { serviceWorkerUpdate } from '@placeos/common';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -35,6 +35,7 @@ import { IconComponent } from './icon.component';
             </aside>
         }
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [IconComponent, MatTooltipModule],
 })
 export class ServiceWorkerUpdateCardComponent {

@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, contentChild, input, viewChild } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    contentChild,
+    input,
+    viewChild,
+} from '@angular/core';
 import { NgControl } from '@angular/forms';
 import { AsyncHandler } from '@placeos/common';
 import { startOfDay } from 'date-fns';
@@ -49,6 +55,7 @@ import { DateRangeCalendarComponent } from './date-range-calendar.component';
         </ng-template>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         DateRangeCalendarComponent,

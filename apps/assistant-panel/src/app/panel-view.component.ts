@@ -1,4 +1,10 @@
-import { Component, ElementRef, inject, viewChild } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    inject,
+    viewChild,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, currentUser } from '@placeos/common';
 import {
@@ -230,6 +236,7 @@ declare let loadVosklet: any;
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         CommonModule,

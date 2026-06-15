@@ -1,4 +1,11 @@
-import { Component, computed, effect, inject, input } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    effect,
+    inject,
+    input,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -80,7 +87,9 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                             [attr.aria-label]="
                                                 'SIGNAGE_MANAGER.OPEN_PLAYLIST'
                                                     | translate
-                                                        : { name: playlist.name }
+                                                        : {
+                                                              name: playlist.name,
+                                                          }
                                             "
                                         >
                                             <div
@@ -217,7 +226,9 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                 [attr.aria-label]="
                                                     'SIGNAGE_MANAGER.REMOVE_PLAYLIST_FROM_ZONE'
                                                         | translate
-                                                            : { name: playlist.name }
+                                                            : {
+                                                                  name: playlist.name,
+                                                              }
                                                 "
                                             >
                                                 <icon class="text-error">
@@ -377,6 +388,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         MatTooltipModule,

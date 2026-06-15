@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     input,
     OnChanges,
@@ -287,9 +288,11 @@ export function numberToPosition(num: number): string {
                                                 track minute
                                             ) {
                                                 <mat-option [value]="+minute">
-                                                    <span class="stagehand-muted">{{
-                                                        pad(cron_hour)
-                                                    }}</span
+                                                    <span
+                                                        class="stagehand-muted"
+                                                        >{{
+                                                            pad(cron_hour)
+                                                        }}</span
                                                     >:{{ pad(minute) }}
                                                 </mat-option>
                                             }
@@ -312,6 +315,7 @@ export function numberToPosition(num: number): string {
         }
     `,
     styles: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FormsModule,
         CronInputFieldComponent,

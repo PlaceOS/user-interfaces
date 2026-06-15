@@ -1,4 +1,9 @@
-import { Component, computed, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+} from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import {
     CustomTooltipData,
@@ -36,6 +41,7 @@ import {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, SanitizePipe],
 })
 export class HelpTooltipComponent {

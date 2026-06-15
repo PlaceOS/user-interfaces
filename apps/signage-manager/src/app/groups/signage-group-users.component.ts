@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -29,7 +29,9 @@ import { SignageGroupUserSelectModalComponent } from './signage-group-user-selec
                     <icon class="text-lg">group</icon>
                     {{
                         'SIGNAGE_MANAGER.USERS_COUNT'
-                            | translate: { count: users().length } : users().length
+                            | translate
+                                : { count: users().length }
+                                : users().length
                     }}
                 </h5>
                 <button
@@ -37,7 +39,9 @@ import { SignageGroupUserSelectModalComponent } from './signage-group-user-selec
                     type="button"
                     matRipple
                     class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
-                    [matTooltip]="'SIGNAGE_MANAGER.ADD_USER_TOOLTIP' | translate"
+                    [matTooltip]="
+                        'SIGNAGE_MANAGER.ADD_USER_TOOLTIP' | translate
+                    "
                     [attr.aria-label]="
                         'SIGNAGE_MANAGER.ADD_USER_ARIA' | translate
                     "
@@ -73,8 +77,8 @@ import { SignageGroupUserSelectModalComponent } from './signage-group-user-selec
                                         permissionLabels(row.permissions);
                                     @if (labels.length) {
                                         @for (label of labels; track label) {
-                                            {{ label | translate
-                                            }}@if (!$last) {
+                                            {{ label | translate }}
+                                            @if (!$last) {
                                                 ,
                                             }
                                         }
@@ -92,10 +96,12 @@ import { SignageGroupUserSelectModalComponent } from './signage-group-user-selec
                                 matRipple
                                 class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                 [matTooltip]="
-                                    'SIGNAGE_MANAGER.EDIT_USER_PERMS' | translate
+                                    'SIGNAGE_MANAGER.EDIT_USER_PERMS'
+                                        | translate
                                 "
                                 [attr.aria-label]="
-                                    'SIGNAGE_MANAGER.EDIT_USER_PERMS' | translate
+                                    'SIGNAGE_MANAGER.EDIT_USER_PERMS'
+                                        | translate
                                 "
                                 (click)="editUserPermissions(row)"
                             >
@@ -124,7 +130,9 @@ import { SignageGroupUserSelectModalComponent } from './signage-group-user-selec
                     >
                         <icon class="text-4xl">group_off</icon>
                         <p class="text-sm">
-                            {{ 'SIGNAGE_MANAGER.NO_USERS_ASSIGNED' | translate }}
+                            {{
+                                'SIGNAGE_MANAGER.NO_USERS_ASSIGNED' | translate
+                            }}
                         </p>
                     </div>
                 }
@@ -139,6 +147,7 @@ import { SignageGroupUserSelectModalComponent } from './signage-group-user-selec
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, MatTooltipModule, IconComponent, TranslatePipe],
 })
 export class SignageGroupUsersComponent {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { GroupEventCardComponent } from '@placeos/events';
@@ -77,6 +77,7 @@ import { GroupEventsStateService } from './group-events-state.service';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TopbarComponent,

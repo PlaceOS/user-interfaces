@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+    ChangeDetectionStrategy,
     Component,
     ElementRef,
     OnInit,
@@ -210,6 +211,7 @@ export interface DeskInfoData {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         CustomTooltipComponent,

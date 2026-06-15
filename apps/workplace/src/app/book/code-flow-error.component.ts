@@ -1,4 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
@@ -84,6 +89,7 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, TranslatePipe, RouterModule],
 })
 export class CodeFlowErrorComponent extends AsyncHandler {

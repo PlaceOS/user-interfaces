@@ -1,6 +1,7 @@
 import { NgTemplateOutlet } from '@angular/common';
 import {
     afterNextRender,
+    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -13,16 +14,16 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
-import { combineLatest } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
 import {
     i18n,
     OrganisationService,
-    SettingsService,
     settingSignal,
+    SettingsService,
     userSignal,
 } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
+import { combineLatest } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
 
 export interface TopMenuEmbedItem {
     id: string;
@@ -224,6 +225,7 @@ export function hasLoadedTopMenuSettings(state: TopMenuSettingsState) {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatMenuModule,
         IconComponent,

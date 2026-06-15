@@ -1,4 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    signal,
+} from '@angular/core';
 import { ApplicationIcon } from '@placeos/common';
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -25,6 +30,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [IconComponent],
 })
 export class ExploreIconComponent {

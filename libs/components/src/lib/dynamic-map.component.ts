@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -19,6 +19,7 @@ import {
     viewChild,
     viewChildren,
 } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     MAP_FEATURE_DATA,
@@ -87,9 +88,9 @@ interface DebugDetailEntry {
             <div
                 class="absolute top-2 right-2 z-40 flex max-h-[80%] max-w-[32rem] flex-col rounded bg-black/80 font-mono text-[11px] leading-4 text-white"
             >
-                <div class="pointer-events-none p-2 whitespace-pre">{{
-                    debug_text()
-                }}</div>
+                <div class="pointer-events-none p-2 whitespace-pre">
+                    {{ debug_text() }}
+                </div>
                 <div class="flex gap-1 px-2 pb-2">
                     @for (section of debug_sections(); track section.key) {
                         <button
@@ -144,7 +145,10 @@ interface DebugDetailEntry {
                                 }}</span>
                             }
                         } @else {
-                            @for (entry of debug_detail_entries(); track entry.text) {
+                            @for (
+                                entry of debug_detail_entries();
+                                track entry.text
+                            ) {
                                 <div
                                     class="rounded px-1"
                                     [class.bg-red-500/20]="entry.missing"
@@ -231,6 +235,7 @@ interface DebugDetailEntry {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         FormsModule,

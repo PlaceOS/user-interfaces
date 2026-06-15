@@ -1,4 +1,9 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+} from '@angular/core';
 import { Router } from '@angular/router';
 
 import {
@@ -10,6 +15,7 @@ import {
 @Component({
     selector: 'page-redirect',
     template: ``,
+    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [``],
 })
 export class RedirectComponent implements OnInit {

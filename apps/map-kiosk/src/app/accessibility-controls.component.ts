@@ -1,9 +1,8 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
-    HostListener,
     inject,
-    signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -61,6 +60,7 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
         </div> -->
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, MatSlideToggleModule, FormsModule],
 })
 export class AccessibilityControlsComponent extends AsyncHandler {

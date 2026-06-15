@@ -1,4 +1,10 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import {
@@ -124,6 +130,7 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,

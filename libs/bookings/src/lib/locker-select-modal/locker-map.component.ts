@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     DestroyRef,
@@ -94,6 +95,7 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         InteractiveMapComponent,
         MatFormFieldModule,

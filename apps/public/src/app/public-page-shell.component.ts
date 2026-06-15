@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 @Component({
     selector: 'placeos-public-page-shell',
@@ -38,6 +38,7 @@ import { Component, input } from '@angular/core';
             </section>
         </main>
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [
         `
             .bg-grad {
