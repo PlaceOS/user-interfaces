@@ -303,7 +303,7 @@ export class PointsAssetModalComponent extends AsyncHandler {
     public readonly asset_options = toSignal(
         combineLatest([
             this.form.valueChanges.pipe(startWith(this.form.getRawValue())),
-            this._spaces.list,
+            toObservable(this._spaces.list),
             toObservable(this._desks.desks),
         ]).pipe(
             map(([{ type, name }, spaces, desks]) => {

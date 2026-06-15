@@ -7,7 +7,7 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
     MatBottomSheet,
@@ -488,6 +488,7 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
     private _bottomSheet = inject(MatBottomSheet);
     private _org = inject(OrganisationService);
     private _spaces = inject(SpacesService);
+    private _spaces_initialised = toObservable(this._spaces.initialised);
     private _state = inject(EventFormService);
     private _featuresFilterService = inject(FeaturesFilterService);
     private _mapService = inject(MapService);
@@ -594,7 +595,7 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
         this.setTimeChips();
 
         await this._org.initialised.pipe(first((_) => !!_)).toPromise();
-        await this._spaces.initialised.pipe(first((_) => !!_)).toPromise();
+        await this._spaces_initialised.pipe(first((_) => !!_)).toPromise();
         await nextValueFrom(this._state.available_spaces);
 
         this.setBuilding(this._org.building);

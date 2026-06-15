@@ -1,10 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { getModule } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, of, Subject } from 'rxjs';
-import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
 
 import { AsyncHandler } from './async-handler.class';
-import { log, observableFromSignal, randomInt, randomString } from './general';
+import { log, randomInt, randomString } from './general';
 
 export interface ClientEvent {
     id: string;
@@ -38,31 +36,12 @@ let DEVICE_ID =
 })
 export class RemoteLoggingService extends AsyncHandler {
     private _disable_handling: boolean = false;
-    private _system_id = new BehaviorSubject<string>('');
-    private _events = new Subject<ClientEvent>();
-
-    private _event_history = this._events.pipe(shareReplay(20000));
+    private _system_id = signal<string>('');
+    private _logging_system = signal<string>('');
+    private _event_history = signal<ClientEvent[]>([]);
     private _metadata = null;
 
-    private _logging_bindings = this._system_id.pipe(
-        filter((_) => !!_),
-        switchMap((id) => combineLatest([of(id), this._bindTo(id, 'enabled')])),
-        filter(([_, enabled]) => !!enabled),
-        map(([id]) =>
-            this.subscription(
-                'post_events',
-                this._event_history.subscribe(async (d) => {
-                    this._disable_handling = true;
-                    await getModule(id, 'Logger')
-                        .execute('post_event', [d])
-                        .catch();
-                    this._disable_handling = false;
-                }),
-            ),
-        ),
-    );
-
-    public readonly history = this._event_history;
+    public readonly history = this._event_history.asReadonly();
 
     public setMetadata(metadata: any) {}
 
@@ -70,12 +49,12 @@ export class RemoteLoggingService extends AsyncHandler {
         super();
         localStorage.setItem('PLACEOS.DEVICE_ID', DEVICE_ID);
         this._patchConsoleMethods();
-        this._logging_bindings.subscribe();
         log('Logger', 'Remote logging initialised...');
     }
 
     public setSystem(id: string) {
-        this._system_id.next(id);
+        this._system_id.set(id);
+        if (id) this._bindTo(id, 'enabled');
     }
 
     private _patchConsoleMethods() {
@@ -96,7 +75,7 @@ export class RemoteLoggingService extends AsyncHandler {
         const blob = [...data[0]];
         blob[0] =
             typeof blob[0] === 'string' ? blob[0].replace(/\%c/g, '') : blob[0];
-        this._events.next({
+        const event = {
             id: `${event_type}-${randomInt(99999_99999)}`,
             device_id: DEVICE_ID,
             type: event_type,
@@ -107,13 +86,28 @@ export class RemoteLoggingService extends AsyncHandler {
                 (_) => typeof _ !== 'string' || !_.startsWith('color:'),
             ),
             metadata: this._metadata || null,
-        });
+        };
+        this._event_history.update((history) =>
+            [...history, event].slice(-20000),
+        );
+        const system_id = this._logging_system();
+        if (!system_id) return;
+        this._disable_handling = true;
+        getModule(system_id, 'Logger')
+            .execute('post_event', [event])
+            .catch()
+            .finally(() => (this._disable_handling = false));
     }
 
     /** List to binding */
     private _bindTo(id: string, name: string, mod = 'Logger') {
         const module = getModule(id, mod).variable(name);
         this.subscription(`bind:${name}`, module.bind());
-        return observableFromSignal(module.listen());
+        this.subscription(
+            `listen:${name}`,
+            module.listen().subscribe((enabled) => {
+                this._logging_system.set(enabled ? id : '');
+            }),
+        );
     }
 }

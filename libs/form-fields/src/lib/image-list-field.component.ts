@@ -22,7 +22,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
-    nextValueFrom,
     notifyInfo,
     unique,
     UPLOAD_PERMISSIONS_MODAL,
@@ -388,7 +387,7 @@ export class ImageListFieldComponent
     private async _updateUploadHistory() {
         const list = this.upload_ids();
         if (list.length === 0) return;
-        const global_list = await nextValueFrom(this._uploads.upload_list);
+        const global_list = this._uploads.upload_list();
         const new_list = global_list.filter((_) =>
             list.find((i) => i === _?.id),
         );

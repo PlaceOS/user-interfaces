@@ -10,7 +10,7 @@ describe('[Staff API]', () => {
         it('should perform GET on guests endpoint', async () => {
             const spy = jest.spyOn(ts_client, 'get');
             spy.mockResolvedValue([{ name: 'Jim' }] as any);
-            const list = await searchStaff('').toPromise();
+            const list = await searchStaff('');
             expect(list).toBeInstanceOf(Array);
             expect(spy).toHaveBeenCalledWith('/api/staff/v1/people');
         });
@@ -18,7 +18,7 @@ describe('[Staff API]', () => {
         it('should return Guest objects', async () => {
             const spy = jest.spyOn(ts_client, 'get');
             spy.mockResolvedValue([{ name: 'Jim' }] as any);
-            const list = await searchStaff('').toPromise();
+            const list = await searchStaff('');
             expect(list).toBeInstanceOf(Array);
             expect(list[0]).toBeInstanceOf(StaffUser);
         });
@@ -26,7 +26,7 @@ describe('[Staff API]', () => {
         it('should allow filtering Guests', async () => {
             const spy = jest.spyOn(ts_client, 'get');
             spy.mockResolvedValue([{ name: 'Jim' }] as any);
-            await searchStaff('Jim').toPromise();
+            await searchStaff('Jim');
             expect(spy).toHaveBeenCalledWith(
                 '/api/staff/v1/people?q=Jim&fields=id%2Cname%2Cemail%2Cusername%2Corganisation%2Cdepartment',
             );
@@ -37,7 +37,7 @@ describe('[Staff API]', () => {
         it('should GET guest', async () => {
             const spy = jest.spyOn(ts_client, 'get');
             spy.mockResolvedValue({ name: 'Jim' } as any);
-            const item = await showStaff('jim').toPromise();
+            const item = await showStaff('jim');
             expect(item).toBeInstanceOf(StaffUser);
             expect(spy).toHaveBeenCalledWith('/api/staff/v1/people/jim');
         });

@@ -7,7 +7,6 @@ import {
     output,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
@@ -20,7 +19,6 @@ import {
     notifySuccess,
 } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
-import { map, tap } from 'rxjs/operators';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -418,27 +416,20 @@ export class EventBookModalComponent implements OnInit {
     public hide_block: Record<string, boolean> = {};
     public readonly code_filter = signal('');
 
-    private readonly _charge_codes = toSignal(this._catering.charge_codes, {
-        initialValue: [],
+    private readonly _charge_codes = this._catering.charge_codes;
+
+    public readonly has_catering = computed(
+        () => this._catering.available_menu().length > 0,
+    );
+
+    public readonly has_codes = computed(() => {
+        const has_codes = this._catering.charge_codes().length > 0;
+        if (!has_codes) {
+            this.form.get('catering_charge_code').setValidators([]);
+            this.form.updateValueAndValidity();
+        }
+        return has_codes;
     });
-
-    public readonly has_catering = toSignal(
-        this._catering.available_menu.pipe(map((l) => l.length > 0)),
-        { initialValue: false },
-    );
-
-    public readonly has_codes = toSignal(
-        this._catering.charge_codes.pipe(
-            map((l) => l.length > 0),
-            tap((has_codes) => {
-                if (!has_codes) {
-                    this.form.get('catering_charge_code').setValidators([]);
-                    this.form.updateValueAndValidity();
-                }
-            }),
-        ),
-        { initialValue: false },
-    );
 
     public readonly filtered_codes = computed(() =>
         this._charge_codes().filter((_) =>

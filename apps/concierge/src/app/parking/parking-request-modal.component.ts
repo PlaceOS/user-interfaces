@@ -17,7 +17,6 @@ import {
     currentUser,
     getInvalidFields,
     i18n,
-    nextValueFrom,
     notifyError,
     notifySuccess,
     OrganisationService,
@@ -33,7 +32,6 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { roundToNearestMinutes, startOfDay } from 'date-fns';
-import { lastValueFrom } from 'rxjs';
 import { ParkingRequestFormDetailsComponent } from '../../../../workplace/src/app/book/parking-request-flow/parking-request-form-details.component';
 
 @Component({
@@ -187,7 +185,7 @@ export class ParkingRequestModalComponent
             all_day: form_value.all_day ?? false,
             recurrence_type: form_value.recurrence_type || 'none',
         });
-        const parking_user = await nextValueFrom(this._parking.user_details);
+        const parking_user = this._parking.user_details();
         if (parking_user?.email) {
             if (!this.form.value.plate_number) {
                 this.form.patchValue({
@@ -247,7 +245,7 @@ export class ParkingRequestModalComponent
                 throw e;
             });
         if (!form_value.id && result?.id && result.status !== 'approved') {
-            await lastValueFrom(approveBookingApi(result.id)).catch((e) => {
+            await approveBookingApi(result.id).catch((e) => {
                 notifyError(e?.message || e?.error || e);
                 this.loading.set(false);
                 this._dialog_ref.disableClose = false;

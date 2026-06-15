@@ -47,7 +47,6 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { UserPipe } from 'libs/users/src/lib/user.pipe';
-import { lastValueFrom } from 'rxjs';
 import { AttendeeListComponent } from './attendee-list.component';
 import { getEventMetadata } from './events.fn';
 
@@ -994,8 +993,9 @@ export class EventDetailsModalComponent implements OnInit {
         ) {
             return;
         }
-        const metadata = await lastValueFrom(
-            getEventMetadata(this.event().id, this.space().id),
+        const metadata = await getEventMetadata(
+            this.event().id,
+            this.space().id,
         );
         if (metadata) {
             this.event.set(

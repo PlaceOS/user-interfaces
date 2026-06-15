@@ -385,33 +385,30 @@ export class SignageStateService extends AsyncHandler {
                 let state = null;
                 let resolved = false;
 
-                this.subscription(
-                    `upload-${id}`,
-                    this._uploads.upload_list.subscribe(
-                        (list) => {
-                            console.log('Upload List:', list, id);
-                            state = list.find((s) => id === s.id);
-                            if (
-                                state &&
-                                (state.link || state.progress >= 100)
-                            ) {
-                                resolved = true;
-                                const uid =
-                                    state.upload_id || state.upload?.id || id;
-                                const url = `/api/engine/v2/uploads/${encodeURIComponent(
-                                    uid,
-                                )}/url`;
-                                resolve({
-                                    id: uid,
-                                    link: state.link || url,
-                                });
-                                this.unsub(`upload-${id}`);
-                            }
-                        },
-                        reject,
-                        () => (!resolved ? resolve(state) : null),
-                    ),
-                );
+                const check_state = () => {
+                    const list = this._uploads.upload_list();
+                    console.log('Upload List:', list, id);
+                    state = list.find((s) => id === s.id);
+                    if (state?.error) {
+                        this.clearInterval(`upload-${id}`);
+                        reject(state.error);
+                        return;
+                    }
+                    if (state && (state.link || state.progress >= 100)) {
+                        resolved = true;
+                        const uid = state.upload_id || state.upload?.id || id;
+                        const url = `/api/engine/v2/uploads/${encodeURIComponent(
+                            uid,
+                        )}/url`;
+                        resolve({
+                            id: uid,
+                            link: state.link || url,
+                        });
+                        this.clearInterval(`upload-${id}`);
+                    }
+                };
+                this.interval(`upload-${id}`, check_state, 100);
+                check_state();
             });
         const [is_landscape] = await this._getMediaMetadata(file);
         const thumbnail_image = await this._generateThumbnail(

@@ -510,14 +510,12 @@ Host:  ${event.organiser?.name || event.host}`;
         await declineEvent(item.id, {
             calendar: item.calendar || item.mailbox || item.host,
             system_id: space_id,
-        })
-            .toPromise()
-            .catch((e) => {
-                this._state.restore(item);
-                notifyError(`Unable to cancel booking. ${e}`);
-                resp.close();
-                throw e;
-            });
+        }).catch((e) => {
+            this._state.restore(item);
+            notifyError(`Unable to cancel booking. ${e}`);
+            resp.close();
+            throw e;
+        });
         notifySuccess('Successfully cancelled booking.');
         this._dialog.closeAll();
     }

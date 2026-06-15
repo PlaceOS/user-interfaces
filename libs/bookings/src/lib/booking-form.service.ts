@@ -1,4 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import { queryParkingSpacesForZones } from '@placeos/assets';
@@ -35,7 +36,6 @@ import {
 import { addDays, addMinutes, endOfDay, format, getUnixTime } from 'date-fns';
 import { openRecurringClashModal } from 'libs/components/src/lib/recurring-clash-modal.component';
 import {
-    BehaviorSubject,
     combineLatest,
     forkJoin,
     from,
@@ -142,20 +142,20 @@ export class BookingFormService extends AsyncHandler {
     private _dialog = inject(MatDialog);
     private _payments = inject(PaymentsService);
     private _assets = inject(AssetStateService);
-    private _options = new BehaviorSubject<BookingFlowOptions>({
+    private _options = signal<BookingFlowOptions>({
         type: 'desk',
     });
-    private _booking = new BehaviorSubject<Booking>(null);
+    private _booking = signal<Booking>(null);
     private _resource_use: Record<string, string> = {};
-    private _loading = new BehaviorSubject<string>('');
+    private _loading = signal<string>('');
 
     public last_success: Booking = new Booking(
         JSON.parse(
             sessionStorage.getItem('PLACEOS.last_booked_booking') || '{}',
         ),
     );
-    public readonly loading = this._loading.asObservable();
-    public readonly options = this._options.pipe(shareReplay(1));
+    public readonly loading = toObservable(this._loading);
+    public readonly options = toObservable(this._options).pipe(shareReplay(1));
     public readonly form = generateBookingForm();
     public readonly view = signal<BookingFlowView>('form');
 
@@ -169,13 +169,13 @@ export class BookingFormService extends AsyncHandler {
             const useRegion = () => this._settings.get('app.use_region');
             switch (type) {
                 case 'desk':
-                    this._loading.next(i18n('BOOKINGS.DESKS_LOADING'));
+                    this._loading.set(i18n('BOOKINGS.DESKS_LOADING'));
                     return this.loadResourceList('desks' as any);
                 case 'parking':
-                    this._loading.next(i18n('BOOKINGS.PARKING_LOADING'));
+                    this._loading.set(i18n('BOOKINGS.PARKING_LOADING'));
                     return this.loadParkingResources();
                 case 'locker':
-                    this._loading.next(i18n('BOOKINGS.LOCKERS_LOADING'));
+                    this._loading.set(i18n('BOOKINGS.LOCKERS_LOADING'));
                     return loadLockers(
                         this._org,
                         of([bld]),
@@ -185,7 +185,7 @@ export class BookingFormService extends AsyncHandler {
             }
             return of([]);
         }),
-        tap(() => this._loading.next(``)),
+        tap(() => this._loading.set(``)),
         shareReplay(1),
     );
 
@@ -204,7 +204,10 @@ export class BookingFormService extends AsyncHandler {
 
     public readonly booking_rules: Observable<
         Record<string, BookingRuleset[]>
-    > = combineLatest([this._org.building_list, this._options]).pipe(
+    > = combineLatest([
+        this._org.building_list,
+        toObservable(this._options),
+    ]).pipe(
         switchMap(([list, { type }]) =>
             Promise.all(
                 list.map((bld) =>
@@ -279,7 +282,7 @@ export class BookingFormService extends AsyncHandler {
         ),
         debounceTime(500),
         tap(([{ type }]) =>
-            this._loading.next(i18n('BOOKINGS.LOADING_AVAILABILITY', { type })),
+            this._loading.set(i18n('BOOKINGS.LOADING_AVAILABILITY', { type })),
         ),
         switchMap(([options, resources, restrictions]) => {
             const { all_day, user } = this.form.getRawValue();
@@ -298,12 +301,16 @@ export class BookingFormService extends AsyncHandler {
                 this.form.getRawValue().recurrence_type &&
                 this.form.getRawValue().recurrence_type !== 'none'
                     ? this._recurringBookedResourceList(resources, zones)
-                    : bookedResourceList({
-                          period_start: getUnixTime(date),
-                          period_end: getUnixTime(addMinutes(date, duration)),
-                          type: options.type,
-                          zones,
-                      });
+                    : from(
+                          bookedResourceList({
+                              period_start: getUnixTime(date),
+                              period_end: getUnixTime(
+                                  addMinutes(date, duration),
+                              ),
+                              type: options.type,
+                              zones,
+                          }),
+                      );
             return booked_resources.pipe(
                 map((booked_ids) => {
                     this._resource_use = {};
@@ -320,7 +327,7 @@ export class BookingFormService extends AsyncHandler {
                             },
                             restrictions[asset.zone?.id] ||
                                 restrictions[asset.zone?.parent_id] ||
-                                restrictions[this._org.building.id] ||
+                                restrictions[this._org.building?.id] ||
                                 [],
                         ).hidden;
                         return (
@@ -345,7 +352,7 @@ export class BookingFormService extends AsyncHandler {
                 catchError(() => of([])),
             );
         }),
-        tap(() => this._loading.next('')),
+        tap(() => this._loading.set('')),
         shareReplay(1),
     );
 
@@ -382,7 +389,7 @@ export class BookingFormService extends AsyncHandler {
     );
 
     public get booking() {
-        return this._booking.getValue();
+        return this._booking();
     }
 
     public resourceUserName(id: string) {
@@ -395,7 +402,7 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public newForm(type: BookingType, booking: Booking = new Booking({})) {
-        if (type !== this._options.getValue().type) this.clearForm();
+        if (type !== this._options().type) this.clearForm();
         this.setOptions({ type });
         const initial_date = booking.date;
         const initial_duration = booking.duration;
@@ -429,8 +436,8 @@ export class BookingFormService extends AsyncHandler {
             booking.date,
             booking.duration,
         );
-        this._booking.next(new Booking(booking));
-        this._options.next({ type: this._options.getValue().type });
+        this._booking.set(new Booking(booking));
+        this._options.set({ type: this._options().type });
         // Persist immediately to avoid edit-flow races where the consumer
         // reloads from session before async form change events occur.
         this.storeForm();
@@ -464,7 +471,7 @@ export class BookingFormService extends AsyncHandler {
             .subscribe(() => this.setOptions({}));
         this.subscription(
             'settings_change',
-            this._settings.overrides$
+            toObservable(this._settings.overrides)
                 .pipe(filter((_) => !!_?.length))
                 .subscribe(() => this.applyDurationSettings()),
         );
@@ -533,12 +540,12 @@ export class BookingFormService extends AsyncHandler {
             plate_number?.clearValidators();
             plate_number?.updateValueAndValidity({ emitEvent: false });
         }
-        this._options.next({ ...this._options.getValue(), ...value });
+        this._options.set({ ...this._options(), ...value });
     }
 
     public setFeature(feature: string, enable: boolean) {
         if (!feature?.length) return;
-        const features = this._options.getValue()?.features || [];
+        const features = this._options()?.features || [];
         if (enable && !features.includes(feature)) features.push(feature);
         if (!enable && features.includes(feature))
             features.splice(
@@ -550,9 +557,9 @@ export class BookingFormService extends AsyncHandler {
 
     public resetForm() {
         if (!sessionStorage.getItem('PLACEOS.booking_form')) {
-            return this.newForm(this._options.getValue().type);
+            return this.newForm(this._options().type);
         }
-        const booking = this._booking.getValue();
+        const booking = this._booking();
         this.form.reset({ user: currentUser(), booked_by: currentUser() });
         this.form.patchValue(
             cleanObject(
@@ -563,20 +570,20 @@ export class BookingFormService extends AsyncHandler {
                 [null, undefined, ''],
             ),
         );
-        this._options.next({ type: this._options.getValue().type });
+        this._options.set({ type: this._options().type });
     }
 
     public clearForm() {
         sessionStorage.removeItem('PLACEOS.booking_form');
         sessionStorage.removeItem('PLACEOS.booking_form_options');
-        this.newForm(this._options.getValue().type);
+        this.newForm(this._options().type);
     }
 
     public storeForm() {
         sessionStorage.setItem(
             'PLACEOS.booking_form',
             JSON.stringify({
-                ...this._booking.getValue(),
+                ...this._booking(),
                 ...cleanObject(this.form.getRawValue() || {}, [
                     null,
                     undefined,
@@ -586,7 +593,7 @@ export class BookingFormService extends AsyncHandler {
         );
         sessionStorage.setItem(
             'PLACEOS.booking_form_filters',
-            JSON.stringify(this._options.getValue() || {}),
+            JSON.stringify(this._options() || {}),
         );
     }
 
@@ -603,7 +610,7 @@ export class BookingFormService extends AsyncHandler {
                 sessionStorage.getItem('PLACEOS.booking_form_filters') || '{}',
             ),
         });
-        this._booking.next(booking);
+        this._booking.set(booking);
         const booking_data = cleanObject(
             {
                 ...data,
@@ -645,7 +652,7 @@ export class BookingFormService extends AsyncHandler {
 
     public async confirmPost() {
         await this.checkQuestions();
-        const options = this._options.getValue();
+        const options = this._options();
         const value = this.form.getRawValue();
 
         const content = i18n(
@@ -700,11 +707,10 @@ export class BookingFormService extends AsyncHandler {
         }
         this.form.patchValue({
             booking_type:
-                this.form.getRawValue().booking_type ||
-                this._options.getValue().type,
+                this.form.getRawValue().booking_type || this._options().type,
         });
         const value = this.form.getRawValue();
-        const booking = this._booking.getValue() || new Booking();
+        const booking = this._booking() || new Booking();
         const all_day_period = value.all_day
             ? this._allDayTimeRange(value.date)
             : {
@@ -727,7 +733,7 @@ export class BookingFormService extends AsyncHandler {
         if (ignore_check) {
             await this._checkAssignedDeskRestriction(
                 host,
-                this._options.getValue().type,
+                this._options().type,
             );
         } else {
             await this._checkResourceAvailable(
@@ -736,7 +742,7 @@ export class BookingFormService extends AsyncHandler {
                     ...value,
                     user_email: host,
                 },
-                this._options.getValue().type,
+                this._options().type,
             );
             await this._checkResourceRules(
                 value.resources,
@@ -753,12 +759,12 @@ export class BookingFormService extends AsyncHandler {
                     date_end: all_day_period.date_end,
                     user_email: host,
                 },
-                this._options.getValue().type,
+                this._options().type,
             );
         }
         if (this._payments.enabled) {
             const receipt = await this._payments.makePayment({
-                type: this._options.getValue().type,
+                type: this._options().type,
                 resource_name: value.asset_name,
                 date: value.date,
                 duration: value.duration,
@@ -777,9 +783,9 @@ export class BookingFormService extends AsyncHandler {
         value.zones = unique(
             selected_zones.length
                 ? selected_zones
-                : [...(this._booking.getValue()?.zones || [])],
+                : [...(this._booking()?.zones || [])],
         );
-        this._loading.next('Saving booking');
+        this._loading.set('Saving booking');
         delete value.booking_asset;
         value.timezone = this.timezone || value.timezone;
         if (value.all_day) {
@@ -800,7 +806,11 @@ export class BookingFormService extends AsyncHandler {
                       zone.parent_id,
                       zone.id,
                   ])
-                : [this._org.organisation.id, this._org.region?.id, this._org.building?.id];
+                : [
+                      this._org.organisation.id,
+                      this._org.region?.id,
+                      this._org.building?.id,
+                  ];
         const q: Record<string, any> = event_id
             ? { ical_uid: value.ical_uid, event_id: event_id }
             : parent_id
@@ -829,77 +839,72 @@ export class BookingFormService extends AsyncHandler {
             }
         }
         const group_members =
-            this._options.getValue().group &&
-            this._options.getValue().members?.length
+            this._options().group && this._options().members?.length
                 ? this.mapGroupMembers(
                       value.booking_type,
-                      this._options.getValue().members,
+                      this._options().members,
                   )
                 : [];
-        const result = await lastValueFrom(
-            saveBooking(
-                new Booking({
-                    ...this._options.getValue(),
-                    ...value,
-                    description:
-                        value.booking_type === 'visitor'
-                            ? value.description ||
-                              value.title ||
-                              value.asset_name
-                            : value.asset_name || value.description,
-                    user_name: value.user?.name || value.user_name,
-                    user_email: value.user?.email || value.user_email,
-                    extension_data: {
-                        ...((value as any).extension_data || {}),
-                        assigned_asset_id:
-                            value.booking_type === 'desk'
-                                ? value.asset_id
-                                : undefined,
-                        assigned_asset_name:
-                            value.booking_type === 'desk'
-                                ? value.asset_name || value.asset_id
-                                : undefined,
-                        assets: value.assets.map((_) => _.toJSON()),
-                        group: value.group,
-                        phone: value.phone,
-                        company: value.company,
-                        ...(value.booking_type === 'visitor'
-                            ? {
-                                  international: !!value.international,
-                                  visitor_name:
-                                      value.asset_name || value.asset_id || '',
-                              }
-                            : {}),
-                        ...(value.booking_type === 'parking'
-                            ? {
-                                  requires_manual_approval:
-                                      !!value.requires_manual_approval,
-                                  user_groups: [
-                                      ...(value.user
-                                          ? value.user.groups || []
-                                          : currentUser()?.groups || []),
-                                  ],
-                              }
-                            : {}),
-                        ...(group_members.length
-                            ? {
-                                  group_members,
-                              }
-                            : {}),
-                        recurrence_instances: value.recurrence_instances,
-                        department:
-                            value.user?.department || currentUser()?.department,
-                    },
-                    approved:
-                        this._settings.get('app.bookings.no_approval') === true,
-                    zones: unique([...zones, ...(value.zones || [])]).filter(
-                        (_) => _,
-                    ),
-                }).toJSON(),
-                q,
-            ),
+        const result = await saveBooking(
+            new Booking({
+                ...this._options(),
+                ...value,
+                description:
+                    value.booking_type === 'visitor'
+                        ? value.description || value.title || value.asset_name
+                        : value.asset_name || value.description,
+                user_name: value.user?.name || value.user_name,
+                user_email: value.user?.email || value.user_email,
+                extension_data: {
+                    ...((value as any).extension_data || {}),
+                    assigned_asset_id:
+                        value.booking_type === 'desk'
+                            ? value.asset_id
+                            : undefined,
+                    assigned_asset_name:
+                        value.booking_type === 'desk'
+                            ? value.asset_name || value.asset_id
+                            : undefined,
+                    assets: value.assets.map((_) => _.toJSON()),
+                    group: value.group,
+                    phone: value.phone,
+                    company: value.company,
+                    ...(value.booking_type === 'visitor'
+                        ? {
+                              international: !!value.international,
+                              visitor_name:
+                                  value.asset_name || value.asset_id || '',
+                          }
+                        : {}),
+                    ...(value.booking_type === 'parking'
+                        ? {
+                              requires_manual_approval:
+                                  !!value.requires_manual_approval,
+                              user_groups: [
+                                  ...(value.user
+                                      ? value.user.groups || []
+                                      : currentUser()?.groups || []),
+                              ],
+                          }
+                        : {}),
+                    ...(group_members.length
+                        ? {
+                              group_members,
+                          }
+                        : {}),
+                    recurrence_instances: value.recurrence_instances,
+                    department:
+                        value.user?.department || currentUser()?.department,
+                },
+                approved:
+                    this._settings.get('app.bookings.no_approval') === true,
+                zones: unique([...zones, ...(value.zones || [])]).filter(
+                    (_) => _,
+                ),
+            }).toJSON(),
+            q,
         ).catch((e) => {
-            this._loading.next('');
+            this._loading.set('');
             const error = e?.error || e;
             if (e?.status) {
                 if (typeof error === 'object' && error !== null) {
@@ -931,13 +936,13 @@ export class BookingFormService extends AsyncHandler {
                 if (e?.status === 409) {
                     notifyError(i18n('BOOKINGS.ASSETS_CLASH_ERROR'));
                 }
-                this._loading.next('');
+                this._loading.set('');
                 throw e?.error || e;
             });
             if (!requests) throw i18n('BOOKINGS.ASSETS_INVALID_ERROR');
             await requests();
         }
-        this._loading.next('');
+        this._loading.set('');
         const { booking_type } = value;
         if (reset_form) {
             this.clearForm();
@@ -953,7 +958,7 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public setting(key: string) {
-        const { type } = this._options.getValue();
+        const { type } = this._options();
         return (
             this._settings.get(`app.${type}.${key}`) ??
             this._settings.get(`app.${type}s.${key}`) ??
@@ -1015,7 +1020,7 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public async postFormForGroup() {
-        const { members, group, type } = this._options.getValue();
+        const { members, group, type } = this._options();
         if (!group) throw i18n('BOOKINGS.GROUP_NOT_SET');
         const rollback_on_group_error =
             this.setting('rollback_group_bookings') === true;
@@ -1181,7 +1186,7 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public async postFormForVisitorGroup() {
-        const { members, group } = this._options.getValue();
+        const { members, group } = this._options();
         if (!group) throw i18n('BOOKINGS.GROUP_NOT_SET');
         if (!members?.length) throw i18n('BOOKINGS.GROUP_NO_MEMBERS');
         const rollback_on_group_error =
@@ -1220,7 +1225,7 @@ export class BookingFormService extends AsyncHandler {
                     group: group_name,
                     zones: form.zones?.length
                         ? [...form.zones]
-                        : [...(this._booking.getValue()?.zones || [])],
+                        : [...(this._booking()?.zones || [])],
                     assets: [],
                     attendees: [
                         new User({
@@ -1254,28 +1259,20 @@ export class BookingFormService extends AsyncHandler {
     public async loadGroupSiblings(booking: Booking): Promise<Booking[]> {
         if (!booking?.id) return [];
         const parent_id = booking.parent_id || booking.id;
-        const { type } = this._options.getValue();
-        return lastValueFrom(
-            queryBookings({
-                period_start: getUnixTime(booking.date),
-                period_end: getUnixTime(
-                    addMinutes(booking.date, booking.duration),
-                ),
-                type,
-            }).pipe(
-                map((list) =>
-                    list.filter(
-                        (b) => b.id === parent_id || b.parent_id === parent_id,
-                    ),
-                ),
-            ),
+        const { type } = this._options();
+        const list = await queryBookings({
+            period_start: getUnixTime(booking.date),
+            period_end: getUnixTime(addMinutes(booking.date, booking.duration)),
+            type,
+        });
+        return list.filter(
+            (b) => b.id === parent_id || b.parent_id === parent_id,
         );
     }
 
     public async loadGroupMembersForBooking(booking: Booking): Promise<User[]> {
         if (!booking?.id) return [];
-        const type =
-            this._options.getValue().type || booking.booking_type || 'desk';
+        const type = this._options().type || booking.booking_type || 'desk';
         const is_visitor = type === 'visitor';
         const sibling_list = await this.loadGroupSiblings(booking);
         if (sibling_list.length) {
@@ -1290,7 +1287,7 @@ export class BookingFormService extends AsyncHandler {
     public async editFormForGroup(
         existing_siblings: Booking[],
     ): Promise<Booking> {
-        const { members, type } = this._options.getValue();
+        const { members, type } = this._options();
         if (!members?.length) throw i18n('BOOKINGS.GROUP_NO_MEMBERS');
         const form = this.form.getRawValue();
         const base_form = { ...form, id: '' };
@@ -1312,9 +1309,7 @@ export class BookingFormService extends AsyncHandler {
             const key = is_visitor ? s.asset_id : s.user_email;
             return key && !member_keys.has(key);
         });
-        await Promise.all(
-            to_delete.map((s) => lastValueFrom(removeBooking(s.id))),
-        );
+        await Promise.all(to_delete.map((s) => removeBooking(s.id)));
         const desk_resources =
             !is_visitor && type === 'desk'
                 ? await this._resolveDeskGroupResources(members, form, [
@@ -1357,7 +1352,7 @@ export class BookingFormService extends AsyncHandler {
                             ? [...base_form.zones]
                             : existing?.zones?.length
                               ? [...existing.zones]
-                              : [...(this._booking.getValue()?.zones || [])],
+                              : [...(this._booking()?.zones || [])],
                         assets: [],
                         attendees: [
                             new User({
@@ -1444,34 +1439,32 @@ export class BookingFormService extends AsyncHandler {
                 this._org.region?.id,
             ].filter((_) => _),
         );
-        return lastValueFrom(
-            saveBooking(
-                new Booking({
-                    ...form,
-                    id,
-                    parent_id: '',
-                    asset_id: group_name,
-                    asset_name: 'Group Booking',
-                    booking_type: 'group',
-                    type: 'group',
-                    description: form.title || 'Group Booking',
-                    title: form.title || 'Group Booking',
-                    user_name: form.user?.name || form.user_name,
-                    user_email: form.user?.email || form.user_email,
-                    user_id: form.user?.id || form.user_id,
-                    approved:
-                        this._settings.get('app.bookings.no_approval') === true,
-                    zones,
-                    extension_data: {
-                        ...(form.extension_data || {}),
-                        group: group_name,
-                        group_members,
-                        group_resource_type: resource_type,
-                    },
-                }).toJSON(),
-            ),
+        return saveBooking(
+            new Booking({
+                ...form,
+                id,
+                parent_id: '',
+                asset_id: group_name,
+                asset_name: 'Group Booking',
+                booking_type: 'group',
+                type: 'group',
+                description: form.title || 'Group Booking',
+                title: form.title || 'Group Booking',
+                user_name: form.user?.name || form.user_name,
+                user_email: form.user?.email || form.user_email,
+                user_id: form.user?.id || form.user_id,
+                approved:
+                    this._settings.get('app.bookings.no_approval') === true,
+                zones,
+                extension_data: {
+                    ...(form.extension_data || {}),
+                    group: group_name,
+                    group_members,
+                    group_resource_type: resource_type,
+                },
+            }).toJSON(),
         ).catch((error) => {
-            this._loading.next('');
+            this._loading.set('');
             throw error;
         });
     }
@@ -1527,7 +1520,7 @@ export class BookingFormService extends AsyncHandler {
         const booking_type =
             form_booking_type && form_booking_type !== ' '
                 ? form_booking_type
-                : this._options.getValue().type;
+                : this._options().type;
         switch (booking_type) {
             case 'desk':
                 return 'Desk';
@@ -1639,9 +1632,7 @@ export class BookingFormService extends AsyncHandler {
 
     private async rollbackGroupBookings(booking_ids: string[]) {
         const rollback_errors = (
-            await Promise.allSettled(
-                booking_ids.map((id) => lastValueFrom(removeBooking(id))),
-            )
+            await Promise.allSettled(booking_ids.map((id) => removeBooking(id)))
         ).filter((_) => _.status === 'rejected');
         if (rollback_errors.length) {
             console.error('Failed to rollback group bookings', rollback_errors);
@@ -1706,15 +1697,13 @@ export class BookingFormService extends AsyncHandler {
         const period = all_day
             ? this._allDayTimeRange(date)
             : { date, date_end: date + duration * 60 * 1000 };
-        const bookings = await lastValueFrom(
-            queryBookings({
-                period_start: getUnixTime(period.date),
-                period_end: getUnixTime(period.date_end),
-                type,
-                email: user_email,
-                limit: 1000,
-            }),
-        );
+        const bookings = await queryBookings({
+            period_start: getUnixTime(period.date),
+            period_end: getUnixTime(period.date_end),
+            type,
+            email: user_email,
+            limit: 1000,
+        });
         const active_bookings = bookings.filter(
             (_) =>
                 _.status !== 'declined' &&
@@ -1784,7 +1773,7 @@ export class BookingFormService extends AsyncHandler {
         if (!resource_rules.every((_) => !_.hidden)) {
             throw i18n(
                 'BOOKINGS.RULES_HIDDEN',
-                { type: this._options.getValue().type || 'resource' },
+                { type: this._options().type || 'resource' },
                 assets.length,
             );
         }
@@ -1837,9 +1826,9 @@ export class BookingFormService extends AsyncHandler {
             booking_type: type,
         });
 
-        const clashes = (await lastValueFrom(
-            findBookingClashes(temp_booking, { include_clash_time: true }),
-        )) as BookingClash[];
+        const clashes = (await findBookingClashes(temp_booking, {
+            include_clash_time: true,
+        })) as BookingClash[];
 
         if (!clashes?.length) {
             return true;
@@ -1903,7 +1892,7 @@ export class BookingFormService extends AsyncHandler {
             zones: [zones],
             asset_ids: resources.map((_) => _.id),
         });
-        return findBookingClashes(booking).pipe(
+        return from(findBookingClashes(booking)).pipe(
             map((ids) => ids as string[]),
             catchError(() => of([])),
         );
@@ -1916,7 +1905,7 @@ export class BookingFormService extends AsyncHandler {
                 ? this._org.levelsForRegion()
                 : this._org.levelsForBuilding()
         ).filter((_) => _.tags.includes('parking'));
-        return queryParkingSpacesForZones(levels.map((l) => l.id)).pipe(
+        return from(queryParkingSpacesForZones(levels.map((l) => l.id))).pipe(
             map(
                 (spaces) =>
                     spaces.map((s) => ({

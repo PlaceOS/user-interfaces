@@ -249,8 +249,10 @@ export class UserSearchFieldComponent
                   map((_) => _.data.map((_) => new User(_))),
                   catchError(() => of([])),
               )
-            : searchStaff(q).pipe(catchError(() => of([])));
-        const guest_query = searchGuests(q).pipe(catchError(() => of([])));
+            : from(searchStaff(q)).pipe(catchError(() => of([])));
+        const guest_query = from(searchGuests(q)).pipe(
+            catchError(() => of([])),
+        );
         if (this.guests_only()) return guest_query;
         if (!this.guests()) return staff_query;
         return forkJoin([staff_query, guest_query]).pipe(

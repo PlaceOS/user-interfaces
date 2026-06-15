@@ -6,13 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import {
-    csvToJson,
-    downloadFile,
-    nextValueFrom,
-    notifyError,
-    unique,
-} from '@placeos/common';
+import { csvToJson, downloadFile, notifyError, unique } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { CateringStateService } from './catering-state.service';
@@ -135,9 +129,7 @@ export class ChargeCodeListModalComponent implements OnInit {
     public readonly loading = signal<boolean>(false);
 
     public async ngOnInit() {
-        this.charge_codes.set(
-            (await nextValueFrom(this._state.charge_codes)) || [],
-        );
+        this.charge_codes.set(this._state.charge_codes() || []);
     }
 
     public newCode() {

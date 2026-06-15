@@ -62,7 +62,7 @@ export class StaffStateService extends AsyncHandler {
                 period_start: getUnixTime(startOfDay(Date.now())),
                 period_end: getUnixTime(endOfDay(Date.now())),
                 type: 'staff',
-            }).toPromise();
+            });
             const checkin_map = {};
             const now = new Date().valueOf();
             for (const bkn of bookings) {
@@ -122,8 +122,8 @@ export class StaffStateService extends AsyncHandler {
                 this._org.building.display_name || this._org.building.name,
             zones: [this._org.building.id],
             booking_type: 'staff',
-        } as any).toPromise();
-        await checkinBooking(result.id, true).toPromise();
+        } as any);
+        await checkinBooking(result.id, true);
         this._events[user.email] = result;
         this._onsite[user.email] = true;
     }
@@ -134,15 +134,15 @@ export class StaffStateService extends AsyncHandler {
             const result = await saveBooking({
                 ...event.toJSON(),
                 booking_end: Math.floor(new Date().valueOf() / 1000),
-            } as any).toPromise();
-            await checkinBooking(result.id, false).toPromise();
+            } as any);
+            await checkinBooking(result.id, false);
             this._events[user.email] = result;
             this._onsite[user.email] = false;
         }
     }
 
     private async loadUsers() {
-        const user_list = await searchStaff('').toPromise();
+        const user_list = await searchStaff('');
         user_list.sort((a, b) => a.name.localeCompare(b.name));
         this._users.next(user_list);
     }

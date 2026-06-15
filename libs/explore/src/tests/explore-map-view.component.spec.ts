@@ -57,7 +57,7 @@ describe('ExploreMapViewComponent', () => {
         ],
         providers: [
             MockProvider(MapsPeopleService, {
-                use_mapspeople$: new BehaviorSubject(false),
+                available: signal(false),
             } as any),
             MockProvider(OrganisationService, {
                 initialised: of(true),
@@ -65,6 +65,7 @@ describe('ExploreMapViewComponent', () => {
                 binding: jest.fn(() => 'sys'),
                 active_levels: new BehaviorSubject([]),
                 active_building: new BehaviorSubject({ id: 'bld-1' }),
+                building_signal: signal({ id: 'bld-1' }),
             } as any),
             MockProvider(SpacesService, { initialised: of(true) }),
             MockProvider(ExploreStateService, {

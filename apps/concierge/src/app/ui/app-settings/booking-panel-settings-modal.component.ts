@@ -1,7 +1,9 @@
 import {
     ChangeDetectionStrategy,
     Component,
+    effect,
     inject,
+    Injector,
     OnInit,
     signal,
 } from '@angular/core';
@@ -312,6 +314,7 @@ export class BookingPanelSettingsModalComponent
     extends AsyncHandler
     implements OnInit
 {
+    private _injector = inject(Injector);
     private _uploads = inject(UploadsService);
     private _data = inject<{
         zone: PlaceZone;
@@ -398,19 +401,25 @@ export class BookingPanelSettingsModalComponent
         if (!file.type.includes('image')) {
             return notifyError('File is not an image');
         }
-        this._uploads.uploadFileWithProgress(file).subscribe({
-            next: (s) => {
+        const upload = this._uploads.uploadFileWithProgress(file);
+        const effect_ref = effect(
+            () => {
+                const s = upload();
                 this.uploading.set(s.progress);
+                if (s.error) {
+                    notifyError('Failed to upload image. Try again later');
+                    this.uploading.set(0);
+                    effect_ref.destroy();
+                    return;
+                }
                 if (s.link) {
                     this.uploading.set(0);
                     field.setValue(s.link);
+                    effect_ref.destroy();
                 }
             },
-            error: () => {
-                notifyError('Failed to upload image. Try again later');
-                this.uploading.set(0);
-            },
-        });
+            { injector: this._injector },
+        );
     }
 
     public async save() {

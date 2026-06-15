@@ -38,7 +38,7 @@ import {
     removeEvent,
 } from '@placeos/events';
 import { format, isSameDay, parse } from 'date-fns';
-import { combineLatest } from 'rxjs';
+import { combineLatest, lastValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { TopbarComponent } from '../components/topbar.component';
@@ -292,7 +292,7 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
                         period_start: event.event_start,
                         period_end: event.event_end,
                         ical_uid: event.ical_uid,
-                    }).toPromise()
+                    })
                 ).find((_) => _.ical_uid === event.ical_uid) || event;
         }
         setTimeout(() => this._event_form.newForm(event), 300);
@@ -347,7 +347,7 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
                         period_start: item.event_start,
                         period_end: item.event_end,
                         ical_uid: item.ical_uid,
-                    }).toPromise()
+                    })
                 ).find(
                     (_) => _.ical_uid === (item as CalendarEvent).ical_uid,
                 ) || item;
@@ -360,7 +360,9 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
                     : 'APP.WORKPLACE.SCHEDULE_REMOVE_LOADING',
             ),
         );
-        await (item instanceof CalendarEvent ? removeEvent : removeBooking)(
+        const remove_result = (
+            item instanceof CalendarEvent ? removeEvent : removeBooking
+        )(
             remove_series
                 ? (item as any).recurring_event_id || item.id
                 : item.id,
@@ -374,20 +376,23 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
                     ? (item as any).instance
                     : undefined,
             } as any,
-        )
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    i18n(
-                        remove_series
-                            ? 'APP.WORKPLACE.SCHEDULE_REMOVE_SERIES_ERROR'
-                            : 'APP.WORKPLACE.SCHEDULE_REMOVE_ERROR',
-                        { error: e },
-                    ),
-                );
-                resp.close();
-                throw e;
-            });
+        ) as any;
+        await (
+            remove_result?.then instanceof Function
+                ? remove_result
+                : lastValueFrom(remove_result)
+        ).catch((e) => {
+            notifyError(
+                i18n(
+                    remove_series
+                        ? 'APP.WORKPLACE.SCHEDULE_REMOVE_SERIES_ERROR'
+                        : 'APP.WORKPLACE.SCHEDULE_REMOVE_ERROR',
+                    { error: e },
+                ),
+            );
+            resp.close();
+            throw e;
+        });
         notifySuccess(
             i18n(
                 remove_series
@@ -420,15 +425,11 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
             item.instance
                 ? checkinBookingInstance(item.id, item.instance, false)
                 : checkinBooking(item.id, false)
-        )
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    i18n('APP.WORKPLACE.SCHEDULE_END_ERROR', { error: e }),
-                );
-                resp.close();
-                throw e;
-            });
+        ).catch((e) => {
+            notifyError(i18n('APP.WORKPLACE.SCHEDULE_END_ERROR', { error: e }));
+            resp.close();
+            throw e;
+        });
         await promise;
         notifySuccess(i18n('APP.WORKPLACE.SCHEDULE_END_SUCCESS'));
         this._state.removeItem(item);

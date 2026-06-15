@@ -8,7 +8,6 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -26,7 +25,6 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
-import { of } from 'rxjs';
 import { CateringOrderStateService } from '../catering-order-modal/catering-order-state.service';
 
 const ICONS = {
@@ -214,18 +212,12 @@ export class CateringItemFiltersComponent
 
     public readonly icons = ICONS;
 
-    public readonly filters = toSignal(this._state.filters, {
-        initialValue: this._state.getFilters(),
-    });
+    public readonly filters = this._state.filters;
 
     public readonly setFilters = (f) => this._state.setFilters(f);
 
-    public readonly categories = toSignal(this._state.categories || of([]), {
-        initialValue: [],
-    });
-    public readonly caterers = toSignal(this._state.caterers || of([]), {
-        initialValue: [],
-    });
+    public readonly categories = this._state.categories;
+    public readonly caterers = this._state.caterers;
 
     public readonly exact_tooltip = signal('');
 
@@ -277,18 +269,11 @@ export class CateringItemFiltersComponent
     public ngOnInit() {
         this._min_offset.set(Math.max(this._min_offset_setting(), 0));
         this.exact_tooltip.set(i18n('CATERING.ORDERS_DELIVER_EXACT_INFO'));
-        this.subscription(
-            'filters',
-            this._state.filters.subscribe(() => {
-                this._max_offset.set(
-                    Math.max(
-                        15,
-                        (this._state.getFilters().duration || 60) -
-                            this._end_offset(),
-                    ),
-                );
-                this._updateDayOptions();
-            }),
+        this._max_offset.set(
+            Math.max(
+                15,
+                (this._state.getFilters().duration || 60) - this._end_offset(),
+            ),
         );
         this._updateDayOptions();
     }

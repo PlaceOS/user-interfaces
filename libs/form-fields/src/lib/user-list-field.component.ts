@@ -334,7 +334,7 @@ export class UserListFieldComponent
                                   );
                               }),
                           )
-                        : this.searchStaff(_)
+                        : from(this.searchStaff(_))
                     : of([])
             ).pipe(catchError((_) => of([])));
         }),

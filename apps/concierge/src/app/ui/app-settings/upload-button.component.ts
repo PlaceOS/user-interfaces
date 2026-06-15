@@ -1,8 +1,10 @@
 import {
     ChangeDetectionStrategy,
     Component,
+    effect,
     forwardRef,
     inject,
+    Injector,
     input,
     signal,
 } from '@angular/core';
@@ -51,6 +53,7 @@ import { IconComponent } from '@placeos/components';
 })
 export class UploadButtonComponent {
     private _uploads = inject(UploadsService);
+    private _injector = inject(Injector);
 
     public readonly types = input<string[]>(['image']);
     public uploading = signal(false);
@@ -102,28 +105,33 @@ export class UploadButtonComponent {
         console.log(`Uploading file...`);
         this.progress.set(0);
         this.uploading.set(true);
-        let upload_id = '';
-        this._uploads.uploadFileWithProgress(file).subscribe(
-            (s) => {
+        const upload = this._uploads.uploadFileWithProgress(file);
+        const effect_ref = effect(
+            () => {
+                const s = upload();
                 console.log(`Progress:`, s);
                 this.progress.set(s.progress);
-                upload_id = s.upload_id || s.upload?.id || s.id || upload_id;
-            },
-            () => {
-                notifyError('Failed to upload image. Try again later');
-                this.uploading.set(false);
-            },
-            () => {
+                if (s.error) {
+                    notifyError('Failed to upload image. Try again later');
+                    this.uploading.set(false);
+                    effect_ref.destroy();
+                    return;
+                }
+                if (s.progress < 100) return;
+                const upload_id = s.upload_id || s.upload?.id || s.id;
                 if (!upload_id) {
                     notifyError('Failed to get uploaded file ID');
                     this.uploading.set(false);
+                    effect_ref.destroy();
                     return;
                 }
                 this.setValue(
                     `/api/engine/v2/uploads/${encodeURIComponent(upload_id)}/url`,
                 );
                 this.uploading.set(false);
+                effect_ref.destroy();
             },
+            { injector: this._injector },
         );
     }
 }

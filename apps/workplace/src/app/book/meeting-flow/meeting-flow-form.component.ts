@@ -8,6 +8,7 @@ import {
     TemplateRef,
     viewChild,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
     MatBottomSheet,
@@ -528,11 +529,11 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
     public code_filter = new BehaviorSubject('');
     public invalid_assets: string[] = [];
 
-    public readonly has_catering = this._catering.available_menu.pipe(
-        map((l) => l.length > 0),
-    );
+    public readonly has_catering = toObservable(
+        this._catering.available_menu,
+    ).pipe(map((l) => l.length > 0));
 
-    public readonly has_codes = this._catering.charge_codes.pipe(
+    public readonly has_codes = toObservable(this._catering.charge_codes).pipe(
         map((l) => l.length > 0),
         tap((has_codes) => {
             if (!has_codes) {
@@ -544,7 +545,7 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
 
     public readonly filtered_codes = combineLatest([
         this.code_filter,
-        this._catering.charge_codes,
+        toObservable(this._catering.charge_codes),
     ]).pipe(
         map(([s, l]) =>
             l.filter((_) => _.toLowerCase().includes(s.toLowerCase())),
@@ -619,8 +620,8 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
                 categories: [],
             } as any);
             return combineLatest([
-                this._assets.filtered_assets,
-                this._assets.disabled_rooms,
+                toObservable(this._assets.filtered_assets),
+                toObservable(this._assets.disabled_rooms),
             ]).pipe(
                 map(([items, disabled_rooms]) => {
                     const assets_available = space_list.every(
@@ -679,8 +680,8 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
                 categories: [],
             });
             return combineLatest([
-                this._catering.filtered_menu,
-                this._catering.availability,
+                toObservable(this._catering.filtered_menu),
+                toObservable(this._catering.availability),
             ]).pipe(
                 map(([menu, disabled_rooms]) => {
                     const can_cater = space_list.every(
@@ -845,27 +846,21 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
                 else this.form.controls.catering.enable();
             }),
         );
-        this.subscription(
-            'idle-listen',
-            this._idle
-                .idleFor(
-                    (this._settings.get('app.idle_timeout') || 5) * 60 * 1000,
-                )
-                .subscribe(async () => {
-                    this.unsub('idle');
-                    await openConfirmModal(
-                        {
-                            title: i18n('APP.WORKPLACE.MEETING_IDLE_TITLE'),
-                            content: i18n('APP.WORKPLACE.MEETING_IDLE_MSG'),
-                            icon: { content: 'update' },
-                            confirm_text: i18n('COMMON.REFRESH'),
-                        },
-                        this._dialog,
-                    );
-                    this._state.newForm();
-                    location.reload();
-                }),
-        );
+        this._idle
+            .idleFor((this._settings.get('app.idle_timeout') || 5) * 60 * 1000)
+            .then(async () => {
+                await openConfirmModal(
+                    {
+                        title: i18n('APP.WORKPLACE.MEETING_IDLE_TITLE'),
+                        content: i18n('APP.WORKPLACE.MEETING_IDLE_MSG'),
+                        icon: { content: 'update' },
+                        confirm_text: i18n('COMMON.REFRESH'),
+                    },
+                    this._dialog,
+                );
+                this._state.newForm();
+                location.reload();
+            });
         this.timeout(
             'init_valid_assets',
             () => this._updateValidAssets(),

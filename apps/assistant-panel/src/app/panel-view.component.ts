@@ -5,6 +5,7 @@ import {
     inject,
     viewChild,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, currentUser } from '@placeos/common';
 import {
@@ -274,11 +275,11 @@ export class PanelViewComponent extends AsyncHandler {
         task_complete: 'check_circle',
     };
 
-    public readonly messages = this._chat.messages;
-    public readonly progress = this._chat.progress.pipe(
+    public readonly messages = toObservable(this._chat.messages);
+    public readonly progress = toObservable(this._chat.progress).pipe(
         tap(() => this._scrollToBottom()),
     );
-    public readonly waiting = this._chat.messages.pipe(
+    public readonly waiting = toObservable(this._chat.messages).pipe(
         map(
             (_) => _.length !== 0 && _[_.length - 1]?.user_id === this.user?.id,
         ),
@@ -312,7 +313,7 @@ export class PanelViewComponent extends AsyncHandler {
         this._chat.startChat();
         this.subscription(
             'chat.messages',
-            this._chat.messages.subscribe((list) => {
+            this.messages.subscribe((list) => {
                 this._scrollToBottom();
                 const msg_list = list.filter(
                     (_) => _.user_id !== this.user?.id,

@@ -1951,14 +1951,26 @@ export class SignageService {
         ).catch(() => null);
         let media_id: string;
         if (upload_options) {
-            const details = await lastValueFrom(
-                this._uploads
-                    .uploadFileWithProgress(
-                        upload_file,
-                        false,
-                        upload_options.permissions,
-                    )
-                    .pipe(tap((d) => upload_options.on_progress?.(d.progress))),
+            const upload = this._uploads.uploadFileWithProgress(
+                upload_file,
+                false,
+                upload_options.permissions,
+            );
+            const details = await new Promise<ReturnType<typeof upload>>(
+                (resolve, reject) => {
+                    const interval = setInterval(() => {
+                        const state = upload();
+                        upload_options.on_progress?.(state.progress);
+                        if (state.error) {
+                            clearInterval(interval);
+                            reject(state.error);
+                            return;
+                        }
+                        if (state.progress < 100) return;
+                        clearInterval(interval);
+                        resolve(state);
+                    }, 100);
+                },
             );
             media_id = details.upload_id || details.upload?.id || details.id;
             if (!media_id) {

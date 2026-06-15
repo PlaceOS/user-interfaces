@@ -17,7 +17,7 @@ import {
     removeEvent,
 } from '@placeos/events';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest, from } from 'rxjs';
 import {
     debounceTime,
     filter,
@@ -60,13 +60,15 @@ export class EventStateService extends AsyncHandler {
         debounceTime(310),
         switchMap(([_, options]) => {
             this._loading.next(i18n('APP.CONCIERGE.EVENTS_LOADING'));
-            return queryEvents({
-                period_start: getUnixTime(startOfDay(options.date)),
-                period_end: getUnixTime(
-                    endOfDay(options.end || options.date || Date.now()),
-                ),
-                calendars: this.calendar,
-            }).pipe(
+            return from(
+                queryEvents({
+                    period_start: getUnixTime(startOfDay(options.date)),
+                    period_end: getUnixTime(
+                        endOfDay(options.end || options.date || Date.now()),
+                    ),
+                    calendars: this.calendar,
+                }),
+            ).pipe(
                 map((list) => {
                     const zone_ids = this._options.getValue().zone_ids || [];
                     if (!zone_ids.length) return list;
@@ -132,17 +134,11 @@ export class EventStateService extends AsyncHandler {
             current_options?.period === next_options?.period &&
             current_options?.date === next_options?.date &&
             current_options?.end === next_options?.end &&
-            this._sameZoneIds(
-                current_options?.zone_ids,
-                next_options?.zone_ids,
-            )
+            this._sameZoneIds(current_options?.zone_ids, next_options?.zone_ids)
         );
     }
 
-    private _sameZoneIds(
-        zone_ids_a: string[] = [],
-        zone_ids_b: string[] = [],
-    ) {
+    private _sameZoneIds(zone_ids_a: string[] = [], zone_ids_b: string[] = []) {
         if (zone_ids_a === zone_ids_b) return true;
         if (zone_ids_a.length !== zone_ids_b.length) return false;
         return zone_ids_a.every(
@@ -186,15 +182,13 @@ export class EventStateService extends AsyncHandler {
         result.loading(i18n('APP.CONCIERGE.EVENTS_REMOVE_LOADING'));
         await removeEvent(event.id, {
             calendar: this.calendar,
-        })
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    i18n('APP.CONCIERGE.EVENTS_REMOVE_ERROR', { error: e }),
-                );
-                result.close();
-                throw e;
-            });
+        }).catch((e) => {
+            notifyError(
+                i18n('APP.CONCIERGE.EVENTS_REMOVE_ERROR', { error: e }),
+            );
+            result.close();
+            throw e;
+        });
         result.close();
         notifySuccess(i18n('APP.CONCIERGE.EVENTS_REMOVE_SUCCESS'));
         this._changed.next(Date.now());

@@ -10,11 +10,9 @@ import {
     untracked,
     WritableSignal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { showMetadata } from '@placeos/ts-client';
 import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { firstValueFrom, lastValueFrom } from 'rxjs';
 
 import {
     alignDateToBookableHours,
@@ -67,12 +65,8 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
     private _dialog = inject(MatDialog);
     private _injector = inject(Injector);
 
-    private _org_initialised = toSignal(this._org.initialised, {
-        initialValue: false,
-    });
-    private _building = toSignal(this._org.active_building, {
-        initialValue: null,
-    });
+    private _org_initialised = this._org.initialised_signal;
+    private _building = this._org.building_signal;
 
     private _in_use = signal<string[]>([]);
     private _options = signal<DeskOptions>({});
@@ -132,14 +126,12 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 : undefined;
         },
         loader: ({ params: { date, zone } }) =>
-            firstValueFrom(
-                queryBookings({
-                    type: 'desk',
-                    period_start: getUnixTime(startOfDay(date || Date.now())),
-                    period_end: getUnixTime(endOfDay(date || Date.now())),
-                    zones: zone,
-                }),
-            ).catch(() => [] as Booking[]),
+            queryBookings({
+                type: 'desk',
+                period_start: getUnixTime(startOfDay(date || Date.now())),
+                period_end: getUnixTime(endOfDay(date || Date.now())),
+                zones: zone,
+            }).catch(() => [] as Booking[]),
     });
 
     constructor() {
@@ -492,7 +484,9 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                     bookable_hours,
                 },
             });
-            const details = await lastValueFrom(ref.afterClosed());
+            const details = await new Promise<any>((resolve) =>
+                ref.afterClosed().subscribe(resolve),
+            );
             if (!details) throw 'User cancelled';
             date = details.date;
             duration = details.duration;

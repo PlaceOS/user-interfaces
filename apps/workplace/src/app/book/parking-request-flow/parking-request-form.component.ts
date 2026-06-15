@@ -15,7 +15,6 @@ import {
     AsyncHandler,
     currentUser,
     getInvalidFields,
-    nextValueFrom,
     notifyError,
     OrganisationService,
     randomString,
@@ -193,7 +192,7 @@ export class ParkingRequestFormComponent
             defaults.duration = 540;
         }
         this.form.patchValue(defaults);
-        const parking_user = await nextValueFrom(this._parking.user_details);
+        const parking_user = this._parking.user_details();
         if (parking_user?.email) {
             if (!this.form.value.plate_number) {
                 this.form.patchValue({

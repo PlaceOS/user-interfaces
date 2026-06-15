@@ -15,7 +15,7 @@ import { ParkingRequestSuccessComponent } from './parking-request-flow/parking-r
 @Component({
     selector: 'placeos-parking-request-flow',
     template: `
-        @if (is_home_location | async) {
+        @if (is_home_location()) {
             <div
                 class="bg-base-100 z-50 flex h-full w-full flex-col items-center justify-center space-y-4"
             >

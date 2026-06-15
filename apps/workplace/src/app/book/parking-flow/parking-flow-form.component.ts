@@ -18,7 +18,6 @@ import {
     AsyncHandler,
     currentUser,
     getInvalidFields,
-    nextValueFrom,
     notifyError,
     SettingsService,
 } from '@placeos/common';
@@ -175,7 +174,7 @@ export class ParkingFlowFormComponent extends AsyncHandler implements OnInit {
     public async ngOnInit() {
         this._state.setOptions({ type: 'parking' });
         this.form.patchValue({ user: currentUser() });
-        const user = await nextValueFrom(this._parking.user_details);
+        const user = this._parking.user_details();
         if (user?.email && !this.form.value.plate_number) {
             this.form.patchValue({
                 plate_number:

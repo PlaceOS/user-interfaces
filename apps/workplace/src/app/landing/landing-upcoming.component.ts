@@ -151,13 +151,11 @@ export class LandingUpcomingComponent
         if (event.creator !== event.mailbox) {
             event =
                 (
-                    await lastValueFrom(
-                        queryEvents({
-                            period_start: event.event_start,
-                            period_end: event.event_end,
-                            ical_uid: event.ical_uid,
-                        }),
-                    )
+                    await queryEvents({
+                        period_start: event.event_start,
+                        period_end: event.event_end,
+                        ical_uid: event.ical_uid,
+                    })
                 ).find((_) => _.ical_uid === event.ical_uid) || event;
         }
         setTimeout(() => this._event_form.newForm(event), 300);
@@ -200,22 +198,22 @@ export class LandingUpcomingComponent
 
         if (resp.reason !== 'done') return;
         resp.loading(i18n('APP.WORKPLACE.SCHEDULE_REMOVE_LOADING'));
-        await lastValueFrom(
-            (item instanceof CalendarEvent ? removeEvent : removeBooking)(
-                item.id,
-                {
-                    calendar: this._settings.get('app.events.use_bookings')
-                        ? null
-                        : currentUser()?.email,
-                    system_id: (item as any).system?.id,
-                    instance: remove_series
-                        ? undefined
-                        : !!(item as any).instance,
-                    start_time: (item as any).instance
-                        ? (item as any).booking_start
-                        : undefined,
-                } as any,
-            ),
+        const remove_result = (
+            item instanceof CalendarEvent ? removeEvent : removeBooking
+        )(item.id, {
+            calendar: this._settings.get('app.events.use_bookings')
+                ? null
+                : currentUser()?.email,
+            system_id: (item as any).system?.id,
+            instance: remove_series ? undefined : !!(item as any).instance,
+            start_time: (item as any).instance
+                ? (item as any).booking_start
+                : undefined,
+        } as any) as any;
+        await (
+            remove_result?.then instanceof Function
+                ? remove_result
+                : lastValueFrom(remove_result)
         ).catch((e) => {
             notifyError(
                 i18n('APP.WORKPLACE.SCHEDULE_REMOVE_ERROR', { error: e }),
@@ -245,15 +243,11 @@ export class LandingUpcomingComponent
 
         if (resp.reason !== 'done') return;
         resp.loading(i18n('APP.WORKPLACE.SCHEDULE_END_LOADING'));
-        await checkinBooking(item.id, false)
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    i18n('APP.WORKPLACE.SCHEDULE_END_ERROR', { error: e }),
-                );
-                resp.close();
-                throw e;
-            });
+        await checkinBooking(item.id, false).catch((e) => {
+            notifyError(i18n('APP.WORKPLACE.SCHEDULE_END_ERROR', { error: e }));
+            resp.close();
+            throw e;
+        });
         notifySuccess(i18n('APP.WORKPLACE.SCHEDULE_END_SUCCESS'));
         this._state.refreshUpcomingEvents();
         this._dialog.closeAll();

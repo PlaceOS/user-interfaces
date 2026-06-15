@@ -308,7 +308,7 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
      * @param id Booking ID to approve
      */
     private async approve(id: string) {
-        const booking = await showBooking(id).toPromise();
+        const booking = await showBooking(id);
         if (booking) {
             this._desks.approveDesk(booking);
         }
@@ -319,7 +319,7 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
      * @param id Booking ID to reject
      */
     private async reject(id: string) {
-        const booking = await showBooking(id).toPromise();
+        const booking = await showBooking(id);
         if (booking) {
             this._desks.rejectDesk(booking);
         }

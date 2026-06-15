@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -11,11 +10,7 @@ import { CateringItem, OrganisationService, unique } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { of } from 'rxjs';
-import {
-    CateringOrderFilters,
-    CateringOrdersService,
-} from './catering-orders.service';
+import { CateringOrdersService } from './catering-orders.service';
 import { CateringStateService } from './catering-state.service';
 
 @Component({
@@ -214,23 +209,11 @@ export class CateringMenuComponent {
     private _orders = inject(CateringOrdersService);
     private _org = inject(OrganisationService);
 
-    public readonly currency_code = toSignal(
-        this._catering.currency || of(this._org.currency_code),
-        {
-            initialValue: this._org.currency_code,
-        },
-    );
+    public readonly currency_code = this._catering.currency;
 
     public readonly show_children = signal<Record<string, boolean>>({});
-    public readonly filters = toSignal(
-        this._orders.order_filters || of({} as CateringOrderFilters),
-        {
-            initialValue: this._orders.filters || ({} as CateringOrderFilters),
-        },
-    );
-    private readonly _menu = toSignal(this._catering.menu, {
-        initialValue: [],
-    });
+    public readonly filters = this._orders.order_filters;
+    private readonly _menu = this._catering.menu;
     /** Signal for the currently active menu */
     public readonly menu = computed(() => {
         const filters = this.filters();

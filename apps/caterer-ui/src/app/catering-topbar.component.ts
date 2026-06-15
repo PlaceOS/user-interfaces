@@ -15,7 +15,7 @@ import {
     CateringStateService,
     ChargeCodeListModalComponent,
 } from '@placeos/catering';
-import { AsyncHandler, nextValueFrom, settingSignal } from '@placeos/common';
+import { AsyncHandler, settingSignal } from '@placeos/common';
 
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -232,12 +232,8 @@ export class CateringTopbarComponent extends AsyncHandler {
                 ? this._param_map().get('view')
                 : '') || '',
     );
-    public readonly filters = toSignal(this._orders.order_filters, {
-        initialValue: this._orders.filters,
-    });
-    public readonly caterers = toSignal(this._catering.caterers, {
-        initialValue: [],
-    });
+    public readonly filters = this._orders.order_filters;
+    public readonly caterers = this._catering.caterers;
     public readonly building = toSignal(this._org.active_building, {
         initialValue: this._org.building,
     });
@@ -305,9 +301,7 @@ export class CateringTopbarComponent extends AsyncHandler {
         const ref = this._dialog.open(AvailableRoomsStateModalComponent, {
             data: {
                 type: 'Catering',
-                disabled_rooms: await nextValueFrom(
-                    this._catering.availability,
-                ),
+                disabled_rooms: this._catering.availability(),
             },
         });
         this.subscription(

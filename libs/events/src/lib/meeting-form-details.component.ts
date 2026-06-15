@@ -35,7 +35,6 @@ import {
     format,
     startOfDay,
 } from 'date-fns';
-import { lastValueFrom } from 'rxjs';
 
 import { queryCalendarPermission } from './calendar.fn';
 import { EventFormService } from './event-form.service';
@@ -413,9 +412,7 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
         const checked_email = user.email;
         this.checking_permission.set(true);
         try {
-            const permission = await lastValueFrom(
-                queryCalendarPermission(checked_email),
-            );
+            const permission = await queryCalendarPermission(checked_email);
             if (this.form()?.value?.organiser?.email !== checked_email) return;
             const can_book =
                 (permission.has_access &&

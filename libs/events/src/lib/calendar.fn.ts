@@ -1,7 +1,5 @@
 import { Calendar, Space, toQueryString } from '@placeos/common';
 import { get } from '@placeos/ts-client';
-import { from, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 import { OrganisationService } from '@placeos/common';
 import {
@@ -12,73 +10,72 @@ import {
 const CALENDAR_ENDPOINT = '/api/staff/v1/calendars';
 
 /** List calendars associated with the logged in user */
-export function queryCalendars(): Observable<Calendar[]> {
-    return from(get(CALENDAR_ENDPOINT)).pipe(
-        map((i) => i.map((c) => new Calendar(c))),
-    );
+export async function queryCalendars(): Promise<Calendar[]> {
+    const list = await get(CALENDAR_ENDPOINT);
+    return list.map((c) => new Calendar(c));
 }
 
 /** List room calendars for available spaces based on the given query */
-export function queryCalendarAvailability(
+export async function queryCalendarAvailability(
     q: CalendarAvailabilityQueryParams,
-): Observable<Calendar[]> {
+): Promise<Calendar[]> {
     const query = toQueryString(q);
-    return from(
-        get(`${CALENDAR_ENDPOINT}/availability${query ? '?' + query : ''}`),
-    ).pipe(map((i) => i.map((c) => new Calendar(c))));
+    const list = await get(
+        `${CALENDAR_ENDPOINT}/availability${query ? '?' + query : ''}`,
+    );
+    return list.map((c) => new Calendar(c));
 }
 
-const calendarsToSpaces = (org?) =>
-    map((list: Calendar[]) =>
-        list
-            .filter((cal) => !!cal.resource)
-            .map(
-                (cal) =>
-                    new Space({
-                        ...cal.resource,
-                        level: org?.levelWithID(cal.resource.zones),
-                        availability: cal.availability,
-                    }),
-            )
-            .filter((space) => space.bookable),
-    );
+const calendarsToSpaces = (list: Calendar[], org?: OrganisationService) =>
+    list
+        .filter((cal) => !!cal.resource)
+        .map(
+            (cal) =>
+                new Space({
+                    ...cal.resource,
+                    level: org?.levelWithID(cal.resource.zones),
+                    availability: cal.availability,
+                }),
+        )
+        .filter((space) => space.bookable);
 
 /** List available spaces based on the given query */
-export function querySpaceCalendarAvailability(
+export async function querySpaceCalendarAvailability(
     q: CalendarAvailabilityQueryParams,
     org?: OrganisationService,
-): Observable<Space[]> {
-    return queryCalendarAvailability(q).pipe(calendarsToSpaces(org));
+): Promise<Space[]> {
+    return calendarsToSpaces(await queryCalendarAvailability(q), org);
 }
 
-export function queryUserFreeBusy(q: CalendarAvailabilityQueryParams) {
+export async function queryUserFreeBusy(
+    q: CalendarAvailabilityQueryParams,
+): Promise<Calendar[]> {
     const query = toQueryString(q);
-    return from(
-        get(`${CALENDAR_ENDPOINT}/free_busy${query ? '?' + query : ''}`),
-    ).pipe(map((i) => i as Calendar[]));
+    return (await get(
+        `${CALENDAR_ENDPOINT}/free_busy${query ? '?' + query : ''}`,
+    )) as Calendar[];
 }
 
 /** List room calendars for available spaces based on the given query */
-export function querySpaceFreeBusy(
+export async function querySpaceFreeBusy(
     q: CalendarAvailabilityQueryParams,
     org?: OrganisationService,
-): Observable<Space[]> {
+): Promise<Space[]> {
     const query = toQueryString(q);
-    return from(
-        get(`${CALENDAR_ENDPOINT}/free_busy${query ? '?' + query : ''}`),
-    ).pipe(
-        map((i) => i.map((c) => new Calendar(c))),
-        calendarsToSpaces(org),
+    const list = await get(
+        `${CALENDAR_ENDPOINT}/free_busy${query ? '?' + query : ''}`,
+    );
+    return calendarsToSpaces(
+        list.map((c) => new Calendar(c)),
+        org,
     );
 }
 
 /** Check the current user's permission on a target user's calendar */
-export function queryCalendarPermission(
+export async function queryCalendarPermission(
     user_email: string,
-): Observable<CalendarPermission> {
-    return from(
-        get(
-            `${CALENDAR_ENDPOINT}/${encodeURIComponent(user_email)}/permission`,
-        ),
-    ).pipe(map((i) => i as CalendarPermission));
+): Promise<CalendarPermission> {
+    return (await get(
+        `${CALENDAR_ENDPOINT}/${encodeURIComponent(user_email)}/permission`,
+    )) as CalendarPermission;
 }

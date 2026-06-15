@@ -21,7 +21,6 @@ import {
 } from '@placeos/catering';
 import {
     AsyncHandler,
-    nextValueFrom,
     notifySuccess,
     OrganisationService,
     SettingsService,
@@ -282,22 +281,8 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
                 this.page.set(params?.get('view') || '');
             }),
         );
-        if (this._orders.order_filters?.subscribe) {
-            this.subscription(
-                'filters',
-                this._orders.order_filters.subscribe((filters) => {
-                    this.filters.set(filters || {});
-                }),
-            );
-        }
-        if (this._catering.caterers?.subscribe) {
-            this.subscription(
-                'caterers',
-                this._catering.caterers.subscribe((caterers) => {
-                    this.caterers.set(caterers || []);
-                }),
-            );
-        }
+        this.filters.set(this._orders.order_filters() || {});
+        this.caterers.set(this._catering.caterers() || []);
         if (
             this._org.active_building?.subscribe &&
             this._org.active_region?.subscribe
@@ -328,9 +313,7 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
         const ref = this._dialog.open(AvailableRoomsStateModalComponent, {
             data: {
                 type: 'Catering',
-                disabled_rooms: await nextValueFrom(
-                    this._catering.availability,
-                ),
+                disabled_rooms: this._catering.availability(),
             },
         });
         this.subscription(

@@ -1,4 +1,5 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, Injector, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import {
@@ -26,14 +27,7 @@ import {
     User,
 } from '@placeos/common';
 import { showMetadata } from '@placeos/ts-client';
-import {
-    BehaviorSubject,
-    combineLatest,
-    forkJoin,
-    lastValueFrom,
-    Observable,
-    of,
-} from 'rxjs';
+import { combineLatest, forkJoin, from, Observable, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -109,6 +103,7 @@ export class EventFormService extends AsyncHandler {
     private _router = inject(Router);
     private _assets = inject(AssetStateService);
     private _dialog = inject(MatDialog);
+    private _injector = inject(Injector);
     private _user_pipe = new UserPipe();
 
     private get timezone() {
@@ -117,29 +112,27 @@ export class EventFormService extends AsyncHandler {
             : '';
     }
 
-    private _view = new BehaviorSubject<EventFlowView>('form');
-    private _options = new BehaviorSubject<EventFormOptions>({
+    private _view = signal<EventFlowView>('form');
+    private _options = signal<EventFormOptions>({
         date: Date.now(),
         zones: [],
     });
-    private _filters = new BehaviorSubject<EventFormFilters>({
+    private _filters = signal<EventFormFilters>({
         capacity: -1,
         features: [],
     });
-    private _loading = new BehaviorSubject('');
-    private _changed = new BehaviorSubject(0);
-    private _event = new BehaviorSubject(new CalendarEvent());
+    private _loading = signal('');
+    private _changed = signal(0);
+    private _event = signal(new CalendarEvent());
     private _form = generateEventForm(undefined, this._settings);
     private _space_pipe = new SpacePipe();
 
     private removeLoadingTag = (t) =>
-        this._loading.next(
-            this._loading.getValue().replace(`[${t}]`, '').trim(),
-        );
+        this._loading.set(this._loading().replace(`[${t}]`, '').trim());
     private addLoadingTag = (t) =>
         t
-            ? this._loading.next(
-                  `${this._loading.getValue().replace(`[${t}]`, '')}[${t}]`.trim(),
+            ? this._loading.set(
+                  `${this._loading().replace(`[${t}]`, '')}[${t}]`.trim(),
               )
             : '';
     private _overflow = (id = '') =>
@@ -154,9 +147,9 @@ export class EventFormService extends AsyncHandler {
         (this._settings.get('app.events.room_as_host') ? space : '') ||
         host;
 
-    public readonly options$ = this._options.asObservable();
-    public readonly filters$ = this._filters.asObservable();
-    public readonly loading$ = this._loading.asObservable();
+    public readonly options$ = toObservable(this._options);
+    public readonly filters$ = toObservable(this._filters);
+    public readonly loading$ = toObservable(this._loading);
     // List of all the booking rules for the available buildings
     public readonly booking_rules$: Observable<
         Record<string, BookingRuleset[]>
@@ -212,7 +205,7 @@ export class EventFormService extends AsyncHandler {
     public readonly features = this.spaces$.pipe(
         map((l) => unique(flatten(l.map((_) => _.features)))),
     );
-    public readonly room_alerts = this._changed.pipe(
+    public readonly room_alerts = toObservable(this._changed).pipe(
         switchMap(() => showMetadata(this._org.organisation.id, 'room_alerts')),
         map((r) => r.details as Record<string, [string, string]>),
         startWith({}),
@@ -220,8 +213,8 @@ export class EventFormService extends AsyncHandler {
     );
     public readonly filtered_spaces = combineLatest([
         this.spaces$,
-        this._options,
-        this._filters,
+        toObservable(this._options),
+        toObservable(this._filters),
         this._org.initialised.pipe(filter((_) => _)),
     ]).pipe(
         map(([list, { zones }, filters]) => {
@@ -258,8 +251,8 @@ export class EventFormService extends AsyncHandler {
     public readonly available_spaces = combineLatest([
         this.filtered_spaces,
         this.booking_rules$,
-        this._event,
-        this._options,
+        toObservable(this._event),
+        toObservable(this._options),
     ]).pipe(
         debounceTime(300),
         switchMap(([spaces, rules, event, { date, duration, all_day }]) => {
@@ -281,13 +274,27 @@ export class EventFormService extends AsyncHandler {
                 rules[this._org.building?.id] || [],
             ) as Space[];
 
-            return method(
-                spaces.map(({ id }) => id),
-                period.date || 60,
-                period.duration || 60,
-                event?.resources[0]?.id || event?.system?.id || event?.id,
-                undefined,
-                [event?.date, event?.duration],
+            return from(
+                this.book_internal
+                    ? queryResourceAvailability(
+                          spaces.map(({ id }) => id),
+                          period.date || 60,
+                          period.duration || 60,
+                          event?.resources[0]?.id ||
+                              event?.system?.id ||
+                              event?.id,
+                          undefined,
+                      )
+                    : querySpaceAvailability(
+                          spaces.map(({ id }) => id),
+                          period.date || 60,
+                          period.duration || 60,
+                          event?.resources[0]?.id ||
+                              event?.system?.id ||
+                              event?.id,
+                          undefined,
+                          [event?.date, event?.duration],
+                      ),
             ).pipe(
                 map((availability) => {
                     let list = spaces.filter((_, i) => availability[i]);
@@ -311,7 +318,7 @@ export class EventFormService extends AsyncHandler {
         shareReplay(1),
     );
 
-    public readonly view$ = this._view.asObservable();
+    public readonly view$ = toObservable(this._view);
     public readonly last_success = signal<CalendarEvent | null>(null);
 
     public loadLastSuccess() {
@@ -329,22 +336,22 @@ export class EventFormService extends AsyncHandler {
     }
 
     public get view() {
-        return this._view.getValue();
+        return this._view();
     }
 
     public get options() {
-        return this._options.getValue();
+        return this._options();
     }
 
     public get filters() {
-        return this._filters.getValue();
+        return this._filters();
     }
     public get event() {
-        return this._event.getValue();
+        return this._event();
     }
 
     public get is_multiday() {
-        return this._event.getValue()?.duration > 24 * 60;
+        return this._event()?.duration > 24 * 60;
     }
 
     public get favorite_spaces() {
@@ -407,7 +414,7 @@ export class EventFormService extends AsyncHandler {
         });
         this.subscription(
             'settings_change',
-            this._settings.overrides$
+            toObservable(this._settings.overrides, { injector: this._injector })
                 .pipe(filter((_) => !!_?.length))
                 .subscribe(() => this._applyDurationSettings()),
         );
@@ -449,19 +456,19 @@ export class EventFormService extends AsyncHandler {
     }
 
     public setView(value: EventFlowView) {
-        this.timeout('set_view', () => this._view.next(value), 50);
+        this.timeout('set_view', () => this._view.set(value), 50);
     }
 
     public setFilters(filters: Partial<EventFormFilters>) {
-        this._filters.next({ ...this._filters.getValue(), ...filters });
+        this._filters.set({ ...this._filters(), ...filters });
     }
 
     public setOptions(options: Partial<EventFormOptions>) {
-        this._options.next({ ...this._options.getValue(), ...options });
+        this._options.set({ ...this._options(), ...options });
     }
 
     public newForm(event = new CalendarEvent()) {
-        this._loading.next('');
+        this._loading.set('');
         const lock_start_time =
             !!event.id &&
             (event.state === 'started' || event.state === 'in_progress');
@@ -485,11 +492,11 @@ export class EventFormService extends AsyncHandler {
             'PLACEOS.event',
             JSON.stringify(event?.toJSON() || {}),
         );
-        this._event.next(event);
+        this._event.set(event);
     }
 
     public resetForm() {
-        this._form.reset(this._event.getValue() || {});
+        this._form.reset(this._event() || {});
     }
 
     public storeForm() {
@@ -506,7 +513,7 @@ export class EventFormService extends AsyncHandler {
             sessionStorage.getItem('PLACEOS.event') || '{}',
         );
         const event = new CalendarEvent(event_data);
-        this._event.next(event);
+        this._event.set(event);
         const form_data = JSON.parse(
             sessionStorage.getItem('PLACEOS.event_form') || '{}',
         );
@@ -550,7 +557,7 @@ export class EventFormService extends AsyncHandler {
         };
         this.addLoadingTag(Tags.PostBooking);
         try {
-            const event = this._event.getValue();
+            const event = this._event();
             const space_list = this.form.value.resources || [];
             let spaces = space_list.filter(
                 (_) => !ignore_space_check.includes(_.id),
@@ -887,23 +894,21 @@ export class EventFormService extends AsyncHandler {
         ignore?: string,
     ) {
         if (!spaces?.length) return true;
-        const event = this._event.getValue();
+        const event = this._event();
         const id_list = spaces.map((_) => _.id);
-        const response = await lastValueFrom(
-            this.book_internal
-                ? queryResourceAvailability(id_list, date, duration, ignore)
-                : querySpaceAvailability(
-                      id_list,
-                      date,
-                      duration,
-                      event?.resources[0]?.id ||
-                          event?.system?.id ||
-                          event?.id ||
-                          undefined,
+        const response = await (this.book_internal
+            ? queryResourceAvailability(id_list, date, duration, ignore)
+            : querySpaceAvailability(
+                  id_list,
+                  date,
+                  duration,
+                  event?.resources[0]?.id ||
+                      event?.system?.id ||
+                      event?.id ||
                       undefined,
-                      [event?.date, event?.duration],
-                  ),
-        );
+                  undefined,
+                  [event?.date, event?.duration],
+              ));
         if (!response.every((_) => _)) {
             throw i18n(
                 spaces.length > 1
@@ -974,9 +979,9 @@ export class EventFormService extends AsyncHandler {
             return true;
         }
 
-        const clashes = (await lastValueFrom(
-            findEventClashes(event, { include_clash_time: true }),
-        )) as BookingClash[];
+        const clashes = (await findEventClashes(event, {
+            include_clash_time: true,
+        })) as BookingClash[];
 
         if (!clashes?.length) {
             return true;
@@ -1035,20 +1040,18 @@ export class EventFormService extends AsyncHandler {
                 (_) => _.email !== old_system || _.id !== old_system,
             );
         }
-        return lastValueFrom(
-            this.book_internal
-                ? saveBooking(
-                      newBookingFromCalendarEvent({
-                          ...event.toJSON(),
-                          status:
-                              this._settings.get('app.bookings.no_approval') ===
-                              true
-                                  ? 'approved'
-                                  : 'tentative',
-                      } as any),
-                  ).pipe(map((_) => newCalendarEventFromBooking(_)))
-                : saveEvent(event, query),
-        );
+        return this.book_internal
+            ? saveBooking(
+                  newBookingFromCalendarEvent({
+                      ...event.toJSON(),
+                      status:
+                          this._settings.get('app.bookings.no_approval') ===
+                          true
+                              ? 'approved'
+                              : 'tentative',
+                  } as any),
+              ).then((_) => newCalendarEventFromBooking(_))
+            : saveEvent(event, query);
     }
 
     private async _removeBookingAfterError(
@@ -1058,17 +1061,15 @@ export class EventFormService extends AsyncHandler {
         e,
     ) {
         if (is_new) {
-            await lastValueFrom(
-                removeEvent(
-                    event.id,
-                    event.resources.length
-                        ? {
-                              calendar:
-                                  this.form.value.host || currentUser()?.email,
-                              system_id: event.resources[0].id,
-                          }
-                        : {},
-                ),
+            await removeEvent(
+                event.id,
+                event.resources.length
+                    ? {
+                          calendar:
+                              this.form.value.host || currentUser()?.email,
+                          system_id: event.resources[0].id,
+                      }
+                    : {},
             );
             throw e?.status === 409
                 ? i18n('CALENDAR_EVENT.ASSETS_CLASH_ERROR')

@@ -1,7 +1,8 @@
+import { signal } from '@angular/core';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { SpacesService } from '@placeos/events';
-import { BehaviorSubject, of } from 'rxjs';
+import { of } from 'rxjs';
 
 import { ExploreStateService } from '../lib/explore-state.service';
 
@@ -11,13 +12,13 @@ import { MockProvider } from 'ng-mocks';
 
 describe('ExploreStateService', () => {
     let spectator: SpectatorService<ExploreStateService>;
-    const settings_overrides = new BehaviorSubject([]);
+    const settings_overrides = signal([]);
     const createService = createServiceFactory({
         service: ExploreStateService,
         providers: [
             MockProvider(OrganisationService, {
-                initialised: of(true),
-                active_building: of({ id: 'bld-1' }),
+                initialised_signal: signal(true),
+                building_signal: signal({ id: 'bld-1' }),
                 levelsForBuilding: jest.fn(() => [
                     { id: 'lvl-1' },
                     { id: 'lvl-2' },
@@ -27,7 +28,7 @@ describe('ExploreStateService', () => {
                         l.includes(lvl.id),
                     ),
                 ),
-                active_levels: new BehaviorSubject([
+                active_levels_signal: signal([
                     { id: 'lvl-1' },
                     { id: 'lvl-2' },
                 ]),
@@ -40,13 +41,13 @@ describe('ExploreStateService', () => {
             } as any),
             MockProvider(SettingsService, {
                 get: jest.fn(),
-                overrides$: settings_overrides,
+                overrides: settings_overrides,
             }),
         ],
     });
 
     beforeEach(() => {
-        settings_overrides.next([]);
+        settings_overrides.set([]);
         spectator = createService();
     });
 
@@ -207,7 +208,7 @@ describe('ExploreStateService', () => {
         });
 
         disable_styles = 'parking';
-        settings_overrides.next([{ explore: { disable_styles } }]);
+        settings_overrides.set([{ explore: { disable_styles } }]);
 
         styles = spectator.service.map_styles();
         expect(styles).toEqual({

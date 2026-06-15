@@ -7,7 +7,6 @@ import {
     resource,
     untracked,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { ViewAction, ViewerFeature } from '@placeos/common';
 import { getModule, showMetadata } from '@placeos/ts-client';
@@ -52,9 +51,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
     private _dialog = inject(MatDialog);
     private _org = inject(OrganisationService);
 
-    private _building = toSignal(this._org.active_building, {
-        initialValue: null,
-    });
+    private _building = this._org.building_signal;
 
     private _bookings: Record<string, CalendarEvent[]> = {};
     private _statuses: Record<string, string> = {};

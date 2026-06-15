@@ -97,7 +97,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
             this._settings.get('app.internal_user_domain') ||
                 `@${currentUser()?.email?.split('@')[1]}`,
         );
-        this._settings.overrides = [authority.config?.enrolment || {}];
+        this._settings.setOverrides([authority.config?.enrolment || {}]);
         this.timeout('init_uploads', () => {
             initialiseUploadService({
                 auto_start: true,

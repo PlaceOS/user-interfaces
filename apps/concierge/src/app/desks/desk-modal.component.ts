@@ -42,7 +42,6 @@ import {
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import { showStaff } from '@placeos/users';
-import { lastValueFrom } from 'rxjs';
 import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
 
 const CHARS = '0123456789ABCDEF';
@@ -304,7 +303,7 @@ export class DeskModalComponent implements OnInit {
 
     public async ngOnInit() {
         if (this.desk?.assigned_to) {
-            const user = await lastValueFrom(showStaff(this.desk.assigned_to));
+            const user = await showStaff(this.desk.assigned_to);
             if (user) {
                 this.form.patchValue({
                     assigned_user: user,

@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { MockProvider } from 'ng-mocks';
@@ -45,6 +46,7 @@ describe('CateringStateService', () => {
         providers: [
             MockProvider(OrganisationService, {
                 building: new Building({ id: 'bld-1' }),
+                building_signal: signal(new Building({ id: 'bld-1' })),
                 active_building: new BehaviorSubject(new Building()),
                 initialised: of(true),
             }),
@@ -57,11 +59,11 @@ describe('CateringStateService', () => {
         jest.clearAllMocks();
         jest.mocked(ts_client.showMetadata).mockResolvedValue({} as any);
         jest.mocked(ts_client.updateMetadata).mockResolvedValue({} as any);
-        (assets_mod.queryCateringItems as jest.Mock).mockReturnValue(of([]));
+        (assets_mod.queryCateringItems as jest.Mock).mockResolvedValue([]);
         (assets_mod.saveCateringItem as jest.Mock).mockImplementation((item) =>
-            of(item),
+            Promise.resolve(item),
         );
-        (assets_mod.deleteCateringItem as jest.Mock).mockReturnValue(of({}));
+        (assets_mod.deleteCateringItem as jest.Mock).mockResolvedValue({});
         spectator = createService();
     });
 

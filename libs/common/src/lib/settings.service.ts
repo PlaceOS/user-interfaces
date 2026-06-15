@@ -8,20 +8,14 @@ import {
 import { Title } from '@angular/platform-browser';
 import { showMetadata, updateMetadata, updateUser } from '@placeos/ts-client';
 import { format, isSameDay } from 'date-fns';
-import { BehaviorSubject, Observable, filter } from 'rxjs';
 
 import { AsyncHandler } from './async-handler.class';
-import {
-    firstTruthyValueFrom,
-    getItemWithKeys,
-    log,
-    setAppName,
-} from './general';
+import { getItemWithKeys, log, setAppName } from './general';
 import { DEFAULT_SETTINGS } from './settings';
 import { HashMap } from './types';
 
 import { GoogleAnalyticsService } from './google-analytics.service';
-import { currentUser, current_user, reloadUserData } from './user-state';
+import { currentUser, reloadUserData } from './user-state';
 import { VERSION } from './version';
 
 declare global {
@@ -63,23 +57,21 @@ export class SettingsService extends AsyncHandler {
     /** Name of the application */
     private _app_name = 'PlaceOS';
     /** List of override settings in order of priority */
-    private _overrides = new BehaviorSubject<HashMap[]>([]);
-    /** Observable that emits when overrides change (e.g. after a building switch) */
-    public readonly overrides$ = this._overrides.asObservable();
+    private _overrides = signal<HashMap[]>([]);
+    /** Signal that emits when overrides change (e.g. after a building switch) */
+    public readonly overrides = this._overrides.asReadonly();
     /** User's personal settings */
-    private _user_settings = new BehaviorSubject<HashMap>({});
-    /** Mapping of behaviour subjects */
-    private _subjects: HashMap<BehaviorSubject<any>> = {};
-    /** Mapping of observables */
-    private _observables: HashMap<Observable<any>> = {};
+    private _user_settings = signal<HashMap>({});
+    /** Mapping of setting signals */
+    private _subjects: HashMap<WritableSignal<any>> = {};
     /** Mapping of pending settings */
     private _pending_settings: HashMap = {};
 
     /**
      * @hidden
      */
-    public set overrides(value: HashMap[]) {
-        this._overrides.next(value);
+    public setOverrides(value: HashMap[]) {
+        this._overrides.set(value);
         this._applyCssVariables();
         this._updateSignals();
         this._applyTheme();
@@ -103,28 +95,20 @@ export class SettingsService extends AsyncHandler {
         this.signal('use_24_hour_time', false)() ? 'HH:mm' : 'h:mm a',
     );
 
-    /** Get observable for key */
-    public listen<T = any>(name: string): Observable<T> {
-        if (!this._observables[name]) {
-            this._subjects[name] = new BehaviorSubject<T>(null);
-            this._observables[name] = this._subjects[name].asObservable();
-        }
-        return this._observables[name];
+    /** Get signal for key */
+    public listen<T = any>(name: string): WritableSignal<T> {
+        if (!this._subjects[name]) this._subjects[name] = signal<T>(null);
+        return this._subjects[name];
     }
 
     /** Update observable value for key */
     public post<T>(name: string, value: T): void {
-        if (!this._observables[name]) {
-            this._subjects[name] = new BehaviorSubject<T>(null);
-            this._observables[name] = this._subjects[name].asObservable();
-        }
-        this._subjects[name].next(value);
+        if (!this._subjects[name]) this._subjects[name] = signal<T>(null);
+        this._subjects[name].set(value);
     }
 
     public value<T = any>(name: string): T {
-        return !this._observables[name]
-            ? null
-            : this._subjects[name].getValue();
+        return !this._subjects[name] ? null : this._subjects[name]();
     }
 
     public signal<T = any>(
@@ -178,11 +162,9 @@ export class SettingsService extends AsyncHandler {
             window.app.settings = this;
             window.setting = (key) => this.get(key);
         }
-        const user = await firstTruthyValueFrom(
-            current_user.pipe(filter((_) => !!_.id)),
-        );
+        const user = await this._currentUser();
         const data = await showMetadata(user.id, 'settings');
-        this._user_settings.next(data.details || {});
+        this._user_settings.set(data.details || {});
         this.timeout(
             'init',
             () => {
@@ -214,11 +196,11 @@ export class SettingsService extends AsyncHandler {
         if (keys[0] !== 'app') {
             return (
                 getItemWithKeys(keys, this._pending_settings) ??
-                getItemWithKeys(keys, this._user_settings.getValue()) ??
+                getItemWithKeys(keys, this._user_settings()) ??
                 getItemWithKeys(keys, DEFAULT_SETTINGS)
             );
         }
-        const override_settings = [...this._overrides.getValue()];
+        const override_settings = [...this._overrides()];
         for (const override of override_settings) {
             const value = getItemWithKeys(keys.slice(1), override);
             if (value != null) {
@@ -283,12 +265,12 @@ export class SettingsService extends AsyncHandler {
             name: 'settings',
             description: '',
             details: {
-                ...this._user_settings.getValue(),
+                ...this._user_settings(),
                 ...this._pending_settings,
             },
         });
-        this._user_settings.next({
-            ...this._user_settings.getValue(),
+        this._user_settings.set({
+            ...this._user_settings(),
             ...this._pending_settings,
         });
         this._pending_settings = {};
@@ -337,5 +319,16 @@ export class SettingsService extends AsyncHandler {
         for (const key in _setting_signals) {
             _setting_signals[key].update((old) => this.get(key) ?? old);
         }
+    }
+
+    private _currentUser() {
+        return new Promise<ReturnType<typeof currentUser>>((resolve) => {
+            const check = () => {
+                const user = currentUser();
+                if (user?.id) return resolve(user);
+                this.timeout('current_user', check, 100);
+            };
+            check();
+        });
     }
 }

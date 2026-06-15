@@ -54,7 +54,6 @@ import {
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import { differenceInMinutes, format, startOfDay } from 'date-fns';
-import { lastValueFrom } from 'rxjs';
 import { startWith } from 'rxjs/operators';
 import { EventStateService } from './event-state.service';
 
@@ -615,20 +614,16 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
             'route.params',
             this._route.paramMap.subscribe(async (params) => {
                 if (params.has('id')) {
-                    let booking = await lastValueFrom(
-                        showEvent(params.get('id'), {
-                            calendar: this._state.calendar,
-                        }),
-                    );
+                    let booking = await showEvent(params.get('id'), {
+                        calendar: this._state.calendar,
+                    });
                     const space = await space_pipe.transform(
                         this._state.calendar,
                     );
-                    const metadata = await lastValueFrom(
-                        showEventMetadata(
-                            params.get('id'),
-                            space?.id || booking.system?.id,
-                            { ical_uid: booking.ical_uid },
-                        ),
+                    const metadata = await showEventMetadata(
+                        params.get('id'),
+                        space?.id || booking.system?.id,
+                        { ical_uid: booking.ical_uid },
                     ).catch(() => ({}));
                     booking = new CalendarEvent({
                         ...booking,

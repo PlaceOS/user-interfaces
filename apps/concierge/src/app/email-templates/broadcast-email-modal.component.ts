@@ -31,7 +31,7 @@ import { FullscreenModalShellComponent } from '@placeos/components';
 import { queryAllEvents } from '@placeos/events';
 import { UserListFieldComponent } from '@placeos/form-fields';
 import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { forkJoin, lastValueFrom, of } from 'rxjs';
+import { forkJoin, from, lastValueFrom, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
@@ -353,27 +353,31 @@ export class BroadcastEmailModalComponent {
         const zone_ids = this._activeZoneIds().join(',');
         const rooms =
             recipient_group === 'rooms' || recipient_group === 'all'
-                ? queryAllEvents({ ...query, zone_ids }).pipe(
+                ? from(queryAllEvents({ ...query, zone_ids })).pipe(
                       catchError(() => of([])),
                   )
                 : of([]);
         const desks =
             recipient_group === 'desks' || recipient_group === 'all'
-                ? queryAllBookings({
-                      ...query,
-                      zones: zone_ids,
-                      type: 'desk',
-                      include_checked_out: true,
-                  }).pipe(catchError(() => of([])))
+                ? from(
+                      queryAllBookings({
+                          ...query,
+                          zones: zone_ids,
+                          type: 'desk',
+                          include_checked_out: true,
+                      }),
+                  ).pipe(catchError(() => of([])))
                 : of([]);
         const parking =
             recipient_group === 'parking' || recipient_group === 'all'
-                ? queryAllBookings({
-                      ...query,
-                      zones: zone_ids,
-                      type: 'parking',
-                      include_checked_out: true,
-                  }).pipe(catchError(() => of([])))
+                ? from(
+                      queryAllBookings({
+                          ...query,
+                          zones: zone_ids,
+                          type: 'parking',
+                          include_checked_out: true,
+                      }),
+                  ).pipe(catchError(() => of([])))
                 : of([]);
         const result = await lastValueFrom(forkJoin({ rooms, desks, parking }));
         return this._validEmails([

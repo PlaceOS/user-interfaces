@@ -17,18 +17,11 @@ import {
 } from '@placeos/ts-client';
 import * as Sentry from '@sentry/angular';
 import { addHours } from 'date-fns';
-import { lastValueFrom } from 'rxjs';
-import { first } from 'rxjs/operators';
 
 import { hasNewVersion, setupCache } from './application';
 import { AsyncHandler } from './async-handler.class';
 import { requestScreenWakeLock } from './fixed-device-helpers';
-import {
-    firstTruthyValueFrom,
-    log,
-    nextValueFrom,
-    setAppName,
-} from './general';
+import { firstTruthyValueFrom, log, setAppName } from './general';
 import { GoogleAnalyticsService } from './google-analytics.service';
 import { HotkeysService } from './hotkeys.service';
 import { LocaleService, setTranslationService } from './locale.service';
@@ -57,7 +50,7 @@ import { OrganisationService } from './org/organisation.service';
 import { createNativeAuthUrl, setupPlace } from './placeos';
 import { SettingsService } from './settings.service';
 import { setInternalUserDomain } from './types/user.class';
-import { current_user, currentUser } from './user-state';
+import { currentUser } from './user-state';
 
 const START_QUERY = location.search;
 
@@ -397,12 +390,7 @@ export class PlaceOS_Service extends AsyncHandler {
         }
         // Only open the sign-in browser when there is no valid token AND no
         // refresh token — with a refresh token ts-client renews it silently.
-        if (
-            isNativeApp() &&
-            !token(false) &&
-            !refreshToken() &&
-            authority()
-        ) {
+        if (isNativeApp() && !token(false) && !refreshToken() && authority()) {
             const auth_error = consumeNativeAuthError();
             if (auth_error) {
                 // Wait for the user to confirm via the overlay so a failed or
@@ -423,7 +411,7 @@ export class PlaceOS_Service extends AsyncHandler {
             await setupPlace(settings).catch((_) => console.error(_));
         }
         if (this._initial_token) setToken(this._initial_token);
-        await lastValueFrom(this._org.initialised.pipe(first((_) => _)));
+        await this._waitFor(() => this._org.initialised_signal());
         if (this._locale) {
             this._locale.zone_id = this._org.organisation.id;
             this._locale.init();
@@ -432,7 +420,7 @@ export class PlaceOS_Service extends AsyncHandler {
         if (!settings.local_login) {
             this.timeout('wait_for_user', () => this.onInitError(), 30 * 1000);
         }
-        await lastValueFrom(current_user.pipe(first((_) => !!_)));
+        await this._waitFor(() => !!currentUser());
         this.clearTimeout('wait_for_user');
         clearNativePkceVerifier();
         this._initLocale();
@@ -554,9 +542,7 @@ export class PlaceOS_Service extends AsyncHandler {
         this.timeout(
             'set_building+region',
             async () => {
-                const building_list = await nextValueFrom(
-                    this._org.building_list,
-                );
+                const building_list = this._org.buildings_signal();
                 let bld = building_list.find((b) => b.id === this._zone);
                 // Determine the target region: explicit region_id, or derived from building's parent
                 const target_region_id = this._region || bld?.parent_id;
@@ -565,14 +551,22 @@ export class PlaceOS_Service extends AsyncHandler {
                 );
                 if (region) await this._org.setRegion(region);
                 if (!bld && this._zone) {
-                    const building_list = await nextValueFrom(
-                        this._org.building_list,
-                    );
+                    const building_list = this._org.buildings_signal();
                     bld = building_list.find((b) => b.id === this._zone);
                 }
                 if (bld) this._org.setBuilding(bld, true);
             },
             1000,
         );
+    }
+
+    private _waitFor(condition: () => boolean) {
+        return new Promise<void>((resolve) => {
+            const check = () => {
+                if (condition()) return resolve();
+                this.timeout(`wait-${Math.random()}`, check, 100);
+            };
+            check();
+        });
     }
 }

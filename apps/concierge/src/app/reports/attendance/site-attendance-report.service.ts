@@ -162,43 +162,53 @@ export class SiteAttendanceReportService {
         this._loading.next(true);
         forkJoin({
             events: enabled.events
-                ? queryAllEvents({
-                      ...query,
-                      zone_ids: booking_zones,
-                      limit: 1000,
-                  }).pipe(catchError(() => of([])))
+                ? from(
+                      queryAllEvents({
+                          ...query,
+                          zone_ids: booking_zones,
+                          limit: 1000,
+                      }),
+                  ).pipe(catchError(() => of([])))
                 : of([]),
             desks: enabled.desks
-                ? queryAllBookings({
-                      ...bookings_query,
-                      zones: booking_zones,
-                      type: 'desk',
-                      limit: 1000,
-                  }).pipe(catchError(() => of([])))
+                ? from(
+                      queryAllBookings({
+                          ...bookings_query,
+                          zones: booking_zones,
+                          type: 'desk',
+                          limit: 1000,
+                      }),
+                  ).pipe(catchError(() => of([])))
                 : of([]),
             parking: enabled.parking
-                ? queryAllBookings({
-                      ...bookings_query,
-                      zones: booking_zones,
-                      type: 'parking',
-                      limit: 1000,
-                  }).pipe(catchError(() => of([])))
+                ? from(
+                      queryAllBookings({
+                          ...bookings_query,
+                          zones: booking_zones,
+                          type: 'parking',
+                          limit: 1000,
+                      }),
+                  ).pipe(catchError(() => of([])))
                 : of([]),
             lockers: enabled.lockers
-                ? queryAllBookings({
-                      ...bookings_query,
-                      zones: booking_zones,
-                      type: 'locker',
-                      limit: 1000,
-                  }).pipe(catchError(() => of([])))
+                ? from(
+                      queryAllBookings({
+                          ...bookings_query,
+                          zones: booking_zones,
+                          type: 'locker',
+                          limit: 1000,
+                      }),
+                  ).pipe(catchError(() => of([])))
                 : of([]),
             visitors: enabled.visitors
-                ? queryAllBookings({
-                      ...bookings_query,
-                      type: 'visitor',
-                      zones: booking_zones,
-                      limit: 1000,
-                  }).pipe(catchError(() => of([])))
+                ? from(
+                      queryAllBookings({
+                          ...bookings_query,
+                          type: 'visitor',
+                          zones: booking_zones,
+                          limit: 1000,
+                      }),
+                  ).pipe(catchError(() => of([])))
                 : of([]),
             room_count: enabled.events ? this.getRoomCount(space_zones) : of(0),
             desk_count: enabled.desks ? this.getDeskCount(level_ids) : of(0),
@@ -338,7 +348,7 @@ export class SiteAttendanceReportService {
         if (!zones.length) return of(0);
         return forkJoin(
             zones.map((zone) =>
-                queryParkingSpaces(zone).pipe(
+                from(queryParkingSpaces(zone)).pipe(
                     catchError(() => of([])),
                     map((spaces) => spaces.length || 0),
                 ),
@@ -352,7 +362,7 @@ export class SiteAttendanceReportService {
         if (!zones.length) return of(0);
         return forkJoin(
             zones.map((zone) =>
-                queryLockerAssets(zone).pipe(
+                from(queryLockerAssets(zone)).pipe(
                     catchError(() => of([])),
                     map((lockers) => lockers.length || 0),
                 ),
@@ -761,8 +771,7 @@ export class SiteAttendanceReportService {
             bookings.reduce(
                 (count, booking) => count + reportBookingDuration(booking),
                 0,
-            ) /
-                Math.max(1, bookings.length),
+            ) / Math.max(1, bookings.length),
         );
         return formatDuration({ minutes }) || '0';
     }

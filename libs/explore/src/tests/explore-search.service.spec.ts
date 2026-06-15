@@ -6,7 +6,6 @@ import {
     Organisation,
     OrganisationService,
 } from '@placeos/common';
-import { BehaviorSubject, of } from 'rxjs';
 
 import {
     compareSearchResultsAscending,
@@ -27,10 +26,10 @@ describe('ExploreSearchService', () => {
         service: ExploreSearchService,
         providers: [
             MockProvider(OrganisationService, {
-                initialised: of(true),
+                initialised_signal: signal(true),
                 organisation: new Organisation(),
                 binding: jest.fn(() => 'sys-1'),
-                active_building: new BehaviorSubject(new Building()),
+                building_signal: signal(new Building()),
             }),
             MockProvider(SettingsService, {
                 get: jest.fn(),
@@ -40,7 +39,7 @@ describe('ExploreSearchService', () => {
                 options: signal({}),
             } as any),
             MockProvider(MapsPeopleService, {
-                available$: of(false),
+                available: signal(false),
             } as any),
         ],
     });

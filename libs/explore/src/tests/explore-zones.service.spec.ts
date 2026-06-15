@@ -6,7 +6,6 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { BehaviorSubject, of } from 'rxjs';
 
 import { ExploreStateService } from '../lib/explore-state.service';
 import { ExploreZonesService } from '../lib/explore-zones.service';
@@ -34,10 +33,10 @@ describe('ExploreStateService', () => {
             MockProvider(OrganisationService, {
                 organisation: new Organisation(),
                 binding: jest.fn(),
-                initialised: of(true),
+                initialised_signal: signal(true),
                 levels: [],
                 buildings: [],
-                active_building: new BehaviorSubject<Building>({
+                building_signal: signal<Building>({
                     id: 'bld-1',
                 } as any),
             }),

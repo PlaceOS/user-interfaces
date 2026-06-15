@@ -145,18 +145,16 @@ export class AssetCategoryFormComponent {
         this.loading.set(true);
         this._dialog_ref.disableClose = true;
         const data = this.form.value;
-        const item = await saveAssetCategory(data as any)
-            .toPromise()
-            .catch((e) => {
-                this.loading.set(false);
-                this._dialog_ref.disableClose = false;
-                notifyError(
-                    i18n('APP.CONCIERGE.ASSETS_CATEGORY_SAVE_ERROR', {
-                        error: e.message,
-                    }),
-                );
-                throw e;
-            });
+        const item = await saveAssetCategory(data as any).catch((e) => {
+            this.loading.set(false);
+            this._dialog_ref.disableClose = false;
+            notifyError(
+                i18n('APP.CONCIERGE.ASSETS_CATEGORY_SAVE_ERROR', {
+                    error: e.message,
+                }),
+            );
+            throw e;
+        });
         this.form.reset();
         this.loading.set(false);
         this._dialog_ref.close(item);

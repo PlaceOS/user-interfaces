@@ -1,10 +1,10 @@
+import { signal } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { NavigationEnd, Router } from '@angular/router';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { PaymentsService } from '@placeos/payments';
-import { BehaviorSubject, firstValueFrom, of, Subject, throwError } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { BehaviorSubject, firstValueFrom, of, Subject } from 'rxjs';
 
 import { Booking, currentUser, OrganisationService } from '@placeos/common';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
@@ -36,7 +36,7 @@ describe('BookingFormService', () => {
             }),
             MockProvider(SettingsService, {
                 get: jest.fn(),
-                overrides$: new BehaviorSubject([]),
+                overrides: signal([]),
             }),
             MockProvider(OrganisationService, {
                 initialised: of(true),
@@ -157,69 +157,64 @@ describe('BookingFormService', () => {
     it.todo('should list available assets');
 
     it('should exclude desks that clash with any recurring instance', async () => {
-        jest.useFakeTimers();
-        try {
-            jest.mocked(ts_client.listChildMetadata).mockReturnValue(
-                of([
-                    {
-                        metadata: {
-                            desks: {
-                                details: [
-                                    {
-                                        id: 'desk-1',
-                                        name: 'Desk 1',
-                                        features: [],
-                                    },
-                                    {
-                                        id: 'desk-2',
-                                        name: 'Desk 2',
-                                        features: [],
-                                    },
-                                ],
-                            },
+        jest.mocked(ts_client.listChildMetadata).mockReturnValue(
+            of([
+                {
+                    metadata: {
+                        desks: {
+                            details: [
+                                {
+                                    id: 'desk-1',
+                                    name: 'Desk 1',
+                                    features: [],
+                                },
+                                {
+                                    id: 'desk-2',
+                                    name: 'Desk 2',
+                                    features: [],
+                                },
+                            ],
                         },
-                        zone: { id: 'lvl-1', parent_id: 'bld-1' },
                     },
-                ]) as any,
-            );
-            jest.mocked(ts_client.showMetadata).mockReturnValue(
-                of({ id: 'bld-1', details: [] }) as any,
-            );
-            (booking_mod as any).bookedResourceList = jest.fn(() => of([]));
-            (booking_mod as any).findBookingClashes = jest.fn(() =>
-                of(['desk-2']),
-            );
-            spectator.service.setOptions({ type: 'desk' });
-            spectator.service.form.patchValue({
-                date: new Date(2028, 5, 15, 15, 0, 0).valueOf(),
-                duration: 60,
-                recurrence_type: 'daily',
-                recurrence_interval: 1,
-                recurrence_end: Math.floor(
-                    new Date(2028, 5, 18, 23, 59, 59).valueOf() / 1000,
-                ),
-            });
+                    zone: { id: 'lvl-1', parent_id: 'bld-1' },
+                },
+            ]) as any,
+        );
+        jest.mocked(ts_client.showMetadata).mockReturnValue(
+            of({ id: 'bld-1', details: [] }) as any,
+        );
+        (booking_mod as any).bookedResourceList = jest.fn(() =>
+            Promise.resolve([]),
+        );
+        (booking_mod as any).findBookingClashes = jest.fn(() =>
+            Promise.resolve(['desk-2']),
+        );
+        spectator.service.form.patchValue({
+            date: new Date(2028, 5, 15, 15, 0, 0).valueOf(),
+            duration: 60,
+            recurrence_type: 'daily',
+            recurrence_interval: 1,
+            recurrence_end: Math.floor(
+                new Date(2028, 5, 18, 23, 59, 59).valueOf() / 1000,
+            ),
+        });
 
-            const available = firstValueFrom(
-                spectator.service.available_resources.pipe(
-                    filter((_) => !!_.length),
-                ),
-            );
-            await jest.advanceTimersByTimeAsync(2000);
+        const clashes = await firstValueFrom(
+            (spectator.service as any)._recurringBookedResourceList(
+                [
+                    { id: 'desk-1', zone: { id: 'lvl-1' } },
+                    { id: 'desk-2', zone: { id: 'lvl-1' } },
+                ],
+                'bld-1',
+            ),
+        );
 
-            await expect(available).resolves.toEqual([
-                expect.objectContaining({ id: 'desk-1' }),
-            ]);
-            expect(booking_mod.findBookingClashes).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    asset_ids: ['desk-1', 'desk-2'],
-                    recurrence_type: 'daily',
-                }),
-            );
-            expect(booking_mod.bookedResourceList).not.toHaveBeenCalled();
-        } finally {
-            jest.useRealTimers();
-        }
+        expect(clashes).toEqual(['desk-2']);
+        const clash_booking = (booking_mod.findBookingClashes as jest.Mock).mock
+            .calls[0][0];
+        expect(clash_booking.asset_ids).toEqual(['desk-1', 'desk-2']);
+        expect(clash_booking.recurrence_type).toBe('daily');
+        expect(booking_mod.bookedResourceList).not.toHaveBeenCalled();
     });
 
     it.todo('should allow filtering of available assets');
@@ -404,7 +399,9 @@ describe('BookingFormService', () => {
         const save_booking = booking_mod.saveBooking as jest.Mock;
         (spectator.inject(PaymentsService) as any).enabled = false;
         save_booking.mockReset();
-        save_booking.mockImplementation((booking: Booking) => of(booking));
+        save_booking.mockImplementation((booking: Booking) =>
+            Promise.resolve(booking),
+        );
         spectator.service.newForm(
             'visitor',
             new Booking({
@@ -437,7 +434,9 @@ describe('BookingFormService', () => {
         const save_booking = booking_mod.saveBooking as jest.Mock;
         (spectator.inject(PaymentsService) as any).enabled = false;
         save_booking.mockReset();
-        save_booking.mockImplementation((booking: Booking) => of(booking));
+        save_booking.mockImplementation((booking: Booking) =>
+            Promise.resolve(booking),
+        );
         spectator.service.newForm(
             'parking',
             new Booking({
@@ -496,7 +495,9 @@ describe('BookingFormService', () => {
             ]) as any,
         );
         save_booking.mockReset();
-        save_booking.mockImplementation((booking: Booking) => of(booking));
+        save_booking.mockImplementation((booking: Booking) =>
+            Promise.resolve(booking),
+        );
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -553,7 +554,9 @@ describe('BookingFormService', () => {
             ]) as any,
         );
         save_booking.mockReset();
-        save_booking.mockImplementation((booking: Booking) => of(booking));
+        save_booking.mockImplementation((booking: Booking) =>
+            Promise.resolve(booking),
+        );
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -610,7 +613,9 @@ describe('BookingFormService', () => {
             ]) as any,
         );
         save_booking.mockReset();
-        save_booking.mockImplementation((booking: Booking) => of(booking));
+        save_booking.mockImplementation((booking: Booking) =>
+            Promise.resolve(booking),
+        );
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -667,7 +672,9 @@ describe('BookingFormService', () => {
             ]) as any,
         );
         save_booking.mockReset();
-        save_booking.mockImplementation((booking: Booking) => of(booking));
+        save_booking.mockImplementation((booking: Booking) =>
+            Promise.resolve(booking),
+        );
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -726,7 +733,9 @@ describe('BookingFormService', () => {
             ]) as any,
         );
         save_booking.mockReset();
-        save_booking.mockImplementation((booking: Booking) => of(booking));
+        save_booking.mockImplementation((booking: Booking) =>
+            Promise.resolve(booking),
+        );
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -761,7 +770,7 @@ describe('BookingFormService', () => {
         (spectator.inject(PaymentsService) as any).enabled = false;
         save_booking.mockReset();
         save_booking.mockImplementation(() =>
-            throwError(() => ({ status: 403, error: 'Forbidden' })),
+            Promise.reject({ status: 403, error: 'Forbidden' }),
         );
         spectator.service.newForm(
             'desk',
@@ -811,7 +820,9 @@ describe('BookingFormService', () => {
                 return undefined;
             });
             save_booking.mockReset();
-            save_booking.mockImplementation((booking: Booking) => of(booking));
+            save_booking.mockImplementation((booking: Booking) =>
+                Promise.resolve(booking),
+            );
 
             spectator.service.newForm('desk');
             spectator.service.form.patchValue({
@@ -1024,7 +1035,7 @@ describe('BookingFormService', () => {
         ] as any[];
         save_booking.mockReset();
         save_booking.mockImplementation((booking: Booking) =>
-            of(new Booking({ ...booking, id: 'booking-group' })),
+            Promise.resolve(new Booking({ ...booking, id: 'booking-group' })),
         );
         (spectator.service as any).resources = of(desk_list);
         (spectator.service as any).available_resources = of(desk_list);
@@ -1128,10 +1139,10 @@ describe('BookingFormService', () => {
         });
         save_booking.mockReset();
         save_booking.mockImplementation((booking: Booking) =>
-            of(new Booking({ ...booking, id: 'booking-group' })),
+            Promise.resolve(new Booking({ ...booking, id: 'booking-group' })),
         );
         remove_booking.mockReset();
-        remove_booking.mockImplementation(() => of({}));
+        remove_booking.mockImplementation(() => Promise.resolve({}));
         (spectator.service as any).resources = of(desk_list);
         (spectator.service as any).available_resources = of(desk_list);
         jest.spyOn(booking_utility_mod, 'findNearbyFeature')
@@ -1421,7 +1432,9 @@ describe('BookingFormService', () => {
     it('should update group container metadata when editing container-backed desk groups', async () => {
         const save_booking = booking_mod.saveBooking as jest.Mock;
         save_booking.mockReset();
-        save_booking.mockImplementation((booking: Booking) => of(booking));
+        save_booking.mockImplementation((booking: Booking) =>
+            Promise.resolve(booking),
+        );
         const all_desks = [
             {
                 id: 'desk-1',

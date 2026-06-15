@@ -119,9 +119,7 @@ export class SelectMeetingModalComponent {
     private _dialog_ref =
         inject<MatDialogRef<SelectMeetingModalComponent>>(MatDialogRef);
 
-    public readonly calendars = toSignal(this._service.calendars, {
-        initialValue: [],
-    });
+    public readonly calendars = this._service.calendars;
     public readonly events = toSignal(this._service.events, {
         initialValue: [],
     });

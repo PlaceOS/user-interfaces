@@ -49,7 +49,7 @@ import { PlaceAsset } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { ExploreParkingInfoComponent } from 'libs/explore/src/lib/explore-parking-info.component';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
-import { of } from 'rxjs';
+import { from, of } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 
 type BoundsMap = Record<string, MapElementBounds>;
@@ -259,7 +259,7 @@ export class ParkingAssignSpaceModalComponent
         toObservable(this.selected_level).pipe(
             switchMap((level) =>
                 level
-                    ? queryParkingSpaces(level.id).pipe(
+                    ? from(queryParkingSpaces(level.id)).pipe(
                           catchError(() => of([])),
                       )
                     : of([]),
@@ -272,14 +272,18 @@ export class ParkingAssignSpaceModalComponent
         toObservable(this.selected_level).pipe(
             switchMap((level) => {
                 if (!level) return of([] as Booking[]);
-                return queryBookings({
-                    period_start: getUnixTime(
-                        startOfDay(this._data.booking.date),
-                    ),
-                    period_end: getUnixTime(endOfDay(this._data.booking.date)),
-                    type: 'parking',
-                    zones: level.id,
-                }).pipe(catchError(() => of([])));
+                return from(
+                    queryBookings({
+                        period_start: getUnixTime(
+                            startOfDay(this._data.booking.date),
+                        ),
+                        period_end: getUnixTime(
+                            endOfDay(this._data.booking.date),
+                        ),
+                        type: 'parking',
+                        zones: level.id,
+                    }),
+                ).pipe(catchError(() => of([])));
             }),
         ),
         { initialValue: [] },
@@ -411,8 +415,8 @@ export class ParkingAssignSpaceModalComponent
                     ...this._data.booking.extension_data,
                     asset_name,
                 },
-            } as any).toPromise();
-            await approveBooking(this._data.booking.id).toPromise();
+            } as any);
+            await approveBooking(this._data.booking.id);
             notifySuccess(i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_SUCCESS'));
             this._dialog_ref.close(true);
         } catch (e) {

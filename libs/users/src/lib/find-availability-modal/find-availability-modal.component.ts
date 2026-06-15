@@ -36,7 +36,7 @@ import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.compone
 import { queryUserFreeBusy } from 'libs/events/src/lib/calendar.fn';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
-import { of } from 'rxjs';
+import { from, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -316,14 +316,16 @@ export class FindAvailabilityModalComponent
     }).pipe(
         debounceTime(300),
         switchMap((users) => {
-            return queryUserFreeBusy({
-                calendars: [
-                    this.host.email,
-                    ...users.map((_) => _.email.toLowerCase()),
-                ].join(','),
-                period_start: getUnixTime(startOfDay(this.date())),
-                period_end: getUnixTime(endOfDay(this.date())),
-            }).pipe(catchError(() => of([])));
+            return from(
+                queryUserFreeBusy({
+                    calendars: [
+                        this.host.email,
+                        ...users.map((_) => _.email.toLowerCase()),
+                    ].join(','),
+                    period_start: getUnixTime(startOfDay(this.date())),
+                    period_end: getUnixTime(endOfDay(this.date())),
+                }),
+            ).pipe(catchError(() => of([])));
         }),
         map((availability_list) => {
             const availability_map: Record<string, AvailabilityBlock[]> = {};

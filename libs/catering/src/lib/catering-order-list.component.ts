@@ -1,5 +1,4 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
@@ -10,7 +9,6 @@ import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.c
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { of } from 'rxjs';
 import { CateringOrderItemComponent } from './catering-order-item.component';
 import { CateringOrdersService } from './catering-orders.service';
 import { statusList } from './catering.vars';
@@ -256,24 +254,13 @@ export class CateringOrderListComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
 
     /** List of filtered orders */
-    public readonly order_list = toSignal(this._orders.filtered || of([]), {
-        initialValue: [],
-    });
+    public readonly order_list = this._orders.filtered;
     /** Whether order list is loading */
-    public readonly loading = toSignal(this._orders.loading || of(false), {
-        initialValue: false,
-    });
+    public readonly loading = this._orders.loading;
 
-    public readonly filters = toSignal(
-        this._orders.order_filters || of(this._orders.filters),
-        {
-            initialValue: this._orders.filters,
-        },
-    );
+    public readonly filters = this._orders.order_filters;
 
-    public readonly caterers = toSignal(this._orders.caterers || of([]), {
-        initialValue: [],
-    });
+    public readonly caterers = this._orders.caterers;
 
     public readonly statuses = signal(statusList());
     public readonly show_children = signal<Record<string, boolean>>({});

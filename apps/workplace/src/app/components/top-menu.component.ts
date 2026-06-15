@@ -10,7 +10,7 @@ import {
     signal,
     viewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
@@ -251,7 +251,7 @@ export class TopMenuComponent {
             this._org.initialised,
             this._org.active_region,
             this._org.active_building,
-            this._settings.overrides$,
+            toObservable(this._settings.overrides),
         ]).pipe(
             map(
                 ([

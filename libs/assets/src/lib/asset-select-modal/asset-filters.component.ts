@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
     Component,
     computed,
+    effect,
     inject,
     input,
     model,
@@ -41,7 +42,7 @@ import { AssetStateService } from '../asset-state.service';
                 <icon matPrefix class="text-xl">search</icon>
                 <input
                     matInput
-                    [ngModel]="search_value | async"
+                    [ngModel]="search_value()"
                     (ngModelChange)="setSearch($event)"
                     [placeholder]="'BOOKINGS.ASSETS_SEARCH' | translate"
                 />
@@ -85,9 +86,7 @@ import { AssetStateService } from '../asset-state.service';
                     [ngModel]="offset()"
                     (ngModelChange)="offset.set($event)"
                     [time]="
-                        offset_day() > 0
-                            ? start_of_date()
-                            : (options | async)?.date
+                        offset_day() > 0 ? start_of_date() : options()?.date
                     "
                     [step]="step_interval()"
                     [min]="min_offset()"
@@ -100,10 +99,10 @@ import { AssetStateService } from '../asset-state.service';
             {{ 'COMMON.CATEGORIES' | translate }}
         </h3>
         <div class="flex flex-col space-y-2 px-2">
-            @for (item of categories | async; track item.id) {
+            @for (item of categories(); track item.id) {
                 <settings-toggle
                     [name]="item.name"
-                    [ngModel]="(category | async)?.includes(item.id)"
+                    [ngModel]="category()?.includes(item.id)"
                     (ngModelChange)="toggleCategory(item.id)"
                 ></settings-toggle>
             }
@@ -204,23 +203,21 @@ export class AssetFiltersComponent extends AsyncHandler {
 
     constructor() {
         super();
+        effect(() => {
+            this._state.options();
+            this._max_offset.set(
+                Math.max(
+                    15,
+                    (this._state.getOptions().duration || 60) -
+                        this._end_offset(),
+                ),
+            );
+            this._updateDayOptions();
+        });
     }
 
     public ngOnInit() {
         this._min_offset.set(Math.max(this._min_offset_setting(), 0));
-        this.subscription(
-            'filters',
-            this._state.options.subscribe(() => {
-                this._max_offset.set(
-                    Math.max(
-                        15,
-                        (this._state.getOptions().duration || 60) -
-                            this._end_offset(),
-                    ),
-                );
-                this._updateDayOptions();
-            }),
-        );
         this._updateDayOptions();
     }
 

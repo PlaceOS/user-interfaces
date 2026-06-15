@@ -1,8 +1,7 @@
+import { signal } from '@angular/core';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
-import { first } from 'rxjs/operators';
 
 import {
     Calendar,
@@ -22,14 +21,16 @@ describe('CalendarService', () => {
         service: CalendarService,
         providers: [
             MockProvider(OrganisationService, {
-                initialised: new BehaviorSubject(false),
+                initialised_signal: signal(true),
             }),
             MockProvider(SettingsService, { get: jest.fn() }),
         ],
     });
 
     beforeEach(() => {
-        (cal_fn as any).queryCalendars = jest.fn(() => of([new Calendar()]));
+        (cal_fn as any).queryCalendars = jest.fn(() =>
+            Promise.resolve([new Calendar()]),
+        );
         spectator = createService();
     });
 
@@ -38,21 +39,21 @@ describe('CalendarService', () => {
     });
 
     it('should allow getting calendars', async () => {
-        (cal_fn as any).queryCalendars = jest.fn(() => of([new Calendar()]));
-        (spectator.inject(OrganisationService).initialised as any).next(true);
-        const list = await spectator.service.calendar_list
-            .pipe(first((_) => _?.length > 0))
-            .toPromise();
+        (cal_fn as any).queryCalendars = jest.fn(() =>
+            Promise.resolve([new Calendar()]),
+        );
+        await new Promise((resolve) => setTimeout(resolve));
+        const list = spectator.service.calendar_list();
         expect(list).toEqual(spectator.service.calendars);
         expect(list).toHaveLength(1);
         expect(list[0]).toBeInstanceOf(Calendar);
     });
 
     it('should allow getting free busy', async () => {
-        (cal_fn as any).querySpaceFreeBusy = jest.fn(() => of([new Space()]));
-        const list = await spectator.service
-            .getFreeBusyDate(1, 'CAL-1')
-            .toPromise();
+        (cal_fn as any).querySpaceFreeBusy = jest.fn(() =>
+            Promise.resolve([new Space()]),
+        );
+        const list = await spectator.service.getFreeBusyDate(1, 'CAL-1');
         expect(list).toHaveLength(1);
         expect(list[0]).toBeInstanceOf(Space);
         expect(cal_fn.querySpaceFreeBusy).toHaveBeenCalledWith(
@@ -66,8 +67,10 @@ describe('CalendarService', () => {
     });
 
     it('should allow checking space availability', async () => {
-        (cal_fn as any).queryCalendarAvailability = jest.fn(() => of([]));
-        (cal_fn as any).queryCalendars = jest.fn(() => of([]));
+        (cal_fn as any).queryCalendarAvailability = jest.fn(() =>
+            Promise.resolve([]),
+        );
+        (cal_fn as any).queryCalendars = jest.fn(() => Promise.resolve([]));
         const is_free = await spectator.service.checkSpacesAvailability(
             ['sys-1'],
             1,

@@ -10,7 +10,7 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { queryCateringItems } from '@placeos/assets';
 import { setToken } from '@placeos/ts-client';
-import { lastValueFrom, of } from 'rxjs';
+import { from, of } from 'rxjs';
 import {
     catchError,
     filter,
@@ -161,7 +161,7 @@ export class CheckinPreferencesComponent
     private readonly _menu = toObservable(this.bld_id).pipe(
         filter((_) => !!_),
         switchMap((bld) =>
-            queryCateringItems(bld).pipe(
+            from(queryCateringItems(bld)).pipe(
                 catchError(() => of([] as CateringItem[])),
             ),
         ),
@@ -232,11 +232,10 @@ export class CheckinPreferencesComponent
                             'info',
                         );
                     }
-                    const existing = await lastValueFrom(
-                        getGuestCateringItem(event.asset_id, event.id).pipe(
-                            catchError(() => of(null)),
-                        ),
-                    );
+                    const existing = await getGuestCateringItem(
+                        event.asset_id,
+                        event.id,
+                    ).catch(() => null);
                     if (existing) {
                         this.existing_beverage.set(existing);
                         this.beverage.set(existing);
@@ -276,9 +275,7 @@ export class CheckinPreferencesComponent
             ...this.beverage(),
             quantity: 1,
         });
-        await lastValueFrom(
-            setGuestCateringItem(email, catering_item, booking.id),
-        );
+        await setGuestCateringItem(email, catering_item, booking.id);
         notifySuccess(i18n('APP.VISITOR_KIOSK.BEVERAGE_SUCCESS'));
         this.loading.set(false);
         this.next();

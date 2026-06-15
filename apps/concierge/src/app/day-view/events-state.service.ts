@@ -32,7 +32,14 @@ import {
     startOfMonth,
     startOfWeek,
 } from 'date-fns';
-import { BehaviorSubject, Observable, combineLatest, forkJoin, of } from 'rxjs';
+import {
+    BehaviorSubject,
+    Observable,
+    combineLatest,
+    forkJoin,
+    from,
+    of,
+} from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -224,12 +231,14 @@ export class EventsStateService extends AsyncHandler {
             // Get events from API for spaces without room_booking_url
             if (spaces_without_driver.length > 0) {
                 observables.push(
-                    queryEvents({
-                        strict: 'limit',
-                        zone_ids: zones.join(','),
-                        period_start: getUnixTime(start),
-                        period_end: getUnixTime(end),
-                    }).pipe(
+                    from(
+                        queryEvents({
+                            strict: 'limit',
+                            zone_ids: zones.join(','),
+                            period_start: getUnixTime(start),
+                            period_end: getUnixTime(end),
+                        }),
+                    ).pipe(
                         map((events) =>
                             events.filter((event) =>
                                 event.resources.some((resource) =>
@@ -456,16 +465,14 @@ export class EventsStateService extends AsyncHandler {
                 calendar: event.calendar || event.mailbox || event.host,
                 system_id: event.system?.id,
             },
-        )
-            .toPromise()
-            .catch((e) => {
-                this.restore(event);
-                notifyError(
-                    i18n('APP.CONCIERGE.BOOKING_REMOVE_ERROR', { error: e }),
-                );
-                details.close();
-                throw e;
-            });
+        ).catch((e) => {
+            this.restore(event);
+            notifyError(
+                i18n('APP.CONCIERGE.BOOKING_REMOVE_ERROR', { error: e }),
+            );
+            details.close();
+            throw e;
+        });
         notifySuccess(i18n('APP.CONCIERGE.BOOKING_REMOVE_SUCCESS'));
         this._dialog.closeAll();
         return true;

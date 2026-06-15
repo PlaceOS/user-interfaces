@@ -16,7 +16,6 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
-    firstTruthyValueFrom,
     flatten,
     log,
     notifyError,
@@ -414,7 +413,9 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         ) {
             this._state.setOptions({ is_public: true });
         }
-        await firstTruthyValueFrom(this._spaces.initialised);
+        while (!this._spaces.initialised()) {
+            await new Promise((resolve) => setTimeout(resolve, 100));
+        }
         this._desks.setOptions({ custom: true });
         this.reset_delay =
             this._settings.get('app.inactivity_timeout_secs') || 180;
@@ -444,7 +445,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
                     let user = this._settings.value('last_search');
                     if (!user || params.get('user') !== user.email) {
                         user = null;
-                        user = await showStaff(params.get('user')).toPromise();
+                        user = await showStaff(params.get('user'));
                     }
                     if (!user)
                         return notifyError(

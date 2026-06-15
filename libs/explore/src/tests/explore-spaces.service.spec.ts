@@ -4,7 +4,7 @@ import { UntypedFormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
+import { of } from 'rxjs';
 
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
@@ -36,7 +36,7 @@ describe('ExploreSpacesService', () => {
             MockProvider(SettingsService, { get: jest.fn() }),
             MockProvider(MatDialog, { open: jest.fn() }),
             MockProvider(OrganisationService, {
-                active_building: new BehaviorSubject({ id: 'bld-1' }),
+                building_signal: signal({ id: 'bld-1' }),
                 building: { id: 'bld-1' } as any,
             } as any),
             MockProvider(EventFormService, { form: new UntypedFormGroup({}) }),

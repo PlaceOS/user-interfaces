@@ -20,7 +20,6 @@ import {
     MapElementBounds,
     MapsPeopleService,
     OrganisationService,
-    nextValueFrom,
     unique,
 } from '@placeos/common';
 import {
@@ -329,7 +328,7 @@ export class SelectMapItemModalComponent
     public readonly search_results = toSignal(
         combineLatest([
             toObservable(this.search),
-            this._maps_people.available$,
+            toObservable(this._maps_people.available),
             toObservable(this.changed),
         ]).pipe(
             debounceTime(300),
@@ -391,7 +390,7 @@ export class SelectMapItemModalComponent
         if (this._data?.location && typeof this._data.location === 'string') {
             this.selected.set(this._data.location as string);
         }
-        const levels = await nextValueFrom(this._org.active_levels);
+        const levels = this._org.active_levels_signal();
         if (levels.length) {
             let level = levels[0];
             if (this._data?.level_id) {
@@ -408,9 +407,7 @@ export class SelectMapItemModalComponent
 
     public selectID(e: any) {
         this.timeout('select_id', async () => {
-            const use_maps_indoors = await nextValueFrom(
-                this._maps_people.available$,
-            );
+            const use_maps_indoors = this._maps_people.available();
             if (!use_maps_indoors) {
                 const pos: { x: number; y: number } = e;
                 const short_list: [string, number][] = [];

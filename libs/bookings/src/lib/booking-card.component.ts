@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, DestroyRef, inject, input } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -14,7 +14,6 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { addMinutes, format, isSameDay, isSameWeek } from 'date-fns';
-import { map } from 'rxjs/operators';
 
 import { OrganisationService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -225,17 +224,14 @@ export class BookingCardComponent {
         this.removeHtmlTags(this.booking()?.description),
     );
 
-    public readonly is_reserved_parking_space = toSignal(
-        this._parking.assigned_space.pipe(
-            map(
-                (space) =>
-                    this.booking()?.booking_type === 'parking' &&
-                    !!space &&
-                    this.booking()?.asset_id === space.id,
-            ),
-        ),
-        { initialValue: false },
-    );
+    public readonly is_reserved_parking_space = computed(() => {
+        const space = this._parking.assigned_space();
+        return (
+            this.booking()?.booking_type === 'parking' &&
+            !!space &&
+            this.booking()?.asset_id === space.id
+        );
+    });
 
     public readonly for_current_user = computed(
         () =>

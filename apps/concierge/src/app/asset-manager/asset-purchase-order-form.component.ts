@@ -32,7 +32,7 @@ import {
 import { DateFieldComponent } from '@placeos/form-fields';
 import { showAssetPurchaseOrder } from '@placeos/ts-client';
 import { addYears, getUnixTime } from 'date-fns';
-import { combineLatest } from 'rxjs';
+import { combineLatest, from } from 'rxjs';
 import { filter, shareReplay, switchMap } from 'rxjs/operators';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
@@ -216,12 +216,12 @@ export class AssetPurchaseOrderFormComponent
     public readonly asset_list = toSignal(
         combineLatest([toObservable(this._id), this._org.active_building]).pipe(
             filter(([id, bld]) => !!id && !!bld),
-            switchMap(([id]) => queryAssets({ order_id: id })),
+            switchMap(([id]) => from(queryAssets({ order_id: id }))),
             switchMap(async (asset_list) => {
                 const groups = await queryAssetTypes({
                     zone_id: this._org.building.id,
                     limit: 500,
-                }).toPromise();
+                });
                 return asset_list.data.map((asset) => ({
                     ...asset,
                     name:
@@ -290,17 +290,15 @@ export class AssetPurchaseOrderFormComponent
             this.item()?.expected_service_end_date ||
             null;
         data.unit_price = +data.unit_price;
-        const item = await saveAssetPurchaseOrder(data as any)
-            .toPromise()
-            .catch((e) => {
-                this.loading.set('');
-                notifyError(
-                    i18n('APP.CONCIERGE.ASSETS_PURCHASE_SAVE_ERROR', {
-                        error: e.message || e,
-                    }),
-                );
-                throw e;
-            });
+        const item = await saveAssetPurchaseOrder(data as any).catch((e) => {
+            this.loading.set('');
+            notifyError(
+                i18n('APP.CONCIERGE.ASSETS_PURCHASE_SAVE_ERROR', {
+                    error: e.message || e,
+                }),
+            );
+            throw e;
+        });
         this.form.reset();
         notifySuccess(i18n('APP.CONCIERGE.ASSETS_PURCHASE_SAVE_SUCCESS'));
         this._state.postChange();

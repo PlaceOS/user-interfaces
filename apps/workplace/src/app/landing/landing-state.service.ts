@@ -152,7 +152,7 @@ export class LandingStateService extends AsyncHandler {
             ? from(queryUsers({ q, authority_id: authority()?.id })).pipe(
                   map(({ data }) => data.map((_) => new StaffUser(_ as any))),
               )
-            : searchStaff(q);
+            : from(searchStaff(q));
 
     public readonly search_results = this._options.pipe(
         debounceTime(500),

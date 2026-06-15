@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { filter, map, startWith } from 'rxjs/operators';
 
 import { CommonModule } from '@angular/common';
@@ -96,8 +97,8 @@ export class ControlSpaceListComponent extends AsyncHandler {
     /** List of controlable spaces for the active building */
     public readonly space_list = combineLatest([
         this._org.active_building,
-        this._spaces.all_spaces,
-        this._spaces.initialised,
+        toObservable(this._spaces.all_spaces),
+        toObservable(this._spaces.initialised),
     ]).pipe(
         filter(([_]) => !!_),
         map(([bld, list]) =>

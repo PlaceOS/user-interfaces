@@ -27,7 +27,7 @@ import {
     isSameDay,
     startOfDay,
 } from 'date-fns';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest, from } from 'rxjs';
 import {
     debounceTime,
     filter,
@@ -74,14 +74,16 @@ export class AssetsReportService {
         switchMap(() => {
             const options = this._options.getValue();
             this._loading.next(true);
-            return queryAssetGroupsExtended({
-                zones:
-                    (options.zones || [])?.join(',') ||
-                    (this._settings.get('app.use_region')
-                        ? this._org.region?.id
-                        : '') ||
-                    this._org.building?.id,
-            }).pipe(
+            return from(
+                queryAssetGroupsExtended({
+                    zones:
+                        (options.zones || [])?.join(',') ||
+                        (this._settings.get('app.use_region')
+                            ? this._org.region?.id
+                            : '') ||
+                        this._org.building?.id,
+                }),
+            ).pipe(
                 takeUntil(this._options.pipe(skip(1))),
                 finalize(() => this._loading.next(false)),
             );
@@ -96,19 +98,23 @@ export class AssetsReportService {
             const options = this._options.getValue();
             this._loading.next(true);
             const { start, end, zones } = options;
-            return queryBookings({
-                period_start: getUnixTime(startOfDay(start || Date.now())),
-                period_end: getUnixTime(endOfDay(end || start || Date.now())),
-                type: 'asset-request',
-                include_deleted: true as any,
-                include_checked_out: true,
-                zones:
-                    (zones || [])?.join(',') ||
-                    (this._settings.get('app.use_region')
-                        ? this._org.region?.id
-                        : '') ||
-                    this._org.building?.id,
-            }).pipe(
+            return from(
+                queryBookings({
+                    period_start: getUnixTime(startOfDay(start || Date.now())),
+                    period_end: getUnixTime(
+                        endOfDay(end || start || Date.now()),
+                    ),
+                    type: 'asset-request',
+                    include_deleted: true as any,
+                    include_checked_out: true,
+                    zones:
+                        (zones || [])?.join(',') ||
+                        (this._settings.get('app.use_region')
+                            ? this._org.region?.id
+                            : '') ||
+                        this._org.building?.id,
+                }),
+            ).pipe(
                 takeUntil(this._options.pipe(skip(1))),
                 finalize(() => this._loading.next(false)),
             );

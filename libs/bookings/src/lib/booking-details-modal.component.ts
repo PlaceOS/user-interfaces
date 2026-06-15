@@ -23,7 +23,6 @@ import {
     userSignal,
 } from '@placeos/common';
 import { addMinutes, format, isSameWeek } from 'date-fns';
-import { lastValueFrom } from 'rxjs';
 
 import { OrganisationService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -770,14 +769,14 @@ export class BookingDetailsModalComponent {
     public async toggleCheckedIn() {
         this.checking_in.set(true);
         const bkn = this.booking();
-        const promise = lastValueFrom(
+        const promise = (
             bkn.instance
                 ? checkinBookingInstance(
                       bkn.id,
                       bkn.instance,
                       !this.booking().checked_in,
                   )
-                : checkinBooking(this.booking().id, !this.booking().checked_in),
+                : checkinBooking(this.booking().id, !this.booking().checked_in)
         ).catch((_) => {
             notifyError(i18n('BOOKINGS.CHECK_IN_ERROR'));
             this.checking_in.set(false);

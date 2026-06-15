@@ -22,7 +22,7 @@ import {
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { addHours, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { combineLatest } from 'rxjs';
+import { combineLatest, from } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { BookLockerFlowConfirmComponent } from './locker-flow/locker-flow-confirm.component';
 import { BookLockerFlowFormComponent } from './locker-flow/locker-flow-form.component';
@@ -114,11 +114,13 @@ export class BookLockerFlowComponent extends AsyncHandler implements OnInit {
         ),
     );
 
-    public readonly has_booking = queryBookings({
-        period_start: getUnixTime(addHours(startOfDay(Date.now()), 1)),
-        period_end: getUnixTime(addHours(endOfDay(Date.now()), -1)),
-        type: 'locker',
-    }).pipe(
+    public readonly has_booking = from(
+        queryBookings({
+            period_start: getUnixTime(addHours(startOfDay(Date.now()), 1)),
+            period_end: getUnixTime(addHours(endOfDay(Date.now()), -1)),
+            type: 'locker',
+        }),
+    ).pipe(
         map((_) => _.length > 0),
         shareReplay(1),
     );

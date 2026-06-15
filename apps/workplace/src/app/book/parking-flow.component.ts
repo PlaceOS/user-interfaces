@@ -23,8 +23,8 @@ import { ParkingFlowSuccessComponent } from './parking-flow/parking-flow-success
     selector: 'placeos-parking-flow',
     template: `
         @if (ready()) {
-            @if (!(deny_parking_access | async)) {
-                @if (is_home_location | async) {
+            @if (!deny_parking_access()) {
+                @if (is_home_location()) {
                     <div
                         class="bg-base-100 z-50 flex h-full w-full flex-col items-center justify-center space-y-4"
                     >
@@ -39,9 +39,7 @@ import { ParkingFlowSuccessComponent } from './parking-flow/parking-flow-success
                             }}
                         </p>
                     </div>
-                } @else if (
-                    !(assigned_space | async) || !(has_booking | async)
-                ) {
+                } @else if (!assigned_space() || !has_booking()) {
                     <div class="bg-base-100 z-50 h-full w-full">
                         @switch (view()) {
                             @case ('success') {
@@ -68,8 +66,7 @@ import { ParkingFlowSuccessComponent } from './parking-flow/parking-flow-success
                                 'APP.WORKPLACE.PARKING_ASSIGNED'
                                     | translate
                                         : {
-                                              name: (assigned_space | async)
-                                                  ?.name,
+                                              name: assigned_space()?.name,
                                           }
                             }}
                         </p>

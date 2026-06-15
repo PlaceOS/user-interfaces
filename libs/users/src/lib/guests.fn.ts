@@ -1,6 +1,4 @@
 import { del, get, patch } from '@placeos/ts-client';
-import { from, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 import {
     CalendarEvent,
@@ -26,11 +24,10 @@ export interface GuestsQueryParams {
  * Search guests
  * @param q Search string for filtering guests
  */
-export function searchGuests(q: string): Observable<GuestUser[]> {
+export async function searchGuests(q: string): Promise<GuestUser[]> {
     const query = toQueryString({ q });
-    return from(get(`${GUEST_ENDPOINT}${q ? '?' + query : ''}`)).pipe(
-        map((list) => list.map((item) => new GuestUser(item))),
-    );
+    const list = await get(`${GUEST_ENDPOINT}${q ? '?' + query : ''}`);
+    return list.map((item) => new GuestUser(item));
 }
 
 /**
@@ -47,9 +44,9 @@ export async function queryGuests(q: GuestsQueryParams): Promise<GuestUser[]> {
  * Get guest details
  * @param id ID of the guest
  */
-export function showGuest(id: string) {
-    return from(get(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`)).pipe(
-        map((item) => new GuestUser(item)),
+export async function showGuest(id: string): Promise<GuestUser> {
+    return new GuestUser(
+        await get(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`),
     );
 }
 
@@ -58,10 +55,13 @@ export function showGuest(id: string) {
  * @param id ID of the guest
  * @param data New metadata state
  */
-export function updateGuest(id: string, data: Partial<GuestUser>) {
-    return from(
-        patch(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`, data),
-    ).pipe(map((item) => new GuestUser(item)));
+export async function updateGuest(
+    id: string,
+    data: Partial<GuestUser>,
+): Promise<GuestUser> {
+    return new GuestUser(
+        await patch(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`, data),
+    );
 }
 
 /**
@@ -90,14 +90,16 @@ export async function listGuestMeetings(id: string): Promise<CalendarEvent[]> {
  * @param email Email address of the guest
  * @param booking_id Optional ID of the related visitor booking to get from
  */
-export function getGuestCateringItem(email: string, booking_id = '') {
+export async function getGuestCateringItem(
+    email: string,
+    booking_id = '',
+): Promise<CateringItem | null> {
     const path = `${GUEST_ENDPOINT}/${encodeURIComponent(email)}/catering`;
     const query = booking_id
         ? `?booking_id=${encodeURIComponent(booking_id)}`
         : '';
-    return from(get(`${path}${query}`)).pipe(
-        map((item) => (item ? new CateringItem(item) : null)),
-    );
+    const item = await get(`${path}${query}`);
+    return item ? new CateringItem(item) : null;
 }
 
 /**
@@ -105,18 +107,17 @@ export function getGuestCateringItem(email: string, booking_id = '') {
  * @param email Email address of the guest
  * @param booking_id Optional ID of the related visitor booking to set on
  */
-export function setGuestCateringItem(
+export async function setGuestCateringItem(
     email: string,
     catering_item: CateringItem,
     booking_id = '',
-) {
+): Promise<CateringItem | null> {
     const path = `${GUEST_ENDPOINT}/${encodeURIComponent(email)}/catering`;
     const query = booking_id
         ? `?booking_id=${encodeURIComponent(booking_id)}`
         : '';
-    return from(patch(`${path}${query}`, catering_item)).pipe(
-        map((item) => (item ? new CateringItem(item) : null)),
-    );
+    const item = await patch(`${path}${query}`, catering_item);
+    return item ? new CateringItem(item) : null;
 }
 
 /**

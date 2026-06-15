@@ -7,7 +7,7 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { BehaviorSubject, of, Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 
@@ -403,7 +403,7 @@ describe('EventFormService', () => {
     it('should block recurring room bookings that clash by default', async () => {
         const date = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
         jest.mocked(events_fn.findEventClashes).mockReturnValue(
-            of([
+            Promise.resolve([
                 {
                     asset_id: 'space-1',
                     booking_start: Math.floor(date / 1000) + 24 * 60 * 60,

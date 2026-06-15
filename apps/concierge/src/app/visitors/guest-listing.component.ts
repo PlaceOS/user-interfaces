@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { showMetadata } from '@placeos/ts-client';
-import { lastValueFrom } from 'rxjs';
 
 import { saveBooking } from '@placeos/bookings';
 import {
@@ -937,19 +936,15 @@ export class GuestListingComponent extends AsyncHandler implements OnInit {
             external_user: true,
         });
         if (!id) return;
-        await lastValueFrom(
-            saveBooking(
-                new Booking({ ...item, parking_booking_id: id } as any),
-            ),
+        await saveBooking(
+            new Booking({ ...item, parking_booking_id: id } as any),
         );
         this._state.poll();
     }
 
     public async setPass(row: any, pass = '') {
         if (!pass) return;
-        await lastValueFrom(
-            saveBooking(new Booking({ ...row, pass_number: pass } as any)),
-        );
+        await saveBooking(new Booking({ ...row, pass_number: pass } as any));
         this._state.poll();
         this.pass_number.set('');
         notifySuccess(i18n('APP.CONCIERGE.VISITORS_SAVED_PASS'));

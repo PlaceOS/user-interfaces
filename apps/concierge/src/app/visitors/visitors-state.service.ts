@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { addDays, addMinutes, format, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, from, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -84,14 +84,16 @@ export class VisitorsStateService extends AsyncHandler {
             const date = filters.date ? new Date(filters.date) : new Date();
             const start = addMinutes(startOfDay(date), this.tz_offset * 60);
             const end = addDays(start, filters.period || 1);
-            return queryBookings({
-                type: 'visitor',
-                period_start: getUnixTime(start),
-                period_end: getUnixTime(end),
-                zones: (filters.zones || []).join(',') || bld.id,
-                include_checked_out: true,
-                limit: 1000,
-            }).pipe(catchError((_) => of([] as Booking[])));
+            return from(
+                queryBookings({
+                    type: 'visitor',
+                    period_start: getUnixTime(start),
+                    period_end: getUnixTime(end),
+                    zones: (filters.zones || []).join(',') || bld.id,
+                    include_checked_out: true,
+                    limit: 1000,
+                }),
+            ).pipe(catchError((_) => of([] as Booking[])));
         }),
         tap(() => this._loading.next(false)),
         shareReplay(1),
@@ -157,7 +159,7 @@ export class VisitorsStateService extends AsyncHandler {
         await updateBooking(guest.id, {
             ...guest.toJSON(),
             extension_data,
-        }).toPromise();
+        });
         this._poll.next(Date.now());
     }
 
@@ -174,7 +176,7 @@ export class VisitorsStateService extends AsyncHandler {
         );
         if (details.reason !== 'done') return details.close();
         details.loading('Updating guest details');
-        await (approveBooking(item.id) as any).toPromise().catch((e) => {
+        await approveBooking(item.id).catch((e) => {
             notifyError(
                 `Error approving visitor: ${e.message || e.error || e}`,
             );
@@ -199,15 +201,13 @@ export class VisitorsStateService extends AsyncHandler {
         );
         if (details.reason !== 'done') return details.close();
         details.loading('Updating guest details');
-        await rejectBooking(item.id)
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    `Error declining visitor: ${e.message || e.error || e}`,
-                );
-                details.close();
-                throw e;
-            });
+        await rejectBooking(item.id).catch((e) => {
+            notifyError(
+                `Error declining visitor: ${e.message || e.error || e}`,
+            );
+            details.close();
+            throw e;
+        });
         notifySuccess(`Successfully declining visitor`);
         this._poll.next(Date.now());
         details.close();
@@ -220,10 +220,10 @@ export class VisitorsStateService extends AsyncHandler {
         });
         const result = await ref.afterClosed().toPromise();
         if (result === false) {
-            await updateBookingInductionStatus(item.id, 'declined').toPromise();
+            await updateBookingInductionStatus(item.id, 'declined');
         }
         if (!result) throw 'User declined';
-        await updateBookingInductionStatus(item.id, 'accepted').toPromise();
+        await updateBookingInductionStatus(item.id, 'accepted');
         return true;
     }
 
@@ -231,18 +231,16 @@ export class VisitorsStateService extends AsyncHandler {
         if (item.rejected) throw 'You cannot check-in a rejected meeting';
         if (state === true) await this.requestInduction(item);
         if (!item.approved && state === true) {
-            await approveBooking(item.id).toPromise();
+            await approveBooking(item.id);
         }
-        const new_user = await checkinBooking(item.id, state)
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    `Error checking ${state ? 'in' : 'out'} ${
-                        item.asset_name || item.asset_id
-                    } for ${item.user_name}'s meeting`,
-                );
-                throw e;
-            });
+        const new_user = await checkinBooking(item.id, state).catch((e) => {
+            notifyError(
+                `Error checking ${state ? 'in' : 'out'} ${
+                    item.asset_name || item.asset_id
+                } for ${item.user_name}'s meeting`,
+            );
+            throw e;
+        });
         notifySuccess(
             `Successfully checked ${state ? 'in' : 'out'} ${
                 item.asset_name || item.asset_id
@@ -263,16 +261,14 @@ export class VisitorsStateService extends AsyncHandler {
         if (!event_bookings.length) return;
         await Promise.all(
             event_bookings.map((_) =>
-                checkinBooking(_.id, state)
-                    .toPromise()
-                    .catch((e) => {
-                        notifyError(
-                            `Error checking ${state ? 'in' : 'out'} ${
-                                _.asset_name || _.asset_id
-                            } for ${_.user_name}'s meeting`,
-                        );
-                        throw e;
-                    }),
+                checkinBooking(_.id, state).catch((e) => {
+                    notifyError(
+                        `Error checking ${state ? 'in' : 'out'} ${
+                            _.asset_name || _.asset_id
+                        } for ${_.user_name}'s meeting`,
+                    );
+                    throw e;
+                }),
             ),
         );
         notifySuccess(

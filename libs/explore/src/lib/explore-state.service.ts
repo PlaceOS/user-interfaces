@@ -7,7 +7,6 @@ import {
     signal,
     untracked,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import {
     Point,
     ViewAction,
@@ -47,18 +46,14 @@ export class ExploreStateService {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    private _initialised = toSignal(this._org.initialised, {
-        initialValue: false,
-    });
-    private _active_levels = toSignal(this._org.active_levels, {
-        initialValue: null as BuildingLevel[],
-    });
-    private _active_building = toSignal(this._org.active_building, {
-        initialValue: null,
-    });
-    private _overrides = this._settings.overrides$
-        ? toSignal(this._settings.overrides$, { initialValue: [] })
-        : signal([]);
+    private _initialised = this._org.initialised_signal;
+    private _active_levels = this._org.active_levels_signal;
+    private _active_building = this._org.building_signal;
+    private _overrides = computed(() =>
+        this._settings.overrides instanceof Function
+            ? this._settings.overrides()
+            : [],
+    );
 
     /** Currently active level */
     private _level = signal<BuildingLevel>(null);

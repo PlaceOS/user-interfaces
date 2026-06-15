@@ -389,7 +389,7 @@ export class LockerModalComponent extends AsyncHandler implements OnInit {
 
     public async ngOnInit() {
         if (this.locker?.assigned_to) {
-            const user = await showStaff(this.locker.assigned_to).toPromise();
+            const user = await showStaff(this.locker.assigned_to);
             if (user) {
                 this.form.patchValue({
                     assigned_user: user,

@@ -61,13 +61,7 @@ import {
     startOfWeek,
     subDays,
 } from 'date-fns';
-import {
-    BehaviorSubject,
-    combineLatest,
-    forkJoin,
-    lastValueFrom,
-    of,
-} from 'rxjs';
+import { BehaviorSubject, combineLatest, forkJoin, from, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -187,7 +181,7 @@ export class ParkingStateService extends AsyncHandler {
             }
             return forkJoin(
                 levels.map((level) =>
-                    queryParkingSpacesForZones([level.id]).pipe(
+                    from(queryParkingSpacesForZones([level.id])).pipe(
                         map((spaces) => ({
                             level,
                             has_bookable: spaces.length > 0,
@@ -221,7 +215,7 @@ export class ParkingStateService extends AsyncHandler {
                 return of([] as ParkingSpace[]);
             }
             this._loading.next([...this._loading.getValue(), 'spaces']);
-            return queryParkingSpacesForZones(zone_ids);
+            return from(queryParkingSpacesForZones(zone_ids));
         }),
         map((_) =>
             _.sort((a, b) => (a.name || '').localeCompare(b.name || '')),
@@ -241,7 +235,7 @@ export class ParkingStateService extends AsyncHandler {
         filter(([bld]) => !!bld?.id),
         switchMap(([bld]) => {
             this._loading.next([...this._loading.getValue(), 'users']);
-            return queryParkingUsers(bld.id);
+            return from(queryParkingUsers(bld.id));
         }),
         tap(() =>
             this._loading.next(
@@ -274,13 +268,15 @@ export class ParkingStateService extends AsyncHandler {
                     : endOfDay(options.date);
             const period_start = addMinutes(range_start, this.tz_offset * 60);
             const period_end = addMinutes(range_end, this.tz_offset * 60);
-            return queryBookings({
-                period_start: getUnixTime(period_start),
-                period_end: getUnixTime(period_end),
-                type: 'parking',
-                zones: this._bookingQueryZone(options, bld),
-                include_checked_out: true,
-            }).pipe(
+            return from(
+                queryBookings({
+                    period_start: getUnixTime(period_start),
+                    period_end: getUnixTime(period_end),
+                    type: 'parking',
+                    zones: this._bookingQueryZone(options, bld),
+                    include_checked_out: true,
+                }),
+            ).pipe(
                 map((list) => {
                     for (const booking of list) {
                         const user = users.find(
@@ -347,8 +343,9 @@ export class ParkingStateService extends AsyncHandler {
             return options.zones.join(',');
         }
         return (
-            (this._settings.get('app.use_region') ? this._org.region?.id : '') ||
-            bld?.id
+            (this._settings.get('app.use_region')
+                ? this._org.region?.id
+                : '') || bld?.id
         );
     }
 
@@ -367,7 +364,8 @@ export class ParkingStateService extends AsyncHandler {
     public isManualRequest(booking: Booking) {
         return (
             !!booking.extension_data?.requires_manual_approval ||
-            (this.isRequest(booking) && !!booking.extension_data?.approver_group)
+            (this.isRequest(booking) &&
+                !!booking.extension_data?.approver_group)
         );
     }
 
@@ -529,7 +527,7 @@ export class ParkingStateService extends AsyncHandler {
                             space_data.id,
                         );
                     }
-                    await saveParkingSpace(space_data).toPromise();
+                    await saveParkingSpace(space_data);
                     success_count++;
                 } catch (e) {
                     console.error('Failed to save parking space row:', row, e);
@@ -628,17 +626,15 @@ export class ParkingStateService extends AsyncHandler {
         const saved = await saveParkingSpace({
             ...asset_data,
             zones,
-        })
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_ERROR', {
-                        error: e,
-                    }),
-                );
-                ref.componentInstance.loading.set(false);
-                throw e;
-            });
+        }).catch((e) => {
+            notifyError(
+                i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_ERROR', {
+                    error: e,
+                }),
+            );
+            ref.componentInstance.loading.set(false);
+            throw e;
+        });
         if (
             (space.assigned_to !== asset_data.assigned_to || recreate) &&
             asset_data.assigned_to
@@ -649,31 +645,29 @@ export class ParkingStateService extends AsyncHandler {
                     asset_data.assigned_to,
                     zones,
                 ),
-            )
-                .toPromise()
-                .catch(async (e) => {
-                    if (space.id) {
-                        await saveParkingSpace(original_space_data).toPromise();
-                    } else if (saved.id) {
-                        await deleteParkingSpace(saved.id).toPromise();
-                    }
-                    if (recreate) {
-                        await this._restoreAssignedBooking(space).catch(
-                            (restore_err) =>
-                                console.error(
-                                    'Failed to restore assigned parking booking during rollback',
-                                    restore_err,
-                                ),
-                        );
-                    }
-                    notifyError(
-                        i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_ERROR', {
-                            error: e,
-                        }),
+            ).catch(async (e) => {
+                if (space.id) {
+                    await saveParkingSpace(original_space_data);
+                } else if (saved.id) {
+                    await deleteParkingSpace(saved.id);
+                }
+                if (recreate) {
+                    await this._restoreAssignedBooking(space).catch(
+                        (restore_err) =>
+                            console.error(
+                                'Failed to restore assigned parking booking during rollback',
+                                restore_err,
+                            ),
                     );
-                    ref.componentInstance.loading.set(false);
-                    throw e;
-                });
+                }
+                notifyError(
+                    i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_ERROR', {
+                        error: e,
+                    }),
+                );
+                ref.componentInstance.loading.set(false);
+                throw e;
+            });
         }
         this._change.next(Date.now());
         ref.close();
@@ -692,7 +686,7 @@ export class ParkingStateService extends AsyncHandler {
         if (state?.reason !== 'done') return;
         state.loading('Removing parking space...');
         await this._clearAssignedBooking(space);
-        await deleteParkingSpace(space.id).toPromise();
+        await deleteParkingSpace(space.id);
         this._change.next(Date.now());
         state.close();
     }
@@ -715,7 +709,7 @@ export class ParkingStateService extends AsyncHandler {
             id: state.metadata.id || undefined,
         };
         if ('user' in new_user) delete new_user.user;
-        await saveParkingUser(new_user, zone).toPromise();
+        await saveParkingUser(new_user, zone);
         this._change.next(Date.now());
         ref.close();
     }
@@ -734,16 +728,14 @@ export class ParkingStateService extends AsyncHandler {
         );
         if (state?.reason !== 'done') return;
         state.loading(i18n('APP.CONCIERGE.PARKING_USER_REMOVE_LOADING'));
-        await deleteParkingUser(user.id)
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    i18n('APP.CONCIERGE.PARKING_USER_REMOVE_ERROR', {
-                        error: e,
-                    }),
-                );
-                throw e;
-            });
+        await deleteParkingUser(user.id).catch((e) => {
+            notifyError(
+                i18n('APP.CONCIERGE.PARKING_USER_REMOVE_ERROR', {
+                    error: e,
+                }),
+            );
+            throw e;
+        });
         state.close();
         notifySuccess(i18n('APP.CONCIERGE.PARKING_USER_REMOVE_SUCCESS'));
         this._change.next(Date.now());
@@ -766,10 +758,7 @@ export class ParkingStateService extends AsyncHandler {
             ...state.metadata,
             id: state.metadata.id || undefined,
         };
-        const saved = await saveParkingFleetVehicle(
-            new_vehicle,
-            zone,
-        ).toPromise();
+        const saved = await saveParkingFleetVehicle(new_vehicle, zone);
         this._upsertFleetVehicle(toParkingFleetVehicle(saved));
         ref.close();
     }
@@ -788,16 +777,14 @@ export class ParkingStateService extends AsyncHandler {
         );
         if (state?.reason !== 'done') return;
         state.loading(i18n('APP.CONCIERGE.PARKING_FLEET_REMOVE_LOADING'));
-        await deleteParkingFleetVehicle(vehicle.id)
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    i18n('APP.CONCIERGE.PARKING_FLEET_REMOVE_ERROR', {
-                        error: e,
-                    }),
-                );
-                throw e;
-            });
+        await deleteParkingFleetVehicle(vehicle.id).catch((e) => {
+            notifyError(
+                i18n('APP.CONCIERGE.PARKING_FLEET_REMOVE_ERROR', {
+                    error: e,
+                }),
+            );
+            throw e;
+        });
         state.close();
         notifySuccess(i18n('APP.CONCIERGE.PARKING_FLEET_REMOVE_SUCCESS'));
         this._removeFleetVehicleFromList(vehicle.id);
@@ -880,9 +867,7 @@ export class ParkingStateService extends AsyncHandler {
             booking.instance
                 ? checkinBookingInstance(booking.id, booking.instance, state)
                 : checkinBooking(booking.id, state)
-        )
-            .toPromise()
-            .catch((_) => ({ state: 'failed', error: _ }));
+        ).catch((_) => ({ state: 'failed', error: _ }));
         const success = await promise;
         success.state === 'failed'
             ? notifyError(
@@ -920,13 +905,14 @@ export class ParkingStateService extends AsyncHandler {
                 return;
             }
         }
-        const booking_id = series ? booking.parent_id || booking.id : booking.id;
-        const promise = (!series && booking.instance
-            ? approveBookingInstance(booking_id, booking.instance)
-            : approveBooking(booking_id)
-        )
-            .toPromise()
-            .catch((_) => ({ state: 'failed', error: _ }));
+        const booking_id = series
+            ? booking.parent_id || booking.id
+            : booking.id;
+        const promise = (
+            !series && booking.instance
+                ? approveBookingInstance(booking_id, booking.instance)
+                : approveBooking(booking_id)
+        ).catch((_) => ({ state: 'failed', error: _ }));
         const success = await promise;
         success.state === 'failed'
             ? notifyError(
@@ -939,13 +925,14 @@ export class ParkingStateService extends AsyncHandler {
     }
 
     public async rejectBooking(booking: Booking, series = false) {
-        const booking_id = series ? booking.parent_id || booking.id : booking.id;
-        const promise = (!series && booking.instance
-            ? rejectBookingInstance(booking_id, booking.instance)
-            : rejectBooking(booking_id)
-        )
-            .toPromise()
-            .catch((_) => ({ state: 'failed', error: _ }));
+        const booking_id = series
+            ? booking.parent_id || booking.id
+            : booking.id;
+        const promise = (
+            !series && booking.instance
+                ? rejectBookingInstance(booking_id, booking.instance)
+                : rejectBooking(booking_id)
+        ).catch((_) => ({ state: 'failed', error: _ }));
         const success = await promise;
         success.state === 'failed'
             ? notifyError(
@@ -974,19 +961,13 @@ export class ParkingStateService extends AsyncHandler {
             throw i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_EMPTY');
         }
         const [booked_ids, level_spaces] = await Promise.all([
-            lastValueFrom(
-                bookedResourceList({
-                    period_start: getUnixTime(startOfDay(booking.date)),
-                    period_end: getUnixTime(endOfDay(booking.date)),
-                    type: 'parking',
-                    zones: building.id,
-                }),
-            ),
-            Promise.all(
-                levels.map((level) =>
-                    lastValueFrom(queryParkingSpaces(level.id)),
-                ),
-            ),
+            bookedResourceList({
+                period_start: getUnixTime(startOfDay(booking.date)),
+                period_end: getUnixTime(endOfDay(booking.date)),
+                type: 'parking',
+                zones: building.id,
+            }),
+            Promise.all(levels.map((level) => queryParkingSpaces(level.id))),
         ]);
         const booked_resource_ids = new Set(booked_ids);
         const available_space = level_spaces
@@ -1020,15 +1001,13 @@ export class ParkingStateService extends AsyncHandler {
                 asset_name,
             },
         } as Partial<Booking>;
-        await lastValueFrom(
-            booking.instance
-                ? updateBookingInstance(
-                      booking.id,
-                      booking.instance || booking.booking_start,
-                      patch,
-                  )
-                : updateBooking(booking.id, patch),
-        );
+        await (booking.instance
+            ? updateBookingInstance(
+                  booking.id,
+                  booking.instance || booking.booking_start,
+                  patch,
+              )
+            : updateBooking(booking.id, patch));
     }
 
     public async removeBooking(booking: Booking) {
@@ -1052,7 +1031,7 @@ export class ParkingStateService extends AsyncHandler {
         const query = booking.instance
             ? { instance: true, start_time: booking.instance }
             : {};
-        await lastValueFrom(removeBookingApi(booking.id, query)).catch((e) => {
+        await removeBookingApi(booking.id, query).catch((e) => {
             notifyError(
                 i18n('APP.CONCIERGE.BOOKING_REMOVE_ERROR', { error: e }),
             );
@@ -1080,11 +1059,7 @@ export class ParkingStateService extends AsyncHandler {
         if (!level_ids.length) return;
         const email = user_email.toLowerCase();
         const assigned_count = (
-            await lastValueFrom(
-                queryParkingSpacesForZones(level_ids).pipe(
-                    catchError(() => of([])),
-                ),
-            )
+            await queryParkingSpacesForZones(level_ids).catch(() => [])
         ).filter(
             (space) =>
                 space.id !== current_space_id &&
@@ -1104,29 +1079,25 @@ export class ParkingStateService extends AsyncHandler {
 
     private async _clearAssignedBooking(resource: ParkingSpace) {
         const today = Date.now();
-        const booking_list = await lastValueFrom(
-            queryBookings({
-                period_start: getUnixTime(startOfDay(today)),
-                period_end: getUnixTime(endOfDay(today)),
-                type: 'parking',
-                email: resource.assigned_to,
-                include_checked_out: true,
-            }),
-        );
+        const booking_list = await queryBookings({
+            period_start: getUnixTime(startOfDay(today)),
+            period_end: getUnixTime(endOfDay(today)),
+            type: 'parking',
+            email: resource.assigned_to,
+            include_checked_out: true,
+        });
         const filtered = booking_list.filter((_) => _.asset_id === resource.id);
         for (const booking of filtered) {
             const is_recurring = booking.instance;
             if (is_recurring) {
                 const yesterday_end = getUnixTime(endOfDay(subDays(today, 1)));
-                await lastValueFrom(
-                    updateBooking(
-                        booking.id,
-                        { recurrence_end: yesterday_end },
-                        'patch',
-                    ),
+                await updateBooking(
+                    booking.id,
+                    { recurrence_end: yesterday_end },
+                    'patch',
                 );
             } else {
-                await lastValueFrom(removeBookingApi(booking.id));
+                await removeBookingApi(booking.id);
             }
         }
     }
@@ -1139,7 +1110,7 @@ export class ParkingStateService extends AsyncHandler {
                 resource.assigned_to,
                 unique(resource.zones || []).filter((_) => _),
             ),
-        ).toPromise();
+        );
     }
 
     private async _createAssignedParkingBooking(
@@ -1181,7 +1152,7 @@ export class ParkingStateService extends AsyncHandler {
 
     private _loadFleetVehicles(building_id: string) {
         this._loading.next([...this._loading.getValue(), 'fleet']);
-        return queryParkingFleetVehicles(building_id).pipe(
+        return from(queryParkingFleetVehicles(building_id)).pipe(
             tap(() =>
                 this._loading.next(
                     this._loading.getValue().filter((_) => _ !== 'fleet'),

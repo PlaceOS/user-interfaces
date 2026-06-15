@@ -327,7 +327,7 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
                     map((spaces) => this._zonesForResources(spaces)),
                 );
             case 'parking':
-                return queryParkingSpacesForZones([scope_id]).pipe(
+                return from(queryParkingSpacesForZones([scope_id])).pipe(
                     map((spaces) => this._zonesForResources(spaces)),
                 );
             case 'lockers':

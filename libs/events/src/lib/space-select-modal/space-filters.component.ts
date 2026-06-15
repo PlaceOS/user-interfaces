@@ -6,7 +6,7 @@ import {
     input,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -411,13 +411,11 @@ export class SpaceFiltersComponent {
         initialValue: [],
     });
 
-    public readonly using_mapspeople = toSignal(this._mapspeople.available$, {
-        initialValue: false,
-    });
+    public readonly using_mapspeople = this._mapspeople.available;
 
     public readonly features = toSignal(
         combineLatest([
-            this._spaces.features,
+            toObservable(this._spaces.features),
             this._event_form.available_spaces,
         ]).pipe(
             map(([features, spaces]) =>

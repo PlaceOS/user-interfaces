@@ -110,16 +110,14 @@ export class VisitorNotesModalComponent {
                 ...this.item.extension_data,
                 notes: this.notes(),
             },
-        })
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    i18n('APP.CONCIERGE.VISITORS_NOTES_ERROR', { error: e }),
-                );
-                this._dialog_ref.disableClose = false;
-                this.loading.set(false);
-                throw e;
-            });
+        }).catch((e) => {
+            notifyError(
+                i18n('APP.CONCIERGE.VISITORS_NOTES_ERROR', { error: e }),
+            );
+            this._dialog_ref.disableClose = false;
+            this.loading.set(false);
+            throw e;
+        });
         this.loading.set(false);
         notifySuccess(i18n('APP.CONCIERGE.VISITORS_NOTES_SUCCESS'));
         this._dialog_ref.close();

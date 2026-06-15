@@ -17,7 +17,7 @@ import {
 import { getMapDetails } from '@placeos/components';
 import { PlaceAsset } from '@placeos/ts-client';
 import { endInFuture } from 'libs/events/src/lib/validators';
-import { combineLatest, Observable, of } from 'rxjs';
+import { combineLatest, from, Observable, of } from 'rxjs';
 import {
     catchError,
     filter,
@@ -344,7 +344,7 @@ export function loadLockerBanks(
             const scope_id = useRegion()
                 ? region?.id || org.region?.id
                 : bld?.id;
-            return queryLockerBankAssetsForZones([scope_id]).pipe(
+            return from(queryLockerBankAssetsForZones([scope_id])).pipe(
                 catchError(() => of([])),
             );
         }),
@@ -372,7 +372,7 @@ export function loadLockers(
                 ? region?.id || org.region?.id
                 : bld?.id;
             return combineLatest([
-                queryLockerAssetsForZones([scope_id]).pipe(
+                from(queryLockerAssetsForZones([scope_id])).pipe(
                     catchError(() => of([])),
                 ),
                 banks$,

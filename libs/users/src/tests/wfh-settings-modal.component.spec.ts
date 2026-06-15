@@ -17,7 +17,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import * as bkn_fn from 'libs/bookings/src/lib/bookings.fn';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
-import { of } from 'rxjs';
 
 describe('WFHSettingsModalComponent', () => {
     let spectator: Spectator<WFHSettingsModalComponent>;
@@ -48,8 +47,8 @@ describe('WFHSettingsModalComponent', () => {
     });
 
     beforeEach(() => {
-        (bkn_fn.queryBookings as any) = jest.fn(() => of([]));
-        (bkn_fn.saveBooking as any) = jest.fn(() => of({}));
+        (bkn_fn.queryBookings as any) = jest.fn(() => Promise.resolve([]));
+        (bkn_fn.saveBooking as any) = jest.fn(() => Promise.resolve({}));
         spectator = createComponent();
     });
 

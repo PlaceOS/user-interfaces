@@ -115,11 +115,13 @@ export class EmergencyContactsService {
         filter(([bld]) => !!bld),
         switchMap(([bld, assetType]) => {
             if (!assetType) return of([] as EmergencyContact[]);
-            return queryAssets({
-                zone_id: bld.id,
-                type_id: assetType.id,
-                limit: 200,
-            }).pipe(
+            return from(
+                queryAssets({
+                    zone_id: bld.id,
+                    type_id: assetType.id,
+                    limit: 200,
+                }),
+            ).pipe(
                 map((_) => _.data),
                 catchError(() => of([] as Asset[])),
                 map((assets) =>
@@ -195,16 +197,14 @@ export class EmergencyContactsService {
 
         // Create the hidden category
         try {
-            const new_category = await firstValueFrom(
-                saveAssetCategory(
-                    cleanObject(
-                        new AssetCategory({
-                            name: EMERGENCY_CONTACTS_CATEGORY_NAME,
-                            description: JSON.stringify({ roles: [] }),
-                            hidden: true,
-                        }),
-                        [0, undefined, '', null],
-                    ),
+            const new_category = await saveAssetCategory(
+                cleanObject(
+                    new AssetCategory({
+                        name: EMERGENCY_CONTACTS_CATEGORY_NAME,
+                        description: JSON.stringify({ roles: [] }),
+                        hidden: true,
+                    }),
+                    [0, undefined, '', null],
                 ),
             );
             this._change.next(Date.now());
@@ -238,15 +238,13 @@ export class EmergencyContactsService {
 
         // Create the asset type
         try {
-            const new_group = await firstValueFrom(
-                saveAssetType({
-                    name: EMERGENCY_CONTACTS_CATEGORY_NAME,
-                    category_id: category.id,
-                    zone_id: bld.id,
-                    brand: 'PlaceOS',
-                    description: 'Emergency contacts for the building',
-                }),
-            );
+            const new_group = await saveAssetType({
+                name: EMERGENCY_CONTACTS_CATEGORY_NAME,
+                category_id: category.id,
+                zone_id: bld.id,
+                brand: 'PlaceOS',
+                description: 'Emergency contacts for the building',
+            });
             this._change.next(Date.now());
             return new_group;
         } catch (e) {
@@ -288,18 +286,16 @@ export class EmergencyContactsService {
 
             // Update roles in category description
             if (legacy_data.roles?.length) {
-                await firstValueFrom(
-                    saveAssetCategory(
-                        cleanObject(
-                            new AssetCategory({
-                                ...category,
-                                hidden: true,
-                                description: JSON.stringify({
-                                    roles: legacy_data.roles,
-                                }),
+                await saveAssetCategory(
+                    cleanObject(
+                        new AssetCategory({
+                            ...category,
+                            hidden: true,
+                            description: JSON.stringify({
+                                roles: legacy_data.roles,
                             }),
-                            [0, null, undefined, ''],
-                        ),
+                        }),
+                        [0, null, undefined, ''],
                     ),
                 );
             }
@@ -307,7 +303,7 @@ export class EmergencyContactsService {
             // Migrate contacts as assets
             for (const contact of legacy_data.contacts || []) {
                 const asset = this.contactToAsset(contact, asset_type.id);
-                await firstValueFrom(saveAsset(asset));
+                await saveAsset(asset);
             }
 
             // Clear old metadata after successful migration
@@ -358,7 +354,7 @@ export class EmergencyContactsService {
             }
 
             const asset = this.contactToAsset(contact, asset_type.id);
-            await firstValueFrom(saveAsset(asset));
+            await saveAsset(asset);
             this._change.next(Date.now());
             notifySuccess(i18n('APP.CONCIERGE.CONTACTS_SAVE_SUCCESS'));
             return true;
@@ -400,13 +396,11 @@ export class EmergencyContactsService {
                 throw new Error('Failed to create or find category');
             }
 
-            await firstValueFrom(
-                saveAssetCategory(
-                    new AssetCategory({
-                        ...category,
-                        description: JSON.stringify({ roles }),
-                    }),
-                ),
+            await saveAssetCategory(
+                new AssetCategory({
+                    ...category,
+                    description: JSON.stringify({ roles }),
+                }),
             );
             this._change.next(Date.now());
             return true;

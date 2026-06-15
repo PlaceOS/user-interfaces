@@ -8,7 +8,6 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { BehaviorSubject, of } from 'rxjs';
 
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 import { generateBookingForm } from 'libs/bookings/src/lib/booking.utilities';
@@ -40,8 +39,8 @@ describe('ExploreDesksService', () => {
             }),
             MockProvider(OrganisationService, {
                 binding: jest.fn(() => 'sys-1'),
-                active_building: new BehaviorSubject(new Building()),
-                initialised: of(true),
+                building_signal: signal(new Building()),
+                initialised_signal: signal(true),
                 levels: [],
                 buildings: [],
             }),

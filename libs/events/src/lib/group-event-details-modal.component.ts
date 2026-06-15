@@ -30,7 +30,6 @@ import {
     ViewerFeature,
 } from '@placeos/common';
 import { MapLocateModalComponent, MapPinComponent } from '@placeos/components';
-import { lastValueFrom } from 'rxjs';
 
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -639,12 +638,10 @@ export class GroupEventDetailsModalComponent implements OnInit {
         let user = this.guest_details();
         const _user = new GuestUser(currentUser());
         if (this.is_interested() && user) {
-            await lastValueFrom(
-                removeEventGuest(this.event().id, _user, {
-                    system_id: this.calendar_space().id,
-                    calendar: this.group_event_calendar(),
-                }),
-            );
+            await removeEventGuest(this.event().id, _user, {
+                system_id: this.calendar_space().id,
+                calendar: this.group_event_calendar(),
+            });
             this.event.update(
                 (event) =>
                     new CalendarEvent({
@@ -655,12 +652,10 @@ export class GroupEventDetailsModalComponent implements OnInit {
                     }),
             );
         } else {
-            user = await lastValueFrom(
-                addEventGuest(this.event().id, _user, {
-                    system_id: this.calendar_space().id,
-                    calendar: this.group_event_calendar(),
-                }),
-            );
+            user = await addEventGuest(this.event().id, _user, {
+                system_id: this.calendar_space().id,
+                calendar: this.group_event_calendar(),
+            });
             this.event.update(
                 (event) =>
                     new CalendarEvent({
@@ -686,12 +681,10 @@ export class GroupEventDetailsModalComponent implements OnInit {
         let user = this.guest_details();
         const _user = new GuestUser(currentUser());
         if (!user) {
-            user = await lastValueFrom(
-                addEventGuest(this.event().id, _user, {
-                    system_id: this.event().system?.id,
-                    calendar: this.group_event_calendar(),
-                }),
-            );
+            user = await addEventGuest(this.event().id, _user, {
+                system_id: this.event().system?.id,
+                calendar: this.group_event_calendar(),
+            });
             this.event.update(
                 (event) =>
                     new CalendarEvent({
@@ -705,11 +698,9 @@ export class GroupEventDetailsModalComponent implements OnInit {
         }
         user = { ...currentUser(), ...(user || {}) };
         if (!user.email) return;
-        await lastValueFrom(
-            checkinEventGuest(this.event().id, user.email, !this.is_going(), {
-                system_id: this.event().system?.id,
-            }),
-        );
+        await checkinEventGuest(this.event().id, user.email, !this.is_going(), {
+            system_id: this.event().system?.id,
+        });
         const guest = this.event().attendees.find(
             (_) => _.email === user.email,
         );

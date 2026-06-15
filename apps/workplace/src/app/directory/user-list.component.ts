@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, from, Observable, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -202,7 +202,7 @@ export class DirectoryUserListComponent extends AsyncHandler {
         switchMap((query) => {
             this.loading = true;
             return query.length >= this.min_search_length
-                ? searchStaff(query).pipe(catchError(() => of([])))
+                ? from(searchStaff(query)).pipe(catchError(() => of([])))
                 : of([]);
         }),
         tap((l) => {

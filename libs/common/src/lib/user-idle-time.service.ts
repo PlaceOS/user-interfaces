@@ -1,6 +1,4 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest, interval } from 'rxjs';
-import { first, map, tap, throttleTime } from 'rxjs/operators';
+import { computed, Injectable, signal } from '@angular/core';
 
 const EVENTS_NAMES = ['keypress', 'mousemove', 'touchmove', 'scroll', 'wheel'];
 
@@ -8,36 +6,40 @@ const EVENTS_NAMES = ['keypress', 'mousemove', 'touchmove', 'scroll', 'wheel'];
     providedIn: 'root',
 })
 export class UserIdleTimeService {
-    private _last_action = new BehaviorSubject(Date.now());
+    private _last_action = signal(Date.now());
+    private _now = signal(Date.now());
+    private _interval: ReturnType<typeof setInterval>;
     private _update = (e?) => this._onUserInteraction();
     private _event_names = EVENTS_NAMES;
 
-    public readonly last_action = combineLatest([
-        this._last_action,
-        interval(1000),
-    ]).pipe(
-        throttleTime(300),
-        map(([last_action]) => last_action),
+    public readonly last_action = this._last_action.asReadonly();
+
+    public readonly idle_time = computed(
+        () => this._now() - this._last_action(),
     );
 
-    public readonly idle_time = this.last_action.pipe(
-        map((time) => Date.now() - time),
-    );
+    constructor() {
+        this._interval = setInterval(() => this._now.set(Date.now()), 1000);
+    }
 
     private _onUserInteraction() {
-        this._last_action.next(Date.now());
+        this._last_action.set(Date.now());
     }
 
     public idleFor(time_ms: number) {
         const stop = this.startListening();
-        return this.idle_time.pipe(
-            first((t) => t >= time_ms),
-            tap(() => stop()),
-        );
+        return new Promise<void>((resolve) => {
+            const interval = setInterval(() => {
+                if (this.idle_time() < time_ms) return;
+                clearInterval(interval);
+                stop();
+                resolve();
+            }, 1000);
+        });
     }
 
     public startListening() {
-        this._last_action.next(Date.now());
+        this._last_action.set(Date.now());
         for (const name of this._event_names) {
             document.body.addEventListener(name, this._update);
         }

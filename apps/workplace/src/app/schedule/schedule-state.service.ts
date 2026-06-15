@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { effect, inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     checkinBooking,
@@ -49,8 +49,8 @@ import {
 import {
     BehaviorSubject,
     combineLatest,
+    from,
     interval,
-    lastValueFrom,
     Observable,
     of,
 } from 'rxjs';
@@ -346,11 +346,13 @@ export class ScheduleStateService extends AsyncHandler {
                 ),
             };
             return this._settings.get('app.events.use_bookings')
-                ? queryBookings({ ...query, type: 'room' }).pipe(
+                ? from(queryBookings({ ...query, type: 'room' })).pipe(
                       map((_) => _.map((i) => newCalendarEventFromBooking(i))),
                       catchError((_) => of([])),
                   )
-                : queryEvents({ ...query }).pipe(catchError((_) => of([])));
+                : from(queryEvents({ ...query })).pipe(
+                      catchError((_) => of([])),
+                  );
         }),
         shareReplay(1),
     );
@@ -605,20 +607,16 @@ export class ScheduleStateService extends AsyncHandler {
                             auto_release.time_before ||
                             0,
                     );
-                    const bookings = await lastValueFrom(
-                        queryBookings({
-                            period_start: getUnixTime(
-                                startOfMinute(Date.now()),
+                    const bookings = await queryBookings({
+                        period_start: getUnixTime(startOfMinute(Date.now())),
+                        period_end: getUnixTime(
+                            addMinutes(
+                                Date.now(),
+                                (time_after || 5) + time_before,
                             ),
-                            period_end: getUnixTime(
-                                addMinutes(
-                                    Date.now(),
-                                    (time_after || 5) + time_before,
-                                ),
-                            ),
-                            type,
-                        }),
-                    );
+                        ),
+                        type,
+                    });
                     const check_block = (time_after || 0) + time_before;
                     for (const booking of bookings) {
                         if (
@@ -669,7 +667,7 @@ export class ScheduleStateService extends AsyncHandler {
                             continue;
                         }
                         result.loading('Checking in booking...');
-                        await lastValueFrom(checkinBooking(booking.id, true));
+                        await checkinBooking(booking.id, true);
                         result.close();
                     }
                 }
@@ -705,12 +703,10 @@ export class ScheduleStateService extends AsyncHandler {
                 }
             }),
         );
-        this.subscription(
-            'chat_event',
-            this._settings
-                .listen('CHAT:task_complete')
-                .subscribe(() => this.triggerPoll()),
-        );
+        const chat_complete = this._settings.listen('CHAT:task_complete');
+        effect(() => {
+            if (chat_complete()) this.triggerPoll();
+        });
         this.subscription('wfh_checks', this._checkCancel.subscribe());
         this._deleted = JSON.parse(
             sessionStorage.getItem('PLACEOS.events.deleted') || '[]',
@@ -783,24 +779,26 @@ export class ScheduleStateService extends AsyncHandler {
         period: 'day' | 'week' | 'month',
         date: number,
     ) {
-        return queryBookings({
-            period_start: getUnixTime(
-                period === 'day'
-                    ? startOfDay(date)
-                    : startOfWeek(date, {
-                          weekStartsOn: this.offset_weekday,
-                      }),
-            ),
-            period_end: getUnixTime(
-                period === 'day'
-                    ? endOfDay(date)
-                    : endOfWeek(date, {
-                          weekStartsOn: this.offset_weekday,
-                      }),
-            ),
-            type,
-            include_checked_out: true,
-            include_booked_by: true,
-        }).pipe(catchError(() => of([])));
+        return from(
+            queryBookings({
+                period_start: getUnixTime(
+                    period === 'day'
+                        ? startOfDay(date)
+                        : startOfWeek(date, {
+                              weekStartsOn: this.offset_weekday,
+                          }),
+                ),
+                period_end: getUnixTime(
+                    period === 'day'
+                        ? endOfDay(date)
+                        : endOfWeek(date, {
+                              weekStartsOn: this.offset_weekday,
+                          }),
+                ),
+                type,
+                include_checked_out: true,
+                include_booked_by: true,
+            }),
+        ).pipe(catchError(() => of([])));
     }
 }

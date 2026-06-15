@@ -408,9 +408,7 @@ export class RoomBookingHistoryModalComponent {
             period_start: getUnixTime(start),
             period_end: getUnixTime(end),
             include_cancelled: true,
-        })
-            .toPromise()
-            .catch(() => []);
+        }).catch(() => []);
         this._events.set(events || []);
         this.loading.set(false);
     }
@@ -476,9 +474,9 @@ export class RoomBookingHistoryModalComponent {
         } else {
             params.system_ids = this.room.id;
         }
-        const changes = await queryEventHistory(params)
-            .toPromise()
-            .catch(() => [] as CalendarEventChange[]);
+        const changes = await queryEventHistory(params).catch(
+            () => [] as CalendarEventChange[],
+        );
         const sorted = [...(changes || [])].sort(
             (a, b) => (b.updated_at || 0) - (a.updated_at || 0),
         );

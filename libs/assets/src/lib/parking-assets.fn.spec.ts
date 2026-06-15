@@ -1,5 +1,3 @@
-import { of, throwError } from 'rxjs';
-
 jest.mock('@placeos/ts-client', () => ({
     queryAssetCategories: jest.fn(),
     queryAssetTypes: jest.fn(),
@@ -49,7 +47,7 @@ describe('[Parking Assets]', () => {
             ]),
         );
 
-        const type_id = await parking_assets.resolveParkingTypeId().toPromise();
+        const type_id = await parking_assets.resolveParkingTypeId();
 
         expect(type_id).toBe('type-1');
         expect(assets_fn.saveAssetCategory).not.toHaveBeenCalled();
@@ -73,11 +71,9 @@ describe('[Parking Assets]', () => {
                 },
             ]),
         );
-        assets_fn.saveAssetCategory.mockReturnValue(
-            throwError(() => ({ status: 409 })),
-        );
+        assets_fn.saveAssetCategory.mockRejectedValue({ status: 409 });
 
-        const type_id = await parking_assets.resolveParkingTypeId().toPromise();
+        const type_id = await parking_assets.resolveParkingTypeId();
 
         expect(type_id).toBe('type-1');
         expect(assets_fn.saveAssetCategory).toHaveBeenCalledWith({
@@ -102,11 +98,9 @@ describe('[Parking Assets]', () => {
                     },
                 ]),
             );
-        assets_fn.saveAssetType.mockReturnValue(
-            throwError(() => ({ status: 409 })),
-        );
+        assets_fn.saveAssetType.mockRejectedValue({ status: 409 });
 
-        const type_id = await parking_assets.resolveParkingTypeId().toPromise();
+        const type_id = await parking_assets.resolveParkingTypeId();
 
         expect(type_id).toBe('type-1');
         expect(assets_fn.saveAssetType).toHaveBeenCalledWith({
@@ -138,16 +132,14 @@ describe('[Parking Assets]', () => {
                     : [],
             ),
         );
-        assets_fn.saveAssetType.mockReturnValue(
-            of({
-                id: 'type-new',
-                name: '_PARKING_SPACES_',
-                category_id: 'cat-new',
-                brand: 'PlaceOS',
-            }) as any,
-        );
+        assets_fn.saveAssetType.mockResolvedValue({
+            id: 'type-new',
+            name: '_PARKING_SPACES_',
+            category_id: 'cat-new',
+            brand: 'PlaceOS',
+        } as any);
 
-        const type_id = await parking_assets.resolveParkingTypeId().toPromise();
+        const type_id = await parking_assets.resolveParkingTypeId();
 
         expect(type_id).toBe('type-new');
         expect(ts_client.queryAssetTypes).toHaveBeenCalledTimes(1);
@@ -184,17 +176,14 @@ describe('[Parking Assets]', () => {
                     : [],
             ),
         );
-        assets_fn.saveAssetType.mockReturnValue(
-            of({
-                id: 'type-new',
-                name: '_PARKING_USERS_',
-                category_id: 'cat-new',
-                brand: 'PlaceOS',
-            }) as any,
-        );
+        assets_fn.saveAssetType.mockResolvedValue({
+            id: 'type-new',
+            name: '_PARKING_USERS_',
+            category_id: 'cat-new',
+            brand: 'PlaceOS',
+        } as any);
 
-        const type_id =
-            await parking_assets.resolveParkingUserTypeId().toPromise();
+        const type_id = await parking_assets.resolveParkingUserTypeId();
 
         expect(type_id).toBe('type-new');
         expect(ts_client.queryAssetTypes).toHaveBeenCalledTimes(1);

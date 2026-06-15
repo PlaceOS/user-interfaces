@@ -1,4 +1,5 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import {
     PlaceZone,
@@ -10,7 +11,7 @@ import {
     queryZones,
     waitForSignal,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { combineLatest } from 'rxjs';
 import { debounceTime, filter, map, shareReplay } from 'rxjs/operators';
 
 import { log, unique } from '../general';
@@ -45,43 +46,55 @@ export class OrganisationService {
     private _router = inject(Router);
 
     public readonly building_signal = signal<Building>(new Building());
+    public readonly region_signal = signal<Region>(
+        new Region({ name: 'Unknown' }),
+    );
     public readonly regions_signal = signal<Region[]>([]);
     public readonly buildings_signal = signal<Building[]>([]);
     public readonly levels_signal = signal<BuildingLevel[]>([]);
 
     /** Subject which stores the initialised state of the object */
-    protected readonly _initialised = new BehaviorSubject<boolean>(false);
+    protected readonly _initialised = signal<boolean>(false);
     /** Observable of the initialised state of the object */
-    public readonly initialised = this._initialised.asObservable();
-    private readonly _regions = new BehaviorSubject<Region[]>([]);
-    private readonly _active_region = new BehaviorSubject<Region>(
+    public readonly initialised = toObservable(this._initialised);
+    private readonly _regions = signal<Region[]>([]);
+    private readonly _active_region = signal<Region>(
         new Region({ name: 'Unknown' }),
     );
-    private readonly _buildings = new BehaviorSubject<Building[]>([]);
-    private readonly _active_building = new BehaviorSubject<Building>(
+    private readonly _buildings = signal<Building[]>([]);
+    private readonly _active_building = signal<Building>(
         new Building({ name: 'Unknown' }),
     );
-    private readonly _levels = new BehaviorSubject<BuildingLevel[]>([]);
+    private readonly _levels = signal<BuildingLevel[]>([]);
     private readonly _loaded_data: string[] = [];
     private readonly _limited_init = signal(false);
+    public readonly initialised_signal = this._initialised.asReadonly();
+    public readonly active_buildings_signal = computed(() => {
+        const region = this.region_signal();
+        return region ? this.buildingsForRegion(region) : this.buildings;
+    });
+    public readonly active_levels_signal = computed(() => {
+        const building = this.building_signal();
+        return building ? this.levelsForBuilding(building) : [];
+    });
 
     public readonly app_key = `${(
         this._service.app_name || 'workplace'
     ).toLowerCase()}_app`;
     /** Observable for the list of regions */
-    public readonly region_list = this._regions.asObservable();
+    public readonly region_list = toObservable(this._regions);
     /** Observable for the list of buildings */
-    public readonly building_list = this._buildings.asObservable();
+    public readonly building_list = toObservable(this._buildings);
     /** Observable for the list of levels */
-    public readonly level_list = this._levels.asObservable();
+    public readonly level_list = toObservable(this._levels);
     /** Observable for the currently active region */
-    public readonly active_region = this._active_region.asObservable();
+    public readonly active_region = toObservable(this._active_region);
     /** Observable for the currently active building */
-    public readonly active_building = this._active_building.asObservable();
+    public readonly active_building = toObservable(this._active_building);
     /** Observable for the buildings associated with the currently active region */
     public readonly active_buildings = combineLatest([
-        this._buildings,
-        this._active_region,
+        toObservable(this._buildings),
+        toObservable(this._active_region),
     ]).pipe(
         map(([_, region]) =>
             region ? this.buildingsForRegion(region) : this.buildings,
@@ -89,8 +102,8 @@ export class OrganisationService {
     );
     /** Observable for the levels associated with the currently active building */
     public readonly active_levels = combineLatest([
-        this._levels,
-        this._active_building,
+        toObservable(this._levels),
+        toObservable(this._active_building),
     ]).pipe(
         map(([_, bld]) => (bld ? this.levelsForBuilding(bld) : [])),
         shareReplay(1),
@@ -123,7 +136,7 @@ export class OrganisationService {
 
     /** Mapping region settings overrides */
     public regionSettings(id = ''): Record<string, any> {
-        const region = this._active_region.getValue();
+        const region = this._active_region();
         if (!id && region) id = region?.id;
         return this._region_settings ? this._region_settings[id] || {} : {};
     }
@@ -145,12 +158,12 @@ export class OrganisationService {
 
     /** List of available regions */
     public get regions(): Region[] {
-        return this._regions.getValue();
+        return this._regions();
     }
 
     /** Currently active region */
     public get region(): Region {
-        return this._active_region.getValue();
+        return this._active_region();
     }
     public set region(item: Region) {
         this.setRegion(item);
@@ -162,9 +175,10 @@ export class OrganisationService {
     }
 
     public async setRegion(item: Region) {
-        const active_region = this._active_region.value;
+        const active_region = this._active_region();
         if (!item || active_region?.id === item?.id) return;
-        this._active_region.next(item);
+        this._active_region.set(item);
+        this.region_signal.set(item);
         await this.loadRegionData(item);
         this._setBuildingFromTimezone();
         if (
@@ -179,12 +193,12 @@ export class OrganisationService {
 
     /** List of available buildings */
     public get buildings(): Building[] {
-        return this._buildings.getValue() || [];
+        return this._buildings() || [];
     }
 
     /** Currently active building */
     public get building(): Building {
-        return this._active_building.getValue();
+        return this._active_building();
     }
     public set building(bld: Building) {
         this.setBuilding(bld);
@@ -192,7 +206,7 @@ export class OrganisationService {
 
     public setBuilding(bld: Building, save = false) {
         if (!(bld instanceof Object)) return;
-        this._active_building.next(bld);
+        this._active_building.set(bld);
         this.building_signal.set(bld);
         if (!this._service.get('dont_load_metadata')) {
             this.loadBuildingData(bld).then(() =>
@@ -245,7 +259,7 @@ export class OrganisationService {
 
     /** List of available levels */
     public get levels(): BuildingLevel[] {
-        return this._levels.getValue();
+        return this._levels();
     }
 
     public set limit_init(state: boolean) {
@@ -310,29 +324,25 @@ export class OrganisationService {
     public addZone(zone: PlaceZone) {
         if (zone.tags.includes('region')) {
             const region = new Region(zone);
-            const regions = this._regions
-                .getValue()
-                .filter((_) => _.id !== region.id);
+            const regions = this._regions().filter((_) => _.id !== region.id);
             regions.push(region);
-            this._regions.next(regions);
+            this._regions.set(regions);
             this.regions_signal.set(regions);
         } else if (zone.tags.includes('building')) {
             const bld = new Building(zone);
-            let buildings = this._buildings
-                .getValue()
-                .filter((_) => _.id !== bld.id);
+            let buildings = this._buildings().filter((_) => _.id !== bld.id);
             buildings.push(bld);
             buildings = buildings.sort((a, b) =>
                 (a.name || '').localeCompare(b.name || ''),
             );
-            this._buildings.next(buildings);
+            this._buildings.set(buildings);
             this.buildings_signal.set(buildings);
         } else if (zone.tags.includes('level')) {
             const lvl = new BuildingLevel(zone);
-            let levels = this._levels.getValue().filter((_) => _.id !== lvl.id);
+            let levels = this._levels().filter((_) => _.id !== lvl.id);
             levels.push(lvl);
             levels = this._sortLevels(levels);
-            this._levels.next(levels);
+            this._levels.set(levels);
             this.levels_signal.set(levels);
         } else {
             console.warn(
@@ -353,23 +363,16 @@ export class OrganisationService {
 
     public removeZone(zone: PlaceZone) {
         if (zone.tags.includes('region')) {
-            const regions = this._regions
-                .getValue()
-                .filter((_) => _.id !== zone.id);
-            this._regions.next(regions);
+            const regions = this._regions().filter((_) => _.id !== zone.id);
+            this._regions.set(regions);
             this.regions_signal.set(regions);
         } else if (zone.tags.includes('building')) {
-            const buildings = this._buildings
-
-                .getValue()
-                .filter((_) => _.id !== zone.id);
-            this._buildings.next(buildings);
+            const buildings = this._buildings().filter((_) => _.id !== zone.id);
+            this._buildings.set(buildings);
             this.buildings_signal.set(buildings);
         } else if (zone.tags.includes('level')) {
-            const levels = this._levels
-                .getValue()
-                .filter((_) => _.id !== zone.id);
-            this._levels.next(levels);
+            const levels = this._levels().filter((_) => _.id !== zone.id);
+            this._levels.set(levels);
             this.levels_signal.set(levels);
         } else {
             console.warn(
@@ -388,10 +391,10 @@ export class OrganisationService {
 
     private async init(tries = 0) {
         if (this._limited_init()) {
-            this._initialised.next(true);
+            this._initialised.set(true);
             return;
         }
-        this._initialised.next(false);
+        this._initialised.set(false);
         if (isPublicMode()) {
             await this.load().catch((err) => {
                 console.warn(
@@ -415,7 +418,7 @@ export class OrganisationService {
             window.app.org = this;
             (window as any).org = this;
         }
-        this._initialised.next(true);
+        this._initialised.set(true);
     }
 
     private _setPublicData() {
@@ -448,14 +451,16 @@ export class OrganisationService {
             display_name: 'Public Level',
         });
         this._organisation = organisation;
-        this._regions.next([region]);
+        this._regions.set([region]);
         this.regions_signal.set([region]);
-        this._buildings.next([building]);
+        this._buildings.set([building]);
         this.buildings_signal.set([building]);
-        this._levels.next([level]);
+        this._levels.set([level]);
         this.levels_signal.set([level]);
-        this._active_region.next(region);
-        this._active_building.next(building);
+        this._active_region.set(region);
+        this._active_building.set(building);
+        this.region_signal.set(region);
+        this.building_signal.set(building);
         this.building_signal.set(building);
         this._updateSettingOverrides();
     }
@@ -468,17 +473,17 @@ export class OrganisationService {
         await this.loadOrganisation();
         setLoadingMessage('Loading region data...');
         await this.loadRegions();
-        if (!this._regions.getValue().length) {
+        if (!this._regions().length) {
             setLoadingMessage('Loading building data...');
             const list = await this.loadBuildings();
-            this._buildings.next(list);
+            this._buildings.set(list);
             this.buildings_signal.set(list);
         } else {
             setLoadingMessage('Loading region buildings data...');
-            for (const region of this._regions.getValue()) {
+            for (const region of this._regions()) {
                 const blds = await this.loadBuildings(region.id);
                 if (blds.length) {
-                    this._buildings.next(blds);
+                    this._buildings.set(blds);
                     this.buildings_signal.set(blds);
                     break;
                 }
@@ -486,7 +491,7 @@ export class OrganisationService {
         }
         setLoadingMessage('Loading zone settings...');
         await this.loadSettings();
-        if (!this._buildings.getValue()?.length) {
+        if (!this._buildings()?.length) {
             log('ORG', 'Unable to find any building zones');
         }
         setLoadingMessage('Loading active building levels...');
@@ -534,7 +539,7 @@ export class OrganisationService {
                 limit: 500,
             }).catch(() => [])
         ).map((_) => new Region(_));
-        this._regions.next(list);
+        this._regions.set(list);
         this.regions_signal.set(list);
     }
 
@@ -555,10 +560,10 @@ export class OrganisationService {
             this.loadBuildings(region.id),
         ]);
         const building_list = unique(
-            [...this._buildings.getValue(), ...buildings],
+            [...this._buildings(), ...buildings],
             'id',
         );
-        this._buildings.next(building_list);
+        this._buildings.set(building_list);
         this.buildings_signal.set(building_list);
         this._loaded_data[region.id] = true;
         (region as any).bindings = bindings;
@@ -642,7 +647,7 @@ export class OrganisationService {
         levels = levels.sort((a, b) =>
             (a.name || '').localeCompare(b.name || ''),
         );
-        this._levels.next(levels);
+        this._levels.set(levels);
         this.levels_signal.set(levels);
     }
 
@@ -656,7 +661,7 @@ export class OrganisationService {
             await this._bulkMetadataDetails('settings', [org_id])
         )[org_id];
         this._settings = [global_settings, app_settings];
-        this._service.overrides = [...this._settings];
+        this._service.setOverrides([...this._settings]);
         await this._initialiseActiveBuilding();
         this._updateSettingOverrides();
     }
@@ -724,9 +729,7 @@ export class OrganisationService {
         if (!this.buildings.length && !region_id) return;
 
         await (region_id
-            ? this.setRegion(
-                  this._regions.getValue().find((_) => _.id === region_id),
-              )
+            ? this.setRegion(this._regions().find((_) => _.id === region_id))
             : this._setRegionFromTimezone());
         if (!this.buildings.length) return;
         if (building_id) {
@@ -785,7 +788,7 @@ export class OrganisationService {
     private _updateSettingOverrides() {
         setTimeout(
             () =>
-                (this._service.overrides = [
+                this._service.setOverrides([
                     this.buildingSettings(this.building?.id),
                     this.regionSettings(this.region?.id),
                     ...this._settings,

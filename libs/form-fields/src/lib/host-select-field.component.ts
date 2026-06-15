@@ -16,7 +16,7 @@ import {
     User,
 } from '@placeos/common';
 import { queryCalendars } from 'libs/events/src/lib/calendar.fn';
-import { combineLatest, of } from 'rxjs';
+import { combineLatest, from, of } from 'rxjs';
 import { catchError, map, shareReplay } from 'rxjs/operators';
 
 @Component({
@@ -62,7 +62,7 @@ import { catchError, map, shareReplay } from 'rxjs/operators';
 export class HostSelectFieldComponent implements ControlValueAccessor {
     public readonly item = signal<User | null>(null);
     public readonly users = combineLatest([
-        queryCalendars().pipe(catchError(() => of([] as Calendar[]))),
+        from(queryCalendars()).pipe(catchError(() => of([] as Calendar[]))),
     ]).pipe(
         map(([list]) =>
             list

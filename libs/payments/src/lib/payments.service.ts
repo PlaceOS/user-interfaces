@@ -1,7 +1,5 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { BehaviorSubject, of } from 'rxjs';
-import { shareReplay, switchMap, tap } from 'rxjs/operators';
 
 import {
     OrganisationService,
@@ -39,22 +37,19 @@ export class PaymentsService {
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
 
-    private _loading = new BehaviorSubject('');
-    private _active_card = new BehaviorSubject('');
+    private _loading = signal('');
+    private _active_card = signal('');
+    private _payment_sources = signal<any[]>([]);
 
-    public readonly loading = this._loading.asObservable();
+    public readonly loading = this._loading.asReadonly();
+    public readonly payment_sources = this._payment_sources.asReadonly();
 
-    public readonly payment_sources = of(1).pipe(
-        switchMap(() => {
-            const mod = this._org.module('payments', STRIPE_MODULE);
-            if (!mod) return of([]);
-            return mod.execute('list_payment_methods', ['card']);
-        }),
-        tap((_) => (_[0] ? this._active_card.next(_[0].id) : '')),
-        shareReplay(1),
-    );
+    constructor() {
+        this.loadPaymentSources();
+    }
 
     public get enabled() {
+        if (!this._org.module) return false;
         return !!this._org.module('payments', STRIPE_MODULE);
     }
 
@@ -76,7 +71,7 @@ export class PaymentsService {
         const makePayment = async (c: any) => {
             result = await this._processPayment(amount, customer_id, c).catch(
                 (e) => {
-                    this._loading.next('');
+                    this._loading.set('');
                     throw e;
                 },
             );
@@ -89,7 +84,9 @@ export class PaymentsService {
             loading: this.loading,
         };
         const ref = this._dialog.open(PaymentModalComponent, { data });
-        await ref.afterClosed().toPromise();
+        await new Promise((resolve) =>
+            ref.afterClosed().subscribe(() => resolve(null)),
+        );
         return result;
     }
 
@@ -132,13 +129,13 @@ export class PaymentsService {
         customer_id: string,
         card_details?: PaymentCardDetails,
     ) {
-        this._loading.next('Checking payment method...');
+        this._loading.set('Checking payment method...');
         console.log('Getting payment method...');
         const source = card_details
             ? await this._addPaymentMethod(card_details)
-            : this._active_card.getValue();
+            : this._active_card();
         if (!source) throw 'No payment source selected';
-        this._loading.next('Processing payment...');
+        this._loading.set('Processing payment...');
         console.log('Processing payment...');
         const mod = this._org.module('payments', STRIPE_MODULE);
         if (!mod) throw 'Unable to load module';
@@ -156,7 +153,7 @@ export class PaymentsService {
         if (!id) throw 'Failed to create payment';
         console.log('Confirming payment...');
         await mod.execute('confirm_payment_intent', [id, source]);
-        this._loading.next('');
+        this._loading.set('');
         return {
             success: true,
             state: 'approved',
@@ -180,5 +177,17 @@ export class PaymentsService {
             user.email,
         ]);
         return id;
+    }
+
+    private async loadPaymentSources() {
+        if (!this._org.module) return;
+        const mod = this._org.module('payments', STRIPE_MODULE);
+        const list = mod
+            ? await mod
+                  .execute<any[]>('list_payment_methods', ['card'])
+                  .catch(() => [])
+            : [];
+        if (list[0]) this._active_card.set(list[0].id);
+        this._payment_sources.set(list);
     }
 }

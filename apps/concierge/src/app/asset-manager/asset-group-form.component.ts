@@ -27,7 +27,6 @@ import {
 } from '@placeos/components';
 import { ImageListFieldComponent } from '@placeos/form-fields';
 import { showAssetType } from '@placeos/ts-client';
-import { lastValueFrom } from 'rxjs';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
@@ -216,13 +215,11 @@ export class AssetGroupFormComponent extends AsyncHandler implements OnInit {
         if (!this.form.valid) return;
         this.loading.set('Saving Product...');
         const data = this.form.value;
-        const item = await lastValueFrom(saveAssetType(data as any)).catch(
-            (e) => {
-                this.loading.set('');
-                notifyError(`Error saving Product: ${e.message}`);
-                throw e;
-            },
-        );
+        const item = await saveAssetType(data as any).catch((e) => {
+            this.loading.set('');
+            notifyError(`Error saving Product: ${e.message}`);
+            throw e;
+        });
         this.form.reset();
         this.loading.set('');
         this._state.postChange();

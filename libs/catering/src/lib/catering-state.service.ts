@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     deleteCateringItem,
@@ -10,19 +10,9 @@ import {
     showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, lastValueFrom } from 'rxjs';
-import {
-    filter,
-    first,
-    map,
-    shareReplay,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
 
 import {
     AsyncHandler,
-    Building,
     CateringItem,
     CateringOrder,
     OrganisationService,
@@ -30,7 +20,6 @@ import {
     currentUser,
     flatten,
     i18n,
-    nextValueFrom,
     notifyError,
     notifySuccess,
     unique,
@@ -48,7 +37,6 @@ import {
     CateringOrderOptionsModalComponent,
     CateringOrderOptionsModalData,
 } from './catering-order-options-modal.component';
-import { CateringOrdersService } from './catering-orders.service';
 import { CateringOption } from './catering.interfaces';
 
 import {
@@ -71,74 +59,50 @@ export class CateringStateService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
-    private _orders = inject(CateringOrdersService);
-
-    private _updated = new BehaviorSubject(0);
+    private _updated = signal(0);
     /** Active menu */
-    private _menu = new BehaviorSubject<CateringItem[]>([]);
+    private _menu = signal<CateringItem[]>([]);
     /** Whether the menu for the active building is loading */
-    private _loading = new BehaviorSubject<boolean>(false);
+    private _loading = signal<boolean>(false);
     /** Currency code for the active building */
-    private _currency = new BehaviorSubject<string>('USD');
+    private _currency = signal<string>('USD');
 
-    private _change = new BehaviorSubject(0);
-    /** Observable for the active menu */
-    public readonly menu = this._menu.asObservable();
-    /** Observable for whether the menu for the active building is loadingg */
-    public readonly loading = this._loading.asObservable();
-    /** Observable for the currency code of the active building */
-    public readonly currency = this._currency.asObservable();
+    private _change = signal(0);
+    private _settings_data = signal<CateringSettings>({});
+    /** Signal for the active menu */
+    public readonly menu = this._menu.asReadonly();
+    /** Signal for whether the menu for the active building is loading */
+    public readonly loading = this._loading.asReadonly();
+    /** Signal for the currency code of the active building */
+    public readonly currency = this._currency.asReadonly();
 
-    public readonly settings = combineLatest([
-        this._org.active_building,
-        this._change,
-    ]).pipe(
-        filter(([_]) => !!_),
-        switchMap(([_]) =>
-            showMetadata(_.id, 'catering-settings').catch(
-                () => ({}) as PlaceMetadata,
-            ),
-        ),
-        map((_) => (_.details as CateringSettings) || {}),
-        tap((_) =>
-            this._settings.post('require_catering_notes', !!_?.require_notes),
-        ),
-        shareReplay(1),
+    public readonly settings = this._settings_data.asReadonly();
+
+    public readonly charge_codes = computed(
+        () => this._settings_data().charge_codes || [],
+    );
+    public readonly availability = computed(
+        () => this._settings_data().disabled_rooms || [],
     );
 
-    public readonly charge_codes = this.settings.pipe(
-        map((_) => _.charge_codes || []),
-    );
-    public readonly availability = this.settings.pipe(
-        map((_) => _.disabled_rooms || []),
-    );
-
-    public readonly caterers = combineLatest([
-        this._menu,
-        this._orders.caterers,
-    ]).pipe(
-        map(([menu_items]) => {
-            const provider_groups =
-                this._settings.get('app.catering_provider_groups') || {};
-            let provider_list = Object.keys(provider_groups);
-            if (!provider_list.length) {
-                return unique(menu_items.map((i) => i.caterer)).sort((a, b) =>
-                    `${a}`.localeCompare(b),
-                );
-            }
-            provider_list = provider_list.filter((caterer) =>
-                provider_groups[caterer].find((group) =>
-                    currentUser().groups.includes(group),
-                ),
-            );
-            provider_list = unique(provider_list);
-            provider_list = provider_list.sort((a, b) =>
+    public readonly caterers = computed(() => {
+        const provider_groups =
+            this._settings.get('app.catering_provider_groups') || {};
+        let provider_list = Object.keys(provider_groups);
+        if (!provider_list.length) {
+            return unique(this._menu().map((i) => i.caterer)).sort((a, b) =>
                 `${a}`.localeCompare(b),
             );
-            return provider_list;
-        }),
-        shareReplay(1),
-    );
+        }
+        provider_list = provider_list.filter((caterer) =>
+            provider_groups[caterer].find((group) =>
+                currentUser().groups.includes(group),
+            ),
+        );
+        provider_list = unique(provider_list);
+        provider_list = provider_list.sort((a, b) => `${a}`.localeCompare(b));
+        return provider_list;
+    });
 
     public zone = '';
 
@@ -147,37 +111,24 @@ export class CateringStateService extends AsyncHandler {
     }
 
     public get categories() {
-        const menu = this._menu.getValue();
+        const menu = this._menu();
         return unique(menu.map((i) => i.category));
     }
 
     public get caterer_list() {
-        const menu = this._menu.getValue();
+        const menu = this._menu();
         return unique(menu.map((i) => i.caterer));
     }
 
     constructor() {
         super();
-        this.subscription(
-            'building',
-            this._org.active_building.subscribe(async (bld: Building) => {
-                if (bld) {
-                    this._loading.next(true);
-                    this._menu.next([]);
-                    const menu = await queryCateringItems(bld.id)
-                        .toPromise()
-                        .catch(() => []);
-                    this._currency.next(
-                        this._settings.get('app.currency') ||
-                            bld.currency ||
-                            'USD',
-                    );
-                    this._loading.next(false);
-
-                    this.timeout('loaded', () => this._menu.next(menu), 1000);
-                }
-            }),
-        );
+        effect(() => {
+            const bld = this._org.building_signal();
+            this._change();
+            if (!bld?.id) return;
+            this._loadBuilding(bld.id, bld.currency);
+            this._loadSettings(bld.id);
+        });
     }
 
     public async addItem(item: CateringItem = new CateringItem()) {
@@ -192,45 +143,39 @@ export class CateringStateService extends AsyncHandler {
             },
         });
         const details = await Promise.race([
-            ref.componentInstance.event
-                .pipe(first((_) => _.reason === 'done'))
-                .toPromise(),
-            ref.afterClosed().toPromise(),
+            this._doneEvent(ref.componentInstance.event),
+            this._closedEvent(ref.afterClosed()),
         ]);
         if (details?.reason !== 'done') return;
-        saveCateringItem(details.metadata.item, this._org.building.id)
-            .toPromise()
-            .then(
-                (saved_item) => {
-                    const menu = this._menu.getValue();
-                    const index = menu.findIndex((itm) => itm.id === item.id);
-                    if (index >= 0) {
-                        menu.splice(index, 1, saved_item);
-                    } else {
-                        menu.push(saved_item);
-                    }
-                    this._menu.next([...menu]);
-                    ref.close();
-                },
-                () => ref.componentInstance.loading.set(false),
-            );
+        saveCateringItem(details.metadata.item, this._org.building.id).then(
+            (saved_item) => {
+                const menu = this._menu();
+                const index = menu.findIndex((itm) => itm.id === item.id);
+                if (index >= 0) {
+                    menu.splice(index, 1, saved_item);
+                } else {
+                    menu.push(saved_item);
+                }
+                this._menu.set([...menu]);
+                ref.close();
+            },
+            () => ref.componentInstance.loading.set(false),
+        );
     }
 
     public updateItem(item: CateringItem) {
-        saveCateringItem(item, this._org.building.id)
-            .toPromise()
-            .then(
-                (saved_item) => {
-                    const menu = this._menu.getValue();
-                    const index = menu.findIndex((itm) => itm.id === item.id);
-                    if (index >= 0) menu.splice(index, 1, saved_item);
-                    else menu.push(saved_item);
-                    this._menu.next([...menu]);
-                },
-                () => {
-                    notifyError(i18n('CATERING.ITEM_SAVE_ERROR'));
-                },
-            );
+        saveCateringItem(item, this._org.building.id).then(
+            (saved_item) => {
+                const menu = this._menu();
+                const index = menu.findIndex((itm) => itm.id === item.id);
+                if (index >= 0) menu.splice(index, 1, saved_item);
+                else menu.push(saved_item);
+                this._menu.set([...menu]);
+            },
+            () => {
+                notifyError(i18n('CATERING.ITEM_SAVE_ERROR'));
+            },
+        );
     }
 
     public async addOption(
@@ -249,28 +194,24 @@ export class CateringStateService extends AsyncHandler {
             },
         });
         const details = await Promise.race([
-            ref.componentInstance.event
-                .pipe(first((_) => _.reason === 'done'))
-                .toPromise(),
-            ref.afterClosed().toPromise(),
+            this._doneEvent(ref.componentInstance.event),
+            this._closedEvent(ref.afterClosed()),
         ]);
         if (details?.reason !== 'done') return;
-        saveCateringItem(details.metadata.item, this._org.building.id)
-            .toPromise()
-            .then(
-                (saved_item) => {
-                    const menu = this._menu.getValue();
-                    const index = menu.findIndex((itm) => itm.id === item.id);
-                    if (index >= 0) {
-                        menu.splice(index, 1, saved_item);
-                    } else {
-                        menu.push(saved_item);
-                    }
-                    this._menu.next([...menu]);
-                    ref.close();
-                },
-                () => ref.componentInstance.loading.set(false),
-            );
+        saveCateringItem(details.metadata.item, this._org.building.id).then(
+            (saved_item) => {
+                const menu = this._menu();
+                const index = menu.findIndex((itm) => itm.id === item.id);
+                if (index >= 0) {
+                    menu.splice(index, 1, saved_item);
+                } else {
+                    menu.push(saved_item);
+                }
+                this._menu.set([...menu]);
+                ref.close();
+            },
+            () => ref.componentInstance.loading.set(false),
+        );
     }
 
     public async selectOptions(options: CateringOption[]) {
@@ -279,15 +220,13 @@ export class CateringStateService extends AsyncHandler {
             CateringOrderOptionsModalData
         >(CateringOrderOptionsModalComponent, {
             data: {
-                code: this._currency.getValue(),
+                code: this._currency(),
                 options,
             },
         });
         const details = await Promise.race([
-            ref.componentInstance.event
-                .pipe(first((_) => _.reason === 'done'))
-                .toPromise(),
-            ref.afterClosed().toPromise(),
+            this._doneEvent(ref.componentInstance.event),
+            this._closedEvent(ref.afterClosed()),
         ]);
         if (details?.reason !== 'done') return [];
         ref.close();
@@ -309,12 +248,10 @@ export class CateringStateService extends AsyncHandler {
         );
         if (details.reason !== 'done') return;
         details.loading(i18n('CATERING.ITEM_REMOVE_LOADING'));
-        lastValueFrom(deleteCateringItem(item.id)).then(
+        deleteCateringItem(item.id).then(
             () => {
-                const menu = this._menu
-                    .getValue()
-                    .filter((itm) => item.id !== itm.id);
-                this._menu.next([...menu]);
+                const menu = this._menu().filter((itm) => item.id !== itm.id);
+                this._menu.set([...menu]);
                 notifySuccess(i18n('CATERING.ITEM_REMOVE_SUCCESS'));
                 details.close();
             },
@@ -347,39 +284,37 @@ export class CateringStateService extends AsyncHandler {
             ...item,
             options: item.options.filter((opt) => opt.id !== option.id),
         });
-        saveCateringItem(updated_item, this._org.building.id)
-            .toPromise()
-            .then(
-                (saved_item) => {
-                    const menu = this._menu.getValue();
-                    menu.splice(
-                        menu.findIndex((itm) => itm.id === item.id),
-                        1,
-                        saved_item,
-                    );
-                    this._menu.next([...menu]);
-                    notifySuccess(
-                        i18n('CATERING.ITEM_OPTION_REMOVE_SUCCESS', {
-                            item: item.name,
-                        }),
-                    );
-                    details.close();
-                },
-                () => {
-                    notifySuccess(
-                        i18n('CATERING.ITEM_OPTION_REMOVE_ERROR', {
-                            item: item.name,
-                        }),
-                    );
-                    details.loading('');
-                },
-            );
+        saveCateringItem(updated_item, this._org.building.id).then(
+            (saved_item) => {
+                const menu = this._menu();
+                menu.splice(
+                    menu.findIndex((itm) => itm.id === item.id),
+                    1,
+                    saved_item,
+                );
+                this._menu.set([...menu]);
+                notifySuccess(
+                    i18n('CATERING.ITEM_OPTION_REMOVE_SUCCESS', {
+                        item: item.name,
+                    }),
+                );
+                details.close();
+            },
+            () => {
+                notifySuccess(
+                    i18n('CATERING.ITEM_OPTION_REMOVE_ERROR', {
+                        item: item.name,
+                    }),
+                );
+                details.loading('');
+            },
+        );
     }
 
     public async editConfig() {
         const config = await this.getCateringConfig(this._org.building.id);
-        const { require_notes } = await nextValueFrom(this.settings);
-        const menu = this._menu.getValue();
+        const { require_notes } = this.settings();
+        const menu = this._menu();
         const types = unique(flatten(menu.map((i) => [i.category, ...i.tags])));
         const ref = this._dialog.open<
             AttachedResourceConfigModalComponent,
@@ -393,10 +328,8 @@ export class CateringStateService extends AsyncHandler {
             },
         });
         const details = await Promise.race([
-            ref.componentInstance.event
-                .pipe(first((_) => _.reason === 'done'))
-                .toPromise(),
-            ref.afterClosed().toPromise(),
+            this._doneEvent(ref.componentInstance.event),
+            this._closedEvent(ref.afterClosed()),
         ]);
         if (details?.reason !== 'done') return;
         this.updateConfig(this._org.building.id, details.metadata).then(
@@ -410,26 +343,22 @@ export class CateringStateService extends AsyncHandler {
     public async importMenu() {
         const ref = this._dialog.open(CateringImportMenuModalComponent);
         const details = await Promise.race([
-            ref.componentInstance.event
-                .pipe(first((_) => _.reason === 'done'))
-                .toPromise(),
-            ref.afterClosed().toPromise(),
+            this._doneEvent(ref.componentInstance.event),
+            this._closedEvent(ref.afterClosed()),
         ]);
         if (details?.reason !== 'done') return;
         ref.componentInstance.loading.set(i18n('CATERING.MENU_IMPORT_LOADING'));
         const bld = this._org.building;
-        const menu = this._menu.getValue();
+        const menu = this._menu();
         const updated_menu = unique(details.metadata.concat(menu), 'id');
         const saved_menu = await Promise.all(
-            updated_menu.map((item) =>
-                saveCateringItem(item, bld.id).toPromise(),
-            ),
+            updated_menu.map((item) => saveCateringItem(item, bld.id)),
         ).catch((_) => {
             notifyError(i18n('CATERING.MENU_IMPORT_ERROR'));
             ref.close();
             throw _;
         });
-        this._menu.next(saved_menu);
+        this._menu.set(saved_menu);
         notifySuccess(
             i18n('CATERING.MENU_IMPORT_SUCCESS', {
                 count: details.metadata.length,
@@ -439,14 +368,14 @@ export class CateringStateService extends AsyncHandler {
     }
 
     public async saveSettings(settings: CateringSettings) {
-        const old_settings = await nextValueFrom(this.settings);
+        const old_settings = this.settings();
         const result = await updateMetadata(this._org.building.id, {
             id: this._org.building.id,
             name: 'catering-settings',
             details: { ...old_settings, ...settings },
             description: `Catering settings for ${this._org.building.id}`,
         });
-        this._change.next(Date.now());
+        this._change.set(Date.now());
         return result;
     }
 
@@ -492,5 +421,50 @@ export class CateringStateService extends AsyncHandler {
             event: null,
         });
         return new_order;
+    }
+
+    private async _loadBuilding(building_id: string, currency: string) {
+        this._loading.set(true);
+        this._menu.set([]);
+        const menu = await queryCateringItems(building_id).catch(() => []);
+        this._currency.set(
+            this._settings.get('app.currency') || currency || 'USD',
+        );
+        this._loading.set(false);
+        this.timeout('loaded', () => this._menu.set(menu), 1000);
+    }
+
+    private async _loadSettings(building_id: string) {
+        const metadata = await showMetadata(
+            building_id,
+            'catering-settings',
+        ).catch(() => ({}) as PlaceMetadata);
+        const settings = (metadata.details as CateringSettings) || {};
+        this._settings_data.set(settings);
+        this._settings.post(
+            'require_catering_notes',
+            !!settings?.require_notes,
+        );
+    }
+
+    private _doneEvent(event: { subscribe: (_: any) => any }) {
+        return new Promise<any>((resolve) => {
+            let sub: any;
+            sub = event.subscribe((details) => {
+                if (details?.reason !== 'done') return;
+                sub?.unsubscribe?.();
+                resolve(details);
+            });
+        });
+    }
+
+    private _closedEvent(event: { subscribe: (_: any) => any }) {
+        return new Promise<null>((resolve) => {
+            let sub: any;
+            sub = event.subscribe(() => {
+                sub?.unsubscribe?.();
+                setTimeout(() => resolve(null));
+            });
+        });
     }
 }

@@ -48,7 +48,7 @@ import {
     startOfDay,
     startOfWeek,
 } from 'date-fns';
-import { combineLatest, defer, of } from 'rxjs';
+import { combineLatest, defer, from, of } from 'rxjs';
 import { catchError, filter, map, startWith, switchMap } from 'rxjs/operators';
 import { SettingsToggleComponent } from '../../../../../../libs/components/src/lib/settings-toggle.component';
 
@@ -1558,7 +1558,7 @@ export class ParkingRequestFormDetailsComponent
             'space_availability',
             combineLatest([
                 this._org.active_building,
-                this._parking.spaces,
+                toObservable(this._parking.spaces),
                 form.valueChanges.pipe(startWith(form.getRawValue())),
             ])
                 .pipe(
@@ -1574,15 +1574,17 @@ export class ParkingRequestFormDetailsComponent
                         const start_date = value.date || Date.now();
                         const duration = value.duration || 540;
                         this.availability_loading.set(true);
-                        return bookedResourceList({
-                            period_start: getUnixTime(start_date),
-                            period_end: getUnixTime(
-                                addMinutes(start_date, duration),
-                            ),
-                            type: 'parking',
-                            zones: bld.id,
-                            rejected: false,
-                        }).pipe(
+                        return from(
+                            bookedResourceList({
+                                period_start: getUnixTime(start_date),
+                                period_end: getUnixTime(
+                                    addMinutes(start_date, duration),
+                                ),
+                                type: 'parking',
+                                zones: bld.id,
+                                rejected: false,
+                            }),
+                        ).pipe(
                             map((booked_assets) => {
                                 const booked_ids = new Set(
                                     booked_assets.filter((id) =>
@@ -1627,13 +1629,15 @@ export class ParkingRequestFormDetailsComponent
                         if (!email) return of(null);
                         const period_start = getUnixTime(startOfDay(date));
                         const period_end = getUnixTime(endOfDay(date));
-                        return queryBookings({
-                            type: 'desk',
-                            period_start,
-                            period_end,
-                            email,
-                            rejected: false,
-                        }).pipe(
+                        return from(
+                            queryBookings({
+                                type: 'desk',
+                                period_start,
+                                period_end,
+                                email,
+                                rejected: false,
+                            }),
+                        ).pipe(
                             map((bookings) => {
                                 const booking = bookings.find(
                                     (_) =>
