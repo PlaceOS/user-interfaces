@@ -2,8 +2,10 @@ import {
     ChangeDetectionStrategy,
     Component,
     inject,
+    Injector,
     OnInit,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { BookingFormService, findNearbyFeature } from '@placeos/bookings';
 import {
@@ -13,7 +15,6 @@ import {
     Desk,
     firstTruthyValueFrom,
     i18n,
-    nextValueFrom,
     notifyError,
     notifyInfo,
     OrganisationService,
@@ -53,6 +54,7 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
     private _state = inject(BookingFormService);
     private _org = inject(OrganisationService);
     private _route = inject(ActivatedRoute);
+    private _injector = inject(Injector);
 
     private _space_pipe: SpacePipe = new SpacePipe(this._org);
 
@@ -104,11 +106,11 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
                 if (params.has('asset_id')) {
                     const id = params.get('asset_id');
                     await firstTruthyValueFrom(
-                        this._state.loading.pipe(map((_) => !_)),
+                        toObservable(this._state.loading, {
+                            injector: this._injector,
+                        }).pipe(map((_) => !_)),
                     );
-                    const resources = await nextValueFrom(
-                        this._state.resources,
-                    );
+                    const resources = await this._state.listResources();
                     const asset = resources.find((_) => _.id === id);
                     if (!asset) {
                         return notifyInfo(
@@ -148,7 +150,7 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
             booking_type: 'desk',
             user: currentUser(),
         });
-        const resources = await nextValueFrom(this._state.available_resources);
+        const resources = await this._state.listAvailableResources();
         const bookable_desks = resources
             .map((_) => _.map_id || _.id)
             .filter((i) => i);

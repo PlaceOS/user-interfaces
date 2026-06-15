@@ -359,6 +359,48 @@ export function loadLockerBanks(
     );
 }
 
+/** Load locker banks for a single zone scope (signal/promise based) */
+export async function loadLockerBanksForScope(
+    org: OrganisationService,
+    scope_id: string,
+): Promise<LockerBank[]> {
+    if (!scope_id) return [];
+    const assets = await queryLockerBankAssetsForZones([scope_id]).catch(
+        () => [],
+    );
+    const banks = assets.map(lockerBankFromAsset);
+    for (const bank of banks) {
+        bank.zone = org.levelWithID(bank.zones || []) as any;
+    }
+    return banks;
+}
+
+/** Load lockers for a single zone scope, attaching them to their banks */
+export async function loadLockersForScope(
+    org: OrganisationService,
+    scope_id: string,
+    banks: LockerBank[],
+): Promise<Locker[]> {
+    if (!scope_id) return [];
+    const assets = await queryLockerAssetsForZones([scope_id]).catch(() => []);
+    const lockers = assets.map((_) => lockerFromAsset(_, banks));
+    for (const bank of banks) {
+        bank.lockers = lockers
+            .filter((_) => _.bank_id === bank.id)
+            .map((_) => ({ ..._ }));
+    }
+    return lockers.filter((_) => _.bank);
+}
+
+/** Load all locker resources for a single zone scope (signal/promise based) */
+export async function loadLockerResources(
+    org: OrganisationService,
+    scope_id: string,
+): Promise<Locker[]> {
+    const banks = await loadLockerBanksForScope(org, scope_id);
+    return loadLockersForScope(org, scope_id, banks);
+}
+
 export function loadLockers(
     org: OrganisationService,
     obs: Observable<any>,

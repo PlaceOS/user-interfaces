@@ -611,9 +611,7 @@ export class InviteVisitorFormComponent {
 
     public readonly sent = signal(false);
     public booking?: Booking;
-    public readonly loading = toSignal(this._service.loading, {
-        initialValue: '',
-    });
+    public readonly loading = this._service.loading;
     public readonly loading_many = signal(false);
     public readonly buildings = this._org.building_list;
     public readonly last_success = signal(this._service.last_success);

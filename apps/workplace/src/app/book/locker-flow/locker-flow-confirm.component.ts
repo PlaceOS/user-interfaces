@@ -14,7 +14,6 @@ import {
     Booking,
     OrganisationService,
     SettingsService,
-    nextValueFrom,
     notifyError,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -29,7 +28,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                 {{ 'APP.WORKPLACE.LOCKER_CONFIRM_TITLE' | translate }}
             </h2>
             <div class="">
-                @if (loading | async) {
+                @if (loading()) {
                     <mat-spinner diameter="32"></mat-spinner>
                 }
                 @if (show_close()) {
@@ -95,7 +94,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
             </section>
         }
         <footer class="border-base-200 mt-4 w-full border-t p-2">
-            @if (!(loading | async)) {
+            @if (!loading()) {
                 <button
                     name="confirm-locker"
                     btn
@@ -130,7 +129,7 @@ export class BookLockerFlowConfirmComponent extends AsyncHandler {
 
     public readonly postForm = async () => {
         try {
-            if ((await nextValueFrom(this._state.options))?.group) {
+            if (this._state.options()?.group) {
                 const booking = new Booking(this._state.form.getRawValue());
                 if (booking.id) {
                     const sibling_list =

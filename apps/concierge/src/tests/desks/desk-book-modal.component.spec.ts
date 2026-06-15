@@ -1,9 +1,9 @@
+import { signal } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { BookingFormService, generateBookingForm } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
 
 import { DeskBookModalComponent } from '../../app/desks/desk-book-modal.component';
 
@@ -21,7 +21,7 @@ describe('DeskBookModalComponent', () => {
                 form,
                 newForm,
                 applyDurationSettings,
-                options: of({ type: 'desk' }),
+                options: signal({ type: 'desk' }) as any,
                 postForm: jest.fn(async () => null),
             }),
             MockProvider(MatDialogRef, { close: jest.fn() }),

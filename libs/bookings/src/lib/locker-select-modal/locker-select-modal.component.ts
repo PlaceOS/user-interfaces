@@ -6,7 +6,6 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { isMobileSafari, SettingsService } from '@placeos/common';
 
@@ -220,9 +219,7 @@ export class LockerSelectModalComponent {
         options: Partial<BookingFlowOptions>;
     }>(MAT_DIALOG_DATA);
 
-    private readonly _options = toSignal(this._event_form.options, {
-        initialValue: null,
-    });
+    private readonly _options = this._event_form.options;
 
     public readonly show_filters = signal(false);
     public readonly displayed = signal<BookingAsset | null>(null);

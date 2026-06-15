@@ -204,8 +204,8 @@ export class LockerBankListComponent {
 
     public readonly locker_banks = toSignal(
         combineLatest([
-            this._state.options,
-            this._state.available_resources,
+            toObservable(this._state.options),
+            toObservable(this._state.available_resources),
             this._lockers_banks$,
             this._lockers$,
         ]).pipe(
@@ -241,9 +241,7 @@ export class LockerBankListComponent {
         ),
         { initialValue: [] },
     );
-    public readonly loading = toSignal(this._state.loading, {
-        initialValue: '',
-    });
+    public readonly loading = this._state.loading;
 
     public isFavourite(locker_bank_id: string) {
         return this.favorites().includes(locker_bank_id);

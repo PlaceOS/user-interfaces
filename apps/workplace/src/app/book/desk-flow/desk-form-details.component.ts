@@ -55,7 +55,7 @@ const MINUTES_IN_DAY = 24 * 60;
                         <button
                             matRipple
                             class="relative flex h-16 flex-1 items-center justify-center space-x-2"
-                            [class.text-secondary]="!(options | async)?.group"
+                            [class.text-secondary]="!options()?.group"
                             (click)="setOptions({ group: false, members: [] })"
                         >
                             <icon class="text-2xl">person</icon>
@@ -64,14 +64,14 @@ const MINUTES_IN_DAY = 24 * 60;
                             </div>
                             <div
                                 class="absolute inset-x-0 bottom-0 m-0! h-1"
-                                [class.bg-base-200]="(options | async)?.group"
-                                [class.bg-secondary]="!(options | async)?.group"
+                                [class.bg-base-200]="options()?.group"
+                                [class.bg-secondary]="!options()?.group"
                             ></div>
                         </button>
                         <button
                             matRipple
                             class="relative flex h-16 flex-1 items-center justify-center space-x-2"
-                            [class.text-secondary]="(options | async)?.group"
+                            [class.text-secondary]="options()?.group"
                             (click)="setOptions({ group: true })"
                         >
                             <icon class="text-2xl">group_add</icon>
@@ -80,8 +80,8 @@ const MINUTES_IN_DAY = 24 * 60;
                             </div>
                             <div
                                 class="absolute inset-x-0 bottom-0 m-0! h-1"
-                                [class.bg-base-200]="!(options | async)?.group"
-                                [class.bg-secondary]="(options | async)?.group"
+                                [class.bg-base-200]="!options()?.group"
+                                [class.bg-secondary]="options()?.group"
                             ></div>
                         </button>
                     </section>
@@ -97,7 +97,7 @@ const MINUTES_IN_DAY = 24 * 60;
                             {{ 'BOOKINGS.DETAILS' | translate }}
                         </div>
                     </h3>
-                    @if (can_book_for_others && !(options | async)?.group) {
+                    @if (can_book_for_others && !options()?.group) {
                         <div class="w-full">
                             <label for="title">{{
                                 'FORM.HOST' | translate
@@ -239,7 +239,7 @@ const MINUTES_IN_DAY = 24 * 60;
                         </div>
                     }
                 </section>
-                @if ((options | async)?.group) {
+                @if (options()?.group) {
                     <section class="p-2">
                         <h3 class="flex items-center space-x-2">
                             <div
@@ -255,7 +255,7 @@ const MINUTES_IN_DAY = 24 * 60;
                         <div class="overflow-hidden">
                             <a-user-list-field
                                 class="mt-4"
-                                [ngModel]="(options | async)?.members || []"
+                                [ngModel]="options()?.members || []"
                                 (ngModelChange)="
                                     setOptions({ members: $event })
                                 "
@@ -270,11 +270,11 @@ const MINUTES_IN_DAY = 24 * 60;
                             <div
                                 class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                             >
-                                {{ (options | async)?.group ? 3 : 2 }}
+                                {{ options()?.group ? 3 : 2 }}
                             </div>
                             <div class="text-xl">
                                 {{
-                                    ((options | async)?.group
+                                    (options()?.group
                                         ? 'BOOKINGS.DESK_GROUP_SELECT'
                                         : 'RESOURCE.DESK'
                                     ) | translate
@@ -284,7 +284,7 @@ const MINUTES_IN_DAY = 24 * 60;
                         <desk-list-field
                             formControlName="resources"
                         ></desk-list-field>
-                        @if ((options | async)?.group) {
+                        @if (options()?.group) {
                             <p
                                 class="bg-warning rounded-sm px-2 py-1 text-center text-xs shadow-sm"
                             >
@@ -304,13 +304,13 @@ const MINUTES_IN_DAY = 24 * 60;
                         </p>
                     </section>
                 }
-                @if (has_assets && !(options | async)?.group) {
+                @if (has_assets && !options()?.group) {
                     <section class="p-2">
                         <h3 class="mb-4 flex items-center space-x-2">
                             <div
                                 class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                             >
-                                {{ (options | async)?.group ? 4 : 3 }}
+                                {{ options()?.group ? 4 : 3 }}
                             </div>
                             <div class="text-xl">
                                 {{ 'RESOURCE.ASSETS' | translate }}

@@ -2,20 +2,15 @@ import { CommonModule } from '@angular/common';
 import {
     Component,
     computed,
-    DestroyRef,
+    effect,
     inject,
     input,
-    OnInit,
     output,
     signal,
 } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
-import {
-    nextValueFrom,
-    OrganisationService,
-    SettingsService,
-} from '@placeos/common';
+import { OrganisationService, SettingsService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { BookingFormService } from '../booking-form.service';
 
@@ -77,17 +72,14 @@ import { BookingFormService } from '../booking-form.service';
     ],
     imports: [CommonModule, IconComponent, MatRippleModule],
 })
-export class ParkingFiltersDisplayComponent implements OnInit {
+export class ParkingFiltersDisplayComponent {
     private _event_form = inject(BookingFormService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
-    private _destroyRef = inject(DestroyRef);
 
     public readonly view = input<'map' | 'list'>('list');
     public readonly viewChange = output<'map' | 'list'>();
-    public readonly options = toSignal(this._event_form.options, {
-        initialValue: {} as any,
-    });
+    public readonly options = this._event_form.options;
     public readonly location = signal('');
     private readonly _form_value = toSignal(
         this._event_form.form.valueChanges,
@@ -103,14 +95,15 @@ export class ParkingFiltersDisplayComponent implements OnInit {
 
     public readonly time_format = this._settings.time_format_signal;
 
-    public ngOnInit() {
-        this._event_form.options
-            .pipe(takeUntilDestroyed(this._destroyRef))
-            .subscribe(({ zone_id }) => this._updateLocation([zone_id]));
+    constructor() {
+        effect(() => {
+            const { zone_id } = this._event_form.options();
+            this._updateLocation([zone_id]);
+        });
     }
 
-    public async removeFeature(feat: string) {
-        const value = await nextValueFrom(this._event_form.options);
+    public removeFeature(feat: string) {
+        const value = this._event_form.options();
         this._event_form.setOptions({
             ...value,
             features: (value.features || []).filter((_) => _ !== feat),

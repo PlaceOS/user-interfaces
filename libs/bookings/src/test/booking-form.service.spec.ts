@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { NavigationEnd, Router } from '@angular/router';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { PaymentsService } from '@placeos/payments';
-import { firstValueFrom, of, Subject } from 'rxjs';
+import { of, Subject } from 'rxjs';
 
 import { Booking, currentUser, OrganisationService } from '@placeos/common';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
@@ -70,18 +70,16 @@ describe('BookingFormService', () => {
         jest.mocked(ts_client.showMetadata).mockResolvedValue({
             details: [],
         } as any);
-        jest.mocked(ts_client.listChildMetadata).mockReturnValue(
-            of([
-                {
-                    metadata: {
-                        desks: {
-                            details: [{ id: 'desk-1' }, { id: 'desk-1' }],
-                        },
+        jest.mocked(ts_client.listChildMetadata).mockResolvedValue([
+            {
+                metadata: {
+                    desks: {
+                        details: [{ id: 'desk-1' }, { id: 'desk-1' }],
                     },
-                    zone: { id: 'lvl-1' },
                 },
-            ]) as any,
-        );
+                zone: { id: 'lvl-1' },
+            },
+        ] as any);
         spectator = createService();
         jest.mocked(ts_client.cleanObject).mockImplementation((a) => a);
         jest.spyOn(spectator.inject(SettingsService), 'get').mockImplementation(
@@ -161,32 +159,31 @@ describe('BookingFormService', () => {
     it.todo('should list available assets');
 
     it('should exclude desks that clash with any recurring instance', async () => {
-        jest.mocked(ts_client.listChildMetadata).mockReturnValue(
-            of([
-                {
-                    metadata: {
-                        desks: {
-                            details: [
-                                {
-                                    id: 'desk-1',
-                                    name: 'Desk 1',
-                                    features: [],
-                                },
-                                {
-                                    id: 'desk-2',
-                                    name: 'Desk 2',
-                                    features: [],
-                                },
-                            ],
-                        },
+        jest.mocked(ts_client.listChildMetadata).mockResolvedValue([
+            {
+                metadata: {
+                    desks: {
+                        details: [
+                            {
+                                id: 'desk-1',
+                                name: 'Desk 1',
+                                features: [],
+                            },
+                            {
+                                id: 'desk-2',
+                                name: 'Desk 2',
+                                features: [],
+                            },
+                        ],
                     },
-                    zone: { id: 'lvl-1', parent_id: 'bld-1' },
                 },
-            ]) as any,
-        );
-        jest.mocked(ts_client.showMetadata).mockReturnValue(
-            of({ id: 'bld-1', details: [] }) as any,
-        );
+                zone: { id: 'lvl-1', parent_id: 'bld-1' },
+            },
+        ] as any);
+        jest.mocked(ts_client.showMetadata).mockResolvedValue({
+            id: 'bld-1',
+            details: [],
+        } as any);
         (booking_mod as any).bookedResourceList = jest.fn(() =>
             Promise.resolve([]),
         );
@@ -203,14 +200,14 @@ describe('BookingFormService', () => {
             ),
         });
 
-        const clashes = await firstValueFrom(
-            (spectator.service as any)._recurringBookedResourceList(
-                [
-                    { id: 'desk-1', zone: { id: 'lvl-1' } },
-                    { id: 'desk-2', zone: { id: 'lvl-1' } },
-                ],
-                'bld-1',
-            ),
+        const clashes = await (
+            spectator.service as any
+        )._recurringBookedResourceList(
+            [
+                { id: 'desk-1', zone: { id: 'lvl-1' } },
+                { id: 'desk-2', zone: { id: 'lvl-1' } },
+            ],
+            'bld-1',
         );
 
         expect(clashes).toEqual(['desk-2']);
@@ -481,23 +478,21 @@ describe('BookingFormService', () => {
             }
             return undefined;
         });
-        jest.mocked(ts_client.listChildMetadata).mockReturnValue(
-            of([
-                {
-                    metadata: {
-                        desks: {
-                            details: [
-                                {
-                                    id: 'assigned-desk',
-                                    assigned_to: '<empty>@dev.place.tech',
-                                },
-                            ],
-                        },
+        jest.mocked(ts_client.listChildMetadata).mockResolvedValue([
+            {
+                metadata: {
+                    desks: {
+                        details: [
+                            {
+                                id: 'assigned-desk',
+                                assigned_to: '<empty>@dev.place.tech',
+                            },
+                        ],
                     },
-                    zone: { id: 'lvl-1' },
                 },
-            ]) as any,
-        );
+                zone: { id: 'lvl-1' },
+            },
+        ] as any);
         save_booking.mockReset();
         save_booking.mockImplementation((booking: Booking) =>
             Promise.resolve(booking),
@@ -540,23 +535,21 @@ describe('BookingFormService', () => {
             }
             return undefined;
         });
-        jest.mocked(ts_client.listChildMetadata).mockReturnValue(
-            of([
-                {
-                    metadata: {
-                        desks: {
-                            details: [
-                                {
-                                    id: 'assigned-desk',
-                                    assigned_to: '<empty>@dev.place.tech',
-                                },
-                            ],
-                        },
+        jest.mocked(ts_client.listChildMetadata).mockResolvedValue([
+            {
+                metadata: {
+                    desks: {
+                        details: [
+                            {
+                                id: 'assigned-desk',
+                                assigned_to: '<empty>@dev.place.tech',
+                            },
+                        ],
                     },
-                    zone: { id: 'lvl-1' },
                 },
-            ]) as any,
-        );
+                zone: { id: 'lvl-1' },
+            },
+        ] as any);
         save_booking.mockReset();
         save_booking.mockImplementation((booking: Booking) =>
             Promise.resolve(booking),
@@ -599,23 +592,21 @@ describe('BookingFormService', () => {
     it('should block self desk bookings by default when the user has an assigned desk', async () => {
         const save_booking = booking_mod.saveBooking as jest.Mock;
         (spectator.inject(PaymentsService) as any).enabled = false;
-        jest.mocked(ts_client.listChildMetadata).mockReturnValue(
-            of([
-                {
-                    metadata: {
-                        desks: {
-                            details: [
-                                {
-                                    id: 'assigned-desk',
-                                    assigned_to: '<empty>@dev.place.tech',
-                                },
-                            ],
-                        },
+        jest.mocked(ts_client.listChildMetadata).mockResolvedValue([
+            {
+                metadata: {
+                    desks: {
+                        details: [
+                            {
+                                id: 'assigned-desk',
+                                assigned_to: '<empty>@dev.place.tech',
+                            },
+                        ],
                     },
-                    zone: { id: 'lvl-1' },
                 },
-            ]) as any,
-        );
+                zone: { id: 'lvl-1' },
+            },
+        ] as any);
         save_booking.mockReset();
         save_booking.mockImplementation((booking: Booking) =>
             Promise.resolve(booking),
@@ -658,23 +649,21 @@ describe('BookingFormService', () => {
             }
             return undefined;
         });
-        jest.mocked(ts_client.listChildMetadata).mockReturnValue(
-            of([
-                {
-                    metadata: {
-                        desks: {
-                            details: [
-                                {
-                                    id: 'assigned-desk',
-                                    assigned_to: '<empty>@dev.place.tech',
-                                },
-                            ],
-                        },
+        jest.mocked(ts_client.listChildMetadata).mockResolvedValue([
+            {
+                metadata: {
+                    desks: {
+                        details: [
+                            {
+                                id: 'assigned-desk',
+                                assigned_to: '<empty>@dev.place.tech',
+                            },
+                        ],
                     },
-                    zone: { id: 'lvl-1' },
                 },
-            ]) as any,
-        );
+                zone: { id: 'lvl-1' },
+            },
+        ] as any);
         save_booking.mockReset();
         save_booking.mockImplementation((booking: Booking) =>
             Promise.resolve(booking),
@@ -719,23 +708,21 @@ describe('BookingFormService', () => {
             }
             return undefined;
         });
-        jest.mocked(ts_client.listChildMetadata).mockReturnValue(
-            of([
-                {
-                    metadata: {
-                        desks: {
-                            details: [
-                                {
-                                    id: 'assigned-desk',
-                                    assigned_to: '<empty>@dev.place.tech',
-                                },
-                            ],
-                        },
+        jest.mocked(ts_client.listChildMetadata).mockResolvedValue([
+            {
+                metadata: {
+                    desks: {
+                        details: [
+                            {
+                                id: 'assigned-desk',
+                                assigned_to: '<empty>@dev.place.tech',
+                            },
+                        ],
                     },
-                    zone: { id: 'lvl-1' },
                 },
-            ]) as any,
-        );
+                zone: { id: 'lvl-1' },
+            },
+        ] as any);
         save_booking.mockReset();
         save_booking.mockImplementation((booking: Booking) =>
             Promise.resolve(booking),
@@ -878,8 +865,13 @@ describe('BookingFormService', () => {
                 features: [],
             },
         ] as any[];
-        (spectator.service as any).resources = of(desk_list);
-        (spectator.service as any).available_resources = of(desk_list);
+        jest.spyOn(spectator.service, 'listResources').mockResolvedValue(
+            desk_list,
+        );
+        jest.spyOn(
+            spectator.service,
+            'listAvailableResources',
+        ).mockResolvedValue(desk_list);
         jest.spyOn(booking_utility_mod, 'findNearbyFeature')
             .mockResolvedValueOnce('map-2')
             .mockResolvedValueOnce('map-3');
@@ -956,8 +948,13 @@ describe('BookingFormService', () => {
                 features: [],
             },
         ] as any[];
-        (spectator.service as any).resources = of(desk_list);
-        (spectator.service as any).available_resources = of(desk_list);
+        jest.spyOn(spectator.service, 'listResources').mockResolvedValue(
+            desk_list,
+        );
+        jest.spyOn(
+            spectator.service,
+            'listAvailableResources',
+        ).mockResolvedValue(desk_list);
         jest.spyOn(booking_utility_mod, 'findNearbyFeature').mockResolvedValue(
             'map-2',
         );
@@ -1041,8 +1038,13 @@ describe('BookingFormService', () => {
         save_booking.mockImplementation((booking: Booking) =>
             Promise.resolve(new Booking({ ...booking, id: 'booking-group' })),
         );
-        (spectator.service as any).resources = of(desk_list);
-        (spectator.service as any).available_resources = of(desk_list);
+        jest.spyOn(spectator.service, 'listResources').mockResolvedValue(
+            desk_list,
+        );
+        jest.spyOn(
+            spectator.service,
+            'listAvailableResources',
+        ).mockResolvedValue(desk_list);
         jest.spyOn(booking_utility_mod, 'findNearbyFeature').mockResolvedValue(
             'map-2',
         );
@@ -1147,8 +1149,13 @@ describe('BookingFormService', () => {
         );
         remove_booking.mockReset();
         remove_booking.mockImplementation(() => Promise.resolve({}));
-        (spectator.service as any).resources = of(desk_list);
-        (spectator.service as any).available_resources = of(desk_list);
+        jest.spyOn(spectator.service, 'listResources').mockResolvedValue(
+            desk_list,
+        );
+        jest.spyOn(
+            spectator.service,
+            'listAvailableResources',
+        ).mockResolvedValue(desk_list);
         jest.spyOn(booking_utility_mod, 'findNearbyFeature')
             .mockResolvedValueOnce('map-2')
             .mockResolvedValueOnce('map-3');
@@ -1259,8 +1266,13 @@ describe('BookingFormService', () => {
                 features: [],
             },
         ] as any[];
-        (spectator.service as any).resources = of(desk_list);
-        (spectator.service as any).available_resources = of(desk_list);
+        jest.spyOn(spectator.service, 'listResources').mockResolvedValue(
+            desk_list,
+        );
+        jest.spyOn(
+            spectator.service,
+            'listAvailableResources',
+        ).mockResolvedValue(desk_list);
         jest.spyOn(booking_utility_mod, 'findNearbyFeature')
             .mockResolvedValueOnce('map-2')
             .mockResolvedValueOnce('map-3');
@@ -1344,11 +1356,13 @@ describe('BookingFormService', () => {
                 features: [],
             },
         ] as any[];
-        (spectator.service as any).resources = of(all_desks);
-        (spectator.service as any).available_resources = of([
-            all_desks[1],
-            all_desks[2],
-        ]);
+        jest.spyOn(spectator.service, 'listResources').mockResolvedValue(
+            all_desks,
+        );
+        jest.spyOn(
+            spectator.service,
+            'listAvailableResources',
+        ).mockResolvedValue([all_desks[1], all_desks[2]]);
         jest.spyOn(booking_utility_mod, 'findNearbyFeature').mockResolvedValue(
             'map-3',
         );
@@ -1455,8 +1469,13 @@ describe('BookingFormService', () => {
                 features: [],
             },
         ] as any[];
-        (spectator.service as any).resources = of(all_desks);
-        (spectator.service as any).available_resources = of([all_desks[1]]);
+        jest.spyOn(spectator.service, 'listResources').mockResolvedValue(
+            all_desks,
+        );
+        jest.spyOn(
+            spectator.service,
+            'listAvailableResources',
+        ).mockResolvedValue([all_desks[1]]);
         jest.spyOn(booking_utility_mod, 'findNearbyFeature').mockResolvedValue(
             'map-2',
         );
@@ -1568,8 +1587,13 @@ describe('BookingFormService', () => {
                 features: [],
             },
         ] as any[];
-        (spectator.service as any).resources = of(desk_list);
-        (spectator.service as any).available_resources = of(desk_list);
+        jest.spyOn(spectator.service, 'listResources').mockResolvedValue(
+            desk_list,
+        );
+        jest.spyOn(
+            spectator.service,
+            'listAvailableResources',
+        ).mockResolvedValue(desk_list);
         jest.spyOn(booking_utility_mod, 'findNearbyFeature')
             .mockResolvedValueOnce('map-2')
             .mockResolvedValueOnce('map-3');

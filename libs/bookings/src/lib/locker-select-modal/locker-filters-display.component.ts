@@ -96,9 +96,7 @@ export class LockerFiltersDisplayComponent {
 
     public readonly view = input<'map' | 'list'>('list');
     public readonly viewChange = output<'map' | 'list'>();
-    public readonly options = toSignal(this._state.options, {
-        initialValue: {} as any,
-    });
+    public readonly options = this._state.options;
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
     private readonly _form_value = toSignal(this._state.form.valueChanges, {

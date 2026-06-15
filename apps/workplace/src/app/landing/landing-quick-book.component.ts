@@ -8,12 +8,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
-import {
-    nextValueFrom,
-    notifyError,
-    settingSignal,
-    SettingsService,
-} from '@placeos/common';
+import { notifyError, settingSignal, SettingsService } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 
 @Component({
@@ -103,9 +98,7 @@ export class LandingQuickBookComponent {
         this.loading.set(type);
         this._book_form.newForm(type as any);
         this._book_form.setOptions({ type: type as any });
-        const resources = await nextValueFrom(
-            this._book_form.available_resources,
-        );
+        const resources = await this._book_form.listAvailableResources();
         if (!resources.length) {
             notifyError(`No ${type} available for the current building`);
             this.loading.set('');

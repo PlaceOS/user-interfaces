@@ -1,11 +1,12 @@
 import {
     ChangeDetectionStrategy,
     Component,
+    computed,
     inject,
     Injector,
     OnInit,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { toObservable } from '@angular/core/rxjs-interop';
 import {
     MatBottomSheet,
     MatBottomSheetRef,
@@ -22,7 +23,7 @@ import {
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { isBefore, startOfMinute } from 'date-fns';
 import { lastValueFrom } from 'rxjs';
-import { first, map } from 'rxjs/operators';
+import { first } from 'rxjs/operators';
 import { NewDeskFlowConfirmComponent } from './desk-flow-confirm.component';
 import { NewDeskFormDetailsComponent } from './desk-form-details.component';
 
@@ -101,14 +102,10 @@ export class NewDeskFlowFormComponent implements OnInit {
     public levels = [];
 
     /** Block the form when the user has a reserved desk and isn't allowed to book another */
-    public readonly show_reserved_desk_overlay = toSignal(
-        this._state.has_assigned_desk.pipe(
-            map(
-                (has_desk) =>
-                    has_desk && !this._state.canBookWithReservedDesk(),
-            ),
-        ),
-        { initialValue: false },
+    public readonly show_reserved_desk_overlay = computed(
+        () =>
+            this._state.has_assigned_desk() &&
+            !this._state.canBookWithReservedDesk(),
     );
 
     public get form() {

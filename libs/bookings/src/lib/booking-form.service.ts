@@ -1,5 +1,13 @@
-import { inject, Injectable, signal } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import {
+    computed,
+    effect,
+    inject,
+    Injectable,
+    Injector,
+    resource,
+    signal,
+    type Signal,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import { queryParkingSpacesForZones } from '@placeos/assets';
@@ -10,14 +18,15 @@ import {
     BookingRuleset,
     BookingType,
     currentUser,
+    debouncedSignal,
     Desk,
+    firstValueWhere,
     flatten,
     getAllDayTimeRange,
     getFormTimeSyncHandle,
     getInvalidFields,
     i18n,
     isWithinBookableHours,
-    nextValueFrom,
     notifyError,
     notifyWarn,
     OrganisationService,
@@ -35,33 +44,11 @@ import {
 } from '@placeos/ts-client';
 import { addDays, addMinutes, endOfDay, format, getUnixTime } from 'date-fns';
 import { openRecurringClashModal } from 'libs/components/src/lib/recurring-clash-modal.component';
-import {
-    combineLatest,
-    forkJoin,
-    from,
-    lastValueFrom,
-    merge,
-    Observable,
-    of,
-    timer,
-} from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    distinctUntilKeyChanged,
-    filter,
-    first,
-    map,
-    shareReplay,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
 import { BookingLinkModalComponent } from './booking-link-modal.component';
 import {
     findNearbyFeature,
     generateBookingForm,
-    loadLockerBanks,
-    loadLockers,
+    loadLockerResources,
 } from './booking.utilities';
 import {
     bookedResourceList,
@@ -142,6 +129,7 @@ export class BookingFormService extends AsyncHandler {
     private _dialog = inject(MatDialog);
     private _payments = inject(PaymentsService);
     private _assets = inject(AssetStateService);
+    private _injector = inject(Injector);
     private _options = signal<BookingFlowOptions>({
         type: 'desk',
     });
@@ -154,244 +142,295 @@ export class BookingFormService extends AsyncHandler {
             sessionStorage.getItem('PLACEOS.last_booked_booking') || '{}',
         ),
     );
-    public readonly loading = toObservable(this._loading);
-    public readonly options = toObservable(this._options).pipe(shareReplay(1));
+    /** Signal emitting the current loading message, empty when idle */
+    public readonly loading = this._loading.asReadonly();
+    /** Signal for the active booking flow options */
+    public readonly options = this._options.asReadonly();
     public readonly form = generateBookingForm();
     public readonly view = signal<BookingFlowView>('form');
 
-    public readonly resources: Observable<BookingAsset[]> = combineLatest([
-        toObservable(this._org.active_building),
-        this.options.pipe(distinctUntilKeyChanged('type')),
-    ]).pipe(
-        debounceTime(300),
-        switchMap(([bld, { type }]) => {
-            if (!bld) return of([]);
-            const useRegion = () => this._settings.get('app.use_region');
-            switch (type) {
-                case 'desk':
-                    this._loading.set(i18n('BOOKINGS.DESKS_LOADING'));
-                    return this.loadResourceList('desks' as any);
-                case 'parking':
-                    this._loading.set(i18n('BOOKINGS.PARKING_LOADING'));
-                    return this.loadParkingResources();
-                case 'locker':
-                    this._loading.set(i18n('BOOKINGS.LOCKERS_LOADING'));
-                    return loadLockers(
-                        this._org,
-                        of([bld]),
-                        loadLockerBanks(this._org, of([bld]), useRegion),
-                        useRegion,
-                    );
-            }
-            return of([]);
-        }),
-        tap(() => this._loading.set(``)),
-        shareReplay(1),
+    /** Latest raw form value, used to drive availability recalculation */
+    private readonly _form_value = signal<Record<string, any>>(null);
+    private readonly _form_value_debounced = debouncedSignal(
+        this._form_value,
+        500,
     );
 
-    public readonly features: Observable<string[]> = this.resources.pipe(
-        map((resource) => {
-            const list: string[] = [];
-            for (const { features } of resource) {
-                features instanceof Array
-                    ? features.forEach((_) => list.push(_))
-                    : null;
-            }
-            return unique(list).sort((a, b) => a.localeCompare(b));
-        }),
-        shareReplay(1),
+    /** Params driving the resource list, debounced to coalesce rapid changes */
+    private readonly _resource_params = computed(() => {
+        const building = this._org.active_building();
+        if (!building?.id) return undefined;
+        return { building: building.id, type: this._options().type };
+    });
+    private readonly _resource_params_debounced = debouncedSignal(
+        this._resource_params,
+        300,
+    );
+    /** Resource list for the active building and booking type */
+    private readonly _resources_resource = resource({
+        params: () => this._resource_params_debounced(),
+        loader: ({ params }) => this._loadResourcesForType(params.type),
+    });
+    /** Signal for the list of resources for the current booking type */
+    public readonly resources = computed<BookingAsset[]>(
+        () => this._resources_resource.value() ?? [],
     );
 
-    public readonly booking_rules: Observable<
-        Record<string, BookingRuleset[]>
-    > = combineLatest([
-        toObservable(this._org.building_list),
-        toObservable(this._options),
-    ]).pipe(
-        switchMap(([list, { type }]) =>
+    /** Signal for the available features across the loaded resources */
+    public readonly features = computed<string[]>(() => {
+        const list: string[] = [];
+        for (const { features } of this.resources()) {
+            features instanceof Array
+                ? features.forEach((_) => list.push(_))
+                : null;
+        }
+        return unique(list).sort((a, b) => a.localeCompare(b));
+    });
+
+    /** Booking rules for the current buildings and booking type */
+    private readonly _booking_rules_resource = resource({
+        params: () => {
+            const list = this._org.building_list();
+            const { type } = this._options();
+            return list.length
+                ? { ids: list.map((bld) => bld.id), type }
+                : undefined;
+        },
+        loader: ({ params: { ids, type } }) =>
             Promise.all(
-                list.map((bld) =>
-                    showMetadata(bld.id, `${type}_booking_rules`),
-                ),
-            ),
-        ),
-        map((building_rules) => {
-            const mapping = {};
-            for (const rules of building_rules) {
-                mapping[rules.id] =
-                    rules.details instanceof Array ? rules.details : [];
-            }
-            return mapping;
-        }),
-        shareReplay(1),
+                ids.map((id) => showMetadata(id, `${type}_booking_rules`)),
+            )
+                .then((building_rules) => {
+                    const mapping: Record<string, BookingRuleset[]> = {};
+                    for (const rules of building_rules) {
+                        mapping[rules.id] =
+                            rules.details instanceof Array ? rules.details : [];
+                    }
+                    return mapping;
+                })
+                .catch(() => ({}) as Record<string, BookingRuleset[]>),
+    });
+    /** Signal for the booking rules grouped by building */
+    public readonly booking_rules = computed<Record<string, BookingRuleset[]>>(
+        () => this._booking_rules_resource.value() ?? {},
     );
 
+    /** Whether the current user has an assigned desk in any active building */
+    private readonly _has_assigned_desk_resource = resource({
+        params: () => {
+            const buildings = this._org.building_list();
+            const email = currentUser()?.email;
+            return buildings.length && email ? { buildings, email } : undefined;
+        },
+        loader: () => this._computeHasAssignedDesk(),
+    });
     /** Whether the current user has a desk reserved (assigned) to them */
-    public readonly has_assigned_desk = toObservable(
-        this._org.building_list,
-    ).pipe(
-        filter((buildings) => buildings?.length > 0),
-        switchMap((buildings) => {
-            const email = currentUser()?.email?.toLowerCase();
-            if (!email) return of(false);
-            const map_metadata = (meta) =>
-                (meta?.metadata?.desks?.details instanceof Array
-                    ? meta.metadata.desks.details
-                    : []
-                ).map((desk) => new Desk({ ...desk, zone: meta.zone }));
-            return forkJoin(
-                buildings.map((building) =>
-                    from(
-                        listChildMetadata(building.id, { name: 'desks' }),
-                    ).pipe(
-                        map((data) => flatten<Desk>(data.map(map_metadata))),
-                        catchError(() => of([] as Desk[])),
-                    ),
-                ),
-            ).pipe(
-                map((desk_list) =>
-                    flatten(desk_list).some(
-                        (desk) => desk.assigned_to?.toLowerCase() === email,
-                    ),
-                ),
-            );
-        }),
-        shareReplay(1),
+    public readonly has_assigned_desk = computed<boolean>(
+        () => this._has_assigned_desk_resource.value() ?? false,
     );
 
-    public readonly available_resources = combineLatest([
-        this.options,
-        this.resources,
-        this.booking_rules,
-        merge(this.form.get('user').valueChanges, timer(1000)),
-        merge(this.form.get('date').valueChanges, timer(1000)),
-        merge(this.form.get('duration').valueChanges, timer(1000)),
-        merge(this.form.get('all_day').valueChanges, timer(1000)),
-        merge(this.form.get('recurrence_type').valueChanges, timer(1000)),
-        merge(this.form.get('recurrence_days').valueChanges, timer(1000)),
-        merge(
-            this.form.get('recurrence_nth_of_month').valueChanges,
-            timer(1000),
-        ),
-        merge(this.form.get('recurrence_interval').valueChanges, timer(1000)),
-        merge(this.form.get('recurrence_end').valueChanges, timer(1000)),
-        merge(this.form.get('recurrence_instances').valueChanges, timer(1000)),
-    ]).pipe(
-        filter(
-            () =>
-                this.form.getRawValue().date > 0 &&
-                this.form.getRawValue().duration > 0,
-        ),
-        debounceTime(500),
-        tap(([{ type }]) =>
-            this._loading.set(i18n('BOOKINGS.LOADING_AVAILABILITY', { type })),
-        ),
-        switchMap(([options, resources, restrictions]) => {
-            const { all_day, user } = this.form.getRawValue();
-            let { date, duration } = this.form.getRawValue();
-            if (all_day) {
-                ({ date, duration } = this._allDayTimeRange(date));
+    /** Resources available to book for the current form selection */
+    private readonly _available_resource = resource({
+        params: () => ({
+            options: this._options(),
+            resources: this.resources(),
+            rules: this.booking_rules(),
+            form: this._form_value_debounced(),
+        }),
+        loader: ({ params: { options, resources, rules } }) => {
+            const raw = this.form.getRawValue();
+            if (!(raw.date > 0 && raw.duration > 0)) {
+                return Promise.resolve([] as BookingAsset[]);
             }
-            const zones =
-                options.zone_id ||
-                (this._settings.get('app.use_region')
-                    ? this._org.region?.id
-                    : this._org.building?.id) ||
-                this._org.organisation.id;
-            const booked_resources =
-                options.type === 'desk' &&
-                this.form.getRawValue().recurrence_type &&
-                this.form.getRawValue().recurrence_type !== 'none'
-                    ? this._recurringBookedResourceList(resources, zones)
-                    : from(
-                          bookedResourceList({
-                              period_start: getUnixTime(date),
-                              period_end: getUnixTime(
-                                  addMinutes(date, duration),
-                              ),
-                              type: options.type,
-                              zones,
-                          }),
-                      );
-            return booked_resources.pipe(
-                map((booked_ids) => {
-                    this._resource_use = {};
-                    for (const id of booked_ids) {
-                        this._resource_use[id] = ' ';
-                    }
-                    const available = resources.filter((asset) => {
-                        const is_restricted = rulesForResource(
-                            {
-                                date,
-                                duration,
-                                resource: asset,
-                                host: this._bookingRulesHost(user),
-                            },
-                            restrictions[asset.zone?.id] ||
-                                restrictions[asset.zone?.parent_id] ||
-                                restrictions[this._org.building?.id] ||
-                                [],
-                        ).hidden;
-                        return (
-                            !is_restricted &&
-                            (!asset.groups?.length ||
-                                asset.groups.some((grp) =>
-                                    currentUser().groups.includes(grp),
-                                )) &&
-                            asset.bookable !== false &&
-                            (!options.features ||
-                                options.features?.every((_) =>
-                                    asset.features.includes(_),
-                                )) &&
-                            (!options.zone_id ||
-                                options.zone_id === asset.zone?.id ||
-                                options.zone_id === asset.zone?.parent_id) &&
-                            !booked_ids.includes(asset.id)
-                        );
-                    });
+            this._loading.set(
+                i18n('BOOKINGS.LOADING_AVAILABILITY', { type: options.type }),
+            );
+            return this._computeAvailableResources(
+                options,
+                resources,
+                rules,
+                raw,
+            )
+                .catch(() => [] as BookingAsset[])
+                .then((available) => {
+                    this._loading.set('');
                     return available;
-                }),
-                catchError(() => of([])),
-            );
-        }),
-        tap(() => this._loading.set('')),
-        shareReplay(1),
+                });
+        },
+    });
+    /** Signal for the resources available to book for the current selection */
+    public readonly available_resources = computed<BookingAsset[]>(
+        () => this._available_resource.value() ?? [],
     );
 
-    public readonly grouped_availability = combineLatest([
-        this.options,
-        this.available_resources,
-    ]).pipe(
-        map(([options, resource]) => {
-            const groups = [];
-            const asset_list = [...resource].sort((a, b) =>
-                a.zone?.id?.localeCompare(b.zone?.id),
-            );
-            const members = options.members?.length
-                ? options.members
-                : [currentUser()];
-            while (asset_list.length) {
-                const group = [];
-                let asset = asset_list.pop();
-                while (group.length < members.length) {
-                    if (
-                        group.length &&
-                        !group.find((_) => _.zone?.id === asset.zone?.id)
-                    ) {
-                        break;
-                    }
-                    group.push(asset);
-                    asset = asset_list.pop();
+    /** Signal grouping available resources for group bookings */
+    public readonly grouped_availability = computed<BookingAsset[][]>(() => {
+        const options = this._options();
+        const resource = this.available_resources();
+        const groups: BookingAsset[][] = [];
+        const asset_list = [...resource].sort((a, b) =>
+            a.zone?.id?.localeCompare(b.zone?.id),
+        );
+        const members = options.members?.length
+            ? options.members
+            : [currentUser()];
+        while (asset_list.length) {
+            const group: BookingAsset[] = [];
+            let asset = asset_list.pop();
+            while (group.length < members.length) {
+                if (
+                    group.length &&
+                    !group.find((_) => _.zone?.id === asset.zone?.id)
+                ) {
+                    break;
                 }
-                if (group.length < members.length) continue;
-                groups.push(group);
+                group.push(asset);
+                asset = asset_list.pop();
             }
-            return groups;
-        }),
-    );
+            if (group.length < members.length) continue;
+            groups.push(group);
+        }
+        return groups;
+    });
 
     public get booking() {
         return this._booking();
+    }
+
+    /** Resolve with the resources for the current booking type once loaded */
+    public async listResources(): Promise<BookingAsset[]> {
+        await this._whenSettled(this._resources_resource);
+        return this.resources();
+    }
+
+    /** Resolve with the available resources for the current selection */
+    public async listAvailableResources(): Promise<BookingAsset[]> {
+        await this._whenSettled(this._available_resource);
+        return this.available_resources();
+    }
+
+    /** Resolve once the given resource has finished loading */
+    private _whenSettled(ref: {
+        isLoading: Signal<boolean>;
+    }): Promise<boolean> {
+        return firstValueWhere(
+            ref.isLoading,
+            (loading) => !loading,
+            this._injector,
+        );
+    }
+
+    /** Load the resource list for the given booking type */
+    private _loadResourcesForType(type: string): Promise<BookingAsset[]> {
+        switch (type) {
+            case 'desk':
+                this._loading.set(i18n('BOOKINGS.DESKS_LOADING'));
+                return this._finishResourceLoad(this.loadResourceList('desks'));
+            case 'parking':
+                this._loading.set(i18n('BOOKINGS.PARKING_LOADING'));
+                return this._finishResourceLoad(this.loadParkingResources());
+            case 'locker':
+                this._loading.set(i18n('BOOKINGS.LOCKERS_LOADING'));
+                return this._finishResourceLoad(this._loadLockerResources());
+        }
+        return Promise.resolve([]);
+    }
+
+    private _finishResourceLoad(
+        load: Promise<BookingAsset[]>,
+    ): Promise<BookingAsset[]> {
+        return load
+            .catch(() => [] as BookingAsset[])
+            .then((list) => {
+                this._loading.set('');
+                return list;
+            });
+    }
+
+    private async _computeHasAssignedDesk(): Promise<boolean> {
+        const buildings = this._org.building_list();
+        if (!(buildings?.length > 0)) return false;
+        const email = currentUser()?.email?.toLowerCase();
+        if (!email) return false;
+        const map_metadata = (meta) =>
+            (meta?.metadata?.desks?.details instanceof Array
+                ? meta.metadata.desks.details
+                : []
+            ).map((desk) => new Desk({ ...desk, zone: meta.zone }));
+        const desk_lists = await Promise.all(
+            buildings.map((building) =>
+                listChildMetadata(building.id, { name: 'desks' })
+                    .then((data) => flatten<Desk>(data.map(map_metadata)))
+                    .catch(() => [] as Desk[]),
+            ),
+        );
+        return flatten(desk_lists).some(
+            (desk) => desk.assigned_to?.toLowerCase() === email,
+        );
+    }
+
+    private async _computeAvailableResources(
+        options: BookingFlowOptions,
+        resources: BookingAsset[],
+        restrictions: Record<string, BookingRuleset[]>,
+        raw: Record<string, any>,
+    ): Promise<BookingAsset[]> {
+        const { all_day, user } = raw;
+        let { date, duration } = raw;
+        if (all_day) {
+            ({ date, duration } = this._allDayTimeRange(date));
+        }
+        const zones =
+            options.zone_id ||
+            (this._settings.get('app.use_region')
+                ? this._org.region?.id
+                : this._org.building?.id) ||
+            this._org.organisation.id;
+        const booked_ids =
+            options.type === 'desk' &&
+            raw.recurrence_type &&
+            raw.recurrence_type !== 'none'
+                ? await this._recurringBookedResourceList(resources, zones)
+                : await bookedResourceList({
+                      period_start: getUnixTime(date),
+                      period_end: getUnixTime(addMinutes(date, duration)),
+                      type: options.type,
+                      zones,
+                  });
+        this._resource_use = {};
+        for (const id of booked_ids) {
+            this._resource_use[id] = ' ';
+        }
+        return resources.filter((asset) => {
+            const is_restricted = rulesForResource(
+                {
+                    date,
+                    duration,
+                    resource: asset,
+                    host: this._bookingRulesHost(user),
+                },
+                restrictions[asset.zone?.id] ||
+                    restrictions[asset.zone?.parent_id] ||
+                    restrictions[this._org.building?.id] ||
+                    [],
+            ).hidden;
+            return (
+                !is_restricted &&
+                (!asset.groups?.length ||
+                    asset.groups.some((grp) =>
+                        currentUser().groups.includes(grp),
+                    )) &&
+                asset.bookable !== false &&
+                (!options.features ||
+                    options.features?.every((_) =>
+                        asset.features.includes(_),
+                    )) &&
+                (!options.zone_id ||
+                    options.zone_id === asset.zone?.id ||
+                    options.zone_id === asset.zone?.parent_id) &&
+                !booked_ids.includes(asset.id)
+            );
+        });
     }
 
     public resourceUserName(id: string) {
@@ -446,7 +485,7 @@ export class BookingFormService extends AsyncHandler {
         this.timeout('set-resource', async () => {
             const resources = this.form.getRawValue().resources;
             if (!resources?.length) return;
-            const item_list = await nextValueFrom(this.resources);
+            const item_list = await this.listResources();
             const new_list = resources.map(
                 (asset) => item_list.find((_) => _.id == asset.id) || asset,
             );
@@ -469,12 +508,18 @@ export class BookingFormService extends AsyncHandler {
             }),
         );
         this._org.waitUntilInitialised().then(() => this.setOptions({}));
+        this._form_value.set(this.form.getRawValue());
         this.subscription(
-            'settings_change',
-            toObservable(this._settings.overrides)
-                .pipe(filter((_) => !!_?.length))
-                .subscribe(() => this.applyDurationSettings()),
+            'form_value',
+            this.form.valueChanges.subscribe(() =>
+                this._form_value.set(this.form.getRawValue()),
+            ),
         );
+        // Re-apply duration settings when the settings overrides change
+        effect(() => {
+            const overrides = this._settings.overrides();
+            if (overrides?.length) this.applyDurationSettings();
+        });
     }
 
     /** Push the current building's duration and bookable-hours settings into the time sync. */
@@ -976,7 +1021,7 @@ export class BookingFormService extends AsyncHandler {
      * Picks the level with the most available desks, then selects one at random.
      */
     public async autoAllocateDesk(): Promise<void> {
-        const available = await nextValueFrom(this.available_resources);
+        const available = await this.listAvailableResources();
         if (!available?.length) {
             throw i18n('BOOKINGS.DESK_AVAILABLE_ERROR');
         }
@@ -1642,14 +1687,19 @@ export class BookingFormService extends AsyncHandler {
     private async checkQuestions() {
         if (this._settings.get('app.desks.ignore_questions') !== false) return;
         const ref = this._dialog.open(DeskQuestionsModalComponent);
-        const result = await Promise.race([
-            lastValueFrom(
-                ref.componentInstance.event.pipe(
-                    first((_) => _.reason === 'done'),
-                ),
-            ),
-            lastValueFrom(ref.afterClosed()),
-        ]);
+        const result = await new Promise<any>((resolve) => {
+            const subs: { unsubscribe: () => void }[] = [];
+            const finish = (value: any) => {
+                subs.forEach((s) => s.unsubscribe());
+                resolve(value);
+            };
+            subs.push(
+                ref.componentInstance.event.subscribe((event: any) => {
+                    if (event?.reason === 'done') finish(event);
+                }),
+            );
+            subs.push(ref.afterClosed().subscribe((event) => finish(event)));
+        });
         if (result?.reason !== 'done') throw 'User cancelled';
         const form = ref.componentInstance.form.getRawValue();
         for (const key in form) {
@@ -1680,7 +1730,7 @@ export class BookingFormService extends AsyncHandler {
         if (user_email?.toLowerCase() !== currentUser()?.email?.toLowerCase()) {
             return true;
         }
-        if (await nextValueFrom(this.has_assigned_desk)) {
+        if (await this._computeHasAssignedDesk()) {
             throw 'You have an assigned desk and cannot book another desk.';
         }
         return true;
@@ -1753,7 +1803,8 @@ export class BookingFormService extends AsyncHandler {
     ) {
         const user = await this._loadBookingRulesHost(host);
         if (!assets?.length) return true;
-        const rules = await nextValueFrom(this.booking_rules);
+        await this._whenSettled(this._booking_rules_resource);
+        const rules = this.booking_rules();
         const resource_rules = assets
             ?.filter((s) => s?.zone)
             ?.map((space) => {
@@ -1881,10 +1932,10 @@ export class BookingFormService extends AsyncHandler {
         return true;
     }
 
-    private _recurringBookedResourceList(
+    private async _recurringBookedResourceList(
         resources: BookingAsset[],
         zones: string,
-    ): Observable<string[]> {
+    ): Promise<string[]> {
         const value = this.form.getRawValue();
         const booking = new Booking({
             ...value,
@@ -1892,33 +1943,41 @@ export class BookingFormService extends AsyncHandler {
             zones: [zones],
             asset_ids: resources.map((_) => _.id),
         });
-        return from(findBookingClashes(booking)).pipe(
-            map((ids) => ids as string[]),
-            catchError(() => of([])),
-        );
+        return findBookingClashes(booking)
+            .then((ids) => ids as string[])
+            .catch(() => [] as string[]);
     }
 
-    public loadParkingResources(): Observable<BookingAsset[]> {
+    /** Load the locker resources for the active building or region */
+    private _loadLockerResources(): Promise<BookingAsset[]> {
+        const use_region = this._settings.get('app.use_region');
+        const scope_id = use_region
+            ? this._org.region?.id
+            : this._org.building?.id;
+        return loadLockerResources(this._org, scope_id) as Promise<
+            BookingAsset[]
+        >;
+    }
+
+    public async loadParkingResources(): Promise<BookingAsset[]> {
         const use_region = this._settings.get('app.use_region');
         const levels = (
             use_region
                 ? this._org.levelsForRegion()
                 : this._org.levelsForBuilding()
         ).filter((_) => _.tags.includes('parking'));
-        return from(queryParkingSpacesForZones(levels.map((l) => l.id))).pipe(
-            map(
-                (spaces) =>
-                    spaces.map((s) => ({
-                        ...s,
-                        id: s.id || s.map_id,
-                        groups: s.place_groups,
-                        zone: this._org.levelWithID([s.zone_id]) as any,
-                    })) as BookingAsset[],
-            ),
+        const spaces = await queryParkingSpacesForZones(
+            levels.map((l) => l.id),
         );
+        return spaces.map((s) => ({
+            ...s,
+            id: s.id || s.map_id,
+            groups: s.place_groups,
+            zone: this._org.levelWithID([s.zone_id]) as any,
+        })) as BookingAsset[];
     }
 
-    public loadResourceList(type: string) {
+    public async loadResourceList(type: string): Promise<BookingAsset[]> {
         const use_region = this._settings.get('app.use_region');
         const map_metadata = (_) =>
             (_?.metadata[type]?.details instanceof Array
@@ -1929,27 +1988,24 @@ export class BookingFormService extends AsyncHandler {
                 id: d.id || d.map_id,
                 zone: _.zone,
             }));
-        const id = use_region
-            ? this._org.building.parent_id
-            : this._org.building.id;
         if (use_region) {
             const id = this._org.building.parent_id;
             const buildings = this._org.buildings.filter(
                 (_) => _.parent_id === id,
             );
-            return forkJoin(
+            const lists = await Promise.all(
                 buildings.map((_) =>
-                    from(listChildMetadata(_.id, { name: type })).pipe(
-                        map((data) => flatten(data.map(map_metadata))),
+                    listChildMetadata(_.id, { name: type }).then((data) =>
+                        flatten(data.map(map_metadata)),
                     ),
                 ),
-            ).pipe(map((_) => flatten(_)));
+            );
+            return flatten(lists);
         }
-        return from(
-            listChildMetadata(id, {
-                name: type,
-            }),
-        ).pipe(map((data) => flatten(data.map(map_metadata))));
+        const data = await listChildMetadata(this._org.building.id, {
+            name: type,
+        });
+        return flatten(data.map(map_metadata));
     }
 
     private async _getNearbyResources(
@@ -1999,10 +2055,8 @@ export class BookingFormService extends AsyncHandler {
         form: Partial<Booking> & { map_id?: string },
         existing_siblings: Booking[] = [],
     ): Promise<BookingAsset[]> {
-        const available_resources = await nextValueFrom(
-            this.available_resources,
-        );
-        const all_resources = await nextValueFrom(this.resources);
+        const available_resources = await this.listAvailableResources();
+        const all_resources = await this.listResources();
         const preferred_id = `${form.map_id || form.asset_id || ''}`;
         const existing_map: Record<string, Booking> = {};
         for (const booking of existing_siblings) {

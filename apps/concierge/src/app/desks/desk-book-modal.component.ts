@@ -11,7 +11,6 @@ import { BookingFormService } from '@placeos/bookings';
 import {
     DialogEvent,
     i18n,
-    nextValueFrom,
     notifyError,
     notifySuccess,
     SettingsService,
@@ -83,7 +82,7 @@ export class DeskBookModalComponent implements OnInit {
         this.loading.set(true);
         this.form.patchValue({ booking_type: 'desk' });
         let method = () => this._booking_form.postForm();
-        if ((await nextValueFrom(this._booking_form.options))?.group) {
+        if (this._booking_form.options()?.group) {
             method = () => this._booking_form.postFormForGroup();
         }
         const event = await method().catch((_) => {

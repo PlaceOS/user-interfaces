@@ -9,7 +9,6 @@ import { Booking, OrganisationService, User } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { signal } from '@angular/core';
 import { MockModule, MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 import { BookingFormService } from '../lib/booking-form.service';
 import { generateBookingForm } from '../lib/booking.utilities';
 
@@ -29,7 +28,7 @@ describe('InviteVisitorFormComponent', () => {
             MockProvider(BookingFormService, {
                 form: generateBookingForm(),
                 booking: new Booking(),
-                loading: new BehaviorSubject(''),
+                loading: signal(''),
                 setOptions: jest.fn(),
                 postForm: jest.fn(async () => new Booking()),
                 postFormForVisitorGroup: jest.fn(async () => new Booking()),
@@ -132,7 +131,7 @@ describe('InviteVisitorFormComponent', () => {
 
     it('should show loading state', () => {
         expect('[loading]').not.toExist();
-        (spectator.inject(BookingFormService).loading as any).next('X');
+        (spectator.inject(BookingFormService).loading as any).set('X');
         spectator.detectChanges();
         expect('[loading]').toExist();
     });

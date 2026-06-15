@@ -282,12 +282,8 @@ export class LockerFiltersComponent extends AsyncHandler implements OnInit {
     public readonly hide_levels = input<boolean>(undefined);
 
     public readonly can_close = signal(false);
-    public readonly options = toSignal(this._state.options, {
-        initialValue: {} as any,
-    });
-    public readonly features = toSignal(this._state.features, {
-        initialValue: [],
-    });
+    public readonly options = this._state.options;
+    public readonly features = this._state.features;
     public readonly buildings = this._org.active_buildings;
     public readonly building = this._org.active_building;
     public readonly form = this._state.form;

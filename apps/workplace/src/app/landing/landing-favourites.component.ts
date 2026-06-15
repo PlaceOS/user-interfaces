@@ -5,7 +5,7 @@ import {
     inject,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest, from } from 'rxjs';
 import { map, shareReplay, tap } from 'rxjs/operators';
 
 import { BookingFormService, FAV_PARKING_KEY } from '@placeos/bookings';
@@ -307,18 +307,18 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
     private _change = new BehaviorSubject(0);
     private _room_alerts: Record<string, [string, string]>;
     public readonly assets = combineLatest([
-        this._booking_form.loadResourceList('desks' as any),
-        this._booking_form.loadParkingResources(),
+        from(this._booking_form.loadResourceList('desks' as any)),
+        from(this._booking_form.loadParkingResources()),
         this._change,
     ]).pipe(
         map(([desks, parking]) => {
             return [
                 ...desks
                     .filter(({ id }) => this.desks.includes(id))
-                    .map((_) => ({ ..._, type: 'desk' })),
+                    .map((_) => ({ ..._, type: 'desk' as const })),
                 ...parking
                     .filter(({ id }) => this.parking_spaces.includes(id))
-                    .map((_) => ({ ..._, type: 'parking' })),
+                    .map((_) => ({ ..._, type: 'parking' as const })),
             ];
         }),
         tap((_) => console.log(_)),

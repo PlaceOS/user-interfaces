@@ -147,7 +147,7 @@ import { combineLatest } from 'rxjs';
                             <div
                                 class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                             >
-                                {{ (options | async)?.group ? '3' : '2' }}
+                                {{ options()?.group ? '3' : '2' }}
                             </div>
                             <div class="text-xl">
                                 {{ 'RESOURCE.LOCKER' | translate }}
