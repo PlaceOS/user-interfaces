@@ -66,6 +66,7 @@ describe('BookingFormService', () => {
             // Mock the asset state service so its async `resource()`/effects do
             // not run away when effects are flushed synchronously in tests.
             MockProvider(AssetStateService, {
+                getOptions: jest.fn(() => ({ date: 0 })),
                 setOptions: jest.fn(),
             }),
         ],
@@ -152,6 +153,62 @@ describe('BookingFormService', () => {
         spectator.service.clearForm();
         expect(spectator.service.model().date).not.toBe(date);
         spy.mockRestore();
+    });
+
+    it('should not update asset options when form date and duration are unchanged', () => {
+        const asset_state = spectator.inject(AssetStateService);
+        spectator.service.newForm('desk');
+        TestBed.flushEffects();
+
+        (asset_state.setOptions as jest.Mock).mockClear();
+        const { date, duration } = spectator.service.model();
+        (
+            asset_state.getOptions as jest.MockedFunction<
+                AssetStateService['getOptions']
+            >
+        ).mockReturnValue({ date, duration });
+        spectator.service.model.update((m) => ({ ...m, date, duration }));
+        TestBed.flushEffects();
+
+        expect(asset_state.setOptions).not.toHaveBeenCalled();
+    });
+
+    it('should not update asset options for unrelated form changes', () => {
+        const asset_state = spectator.inject(AssetStateService);
+        spectator.service.newForm('desk');
+        TestBed.flushEffects();
+
+        (asset_state.setOptions as jest.Mock).mockClear();
+        spectator.service.model.update((m) => ({
+            ...m,
+            title: `${m.title} updated`,
+        }));
+        TestBed.flushEffects();
+
+        expect(asset_state.setOptions).not.toHaveBeenCalled();
+    });
+
+    it('should not update asset options for equivalent date objects', () => {
+        const asset_state = spectator.inject(AssetStateService);
+        spectator.service.newForm('desk');
+        TestBed.flushEffects();
+
+        const { date, duration } = spectator.service.model();
+        spectator.service.model.update((m) => ({
+            ...m,
+            date: new Date(date) as any,
+        }));
+        TestBed.flushEffects();
+
+        (asset_state.setOptions as jest.Mock).mockClear();
+        spectator.service.model.update((m) => ({
+            ...m,
+            date: new Date(date) as any,
+            duration,
+        }));
+        TestBed.flushEffects();
+
+        expect(asset_state.setOptions).not.toHaveBeenCalled();
     });
 
     it('should allow reloading previous form details', () => {

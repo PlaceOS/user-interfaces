@@ -1116,6 +1116,12 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
 
     /** Read the current model value without creating a reactive dependency. */
     const snap = (): T => untracked(model);
+    const finiteNumber = (value: unknown): number | undefined => {
+        const number = Number(value);
+        return Number.isFinite(number) ? number : undefined;
+    };
+    const sameValue = (a: unknown, b: unknown) => Object.is(a, b);
+    const normaliseTimeValue = (value: unknown) => finiteNumber(value) ?? 0;
     /**
      * Tracks the last-applied date/duration/date_end/all_day so that each
      * field effect only reacts to a change in its own field and programmatic
@@ -1128,22 +1134,35 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
         date_end?: number;
         all_day?: boolean;
     } = {
-        date: snap().date,
-        duration: snap().duration,
-        date_end: snap().date_end,
+        date: finiteNumber(snap().date),
+        duration: finiteNumber(snap().duration),
+        date_end: finiteNumber(snap().date_end),
         all_day: snap().all_day,
     };
     const refreshPrev = () => {
         const s = snap();
-        prev.date = s.date;
-        prev.duration = s.duration;
-        prev.date_end = s.date_end;
+        prev.date = finiteNumber(s.date);
+        prev.duration = finiteNumber(s.duration);
+        prev.date_end = finiteNumber(s.date_end);
         prev.all_day = s.all_day;
     };
     /** Apply a patch to the model and refresh the change-tracking snapshot. */
     const applyPatch = (patch: Partial<T>) => {
-        model.update((value) => ({ ...value, ...patch }));
+        const current = snap();
+        const safe_patch = { ...patch } as Record<string, unknown>;
+        for (const key of ['date', 'duration', 'date_end']) {
+            if (key in safe_patch) {
+                safe_patch[key] = normaliseTimeValue(safe_patch[key]);
+            }
+        }
+        const keys = Object.keys(safe_patch);
+        if (keys.every((key) => sameValue(current[key], safe_patch[key]))) {
+            refreshPrev();
+            return false;
+        }
+        model.update((value) => ({ ...value, ...(safe_patch as Partial<T>) }));
         refreshPrev();
+        return true;
     };
 
     const effective_min_duration = () =>
@@ -1168,6 +1187,7 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
      * window).
      */
     const bookableWindowRemaining = (start: number): number => {
+        start = normaliseTimeValue(start);
         if (!bookable_hours || !start || snap().id)
             return Number.POSITIVE_INFINITY;
         const time = timezone ? toZonedTime(start, timezone) : new Date(start);
@@ -1183,6 +1203,8 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
      * that means falling below `min_duration`.
      */
     const clampDuration = (dur: number, start?: number): number => {
+        dur = normaliseTimeValue(dur);
+        start = normaliseTimeValue(start);
         if (is_custom_duration(dur)) {
             const window = bookableWindowRemaining(start);
             return Math.min(dur, window);
@@ -1203,6 +1225,7 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
         date: number,
         preserve_calendar_day = false,
     ): number => {
+        date = normaliseTimeValue(date);
         if (!bookable_hours || !date || snap().id) return date;
         if (preserve_calendar_day) {
             return alignDateToBookableHours(
@@ -1237,6 +1260,8 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
 
     /** Check whether date and date_end fall on different calendar days. */
     const isMultiday = (date: number, date_end: number): boolean => {
+        date = normaliseTimeValue(date);
+        date_end = normaliseTimeValue(date_end);
         if (!date || !date_end) return false;
         const d = timezone ? toZonedTime(date, timezone) : new Date(date);
         const e = timezone
@@ -1251,6 +1276,7 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
      * the calendar date is preserved.
      */
     const alignEndToBookableHours = (date_end: number): number => {
+        date_end = normaliseTimeValue(date_end);
         if (!bookable_hours || !date_end || snap().id) return date_end;
         const time = timezone
             ? toZonedTime(date_end, timezone)
@@ -1301,7 +1327,7 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
     ) => {
         const body = () => {
             const current = select(model());
-            if (current === select(prev as T)) return;
+            if (sameValue(current, select(prev as T))) return;
             try {
                 handler();
             } finally {
@@ -1324,8 +1350,9 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
         () => {
             const s = snap();
             if (s.all_day) return;
-            const dur = s.duration;
-            const date = s.date;
+            const dur = normaliseTimeValue(s.duration);
+            const date = normaliseTimeValue(s.date);
+            if (!date) return;
             const new_end = roundCeil(addMinutes(date, dur));
             const multiday = isMultiday(date, new_end);
             if (multiday) {
@@ -1357,8 +1384,9 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
         () => {
             const s = snap();
             if (s.all_day) return;
-            const end = s.date_end;
-            const date = s.date;
+            const end = normaliseTimeValue(s.date_end);
+            const date = normaliseTimeValue(s.date);
+            if (!date || !end) return;
             const raw = differenceInMinutes(end, date);
             const multiday = isMultiday(date, end);
             if (multiday) {
@@ -1393,8 +1421,8 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
     fieldEffect(
         (v) => v.date,
         () => {
-            const date = snap().date;
-            const last_date = prev.date;
+            const date = normaliseTimeValue(snap().date);
+            const last_date = normaliseTimeValue(prev.date);
             const previous_time = timezone
                 ? toZonedTime(last_date, timezone)
                 : new Date(last_date);
@@ -1425,11 +1453,11 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
                 return;
             }
             const expected_end = roundCeil(
-                addMinutes(effective, snap().duration),
+                addMinutes(effective, normaliseTimeValue(snap().duration)),
             );
             const multiday = isMultiday(effective, expected_end);
             if (multiday) {
-                const current_end = snap().date_end;
+                const current_end = normaliseTimeValue(snap().date_end);
                 if (current_end <= effective) {
                     // End date is now at or before the new start —
                     // advance it using start + duration
@@ -1461,7 +1489,7 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
                     }
                 }
             } else {
-                const duration = snap().duration;
+                const duration = normaliseTimeValue(snap().duration);
                 const capped = clampDuration(duration, effective);
                 const capped_end =
                     capped === duration
@@ -1492,7 +1520,7 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
             if (all_day) {
                 applyPatch(
                     getAllDayTimeRange(
-                        snap().date,
+                        normaliseTimeValue(snap().date),
                         timezone,
                         all_day_start,
                         all_day_end,
@@ -1500,7 +1528,7 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
                     ) as Partial<T>,
                 );
             } else {
-                const date = snap().date;
+                const date = normaliseTimeValue(snap().date);
                 const dur = clampDuration(default_duration, date);
                 applyPatch({
                     duration: dur,
@@ -1538,7 +1566,7 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
             if (snap().all_day && snap().date) {
                 applyPatch(
                     getAllDayTimeRange(
-                        snap().date,
+                        normaliseTimeValue(snap().date),
                         timezone,
                         all_day_start,
                         all_day_end,
@@ -1551,11 +1579,11 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
 
             // Re-clamp the current duration to the new bounds
             if (!snap().all_day) {
-                const date = snap().date;
-                const date_end = snap().date_end;
+                const date = normaliseTimeValue(snap().date);
+                const date_end = normaliseTimeValue(snap().date_end);
                 const multiday = isMultiday(date, date_end);
                 if (!multiday) {
-                    const current = snap().duration;
+                    const current = normaliseTimeValue(snap().duration);
                     const clamped = clampDuration(current, date);
                     if (clamped !== current) {
                         applyPatch({
@@ -1569,8 +1597,8 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
 
             // Re-align the current date to the (possibly new) bookable window
             if (bookable_hours && !snap().all_day) {
-                const date = snap().date;
-                const date_end = snap().date_end;
+                const date = normaliseTimeValue(snap().date);
+                const date_end = normaliseTimeValue(snap().date_end);
                 const multiday = isMultiday(date, date_end);
                 const aligned = alignToBookableHours(date);
                 if (aligned !== date) {
@@ -1587,7 +1615,10 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
                         applyPatch({
                             date: aligned,
                             date_end: roundCeil(
-                                addMinutes(aligned, snap().duration),
+                                addMinutes(
+                                    aligned,
+                                    normaliseTimeValue(snap().duration),
+                                ),
                             ),
                         } as Partial<T>);
                     }

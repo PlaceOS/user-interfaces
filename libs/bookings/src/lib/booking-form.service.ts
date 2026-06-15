@@ -7,6 +7,7 @@ import {
     resource,
     signal,
     type Signal,
+    untracked,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
@@ -93,6 +94,32 @@ export interface BookingFlowOptions {
     show_accessible?: boolean;
 }
 
+function bookingOptionsMatch(a: BookingFlowOptions, b: BookingFlowOptions) {
+    const keys = Array.from(
+        new Set([
+            ...(Object.keys(a) as (keyof BookingFlowOptions)[]),
+            ...(Object.keys(b) as (keyof BookingFlowOptions)[]),
+        ]),
+    );
+    return keys.every((key) => a[key] === b[key]);
+}
+
+function assetDateValue(date: unknown) {
+    const date_value = date instanceof Date ? date.valueOf() : Number(date);
+    return Number.isFinite(date_value) ? date_value : null;
+}
+
+function assetDurationValue(duration: unknown) {
+    const duration_value = Number(duration);
+    return Number.isFinite(duration_value) ? duration_value : null;
+}
+
+function assetWindowKey(date: unknown, duration: unknown) {
+    const date_value = assetDateValue(date);
+    const duration_value = assetDurationValue(duration);
+    return date_value && duration_value ? `${date_value}:${duration_value}` : '';
+}
+
 export interface BookingAsset {
     id: string;
     map_id?: string;
@@ -153,11 +180,28 @@ export class BookingFormService extends AsyncHandler {
     public readonly form = this._form_ref.form;
     /** Writable signal holding the raw booking form value. */
     public readonly model = this._form_ref.model;
+    private _asset_window = '';
     public readonly view = signal<BookingFlowView>('form');
 
     /** Apply a partial patch to the booking form model. */
     private _patch(value: Partial<BookingFormValue>, _opts?: unknown) {
         this.model.update((m) => ({ ...m, ...value }));
+    }
+
+    private _syncAssetOptions() {
+        const { date, duration } = untracked(this.model);
+        const next_asset_window = assetWindowKey(date, duration);
+        if (!next_asset_window || this._asset_window === next_asset_window) {
+            return;
+        }
+        const date_value = assetDateValue(date);
+        const duration_value = assetDurationValue(duration);
+        if (!date_value || !duration_value) return;
+        this._asset_window = next_asset_window;
+        this._assets.setOptions({
+            date: date_value,
+            duration: duration_value,
+        });
     }
 
     /** Latest raw form value, used to drive availability recalculation */
@@ -248,9 +292,9 @@ export class BookingFormService extends AsyncHandler {
             rules: this.booking_rules(),
             form: this._form_value_debounced(),
         }),
-        loader: ({ params: { options, resources, rules } }) => {
-            const raw = this.model();
-            if (!(raw.date > 0 && raw.duration > 0)) {
+        loader: ({ params: { options, resources, rules, form } }) => {
+            const raw = form;
+            if (!(raw?.date > 0 && raw?.duration > 0)) {
                 return Promise.resolve([] as BookingAsset[]);
             }
             this._loading.set(
@@ -456,6 +500,10 @@ export class BookingFormService extends AsyncHandler {
     public newForm(type: BookingType, booking: Booking = new Booking({})) {
         if (type !== this._options().type) this.clearForm();
         this.setOptions({ type });
+        this._asset_window = untracked(() => {
+            const { date, duration } = this._assets.getOptions();
+            return assetWindowKey(date, duration);
+        });
         const initial_date = booking.date;
         const initial_duration = booking.duration;
         if (!booking.id) {
@@ -474,10 +522,11 @@ export class BookingFormService extends AsyncHandler {
             { emitEvent: false },
         );
         this.applyDurationSettings();
+        this._syncAssetOptions();
         const form_change = effect(
             () => {
-                const { date, duration } = this.model();
-                this._assets.setOptions({ date, duration });
+                this._form_value.set(this.model());
+                this._syncAssetOptions();
                 this.storeForm();
             },
             { injector: this._injector },
@@ -524,12 +573,6 @@ export class BookingFormService extends AsyncHandler {
         );
         this._org.waitUntilInitialised().then(() => this.setOptions({}));
         this._form_value.set(this.model());
-        const form_value = effect(() => this._form_value.set(this.model()), {
-            injector: this._injector,
-        });
-        this.subscription('form_value', {
-            unsubscribe: () => form_value.destroy(),
-        } as any);
         // Re-apply duration settings when the settings overrides change
         effect(() => {
             const overrides = this._settings.overrides();
@@ -596,19 +639,23 @@ export class BookingFormService extends AsyncHandler {
         // Field-level validators (e.g. the parking form's required
         // plate_number) are now declared in the signal-form schema, so there
         // is no stale reactive validator to clear when switching types.
-        this._options.set({ ...this._options(), ...value });
+        const current = this._options();
+        const next = { ...current, ...value };
+        if (bookingOptionsMatch(current, next)) return;
+        this._options.set(next);
     }
 
     public setFeature(feature: string, enable: boolean) {
         if (!feature?.length) return;
         const features = this._options()?.features || [];
-        if (enable && !features.includes(feature)) features.push(feature);
-        if (!enable && features.includes(feature))
-            features.splice(
-                features.findIndex((e) => e === feature),
-                1,
-            );
-        this.setOptions({ features });
+        if (enable && !features.includes(feature)) {
+            this.setOptions({ features: [...features, feature] });
+        }
+        if (!enable && features.includes(feature)) {
+            this.setOptions({
+                features: features.filter((e) => e !== feature),
+            });
+        }
     }
 
     public resetForm() {
@@ -659,12 +706,6 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public loadForm() {
-        this.model.set({
-            ...bookingFormValue(new Booking()),
-            user: currentUser(),
-            booked_by: currentUser(),
-        });
-        this.form().reset();
         const data = JSON.parse(
             sessionStorage.getItem('PLACEOS.booking_form') || '{}',
         );
@@ -677,6 +718,12 @@ export class BookingFormService extends AsyncHandler {
             ),
         });
         this._booking.set(booking);
+        this.model.set({
+            ...bookingFormValue(new Booking()),
+            user: currentUser(),
+            booked_by: currentUser(),
+        });
+        this.form().reset();
         const booking_data = cleanObject(
             {
                 ...data,
@@ -687,6 +734,9 @@ export class BookingFormService extends AsyncHandler {
         );
         this._patch(booking_data, { emitEvent: false });
         this.applyDurationSettings();
+        this._form_value.set(this.model());
+        this._syncAssetOptions();
+        this.storeForm();
         this._syncWindowIfUnchanged(
             'load-date',
             initial_date,

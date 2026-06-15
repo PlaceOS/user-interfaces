@@ -439,6 +439,22 @@ describe('General Methods', () => {
             expect(callback).toHaveBeenCalledTimes(3);
         });
 
+        it('should ignore invalid NaN duration changes', () => {
+            const form = createForm({ date: BASE, duration: 60 });
+            const callback = jest.fn();
+            setupFormTimeSync(form, { on_time_change: callback }, injector);
+
+            setField(form, { duration: NaN });
+
+            expect(form().duration).toBe(30);
+            expect(callback).toHaveBeenCalledTimes(1);
+
+            setField(form, { duration: 30 });
+
+            expect(form().duration).toBe(30);
+            expect(callback).toHaveBeenCalledTimes(1);
+        });
+
         // --- max_duration ---
 
         it('should clamp duration down to max_duration when exceeded', () => {

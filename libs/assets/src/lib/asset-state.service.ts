@@ -33,6 +33,16 @@ export interface AssetOptions {
     ignore?: string[];
 }
 
+function assetOptionsMatch(a: AssetOptions, b: AssetOptions) {
+    const keys = Array.from(
+        new Set([
+            ...(Object.keys(a) as (keyof AssetOptions)[]),
+            ...(Object.keys(b) as (keyof AssetOptions)[]),
+        ]),
+    );
+    return keys.every((key) => Object.is(a[key], b[key]));
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -114,7 +124,7 @@ export class AssetStateService {
     }
 
     public toggleCategory(value: string) {
-        const categories = this._category();
+        const categories = untracked(this._category);
         if (categories.includes(value)) {
             this._category.set(categories.filter((_) => _ !== value));
         } else {
@@ -127,7 +137,12 @@ export class AssetStateService {
     }
 
     public setOptions(options: Partial<AssetOptions>) {
-        this._options.set({ ...this._options(), ...options });
+        const current = untracked(this._options);
+        const next = { ...current, ...options };
+        if (assetOptionsMatch(current, next)) {
+            return;
+        }
+        this._options.set(next);
     }
 
     private _appendLoading(value: string) {
@@ -187,7 +202,6 @@ export class AssetStateService {
             return [] as AssetGroup[];
         });
         const sorted_list = list.sort((a, b) => a.name.localeCompare(b.name));
-        console.log('Items returned:', sorted_list);
         updateAssetGroupList(sorted_list);
         this._available_groups.set(sorted_list);
     }
