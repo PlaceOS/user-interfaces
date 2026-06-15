@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -16,6 +15,7 @@ import {
     signal,
     TemplateRef,
     Type,
+    untracked,
     viewChild,
     viewChildren,
 } from '@angular/core';
@@ -172,7 +172,7 @@ interface DebugDetailEntry {
                 }
             </div>
         }
-        @if (injectors?.length) {
+        @if (injectors().length) {
             <div hidden>
                 @for (
                     element of features();
@@ -192,7 +192,7 @@ interface DebugDetailEntry {
                                         <ng-container
                                             *ngComponentOutlet="
                                                 $any(element.content);
-                                                injector: injectors[i]
+                                                injector: injectors()[i]
                                             "
                                         ></ng-container>
                                     }
@@ -235,7 +235,6 @@ interface DebugDetailEntry {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         FormsModule,
@@ -273,7 +272,7 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
     public focus = input('');
     public mapInfo = output<Record<string, MapElementBounds>>();
 
-    public injectors: Injector[] = [];
+    public injectors = signal<Injector[]>([]);
     public loading = signal(false);
     public error = signal(false);
 
@@ -888,23 +887,28 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
 
     private _updateInjectors() {
         const old_injectors = new Map(
-            (this.injectors || []).map((injector) => [
+            untracked(() => this.injectors()).map((injector) => [
                 injector.get(MAP_FEATURE_DATA)?.track_id,
                 injector,
             ]),
         );
-        this.injectors = (this.features() || []).map(
-            (f: any) =>
-                (f.track_id && old_injectors.get(f.track_id)) ||
-                Injector.create({
-                    providers: [
-                        {
-                            provide: MAP_FEATURE_DATA,
-                            useValue: { track_id: f.track_id, ...f.data },
-                        },
-                    ],
-                    parent: this._injector,
-                }),
+        this.injectors.set(
+            (this.features() || []).map(
+                (f: any) =>
+                    (f.track_id && old_injectors.get(f.track_id)) ||
+                    Injector.create({
+                        providers: [
+                            {
+                                provide: MAP_FEATURE_DATA,
+                                useValue: {
+                                    track_id: f.track_id,
+                                    ...f.data,
+                                },
+                            },
+                        ],
+                        parent: this._injector,
+                    }),
+            ),
         );
     }
 }
