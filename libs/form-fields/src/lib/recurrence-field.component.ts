@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -147,7 +146,6 @@ import { RecurrenceModalComponent } from './recurrence-modal.component';
             multi: true,
         },
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatFormFieldModule,
         MatSelectModule,

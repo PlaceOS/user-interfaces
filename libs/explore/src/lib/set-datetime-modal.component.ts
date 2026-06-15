@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
     FormControl,
@@ -137,7 +131,6 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
         </footer>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         MatDialogModule,
@@ -167,7 +160,7 @@ export class SetDatetimeModalComponent implements OnInit {
     private _settings = inject(SettingsService);
 
     public readonly host = signal(this._data.host);
-    public form = new FormGroup({
+    public readonly form = new FormGroup({
         user: new FormControl(this._data.user),
         date: new FormControl(this._data.date),
         duration: new FormControl(this._data.duration),

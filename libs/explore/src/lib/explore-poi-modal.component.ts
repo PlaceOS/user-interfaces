@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     ElementRef,
     inject,
@@ -34,16 +33,16 @@ export interface POI {
             class="bg-base-100 h-screen w-full max-w-md min-w-[20rem] overflow-auto rounded-sm sm:h-auto"
         >
             <header>
-                <h2>{{ item.name }}</h2>
+                <h2>{{ item().name }}</h2>
                 <button icon matRipple mat-dialog-close>
                     <icon>close</icon>
                 </button>
             </header>
             <main>
                 @if (
-                    !item.image &&
-                    !item.media_url &&
-                    !item.extra_details?.length
+                    !item().image &&
+                    !item().media_url &&
+                    !item().extra_details?.length
                 ) {
                     <p
                         class="bg-base-200 m-4 flex h-[calc(100vh-5.75rem)] w-[calc(100%-2rem)] items-center justify-center rounded-lg p-8 text-center opacity-50 sm:h-64"
@@ -51,21 +50,21 @@ export interface POI {
                         No available details for this point of interest.
                     </p>
                 }
-                @if (item.image) {
+                @if (item().image) {
                     <img
                         class="bg-base-300 h-48 w-full object-contain"
-                        [src]="item.image"
-                        [alt]="item.name"
+                        [src]="item().image"
+                        [alt]="item().name"
                     />
                 }
-                @if (item.media_url) {
+                @if (item().media_url) {
                     <div class="pointer-events-none absolute opacity-0">
-                        @if (item.media_type === 'video') {
+                        @if (item().media_type === 'video') {
                             <video
                                 #media_el
                                 class="h-full w-full"
                                 auth
-                                [source]="item.media_url"
+                                [source]="item().media_url"
                                 controls
                             ></video>
                         } @else {
@@ -73,7 +72,7 @@ export interface POI {
                                 #media_el
                                 class="h-full w-full"
                                 auth
-                                [source]="item.media_url"
+                                [source]="item().media_url"
                                 controls
                             ></audio>
                         }
@@ -101,9 +100,9 @@ export interface POI {
                         <p class="text-xs font-medium">Read Aloud</p>
                     </div>
                 }
-                @if (item.extra_details?.length) {
+                @if (item().extra_details?.length) {
                     <div class="text-sm">
-                        @for (details of item.extra_details; track $index) {
+                        @for (details of item().extra_details; track $index) {
                             <div
                                 class="border-base-200 flex space-x-4 border-t p-4"
                             >
@@ -119,7 +118,6 @@ export interface POI {
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         MatDialogModule,
@@ -128,7 +126,7 @@ export interface POI {
     ],
 })
 export class ExplorePointOfInterestModalComponent {
-    public readonly item: POI = inject(MAT_DIALOG_DATA);
+    public readonly item = signal<POI>(inject(MAT_DIALOG_DATA));
     public readonly playing = signal(false);
 
     private _media_el =

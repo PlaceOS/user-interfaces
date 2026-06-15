@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -170,7 +169,6 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
         }
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         MatRippleModule,

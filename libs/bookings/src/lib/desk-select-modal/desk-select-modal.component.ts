@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -174,10 +168,10 @@ export const FAV_DESK_KEY = 'favourite_desks';
             </main>
             <footer
                 class="bg-base-200 flex w-full items-center space-x-2 rounded-sm border-none p-2"
-                [class.justify-between]="allow_multiple"
-                [class.justify-end]="!allow_multiple"
+                [class.justify-between]="allow_multiple()"
+                [class.justify-end]="!allow_multiple()"
             >
-                @if (allow_multiple) {
+                @if (allow_multiple()) {
                     <button
                         btn
                         matRipple
@@ -199,13 +193,13 @@ export const FAV_DESK_KEY = 'favourite_desks';
                     name="toggle-desk"
                     [disabled]="!displayed()"
                     [class.inverse]="
-                        allow_multiple && isSelected(displayed()?.id)
+                        allow_multiple() && isSelected(displayed()?.id)
                     "
                     (click)="toggleDisplayedDesk()"
                 >
                     <div class="flex items-center">
                         <icon class="text-xl">{{
-                            allow_multiple
+                            allow_multiple()
                                 ? isSelected(displayed()?.id)
                                     ? 'remove'
                                     : 'add'
@@ -213,7 +207,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                         }}</icon>
                         <div class="mr-1">
                             {{
-                                allow_multiple
+                                allow_multiple()
                                     ? ((isSelected(displayed()?.id)
                                           ? 'COMMON.REMOVE_FROM'
                                           : 'COMMON.ADD_TO'
@@ -235,7 +229,6 @@ export const FAV_DESK_KEY = 'favourite_desks';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         IconComponent,
@@ -277,9 +270,9 @@ export class DeskSelectModalComponent {
         this._settings.get<string[]>(FAV_DESK_KEY) || [],
     );
 
-    public get allow_multiple() {
-        return !!this._data.options?.group;
-    }
+    public readonly allow_multiple = computed(
+        () => !!this._data.options?.group,
+    );
 
     constructor() {
         const selected_desks =
@@ -309,7 +302,9 @@ export class DeskSelectModalComponent {
         if (!this.displayed()) return;
         this.setSelected(
             this.displayed(),
-            this.allow_multiple ? !this.isSelected(this.displayed()?.id) : true,
+            this.allow_multiple()
+                ? !this.isSelected(this.displayed()?.id)
+                : true,
         );
     }
 

@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -46,7 +40,6 @@ import { TranslatePipe } from './translate.pipe';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatFormFieldModule, MatInputModule, TranslatePipe, FormsModule],
 })
 export class UserParkingTooltipComponent implements OnInit {

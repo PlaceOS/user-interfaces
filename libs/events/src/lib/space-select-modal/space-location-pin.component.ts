@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-} from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
@@ -84,7 +79,6 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
         </div>
     `,
     styles: [],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [IconComponent],
 })
 export class SpaceLocationPinComponent {

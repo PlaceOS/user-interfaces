@@ -48,7 +48,7 @@ describe('CateringItemOptionModalComponent', () => {
 
     it('should show loading state', () => {
         expect('[loading]').not.toExist();
-        spectator.component.loading = true;
+        spectator.component.loading.set(true);
         spectator.detectChanges();
         expect('[loading]').toExist();
     });

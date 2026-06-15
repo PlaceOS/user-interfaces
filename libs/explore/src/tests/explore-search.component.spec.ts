@@ -1,5 +1,4 @@
 import { signal } from '@angular/core';
-import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -41,7 +40,7 @@ describe('ExploreSearchComponent', () => {
     it('should allow searching for spaces and users', () => {
         const service = spectator.inject(ExploreSearchService);
         spectator.click('icon');
-        expect(spectator.component.show).toBeTruthy();
+        expect(spectator.component.show()).toBeTruthy();
         expect('mat-option').not.toExist();
         spectator.typeInElement('test', 'input');
         expect(service.setFilter).toHaveBeenCalledWith('test');
@@ -54,7 +53,7 @@ describe('ExploreSearchComponent', () => {
     });
 
     it('should allow selecting options', () => {
-        spectator.component.show = true;
+        spectator.component.show.set(true);
         spectator.typeInElement('test', 'input');
         spectator.detectChanges();
         const service = spectator.inject(ExploreSearchService);
@@ -73,6 +72,6 @@ describe('ExploreSearchComponent', () => {
             queryParams: { user: '1' },
         });
         spectator.click('icon');
-        expect(spectator.component.show).toBeFalsy();
+        expect(spectator.component.show()).toBeFalsy();
     });
 });

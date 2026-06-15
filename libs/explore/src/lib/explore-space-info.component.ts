@@ -1,6 +1,5 @@
 import { AsyncPipe, DatePipe, UpperCasePipe } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     ElementRef,
@@ -96,7 +95,7 @@ export interface SpaceInfoData {
                         </div>
                         @if (status() !== 'not-bookable') {
                             <div available-until>
-                                {{ available_until }}
+                                {{ available_until() }}
                             </div>
                         }
                     </div>
@@ -195,8 +194,6 @@ export interface SpaceInfoData {
             }
         `,
     ],
-
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         AsyncPipe,
         DatePipe,
@@ -249,6 +246,8 @@ export class ExploreSpaceInfoComponent extends AsyncHandler implements OnInit {
         false,
     );
 
+    public readonly available_until = computed(() => '');
+
     public ngOnInit() {
         this.timeout('update_offset', () => this.updateOffset(), 200);
         this.interval('time', () => this.now.set(Date.now()), 5000);
@@ -260,9 +259,5 @@ export class ExploreSpaceInfoComponent extends AsyncHandler implements OnInit {
         this.y_pos.set(
             pos.y < document.body.clientHeight / 2 ? 'top' : 'bottom',
         );
-    }
-
-    public get available_until() {
-        return '';
     }
 }

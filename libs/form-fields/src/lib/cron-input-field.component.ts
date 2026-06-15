@@ -1,9 +1,9 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     DestroyRef,
     forwardRef,
     inject,
+    signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -152,7 +152,7 @@ function control(pattern: string) {
                     Weekdays 9am
                 </button>
             </div>
-            @if (show_error) {
+            @if (show_error()) {
                 <div class="text-error text-xs">
                     Enter a valid 5-part CRON expression.
                 </div>
@@ -167,13 +167,13 @@ function control(pattern: string) {
             multi: true,
         },
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [ReactiveFormsModule],
 })
 export class CronInputFieldComponent implements ControlValueAccessor {
     private readonly _destroy_ref = inject(DestroyRef);
 
     public cron_string = DEFAULT_CRON;
+    public readonly show_error = signal(false);
     public readonly form = new FormGroup({
         minute: control(
             listPattern(
@@ -200,10 +200,6 @@ export class CronInputFieldComponent implements ControlValueAccessor {
         ),
     });
 
-    public get show_error() {
-        return this.form.invalid && (this.form.dirty || this.form.touched);
-    }
-
     private _onChange: (value: string) => void = () => undefined;
     private _onTouched: () => void = () => undefined;
 
@@ -211,11 +207,15 @@ export class CronInputFieldComponent implements ControlValueAccessor {
         this.form.valueChanges
             .pipe(takeUntilDestroyed(this._destroy_ref))
             .subscribe(() => {
+                this._updateShowError();
                 if (this.form.invalid) return;
                 const value = this._formValue();
                 this.cron_string = value;
                 this._onChange(value);
             });
+        this.form.statusChanges
+            .pipe(takeUntilDestroyed(this._destroy_ref))
+            .subscribe(() => this._updateShowError());
     }
 
     public writeValue(value: string): void {
@@ -236,6 +236,7 @@ export class CronInputFieldComponent implements ControlValueAccessor {
         } else {
             this.form.enable({ emitEvent: false });
         }
+        this._updateShowError();
     }
 
     public setPreset(value: string): void {
@@ -245,6 +246,7 @@ export class CronInputFieldComponent implements ControlValueAccessor {
 
     public markTouched(): void {
         this.form.markAllAsTouched();
+        this._updateShowError();
         this._onTouched();
     }
 
@@ -275,6 +277,7 @@ export class CronInputFieldComponent implements ControlValueAccessor {
             { emitEvent: emit_event },
         );
         this.cron_string = this._formValue();
+        this._updateShowError();
     }
 
     private _formValue(): string {
@@ -282,5 +285,11 @@ export class CronInputFieldComponent implements ControlValueAccessor {
         return `${value.minute || '*'} ${value.hour || '*'} ${
             value.day || '*'
         } ${value.month || '*'} ${value.day_of_week || '*'}`;
+    }
+
+    private _updateShowError(): void {
+        this.show_error.set(
+            this.form.invalid && (this.form.dirty || this.form.touched),
+        );
     }
 }

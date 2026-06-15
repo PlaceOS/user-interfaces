@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ApplicationIcon } from 'libs/common/src/lib/types';
@@ -56,7 +56,6 @@ import { IconComponent } from './icon.component';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, MatProgressSpinnerModule, IconComponent],
 })
 export class ActionIconComponent {

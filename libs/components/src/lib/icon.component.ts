@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    input,
-} from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { ApplicationIcon } from 'libs/common/src/lib/types';
 import { SafePipe } from './safe.pipe';
 
@@ -40,7 +35,6 @@ const CLASS_MAP = {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [SafePipe],
 })
 export class IconComponent {

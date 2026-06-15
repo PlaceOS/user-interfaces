@@ -1,6 +1,5 @@
 import {
     AfterViewInit,
-    ChangeDetectionStrategy,
     Component,
     ElementRef,
     OnChanges,
@@ -198,7 +197,6 @@ function degreesToRadians(degrees: number): number {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatProgressSpinnerModule,
         MatRippleModule,

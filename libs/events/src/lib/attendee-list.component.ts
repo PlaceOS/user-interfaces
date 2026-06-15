@@ -1,11 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    input,
-    output,
-} from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { User } from '@placeos/common';
@@ -89,7 +83,6 @@ import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.compone
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         MatRippleModule,

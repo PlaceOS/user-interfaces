@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
 import { ApplicationLink } from '@placeos/common';
@@ -45,7 +45,6 @@ import { IconComponent } from './icon.component';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [RouterModule, MatProgressSpinnerModule, IconComponent],
 })
 export class StatusOverlayComponent {

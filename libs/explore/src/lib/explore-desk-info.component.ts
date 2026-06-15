@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     ElementRef,
     OnInit,
@@ -211,7 +210,6 @@ export interface DeskInfoData {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         CustomTooltipComponent,
@@ -271,9 +269,9 @@ export class ExploreDeskInfoComponent extends AsyncHandler implements OnInit {
         () => this.display_booking()?.date_end || this.end(),
     );
 
-    public y_pos = signal<'top' | 'bottom'>('top');
+    public readonly y_pos = signal<'top' | 'bottom'>('top');
 
-    public x_pos = signal<'left' | 'right'>('left');
+    public readonly x_pos = signal<'left' | 'right'>('left');
 
     public ngOnInit(tries = 0) {
         if (tries > 10) return;

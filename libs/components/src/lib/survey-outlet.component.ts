@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -328,7 +327,6 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         RouterModule,
         AuthenticatedImageDirective,

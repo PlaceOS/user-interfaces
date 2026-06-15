@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -76,7 +71,6 @@ import { saveEvent, updateEventMetadata } from './events.fn';
         }
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         TranslatePipe,

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -62,7 +62,6 @@ import { ExploreStateService } from './explore-state.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, TranslatePipe, IconComponent, MatTooltipModule],
 })
 export class ExploreZoomControlComponent {

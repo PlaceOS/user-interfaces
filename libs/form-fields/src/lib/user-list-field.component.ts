@@ -1,6 +1,5 @@
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     ElementRef,
@@ -232,7 +231,6 @@ const DENIED_FILE_TYPES = [
             multi: true,
         },
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatFormFieldModule,

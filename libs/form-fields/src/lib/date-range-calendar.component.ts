@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     input,
@@ -100,7 +99,6 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, IconComponent],
 })
 export class DateRangeCalendarComponent implements OnInit, OnChanges {

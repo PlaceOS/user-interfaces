@@ -212,7 +212,7 @@ export class CateringStateService extends AsyncHandler {
                     this._menu.next([...menu]);
                     ref.close();
                 },
-                () => (ref.componentInstance.loading = false),
+                () => ref.componentInstance.loading.set(false),
             );
     }
 
@@ -269,7 +269,7 @@ export class CateringStateService extends AsyncHandler {
                     this._menu.next([...menu]);
                     ref.close();
                 },
-                () => (ref.componentInstance.loading = false),
+                () => ref.componentInstance.loading.set(false),
             );
     }
 
@@ -416,7 +416,7 @@ export class CateringStateService extends AsyncHandler {
             ref.afterClosed().toPromise(),
         ]);
         if (details?.reason !== 'done') return;
-        ref.componentInstance.loading = i18n('CATERING.MENU_IMPORT_LOADING');
+        ref.componentInstance.loading.set(i18n('CATERING.MENU_IMPORT_LOADING'));
         const bld = this._org.building;
         const menu = this._menu.getValue();
         const updated_menu = unique(details.metadata.concat(menu), 'id');

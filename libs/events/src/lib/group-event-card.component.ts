@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -225,7 +224,6 @@ import { SpacePipe } from './space.pipe';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { User } from '@placeos/common';
@@ -39,7 +39,6 @@ export interface AvailabilityBlock {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule],
 })
 export class UserAvailabilityComponent {

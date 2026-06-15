@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     ElementRef,
@@ -100,7 +99,6 @@ export type PluginInteractionPayload = {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [SafePipe],
 })
 export class PluginEmbedComponent

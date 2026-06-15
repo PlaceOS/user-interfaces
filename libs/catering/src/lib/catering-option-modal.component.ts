@@ -1,9 +1,10 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     EventEmitter,
     Output,
+    computed,
     inject,
+    signal,
 } from '@angular/core';
 import {
     FormControl,
@@ -38,19 +39,19 @@ export interface CateringItemOptionModalData {
         >
             <h2 class="px-2 text-xl font-medium">
                 {{
-                    (option.id
+                    (option().id
                         ? 'CATERING.ITEM_OPTION_EDIT'
                         : 'CATERING.ITEM_OPTION_NEW'
                     ) | translate
                 }}
             </h2>
-            @if (!loading) {
+            @if (!loading()) {
                 <button icon matRipple mat-dialog-close>
                     <icon>close</icon>
                 </button>
             }
         </header>
-        @if (form && !loading) {
+        @if (form && !loading()) {
             <form
                 class="max-h-[65vh] w-md overflow-auto px-4"
                 [formGroup]="form"
@@ -144,7 +145,7 @@ export interface CateringItemOptionModalData {
                 <p>{{ 'CATREING.ITEM_OPTION_SAVING' | translate }}</p>
             </div>
         }
-        @if (!loading) {
+        @if (!loading()) {
             <footer
                 class="border-base-200 flex items-center justify-end border-t border-solid px-4 py-2"
             >
@@ -160,7 +161,7 @@ export interface CateringItemOptionModalData {
             </footer>
         }
         <mat-autocomplete #auto="matAutocomplete">
-            @for (option of types; track option) {
+            @for (option of types(); track option) {
                 <mat-option [value]="option">
                     {{ option }}
                 </mat-option>
@@ -168,7 +169,6 @@ export interface CateringItemOptionModalData {
         </mat-autocomplete>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         MatRippleModule,
@@ -187,31 +187,27 @@ export class CateringItemOptionModalComponent {
 
     /** Emitter for events on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
+    /** Current item details */
+    public readonly option = computed(() => this._data.option);
+    /** List of available categories */
+    public readonly types = computed(() => this._data.types || []);
     /** Form fields for item */
     public form = new FormGroup({
-        name: new FormControl(this.option.name || '', [Validators.required]),
-        group: new FormControl(this.option.group || '', [Validators.required]),
-        unit_price: new FormControl(this.option.unit_price),
-        multiple: new FormControl(!!this.option.multiple, []),
+        name: new FormControl(this.option().name || '', [Validators.required]),
+        group: new FormControl(this.option().group || '', [
+            Validators.required,
+        ]),
+        unit_price: new FormControl(this.option().unit_price),
+        multiple: new FormControl(!!this.option().multiple, []),
     });
     /** Whether changes are being saved */
-    public loading = false;
-
-    /** Current item details */
-    public get option(): CateringOption {
-        return this._data.option;
-    }
-
-    /** List of available categories */
-    public get types(): string[] {
-        return this._data.types || [];
-    }
+    public readonly loading = signal(false);
 
     public saveChanges() {
-        this.loading = true;
+        this.loading.set(true);
         const new_option = {
-            ...this.option,
-            id: this.option.id || `option-${randomInt(9999_9999)}`,
+            ...this.option(),
+            id: this.option().id || `option-${randomInt(9999_9999)}`,
             ...this.form.value,
         } as CateringOption;
         this.event.emit({

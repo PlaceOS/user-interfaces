@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -84,7 +78,9 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                             {{ period() }}
                         </status-pill>
                         @if (booking().instance) {
-                            <icon class="text-2xl" [matTooltip]="recurr_tooltip"
+                            <icon
+                                class="text-2xl"
+                                [matTooltip]="recurr_tooltip()"
                                 >event_repeat</icon
                             >
                         }
@@ -279,10 +275,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                     <button
                                         matRipple
                                         class="flex w-full items-center space-x-2 p-3"
-                                        (click)="
-                                            show_request[request.id] =
-                                                !show_request[request.id]
-                                        "
+                                        (click)="toggleRequest(request.id)"
                                     >
                                         <div class="flex-1 text-left">
                                             <div class="text-sm">
@@ -294,7 +287,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                                                       request.deliver_at
                                                                       | date
                                                                           : 'MMM d, ' +
-                                                                                time_format,
+                                                                                time_format(),
                                                               }
                                                 }}
                                             </div>
@@ -341,7 +334,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                         >
                                             <icon class="text-2xl">
                                                 {{
-                                                    show_request[request.id]
+                                                    showRequest(request.id)
                                                         ? 'expand_less'
                                                         : 'expand_more'
                                                 }}
@@ -351,7 +344,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                     <div
                                         class="divide-base-100 bg-base-200 flex flex-col divide-y"
                                         [@show]="
-                                            show_request[request.id]
+                                            showRequest(request.id)
                                                 ? 'show'
                                                 : 'hide'
                                         "
@@ -477,7 +470,6 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
     `,
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatMenuModule,
@@ -513,7 +505,7 @@ export class BookingDetailsModalComponent {
     public readonly edit = this._data.edit_fn;
     public readonly remove = this._data.remove_fn;
     public readonly end = this._data.end_fn;
-    public show_request = {};
+    private readonly _show_request = signal<Record<string, boolean>>({});
     public readonly features = computed(() => [
         {
             location:
@@ -722,9 +714,7 @@ export class BookingDetailsModalComponent {
         return start <= ts && ts <= end;
     });
 
-    public get time_format() {
-        return this._settings.time_format_signal();
-    }
+    public readonly time_format = this._settings.time_format_signal;
 
     private readonly _is_visible_waitlisted = computed(() => {
         const booking = this.booking();
@@ -760,11 +750,22 @@ export class BookingDetailsModalComponent {
         })
             .replace(' hour', 'hr')
             .replace(' minute', 'min');
-        return `${format(start, this.time_format)} - ${format(
+        return `${format(start, this.time_format())} - ${format(
             end,
-            this.time_format,
+            this.time_format(),
         )} (${dur})`;
     });
+
+    public showRequest(id: string) {
+        return this._show_request()[id];
+    }
+
+    public toggleRequest(id: string) {
+        this._show_request.update((value) => ({
+            ...value,
+            [id]: !value[id],
+        }));
+    }
 
     public async toggleCheckedIn() {
         this.checking_in.set(true);
@@ -799,14 +800,13 @@ export class BookingDetailsModalComponent {
         this.checking_in.set(false);
     }
 
-    public get recurr_tooltip() {
-        return (
+    public readonly recurr_tooltip = computed(
+        () =>
             formatRecurrence(
                 fromBookingRecurrence(this.booking()),
                 this.booking()?.date,
-            ) || i18n('CALENDAR_EVENT.RECURRING_TOOLTIP')
-        );
-    }
+            ) || i18n('CALENDAR_EVENT.RECURRING_TOOLTIP'),
+    );
 
     public status(id: string): string {
         const booking = this.booking().linked_bookings.find(

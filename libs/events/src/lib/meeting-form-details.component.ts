@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -303,7 +302,6 @@ const ALLOWED_CALENDAR_ROLES = [
         }
     `,
     styles: [],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         MatFormFieldModule,

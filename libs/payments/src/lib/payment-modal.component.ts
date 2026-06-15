@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    output,
-} from '@angular/core';
+import { Component, computed, inject, output, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { MatRippleModule } from '@angular/material/core';
@@ -37,7 +32,7 @@ export interface PaymentData {
     template: `
         @if (!(loading | async)) {
             <div class="relative max-h-screen overflow-auto">
-                @if (!success) {
+                @if (!success()) {
                     <main
                         class="relative flex w-[24rem] flex-col items-center space-y-2 px-4 pt-8"
                     >
@@ -59,7 +54,7 @@ export interface PaymentData {
                         <p class="text-sm">Your booking will cost:</p>
                         <p class="text-center text-lg font-medium">
                             <strong>{{
-                                details.amount / 100 | currency: code
+                                details.amount / 100 | currency: code()
                             }}</strong>
                         </p>
                         <card-input-field
@@ -88,9 +83,11 @@ export interface PaymentData {
                     <main class="relative flex w-[24rem] flex-col px-8 pt-8">
                         <h2 class="text-2xl font-medium">Payment Successful</h2>
                         <h3 class="mb-2 text-xl font-medium">
-                            Ref #{{ transaction_id }}
+                            Ref #{{ transaction_id() }}
                         </h3>
-                        <p>{{ details.amount / 100 | currency: code }} paid.</p>
+                        <p>
+                            {{ details.amount / 100 | currency: code() }} paid.
+                        </p>
                         <p>{{ details.resource_name }} booked.</p>
                         <p>{{ details.date | date: 'mediumDate' }}</p>
                         <p>
@@ -122,7 +119,6 @@ export interface PaymentData {
         }
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         FormsModule,
@@ -139,25 +135,26 @@ export class PaymentModalComponent {
     public readonly event = output<PaymentCardDetails>();
     public readonly details = this._data;
     public readonly loading = this._data.loading;
-    public card_details?: PaymentCardDetails;
-    public success = false;
-    public transaction_id = '12345678';
-
-    public get code() {
-        return this._org.currency_code;
-    }
+    public readonly card_details = signal<PaymentCardDetails | undefined>(
+        undefined,
+    );
+    public readonly success = signal(false);
+    public readonly transaction_id = signal('12345678');
+    public readonly code = computed(() => this._org.currency_code);
 
     public async processPayment() {
-        if (!this.card_details || !this._validCardDetails()) return;
-        this.event.emit(this.card_details);
-        await this._data.makePayment(this.card_details);
-        this.success = true;
+        const details = this.card_details();
+        if (!details || !this._validCardDetails()) return;
+        this.event.emit(details);
+        await this._data.makePayment(details);
+        this.success.set(true);
     }
 
     private _validCardDetails() {
+        const details = this.card_details();
         return (
-            (this.card_details?.cardholder.length || 0) > 0 &&
-            (this.card_details?.cvv.length || 0) >= 3
+            (details?.cardholder.length || 0) > 0 &&
+            (details?.cvv.length || 0) >= 3
         );
     }
 }

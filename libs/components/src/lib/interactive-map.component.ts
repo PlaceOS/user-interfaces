@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -74,7 +73,6 @@ export type { MapMetadata, MapOptions };
         }
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MapsIndoorsComponent,
         DynamicMapComponent,

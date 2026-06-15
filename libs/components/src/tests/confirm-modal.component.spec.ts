@@ -28,7 +28,7 @@ describe('ConfirmModalComponent', () => {
     it('should allow showing a loading state', () => {
         expect('mat-spinner').not.toExist();
         expect('[loading]').not.toExist();
-        spectator.component.loading = 'Testing loading...';
+        spectator.component.loading.set('Testing loading...');
         spectator.detectChanges();
         expect('mat-spinner').toExist();
         expect('[loading]').toExist();

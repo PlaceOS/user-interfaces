@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     forwardRef,
@@ -56,7 +55,7 @@ const EMPTY_FAVS = [];
                                                           | date: 'mediumDate',
                                                       time:
                                                           order.deliver_at
-                                                          | date: time_format,
+                                                          | date: time_format(),
                                                   }
                                     }}
                                 </div>
@@ -77,7 +76,8 @@ const EMPTY_FAVS = [];
                                                   count: order.item_count,
                                                   cost:
                                                       order.total_cost / 100
-                                                      | currency: currency_code,
+                                                      | currency
+                                                          : currency_code(),
                                               }
                                 }}
                             </div>
@@ -178,7 +178,7 @@ const EMPTY_FAVS = [];
                                 >
                                     {{
                                         item.unit_price_with_options / 100
-                                            | currency: currency_code
+                                            | currency: currency_code()
                                     }}
                                     ea
                                 </div>
@@ -198,19 +198,19 @@ const EMPTY_FAVS = [];
                                     matRipple
                                     name="toggle-catering-item-favourite"
                                     [matTooltip]="
-                                        (favorites.includes(item.id)
+                                        (favorites().includes(item.id)
                                             ? 'COMMON.FAVOURITES_REMOVE'
                                             : 'COMMON.FAVOURITES_ADD'
                                         ) | translate
                                     "
                                     [class.text-info]="
-                                        favorites.includes(item.id)
+                                        favorites().includes(item.id)
                                     "
                                     (click)="toggleFavourite(item)"
                                 >
                                     <icon
                                         [className]="
-                                            favorites.includes(item.id)
+                                            favorites().includes(item.id)
                                                 ? 'material-symbols-rounded'
                                                 : 'material-symbols-outlined'
                                         "
@@ -249,7 +249,6 @@ const EMPTY_FAVS = [];
             multi: true,
         },
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         IconComponent,
@@ -285,9 +284,8 @@ export class CateringListFieldComponent
 
     private _onChange: (_: CateringOrder[]) => void;
     private _onTouch: (_: CateringOrder[]) => void;
-    public selected: CateringOrder[] = [];
 
-    public get favorites() {
+    public readonly favorites = computed(() => {
         return (
             this._settings.signal<string[]>(
                 'favourite_menu_items',
@@ -295,15 +293,16 @@ export class CateringListFieldComponent
                 true,
             )() || EMPTY_FAVS
         );
-    }
+    });
 
-    public get time_format() {
-        return this._settings.time_format_signal() || 'shortTime';
-    }
+    public readonly time_format = computed(
+        () => this._settings.time_format_signal() || 'shortTime',
+    );
 
-    public get currency_code() {
+    public readonly currency_code = computed(() => {
+        this._org.building_signal();
         return this._org.currency_code;
-    }
+    });
 
     public ngOnInit() {
         this.err_tooltip.set(i18n('CALENDAR_EVENT.CATERING_ORDER_ERROR'));
@@ -413,16 +412,20 @@ export class CateringListFieldComponent
                     option.active = !!opt;
                 }
             }
+            const modal = ref.componentInstance;
+            const exact_time = this.readDialogValue(modal.exact_time);
+            const offset = this.readDialogValue(modal.offset);
+            const offset_day = this.readDialogValue(modal.offset_day);
             const new_order = new CateringOrder({
                 ...order,
                 items,
                 caterer: items[0].caterer,
                 event: this.options() as any,
-                deliver_offset: ref.componentInstance.offset,
-                deliver_time: ref.componentInstance.exact_time
+                deliver_offset: offset,
+                deliver_time: exact_time
                     ? time.getHours() + time.getMinutes() / 60
                     : null,
-                deliver_day_offset: ref.componentInstance.offset_day || 0,
+                deliver_day_offset: offset_day || 0,
             });
             if (new_order.item_count <= 0) {
                 this.setValue(orders);
@@ -430,6 +433,10 @@ export class CateringListFieldComponent
             }
             this.setValue([...orders, new_order]);
         });
+    }
+
+    private readDialogValue<T>(value: T | (() => T)): T {
+        return typeof value === 'function' ? (value as () => T)() : value;
     }
 
     public toggleOrder(order_id: string) {
@@ -444,7 +451,7 @@ export class CateringListFieldComponent
     }
 
     public toggleFavourite(cateringitem: CateringItem) {
-        const fav_list = this.favorites;
+        const fav_list = this.favorites();
         const new_state = !fav_list.includes(cateringitem.id);
         if (new_state) {
             this._settings.saveUserSetting('favourite_menu_items', [

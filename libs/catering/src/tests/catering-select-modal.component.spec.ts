@@ -53,14 +53,14 @@ describe('CateringSelectModalComponent', () => {
             ],
         });
         spectator.component.setSelected(item, true);
-        expect(spectator.component.selected_keys).toContain(
+        expect(spectator.component.selected_keys()).toContain(
             spectator.component.selectionKey(item),
         );
-        expect(spectator.component.selected_keys).not.toContain(
+        expect(spectator.component.selected_keys()).not.toContain(
             spectator.component.selectionKey(variant),
         );
         spectator.component.setSelected(variant, true);
-        expect(spectator.component.selected).toHaveLength(2);
+        expect(spectator.component.selected()).toHaveLength(2);
     });
 
     it('should stop treating an item as selected when options change', () => {
@@ -78,11 +78,11 @@ describe('CateringSelectModalComponent', () => {
             ],
         });
         spectator.component.setSelected(item, true);
-        expect(spectator.component.selected_keys).toContain(
+        expect(spectator.component.selected_keys()).toContain(
             spectator.component.selectionKey(item),
         );
         item.options[0].active = true;
-        expect(spectator.component.selected_keys).not.toContain(
+        expect(spectator.component.selected_keys()).not.toContain(
             spectator.component.selectionKey(item),
         );
     });
@@ -102,11 +102,11 @@ describe('CateringSelectModalComponent', () => {
                 },
             ],
         });
-        spectator.component.displayed = item;
+        spectator.component.displayed.set(item);
         spectator.component.setSelected(item, true);
-        expect(spectator.component.displayed).not.toBe(item);
-        expect(spectator.component.displayed?.in_order).toBe(true);
-        expect(spectator.component.displayed?.quantity).toBe(3);
+        expect(spectator.component.displayed()).not.toBe(item);
+        expect(spectator.component.displayed()?.in_order).toBe(true);
+        expect(spectator.component.displayed()?.quantity).toBe(3);
         expect(item.in_order).toBe(false);
         expect(item.quantity).toBe(1);
         expect(item.options[0].active).toBeUndefined();
@@ -116,31 +116,31 @@ describe('CateringSelectModalComponent', () => {
         const item = new CateringItem({ id: '1', quantity: 2 });
         spectator.component.setSelected(item, true);
         spectator.component.setSelected(item, true);
-        expect(spectator.component.selected).toHaveLength(1);
-        expect(spectator.component.selected[0].quantity).toBe(3);
+        expect(spectator.component.selected()).toHaveLength(1);
+        expect(spectator.component.selected()[0].quantity).toBe(3);
         expect(item.quantity).toBe(1);
     });
 
     it('should clear displayed item when removing the selected ordered item', () => {
         const item = new CateringItem({ id: '1', quantity: 1, in_order: true });
-        spectator.component.selected = [item];
-        spectator.component.displayed = item;
+        spectator.component.selected.set([item]);
+        spectator.component.displayed.set(item);
         spectator.component.setSelected(item, false);
-        expect(spectator.component.displayed).toBeNull();
-        expect(spectator.component.selected).toHaveLength(0);
+        expect(spectator.component.displayed()).toBeNull();
+        expect(spectator.component.selected()).toHaveLength(0);
     });
 
     it('should bind delivery settings into the filter component', () => {
-        spectator.component.exact_time = true;
-        spectator.component.offset = 45;
-        spectator.component.offset_day = 1;
+        spectator.component.exact_time.set(true);
+        spectator.component.offset.set(45);
+        spectator.component.offset_day.set(1);
         spectator.detectChanges();
 
         const filters = spectator.query(
             CateringItemFiltersComponent as any,
         ) as any;
         expect(filters.at_time).toBe(true);
-        expect(filters.offsetInput).toBe(45);
+        expect(filters.offset).toBe(45);
         expect(filters.offset_day).toBe(1);
     });
 
@@ -160,20 +160,20 @@ describe('CateringSelectModalComponent', () => {
             quantity: 1,
             in_order: true,
         });
-        spectator.component.selected = [first, second, third];
-        spectator.component.displayed = second;
+        spectator.component.selected.set([first, second, third]);
+        spectator.component.displayed.set(second);
 
         spectator.component.setSelected(
             new CateringItem({ ...second, quantity: 5, in_order: true }),
             true,
         );
 
-        expect(spectator.component.selected.map((item) => item.id)).toEqual([
+        expect(spectator.component.selected().map((item) => item.id)).toEqual([
             '1',
             '2',
             '3',
         ]);
-        expect(spectator.component.selected[1].quantity).toBe(5);
-        expect(spectator.component.displayed?.id).toBe('2');
+        expect(spectator.component.selected()[1].quantity).toBe(5);
+        expect(spectator.component.displayed()?.id).toBe('2');
     });
 });

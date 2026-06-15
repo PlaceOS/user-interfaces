@@ -1,7 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -461,7 +460,6 @@ import {
         }
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,
@@ -601,7 +599,7 @@ export class GroupEventDetailsModalComponent implements OnInit {
         const map_id = (this.event().extension_data as any)?.map_id;
         const id = this.space()?.map_id || map_id;
         if (id) {
-            this.styles[`#${id}`] = { fill: 'green' };
+            this.styles.set({ [`#${id}`]: { fill: 'green' } });
             this.features.set([
                 {
                     location: id,
@@ -647,12 +645,15 @@ export class GroupEventDetailsModalComponent implements OnInit {
                     calendar: this.group_event_calendar(),
                 }),
             );
-            this.event.update((e) => {
-                (e as any).attendees = (e.attendees || []).filter(
-                    (_: any) => _.email !== user.email,
-                );
-                return e;
-            });
+            this.event.update(
+                (event) =>
+                    new CalendarEvent({
+                        ...event,
+                        attendees: (event.attendees || []).filter(
+                            (_: any) => _.email !== user.email,
+                        ),
+                    }),
+            );
         } else {
             user = await lastValueFrom(
                 addEventGuest(this.event().id, _user, {
@@ -660,13 +661,16 @@ export class GroupEventDetailsModalComponent implements OnInit {
                     calendar: this.group_event_calendar(),
                 }),
             );
-            this.event.update((e) => {
-                (e as any).attendees = unique(
-                    [...(e.attendees || []), user],
-                    'email',
-                );
-                return e;
-            });
+            this.event.update(
+                (event) =>
+                    new CalendarEvent({
+                        ...event,
+                        attendees: unique(
+                            [...(event.attendees || []), user],
+                            'email',
+                        ),
+                    }),
+            );
         }
     }
 
@@ -688,9 +692,15 @@ export class GroupEventDetailsModalComponent implements OnInit {
                     calendar: this.group_event_calendar(),
                 }),
             );
-            (this.event as any).attendees = unique(
-                [...(this.event().attendees || []), user],
-                'email',
+            this.event.update(
+                (event) =>
+                    new CalendarEvent({
+                        ...event,
+                        attendees: unique(
+                            [...(event.attendees || []), user],
+                            'email',
+                        ),
+                    }),
             );
         }
         user = { ...currentUser(), ...(user || {}) };
@@ -704,6 +714,16 @@ export class GroupEventDetailsModalComponent implements OnInit {
             (_) => _.email === user.email,
         );
         if (!guest) return;
-        (guest as any).checked_in = !this.is_going();
+        this.event.update(
+            (event) =>
+                new CalendarEvent({
+                    ...event,
+                    attendees: event.attendees.map((attendee) =>
+                        attendee.email === user.email
+                            ? { ...attendee, checked_in: !this.is_going() }
+                            : attendee,
+                    ),
+                }),
+        );
     }
 }

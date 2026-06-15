@@ -1,9 +1,10 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     EventEmitter,
     Output,
+    computed,
     inject,
+    signal,
 } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 
@@ -34,7 +35,7 @@ export interface CateringOrderOptionsModalData {
             </button>
         </header>
         <main class="overflow-auto">
-            @for (group of groups; track group) {
+            @for (group of groups(); track group) {
                 <div
                     class="border-base-200 border-b pt-1 pb-2"
                     [attr.group]="group.name"
@@ -72,7 +73,7 @@ export interface CateringOrderOptionsModalData {
                                                 <div class="text-xs opacity-60">
                                                     +{{
                                                         opt.unit_price / 100
-                                                            | currency: code
+                                                            | currency: code()
                                                     }}
                                                 </div>
                                             }
@@ -83,7 +84,10 @@ export interface CateringOrderOptionsModalData {
                         } @else {
                             @for (opt of group?.options; track opt) {
                                 <mat-checkbox
-                                    [(ngModel)]="option_state[opt.id]"
+                                    [ngModel]="option_state()[opt.id]"
+                                    (ngModelChange)="
+                                        setOptionState(opt.id, $event)
+                                    "
                                 >
                                     <div
                                         class="flex items-center justify-center"
@@ -97,7 +101,7 @@ export interface CateringOrderOptionsModalData {
                                             <div class="text-xs opacity-60">
                                                 +{{
                                                     opt.unit_price / 100
-                                                        | currency: code
+                                                        | currency: code()
                                                 }}
                                             </div>
                                         }
@@ -124,7 +128,6 @@ export interface CateringOrderOptionsModalData {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatRippleModule,
@@ -142,10 +145,10 @@ export class CateringOrderOptionsModalComponent {
     /** Emitter for events on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** List of option groups */
-    public readonly groups: CateringOptionGroup[];
+    public readonly groups = signal<CateringOptionGroup[]>([]);
     /** Mapping of options to their active state */
-    public option_state: HashMap<boolean> = {};
-    public readonly code = this._data.code;
+    public readonly option_state = signal<HashMap<boolean>>({});
+    public readonly code = computed(() => this._data.code);
 
     constructor() {
         const groups = unique(
@@ -160,18 +163,29 @@ export class CateringOrderOptionsModalComponent {
                 options,
             });
         }
-        this.groups = group_list;
+        this.groups.set(group_list);
     }
 
     public updateGroupOption(group: CateringOptionGroup, id: string) {
+        if (!group) return;
+        const option_state = { ...this.option_state() };
         for (const option of group.options) {
-            this.option_state[option.id] = option.id === id;
+            option_state[option.id] = option.id === id;
         }
+        this.option_state.set(option_state);
+    }
+
+    public setOptionState(id: string, state: boolean) {
+        this.option_state.update((option_state) => ({
+            ...option_state,
+            [id]: state,
+        }));
     }
 
     public saveOptions() {
+        const option_state = this.option_state();
         const options = this._data.options.filter(
-            (opt) => this.option_state[opt.id],
+            (opt) => option_state[opt.id],
         );
         this.event.emit({ reason: 'done', metadata: { options } });
     }

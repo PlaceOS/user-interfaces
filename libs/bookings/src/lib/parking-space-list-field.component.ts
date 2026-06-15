@@ -1,11 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    forwardRef,
-    inject,
-    input,
-    signal,
-} from '@angular/core';
+import { Component, forwardRef, inject, input, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -97,12 +90,12 @@ const EMPTY_FAVS: string[] = [];
                         matRipple
                         fav
                         class="absolute top-1 right-1"
-                        [class.text-info]="favorites.includes(space?.id)"
+                        [class.text-info]="favorites().includes(space?.id)"
                         (click)="toggleFavourite(space)"
                     >
                         <icon
                             [className]="
-                                favorites.includes(space?.id)
+                                favorites().includes(space?.id)
                                     ? 'material-symbols-rounded'
                                     : 'material-symbols-outlined'
                             "
@@ -136,7 +129,6 @@ const EMPTY_FAVS: string[] = [];
             multi: true,
         },
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         IconComponent,
@@ -156,13 +148,11 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
     private _onChange: (_: BookingAsset[]) => void;
     private _onTouch: (_: BookingAsset[]) => void;
 
-    public get favorites() {
-        return this._settings.signal<string[]>(
-            'favourite_spaces',
-            EMPTY_FAVS,
-            true,
-        )();
-    }
+    public readonly favorites = this._settings.signal<string[]>(
+        'favourite_spaces',
+        EMPTY_FAVS,
+        true,
+    );
 
     /** Add or edit selected spaces */
     public changeResources() {
@@ -209,7 +199,7 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
     public readonly setDisabledState = (s: boolean) => this.disabled.set(s);
 
     public toggleFavourite(space: BookingAsset) {
-        const fav_list = this.favorites;
+        const fav_list = this.favorites() || EMPTY_FAVS;
         const new_state = !fav_list.includes(space.id);
         if (new_state) {
             this._settings.saveUserSetting(FAV_PARKING_KEY, [

@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    OnInit,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 
@@ -51,7 +45,6 @@ export interface MapPinData {
             }
         </div>
     `,
-    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [
         `
             [name='message'],

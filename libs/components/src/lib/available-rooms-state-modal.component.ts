@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    output,
-    signal,
-} from '@angular/core';
+import { Component, inject, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -152,7 +146,6 @@ import { TranslatePipe } from './translate.pipe';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatProgressSpinnerModule,
         MatRippleModule,

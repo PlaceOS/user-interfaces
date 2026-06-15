@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    effect,
-    input,
-    output,
-} from '@angular/core';
+import { Component, effect, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { AssetGroup } from '@placeos/common';
@@ -105,7 +99,6 @@ import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
         }
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         ImageCarouselComponent,
         IconComponent,

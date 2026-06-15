@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import {
     AsyncHandler,
     autoConfirmNativeDomain,
@@ -77,7 +71,6 @@ import { TranslatePipe } from './translate.pipe';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatProgressBarModule,
         NativeDomainOverlayComponent,

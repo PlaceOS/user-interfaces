@@ -1,9 +1,10 @@
 import { DatePipe } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
+    computed,
     ElementRef,
     forwardRef,
+    signal,
     viewChild,
 } from '@angular/core';
 import {
@@ -41,8 +42,9 @@ const DATE_PIPE = new DatePipe('en-us', '');
                     tabindex="0"
                     class="border-base-200 focus-within:border-base-200 relative mb-4 flex h-12 w-full items-center rounded-sm border p-2 font-mono focus-within:shadow-sm"
                     (focus)="focusInput()"
+                    (focusout)="blurInput()"
                 >
-                    <pre class="flex-1">{{ card_display }}</pre>
+                    <pre class="flex-1">{{ card_display() }}</pre>
                     <input
                         #input
                         class="absolute hidden"
@@ -51,9 +53,9 @@ const DATE_PIPE = new DatePipe('en-us', '');
                         (keydown)="(false)"
                         maxlength="17"
                     />
-                    @if (card_type) {
+                    @if (card_type()) {
                         <img
-                            [src]="'assets/icons/' + card_type + '.svg'"
+                            [src]="'assets/icons/' + card_type() + '.svg'"
                             class="h-8"
                         />
                     }
@@ -134,7 +136,6 @@ const DATE_PIPE = new DatePipe('en-us', '');
             multi: true,
         },
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatFormFieldModule,
         MatInputModule,
@@ -170,7 +171,9 @@ export class CardInputFieldComponent
             DATE_PIPE.transform(addYears(Date.now(), idx), 'yyyy'),
         );
     public readonly digits = Array(16).fill(0);
-    private _index = 0;
+    private readonly _index = signal(0);
+    private readonly _card_number = signal(BLANK_CARD.card_number);
+    private readonly card_focused = signal(false);
 
     private readonly _input_el =
         viewChild.required<ElementRef<HTMLInputElement>>('input');
@@ -178,67 +181,65 @@ export class CardInputFieldComponent
     private _onChange?: (_: PaymentCardDetails) => void;
     private _onTouch?: (_: PaymentCardDetails) => void;
 
-    public get is_amex() {
-        const no = this.details.value?.card_number || '';
+    public readonly is_amex = computed(() => {
+        const no = this._card_number();
         return no.startsWith('3');
-    }
+    });
 
-    public get card_type() {
-        const no = this.details.value?.card_number || '';
+    public readonly card_type = computed(() => {
+        const no = this._card_number();
         if (no.startsWith('3')) return 'amex';
         if (no.startsWith('4')) return 'visa';
         if (no.startsWith('5')) return 'mastercard';
         return '';
-    }
+    });
 
-    public get card_display() {
-        let no = this.details.value?.card_number || '';
-        if (this.card_focused)
-            no =
-                no.substring(0, this._index) +
-                '⯐' +
-                no.substring(this._index + 1);
-        return this.is_amex
+    public readonly card_display = computed(() => {
+        let no = this._card_number();
+        if (this.card_focused()) {
+            const index = this._index();
+            no = no.substring(0, index) + '⯐' + no.substring(index + 1);
+        }
+        return this.is_amex()
             ? `${no.substring(0, 4)}-${no.substring(4, 10)}-${no.substring(10)}`
             : `${no.substring(0, 4)}-${no.substring(4, 8)}-${no.substring(
                   8,
                   12,
               )}-${no.substring(12)}`;
-    }
-
-    public get card_focused() {
-        const _input_el = this._input_el();
-        return (
-            document.activeElement === _input_el.nativeElement ||
-            document.activeElement === _input_el.nativeElement.parentElement
-        );
-    }
+    });
 
     public ngOnInit() {
         this.subscription(
             'changes',
-            this.details.valueChanges.subscribe((v) =>
-                this.timeout('update', () =>
-                    this.setValue(this.details.getRawValue()),
-                ),
+            this.details.valueChanges.subscribe(() =>
+                this.timeout('update', () => {
+                    const value = this.details.getRawValue();
+                    this._card_number.set(value.card_number || '');
+                    this.setValue(value);
+                }),
             ),
         );
     }
 
     public focusInput() {
         this._input_el().nativeElement.focus();
-        this._index = this._input_el().nativeElement.selectionStart || 0;
+        this.card_focused.set(true);
+        this._index.set(this._input_el().nativeElement.selectionStart || 0);
+    }
+
+    public blurInput() {
+        this.card_focused.set(false);
     }
 
     public onInput(event: KeyboardEvent) {
-        if (!event || !this.card_focused) return;
-        const idx = this._index;
+        if (!event || !this.card_focused()) return;
+        const idx = this._index();
         if (idx < 0 || idx > 16) return;
         let card_number = this.details.value.card_number!;
         if (
             (event.code.startsWith('Digit') ||
                 event.code.startsWith('Numpad')) &&
-            idx < (this.is_amex ? 15 : 16)
+            idx < (this.is_amex() ? 15 : 16)
         ) {
             card_number =
                 card_number.substring(0, idx) +
@@ -262,7 +263,7 @@ export class CardInputFieldComponent
     }
 
     private _focusChange(idx: number, dir: 1 | -1) {
-        this._index = Math.min(16, Math.max(0, idx + dir));
+        this._index.set(Math.min(16, Math.max(0, idx + dir)));
     }
 
     /**
@@ -278,7 +279,9 @@ export class CardInputFieldComponent
      * @param value The new value for the component
      */
     public writeValue(value?: PaymentCardDetails) {
-        this.details.patchValue(value || BLANK_CARD);
+        const details = value || BLANK_CARD;
+        this._card_number.set(details.card_number || '');
+        this.details.patchValue(details);
     }
 
     public readonly registerOnChange = (fn: (_: PaymentCardDetails) => void) =>

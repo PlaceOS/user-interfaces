@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
+    computed,
     DestroyRef,
     inject,
     input,
@@ -32,11 +32,11 @@ import { BookingFormService } from '../booking-form.service';
                 </div>
             }
             <div filter-item date>
-                {{ start | date: 'mediumDate' }}
+                {{ start() | date: 'mediumDate' }}
             </div>
             <div filter-item time>
-                {{ start | date: time_format }} &mdash;
-                {{ end | date: time_format }}
+                {{ start() | date: time_format() }} &mdash;
+                {{ end() | date: time_format() }}
             </div>
             @for (feat of options()?.features; track feat) {
                 <div filter-item>
@@ -75,7 +75,6 @@ import { BookingFormService } from '../booking-form.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, IconComponent, MatRippleModule],
 })
 export class ParkingFiltersDisplayComponent implements OnInit {
@@ -90,19 +89,19 @@ export class ParkingFiltersDisplayComponent implements OnInit {
         initialValue: {} as any,
     });
     public readonly location = signal('');
+    private readonly _form_value = toSignal(
+        this._event_form.form.valueChanges,
+        { initialValue: this._event_form.form.value },
+    );
 
-    public get start() {
-        return this._event_form.form.value.date;
-    }
+    public readonly start = computed(() => this._form_value().date);
 
-    public get end() {
-        const { date, duration } = this._event_form.form.value;
+    public readonly end = computed(() => {
+        const { date, duration } = this._form_value();
         return date + duration * 60 * 1000;
-    }
+    });
 
-    public get time_format() {
-        return this._settings.time_format_signal();
-    }
+    public readonly time_format = this._settings.time_format_signal;
 
     public ngOnInit() {
         this._event_form.options

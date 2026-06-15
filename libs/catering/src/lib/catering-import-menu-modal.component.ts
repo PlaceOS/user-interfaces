@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    EventEmitter,
-    Output,
-} from '@angular/core';
+import { Component, EventEmitter, Output, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -38,13 +33,13 @@ interface ImportItem {
             <h2 class="px-2 text-xl font-medium">
                 {{ 'CATERING.MENU_IMPORT' | translate }}
             </h2>
-            @if (!loading) {
+            @if (!loading()) {
                 <button icon matRipple mat-dialog-close>
                     <icon>close</icon>
                 </button>
             }
         </header>
-        @if (!loading) {
+        @if (!loading()) {
             <main>
                 <div
                     class="border-base-300 hover:bg-base-200 relative mx-2 flex h-96 w-[24rem] cursor-pointer flex-col items-center justify-center space-y-4 rounded-xl border-4 border-dashed p-4"
@@ -75,12 +70,11 @@ interface ImportItem {
                 class="flex h-96 w-[24rem] flex-col items-center justify-center space-y-2 p-8"
             >
                 <mat-spinner diameter="32"></mat-spinner>
-                <p>{{ loading }}</p>
+                <p>{{ loading() }}</p>
             </main>
         }
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         IconComponent,
@@ -91,22 +85,22 @@ interface ImportItem {
 })
 export class CateringImportMenuModalComponent {
     @Output() public event = new EventEmitter<DialogEvent>();
-    public loading: string;
+    public readonly loading = signal('');
 
     /** Upload the image to the cloud */
     public handleFileEvent(event: Event) {
-        this.loading = 'Processing menu data...';
+        this.loading.set('Processing menu data...');
         const element: HTMLInputElement = event.target as any;
-        if (!element?.files) return (this.loading = '');
+        if (!element?.files) return this.loading.set('');
         const files: FileList = element.files;
-        if (!files.length) return (this.loading = '');
+        if (!files.length) return this.loading.set('');
         const file = files[0];
         const fileReader = new FileReader();
         fileReader.addEventListener('loadend', (e: any) => {
             const contents = e.target.result;
             const data = csvToJson(contents) as any;
             const new_items = this._processData(data);
-            this.loading = '';
+            this.loading.set('');
             this.event.emit({
                 reason: 'done',
                 metadata: new_items,

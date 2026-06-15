@@ -1,10 +1,10 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
     inject,
     input,
+    signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -297,7 +297,7 @@ import { SpacesService } from '../spaces.service';
                 </section>
             }
         </form>
-        @if (can_close) {
+        @if (can_close()) {
             <div class="border-base-200 w-full border-t px-2 pt-2">
                 <button
                     btn
@@ -321,7 +321,6 @@ import { SpacesService } from '../spaces.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         TranslatePipe,
@@ -346,7 +345,7 @@ export class SpaceFiltersComponent {
     public readonly multiday = input<boolean>(undefined);
     public readonly hide_levels = input<boolean>(undefined);
     public readonly viewing_map = input<boolean>(undefined);
-    public can_close = false;
+    public readonly can_close = signal(false);
     public readonly options = toSignal(this._event_form.options$, {
         initialValue: null,
     });

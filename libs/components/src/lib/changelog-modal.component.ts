@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { marked } from 'marked';
@@ -36,7 +30,6 @@ export interface ChangelogModalData {
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [FullscreenModalShellComponent, SafePipe, IconComponent],
 })
 export class ChangelogModalComponent {

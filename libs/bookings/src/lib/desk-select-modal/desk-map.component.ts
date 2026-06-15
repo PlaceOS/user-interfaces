@@ -1,11 +1,11 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     DestroyRef,
     effect,
     inject,
     input,
+    model,
     OnInit,
     output,
     signal,
@@ -99,7 +99,6 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         InteractiveMapComponent,
         MatFormFieldModule,
@@ -123,8 +122,8 @@ export class DeskMapComponent implements OnInit {
     public readonly desks = this._state.available_resources;
     public readonly loading = this._state.loading;
 
-    public zoom = 1;
-    public center = { x: 0.5, y: 0.5 };
+    public readonly zoom = model(1);
+    public readonly center = model({ x: 0.5, y: 0.5 });
     public readonly level = signal<BuildingLevel | undefined>(undefined);
     public readonly coordinates = signal<any>(undefined);
     public readonly statuses: Record<string, WritableSignal<string>> = {};
@@ -273,11 +272,11 @@ export class DeskMapComponent implements OnInit {
     }
 
     public setZoom(new_zoom: number) {
-        this.zoom = Math.max(0.5, Math.min(10, new_zoom));
+        this.zoom.set(Math.max(0.5, Math.min(10, new_zoom)));
     }
 
     public resetMap() {
-        this.zoom = 1;
-        this.center = { x: 0.5, y: 0.5 };
+        this.zoom.set(1);
+        this.center.set({ x: 0.5, y: 0.5 });
     }
 }

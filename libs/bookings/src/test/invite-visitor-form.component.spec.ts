@@ -79,7 +79,7 @@ describe('InviteVisitorFormComponent', () => {
             zones: ['org-1', 'bld-2'],
         });
 
-        expect(spectator.component.selected_building_id).toBe('bld-2');
+        expect(spectator.component.selected_building_id()).toBe('bld-2');
 
         spectator.component.setBuilding('bld-1');
 
@@ -108,13 +108,13 @@ describe('InviteVisitorFormComponent', () => {
     });
 
     it('should reflect updated date disabled state for the start time field', () => {
-        expect(spectator.component.is_start_time_disabled).toBe(false);
+        expect(spectator.component.is_start_time_disabled()).toBe(false);
 
         spectator.inject(BookingFormService).form.get('date')?.disable({
             emitEvent: false,
         });
 
-        expect(spectator.component.is_start_time_disabled).toBe(true);
+        expect(spectator.component.is_start_time_disabled()).toBe(true);
     });
 
     it('should allow sending visitor invite', () => {
@@ -425,7 +425,7 @@ describe('InviteVisitorFormComponent', () => {
         await spectator.component.ngOnInit();
 
         expect(spectator.component.form_date()).toBe(booking_date);
-        expect(spectator.component.is_start_time_disabled).toBe(true);
+        expect(spectator.component.is_start_time_disabled()).toBe(true);
     });
 
     it('should set reason on title only when sending invite', async () => {

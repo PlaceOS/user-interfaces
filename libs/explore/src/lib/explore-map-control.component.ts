@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    OnInit,
-    inject,
-} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, firstTruthyValueFrom } from '@placeos/common';
@@ -73,7 +68,6 @@ import { ExploreStateService } from './explore-state.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatFormFieldModule, MatSelectModule, FormsModule],
 })
 export class ExploreMapControlComponent extends AsyncHandler implements OnInit {

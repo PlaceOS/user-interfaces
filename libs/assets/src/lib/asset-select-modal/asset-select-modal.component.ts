@@ -1,7 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { AssetGroup, isMobileSafari, SettingsService } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -19,7 +18,7 @@ const EMPTY_FAVS: string[] = [];
     template: `
         <div
             class="bg-base-100 flex h-screen w-screen flex-col space-y-2 overflow-hidden p-2 sm:h-auto sm:w-auto"
-            [style.height]="is_safari ? 'calc(100vh - 80px)' : ''"
+            [style.height]="is_safari() ? 'calc(100vh - 80px)' : ''"
         >
             <header
                 class="bg-base-200 flex h-14 w-full items-center space-x-2 rounded-sm border-none p-2"
@@ -36,52 +35,59 @@ const EMPTY_FAVS: string[] = [];
             >
                 <div
                     class="border-base-300 h-full w-full overflow-x-hidden overflow-y-auto rounded-sm border shadow-sm sm:block sm:w-[20rem]"
-                    [class.hidden]="!show_filters"
+                    [class.hidden]="!show_filters()"
                 >
-                    <asset-filters></asset-filters>
+                    <asset-filters
+                        [(at_time)]="exact_time"
+                        [(offset)]="offset"
+                        [(offset_day)]="offset_day"
+                    ></asset-filters>
                 </div>
                 <div
                     class="border-base-300 bg-base-200 h-full w-full overflow-auto rounded-sm border p-2 sm:w-[20rem] lg:block"
-                    [class.hidden]="show_filters || displayed"
-                    [class.sm:hidden]="displayed"
-                    [class.md:block]="!displayed"
+                    [class.hidden]="show_filters() || displayed()"
+                    [class.sm:hidden]="displayed()"
+                    [class.md:block]="!displayed()"
                 >
                     <asset-filters-display></asset-filters-display>
                     <asset-list
-                        [selected]="selected_ids"
-                        [favorites]="favorites"
-                        [selected_items]="selected"
-                        [requested]="requested"
+                        [selected]="selected_ids()"
+                        [favorites]="favorites()"
+                        [selected_items]="selected()"
+                        [requested]="requested()"
                         (toggleFav)="toggleFavourite($event)"
-                        (onSelect)="displayed = $event"
+                        (onSelect)="displayed.set($event)"
                     ></asset-list>
                 </div>
                 <div
                     class="border-base-300 h-full w-full overflow-auto rounded-sm border shadow-sm sm:w-[20rem] lg:block"
-                    [class.hidden]="show_filters || !displayed"
-                    [class.sm:hidden]="!displayed"
-                    [class.md:block]="displayed"
+                    [class.hidden]="show_filters() || !displayed()"
+                    [class.sm:hidden]="!displayed()"
+                    [class.md:block]="displayed()"
                 >
                     <asset-details
-                        [item]="displayed"
-                        [active]="selected_ids.includes(displayed?.id)"
-                        (activeChange)="setSelected(displayed, $event)"
-                        [fav]="
-                            displayed && this.favorites.includes(displayed?.id)
+                        [item]="displayed()"
+                        [active]="
+                            selected_ids().includes(displayed()?.id || '')
                         "
-                        (toggleFav)="toggleFavourite(displayed)"
-                        (close)="displayed = null"
+                        (activeChange)="setSelected(displayed(), $event)"
+                        [fav]="
+                            !!displayed() &&
+                            favorites().includes(displayed()?.id || '')
+                        "
+                        (toggleFav)="toggleFavourite(displayed())"
+                        (close)="displayed.set(null)"
                     ></asset-details>
                 </div>
-                @if (!displayed) {
+                @if (!displayed()) {
                     <button
                         icon
                         matRipple
                         class="border-base-200 bg-base-100 absolute top-3 right-2 z-20 border sm:hidden"
-                        (click)="show_filters = !show_filters"
+                        (click)="show_filters.update((value) => !value)"
                     >
                         <icon>{{
-                            show_filters ? 'close' : 'filter_list'
+                            show_filters() ? 'close' : 'filter_list'
                         }}</icon>
                     </button>
                 }
@@ -93,7 +99,7 @@ const EMPTY_FAVS: string[] = [];
                     btn
                     matRipple
                     name="asset-return"
-                    [mat-dialog-close]="selected"
+                    [mat-dialog-close]="selected()"
                     class="inverse bg-base-100 text-secondary"
                 >
                     <div class="flex items-center space-x-2">
@@ -107,17 +113,19 @@ const EMPTY_FAVS: string[] = [];
                     btn
                     matRipple
                     name="toggle-asset"
-                    [disabled]="!displayed"
-                    [class.inverse]="isSelected(displayed?.id)"
-                    (click)="setSelected(displayed, !isSelected(displayed?.id))"
+                    [disabled]="!displayed()"
+                    [class.inverse]="isSelected(displayed()?.id)"
+                    (click)="
+                        setSelected(displayed(), !isSelected(displayed()?.id))
+                    "
                 >
                     <div class="flex items-center">
                         <icon class="text-xl">{{
-                            isSelected(displayed?.id) ? 'remove' : 'add'
+                            isSelected(displayed()?.id) ? 'remove' : 'add'
                         }}</icon>
                         <div class="mr-1">
                             {{
-                                (isSelected(displayed?.id)
+                                (isSelected(displayed()?.id)
                                     ? 'COMMON.REMOVE_FROM'
                                     : 'COMMON.ADD_TO'
                                 ) | translate
@@ -129,13 +137,11 @@ const EMPTY_FAVS: string[] = [];
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         IconComponent,
         MatRippleModule,
         MatDialogModule,
-        MatTooltipModule,
         AssetListComponent,
         AssetDetailsComponent,
         AssetFiltersComponent,
@@ -154,13 +160,15 @@ export class AssetSelectModalComponent {
         requested: Record<string, number>;
     }>(MAT_DIALOG_DATA);
 
-    public show_filters = false;
-    public displayed: AssetGroup | null = null;
-    public selected: AssetGroup[] = [...(this._data.items || [])];
-    public exact_time = this._data.exact_time ?? false;
-    public requested = this._data.requested;
-    public offset: number;
-    public offset_day: number;
+    public readonly show_filters = signal(false);
+    public readonly displayed = signal<AssetGroup | null>(null);
+    public readonly selected = signal<AssetGroup[]>([
+        ...(this._data.items || []),
+    ]);
+    public readonly exact_time = signal(this._data.exact_time ?? false);
+    public readonly requested = signal(this._data.requested);
+    public readonly offset = signal(0);
+    public readonly offset_day = signal(0);
     private readonly _min_offset = this._settings.signal(
         'assets.min_offset',
         0,
@@ -169,58 +177,62 @@ export class AssetSelectModalComponent {
         'assets.end_offset',
         0,
     );
+    private readonly _favorites = this._settings.signal<string[]>(
+        'favourite_assets',
+        EMPTY_FAVS,
+        true,
+    );
 
-    public get is_safari() {
-        return isMobileSafari();
-    }
+    public readonly is_safari = computed(() => isMobileSafari());
 
-    public get favorites() {
-        return this._settings.signal<string[]>(
-            'favourite_assets',
-            EMPTY_FAVS,
-            true,
-        )();
-    }
+    public readonly favorites = computed(() => this._favorites());
 
-    public get selected_ids() {
-        return this.selected.map((_) => _.id).join(',');
-    }
+    public readonly selected_ids = computed(() =>
+        this.selected()
+            .map((_) => _.id)
+            .join(','),
+    );
 
-    public get count() {
-        return this.selected.reduce((t, i: any) => t + i.quantity, 0);
-    }
+    public readonly count = computed(() =>
+        this.selected().reduce((t, i: any) => t + i.quantity, 0),
+    );
 
-    public isSelected(id: string) {
-        return id && this.selected_ids.includes(id);
+    public isSelected(id?: string) {
+        return id && this.selected_ids().includes(id);
     }
 
     constructor() {
         const { duration } = this._data.details;
         this._state.setOptions(this._data.details);
-        this.offset = Math.min(
-            Math.max(this._min_offset(), this._data.offset || 0),
-            (duration || 60) - this._end_offset(),
+        this.offset.set(
+            Math.min(
+                Math.max(this._min_offset(), this._data.offset || 0),
+                (duration || 60) - this._end_offset(),
+            ),
         );
-        this.offset_day = this._data.offset_day || 0;
+        this.offset_day.set(this._data.offset_day || 0);
     }
 
-    public setSelected(group: AssetGroup, state: boolean) {
-        const list = this.selected.filter((_) => _.id !== group.id);
+    public setSelected(group: AssetGroup | null, state: boolean) {
+        if (!group) return;
+        const list = this.selected().filter((_) => _.id !== group.id);
         if (state) list.push(group);
-        this.selected = [...list];
+        this.selected.set([...list]);
     }
 
     public updateSelectedCount(count: number) {
-        if (!this.displayed) return;
-        const item = this.selected.find((_) => _.id === this.displayed.id);
+        const displayed = this.displayed();
+        if (!displayed) return;
+        const item = this.selected().find((_) => _.id === displayed.id);
         if (item) {
             item.quantity = count;
-            item.assets = this.displayed.assets;
+            item.assets = displayed.assets;
         }
     }
 
-    public toggleFavourite(asset: AssetGroup) {
-        const fav_list = this.favorites;
+    public toggleFavourite(asset: AssetGroup | null) {
+        if (!asset) return;
+        const fav_list = this.favorites();
         const new_state = !fav_list.includes(asset.id);
         if (new_state) {
             this._settings.saveUserSetting('favourite_assets', [

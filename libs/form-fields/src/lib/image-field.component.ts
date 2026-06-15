@@ -1,6 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import {
-    ChangeDetectionStrategy,
     Component,
     ElementRef,
     forwardRef,
@@ -112,7 +111,6 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
             useValue: UploadPermissionsModalComponent,
         },
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         MatTooltipModule,

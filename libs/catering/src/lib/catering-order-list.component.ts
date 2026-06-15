@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    OnInit,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 import { CommonModule } from '@angular/common';
@@ -44,7 +38,7 @@ import { statusList } from './catering.vars';
                     {
                         key: 'caterer',
                         name: 'CATERING.CATERER' | translate,
-                        show: !filters?.caterer && caterers().length > 1,
+                        show: !filters()?.caterer && caterers().length > 1,
                     },
                     {
                         key: 'deliver_at',
@@ -106,15 +100,16 @@ import { statusList } from './catering.vars';
                     <div>
                         {{
                             'CATERING.ORDERS_DELIVER_TIME'
-                                | translate: { time: data | date: time_format }
+                                | translate
+                                    : { time: data | date: time_format() }
                         }}
                     </div>
                     <div class="text-xs opacity-30">
                         {{ row?.event?.date | date: 'MMM d' }},
-                        {{ row?.event?.date | date: time_format }}
+                        {{ row?.event?.date | date: time_format() }}
                         -
                         {{ row?.event?.date_end | date: 'MMM d' }},
-                        {{ row?.event?.date_end | date: time_format }}
+                        {{ row?.event?.date_end | date: time_format() }}
                     </div>
                 </div>
             </ng-template>
@@ -244,7 +239,6 @@ import { statusList } from './catering.vars';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         CateringOrderItemComponent,
@@ -262,17 +256,20 @@ export class CateringOrderListComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
 
     /** List of filtered orders */
-    public readonly order_list = toSignal(this._orders.filtered, {
+    public readonly order_list = toSignal(this._orders.filtered || of([]), {
         initialValue: [],
     });
     /** Whether order list is loading */
-    public readonly loading = toSignal(this._orders.loading, {
+    public readonly loading = toSignal(this._orders.loading || of(false), {
         initialValue: false,
     });
 
-    public get filters() {
-        return this._orders.filters;
-    }
+    public readonly filters = toSignal(
+        this._orders.order_filters || of(this._orders.filters),
+        {
+            initialValue: this._orders.filters,
+        },
+    );
 
     public readonly caterers = toSignal(this._orders.caterers || of([]), {
         initialValue: [],
@@ -286,9 +283,9 @@ export class CateringOrderListComponent extends AsyncHandler implements OnInit {
         this.timeout('status-change', () => ((order as any).status = s));
     };
 
-    public get time_format() {
-        return this._settings.time_format_signal();
-    }
+    public readonly time_format = computed(() =>
+        this._settings.time_format_signal(),
+    );
 
     public status(value: string) {
         return this.statuses().find((i) => i.id === value);

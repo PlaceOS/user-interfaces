@@ -1,10 +1,10 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
     inject,
     input,
+    signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { SettingsService } from '@placeos/common';
@@ -48,8 +48,8 @@ import { BookingFormService } from '../booking-form.service';
                 <div class="flex min-w-32 flex-1 flex-col">
                     @if (
                         show_level_select() &&
-                        !(use_region && regions()?.length) &&
-                        !(!use_region && buildings()?.length > 1)
+                        !(use_region() && regions()?.length) &&
+                        !(!use_region() && buildings()?.length > 1)
                     ) {
                         <label for="location">
                             {{ 'BOOKINGS.LOCATION' | translate }}
@@ -59,7 +59,7 @@ import { BookingFormService } from '../booking-form.service';
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="region"
-                                [ngModel]="region"
+                                [ngModel]="region()"
                                 (ngModelChange)="setRegion($event)"
                                 [ngModelOptions]="{ standalone: true }"
                                 [placeholder]="'COMMON.REGION_ANY' | translate"
@@ -76,11 +76,11 @@ import { BookingFormService } from '../booking-form.service';
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="building"
-                                [ngModel]="building"
-                                (ngModelChange)="building = $event"
+                                [ngModel]="building()"
+                                (ngModelChange)="setBuilding($event)"
                                 [ngModelOptions]="{ standalone: true }"
                                 [placeholder]="
-                                    building?.display_name || building?.name
+                                    building()?.display_name || building()?.name
                                 "
                             >
                                 @for (bld of buildings(); track bld) {
@@ -139,7 +139,7 @@ import { BookingFormService } from '../booking-form.service';
                         [ngModel]="form.value.date"
                         (ngModelChange)="form.patchValue({ date: $event })"
                         [ngModelOptions]="{ standalone: true }"
-                        [to]="end_date"
+                        [to]="end_date()"
                         [timezone]="timezone()"
                     >
                         {{ 'FORM.DATE_ERROR' | translate }}
@@ -225,7 +225,6 @@ import { BookingFormService } from '../booking-form.service';
             }
         </form>
     `,
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         MatRippleModule,
@@ -249,7 +248,7 @@ export class DeskFiltersComponent {
 
     public readonly hide_levels = input<boolean>(undefined);
 
-    public can_close = false;
+    public readonly can_close = signal(false);
     public readonly options = toSignal(this._state.options, {
         initialValue: {} as any,
     });
@@ -259,10 +258,12 @@ export class DeskFiltersComponent {
     public readonly buildings = toSignal(this._org.active_buildings, {
         initialValue: [],
     });
+    public readonly building = toSignal(this._org.active_building);
     public readonly form = this._state.form;
     public readonly regions = toSignal(this._org.region_list, {
         initialValue: [],
     });
+    public readonly region = toSignal(this._org.active_region);
 
     public readonly levels = toSignal(
         combineLatest([
@@ -307,24 +308,11 @@ export class DeskFiltersComponent {
         }
     });
 
-    public get building() {
-        return this._org.building;
-    }
-    public set building(bld) {
-        this._org.building = bld;
-    }
-
-    public get region() {
-        return this._org.region;
-    }
-    public set region(reg) {
-        this._org.region = reg;
-    }
-
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
     public readonly setLevel = (l) => {};
 
+    public readonly setBuilding = (bld) => (this._org.building = bld);
     public readonly setRegion = (r) => (this._org.region = r);
     private readonly _desk_bookable_hours = this._settings.signal(
         'desks.bookable_hours',
@@ -365,11 +353,9 @@ export class DeskFiltersComponent {
         () => this.allow_time_changes() && this._allow_all_day(),
     );
 
-    public get end_date() {
-        return endOfDay(
-            addDays(Date.now(), this._available_period()),
-        ).valueOf();
-    }
+    public readonly end_date = computed(() =>
+        endOfDay(addDays(Date.now(), this._available_period())).valueOf(),
+    );
 
     public readonly use_24hr = this._use_24hr;
 

@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    input,
-    output,
-    signal,
-} from '@angular/core';
+import { Component, input, output, signal } from '@angular/core';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 @Component({
@@ -39,7 +33,6 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [IconComponent],
 })
 export class ActionFieldComponent {

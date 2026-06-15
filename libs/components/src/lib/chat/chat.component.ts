@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     ElementRef,
     OnInit,
@@ -224,7 +223,6 @@ import { ChatService } from './chat.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         MatRippleModule,

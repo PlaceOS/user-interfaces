@@ -1,11 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    forwardRef,
-    inject,
-    input,
-    signal,
-} from '@angular/core';
+import { Component, forwardRef, inject, input, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -116,12 +109,12 @@ const EMPTY_FAVS: string[] = [];
                         matRipple
                         name="toggle-desk-favourite"
                         class="absolute top-1 right-1"
-                        [class.text-info]="favorites.includes(item?.id)"
+                        [class.text-info]="favorites().includes(item?.id)"
                         (click)="toggleFavourite(item)"
                     >
                         <icon
                             [className]="
-                                favorites.includes(item?.id)
+                                favorites().includes(item?.id)
                                     ? 'material-symbols-rounded'
                                     : 'material-symbols-outlined'
                             "
@@ -155,7 +148,6 @@ const EMPTY_FAVS: string[] = [];
             multi: true,
         },
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         IconComponent,
         TranslatePipe,
@@ -178,15 +170,11 @@ export class DeskListFieldComponent implements ControlValueAccessor {
     private _onChange: (_: BookingAsset[]) => void;
     private _onTouch: (_: BookingAsset[]) => void;
 
-    public get favorites() {
-        return (
-            this._settings.signal<string[]>(
-                SETTING_KEYS.FAVORITE_DESKS,
-                EMPTY_FAVS,
-                true,
-            )() || EMPTY_FAVS
-        );
-    }
+    public readonly favorites = this._settings.signal<string[]>(
+        SETTING_KEYS.FAVORITE_DESKS,
+        EMPTY_FAVS,
+        true,
+    );
 
     /** Add or edit selected items */
     public changeResources() {
@@ -244,7 +232,7 @@ export class DeskListFieldComponent implements ControlValueAccessor {
 
     public toggleFavourite(space: BookingAsset) {
         if (!space?.id) return;
-        const fav_list = this.favorites;
+        const fav_list = this.favorites() || EMPTY_FAVS;
         const new_state = !fav_list.includes(space.id);
         if (new_state) {
             this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_DESKS, [

@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
+    computed,
     inject,
     input,
-    output,
+    model,
+    signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -56,10 +57,10 @@ import { AssetStateService } from '../asset-state.service';
                 <settings-toggle
                     [name]="'BOOKINGS.ASSETS_DELIVER_TOGGLE' | translate"
                     [ngModel]="at_time()"
-                    (ngModelChange)="at_timeChange.emit($event)"
-                    [matTooltip]="exact_tooltip"
+                    (ngModelChange)="at_time.set($event)"
+                    [matTooltip]="exact_tooltip()"
                 ></settings-toggle>
-                @if (day_options.length > 1) {
+                @if (day_options().length > 1) {
                     <label>{{
                         'BOOKINGS.ASSETS_DELIVER_DATE' | translate
                     }}</label>
@@ -69,9 +70,9 @@ import { AssetStateService } from '../asset-state.service';
                     >
                         <mat-select
                             [ngModel]="offset_day()"
-                            (ngModelChange)="offset_dayChange.emit($event)"
+                            (ngModelChange)="offset_day.set($event)"
                         >
-                            @for (day of day_options; track day) {
+                            @for (day of day_options(); track day) {
                                 <mat-option [value]="day.id">
                                     {{ day.value | date: 'mediumDate' }}
                                 </mat-option>
@@ -82,15 +83,15 @@ import { AssetStateService } from '../asset-state.service';
                 <label>{{ 'BOOKINGS.ASSETS_DELIVER_TIME' | translate }}</label>
                 <a-duration-field
                     [ngModel]="offset()"
-                    (ngModelChange)="offsetChange.emit($event)"
+                    (ngModelChange)="offset.set($event)"
                     [time]="
                         offset_day() > 0
-                            ? start_of_date
+                            ? start_of_date()
                             : (options | async)?.date
                     "
-                    [step]="step_interval"
-                    [min]="min_offset"
-                    [max]="max_offset - 1"
+                    [step]="step_interval()"
+                    [min]="min_offset()"
+                    [max]="max_offset() - 1"
                     [use_24hr]="use_24hr()"
                 ></a-duration-field>
             </div>
@@ -117,7 +118,6 @@ import { AssetStateService } from '../asset-state.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatFormFieldModule,
@@ -137,15 +137,12 @@ export class AssetFiltersComponent extends AsyncHandler {
 
     public readonly search = input(false);
 
-    public readonly at_time = input(false);
-    public readonly at_timeChange = output<boolean>();
-    public readonly offset = input(0);
-    public readonly offsetChange = output<number>();
-    public readonly offset_day = input(0);
-    public readonly offset_dayChange = output<number>();
+    public readonly at_time = model(false);
+    public readonly offset = model(0);
+    public readonly offset_day = model(0);
 
-    private _min_offset = 0;
-    private _max_offset = 60;
+    private readonly _min_offset = signal(0);
+    private readonly _max_offset = signal(60);
 
     public readonly search_value = this._state.search;
     public readonly category = this._state.category;
@@ -168,24 +165,23 @@ export class AssetFiltersComponent extends AsyncHandler {
         0,
     );
 
-    public readonly exact_tooltip =
-        'Deliver at exactly specified time. \nNote that changes to the booking will not be \nreflected in the order if this is set.';
+    public readonly exact_tooltip = signal(
+        'Deliver at exactly specified time. \nNote that changes to the booking will not be \nreflected in the order if this is set.',
+    );
 
-    public get start_of_date() {
-        return startOfDay(
+    public readonly start_of_date = computed(() =>
+        startOfDay(
             addDays(this._state.getOptions().date, this.offset_day()),
-        ).valueOf();
-    }
+        ).valueOf(),
+    );
 
-    public get min_offset() {
-        return this.offset_day() > 0 ? 0 : this._min_offset;
-    }
+    public readonly min_offset = computed(() =>
+        this.offset_day() > 0 ? 0 : this._min_offset(),
+    );
 
-    public get step_interval() {
-        return this._step_interval();
-    }
+    public readonly step_interval = computed(() => this._step_interval());
 
-    public get max_offset() {
+    public readonly max_offset = computed(() => {
         const end = Math.min(
             endOfDay(
                 addDays(this._state.getOptions().date, this.offset_day()),
@@ -196,12 +192,12 @@ export class AssetFiltersComponent extends AsyncHandler {
             ).valueOf(),
         );
         const diff = differenceInMinutes(end, this._state.getOptions().date);
-        return Math.min(diff, Math.min(24 * 60 - 1, this._max_offset));
-    }
+        return Math.min(diff, Math.min(24 * 60 - 1, this._max_offset()));
+    });
 
     public readonly use_24hr = this._use_24hr;
 
-    public day_options = [];
+    public readonly day_options = signal<{ id: number; value: number }[]>([]);
 
     public readonly setSearch = (s) => this._state.setSearch(s);
     public readonly toggleCategory = (c) => this._state.toggleCategory(c);
@@ -211,14 +207,16 @@ export class AssetFiltersComponent extends AsyncHandler {
     }
 
     public ngOnInit() {
-        this._min_offset = Math.max(this._min_offset_setting(), 0);
+        this._min_offset.set(Math.max(this._min_offset_setting(), 0));
         this.subscription(
             'filters',
             this._state.options.subscribe(() => {
-                this._max_offset = Math.max(
-                    15,
-                    (this._state.getOptions().duration || 60) -
-                        this._end_offset(),
+                this._max_offset.set(
+                    Math.max(
+                        15,
+                        (this._state.getOptions().duration || 60) -
+                            this._end_offset(),
+                    ),
                 );
                 this._updateDayOptions();
             }),
@@ -228,16 +226,16 @@ export class AssetFiltersComponent extends AsyncHandler {
 
     private _updateDayOptions() {
         const { date, duration } = this._state.getOptions();
-        if (duration <= 24 * 60) return (this.day_options = []);
+        if (duration <= 24 * 60) return this.day_options.set([]);
         let day = startOfDay(date);
         let count = 0;
         const end = endOfDay(addMinutes(date, duration)).valueOf();
-        const options = [];
+        const options: { id: number; value: number }[] = [];
         while (day.valueOf() <= end) {
             options.push({ id: count, value: day.valueOf() });
             day = addDays(day, 1);
             count++;
         }
-        this.day_options = options;
+        this.day_options.set(options);
     }
 }

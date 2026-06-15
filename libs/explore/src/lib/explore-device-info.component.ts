@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     ElementRef,
     afterNextRender,
@@ -53,7 +52,7 @@ const EMPTY: string[] = [];
             name="dot"
             #dot
             class="center absolute h-3 w-3 rounded-full border-2 border-white shadow-sm"
-            [style.background-color]="bg_color"
+            [style.background-color]="bg_color()"
         ></div>
         <div
             customTooltip
@@ -73,19 +72,20 @@ const EMPTY: string[] = [];
             >
                 <div class="arrow"></div>
                 <div class="details">
-                    @if (mac && !hide_fields().includes('mac')) {
+                    @let device_user = user();
+                    @if (mac() && !hide_fields().includes('mac')) {
                         <p class="wrap-break-word">
                             <label
                                 >{{ 'EXPLORE.DEVICE_MAC' | translate }}:</label
                             >
-                            {{ mac }}
+                            {{ mac() }}
                         </p>
                     }
                     <p>
                         <label
                             >{{ 'EXPLORE.DEVICE_ACCURACY' | translate }}:</label
                         >
-                        {{ variance }}m
+                        {{ variance() }}m
                     </p>
                     <p>
                         <label
@@ -96,7 +96,8 @@ const EMPTY: string[] = [];
                         {{ last_seen() }}
                     </p>
                     @if (
-                        manufacturer && !hide_fields().includes('manufacturer')
+                        manufacturer() &&
+                        !hide_fields().includes('manufacturer')
                     ) {
                         <p type>
                             <label
@@ -104,23 +105,23 @@ const EMPTY: string[] = [];
                                     'EXPLORE.DEVICE_MANUFACTURER' | translate
                                 }}:</label
                             >
-                            {{ manufacturer }}
+                            {{ manufacturer() }}
                         </p>
                     }
-                    @if (os && !hide_fields().includes('os')) {
+                    @if (os() && !hide_fields().includes('os')) {
                         <p os>
                             <label
                                 >{{ 'EXPLORE.DEVICE_OS' | translate }}:</label
                             >
-                            {{ os }}
+                            {{ os() }}
                         </p>
                     }
-                    @if (ssid && !hide_fields().includes('ssid')) {
+                    @if (ssid() && !hide_fields().includes('ssid')) {
                         <p ssid>
                             <label
                                 >{{ 'EXPLORE.DEVICE_SSID' | translate }}:</label
                             >
-                            {{ ssid }}
+                            {{ ssid() }}
                         </p>
                     }
                     @if (username() && !hide_fields().includes('username')) {
@@ -130,15 +131,19 @@ const EMPTY: string[] = [];
                                     'EXPLORE.DEVICE_USERNAME' | translate
                                 }}:</label
                             >
-                            {{ user?.name || user?.username || username() }}
+                            {{
+                                device_user?.name ||
+                                    device_user?.username ||
+                                    username()
+                            }}
                         </p>
                     }
-                    @if (user && !hide_fields().includes('user')) {
+                    @if (device_user && !hide_fields().includes('user')) {
                         <p user>
                             <label
                                 >{{ 'EXPLORE.DEVICE_TYPE' | translate }}:</label
                             >
-                            {{ user.type }}
+                            {{ device_user.type }}
                         </p>
                     }
                 </div>
@@ -166,7 +171,6 @@ const EMPTY: string[] = [];
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, CustomTooltipComponent],
 })
 export class ExploreDeviceInfoComponent {
@@ -175,26 +179,28 @@ export class ExploreDeviceInfoComponent {
     private _element = inject<ElementRef<HTMLElement>>(ElementRef);
 
     /** Name of the user associated with the mac address */
-    public username = signal('');
+    public readonly username = signal('');
     public readonly show_radius = signal(false);
     /** User details associated with device */
-    public readonly user = this._details.user;
+    public readonly user = signal(this._details.user);
     /** Mac Address of the device */
-    public readonly mac = this._details.mac;
+    public readonly mac = signal(this._details.mac);
     /** Mac Address of the device */
-    public readonly manufacturer = this._details.manufacturer;
+    public readonly manufacturer = signal(this._details.manufacturer);
     /** Mac Address of the device */
-    public readonly os = this._details.os;
+    public readonly os = signal(this._details.os);
     /** Mac Address of the device */
-    public readonly ssid = this._details.ssid;
+    public readonly ssid = signal(this._details.ssid);
     /** Accuracy of the location data */
-    public readonly variance = this._details.variance?.toFixed(2);
+    public readonly variance = signal(this._details.variance?.toFixed(2));
     /** Background color for the dot */
-    public readonly bg_color = this._details.bg_color || this._distance_color;
+    public readonly bg_color = computed(
+        () => this._details.bg_color || this._distance_color,
+    );
 
-    public zoom = signal(1);
+    public readonly zoom = signal(1);
 
-    public hide_fields = computed(() => {
+    public readonly hide_fields = computed(() => {
         return (
             this._settings.get<string[]>('app.explore.hide_device_fields') ||
             EMPTY
@@ -202,18 +208,18 @@ export class ExploreDeviceInfoComponent {
     });
 
     /** Time of the last update */
-    public last_seen = computed(() => {
+    public readonly last_seen = computed(() => {
         return formatDistanceToNow((this._details.last_seen || 0) * 1000, {
             addSuffix: true,
         });
     });
 
-    public y_pos = signal<'top' | 'bottom'>('top');
+    public readonly y_pos = signal<'top' | 'bottom'>('top');
 
-    public x_pos = signal<'end' | 'start'>('start');
+    public readonly x_pos = signal<'end' | 'start'>('start');
 
     /** Diameter of the radius circle */
-    public diameter = computed(() => {
+    public readonly diameter = computed(() => {
         return this._details.variance * 100 * this.zoom();
     });
 
@@ -259,7 +265,7 @@ export class ExploreDeviceInfoComponent {
         if (!mod) return;
         this.username.set('Loading...');
         const details = await mod
-            .execute('check_ownership_of', [this.mac])
+            .execute('check_ownership_of', [this.mac()])
             .catch(() => null);
         this.username.set(
             details && details.assigned_to ? details.assigned_to : '',

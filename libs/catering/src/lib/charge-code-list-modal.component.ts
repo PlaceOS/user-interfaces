@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    OnInit,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -51,7 +45,8 @@ import { CateringStateService } from './catering-state.service';
                             >
                                 <input
                                     matInput
-                                    [(ngModel)]="charge_codes()[i]"
+                                    [ngModel]="charge_codes()[i]"
+                                    (ngModelChange)="updateCode(i, $event)"
                                     [placeholder]="
                                         'CATERING.CHARGE_CODES' | translate
                                     "
@@ -119,7 +114,6 @@ import { CateringStateService } from './catering-state.service';
         }
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         MatProgressSpinnerModule,
@@ -147,16 +141,18 @@ export class ChargeCodeListModalComponent implements OnInit {
     }
 
     public newCode() {
-        this.charge_codes.update((l) => {
-            l.push('');
-            return l;
-        });
+        this.charge_codes.update((l) => [...l, '']);
     }
 
     public removeCode(index: number) {
+        this.charge_codes.update((l) => l.filter((_, i) => i !== index));
+    }
+
+    public updateCode(index: number, code: string) {
         this.charge_codes.update((l) => {
-            l.splice(index, 1);
-            return l;
+            const list = [...l];
+            list[index] = code;
+            return list;
         });
     }
 
@@ -183,11 +179,12 @@ export class ChargeCodeListModalComponent implements OnInit {
                     const list =
                         csvToJson((evt.srcElement as any).result) || [];
                     this.charge_codes.update((l) => {
-                        for (const { code, description } of list) {
-                            l.push(code);
+                        let codes = [...l];
+                        for (const { code } of list) {
+                            codes.push(code);
                         }
-                        l = unique(l);
-                        return l;
+                        codes = unique(codes);
+                        return codes;
                     });
                     event.target.value = '';
                 });

@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    input,
-    output,
-} from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { SettingsService } from '@placeos/common';
 
@@ -46,13 +40,13 @@ import { BookingFormService } from '../booking-form.service';
             class="border-base-300 bg-base-100 sticky -top-1 z-20 -mx-1 mb-4! flex w-[calc(100%+0.5rem)] flex-wrap items-center rounded-sm border p-1 pr-10! sm:pr-1!"
         >
             <!-- TODO: filter chips -->
-            <div filter-item date>{{ start | date: 'mediumDate' }}</div>
+            <div filter-item date>{{ start() | date: 'mediumDate' }}</div>
             <div filter-item time>
-                @if (!all_day) {
-                    {{ start | date: time_format }} &mdash;
-                    {{ end | date: time_format }}
+                @if (!all_day()) {
+                    {{ start() | date: time_format() }} &mdash;
+                    {{ end() | date: time_format() }}
                 }
-                @if (all_day) {
+                @if (all_day()) {
                     {{ 'COMMON.ALL_DAY' | translate }}
                 }
             </div>
@@ -86,7 +80,6 @@ import { BookingFormService } from '../booking-form.service';
             }
         </section>
     `,
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, IconComponent, TranslatePipe, MatRippleModule],
 })
 export class DeskFiltersDisplayComponent {
@@ -100,22 +93,19 @@ export class DeskFiltersDisplayComponent {
     });
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
+    private readonly _form_value = toSignal(this._state.form.valueChanges, {
+        initialValue: this._state.form.value,
+    });
 
-    public get all_day() {
-        return this._state.form.value.all_day;
-    }
+    public readonly all_day = computed(() => this._form_value().all_day);
 
-    public get start() {
-        return this._state.form.value.date;
-    }
+    public readonly start = computed(() => this._form_value().date);
 
-    public get end() {
-        const { date, duration, all_day } = this._state.form.value;
+    public readonly end = computed(() => {
+        const { date, duration, all_day } = this._form_value();
         if (all_day) return endOfDay(date);
         return date + duration * 60 * 1000;
-    }
+    });
 
-    public get time_format() {
-        return this._settings.time_format_signal();
-    }
+    public readonly time_format = this._settings.time_format_signal;
 }

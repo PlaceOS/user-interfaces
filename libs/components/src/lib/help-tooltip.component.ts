@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { ApplicationLink, SettingsService } from '@placeos/common';
 import { CustomTooltipData } from './custom-tooltip.component';
@@ -38,7 +38,6 @@ import { TranslatePipe } from './translate.pipe';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, TranslatePipe, IconComponent],
 })
 export class HelpTooltipComponent {

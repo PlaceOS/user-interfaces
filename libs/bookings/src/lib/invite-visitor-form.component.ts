@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     DestroyRef,
@@ -65,7 +64,7 @@ import { BookingFormService } from './booking-form.service';
                     >
                         <h2 class="text-2xl font-medium">
                             {{
-                                (is_edit
+                                (is_edit()
                                     ? 'BOOKINGS.VISITOR_EDIT_TITLE'
                                     : 'BOOKINGS.VISITOR_INVITE_TITLE'
                                 ) | translate
@@ -82,7 +81,7 @@ import { BookingFormService } from './booking-form.service';
                                     </label>
                                     <mat-form-field appearance="outline">
                                         <mat-select
-                                            [ngModel]="selected_building_id"
+                                            [ngModel]="selected_building_id()"
                                             (ngModelChange)="
                                                 setBuilding($event)
                                             "
@@ -133,7 +132,9 @@ import { BookingFormService } from './booking-form.service';
                                         <a-time-field
                                             name="start-time"
                                             [ngModel]="form_date()"
-                                            [disabled]="is_start_time_disabled"
+                                            [disabled]="
+                                                is_start_time_disabled()
+                                            "
                                             (ngModelChange)="
                                                 form.patchValue({
                                                     date: $event,
@@ -431,7 +432,7 @@ import { BookingFormService } from './booking-form.service';
                             (click)="sendInvite()"
                         >
                             {{
-                                (is_edit
+                                (is_edit()
                                     ? 'BOOKINGS.VISITOR_UPDATE'
                                     : 'BOOKINGS.VISITOR_SEND'
                                 ) | translate
@@ -458,23 +459,23 @@ import { BookingFormService } from './booking-form.service';
                 >
                     <h2 class="text-3xl">
                         {{
-                            (multiple
+                            (multiple()
                                 ? 'BOOKINGS.VISITOR_SENT_MULTIPLE'
                                 : 'BOOKINGS.VISITOR_SENT_SINGLE'
                             )
                                 | translate
                                     : {
                                           name:
-                                              last_success?.asset_name ||
-                                              last_success?.asset_id,
-                                          count: last_count || 1,
+                                              last_success()?.asset_name ||
+                                              last_success()?.asset_id,
+                                          count: last_count() || 1,
                                       }
                         }}
                     </h2>
                     <img class="mx-auto" src="assets/icons/sent.svg" />
                     <p>
                         {{
-                            (multiple() && last_count > 1
+                            (multiple() && last_count() > 1
                                 ? 'BOOKINGS.VISITOR_SENT_MSG_MULTIPLE'
                                 : 'BOOKINGS.VISITOR_SENT_MSG'
                             )
@@ -484,10 +485,10 @@ import { BookingFormService } from './booking-form.service';
                                               building()?.display_name ||
                                               building()?.name,
                                           date:
-                                              last_success?.date
+                                              last_success()?.date
                                               | date: 'mediumDate',
                                           time:
-                                              last_success?.date
+                                              last_success()?.date
                                               | date: time_format(),
                                       }
                         }}
@@ -560,7 +561,7 @@ import { BookingFormService } from './booking-form.service';
                             (click)="sent.set(false)"
                         >
                             {{
-                                (multiple && last_count > 1
+                                (multiple() && last_count() > 1
                                     ? 'BOOKINGS.VISITOR_BOOK_ANOTHER_MULTIPLE'
                                     : 'BOOKINGS.VISITOR_BOOK_ANOTHER'
                                 ) | translate
@@ -572,7 +573,6 @@ import { BookingFormService } from './booking-form.service';
         }
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,
@@ -619,9 +619,9 @@ export class InviteVisitorFormComponent {
     public readonly buildings = toSignal(this._org.building_list, {
         initialValue: [] as any[],
     });
-    public last_success = this._service.last_success;
-    public last_count = 0;
-    public visitors = [];
+    public readonly last_success = signal(this._service.last_success);
+    public readonly last_count = signal(0);
+    private visitors = [];
     public readonly filtered_visitors = signal<any[]>([]);
     public visitor_international: Record<string, boolean> = {};
     private readonly _visitor_bookable_hours = this._settings.signal(
@@ -732,13 +732,17 @@ export class InviteVisitorFormComponent {
         this._use_region() ? this._org.region : this._org.building,
     );
 
-    public get is_edit() {
-        return !!this.form?.value?.id;
-    }
-
     public get form() {
         return this._service.form;
     }
+    private readonly _form_value = toSignal(this.form.valueChanges, {
+        initialValue: this.form.value,
+    });
+    private readonly _form_status = toSignal(this.form.statusChanges, {
+        initialValue: this.form.status,
+    });
+    private readonly _form_disabled_change = signal(0);
+    public readonly is_edit = computed(() => !!this._form_value()?.id);
 
     public readonly time_format = this._settings.time_format_signal;
     public readonly use_24hr = this._use_24hr;
@@ -757,12 +761,14 @@ export class InviteVisitorFormComponent {
         this.form.getRawValue()?.date || Date.now(),
     );
 
-    public get is_start_time_disabled() {
+    public readonly is_start_time_disabled = computed(() => {
+        this._form_status();
+        this._form_disabled_change();
         return this.form?.get('date')?.disabled || false;
-    }
+    });
 
-    public get selected_building_id() {
-        const zone_list = this.form?.getRawValue()?.zones || [];
+    public readonly selected_building_id = computed(() => {
+        const zone_list = this._form_value()?.zones || [];
         const level = this._org.levelWithID(zone_list);
         const building =
             this._org.buildings.find(
@@ -771,9 +777,9 @@ export class InviteVisitorFormComponent {
                     zone_list.includes((bld as any).zone_id),
             ) || this._org.buildings.find((bld) => level?.parent_id === bld.id);
         if (building?.id) return building.id;
-        if (this.form?.getRawValue()?.id) return zone_list[0] || '';
+        if (this._form_value()?.id) return zone_list[0] || '';
         return this._org.building?.id || zone_list[0] || '';
-    }
+    });
 
     private _dateEffect = effect(() => {
         const date = this.date();
@@ -787,6 +793,21 @@ export class InviteVisitorFormComponent {
             this.form_date.set(aligned_date);
         }
     });
+
+    constructor() {
+        const date_control = this.form.get('date');
+        if (!date_control) return;
+        const disable = date_control.disable.bind(date_control);
+        const enable = date_control.enable.bind(date_control);
+        date_control.disable = (...args) => {
+            disable(...args);
+            this._form_disabled_change.update((value) => value + 1);
+        };
+        date_control.enable = (...args) => {
+            enable(...args);
+            this._form_disabled_change.update((value) => value + 1);
+        };
+    }
 
     public async ngOnInit() {
         this.sent.set(false);
@@ -945,15 +966,15 @@ export class InviteVisitorFormComponent {
                 visitor_details,
             ]);
         }
-        const is_editing = this.is_edit;
+        const is_editing = this.is_edit();
         await (this.multiple() ? this._bookForMany() : this._bookForOne());
         if (is_editing) {
             notifySuccess(i18n('BOOKINGS.VISITOR_UPDATED'));
             this.done.emit();
             return;
         }
-        this.last_success = this._service.last_success;
-        if (this.last_success) this._generateLinks();
+        this.last_success.set(this._service.last_success);
+        if (this.last_success()) this._generateLinks();
         await this.initFormZone();
         this.sent.set(true);
     }
@@ -1110,7 +1131,7 @@ export class InviteVisitorFormComponent {
     private async _bookForMany() {
         this.loading_many.set(true);
         const assets: User[] = this.form.getRawValue().assets || [];
-        this.last_count = assets.length;
+        this.last_count.set(assets.length);
         const visitor_members = assets
             .filter((_) => !!_.email)
             .map(
@@ -1130,7 +1151,7 @@ export class InviteVisitorFormComponent {
             group: true,
             members: visitor_members,
         });
-        if (this.is_edit) {
+        if (this.is_edit()) {
             let existing_siblings = this._existing_siblings;
             if (!existing_siblings.length) {
                 existing_siblings = await this._service.loadGroupSiblings(
@@ -1181,19 +1202,20 @@ export class InviteVisitorFormComponent {
     }
 
     private _generateLinks() {
+        const last_success = this.last_success();
         const event: CalEvent = {
-            ...this.last_success,
-            host: this.last_success.user_email,
+            ...last_success,
+            host: last_success.user_email,
             organiser: {
-                name: this.last_success.user_name,
-                email: this.last_success.user_email,
+                name: last_success.user_name,
+                email: last_success.user_email,
             } as any,
-            attendees: this.last_success.attendees.map((_) => _.email),
-            body: this.last_success.description,
+            attendees: last_success.attendees.map((_) => _.email),
+            body: last_success.description,
             location:
                 this._org.building.display_name || this._org.building.name,
         };
-        event.attendees.push(this.last_success.asset_id);
+        event.attendees.push(last_success.asset_id);
         this.outlook_link.set(generateMicrosoftCalendarLink(event));
         this.google_link.set(generateGoogleCalendarLink(event));
         this.ical_link.set(generateCalendarFileLink(event));

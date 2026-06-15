@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    input,
-    output,
-} from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -129,7 +123,6 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
         }
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         IconComponent,

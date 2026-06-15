@@ -1,11 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    input,
-    output,
-} from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { OrganisationService, ViewerFeature } from '@placeos/common';
 import { MapPinComponent } from '@placeos/components';
@@ -114,7 +107,6 @@ import { BookingAsset } from '../booking-form.service';
         }
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         MatRippleModule,

@@ -1,12 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    ElementRef,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, computed, ElementRef, inject, signal } from '@angular/core';
 import { settingSignal, SettingsService } from '@placeos/common';
 import { UserPipe } from '@placeos/users';
 import { ParkingSpace } from 'libs/bookings/src/lib/parking.service';
@@ -97,7 +90,6 @@ interface ParkingSpaceExtended extends ParkingSpace {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [AsyncPipe, TranslatePipe, UserPipe],
 })
 export class ExploreParkingInfoComponent {

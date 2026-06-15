@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     ElementRef,
     OnInit,
@@ -68,7 +67,6 @@ const RESOURCE_MAP: Record<string, any> = {};
         }
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, MatProgressSpinnerModule, IconComponent],
 })
 export class MapsIndoorsComponent extends AsyncHandler implements OnInit {

@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -415,18 +414,15 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                                             matRipple
                                             class="print:hidden"
                                             [matTooltip]="
-                                                show_order[order.id]
+                                                show_order()[order.id]
                                                     ? 'Hide order items'
                                                     : 'Show order items'
                                             "
-                                            (click)="
-                                                show_order[order.id] =
-                                                    !show_order[order.id]
-                                            "
+                                            (click)="toggleOrder(order.id)"
                                         >
                                             <icon>
                                                 {{
-                                                    show_order[order.id]
+                                                    show_order()[order.id]
                                                         ? 'expand_less'
                                                         : 'expand_more'
                                                 }}
@@ -436,7 +432,7 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                                     <div
                                         class="divide-base-100 bg-base-200 flex flex-col divide-y"
                                         [@show]="
-                                            print || show_order[order.id]
+                                            print() || show_order()[order.id]
                                                 ? 'show'
                                                 : 'hide'
                                         "
@@ -554,10 +550,7 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                                     <button
                                         matRipple
                                         class="flex w-full items-center space-x-2 p-3"
-                                        (click)="
-                                            show_request[request.id] =
-                                                !show_request[request.id]
-                                        "
+                                        (click)="toggleRequest(request.id)"
                                     >
                                         <div class="flex-1 text-left">
                                             <div class="text-sm">
@@ -616,7 +609,7 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                                         >
                                             <icon class="text-2xl">
                                                 {{
-                                                    show_request[request.id]
+                                                    show_request()[request.id]
                                                         ? 'expand_less'
                                                         : 'expand_more'
                                                 }}
@@ -626,7 +619,8 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                                     <div
                                         class="divide-base-100 bg-base-200 flex flex-col divide-y"
                                         [@show]="
-                                            print || show_request[request.id]
+                                            print() ||
+                                            show_request()[request.id]
                                                 ? 'show'
                                                 : 'hide'
                                         "
@@ -745,7 +739,6 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     providers: [SpacePipe],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,
@@ -781,8 +774,8 @@ export class EventDetailsModalComponent implements OnInit {
 
     public readonly empty_notes =
         '<div class="p-4 w-full rounded-md bg-base-200 text-center"><span class="opacity-30">No notes</span></div>';
-    public readonly show_order = {};
-    public readonly show_request = {};
+    public readonly show_order = signal<Record<string, boolean>>({});
+    public readonly show_request = signal<Record<string, boolean>>({});
     public readonly room_status = signal('');
     public readonly hide_map = signal(false);
     public readonly hide_edit = signal(false);
@@ -951,6 +944,20 @@ export class EventDetailsModalComponent implements OnInit {
 
     public optionList(item: CateringItem) {
         return item.option_list?.map((_) => _.name).join('\n');
+    }
+
+    public toggleOrder(id: string) {
+        this.show_order.update((show_order) => ({
+            ...show_order,
+            [id]: !show_order[id],
+        }));
+    }
+
+    public toggleRequest(id: string) {
+        this.show_request.update((show_request) => ({
+            ...show_request,
+            [id]: !show_request[id],
+        }));
     }
 
     public readonly recurr_tooltip = computed(

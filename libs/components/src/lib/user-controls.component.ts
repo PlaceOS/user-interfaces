@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -392,7 +391,6 @@ export interface AppLocale {
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatDialogModule,

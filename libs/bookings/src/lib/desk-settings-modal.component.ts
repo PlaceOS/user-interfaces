@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -103,7 +98,6 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
         }
     `,
     styles: [],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         IconComponent,
         MatDialogModule,

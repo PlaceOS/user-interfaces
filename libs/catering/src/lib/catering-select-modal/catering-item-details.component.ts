@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     OnChanges,
     SimpleChanges,
     input,
     output,
+    signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -93,7 +93,7 @@ interface CateringOptionGroup {
                 </section>
                 <section details class="space-y-2">
                     <div class="flex flex-col space-y-4">
-                        @for (group of groups; track group) {
+                        @for (group of groups(); track group) {
                             <div
                                 [attr.group]="group.name"
                                 class="border-base-400 relative space-y-2 rounded-sm border px-3 pt-4 pb-2"
@@ -108,8 +108,8 @@ interface CateringOptionGroup {
                                         <mat-radio-group
                                             class="flex flex-col"
                                             aria-label="Select an option"
-                                            [(ngModel)]="
-                                                group_state[group.name]
+                                            [ngModel]="
+                                                group_state()[group.name]
                                             "
                                             (ngModelChange)="
                                                 updateGroupOption(group, $event)
@@ -167,8 +167,8 @@ interface CateringOptionGroup {
                                             track opt
                                         ) {
                                             <mat-checkbox
-                                                [(ngModel)]="
-                                                    option_state[opt.id]
+                                                [ngModel]="
+                                                    option_state()[opt.id]
                                                 "
                                                 (ngModelChange)="
                                                     updateCheckedState(
@@ -220,7 +220,6 @@ interface CateringOptionGroup {
         }
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,
@@ -243,9 +242,9 @@ export class CateringItemDetailsComponent implements OnChanges {
     public readonly activeChange = output<boolean>();
     public readonly close = output<void>();
 
-    public option_state: Record<string, boolean> = {};
-    public group_state: Record<string, string> = {};
-    public groups: CateringOptionGroup[];
+    public readonly option_state = signal<Record<string, boolean>>({});
+    public readonly group_state = signal<Record<string, string>>({});
+    public readonly groups = signal<CateringOptionGroup[]>([]);
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.item && this.item()) {
@@ -255,13 +254,17 @@ export class CateringItemDetailsComponent implements OnChanges {
 
     public updateGroupOption(group: CateringOptionGroup, id: string) {
         if (!group) return;
-        this.group_state[group.name] = id;
+        this.group_state.update((state) => ({ ...state, [group.name]: id }));
         for (const option of group.options) {
             option.active = option.id === id;
         }
     }
 
     public updateCheckedState(id: string, state: boolean) {
+        this.option_state.update((option_state) => ({
+            ...option_state,
+            [id]: state,
+        }));
         const option = this.item()?.options.find((_) => _.id === id);
         if (option) option.active = state;
     }
@@ -272,8 +275,8 @@ export class CateringItemDetailsComponent implements OnChanges {
         if (!item.quantity) {
             (item as any).quantity = 1;
         }
-        this.option_state = {};
-        this.group_state = {};
+        this.option_state.set({});
+        this.group_state.set({});
         const groups = unique(item.options.map((i) => i.group || 'Other'));
         const group_list = [];
         for (const group of groups) {
@@ -284,15 +287,18 @@ export class CateringItemDetailsComponent implements OnChanges {
                 options,
             });
         }
-        this.groups = group_list;
+        this.groups.set(group_list);
         if (item.option_list) {
             for (const opt of item.option_list) {
                 const option = item.options.find((_) => _.id === opt.id);
                 if (option) {
                     option.active = true;
-                    this.option_state[opt.id] = true;
+                    this.option_state.update((state) => ({
+                        ...state,
+                        [opt.id]: true,
+                    }));
                     this.updateGroupOption(
-                        this.groups.find((g) => g.name === option.group),
+                        this.groups().find((g) => g.name === option.group),
                         option.id,
                     );
                 }

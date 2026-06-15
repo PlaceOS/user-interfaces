@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { TranslatePipe } from './translate.pipe';
 
 @Component({
@@ -38,7 +38,6 @@ import { TranslatePipe } from './translate.pipe';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe],
 })
 export class UnauthorisedComponent {}

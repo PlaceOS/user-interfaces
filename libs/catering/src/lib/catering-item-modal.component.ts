@@ -1,11 +1,12 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 import { CurrencyPipe } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     EventEmitter,
     Output,
+    computed,
     inject,
+    signal,
 } from '@angular/core';
 import {
     FormControl,
@@ -44,17 +45,17 @@ export interface CateringItemModalData {
         >
             <h2 class="px-2 text-xl font-medium">
                 {{
-                    (item.id ? 'CATERING.ITEM_EDIT' : 'CATERING.ITEM_NEW')
+                    (item().id ? 'CATERING.ITEM_EDIT' : 'CATERING.ITEM_NEW')
                         | translate
                 }}
             </h2>
-            @if (!loading) {
+            @if (!loading()) {
                 <button icon matRipple mat-dialog-close>
                     <icon>close</icon>
                 </button>
             }
         </header>
-        @if (form && !loading) {
+        @if (form && !loading()) {
             <form
                 class="max-h-[65vh] max-w-xl overflow-auto px-4"
                 [formGroup]="form"
@@ -207,7 +208,7 @@ export interface CateringItemModalData {
                         </label>
                         <mat-form-field appearance="outline">
                             <mat-chip-grid #chipList aria-label="Item Tags">
-                                @for (item of tag_list; track item) {
+                                @for (item of tag_list(); track item) {
                                     <mat-chip-row (removed)="removeTag(item)">
                                         {{ item }}
                                         <button
@@ -314,7 +315,7 @@ export interface CateringItemModalData {
                 <p>{{ 'CATERING.ITEM_SAVING' | translate }}</p>
             </div>
         }
-        @if (!loading) {
+        @if (!loading()) {
             <footer
                 class="border-base-200 flex items-center justify-end border-t border-solid px-4 py-2"
             >
@@ -330,14 +331,14 @@ export interface CateringItemModalData {
             </footer>
         }
         <mat-autocomplete #auto="matAutocomplete">
-            @for (option of categories; track option) {
+            @for (option of categories(); track option) {
                 <mat-option [value]="option">
                     {{ option }}
                 </mat-option>
             }
         </mat-autocomplete>
         <mat-autocomplete #caterer_auto="matAutocomplete">
-            @for (option of caterers; track option) {
+            @for (option of caterers(); track option) {
                 <mat-option [value]="option">
                     {{ option }}
                     @if (!option) {
@@ -354,7 +355,6 @@ export interface CateringItemModalData {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         IconComponent,
         TranslatePipe,
@@ -378,45 +378,36 @@ export class CateringItemModalComponent {
 
     /** Emitter for events on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
+    /** Current item details */
+    public readonly item = computed(
+        () => this._data.item || new CateringItem(),
+    );
+    /** List of available categories */
+    public readonly categories = computed(() => this._data.categories || []);
+    /** List of available caterers */
+    public readonly caterers = computed(() => this._data.caterers || []);
     /** Form fields for item */
     public form = new FormGroup({
-        name: new FormControl(this.item.name || '', [Validators.required]),
-        description: new FormControl(this.item.description || ''),
-        category: new FormControl(this.item.category || '', [
+        name: new FormControl(this.item().name || '', [Validators.required]),
+        description: new FormControl(this.item().description || ''),
+        category: new FormControl(this.item().category || '', [
             Validators.required,
         ]),
-        caterer: new FormControl(this.item.caterer || ''),
-        unit_price: new FormControl(this.item.unit_price, [
+        caterer: new FormControl(this.item().caterer || ''),
+        unit_price: new FormControl(this.item().unit_price, [
             Validators.required,
         ]),
-        tags: new FormControl(this.item.tags || []),
-        accept_points: new FormControl(this.item.accept_points || false),
-        discount_cap: new FormControl(this.item.discount_cap || 0),
-        images: new FormControl(this.item.images || []),
+        tags: new FormControl(this.item().tags || []),
+        accept_points: new FormControl(this.item().accept_points || false),
+        discount_cap: new FormControl(this.item().discount_cap || 0),
+        images: new FormControl(this.item().images || []),
     });
     /** Whether changes are being saved */
-    public loading = false;
+    public readonly loading = signal(false);
     /** List of separator characters for tags */
     public readonly separators: number[] = [ENTER, COMMA, SPACE];
 
-    /** Current item details */
-    public get item(): CateringItem {
-        return this._data.item || new CateringItem();
-    }
-
-    /** List of available categories */
-    public get categories(): string[] {
-        return this._data.categories || [];
-    }
-
-    /** List of available caterers */
-    public get caterers(): string[] {
-        return this._data.caterers || [];
-    }
-
-    public get tag_list(): string[] {
-        return this.form.controls.tags.value;
-    }
+    public readonly tag_list = signal(this.form.controls.tags.value || []);
 
     public renderPercent(value = 0) {
         return `${value}%`;
@@ -427,6 +418,7 @@ export class CateringItemModalComponent {
     public renderPrice = (v) => this._renderPrice(v);
 
     public _renderPrice(value = 0): string {
+        this._org.building_signal();
         return (
             this._currency_pipe?.transform(
                 value / 100,
@@ -436,7 +428,7 @@ export class CateringItemModalComponent {
     }
 
     public hasTag(tag: string) {
-        return this.tag_list.includes(tag);
+        return this.tag_list().includes(tag);
     }
 
     /**
@@ -448,10 +440,11 @@ export class CateringItemModalComponent {
         this.form.controls.tags.markAsDirty();
         const input = event.input;
         const value = event.value;
-        const tag_list = this.tag_list;
+        const tag_list = this.tag_list();
         if ((value || '').trim()) {
             tag_list.push(value);
             this.form.controls.tags.setValue(tag_list);
+            this.tag_list.set([...tag_list]);
         }
 
         // Reset the input value
@@ -464,23 +457,24 @@ export class CateringItemModalComponent {
      */
     public removeTag(existing_tag: string): void {
         if (!this.form || !this.form.controls.tags) return;
-        const tag_list = this.tag_list;
+        const tag_list = this.tag_list();
         this.form.controls.tags.markAsDirty();
         const index = tag_list.indexOf(existing_tag);
 
         if (index >= 0) {
             tag_list.splice(index, 1);
             this.form.controls.tags.setValue(tag_list);
+            this.tag_list.set([...tag_list]);
         }
     }
 
     public saveChanges() {
-        this.loading = true;
+        this.loading.set(true);
         this.event.emit({
             reason: 'done',
             metadata: {
                 item: new CateringItem({
-                    ...this.item,
+                    ...this.item(),
                     ...this.form.value,
                 }),
             },

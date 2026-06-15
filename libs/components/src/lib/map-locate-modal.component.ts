@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -38,7 +37,7 @@ export interface Locatable {
             <header class="p-4">
                 <icon class="text-2xl">place</icon>
                 <h1 class="ml-2 text-xl font-medium">
-                    {{ item.display_name || item.name }}
+                    {{ item().display_name || item().name }}
                 </h1>
             </header>
             @if (level()) {
@@ -49,7 +48,7 @@ export interface Locatable {
                     <interactive-map
                         class="pointer-events-none"
                         [src]="level()?.map_id"
-                        [focus]="item?.map_id"
+                        [focus]="item()?.map_id"
                         [features]="features()"
                         [options]="{
                             disable_pan: true,
@@ -81,7 +80,6 @@ export interface Locatable {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         MatDialogModule,
@@ -100,20 +98,24 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
     /** Emitter for user action on the modal */
     public readonly event = output();
     /** Space to show the location of on the map */
-    public item: Locatable = this._data.item;
+    public readonly item = signal(this._data.item);
     /** Features of the map */
     public features = signal<ViewerFeature[]>(undefined);
     /** Mapping of elements to CSS styles */
     public style_map = signal<ViewerStyles>({});
 
     public readonly level = computed<BuildingLevel>(
-        () => this.item.level || this._org.levelWithID(this.item.zones || []),
+        () =>
+            this.item().level || this._org.levelWithID(this.item().zones || []),
     );
 
     constructor() {
         super();
-        if (!this.item.level?.id) {
-            delete this.item.level;
+        if (!this.item().level?.id) {
+            this.item.update((item) => {
+                delete item.level;
+                return item;
+            });
         }
     }
 
@@ -130,7 +132,7 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
 
     public processStyles(): void {
         const styles: ViewerStyles = {};
-        if (this.item?.map_id) {
+        if (this.item()?.map_id) {
             styles[`#zones`] = { display: 'none' };
             styles[`#Zones`] = { display: 'none' };
         }
@@ -139,13 +141,14 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
 
     /** Point on map to focus on */
     public processFeature(): void {
-        if (!this.item) return null;
+        const item = this.item();
+        if (!item) return null;
         const focus = {
-            location: this.item.map_id,
+            location: item.map_id,
             track_id: `focus_item`,
             content: MapPinComponent,
             data: {
-                name: this.item.name,
+                name: item.name,
             },
             z_index: 99,
             zoom: 100,

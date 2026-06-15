@@ -1,11 +1,5 @@
 import { DatePipe } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    EventEmitter,
-    inject,
-    Output,
-} from '@angular/core';
+import { Component, EventEmitter, inject, Output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -123,7 +117,6 @@ export async function openRecurringClashModal(
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         IconComponent,
         MatDialogModule,

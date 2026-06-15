@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     ElementRef,
     inject,
@@ -30,7 +29,6 @@ const DEFAULT_ZOOM = 18.5;
             class="absolute inset-0 z-0"
         ></div>
     `,
-    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [``],
 })
 export class CiscoMapComponent extends AsyncHandler implements OnInit {

@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     forwardRef,
@@ -149,7 +148,6 @@ export interface DurationOption {
             multi: true,
         },
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatMenuModule, MatFormFieldModule, CommonModule, IconComponent],
 })
 export class DurationFieldComponent

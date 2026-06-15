@@ -1,6 +1,5 @@
 import { AsyncPipe } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -334,7 +333,6 @@ import { BookingFormService } from './booking-form.service';
         }
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         AsyncPipe,
         TranslatePipe,

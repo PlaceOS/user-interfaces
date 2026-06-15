@@ -1,11 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    input,
-    output,
-} from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CateringItem } from '@placeos/common';
@@ -58,7 +51,7 @@ import { CateringItemListItemComponent } from './catering-item-list-item.compone
                                 [active]="isActive(item)"
                                 [show_count]="false"
                                 [favourite]="isFavourite(item.id)"
-                                [code]="code"
+                                [code]="code()"
                                 (toggleFav)="toggleFav.emit(item)"
                                 (select)="selectItem(item, true)"
                             ></catering-item-list-item>
@@ -88,7 +81,6 @@ import { CateringItemListItemComponent } from './catering-item-list-item.compone
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         MatProgressSpinnerModule,
@@ -113,9 +105,7 @@ export class CateringItemListComponent {
         initialValue: [],
     });
 
-    public get code() {
-        return this._state.currency_code;
-    }
+    public readonly code = computed(() => this._state.currency_code);
 
     public isFavourite(item_id: string) {
         return this.favorites()?.includes(item_id);

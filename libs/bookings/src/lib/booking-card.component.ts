@@ -1,12 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    DestroyRef,
-    inject,
-    input,
-} from '@angular/core';
+import { Component, computed, DestroyRef, inject, input } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -39,7 +32,7 @@ import { ParkingService } from './parking.service';
                 @if (show_day()) {
                     <span day>{{ day() }},&nbsp;</span>
                 }
-                {{ booking()?.date | date: time_format }}
+                {{ booking()?.date | date: time_format() }}
                 <span class="px-2 text-xs"
                     >({{ booking()?.date | date: 'zzzz' }})</span
                 >
@@ -79,7 +72,9 @@ import { ParkingService } from './parking.service';
                             </div>
                         }
                         @if (booking().instance) {
-                            <icon class="text-2xl" [matTooltip]="recurr_tooltip"
+                            <icon
+                                class="text-2xl"
+                                [matTooltip]="recurr_tooltip()"
                                 >event_repeat</icon
                             >
                         }
@@ -204,7 +199,6 @@ import { ParkingService } from './parking.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,
@@ -279,9 +273,7 @@ export class BookingCardComponent {
         );
     });
 
-    public get time_format() {
-        return this._settings.time_format_signal();
-    }
+    public readonly time_format = this._settings.time_format_signal;
 
     public readonly status = computed(() => {
         const booking = this.booking();
@@ -298,14 +290,13 @@ export class BookingCardComponent {
         return 'warning';
     });
 
-    public get recurr_tooltip() {
-        return (
+    public readonly recurr_tooltip = computed(
+        () =>
             formatRecurrence(
                 fromBookingRecurrence(this.booking()),
                 this.booking()?.date,
-            ) || i18n('CALENDAR_EVENT.RECURRING_TOOLTIP')
-        );
-    }
+            ) || i18n('CALENDAR_EVENT.RECURRING_TOOLTIP'),
+    );
 
     public readonly type = computed(() => this.booking()?.type);
 
@@ -332,9 +323,9 @@ export class BookingCardComponent {
         })
             .replace(' hour', 'hr')
             .replace(' minute', 'min');
-        return `${format(start, this.time_format)} - ${format(
+        return `${format(start, this.time_format())} - ${format(
             end,
-            this.time_format,
+            this.time_format(),
         )} (${dur})`;
     });
 

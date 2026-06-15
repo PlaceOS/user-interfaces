@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     ElementRef,
     Signal,
@@ -38,7 +37,6 @@ export interface MapPolygonData {
             [style.height]="width() * svg_ratio() * ratio() * zoom() + '%'"
         ></canvas>
     `,
-    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [],
 })
 export class MapCanvasComponent {

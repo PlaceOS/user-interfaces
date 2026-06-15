@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     OnDestroy,
     forwardRef,
@@ -199,7 +198,6 @@ const EMPTY_FAVS: string[] = [];
             multi: true,
         },
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRadioModule,
         FormsModule,

@@ -1,6 +1,6 @@
 import { OverlayContainer, OverlayModule } from '@angular/cdk/overlay';
 import { PortalModule } from '@angular/cdk/portal';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {
     SpectatorDirective,
     createDirectiveFactory,
@@ -15,13 +15,11 @@ import { SanitizePipe } from '../lib/sanitise.pipe';
 
 @Component({
     selector: 'fake',
-    changeDetection: ChangeDetectionStrategy.Eager,
     template: 'Fake Component',
 })
 export class FakeComponent {}
 @Component({
     selector: 'fake-data',
-    changeDetection: ChangeDetectionStrategy.Eager,
     template: '<span>{{ data }}<span>',
 })
 export class FakeDataComponent {

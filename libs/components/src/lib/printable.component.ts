@@ -3,7 +3,6 @@ import { CdkPortal, PortalModule } from '@angular/cdk/portal';
 import { CommonModule } from '@angular/common';
 
 import {
-    ChangeDetectionStrategy,
     Component,
     OnDestroy,
     OnInit,
@@ -36,7 +35,6 @@ import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, PortalModule],
 })
 export class PrintableComponent

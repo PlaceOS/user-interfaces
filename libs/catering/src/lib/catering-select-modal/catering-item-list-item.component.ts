@@ -1,10 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    input,
-    output,
-} from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { CateringItem } from '@placeos/common';
 
@@ -67,7 +62,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                             <div
                                 class="border-base-200 rounded-2xl border px-2 py-1 text-xs shadow-sm"
                             >
-                                {{ options }}
+                                {{ options() }}
                             </div>
                         }
                         @if (item().tags?.includes('Gluten Free')) {
@@ -128,7 +123,6 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
         </li>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         IconComponent,
@@ -145,9 +139,9 @@ export class CateringItemListItemComponent {
     public readonly toggleFav = output();
     public readonly select = output();
 
-    public get options() {
+    public readonly options = computed(() => {
         return this.item()
             .option_list?.map((_) => _.name)
             .join(', ');
-    }
+    });
 }
