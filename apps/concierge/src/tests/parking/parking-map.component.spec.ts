@@ -28,7 +28,8 @@ describe('ParkingMapComponent', () => {
             {
                 provide: OrganisationService,
                 useValue: {
-                    initialised: of(true),
+                    initialised: signal(true),
+                    waitUntilInitialised: () => Promise.resolve(),
                     levelsForBuilding: jest.fn(() => [
                         { id: 'level-1', tags: ['parking'] },
                     ]),

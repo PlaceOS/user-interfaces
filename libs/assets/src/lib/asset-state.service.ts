@@ -87,9 +87,7 @@ export class AssetStateService {
         this._loadAssetList();
         effect(() => {
             const options = this._options();
-            const bld = this._org.building_signal
-                ? this._org.building_signal()
-                : this._org.building;
+            const bld = this._org.active_building();
             if (!bld?.id) return;
             untracked(() => {
                 this._loadRules(options, bld.id);

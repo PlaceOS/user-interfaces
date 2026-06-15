@@ -6,6 +6,7 @@ import {
     inject,
     signal,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -391,8 +392,8 @@ export class SidebarComponent {
     public readonly region = this._dash.region_id;
     public readonly building = this._dash.building_id;
 
-    public readonly region_list = this._org.region_list;
-    public readonly building_list = this._org.active_buildings;
+    public readonly region_list = toObservable(this._org.region_list);
+    public readonly building_list = toObservable(this._org.active_buildings);
 
     public readonly setRegion = (r) => {
         this._org.region = r;

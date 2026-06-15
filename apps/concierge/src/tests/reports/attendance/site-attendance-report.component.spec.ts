@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
@@ -15,7 +16,7 @@ describe('SiteAttendanceReportComponent', () => {
     let query_params: BehaviorSubject<any>;
     let report: BehaviorSubject<any>;
     let loading: BehaviorSubject<boolean>;
-    let active_building: BehaviorSubject<any>;
+    let active_building: ReturnType<typeof signal<any>>;
 
     const createComponent = createComponentFactory({
         component: SiteAttendanceReportComponent,
@@ -40,9 +41,10 @@ describe('SiteAttendanceReportComponent', () => {
                 }),
             } as any),
             MockProvider(OrganisationService, {
-                initialised: new BehaviorSubject(true),
-                active_building: new BehaviorSubject({ id: 'building-1' }),
-                active_region: new BehaviorSubject({ id: 'region-1' }),
+                initialised: signal(true),
+                waitUntilInitialised: () => Promise.resolve(),
+                active_building: signal({ id: 'building-1' }),
+                active_region: signal({ id: 'region-1' }),
                 levelsForBuilding: jest.fn(() => []),
                 levelsForRegion: jest.fn(() => []),
                 levelWithID: jest.fn(() => ({ parent_id: 'building-1' })),
@@ -66,7 +68,7 @@ describe('SiteAttendanceReportComponent', () => {
         );
         report = new BehaviorSubject(EMPTY_REPORT);
         loading = new BehaviorSubject(false);
-        active_building = new BehaviorSubject({ id: 'building-1' });
+        active_building = signal({ id: 'building-1' });
         spectator = createComponent({
             providers: [
                 {
@@ -82,9 +84,10 @@ describe('SiteAttendanceReportComponent', () => {
                 {
                     provide: OrganisationService,
                     useValue: {
-                        initialised: new BehaviorSubject(true),
+                        initialised: signal(true),
+                        waitUntilInitialised: () => Promise.resolve(),
                         active_building,
-                        active_region: new BehaviorSubject({ id: 'region-1' }),
+                        active_region: signal({ id: 'region-1' }),
                         levelsForBuilding: jest.fn(() => []),
                         levelsForRegion: jest.fn(() => []),
                         levelWithID: jest.fn(() => ({

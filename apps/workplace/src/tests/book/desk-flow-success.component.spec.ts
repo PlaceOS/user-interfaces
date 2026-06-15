@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { BookingFormService } from '@placeos/bookings';
 import {
@@ -64,7 +65,7 @@ describe('NewDeskFlowSuccessComponent', () => {
                 openBookingLinkModal: jest.fn(),
             } as any),
             MockProvider(OrganisationService, {
-                initialised: of(true),
+                initialised: signal(true),
                 buildings: [],
                 levelWithID: jest.fn(() => new BuildingLevel()),
                 buildingWithID: jest.fn(() => new Building()),

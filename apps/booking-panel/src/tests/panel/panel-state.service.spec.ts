@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import {
@@ -18,7 +19,7 @@ describe('PanelStateService', () => {
             MockProvider(SpacesService, { list: new BehaviorSubject([]) }),
             MockProvider(MatDialog, { open: jest.fn() }),
             MockProvider(EventFormService, {}),
-            MockProvider(OrganisationService, { initialised: of(true) }),
+            MockProvider(OrganisationService, { initialised: signal(true) }),
             MockProvider(KeepAliveService),
             MockProvider(SettingsService, { get: jest.fn() }),
         ],

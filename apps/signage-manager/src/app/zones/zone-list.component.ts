@@ -274,9 +274,7 @@ export class ZoneListComponent {
     private readonly _org = inject(OrganisationService);
     private readonly _service = inject(SignageService);
 
-    private readonly _org_initialised = toSignal(this._org.initialised, {
-        initialValue: false,
-    });
+    private readonly _org_initialised = this._org.initialised;
     private readonly _all_zones = toSignal(this._service.all_zones, {
         initialValue: [] as PlaceZone[],
     });

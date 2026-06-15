@@ -51,7 +51,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
     private _dialog = inject(MatDialog);
     private _org = inject(OrganisationService);
 
-    private _building = this._org.building_signal;
+    private _building = this._org.active_building;
 
     private _bookings: Record<string, CalendarEvent[]> = {};
     private _statuses: Record<string, string> = {};

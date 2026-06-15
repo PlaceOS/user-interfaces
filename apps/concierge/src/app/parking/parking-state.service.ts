@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import type { ParkingFleetVehicle, ParkingUser } from '@placeos/assets';
 import {
@@ -143,8 +144,8 @@ export class ParkingStateService extends AsyncHandler {
 
     /** List of available parking levels for the current building */
     public levels = combineLatest([
-        this._org.active_region,
-        this._org.active_building,
+        toObservable(this._org.active_region),
+        toObservable(this._org.active_building),
     ]).pipe(
         filter(([_, bld]) => !!bld),
         map(([_, bld]) => {
@@ -229,7 +230,7 @@ export class ParkingStateService extends AsyncHandler {
     );
     /** List of parking users for the current building */
     public users = combineLatest([
-        this._org.active_building,
+        toObservable(this._org.active_building),
         this._change,
     ]).pipe(
         filter(([bld]) => !!bld?.id),
@@ -248,7 +249,7 @@ export class ParkingStateService extends AsyncHandler {
     public readonly fleet_vehicles = this._fleet_vehicles.asObservable();
     /** List of parking bookings for the current building/level */
     public bookings = combineLatest([
-        this._org.active_building,
+        toObservable(this._org.active_building),
         this._options,
         this.users,
         this._poll,
@@ -318,7 +319,10 @@ export class ParkingStateService extends AsyncHandler {
         super();
         this.subscription(
             'fleet_vehicles',
-            combineLatest([this._org.active_building, this._change])
+            combineLatest([
+                toObservable(this._org.active_building),
+                this._change,
+            ])
                 .pipe(
                     filter(([bld]) => !!bld?.id),
                     switchMap(([bld]) => this._loadFleetVehicles(bld.id)),

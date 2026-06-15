@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
@@ -36,10 +37,10 @@ describe('EventFormService', () => {
                     provide: OrganisationService,
                     useValue: {
                         building: { id: 'bld-1', timezone: 'Australia/Sydney' },
-                        building_list: new BehaviorSubject([]),
-                        active_building: new BehaviorSubject({}),
-                        active_region: new BehaviorSubject({}),
-                        initialised: new BehaviorSubject(true),
+                        building_list: signal([]),
+                        active_building: signal({}),
+                        active_region: signal({}),
+                        initialised: signal(true),
                         organisation: { id: 'org-1' },
                         region: { id: 'reg-1' },
                     },

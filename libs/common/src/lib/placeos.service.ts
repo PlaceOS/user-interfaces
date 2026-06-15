@@ -411,7 +411,7 @@ export class PlaceOS_Service extends AsyncHandler {
             await setupPlace(settings).catch((_) => console.error(_));
         }
         if (this._initial_token) setToken(this._initial_token);
-        await this._waitFor(() => this._org.initialised_signal());
+        await this._waitFor(() => this._org.initialised());
         if (this._locale) {
             this._locale.zone_id = this._org.organisation.id;
             this._locale.init();
@@ -542,7 +542,7 @@ export class PlaceOS_Service extends AsyncHandler {
         this.timeout(
             'set_building+region',
             async () => {
-                const building_list = this._org.buildings_signal();
+                const building_list = this._org.building_list();
                 let bld = building_list.find((b) => b.id === this._zone);
                 // Determine the target region: explicit region_id, or derived from building's parent
                 const target_region_id = this._region || bld?.parent_id;
@@ -551,7 +551,7 @@ export class PlaceOS_Service extends AsyncHandler {
                 );
                 if (region) await this._org.setRegion(region);
                 if (!bld && this._zone) {
-                    const building_list = this._org.buildings_signal();
+                    const building_list = this._org.building_list();
                     bld = building_list.find((b) => b.id === this._zone);
                 }
                 if (bld) this._org.setBuilding(bld, true);

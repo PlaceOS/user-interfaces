@@ -6,7 +6,7 @@ import {
     input,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { addDays, endOfDay } from 'date-fns';
 
@@ -288,20 +288,16 @@ export class LockerFiltersComponent extends AsyncHandler implements OnInit {
     public readonly features = toSignal(this._state.features, {
         initialValue: [],
     });
-    public readonly buildings = toSignal(this._org.active_buildings, {
-        initialValue: [],
-    });
-    public readonly building = toSignal(this._org.active_building);
+    public readonly buildings = this._org.active_buildings;
+    public readonly building = this._org.active_building;
     public readonly form = this._state.form;
-    public readonly regions = toSignal(this._org.region_list, {
-        initialValue: [],
-    });
-    public readonly region = toSignal(this._org.active_region);
+    public readonly regions = this._org.region_list;
+    public readonly region = this._org.active_region;
 
     public readonly levels = toSignal(
         combineLatest([
-            this._org.active_region,
-            this._org.active_building,
+            toObservable(this._org.active_region),
+            toObservable(this._org.active_building),
         ]).pipe(
             map(([region, bld]) => {
                 const level_list = this._use_region()
@@ -385,6 +381,8 @@ export class LockerFiltersComponent extends AsyncHandler implements OnInit {
     public readonly use_24hr = this._use_24hr;
     public readonly use_region = this._use_region;
 
+    private readonly _active_building$ = toObservable(this._org.active_building);
+
     constructor() {
         super();
     }
@@ -393,7 +391,7 @@ export class LockerFiltersComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'bld',
             combineLatest([
-                this._org.active_building,
+                this._active_building$,
                 this.form.controls.duration.valueChanges,
             ]).subscribe(() => {
                 this.timeout(

@@ -8,6 +8,7 @@ import {
     output,
     signal,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import {
     FormControl,
     FormGroup,
@@ -450,7 +451,7 @@ export class BookingRulesFormComponent implements OnChanges {
 
     public readonly available_conditions = signal<string[]>([]);
 
-    public readonly building_zones = this._org.active_building.pipe(
+    public readonly building_zones = toObservable(this._org.active_building).pipe(
         filter((_) => !!_),
         switchMap((bld) =>
             queryZones({ parent_id: bld.id }).catch(() => ({ data: [] })),

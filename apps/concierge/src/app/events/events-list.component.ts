@@ -2,10 +2,11 @@ import {
     ChangeDetectionStrategy,
     Component,
     inject,
+    Injector,
     OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -187,6 +188,7 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
+    private _injector = inject(Injector);
 
     public readonly period = toSignal(
         this._state.options.pipe(
@@ -204,8 +206,8 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
     /** Levels available for the active building/region */
     public readonly levels = toSignal(
         combineLatest([
-            this._org.active_building,
-            this._org.active_region,
+            toObservable(this._org.active_building),
+            toObservable(this._org.active_region),
         ]).pipe(
             map(([bld, region]) =>
                 this._settings.get('app.use_region')
@@ -288,8 +290,12 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'levels',
             combineLatest([
-                this._org.active_building,
-                this._org.active_region,
+                toObservable(this._org.active_building, {
+                    injector: this._injector,
+                }),
+                toObservable(this._org.active_region, {
+                    injector: this._injector,
+                }),
             ]).subscribe(() => {
                 const levels = this.levels();
                 if (!levels.length) return;

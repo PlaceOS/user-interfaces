@@ -355,17 +355,13 @@ export class SpaceFiltersComponent {
 
     public readonly use_region = settingSignal<boolean>('use_region', false);
 
-    public readonly building = toSignal(this._org.active_building, {
-        initialValue: null,
-    });
-    public readonly buildings = toSignal(this._org.active_buildings, {
-        initialValue: [],
-    });
+    public readonly building = this._org.active_building;
+    public readonly buildings = this._org.active_buildings;
 
     public readonly levels = toSignal(
         combineLatest([
-            this._org.active_region,
-            this._org.active_building,
+            toObservable(this._org.active_region),
+            toObservable(this._org.active_building),
             this._event_form.spaces$,
         ]).pipe(
             map(([region, bld, spaces]) => {
@@ -407,9 +403,7 @@ export class SpaceFiltersComponent {
         }
     });
 
-    public readonly regions = toSignal(this._org.region_list, {
-        initialValue: [],
-    });
+    public readonly regions = this._org.region_list;
 
     public readonly using_mapspeople = this._mapspeople.available;
 
@@ -437,16 +431,14 @@ export class SpaceFiltersComponent {
 
     public readonly timezone = computed(() =>
         this._use_building_tz()
-            ? this._org.building_signal()?.timezone || ''
+            ? this._org.active_building()?.timezone || ''
             : '',
     );
 
     public readonly setOptions = (o) => this._event_form.setOptions(o);
     public readonly setFilters = (f) => this._event_form.setFilters(f);
 
-    public readonly region = toSignal(this._org.active_region, {
-        initialValue: null,
-    });
+    public readonly region = this._org.active_region;
 
     public get form() {
         return this._event_form.form;

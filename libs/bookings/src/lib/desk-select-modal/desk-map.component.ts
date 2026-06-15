@@ -133,8 +133,8 @@ export class DeskMapComponent implements OnInit {
 
     public readonly levels = toSignal(
         combineLatest([
-            this._org.active_region,
-            this._org.active_building,
+            toObservable(this._org.active_region),
+            toObservable(this._org.active_building),
         ]).pipe(
             map(([region, bld]) => {
                 const level_list = this._use_region()

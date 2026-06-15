@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { lastValueFrom, of } from 'rxjs';
@@ -56,7 +57,7 @@ describe('AuthorisedUserGuard', () => {
                 provide: SettingsService,
                 useValue: settings_mock,
             },
-            MockProvider(OrganisationService, { initialised: of(true) }),
+            MockProvider(OrganisationService, { initialised: signal(true) }),
         ],
     });
 

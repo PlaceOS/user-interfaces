@@ -153,7 +153,7 @@ export class EventFormService extends AsyncHandler {
     // List of all the booking rules for the available buildings
     public readonly booking_rules$: Observable<
         Record<string, BookingRuleset[]>
-    > = this._org.building_list.pipe(
+    > = toObservable(this._org.building_list).pipe(
         switchMap((list) => {
             this.addLoadingTag(Tags.BookingRules);
             return forkJoin(
@@ -178,30 +178,31 @@ export class EventFormService extends AsyncHandler {
         tap(() => this.removeLoadingTag(Tags.BookingRules)),
         shareReplay(1),
     );
-    public readonly spaces$: Observable<Space[]> =
-        this._org.active_building.pipe(
-            switchMap(() =>
-                this._settings.get('app.use_region')
-                    ? this._org.active_region.pipe(filter((_) => !!_))
-                    : this._org.active_building.pipe(filter((_) => !!_)),
-            ),
-            distinctUntilKeyChanged('id'),
-            switchMap((zone) => {
-                if (!zone) return of([]);
-                this.addLoadingTag(Tags.ListingRooms);
-                return requestSpacesForZone(zone.id).pipe(
-                    catchError(() => of([])),
-                );
-            }),
-            map((list: Space[]) =>
-                list.filter(
-                    (_) => _.bookable && _.email && !_.room_booking_url,
-                ),
-            ),
-            tap(() => this.removeLoadingTag(Tags.ListingRooms)),
-            startWith([]),
-            shareReplay(1),
-        );
+    public readonly spaces$: Observable<Space[]> = toObservable(
+        this._org.active_building,
+    ).pipe(
+        switchMap(() =>
+            this._settings.get('app.use_region')
+                ? toObservable(this._org.active_region, {
+                      injector: this._injector,
+                  }).pipe(filter((_) => !!_))
+                : toObservable(this._org.active_building, {
+                      injector: this._injector,
+                  }).pipe(filter((_) => !!_)),
+        ),
+        distinctUntilKeyChanged('id'),
+        switchMap((zone) => {
+            if (!zone) return of([]);
+            this.addLoadingTag(Tags.ListingRooms);
+            return requestSpacesForZone(zone.id).pipe(catchError(() => of([])));
+        }),
+        map((list: Space[]) =>
+            list.filter((_) => _.bookable && _.email && !_.room_booking_url),
+        ),
+        tap(() => this.removeLoadingTag(Tags.ListingRooms)),
+        startWith([]),
+        shareReplay(1),
+    );
     public readonly features = this.spaces$.pipe(
         map((l) => unique(flatten(l.map((_) => _.features)))),
     );
@@ -215,7 +216,7 @@ export class EventFormService extends AsyncHandler {
         this.spaces$,
         toObservable(this._options),
         toObservable(this._filters),
-        this._org.initialised.pipe(filter((_) => _)),
+        toObservable(this._org.initialised).pipe(filter((_) => _)),
     ]).pipe(
         map(([list, { zones }, filters]) => {
             if (!list.length) return list;

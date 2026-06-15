@@ -13,7 +13,6 @@ import { BehaviorSubject, combineLatest, interval, Observable } from 'rxjs';
 import {
     debounceTime,
     filter,
-    first,
     map,
     shareReplay,
     startWith,
@@ -250,7 +249,7 @@ export class PanelStateService extends AsyncHandler {
     }
 
     private async _init() {
-        await this._org.initialised.pipe(first((_) => !!_)).toPromise();
+        await this._org.waitUntilInitialised();
         this._system.pipe(filter((_) => !!_)).subscribe((id) => {
             const settings: any[] = [
                 'room_name',

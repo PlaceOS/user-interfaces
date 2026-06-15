@@ -1,7 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { firstTruthyValueFrom, Space } from '@placeos/common';
+import { Space } from '@placeos/common';
 import { querySystemsWithEmails, showSystem } from '@placeos/ts-client';
-import { first } from 'rxjs/operators';
 
 import { OrganisationService } from '@placeos/common';
 
@@ -51,9 +50,7 @@ export class SpacePipe implements PipeTransform {
      */
     public async transform(space_id: string): Promise<Space> {
         if (this.org) {
-            await firstTruthyValueFrom(
-                this.org.initialised.pipe(first((_) => _)),
-            );
+            await this.org.waitUntilInitialised();
         }
         const is_email = space_id?.includes('@');
         if (!space_id) return EMPTY_SPACE;

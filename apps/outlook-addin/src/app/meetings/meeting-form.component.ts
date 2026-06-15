@@ -4,7 +4,6 @@ import {
     computed,
     inject,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -388,10 +387,8 @@ export class MeetingBookingFormComponent extends AsyncHandler {
 
     public hide_block: Record<string, boolean> = {};
 
-    public readonly building = toSignal(this._org.active_building);
-    public readonly buildings = toSignal(this._org.building_list, {
-        initialValue: [],
-    });
+    public readonly building = this._org.active_building;
+    public readonly buildings = this._org.building_list;
 
     private readonly _catering_enabled = settingSignal(
         'events.catering_enabled',

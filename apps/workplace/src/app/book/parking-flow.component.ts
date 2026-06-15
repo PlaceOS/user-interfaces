@@ -8,11 +8,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BookingFormService, ParkingService } from '@placeos/bookings';
-import {
-    AsyncHandler,
-    firstTruthyValueFrom,
-    OrganisationService,
-} from '@placeos/common';
+import { AsyncHandler, OrganisationService } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { lastValueFrom, timer } from 'rxjs';
 import { NewParkingFlowConfirmComponent } from './parking-flow/parking-flow-confirm.component';
@@ -134,7 +130,7 @@ export class NewParkingFlowComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         await lastValueFrom(timer(300));
         const active_form = this._state.form.getRawValue();
         const has_edit_state =

@@ -552,15 +552,11 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
         { name: 'Huge (32+)', value: 33 },
     ];
 
-    public readonly buildings = toSignal(this._org.building_list, {
-        initialValue: [],
-    });
-    public readonly building = toSignal(this._org.active_building, {
-        initialValue: this._org.building,
-    });
+    public readonly buildings = this._org.building_list;
+    public readonly building = this._org.active_building;
 
     public readonly levels = combineLatest([
-        this._org.active_building,
+        toObservable(this._org.active_building),
         this._state.options$,
     ]).pipe(
         filter(([_]) => !!_),
@@ -594,7 +590,7 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
         this._state.setView('find');
         this.setTimeChips();
 
-        await this._org.initialised.pipe(first((_) => !!_)).toPromise();
+        await this._org.waitUntilInitialised();
         await this._spaces_initialised.pipe(first((_) => !!_)).toPromise();
         await nextValueFrom(this._state.available_spaces);
 

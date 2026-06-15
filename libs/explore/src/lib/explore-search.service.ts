@@ -153,8 +153,8 @@ export class ExploreSearchService {
     private _state = inject(ExploreStateService);
     private _injector = inject(Injector);
 
-    private _initialised = this._org.initialised_signal;
-    private _building = this._org.building_signal;
+    private _initialised = this._org.initialised;
+    private _building = this._org.active_building;
     private _maps_people_available = this._maps_people.available;
 
     /** In-progress bookings/events for sorting priority */

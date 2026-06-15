@@ -244,7 +244,7 @@ export class DealsComponent implements OnInit {
     }
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         await firstTruthyValueFrom(this._settings.initialised);
         const has_deals = (this._settings.get('app.features') || []).includes(
             'deals-n-offers',

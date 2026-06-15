@@ -150,7 +150,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         }
         /** Wait for authentication details to load */
         await setupPlace(settings).catch((_) => console.error(_));
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         if (this._locale) {
             this._locale.zone_id = this._org.organisation.id;
             this._locale.init();

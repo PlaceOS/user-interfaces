@@ -210,12 +210,12 @@ describe('OrganisationService', () => {
         });
         localStorage.setItem('PLACEOS.region', region.id);
         localStorage.setItem('PLACEOS.building', saved_building.id);
-        (spectator.service as any)._regions.set([region]);
-        (spectator.service as any)._buildings.set([first_building]);
+        (spectator.service as any)._region_list.set([region]);
+        (spectator.service as any)._building_list.set([first_building]);
         jest.spyOn(spectator.service, 'loadRegionData').mockImplementation(
             async () => {
                 await Promise.resolve();
-                (spectator.service as any)._buildings.set([
+                (spectator.service as any)._building_list.set([
                     first_building,
                     saved_building,
                 ]);
@@ -230,7 +230,7 @@ describe('OrganisationService', () => {
 
     it('should fall back to the first building when no stored or timezone building matches', async () => {
         const building = new Building({ id: 'bld-1', tags: ['building'] });
-        (spectator.service as any)._buildings.set([building]);
+        (spectator.service as any)._building_list.set([building]);
         jest.spyOn(
             spectator.service as any,
             '_setRegionFromTimezone',

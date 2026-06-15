@@ -22,7 +22,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
     AsyncHandler,
-    firstTruthyValueFrom,
     getInvalidFields,
     i18n,
     nextValueFrom,
@@ -231,7 +230,7 @@ export class DealsManageComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         this._ready.set(true);
     }
 

@@ -436,7 +436,7 @@ export class BookingRulesModalComponent {
     public readonly change = signal(0);
     public readonly show_children = signal<Record<string, boolean>>({});
     private readonly _booking_rules = combineLatest([
-        this._org.active_building,
+        toObservable(this._org.active_building),
         toObservable(this.change),
     ]).pipe(
         filter(([_]) => !!_),

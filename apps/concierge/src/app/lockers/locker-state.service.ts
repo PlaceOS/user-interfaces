@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import {
     deleteLockerAsset,
@@ -186,7 +187,7 @@ export class LockerStateService extends AsyncHandler {
     private _loading = new BehaviorSubject<string>('');
     private _change = new BehaviorSubject(0);
     /** List of available locker levels for the current building */
-    public levels = this._org.level_list.pipe(
+    public levels = toObservable(this._org.level_list).pipe(
         map((_) => {
             if (!this._settings.get('app.use_region')) {
                 const blds = this._org.buildingsForRegion();
@@ -218,8 +219,8 @@ export class LockerStateService extends AsyncHandler {
     public readonly search = this._search.asObservable();
 
     public readonly lockers_banks$: Observable<LockerBank[]> = combineLatest([
-        this._org.active_building,
-        this._org.active_region,
+        toObservable(this._org.active_building),
+        toObservable(this._org.active_region),
         this._change,
     ]).pipe(
         debounceTime(300),
@@ -235,8 +236,8 @@ export class LockerStateService extends AsyncHandler {
         shareReplay(1),
     );
     public readonly lockers$: Observable<Locker[]> = combineLatest([
-        this._org.active_building,
-        this._org.active_region,
+        toObservable(this._org.active_building),
+        toObservable(this._org.active_region),
         this._change,
         this.lockers_banks$,
     ]).pipe(
@@ -343,7 +344,7 @@ export class LockerStateService extends AsyncHandler {
     private _all_zones_keys = ['All', -1, '-1'];
     public readonly setup_paging = combineLatest([
         this._filters,
-        this._org.initialised,
+        toObservable(this._org.initialised),
     ]).pipe(
         debounceTime(500),
         tap(([filters, loaded]) => {

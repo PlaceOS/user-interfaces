@@ -9,8 +9,8 @@ import { set } from 'date-fns';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
+import { signal } from '@angular/core';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 import { EventCardComponent } from '../lib/event-card.component';
 
 describe('EventCardComponent', () => {
@@ -25,7 +25,7 @@ describe('EventCardComponent', () => {
             MockProvider(OrganisationService, {
                 levelWithID: jest.fn(),
                 buildings: [],
-                active_building: new BehaviorSubject(null),
+                active_building: signal(null),
             }),
             MockProvider(MatDialog, { open: jest.fn() }),
             MockProvider(SettingsService, { time_format: 'h:mm a' }),

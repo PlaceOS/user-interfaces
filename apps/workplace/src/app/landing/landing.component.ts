@@ -4,9 +4,11 @@ import {
     Component,
     computed,
     inject,
+    Injector,
     OnInit,
     signal,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import {
     AsyncHandler,
@@ -171,6 +173,7 @@ import { LandingUpcomingComponent } from './landing-upcoming.component';
 export class LandingComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private _injector = inject(Injector);
 
     public readonly time = signal(0);
     public readonly tab = signal('people');
@@ -191,12 +194,14 @@ export class LandingComponent extends AsyncHandler implements OnInit {
     public ngOnInit() {
         this.subscription(
             'building',
-            this._org.active_building.pipe(debounceTime(300)).subscribe(() => {
-                this.hide_nav.set(
-                    localStorage.getItem('PlaceOS.hide_nav') === 'true',
-                );
-                this.building.set(this._org.building);
-            }),
+            toObservable(this._org.active_building, { injector: this._injector })
+                .pipe(debounceTime(300))
+                .subscribe(() => {
+                    this.hide_nav.set(
+                        localStorage.getItem('PlaceOS.hide_nav') === 'true',
+                    );
+                    this.building.set(this._org.building);
+                }),
         );
     }
 }

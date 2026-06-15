@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -31,7 +32,7 @@ describe('SignageService media uploads', () => {
         get: jest.fn(),
     };
     const org = {
-        initialised: new BehaviorSubject(true),
+        initialised: signal(true),
         organisation: { id: 'org-1' },
     };
 

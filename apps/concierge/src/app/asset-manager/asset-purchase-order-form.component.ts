@@ -214,7 +214,10 @@ export class AssetPurchaseOrderFormComponent
     public readonly item = signal<AssetPurchaseOrder | null>(null);
     public readonly from = addYears(Date.now(), -5);
     public readonly asset_list = toSignal(
-        combineLatest([toObservable(this._id), this._org.active_building]).pipe(
+        combineLatest([
+            toObservable(this._id),
+            toObservable(this._org.active_building),
+        ]).pipe(
             filter(([id, bld]) => !!id && !!bld),
             switchMap(([id]) => from(queryAssets({ order_id: id }))),
             switchMap(async (asset_list) => {

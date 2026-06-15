@@ -73,7 +73,7 @@ export class CateringOrderStateService {
 
     constructor() {
         effect(() => {
-            const bld = this._org.building_signal();
+            const bld = this._org.active_building();
             const { zone } = this._options();
             if (!bld?.id) return;
             this._loadSettings(bld.id);

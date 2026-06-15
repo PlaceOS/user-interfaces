@@ -1,10 +1,11 @@
+import { signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/common';
 import { VirtualKeyboardComponent } from '@placeos/components';
 import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject, firstValueFrom, of } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
 import { BootstrapComponent } from '../app/bootstrap.component';
 
@@ -31,10 +32,10 @@ describe('BootstrapComponent', () => {
         sessionStorage.clear();
         VirtualKeyboardComponent.enabled = false;
         org_service = {
-            initialised: new BehaviorSubject(true),
+            initialised: signal(true),
             organisation: { id: 'org-1' },
             buildings: [{ id: 'building-1', name: 'HQ' }],
-            building_list: of([{ id: 'building-1', name: 'HQ' }]),
+            building_list: signal([{ id: 'building-1', name: 'HQ' }]),
             levelWithID: jest.fn(() => ({ id: 'level-1', name: 'Level 1' })),
             limit_init: false,
         };

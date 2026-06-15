@@ -2,9 +2,11 @@ import { CommonModule } from '@angular/common';
 import {
     ChangeDetectionStrategy,
     Component,
+    Injector,
     OnInit,
     inject,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -331,6 +333,7 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _state = inject(ScheduleStateService);
     private _settings = inject(SettingsService);
+    private _injector = inject(Injector);
 
     public readonly filters = this._state.filters;
     public readonly date = this._state.date.pipe(map((_) => startOfDay(_)));
@@ -367,7 +370,7 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
     public ngOnInit() {
         this.subscription(
             'building',
-            this._org.active_building
+            toObservable(this._org.active_building, { injector: this._injector })
                 .pipe(
                     filter((_) => !!_),
                     debounceTime(1000),

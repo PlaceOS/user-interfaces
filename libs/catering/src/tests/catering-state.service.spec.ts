@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
+import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
 import {
@@ -46,9 +46,8 @@ describe('CateringStateService', () => {
         providers: [
             MockProvider(OrganisationService, {
                 building: new Building({ id: 'bld-1' }),
-                building_signal: signal(new Building({ id: 'bld-1' })),
-                active_building: new BehaviorSubject(new Building()),
-                initialised: of(true),
+                active_building: signal(new Building({ id: 'bld-1' })),
+                initialised: signal(true),
             }),
             MockProvider(SettingsService, { get: jest.fn() }),
             MockProvider(MatDialog, { open: jest.fn() }),

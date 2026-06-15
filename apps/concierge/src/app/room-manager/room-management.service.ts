@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { OrganisationService, SettingsService } from '@placeos/common';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { PlaceSystem, querySystems, showMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, from, of } from 'rxjs';
 import {
@@ -34,7 +35,7 @@ export class RoomManagementService {
 
     public readonly room_alerts = combineLatest([
         this._change,
-        this._org.active_building,
+        toObservable(this._org.active_building),
     ]).pipe(
         switchMap(() => showMetadata(this._org.organisation.id, 'room_alerts')),
         map((_) => (_.details as Record<string, [string, string]>) || {}),
@@ -42,8 +43,8 @@ export class RoomManagementService {
     );
 
     public readonly room_list = combineLatest([
-        this._org.active_building,
-        this._org.active_region,
+        toObservable(this._org.active_building),
+        toObservable(this._org.active_region),
         this._change,
     ]).pipe(
         filter(([b, r]) => !!b?.id),

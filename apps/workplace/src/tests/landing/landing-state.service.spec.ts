@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import {
     Organisation,
@@ -25,10 +26,10 @@ describe('LandingStateService', () => {
             MockProvider(OrganisationService, {
                 levels: [],
                 binding: jest.fn(() => 'sys-1'),
-                active_building: new BehaviorSubject(null),
-                active_levels: new BehaviorSubject([]),
+                active_building: signal(null),
+                active_levels: signal([]),
                 organisation: new Organisation(),
-                initialised: of(true),
+                initialised: signal(true),
                 levelWithID: jest.fn(),
             }),
             MockProvider(SettingsService, { get: jest.fn() }),

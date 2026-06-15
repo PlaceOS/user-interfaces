@@ -6,7 +6,7 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { Router } from '@angular/router';
 import {
@@ -141,9 +141,10 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
     });
 
     public readonly level = toSignal(
-        combineLatest([this._checkin.event, this._org.initialised]).pipe(
-            map(([_]) => (_ ? this._org.levelWithID(_.zones) : null)),
-        ),
+        combineLatest([
+            this._checkin.event,
+            toObservable(this._org.initialised),
+        ]).pipe(map(([_]) => (_ ? this._org.levelWithID(_.zones) : null))),
         { initialValue: null },
     );
 

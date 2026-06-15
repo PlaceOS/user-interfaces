@@ -6,7 +6,7 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, map } from 'rxjs/operators';
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -164,7 +164,7 @@ export class ReportSpacesComponent extends AsyncHandler implements OnInit {
     public readonly generateReport = () => this._state.generateReport();
 
     public readonly logo = toSignal(
-        this._org.active_building.pipe(
+        toObservable(this._org.active_building).pipe(
             debounceTime(500),
             map(
                 () =>

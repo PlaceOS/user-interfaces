@@ -92,7 +92,7 @@ export class AssetManagerStateService extends AsyncHandler {
     /** List of available assets */
     public readonly products: Observable<AssetGroup[]> = combineLatest([
         this._change,
-        this._org.active_building,
+        toObservable(this._org.active_building),
     ]).pipe(
         switchMap(() => {
             this._loading.next(true);
@@ -123,8 +123,8 @@ export class AssetManagerStateService extends AsyncHandler {
     /** List of requests made by users for assets */
     public readonly requests = combineLatest([
         this._options,
-        this._org.active_building,
-        this._org.active_region,
+        toObservable(this._org.active_building),
+        toObservable(this._org.active_region),
         this._poll,
         this._change,
         toObservable(this._spaces.initialised),
@@ -228,7 +228,7 @@ export class AssetManagerStateService extends AsyncHandler {
     /** Currently active asset */
     public readonly active_product = combineLatest([
         this._options,
-        this._org.active_building,
+        toObservable(this._org.active_building),
         this._change,
     ]).pipe(
         filter(([{ active_item }, bld]) => !!active_item && !!bld),
@@ -296,7 +296,7 @@ export class AssetManagerStateService extends AsyncHandler {
     );
 
     public readonly settings = combineLatest([
-        this._org.active_building,
+        toObservable(this._org.active_building),
         this._change,
     ]).pipe(
         filter(([_]) => !!_),

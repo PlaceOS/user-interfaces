@@ -19,7 +19,6 @@ import {
     Building,
     BuildingLevel,
     currentUser,
-    firstTruthyValueFrom,
     formatRecurrence,
     fromBookingRecurrence,
     OrganisationService,
@@ -377,7 +376,7 @@ export class NewDeskFlowSuccessComponent implements OnInit {
     }
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         this.last_event.set(this._state.last_success);
         const event: any = {
             ...this.last_event(),

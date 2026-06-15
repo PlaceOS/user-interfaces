@@ -10,7 +10,6 @@ import { ActivatedRoute } from '@angular/router';
 import {
     AsyncHandler,
     CalendarEvent,
-    firstTruthyValueFrom,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
@@ -70,7 +69,7 @@ export class EventViewComponent extends AsyncHandler implements OnInit {
     public readonly event = signal<CalendarEvent>(null);
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((params) => {

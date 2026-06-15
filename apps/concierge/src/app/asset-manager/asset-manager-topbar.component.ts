@@ -198,12 +198,8 @@ export class AssetManagerTopbarComponent extends AsyncHandler {
     public readonly options = toSignal(this._state.options, {
         initialValue: { view: 'grid' } as AssetOptions,
     });
-    public readonly building = toSignal(this._org.active_building, {
-        initialValue: null,
-    });
-    public readonly buildings = toSignal(this._org.active_buildings, {
-        initialValue: [],
-    });
+    public readonly building = this._org.active_building;
+    public readonly buildings = this._org.active_buildings;
     public readonly use_region = settingSignal('use_region');
 
     public readonly setOptions = (o) => this._state.setOptions(o);

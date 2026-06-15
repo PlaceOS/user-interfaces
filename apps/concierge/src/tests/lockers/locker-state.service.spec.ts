@@ -1,8 +1,9 @@
+import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, of } from 'rxjs';
+import { of } from 'rxjs';
 
 import * as assets_mod from '@placeos/assets';
 import * as booking_mod from '@placeos/bookings';
@@ -24,10 +25,10 @@ describe('LockerStateService', () => {
     let current_building: any;
 
     const organisation_service: any = {
-        initialised: of(true),
+        initialised: signal(true),
         organisation: { id: 'org-1' },
         region: { id: 'region-1' },
-        level_list: of([]),
+        level_list: signal([]),
         levelsForBuilding: jest.fn(() => []),
         get building() {
             return current_building;
@@ -53,10 +54,8 @@ describe('LockerStateService', () => {
 
     beforeEach(() => {
         current_building = { id: 'bld-1', timezone: 'Australia/Sydney' };
-        organisation_service.active_building = new BehaviorSubject(
-            current_building,
-        );
-        organisation_service.active_region = new BehaviorSubject({
+        organisation_service.active_building = signal(current_building);
+        organisation_service.active_region = signal({
             id: 'region-1',
         });
         (booking_mod.queryPagedBookings as jest.Mock).mockReturnValue(

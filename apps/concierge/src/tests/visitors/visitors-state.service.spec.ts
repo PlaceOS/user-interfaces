@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { addDays, addMinutes, getUnixTime, startOfDay } from 'date-fns';
@@ -29,7 +30,7 @@ describe('VisitorStateService', () => {
                 })),
             } as any),
             MockProvider(OrganisationService, {
-                active_building: of({
+                active_building: signal({
                     id: 'bld-1',
                     timezone: 'Australia/Sydney',
                 }),

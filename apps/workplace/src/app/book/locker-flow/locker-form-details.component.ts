@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
     ChangeDetectionStrategy,
     Component,
+    Injector,
     OnChanges,
     OnInit,
     SimpleChanges,
@@ -14,6 +15,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { toObservable } from '@angular/core/rxjs-interop';
 import {
     BookingFormService,
     Locker,
@@ -31,7 +33,6 @@ import {
     TimeFieldComponent,
 } from '@placeos/form-fields';
 import { combineLatest } from 'rxjs';
-import { first } from 'rxjs/operators';
 
 @Component({
     selector: 'new-locker-form-details',
@@ -183,13 +184,14 @@ export class LockerFormDetailsComponent
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
+    private _injector = inject(Injector);
 
     public readonly form = input<FormGroup>(undefined);
     public readonly find = output<void>();
     /** List of available buildings to select */
-    public readonly buildings = this._org.building_list;
+    public readonly buildings = toObservable(this._org.building_list);
     /** List of available levels for the selected building */
-    public readonly levels = this._org.active_levels;
+    public readonly levels = toObservable(this._org.active_levels);
     /** List of set options for locker booking */
     public readonly options = this._state.options;
     /** List of set options for locker booking */
@@ -257,14 +259,16 @@ export class LockerFormDetailsComponent
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => !!_)).toPromise();
+        await this._org.waitUntilInitialised();
         this._state.form.patchValue({
             all_day: !this.allow_time_changes || this._state.form.value.all_day,
         });
         this.subscription(
             'bld',
             combineLatest([
-                this._org.active_building,
+                toObservable(this._org.active_building, {
+                    injector: this._injector,
+                }),
                 this._dialog.afterAllClosed,
                 this.form().controls.duration.valueChanges,
             ]).subscribe(() => {

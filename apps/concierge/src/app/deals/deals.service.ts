@@ -1,4 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
@@ -36,7 +37,7 @@ export class DealsService extends AsyncHandler {
     public readonly loading = signal(false);
 
     public readonly deals$: Observable<Deal[]> = combineLatest([
-        this._org.active_building,
+        toObservable(this._org.active_building),
         this._changed,
     ]).pipe(
         filter(([b]) => !!b?.id),

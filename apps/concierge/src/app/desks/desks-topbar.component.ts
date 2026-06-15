@@ -3,12 +3,12 @@ import {
     Component,
     computed,
     inject,
+    Injector,
     OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { first } from 'rxjs/operators';
 
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -161,14 +161,13 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _dialog = inject(MatDialog);
+    private _injector = inject(Injector);
 
     /** List of levels for the active building */
-    public readonly all_levels = toSignal(this._org.active_levels, {
-        initialValue: [],
-    });
+    public readonly all_levels = this._org.active_levels;
     /** List of levels with bookable desk resources */
     public readonly bookable_levels = toSignal(
-        this._desks.levels || this._org.active_levels,
+        this._desks.levels || toObservable(this._org.active_levels),
         {
             initialValue: [],
         },
@@ -196,7 +195,7 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
     };
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await this._org.waitUntilInitialised();
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
@@ -232,7 +231,9 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
         );
         this.subscription(
             'levels',
-            this._org.active_levels.subscribe(async (levels) => {
+            toObservable(this._org.active_levels, {
+                injector: this._injector,
+            }).subscribe(async (levels) => {
                 const filters = this.filters();
                 const zones =
                     filters?.zones?.filter(

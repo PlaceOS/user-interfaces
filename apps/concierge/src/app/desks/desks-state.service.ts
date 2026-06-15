@@ -130,8 +130,8 @@ export class DesksStateService extends AsyncHandler {
     private readonly _desks$ = combineLatest([
         toObservable(this._filters),
         toObservable(this._change),
-        this._org.active_building,
-        this._org.active_region,
+        toObservable(this._org.active_building),
+        toObservable(this._org.active_region),
     ]).pipe(
         debounceTime(500),
         switchMap(([filters]) => {
@@ -180,7 +180,7 @@ export class DesksStateService extends AsyncHandler {
     });
 
     /** List of levels with bookable desk resources */
-    public readonly levels = this._org.active_levels.pipe(
+    public readonly levels = toObservable(this._org.active_levels).pipe(
         switchMap((levels) => {
             if (!levels.length) {
                 return of(
@@ -217,9 +217,9 @@ export class DesksStateService extends AsyncHandler {
     private _all_zones_keys = ['All', -1, '-1', ''];
     public readonly setup_paging = combineLatest([
         toObservable(this._filters),
-        this._org.initialised,
-        this._org.active_building,
-        this._org.active_region,
+        toObservable(this._org.initialised),
+        toObservable(this._org.active_building),
+        toObservable(this._org.active_region),
     ]).pipe(
         debounceTime(500),
         tap(([filters, loaded]) => {

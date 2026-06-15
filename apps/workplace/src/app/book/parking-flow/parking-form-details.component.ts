@@ -5,6 +5,7 @@ import {
     inject,
     input,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -187,8 +188,8 @@ export class ParkingFormDetailsComponent extends AsyncHandler {
 
     public readonly form = input<FormGroup>(undefined);
 
-    public readonly building = this._org.active_building;
-    public readonly building_list = this._org.building_list;
+    public readonly building = toObservable(this._org.active_building);
+    public readonly building_list = toObservable(this._org.building_list);
 
     public get end_date() {
         return endOfDay(

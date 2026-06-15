@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { NavigationEnd, Router } from '@angular/router';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { PaymentsService } from '@placeos/payments';
-import { BehaviorSubject, firstValueFrom, of, Subject } from 'rxjs';
+import { firstValueFrom, of, Subject } from 'rxjs';
 
 import { Booking, currentUser, OrganisationService } from '@placeos/common';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
@@ -16,7 +16,7 @@ jest.mock('@placeos/ts-client', () => ({
     ...jest.requireActual('@placeos/ts-client'),
     cleanObject: jest.fn((value) => value),
     listChildMetadata: jest.fn(),
-    showMetadata: jest.fn(),
+    showMetadata: jest.fn(() => Promise.resolve({ details: [] })),
     showUser: jest.fn(),
 }));
 jest.mock('libs/bookings/src/lib/bookings.fn');
@@ -39,9 +39,10 @@ describe('BookingFormService', () => {
                 overrides: signal([]),
             }),
             MockProvider(OrganisationService, {
-                initialised: of(true),
-                active_building: new BehaviorSubject({ id: 'bld-1' }),
-                building_list: of([{ id: 'bld-1', parent_id: 'reg-1' }]),
+                initialised: signal(true),
+                waitUntilInitialised: () => Promise.resolve(),
+                active_building: signal({ id: 'bld-1' }),
+                building_list: signal([{ id: 'bld-1', parent_id: 'reg-1' }]),
                 organisation: { id: 'org-1' },
                 region: { id: 'reg-1' },
                 building: { id: 'bld-1', parent_id: 'reg-1' },
@@ -66,6 +67,9 @@ describe('BookingFormService', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        jest.mocked(ts_client.showMetadata).mockResolvedValue({
+            details: [],
+        } as any);
         jest.mocked(ts_client.listChildMetadata).mockReturnValue(
             of([
                 {

@@ -6,11 +6,7 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import {
-    firstTruthyValueFrom,
-    OrganisationService,
-    settingSignal,
-} from '@placeos/common';
+import { OrganisationService, settingSignal } from '@placeos/common';
 import { IconComponent } from './icon.component';
 
 export interface BannerDetails {
@@ -98,7 +94,7 @@ export class GlobalBannerComponent implements OnInit {
     });
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         setTimeout(() => this.is_setup.set(true), 500);
     }
 

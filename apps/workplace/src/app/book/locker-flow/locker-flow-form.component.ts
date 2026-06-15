@@ -1,9 +1,11 @@
 import {
     ChangeDetectionStrategy,
     Component,
+    Injector,
     OnInit,
     inject,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import {
     MatBottomSheet,
     MatBottomSheetRef,
@@ -13,7 +15,6 @@ import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
     OrganisationService,
-    firstTruthyValueFrom,
     getInvalidFields,
     i18n,
     nextValueFrom,
@@ -67,6 +68,7 @@ export class BookLockerFlowFormComponent implements OnInit {
     private _router = inject(Router);
     private _org = inject(OrganisationService);
     private _bottom_sheet = inject(MatBottomSheet);
+    private _injector = inject(Injector);
 
     public sheet_ref: MatBottomSheetRef<BookLockerFlowConfirmComponent>;
     public level = '';
@@ -101,9 +103,11 @@ export class BookLockerFlowFormComponent implements OnInit {
     };
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         await nextValueFrom(
-            this._org.active_levels.pipe(first((_) => _?.length > 0)),
+            toObservable(this._org.active_levels, {
+                injector: this._injector,
+            }).pipe(first((_) => _?.length > 0)),
         );
         this._state.setOptions({ type: 'locker' });
         this.level = this._org.building?.id;

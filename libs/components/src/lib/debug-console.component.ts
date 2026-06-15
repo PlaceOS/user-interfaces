@@ -218,8 +218,8 @@ export class DebugConsoleComponent extends AsyncHandler {
     constructor() {
         super();
         effect(() => {
-            if (!this._org.initialised_signal()) return;
-            this._org.building_signal();
+            if (!this._org.initialised()) return;
+            this._org.active_building();
             const binding = this._org.binding('remote_logger');
             const system_id = binding instanceof Object ? binding.id : binding;
             this._logs.setSystem(system_id);

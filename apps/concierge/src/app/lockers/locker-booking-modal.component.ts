@@ -2,9 +2,11 @@ import {
     ChangeDetectionStrategy,
     Component,
     inject,
+    Injector,
     OnInit,
     signal,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
@@ -209,6 +211,7 @@ export class LockerBookingModalComponent
         inject<MatDialogRef<LockerBookingModalComponent>>(MatDialogRef);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
+    private _injector = inject(Injector);
     private _dialog = inject(MatDialog);
 
     public readonly loading = signal(false);
@@ -349,7 +352,9 @@ export class LockerBookingModalComponent
         this.subscription(
             'bld',
             combineLatest([
-                this._org.active_building,
+                toObservable(this._org.active_building, {
+                    injector: this._injector,
+                }),
                 this.form.controls.duration.valueChanges,
             ]).subscribe(() =>
                 this.timeout(

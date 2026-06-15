@@ -5,7 +5,7 @@ import {
     OnDestroy,
     OnInit,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -145,8 +145,8 @@ export class VisitorsComponent implements OnInit, OnDestroy {
     /** List of levels for the active building */
     public readonly levels = toSignal(
         combineLatest([
-            this._org.active_building || of(null),
-            this._org.active_region || of(null),
+            toObservable(this._org.active_building) || of(null),
+            toObservable(this._org.active_region) || of(null),
         ]).pipe(
             map(([bld, region]) =>
                 this._settings.get('app.use_region')

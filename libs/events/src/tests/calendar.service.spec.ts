@@ -21,7 +21,7 @@ describe('CalendarService', () => {
         service: CalendarService,
         providers: [
             MockProvider(OrganisationService, {
-                initialised_signal: signal(true),
+                initialised: signal(true),
             }),
             MockProvider(SettingsService, { get: jest.fn() }),
         ],

@@ -93,7 +93,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                                         | translate
                                 "
                             >
-                                @for (level of levels | async; track level) {
+                                @for (level of levels(); track level) {
                                     <mat-option [value]="level.id">
                                         {{ level.display_name || level.name }}
                                     </mat-option>

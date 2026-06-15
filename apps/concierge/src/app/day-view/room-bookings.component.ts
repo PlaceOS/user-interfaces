@@ -5,7 +5,7 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -297,8 +297,8 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
         initialValue: {} as BookingUIOptions,
     });
     private readonly _levels$ = combineLatest([
-        this._org.active_building,
-        this._org.active_region,
+        toObservable(this._org.active_building),
+        toObservable(this._org.active_region),
     ]).pipe(
         switchMap(([bld, region]) => {
             const zone = this.use_region ? region : bld;

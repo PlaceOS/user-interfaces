@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import {
     OrganisationService,
@@ -45,7 +46,7 @@ export class POIManagementService {
     public options = this._options.asObservable();
 
     private _features = combineLatest([
-        this._org.active_building,
+        toObservable(this._org.active_building),
         this._change,
     ]).pipe(
         switchMap(() =>

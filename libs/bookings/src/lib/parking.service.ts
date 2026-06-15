@@ -39,9 +39,7 @@ export class ParkingService extends AsyncHandler {
     public readonly loading = computed(() => this._loading().length > 0);
     /** List of available parking levels for the current building */
     public levels = computed(() => {
-        const levels = this._org.levels_signal
-            ? this._org.levels_signal()
-            : this._org.levels || [];
+        const levels = this._org.level_list();
         if (!this._settings.get('app.use_region')) {
             const blds = this._org.buildingsForRegion();
             const bld_ids = blds.map((bld) => bld.id);
@@ -101,9 +99,7 @@ export class ParkingService extends AsyncHandler {
         if (!this._settings.get('app.parking.restrict_home_location'))
             return false;
         const home_id = this._home_building_id();
-        const bld = this._org.building_signal
-            ? this._org.building_signal()
-            : this._org.building;
+        const bld = this._org.active_building();
         return !!home_id && bld?.id === home_id;
     });
 
@@ -115,9 +111,7 @@ export class ParkingService extends AsyncHandler {
                 untracked(() => this._loadSpaces(levels.map((l) => l.id)));
         });
         effect(() => {
-            const bld = this._org.building_signal
-                ? this._org.building_signal()
-                : this._org.building;
+            const bld = this._org.active_building();
             if (!bld?.id) return;
             untracked(() => {
                 this._loadUsers(bld.id);
@@ -158,9 +152,7 @@ export class ParkingService extends AsyncHandler {
     }
 
     private async _loadHomeBuilding() {
-        const buildings = this._org.buildings_signal
-            ? this._org.buildings_signal()
-            : this._org.buildings || [];
+        const buildings = this._org.building_list();
         if (!buildings?.length) return;
         const results = await Promise.all(
             buildings.map((bld) =>

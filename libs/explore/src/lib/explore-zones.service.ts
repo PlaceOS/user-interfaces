@@ -56,8 +56,8 @@ export class ExploreZonesService extends AsyncHandler {
     private _settings = inject(SettingsService);
     private _injector = inject(Injector);
 
-    private _org_initialised = this._org.initialised_signal;
-    private _building = this._org.building_signal;
+    private _org_initialised = this._org.initialised;
+    private _building = this._org.active_building;
 
     private _area_list: string[] = [];
     private _statuses: HashMap<string> = {};

@@ -29,9 +29,9 @@ export class MapsPeopleService extends AsyncHandler {
     private _custom_zone = signal<string>('');
 
     public readonly available = computed(() => {
-        const bld = this._org.building_signal();
+        const bld = this._org.active_building();
         const zone = this._custom_zone();
-        if (!this._org.initialised_signal() || !bld?.id) return false;
+        if (!this._org.initialised() || !bld?.id) return false;
         return (
             !!this.map_keys.mapsindoors &&
             (this.use_service.includes(zone || bld.id) ||

@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import {
     AsyncHandler,
     i18n,
@@ -64,8 +65,8 @@ export class EmailTemplatesStateService extends AsyncHandler {
     private _change = new BehaviorSubject(0);
 
     public readonly template_definitions = combineLatest([
-        this._org.active_building,
-        this._org.active_region,
+        toObservable(this._org.active_building),
+        toObservable(this._org.active_region),
         this._change,
     ]).pipe(
         filter(([bld]) => !!bld),
@@ -123,8 +124,8 @@ export class EmailTemplatesStateService extends AsyncHandler {
     }
 
     public readonly templates = combineLatest([
-        this._org.active_building,
-        this._org.active_region,
+        toObservable(this._org.active_building),
+        toObservable(this._org.active_region),
         this._change,
     ]).pipe(
         filter(([bld]) => !!bld),

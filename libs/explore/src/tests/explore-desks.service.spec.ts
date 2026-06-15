@@ -39,8 +39,8 @@ describe('ExploreDesksService', () => {
             }),
             MockProvider(OrganisationService, {
                 binding: jest.fn(() => 'sys-1'),
-                building_signal: signal(new Building()),
-                initialised_signal: signal(true),
+                active_building: signal(new Building()),
+                initialised: signal(true),
                 levels: [],
                 buildings: [],
             }),

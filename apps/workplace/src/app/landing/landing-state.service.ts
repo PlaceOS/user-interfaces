@@ -1,4 +1,5 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, Injector } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import {
     authority,
     getModule,
@@ -26,7 +27,6 @@ import {
     BuildingLevel,
     currentUser,
     filterResourcesFromRules,
-    firstTruthyValueFrom,
     HashMap,
     observableFromSignal,
     OrganisationService,
@@ -52,6 +52,7 @@ export class LandingStateService extends AsyncHandler {
     private _schedule = inject(ScheduleStateService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private _injector = inject(Injector);
 
     private _options = new BehaviorSubject<LandingOptions>({});
     private _loading = new BehaviorSubject<string>('');
@@ -64,19 +65,20 @@ export class LandingStateService extends AsyncHandler {
     private _occupancy_binding: PlaceVariableBinding;
     /**  */
 
-    public _booking_rules: Observable<BookingRuleset[]> =
-        this._org.active_building.pipe(
-            filter((bld) => !!bld),
-            switchMap((bld) =>
-                from(showMetadata(bld.id, `room_booking_rules`)).pipe(
-                    catchError(() => of({ details: [] })),
-                ),
+    public _booking_rules: Observable<BookingRuleset[]> = toObservable(
+        this._org.active_building,
+    ).pipe(
+        filter((bld) => !!bld),
+        switchMap((bld) =>
+            from(showMetadata(bld.id, `room_booking_rules`)).pipe(
+                catchError(() => of({ details: [] })),
             ),
-            map((_) => (_?.details instanceof Array ? _.details : [])),
-            shareReplay(1),
-        );
+        ),
+        map((_) => (_?.details instanceof Array ? _.details : [])),
+        shareReplay(1),
+    );
 
-    private _space_list = this._org.active_building.pipe(
+    private _space_list = toObservable(this._org.active_building).pipe(
         filter((_) => !!_),
         switchMap((bld) => requestSpacesForZone(bld.id)),
         map((_) => _.filter((s) => s.bookable)),
@@ -174,11 +176,11 @@ export class LandingStateService extends AsyncHandler {
     }
 
     public async init() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         this.updateContacts();
         this.subscription(
             'building',
-            this._org.active_building
+            toObservable(this._org.active_building, { injector: this._injector })
                 .pipe(filter((bld) => !!bld))
                 .subscribe(() => {
                     this.updateBuildingMetadata();

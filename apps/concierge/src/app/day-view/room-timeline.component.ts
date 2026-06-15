@@ -264,9 +264,7 @@ export class RoomBookingsTimelineComponent
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
-    private _building = toSignal(this._org.active_building, {
-        initialValue: this._org.building,
-    });
+    private _building = this._org.active_building;
     private _filtered = toSignal(this._state.filtered, { initialValue: [] });
 
     public block_width = 14;

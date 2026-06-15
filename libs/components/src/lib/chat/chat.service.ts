@@ -32,7 +32,7 @@ export class ChatService extends AsyncHandler {
     private _chat_messages = signal<ChatMessage[]>([]);
     private _progress_message = signal<ChatMessage | null>(null);
     private _chat_system = computed(() => {
-        const bld = this._org.building_signal();
+        const bld = this._org.active_building();
         const bind_id = this._binding();
         if (!bld?.id) return '';
         const binding = this._org.binding('chat_room');

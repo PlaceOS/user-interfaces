@@ -222,12 +222,8 @@ export class FilterSpaceComponent {
     private _state = inject(EventFormService);
     private _org = inject(OrganisationService);
 
-    readonly buildings = toSignal(this._org.building_list, {
-        initialValue: [],
-    });
-    readonly building = toSignal(this._org.active_building, {
-        initialValue: null,
-    });
+    readonly buildings = this._org.building_list;
+    readonly building = this._org.active_building;
     readonly features = toSignal(this._featuresFilterService.features$, {
         initialValue: [],
     });

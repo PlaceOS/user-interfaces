@@ -44,7 +44,7 @@ export class SpacesService {
         SPACE_PIPE = new SpacePipe();
         if (!SPACE_PIPE.org) SPACE_PIPE.org = this._org;
         effect(() => {
-            if (!this._org.initialised_signal()) return;
+            if (!this._org.initialised()) return;
             this._init();
         });
     }

@@ -22,7 +22,6 @@ import {
     BookingType,
     CalendarEvent,
     currentUser,
-    firstTruthyValueFrom,
     notifyError,
     scanForQRCode,
 } from '@placeos/common';
@@ -217,7 +216,7 @@ export class BookCodeFlowComponent
     }
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {

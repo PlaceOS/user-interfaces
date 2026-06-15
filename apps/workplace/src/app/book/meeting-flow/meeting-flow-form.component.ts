@@ -53,7 +53,7 @@ import {
 } from '@placeos/form-fields';
 import { FindAvailabilityModalComponent } from '@placeos/users';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { debounceTime, first, map, switchMap, tap } from 'rxjs/operators';
+import { debounceTime, map, switchMap, tap } from 'rxjs/operators';
 
 import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-details.component';
 import { MeetingFlowConfirmModalComponent } from './meeting-flow-confirm-modal.component';
@@ -811,7 +811,7 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await this._org.waitUntilInitialised();
         this.form.controls.assets.disable();
         this.form.controls.catering.disable();
         this.subscription(

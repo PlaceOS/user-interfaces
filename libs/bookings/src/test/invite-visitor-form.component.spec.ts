@@ -7,8 +7,9 @@ import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 
 import { Booking, OrganisationService, User } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
+import { signal } from '@angular/core';
 import { MockModule, MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { BookingFormService } from '../lib/booking-form.service';
 import { generateBookingForm } from '../lib/booking.utilities';
 
@@ -38,9 +39,9 @@ describe('InviteVisitorFormComponent', () => {
             MockProvider(
                 OrganisationService as any,
                 {
-                    initialised: of(true),
-                    building_list: new BehaviorSubject([]),
-                    active_buildings: new BehaviorSubject([
+                    initialised: signal(true),
+                    building_list: signal([]),
+                    active_buildings: signal([
                         { id: 'bld-1', name: 'Building One' },
                         { id: 'bld-2', name: 'Building Two' },
                     ]),

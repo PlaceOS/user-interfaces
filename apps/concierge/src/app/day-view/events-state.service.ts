@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
@@ -142,8 +143,8 @@ export class EventsStateService extends AsyncHandler {
     public readonly period = this._period.asObservable();
 
     /** List of levels with bookable room resources */
-    public readonly levels: Observable<BuildingLevel[]> = (
-        this._org.active_levels || of([] as BuildingLevel[])
+    public readonly levels: Observable<BuildingLevel[]> = toObservable(
+        this._org.active_levels,
     ).pipe(
         switchMap((levels) => {
             if (!levels.length) {
@@ -175,8 +176,10 @@ export class EventsStateService extends AsyncHandler {
 
     public readonly spaces: Observable<Space[]> = combineLatest([
         this._zones,
-        this._org.active_region.pipe(distinctUntilKeyChanged('id')),
-        this._org.active_building.pipe(
+        toObservable(this._org.active_region).pipe(
+            distinctUntilKeyChanged('id'),
+        ),
+        toObservable(this._org.active_building).pipe(
             filter((_) => !!_),
             distinctUntilKeyChanged('id'),
         ),

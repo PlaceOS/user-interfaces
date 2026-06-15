@@ -464,7 +464,7 @@ export class SignageService {
     );
 
     public readonly media = combineLatest([
-        this._org.initialised,
+        toObservable(this._org.initialised),
         this._change,
         this._api_group_id$,
     ]).pipe(
@@ -504,7 +504,7 @@ export class SignageService {
     );
 
     public readonly playlists = combineLatest([
-        this._org.initialised,
+        toObservable(this._org.initialised),
         this._change,
         this._api_group_id$,
     ]).pipe(
@@ -527,7 +527,7 @@ export class SignageService {
     );
 
     public readonly displays = combineLatest([
-        combineLatest([this._org.initialised, this._change]).pipe(
+        combineLatest([toObservable(this._org.initialised), this._change]).pipe(
             filter(([initialised]) => !!initialised),
             debounceTime(300),
             switchMap(() => this._api_group_id$),
@@ -551,7 +551,7 @@ export class SignageService {
     );
 
     public readonly zones = combineLatest([
-        combineLatest([this._org.initialised, this._change]).pipe(
+        combineLatest([toObservable(this._org.initialised), this._change]).pipe(
             filter(([initialised]) => !!initialised),
             debounceTime(300),
             switchMap(() => this._api_group_id$),
@@ -575,7 +575,7 @@ export class SignageService {
     );
 
     public readonly all_zones = combineLatest([
-        combineLatest([this._org.initialised, this._change]).pipe(
+        combineLatest([toObservable(this._org.initialised), this._change]).pipe(
             filter(([initialised]) => !!initialised),
             debounceTime(300),
             switchMap(() => this._api_group_id$),
@@ -600,7 +600,7 @@ export class SignageService {
     );
 
     public readonly root_zones = combineLatest([
-        combineLatest([this._org.initialised, this._change]).pipe(
+        combineLatest([toObservable(this._org.initialised), this._change]).pipe(
             filter(([initialised]) => !!initialised),
             debounceTime(300),
             switchMap(() => this._api_group_id$),
@@ -642,7 +642,7 @@ export class SignageService {
     }
 
     public readonly plugins = combineLatest([
-        this._org.initialised,
+        toObservable(this._org.initialised),
         this._change,
     ]).pipe(
         filter(([initialised]) => !!initialised),

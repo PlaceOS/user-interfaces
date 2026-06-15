@@ -6,7 +6,7 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -148,7 +148,7 @@ export class ParkingReportComponent extends AsyncHandler {
         initialValue: '',
     });
     private readonly _active_building = toSignal(
-        this._org.active_building.pipe(debounceTime(500)),
+        toObservable(this._org.active_building).pipe(debounceTime(500)),
     );
     private readonly _query_params = toSignal(this._route.queryParamMap, {
         initialValue: this._route.snapshot.queryParamMap,

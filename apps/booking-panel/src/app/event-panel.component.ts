@@ -5,14 +5,13 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { startOfMinute } from 'date-fns';
 import { debounceTime, map } from 'rxjs/operators';
 
 import {
     AsyncHandler,
-    firstTruthyValueFrom,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
@@ -186,7 +185,7 @@ export class EventPanelComponent extends AsyncHandler implements OnInit {
     );
 
     public readonly logo = toSignal(
-        this._org.active_building.pipe(
+        toObservable(this._org.active_building).pipe(
             debounceTime(500),
             map(
                 () =>
@@ -222,7 +221,7 @@ export class EventPanelComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((params) => {

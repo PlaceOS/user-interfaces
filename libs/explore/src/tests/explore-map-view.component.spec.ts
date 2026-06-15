@@ -5,7 +5,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
+import { of } from 'rxjs';
 
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { SpacesService } from '@placeos/events';
@@ -60,12 +60,11 @@ describe('ExploreMapViewComponent', () => {
                 available: signal(false),
             } as any),
             MockProvider(OrganisationService, {
-                initialised: of(true),
+                initialised: signal(true),
                 levelWithID: jest.fn(),
                 binding: jest.fn(() => 'sys'),
-                active_levels: new BehaviorSubject([]),
-                active_building: new BehaviorSubject({ id: 'bld-1' }),
-                building_signal: signal({ id: 'bld-1' }),
+                active_levels: signal([]),
+                active_building: signal({ id: 'bld-1' }),
             } as any),
             MockProvider(SpacesService, { initialised: of(true) }),
             MockProvider(ExploreStateService, {

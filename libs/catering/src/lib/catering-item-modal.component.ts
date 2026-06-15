@@ -418,7 +418,7 @@ export class CateringItemModalComponent {
     public renderPrice = (v) => this._renderPrice(v);
 
     public _renderPrice(value = 0): string {
-        this._org.building_signal();
+        this._org.active_building();
         return (
             this._currency_pipe?.transform(
                 value / 100,

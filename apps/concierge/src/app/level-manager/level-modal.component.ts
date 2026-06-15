@@ -4,7 +4,6 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import {
     FormControl,
     FormGroup,
@@ -150,9 +149,7 @@ export class LevelModalComponent {
         inject<MatDialogRef<LevelModalComponent>>(MatDialogRef);
 
     public readonly loading = signal(false);
-    public readonly building_list = toSignal(this._org.building_list, {
-        initialValue: [],
-    });
+    public readonly building_list = this._org.building_list;
 
     public readonly form = new FormGroup({
         id: new FormControl(this._data?.id || ''),

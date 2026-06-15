@@ -10,7 +10,6 @@ import {
 import {
     AsyncHandler,
     BuildingLevel,
-    firstTruthyValueFrom,
     MapMetadata,
     OrganisationService,
     SettingsService,
@@ -49,7 +48,7 @@ export class CiscoMapComponent extends AsyncHandler implements OnInit {
     private _map: SpacesDigitalMap;
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         this._injectScript();
         this.timeout('init', () => this._initialiseMap());
     }

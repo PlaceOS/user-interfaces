@@ -331,9 +331,7 @@ export class EmailTemplateManageComponent extends AsyncHandler {
     public readonly definitions = toSignal(this._state.template_groups, {
         initialValue: [],
     });
-    public readonly buildings = toSignal(this._org.building_list, {
-        initialValue: [],
-    });
+    public readonly buildings = this._org.building_list;
     public readonly form = new FormGroup({
         id: new FormControl(''),
         reply_to: new FormControl(''),

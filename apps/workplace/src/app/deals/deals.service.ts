@@ -1,4 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { Deal, OrganisationService } from '@placeos/common';
 import { showMetadata } from '@placeos/ts-client';
@@ -23,7 +24,7 @@ export class DealsService {
     public readonly loading = signal(false);
 
     public readonly deals$: Observable<Deal[]> = combineLatest([
-        this._org.active_building,
+        toObservable(this._org.active_building),
     ]).pipe(
         filter(([b]) => !!b?.id),
         switchMap(([bld]) => {

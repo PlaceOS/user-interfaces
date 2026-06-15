@@ -289,9 +289,7 @@ export class RoomBookingsInvertedTimelineComponent
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
     private _timeline_el = viewChild<ElementRef<HTMLElement>>('timeline_el');
-    private _building = toSignal(this._org.active_building, {
-        initialValue: this._org.building,
-    });
+    private _building = this._org.active_building;
     private _filtered = toSignal(this._state.filtered, { initialValue: [] });
     private _did_auto_scroll = false;
     public readonly hovered_row = signal(-1);

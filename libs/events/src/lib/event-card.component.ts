@@ -8,7 +8,6 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -206,7 +205,7 @@ export class EventCardComponent extends AsyncHandler implements OnInit {
         'events.use_building_timezone',
         false,
     );
-    private readonly _active_building = toSignal(this._org.active_building);
+    private readonly _active_building = this._org.active_building;
 
     public readonly timezone = computed(() =>
         this._use_bld_tz() ? this._active_building()?.timezone || '' : '',

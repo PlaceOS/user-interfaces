@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
@@ -18,7 +19,7 @@ import {
 } from '@placeos/form-fields';
 import { MeetingFlowFormComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-flow-form.component';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
+import { of } from 'rxjs';
 
 import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-details.component';
 
@@ -47,8 +48,8 @@ describe('MeetingFlowFormComponent', () => {
                 })),
             } as any),
             MockProvider(OrganisationService, {
-                initialised: of(true),
-                active_building: new BehaviorSubject(null),
+                initialised: signal(true),
+                active_building: signal(null),
             }),
             MockProvider(SettingsService, { get: jest.fn(() => false) } as any),
             MockProvider(MatDialog, {

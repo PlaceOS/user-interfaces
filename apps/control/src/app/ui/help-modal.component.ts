@@ -5,7 +5,7 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -135,7 +135,7 @@ export class HelpModalComponent {
     );
 
     public readonly logo = toSignal(
-        this._org.active_building.pipe(
+        toObservable(this._org.active_building).pipe(
             debounceTime(500),
             map(
                 () =>

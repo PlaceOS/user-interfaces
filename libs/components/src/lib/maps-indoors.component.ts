@@ -22,7 +22,6 @@ import {
     calculateDistance,
     i18n,
     log,
-    nextValueFrom,
     notifyError,
     notifyWarn,
     randomString,
@@ -373,7 +372,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         const floor = this._floor_list.find((_) => _.index === index);
         const id = floor?.externalId || floor?.id;
         if (!this._services) return;
-        const levels = await nextValueFrom(this._org.active_levels);
+        const levels = this._org.active_levels();
         if (!levels) return;
         const new_level = levels.find((_) => _.map_id === id || _.id === id);
         if (!new_level) return;

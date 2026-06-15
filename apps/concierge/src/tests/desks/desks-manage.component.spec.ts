@@ -7,7 +7,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
 
 import { ItemListFieldComponent } from '@placeos/form-fields';
 import { DesksManageComponent } from '../../app/desks/desks-manage.component';
@@ -40,8 +39,8 @@ describe('DesksManageComponent', () => {
                 editDesk: jest.fn(),
             } as Partial<DesksStateService>),
             MockProvider(OrganisationService, {
-                active_levels: of([]),
-                initialised: of(true),
+                active_levels: signal([]),
+                initialised: signal(true),
                 levelWithID: jest.fn(() => ({ id: 'lvl-1' })),
                 buildings: [],
             } as unknown as Partial<OrganisationService>),

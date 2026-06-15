@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { OrganisationService } from '@placeos/common';
 import { PlaceSystem, querySystems } from '@placeos/ts-client';
 import { catchError, first, from, map, of, shareReplay, switchMap } from 'rxjs';
@@ -9,7 +10,7 @@ import { catchError, first, from, map, of, shareReplay, switchMap } from 'rxjs';
 export class SupportService {
     private _org = inject(OrganisationService);
 
-    public readonly space_list = this._org.initialised.pipe(
+    public readonly space_list = toObservable(this._org.initialised).pipe(
         first((_) => _),
         switchMap(() =>
             from(

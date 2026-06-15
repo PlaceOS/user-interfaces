@@ -1,6 +1,7 @@
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { signal } from '@angular/core';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
+import { of } from 'rxjs';
 
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
@@ -15,9 +16,9 @@ describe('ScheduleStateService', () => {
                 listen: jest.fn(() => of(0)),
             } as any),
             MockProvider(OrganisationService, {
-                active_building: of({} as any),
-                building_list: new BehaviorSubject([]),
-                level_list: of([]),
+                active_building: signal({} as any),
+                building_list: signal([]),
+                level_list: signal([]),
             }),
         ],
     });

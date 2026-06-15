@@ -1,4 +1,5 @@
 import { effect, inject, Injectable } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import {
     checkinBooking,
@@ -131,58 +132,55 @@ export class ScheduleStateService extends AsyncHandler {
 
     private _deleted: string[] = [];
 
-    private _space_bookings: Observable<CalendarEvent[]> =
-        this._org.active_building.pipe(
-            filter((_) => !!_),
-            distinctUntilKeyChanged('id'),
-            debounceTime(300),
-            tap((_) => this.unsubWith('bind:')),
-            switchMap(({ id }) => {
-                this._loading.next(true);
-                return requestSpacesForZone(id);
-            }), // Get list of spaces for building
-            distinctUntilChanged(([s1], [s2]) => s1 !== s2),
-            switchMap((list) => {
-                this._loading.next(false);
-                return combineLatest(
-                    (list || []).map((space) => {
-                        const binding = getModule(
-                            space.id,
-                            'Bookings',
-                        ).variable('bookings');
-                        const obs = observableFromSignal(binding.listen()).pipe(
-                            map((event_list) =>
-                                (event_list || []).map(
-                                    (i) =>
-                                        new CalendarEvent({
-                                            ...i,
-                                            resources: i.attendees.filter(
-                                                (_) =>
-                                                    _.email === space.email ||
-                                                    _.resource,
-                                            ),
-                                            system: space,
-                                        }),
-                                ),
+    private _space_bookings: Observable<CalendarEvent[]> = toObservable(
+        this._org.active_building,
+    ).pipe(
+        filter((_) => !!_),
+        distinctUntilKeyChanged('id'),
+        debounceTime(300),
+        tap((_) => this.unsubWith('bind:')),
+        switchMap(({ id }) => {
+            this._loading.next(true);
+            return requestSpacesForZone(id);
+        }), // Get list of spaces for building
+        distinctUntilChanged(([s1], [s2]) => s1 !== s2),
+        switchMap((list) => {
+            this._loading.next(false);
+            return combineLatest(
+                (list || []).map((space) => {
+                    const binding = getModule(space.id, 'Bookings').variable(
+                        'bookings',
+                    );
+                    const obs = observableFromSignal(binding.listen()).pipe(
+                        map((event_list) =>
+                            (event_list || []).map(
+                                (i) =>
+                                    new CalendarEvent({
+                                        ...i,
+                                        resources: i.attendees.filter(
+                                            (_) =>
+                                                _.email === space.email ||
+                                                _.resource,
+                                        ),
+                                        system: space,
+                                    }),
                             ),
-                            catchError((_) => of([])),
-                        );
-                        if (!this.hasSubscription(`bind:${space.id}`)) {
-                            this.subscription(
-                                `bind:${space.id}`,
-                                binding.bind(),
-                            );
-                        }
-                        return obs;
-                    }),
-                );
-            }),
-            map((_) => flatten<CalendarEvent>(_)),
-            shareReplay(1),
-        );
+                        ),
+                        catchError((_) => of([])),
+                    );
+                    if (!this.hasSubscription(`bind:${space.id}`)) {
+                        this.subscription(`bind:${space.id}`, binding.bind());
+                    }
+                    return obs;
+                }),
+            );
+        }),
+        map((_) => flatten<CalendarEvent>(_)),
+        shareReplay(1),
+    );
 
     private _user_bookings: Observable<CalendarEvent[]> = combineLatest([
-        this._org.active_building,
+        toObservable(this._org.active_building),
         this._poll,
     ]).pipe(
         filter(([bld]) => !!bld),
@@ -239,7 +237,7 @@ export class ScheduleStateService extends AsyncHandler {
     }
 
     public readonly week_date = combineLatest([
-        this._org.active_building,
+        toObservable(this._org.active_building),
         this.date,
     ]).pipe(
         map(([_, date]) =>
@@ -250,7 +248,7 @@ export class ScheduleStateService extends AsyncHandler {
     );
 
     public readonly week_options = combineLatest([
-        this._org.active_building,
+        toObservable(this._org.active_building),
         this.date,
     ]).pipe(
         filter(([bld]) => !!bld),
@@ -450,19 +448,25 @@ export class ScheduleStateService extends AsyncHandler {
     );
     private _lockers_banks: Observable<LockerBank[]> = loadLockerBanks(
         this._org,
-        combineLatest([this._org.active_building, this._org.active_region]),
+        combineLatest([
+            toObservable(this._org.active_building),
+            toObservable(this._org.active_region),
+        ]),
         () => this._settings.get('app.use_region'),
     );
     private _lockers: Observable<Locker[]> = loadLockers(
         this._org,
-        combineLatest([this._org.active_building, this._org.active_region]),
+        combineLatest([
+            toObservable(this._org.active_building),
+            toObservable(this._org.active_region),
+        ]),
         this._lockers_banks,
         () => this._settings.get('app.use_region'),
     );
     /** List of parking bookings for the selected date */
     public readonly lockers: Observable<Booking[]> = combineLatest([
         this._lockers,
-        this._org.active_building.pipe(
+        toObservable(this._org.active_building).pipe(
             filter((_) => !!_),
             distinctUntilKeyChanged('id'),
         ),
@@ -683,7 +687,7 @@ export class ScheduleStateService extends AsyncHandler {
         super();
         this.subscription(
             'event_sources',
-            this._org.active_building.subscribe(() => {
+            toObservable(this._org.active_building).subscribe(() => {
                 // Check for new array-based setting first
                 const sources_setting = this._settings.get(
                     'app.schedule.event_sources',

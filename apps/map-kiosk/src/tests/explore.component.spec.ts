@@ -17,7 +17,7 @@ import {
     ExploreZonesService,
 } from '@placeos/explore';
 import { MockModule, MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
+import { of } from 'rxjs';
 
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -81,12 +81,12 @@ describe('ExploreComponent', () => {
                 get: jest.fn(),
             } as any),
             MockProvider(OrganisationService, {
-                initialised: of(true),
+                initialised: signal(true),
                 buildings: [new Building({ id: '1' })],
                 levelsForBuilding: jest.fn(() => []),
-                active_region: new BehaviorSubject(new Region({})),
-                active_building: new BehaviorSubject(new Building({ id: '1' })),
-                active_levels: new BehaviorSubject([]),
+                active_region: signal(new Region({})),
+                active_building: signal(new Building({ id: '1' })),
+                active_levels: signal([]),
             }),
             MockProvider(MapsPeopleService, {
                 available$: of(false),

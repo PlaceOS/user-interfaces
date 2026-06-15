@@ -17,8 +17,8 @@ describe('ExploreStateService', () => {
         service: ExploreStateService,
         providers: [
             MockProvider(OrganisationService, {
-                initialised_signal: signal(true),
-                building_signal: signal({ id: 'bld-1' }),
+                initialised: signal(true),
+                active_building: signal({ id: 'bld-1' }),
                 levelsForBuilding: jest.fn(() => [
                     { id: 'lvl-1' },
                     { id: 'lvl-2' },
@@ -28,7 +28,7 @@ describe('ExploreStateService', () => {
                         l.includes(lvl.id),
                     ),
                 ),
-                active_levels_signal: signal([
+                active_levels: signal([
                     { id: 'lvl-1' },
                     { id: 'lvl-2' },
                 ]),

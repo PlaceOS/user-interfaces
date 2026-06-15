@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { MockModule, MockProvider } from 'ng-mocks';
 
+import { signal } from '@angular/core';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { SpacesService } from '@placeos/events';
 import { of } from 'rxjs';
@@ -24,7 +25,7 @@ describe('BootstrapComponent', () => {
             MockProvider(SettingsService, { get: jest.fn() }),
             MockProvider(OrganisationService, {
                 organisation: { id: 'org-123', name: 'Test Org' },
-                initialised: of(true),
+                initialised: signal(true),
             } as any),
         ],
         imports: [

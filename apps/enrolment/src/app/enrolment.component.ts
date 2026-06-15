@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -98,7 +99,7 @@ export class EnrolmentComponent extends AsyncHandler {
     public view = this._state.view;
     public event = this._state.event;
 
-    public readonly logo = this._org.active_building.pipe(
+    public readonly logo = toObservable(this._org.active_building).pipe(
         debounceTime(500),
         map(
             () =>

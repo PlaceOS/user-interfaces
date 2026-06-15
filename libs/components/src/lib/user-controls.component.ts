@@ -21,7 +21,6 @@ import { logout } from '@placeos/ts-client';
 import { format, set, startOfMinute } from 'date-fns';
 
 import { CommonModule } from '@angular/common';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -410,9 +409,9 @@ export class UserControlsComponent implements OnInit {
     private _dialog = inject(MatDialog);
     private _locale = inject(LocaleService);
 
-    public readonly building = toSignal(this._org.active_building);
-    public readonly region = toSignal(this._org.active_region);
-    public readonly regions = toSignal(this._org.region_list);
+    public readonly building = this._org.active_building;
+    public readonly region = this._org.active_region;
+    public readonly regions = this._org.region_list;
     public readonly sidebar = input(false);
     public readonly accessibility = settingSignal(
         'allow_accessibility_changes',

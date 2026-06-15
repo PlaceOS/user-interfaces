@@ -123,7 +123,7 @@ export class CateringStateService extends AsyncHandler {
     constructor() {
         super();
         effect(() => {
-            const bld = this._org.building_signal();
+            const bld = this._org.active_building();
             this._change();
             if (!bld?.id) return;
             this._loadBuilding(bld.id, bld.currency);

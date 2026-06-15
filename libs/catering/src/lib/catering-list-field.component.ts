@@ -300,7 +300,7 @@ export class CateringListFieldComponent
     );
 
     public readonly currency_code = computed(() => {
-        this._org.building_signal();
+        this._org.active_building();
         return this._org.currency_code;
     });
 

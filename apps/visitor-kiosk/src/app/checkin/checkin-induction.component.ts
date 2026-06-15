@@ -95,7 +95,7 @@ export class CheckinInductionComponent {
     );
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await this._org.waitUntilInitialised();
         const event = await this.event.pipe(first()).toPromise();
         if (!event) this._router.navigate(['/checkin']);
         if (!this.is_enabled() || event.induction === 'accepted') {

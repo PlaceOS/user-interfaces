@@ -29,7 +29,6 @@ import {
     StaffUser,
     TIMEZONES_IANA,
     currentUser,
-    firstTruthyValueFrom,
     formatDuration,
     getInvalidFields,
     notifyError,
@@ -532,12 +531,8 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
         { initialValue: this.form.getRawValue() },
     );
     public readonly separators: number[] = [ENTER, COMMA, SPACE];
-    public readonly building_list = toSignal(this._org.building_list, {
-        initialValue: [],
-    });
-    public readonly active_levels = toSignal(this._org.active_levels, {
-        initialValue: [],
-    });
+    public readonly building_list = this._org.building_list;
+    public readonly active_levels = this._org.active_levels;
     public readonly available_spaces = toSignal(
         this._form_state.available_spaces,
         {
@@ -599,7 +594,7 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
     };
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         const space_pipe = new SpacePipe();
         this.form.patchValue({
             location:

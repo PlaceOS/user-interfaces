@@ -210,18 +210,14 @@ export class CateringTopbarComponent extends AsyncHandler {
     private _router = inject(Router);
     private _dialog = inject(MatDialog);
 
-    private readonly _org_initialised = toSignal(this._org.initialised, {
-        initialValue: false,
-    });
+    private readonly _org_initialised = this._org.initialised;
     private readonly _param_map = toSignal(this._route.paramMap, {
         initialValue: this._route.snapshot.paramMap,
     });
     private readonly _query_param_map = toSignal(this._route.queryParamMap, {
         initialValue: this._route.snapshot.queryParamMap,
     });
-    private readonly _region = toSignal(this._org.active_region, {
-        initialValue: this._org.region,
-    });
+    private readonly _region = this._org.active_region;
 
     /** List of selected levels */
     public readonly zones = signal<string[]>([]);
@@ -234,9 +230,7 @@ export class CateringTopbarComponent extends AsyncHandler {
     );
     public readonly filters = this._orders.order_filters;
     public readonly caterers = this._catering.caterers;
-    public readonly building = toSignal(this._org.active_building, {
-        initialValue: this._org.building,
-    });
+    public readonly building = this._org.active_building;
     public readonly use_region = settingSignal('use_region', false);
     /** List of levels for the active building */
     public readonly levels = computed(() =>

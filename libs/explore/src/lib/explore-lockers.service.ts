@@ -37,8 +37,8 @@ export class ExploreLockersService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    private _building = this._org.building_signal;
-    private _region = this._org.region_signal;
+    private _building = this._org.active_building;
+    private _region = this._org.active_region;
 
     private _status = signal<Record<string, any>[]>([]);
     private _change = signal(0);

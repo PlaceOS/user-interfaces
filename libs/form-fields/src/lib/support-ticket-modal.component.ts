@@ -82,7 +82,7 @@ export interface SupportRequestType {
                             "
                             formControlName="location"
                         >
-                            @for (bld of buildings | async; track bld) {
+                            @for (bld of buildings(); track bld) {
                                 <mat-option
                                     [value]="bld.display_name || bld.name"
                                 >

@@ -25,7 +25,7 @@ export class ExplorePointOfInterestService extends AsyncHandler {
     private _explore = inject(ExploreStateService);
     private _dialog = inject(MatDialog);
 
-    private _building = this._org.building_signal;
+    private _building = this._org.active_building;
 
     private _features = resource({
         params: () => this._building() || undefined,

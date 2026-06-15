@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { addDays, addMinutes, format, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, from, of } from 'rxjs';
 import {
@@ -73,7 +74,7 @@ export class VisitorsStateService extends AsyncHandler {
     }
 
     public readonly bookings = combineLatest([
-        this._org.active_building,
+        toObservable(this._org.active_building),
         this._filters,
         this._poll,
     ]).pipe(

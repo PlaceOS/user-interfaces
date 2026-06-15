@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { fakeAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,7 +13,6 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
 import { BootstrapComponent } from '../app/bootstrap.component';
 
 describe('BootstrapComponent', () => {
@@ -31,17 +31,15 @@ describe('BootstrapComponent', () => {
                     new BuildingLevel({ id: '2' }),
                 ],
                 levelWithID: () => new BuildingLevel({ id: '1' }),
-                region_list: new BehaviorSubject([
-                    new Region({ name: '1', id: '1' }),
-                ]),
-                active_buildings: new BehaviorSubject([
+                region_list: signal([new Region({ name: '1', id: '1' })]),
+                active_buildings: signal([
                     new Building({ name: '1', id: '1', parent_id: '1' }),
                 ]),
-                active_levels: new BehaviorSubject([
+                active_levels: signal([
                     new BuildingLevel({ id: '1' }),
                     new BuildingLevel({ id: '2' }),
                 ]),
-                initialised: of(true),
+                initialised: signal(true),
             }),
             MockProvider(SettingsService, { get: jest.fn() }),
         ],

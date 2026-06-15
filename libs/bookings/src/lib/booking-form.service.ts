@@ -160,7 +160,7 @@ export class BookingFormService extends AsyncHandler {
     public readonly view = signal<BookingFlowView>('form');
 
     public readonly resources: Observable<BookingAsset[]> = combineLatest([
-        this._org.active_building,
+        toObservable(this._org.active_building),
         this.options.pipe(distinctUntilKeyChanged('type')),
     ]).pipe(
         debounceTime(300),
@@ -205,7 +205,7 @@ export class BookingFormService extends AsyncHandler {
     public readonly booking_rules: Observable<
         Record<string, BookingRuleset[]>
     > = combineLatest([
-        this._org.building_list,
+        toObservable(this._org.building_list),
         toObservable(this._options),
     ]).pipe(
         switchMap(([list, { type }]) =>
@@ -227,7 +227,9 @@ export class BookingFormService extends AsyncHandler {
     );
 
     /** Whether the current user has a desk reserved (assigned) to them */
-    public readonly has_assigned_desk = this._org.building_list.pipe(
+    public readonly has_assigned_desk = toObservable(
+        this._org.building_list,
+    ).pipe(
         filter((buildings) => buildings?.length > 0),
         switchMap((buildings) => {
             const email = currentUser()?.email?.toLowerCase();
@@ -466,9 +468,7 @@ export class BookingFormService extends AsyncHandler {
                 }
             }),
         );
-        this._org.initialised
-            .pipe(first((_) => _))
-            .subscribe(() => this.setOptions({}));
+        this._org.waitUntilInitialised().then(() => this.setOptions({}));
         this.subscription(
             'settings_change',
             toObservable(this._settings.overrides)

@@ -2,9 +2,10 @@ import {
     ChangeDetectionStrategy,
     Component,
     inject,
+    Injector,
     OnInit,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import {
     MatBottomSheet,
     MatBottomSheetRef,
@@ -12,7 +13,6 @@ import {
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
-    firstTruthyValueFrom,
     getInvalidFields,
     i18n,
     notifyError,
@@ -94,6 +94,7 @@ export class NewDeskFlowFormComponent implements OnInit {
     private _org = inject(OrganisationService);
     private _bottom_sheet = inject(MatBottomSheet);
     private _settings = inject(SettingsService);
+    private _injector = inject(Injector);
 
     public sheet_ref: MatBottomSheetRef<NewDeskFlowConfirmComponent>;
     public level = '';
@@ -153,9 +154,11 @@ export class NewDeskFlowFormComponent implements OnInit {
     };
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         await lastValueFrom(
-            this._org.active_levels.pipe(first((_) => _?.length > 0)),
+            toObservable(this._org.active_levels, {
+                injector: this._injector,
+            }).pipe(first((_) => _?.length > 0)),
         );
         this._state.setOptions({ type: 'desk' });
         this.level = this._org.building?.id;

@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import {
     AsyncHandler,
     Attachment,
@@ -103,7 +104,7 @@ export class SignageStateService extends AsyncHandler {
     public readonly has_changed = this._change.asObservable();
 
     public readonly media: Observable<SignageMedia[]> = combineLatest([
-        this._org.active_building,
+        toObservable(this._org.active_building),
         this._change,
     ]).pipe(
         filter(([_]) => !!_?.id),
@@ -115,7 +116,7 @@ export class SignageStateService extends AsyncHandler {
     );
 
     public readonly playlists: Observable<SignagePlaylist[]> = combineLatest([
-        this._org.active_building,
+        toObservable(this._org.active_building),
         this._change,
     ]).pipe(
         filter(([_]) => !!_?.id),
@@ -127,8 +128,8 @@ export class SignageStateService extends AsyncHandler {
     );
 
     public readonly displays: Observable<PlaceSystem[]> = combineLatest([
-        this._org.active_region,
-        this._org.active_building,
+        toObservable(this._org.active_region),
+        toObservable(this._org.active_building),
         this._change,
     ]).pipe(
         filter(([, bld]) => !!bld?.id),
@@ -159,7 +160,7 @@ export class SignageStateService extends AsyncHandler {
     );
 
     public readonly zones = combineLatest([
-        this._org.active_building,
+        toObservable(this._org.active_building),
         this._change,
     ]).pipe(
         switchMap(() =>

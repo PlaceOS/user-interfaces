@@ -8,7 +8,7 @@ import {
     Output,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import {
     FormControl,
     FormGroup,
@@ -252,7 +252,7 @@ export class LockerBankModalComponent {
 
     /** List of available locker levels for the current building */
     public readonly levels = toSignal(
-        this._org.level_list.pipe(
+        toObservable(this._org.level_list).pipe(
             map((_) => {
                 if (!this._settings.get('app.use_region')) {
                     const blds = this._org.buildingsForRegion();

@@ -63,7 +63,7 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         await lastValueFrom(timer(300));
         const active_form = this._state.form.getRawValue();
         const has_edit_state =

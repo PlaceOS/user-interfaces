@@ -2,11 +2,12 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
+    Injector,
     inject,
     OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { showMetadata } from '@placeos/ts-client';
 
 import { saveBooking } from '@placeos/bookings';
@@ -746,6 +747,7 @@ export class GuestListingComponent extends AsyncHandler implements OnInit {
     private _parking = inject(ParkingStateService);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
+    private _injector = inject(Injector);
 
     public readonly printing = signal('');
     public readonly guests = toSignal(this._state.filtered_bookings, {
@@ -760,9 +762,7 @@ export class GuestListingComponent extends AsyncHandler implements OnInit {
     public readonly pass_number = signal('');
     public readonly user_pass = signal<UserDetails>({} as UserDetails);
     public readonly label_size = signal({ width: 25, height: 15, scale: 4 });
-    public readonly active_building = toSignal(this._org.active_building, {
-        initialValue: this._org.building,
-    });
+    public readonly active_building = this._org.active_building;
     public readonly timezone = computed(() => {
         this.active_building();
         const use_tz = this._settings.get('app.bookings.use_building_timezone');
@@ -897,7 +897,9 @@ export class GuestListingComponent extends AsyncHandler implements OnInit {
     public ngOnInit() {
         this.subscription(
             'building',
-            this._org.active_building.subscribe(async (bld) => {
+            toObservable(this._org.active_building, {
+                injector: this._injector,
+            }).subscribe(async (bld) => {
                 if (!bld) return;
                 const visitor_kiosk_app =
                     this._settings.get('app.visitor_kiosk_app') ||

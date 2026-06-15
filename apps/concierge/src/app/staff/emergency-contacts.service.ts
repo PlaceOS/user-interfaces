@@ -16,6 +16,7 @@ import {
     randomString,
     unique,
 } from '@placeos/common';
+import { toObservable } from '@angular/core/rxjs-interop';
 import {
     cleanObject,
     queryAssetCategories,
@@ -28,7 +29,6 @@ import { BehaviorSubject, combineLatest, firstValueFrom, from, of } from 'rxjs';
 import {
     catchError,
     filter,
-    first,
     map,
     shareReplay,
     switchMap,
@@ -60,7 +60,7 @@ export class EmergencyContactsService {
 
     /** Observable for the emergency contacts category */
     public readonly category$ = combineLatest([
-        this._org.active_building,
+        toObservable(this._org.active_building),
         this._change,
     ]).pipe(
         filter(([bld]) => !!bld),
@@ -81,7 +81,7 @@ export class EmergencyContactsService {
 
     /** Observable for the emergency contacts asset type/group */
     public readonly assetType$ = combineLatest([
-        this._org.active_building,
+        toObservable(this._org.active_building),
         this.category$,
         this._change,
     ]).pipe(
@@ -108,7 +108,7 @@ export class EmergencyContactsService {
 
     /** Observable for emergency contacts from Assets API */
     public readonly contacts$ = combineLatest([
-        this._org.active_building,
+        toObservable(this._org.active_building),
         this.assetType$,
         this._change,
     ]).pipe(
@@ -155,7 +155,9 @@ export class EmergencyContactsService {
     );
 
     /** Legacy metadata fallback - used for migration */
-    private readonly legacyMetadata$ = this._org.active_building.pipe(
+    private readonly legacyMetadata$ = toObservable(
+        this._org.active_building,
+    ).pipe(
         filter((bld) => !!bld),
         switchMap((bld) =>
             from(showMetadata(bld.id, 'emergency_contacts')).pipe(
@@ -179,7 +181,7 @@ export class EmergencyContactsService {
 
     /** Ensure the hidden category exists, create if not */
     public async ensureCategoryExists(): Promise<AssetCategory | null> {
-        await firstValueFrom(this._org.initialised.pipe(first((init) => init)));
+        await this._org.waitUntilInitialised();
         const bld = this._org.building;
         if (!bld) return null;
 

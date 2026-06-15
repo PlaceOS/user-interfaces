@@ -117,13 +117,19 @@ export class LockerMapComponent implements OnInit {
 
     public readonly lockers_banks$ = loadLockerBanks(
         this._org,
-        combineLatest([this._org.active_building, this._org.active_region]),
+        combineLatest([
+            toObservable(this._org.active_building),
+            toObservable(this._org.active_region),
+        ]),
         () => this._use_region(),
     );
 
     public readonly lockers$ = loadLockers(
         this._org,
-        combineLatest([this._org.active_building, this._org.active_region]),
+        combineLatest([
+            toObservable(this._org.active_building),
+            toObservable(this._org.active_region),
+        ]),
         this.lockers_banks$,
         () => this._use_region(),
     );
@@ -168,8 +174,8 @@ export class LockerMapComponent implements OnInit {
 
     public readonly levels = toSignal(
         combineLatest([
-            this._org.active_region,
-            this._org.active_building,
+            toObservable(this._org.active_region),
+            toObservable(this._org.active_building),
         ]).pipe(
             map(([region, bld]) => {
                 const level_list = this._use_region()

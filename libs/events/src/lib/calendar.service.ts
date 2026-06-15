@@ -104,8 +104,7 @@ export class CalendarService extends AsyncHandler {
 
     private _waitForOrg() {
         const check = () => {
-            if (!this._org.initialised_signal || this._org.initialised_signal())
-                return this.init();
+            if (this._org.initialised()) return this.init();
             this.timeout('init', check, 100);
         };
         check();

@@ -2,6 +2,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
+    effect,
     inject,
     OnInit,
     signal,
@@ -180,14 +181,12 @@ export class CheckinPreferencesComponent
     );
     public readonly menu = toSignal(this._menu, { initialValue: [] });
 
+    private readonly _update_bld_id = effect(() => {
+        this.bld_id.set(this._org.active_building()?.id || '');
+    });
+
     public ngOnInit(): void {
         this.loading.set(true);
-        this.subscription(
-            'bld',
-            this._org.active_building.subscribe((v) =>
-                this.bld_id.set(v?.id || ''),
-            ),
-        );
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe(async (params) => {

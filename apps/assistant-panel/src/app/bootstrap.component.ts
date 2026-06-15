@@ -19,6 +19,7 @@ import {
     VERSION,
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { querySystems } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { debounceTime, map, shareReplay, switchMap } from 'rxjs/operators';
@@ -168,7 +169,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
 
     public readonly space_list = combineLatest([
         this.system_id$,
-        this._org.initialised,
+        toObservable(this._org.initialised),
     ]).pipe(
         debounceTime(300),
         switchMap(([search]) => {

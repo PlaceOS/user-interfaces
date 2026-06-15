@@ -1,4 +1,3 @@
-import { AsyncPipe } from '@angular/common';
 import {
     Component,
     computed,
@@ -20,7 +19,6 @@ import {
     alignDateToBookableHours,
     AsyncHandler,
     currentUser,
-    firstTruthyValueFrom,
     getInvalidFields,
     i18n,
     notifyError,
@@ -45,7 +43,7 @@ import { BookingFormService } from './booking-form.service';
     template: `
         @if (form) {
             <form [formGroup]="form">
-                @if ((buildings | async)?.length > 1) {
+                @if (buildings()?.length > 1) {
                     <div class="flex flex-col">
                         <label for="building">
                             {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
@@ -64,7 +62,7 @@ import { BookingFormService } from './booking-form.service';
                                 name="building"
                                 placeholder="Select building"
                             >
-                                @for (bld of buildings | async; track bld) {
+                                @for (bld of buildings(); track bld) {
                                     <mat-option [value]="bld.id">
                                         {{ bld.display_name || bld.name }}
                                     </mat-option>
@@ -334,7 +332,6 @@ import { BookingFormService } from './booking-form.service';
     `,
     styles: [``],
     imports: [
-        AsyncPipe,
         TranslatePipe,
         MatFormFieldModule,
         MatInputModule,
@@ -618,7 +615,7 @@ export class VisitorInviteFormComponent
     }
 
     private async initFormZone() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         this._service.loadForm();
         this._service.setOptions({ type: 'visitor' });
         if (!this.form.value.id) this._service.newForm('visitor');

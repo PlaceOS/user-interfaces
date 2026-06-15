@@ -6,7 +6,7 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { AsyncHandler, OrganisationService, Space } from '@placeos/common';
 import { querySystems } from '@placeos/ts-client';
 import { combineLatest, from, of } from 'rxjs';
@@ -143,7 +143,7 @@ export class DayviewTimelineComponent
         initialValue: null,
     });
 
-    public readonly spaces = this._org.active_building.pipe(
+    public readonly spaces = toObservable(this._org.active_building).pipe(
         filter((_) => !!_),
         switchMap(({ id }) =>
             from(querySystems({ zone_id: id, limit: 1000 })).pipe(

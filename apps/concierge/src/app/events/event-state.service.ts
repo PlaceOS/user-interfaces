@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import {
@@ -51,7 +52,7 @@ export class EventStateService extends AsyncHandler {
     private _changed = new BehaviorSubject(0);
 
     public readonly event_list = combineLatest([
-        this._org.active_building,
+        toObservable(this._org.active_building),
         this._options,
         this._changed,
         this._poll,

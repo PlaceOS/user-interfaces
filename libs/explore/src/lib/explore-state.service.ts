@@ -46,9 +46,9 @@ export class ExploreStateService {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    private _initialised = this._org.initialised_signal;
-    private _active_levels = this._org.active_levels_signal;
-    private _active_building = this._org.building_signal;
+    private _initialised = this._org.initialised;
+    private _active_levels = this._org.active_levels;
+    private _active_building = this._org.active_building;
     private _overrides = computed(() =>
         this._settings.overrides instanceof Function
             ? this._settings.overrides()

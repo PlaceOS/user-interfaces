@@ -33,10 +33,10 @@ describe('ExploreStateService', () => {
             MockProvider(OrganisationService, {
                 organisation: new Organisation(),
                 binding: jest.fn(),
-                initialised_signal: signal(true),
+                initialised: signal(true),
                 levels: [],
                 buildings: [],
-                building_signal: signal<Building>({
+                active_building: signal<Building>({
                     id: 'bld-1',
                 } as any),
             }),

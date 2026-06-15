@@ -36,7 +36,7 @@ describe('ExploreSpacesService', () => {
             MockProvider(SettingsService, { get: jest.fn() }),
             MockProvider(MatDialog, { open: jest.fn() }),
             MockProvider(OrganisationService, {
-                building_signal: signal({ id: 'bld-1' }),
+                active_building: signal({ id: 'bld-1' }),
                 building: { id: 'bld-1' } as any,
             } as any),
             MockProvider(EventFormService, { form: new UntypedFormGroup({}) }),

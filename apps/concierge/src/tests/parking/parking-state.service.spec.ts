@@ -1,8 +1,9 @@
+import { signal, WritableSignal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
 import { Booking, OrganisationService, SettingsService } from '@placeos/common';
 import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, of, throwError } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 import * as assets_mod from '@placeos/assets';
 import * as booking_mod from '@placeos/bookings';
@@ -30,8 +31,8 @@ jest.mock('@placeos/common', () => {
 
 describe('ParkingStateService', () => {
     let spectator: SpectatorService<ParkingStateService>;
-    let active_building: BehaviorSubject<any>;
-    let active_region: BehaviorSubject<any>;
+    let active_building: WritableSignal<any>;
+    let active_region: WritableSignal<any>;
     let current_building: any;
     let settings_map: Record<string, any>;
 
@@ -68,8 +69,8 @@ describe('ParkingStateService', () => {
             'app.bookings.use_building_timezone': true,
             'app.parking.assign_space_on_approve': false,
         };
-        active_building = new BehaviorSubject(current_building);
-        active_region = new BehaviorSubject({ id: 'region-1' });
+        active_building = signal(current_building);
+        active_region = signal({ id: 'region-1' });
         organisation_service.active_building = active_building;
         organisation_service.active_region = active_region;
         organisation_service.levels = [];

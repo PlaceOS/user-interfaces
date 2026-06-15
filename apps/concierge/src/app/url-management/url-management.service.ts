@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import {
     deleteShortURL,
@@ -31,7 +32,7 @@ export class UrlManagementService {
     public options = this._options.asObservable();
 
     public url_list = combineLatest([
-        this._org.active_building,
+        toObservable(this._org.active_building),
         this._options,
         this._change,
     ]).pipe(

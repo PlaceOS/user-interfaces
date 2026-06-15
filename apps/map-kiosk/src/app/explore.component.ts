@@ -8,7 +8,6 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
@@ -318,12 +317,8 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         { id: 'pending', name: 'Space Pending', color: '#ffb300' },
         { id: 'not-bookable', name: 'Space Not-bookable', color: '#ccc' },
     ];
-    private readonly _region = toSignal(this._org.active_region, {
-        initialValue: null,
-    });
-    private readonly _building = toSignal(this._org.active_building, {
-        initialValue: null,
-    });
+    private readonly _region = this._org.active_region;
+    private readonly _building = this._org.active_building;
     public readonly levels = computed(() => {
         const region = this._region();
         const building = this._building();

@@ -10,7 +10,8 @@ import {
     startOfMonth,
     startOfWeek,
 } from 'date-fns';
-import { BehaviorSubject, of, timer } from 'rxjs';
+import { of, timer } from 'rxjs';
+import { signal } from '@angular/core';
 import { EventsStateService } from '../../app/day-view/events-state.service';
 
 jest.mock('@placeos/events');
@@ -36,8 +37,8 @@ describe('EventsStateService', () => {
             MockProvider(OrganisationService, {
                 building: new Building({ id: 'bld-123', parent_id: 'reg-123' }),
                 region: new Region({ id: 'reg-123' }),
-                active_region: new BehaviorSubject({ id: 'reg-123' }),
-                active_building: new BehaviorSubject({
+                active_region: signal({ id: 'reg-123' }),
+                active_building: signal({
                     id: 'bld-123',
                     parent_id: 'reg-123',
                 }),

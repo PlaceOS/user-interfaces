@@ -65,8 +65,8 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
     private _dialog = inject(MatDialog);
     private _injector = inject(Injector);
 
-    private _org_initialised = this._org.initialised_signal;
-    private _building = this._org.building_signal;
+    private _org_initialised = this._org.initialised;
+    private _building = this._org.active_building;
 
     private _in_use = signal<string[]>([]);
     private _options = signal<DeskOptions>({});

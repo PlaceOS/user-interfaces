@@ -16,7 +16,7 @@ import {
     TranslatePipe,
     UserAvatarComponent,
 } from '@placeos/components';
-import { first, map, tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
@@ -300,7 +300,7 @@ export class PanelViewComponent extends AsyncHandler {
     }
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => !!_)).toPromise();
+        await this._org.waitUntilInitialised();
         const start_voice = () => {
             this._setupVoiceRecognition();
             window.removeEventListener('click', start_voice);

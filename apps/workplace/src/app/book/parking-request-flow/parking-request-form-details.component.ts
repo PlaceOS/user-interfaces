@@ -5,6 +5,7 @@ import {
     computed,
     effect,
     inject,
+    Injector,
     input,
     OnInit,
     signal,
@@ -28,7 +29,6 @@ import {
 import {
     AsyncHandler,
     currentUser,
-    firstTruthyValueFrom,
     getTimeInTimezone,
     OrganisationService,
     settingSignal,
@@ -1150,6 +1150,7 @@ export class ParkingRequestFormDetailsComponent
     private _parking = inject(ParkingService);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
+    private _injector = inject(Injector);
     private _saved_shift_state: ParkingRequestShiftState | null = null;
     /**
      * Set to `true` once the user has explicitly chosen a shift via the
@@ -1208,7 +1209,7 @@ export class ParkingRequestFormDetailsComponent
     public readonly show_special_needs = input<boolean>(false);
     public readonly force_show_host_select = input<boolean>(false);
     public readonly force_allow_any_host = input<boolean>(false);
-    public readonly building = this._org.active_building;
+    public readonly building = toObservable(this._org.active_building);
     public readonly hidden_buildings = settingSignal<string[]>(
         'parking.hidden_buildings',
         [],
@@ -1217,11 +1218,16 @@ export class ParkingRequestFormDetailsComponent
     /**
      * Buildings available as parking locations. Excludes buildings without
      * any parking levels and buildings listed in `parking.hidden_buildings`.
+     *
+     * `active_buildings`/`level_list` are read synchronously from the
+     * organisation signals at subscribe time (via `defer` + `of`) so the
+     * list emits immediately for each subscriber, matching the eager
+     * behaviour the booking flow relies on.
      */
     public readonly building_list = defer(() =>
         combineLatest([
-            this._org.active_buildings,
-            this._org.level_list,
+            of(this._org.active_buildings()),
+            of(this._org.level_list()),
             this._hidden_buildings$,
         ]),
     ).pipe(
@@ -1537,12 +1543,12 @@ export class ParkingRequestFormDetailsComponent
     }
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         const form = this.form();
         if (!form) return;
         this.subscription(
             'ensure_valid_building',
-            combineLatest([this.building_list, this._org.active_building])
+            combineLatest([this.building_list, this.building])
                 .pipe(
                     filter(
                         ([buildings, bld]) =>
@@ -1557,8 +1563,10 @@ export class ParkingRequestFormDetailsComponent
         this.subscription(
             'space_availability',
             combineLatest([
-                this._org.active_building,
-                toObservable(this._parking.spaces),
+                this.building,
+                toObservable(this._parking.spaces, {
+                    injector: this._injector,
+                }),
                 form.valueChanges.pipe(startWith(form.getRawValue())),
             ])
                 .pipe(

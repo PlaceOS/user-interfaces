@@ -243,14 +243,14 @@ export class TopMenuComponent {
     private readonly menu =
         viewChild<ElementRef<HTMLDivElement>>('menuContainer');
 
-    public readonly buildings = this._org.building_list;
-    public readonly building = toSignal(this._org.active_building);
+    public readonly buildings = toObservable(this._org.building_list);
+    public readonly building = this._org.active_building;
     private readonly settings_ready = toSignal(
         combineLatest([
             this._settings.initialised,
-            this._org.initialised,
-            this._org.active_region,
-            this._org.active_building,
+            toObservable(this._org.initialised),
+            toObservable(this._org.active_region),
+            toObservable(this._org.active_building),
             toObservable(this._settings.overrides),
         ]).pipe(
             map(

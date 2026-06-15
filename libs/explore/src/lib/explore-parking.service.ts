@@ -65,8 +65,8 @@ export class ExploreParkingService extends AsyncHandler {
     private _options = signal<ParkingOptions>({});
     private _poll = signal<number>(0);
 
-    private _building = this._org.building_signal;
-    private _active_levels = this._org.active_levels_signal;
+    private _building = this._org.active_building;
+    private _active_levels = this._org.active_levels;
     private _parking_users = this._parking.users;
     private _assigned_space = this._parking.assigned_space;
     private _deny_parking_access = this._parking.deny_parking_access;

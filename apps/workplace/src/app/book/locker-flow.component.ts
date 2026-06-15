@@ -5,6 +5,7 @@ import {
     inject,
     OnInit,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
@@ -94,12 +95,18 @@ export class BookLockerFlowComponent extends AsyncHandler implements OnInit {
 
     private _lockers_banks = loadLockerBanks(
         this._org,
-        combineLatest([this._org.active_building, this._org.active_region]),
+        combineLatest([
+            toObservable(this._org.active_building),
+            toObservable(this._org.active_region),
+        ]),
         () => this._settings.get('app.use_region'),
     );
     private _lockers = loadLockers(
         this._org,
-        combineLatest([this._org.active_building, this._org.active_region]),
+        combineLatest([
+            toObservable(this._org.active_building),
+            toObservable(this._org.active_region),
+        ]),
         this._lockers_banks,
         () => this._settings.get('app.use_region'),
     );

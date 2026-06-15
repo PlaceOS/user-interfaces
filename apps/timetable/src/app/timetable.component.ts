@@ -156,7 +156,7 @@ export class AppTimetableComponent extends AsyncHandler implements OnInit {
         );
     });
 
-    public readonly logo = this._org.active_building.pipe(
+    public readonly logo = toObservable(this._org.active_building).pipe(
         debounceTime(500),
         map(
             () =>
@@ -167,7 +167,7 @@ export class AppTimetableComponent extends AsyncHandler implements OnInit {
     );
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         await firstTruthyValueFrom(this._settings.initialised);
         await firstTruthyValueFrom(this._spaces_initialised);
         this.interval('time', () => this.date.set(Date.now()), 2000);

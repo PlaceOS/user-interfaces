@@ -10,7 +10,6 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { first } from 'rxjs/operators';
 
 import { CommonModule } from '@angular/common';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -616,9 +615,7 @@ export class InviteVisitorFormComponent {
         initialValue: '',
     });
     public readonly loading_many = signal(false);
-    public readonly buildings = toSignal(this._org.building_list, {
-        initialValue: [] as any[],
-    });
+    public readonly buildings = this._org.building_list;
     public readonly last_success = signal(this._service.last_success);
     public readonly last_count = signal(0);
     private visitors = [];
@@ -980,7 +977,7 @@ export class InviteVisitorFormComponent {
     }
 
     private async initFormZone() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await this._org.waitUntilInitialised();
         const form_snapshot = this.form?.getRawValue?.() as any;
         const booking_snapshot = this._service.booking as any;
         const is_visitor_booking = (booking: Record<string, any>) =>

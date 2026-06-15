@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { first } from 'rxjs/operators';
 
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -102,9 +101,7 @@ export class FacilitiesTopbarComponent extends AsyncHandler implements OnInit {
     /** Set filtered date */
     public readonly setDate = (d) => this._state.setDate(d);
     /** List of levels for the active building */
-    public readonly levels = toSignal(this._org.active_levels, {
-        initialValue: [],
-    });
+    public readonly levels = this._org.active_levels;
     /** List of levels for the active building */
     public readonly updateZones = (z) => {
         this.zones.set(z);
@@ -159,7 +156,7 @@ export class FacilitiesTopbarComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await this._org.waitUntilInitialised();
         this._ready.set(true);
         this.updateTypes(this.type_list());
     }

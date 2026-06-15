@@ -130,8 +130,8 @@ export class SpaceMapComponent implements OnInit {
     public readonly map_url = computed(() => this.level()?.map_id || '');
 
     private readonly _levels$ = combineLatest([
-        this._org.active_region,
-        this._org.active_building,
+        toObservable(this._org.active_region),
+        toObservable(this._org.active_building),
     ]).pipe(
         map(([region, bld]) => {
             const level_list = this.use_region()

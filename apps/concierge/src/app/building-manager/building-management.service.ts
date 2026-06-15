@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import {
     Building,
@@ -35,10 +36,10 @@ export class BuildingManagementService {
     public options = this._options.asObservable();
 
     public readonly filtered_buildings = combineLatest([
-        this._org.region_list,
-        this._org.building_list,
+        toObservable(this._org.region_list),
+        toObservable(this._org.building_list),
         this._options,
-        this._org.initialised,
+        toObservable(this._org.initialised),
     ]).pipe(
         map(([regions, list, options]) => {
             if (options.zone) {

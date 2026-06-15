@@ -6,8 +6,8 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { mockComponent, mockDirective } from '@placeos/common/tests';
+import { signal } from '@angular/core';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 
 import {
     AuthenticatedImageDirective,
@@ -26,9 +26,9 @@ describe('TopbarComponent', () => {
         providers: [
             MockProvider(SettingsService, { get: jest.fn(), value: jest.fn() }),
             MockProvider(OrganisationService, {
-                active_building: new BehaviorSubject(new Building()),
-                active_region: new BehaviorSubject(null),
-                region_list: new BehaviorSubject([]),
+                active_building: signal(new Building()),
+                active_region: signal(null),
+                region_list: signal([]),
                 building: new Building(),
             }),
         ],

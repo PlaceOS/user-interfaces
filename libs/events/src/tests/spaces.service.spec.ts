@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { OrganisationService, Space } from '@placeos/common';
 import { of } from 'rxjs';
@@ -21,7 +22,7 @@ describe('SpacesService', () => {
         service: SpacesService,
         providers: [
             MockProvider(OrganisationService, {
-                initialised: of(true),
+                initialised: signal(true),
                 organisation: { id: 'zone-1' },
                 levelWithID: jest.fn(),
             } as any),

@@ -134,7 +134,7 @@ export class CateringOrdersService extends AsyncHandler {
         super();
         this._space_pipe.org = this._org;
         effect(() => {
-            const building = this._org.building_signal();
+            const building = this._org.active_building();
             const filters = this._filters();
             this._poll();
             if (!building?.id) return;

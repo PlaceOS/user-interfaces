@@ -6,7 +6,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/common';
-import { BehaviorSubject, of } from 'rxjs';
 
 import { MockProvider } from 'ng-mocks';
 import { ExploreMapControlComponent } from '../lib/explore-map-control.component';
@@ -18,10 +17,10 @@ describe('ExploreMapControlComponent', () => {
         component: ExploreMapControlComponent,
         providers: [
             MockProvider(OrganisationService, {
-                initialised: of(true),
-                active_buildings: new BehaviorSubject([]),
-                active_building: new BehaviorSubject(null),
-                active_levels: new BehaviorSubject([]),
+                initialised: signal(true) as any,
+                active_buildings: signal([]) as any,
+                active_building: signal(null) as any,
+                active_levels: signal([]) as any,
             }),
             MockProvider(ExploreStateService, {
                 level: signal(null) as any,
@@ -45,14 +44,14 @@ describe('ExploreMapControlComponent', () => {
         const buildings =
             spectator.inject(OrganisationService).active_buildings;
         const levels = spectator.inject(OrganisationService).active_levels;
-        (levels as any).next([
+        (levels as any).set([
             { id: 'lvl-1', name: 'Level 1' },
             { id: 'lvl-2', name: 'Level 2' },
         ]);
         spectator.detectChanges();
         expect('[buildings]').not.toExist();
         expect('[levels]').toExist();
-        (buildings as any).next([
+        (buildings as any).set([
             { id: 'bld-1', name: 'Building 1' },
             { id: 'bld-2', name: 'Building 2' },
         ]);
@@ -64,7 +63,7 @@ describe('ExploreMapControlComponent', () => {
     it('should allow switching buildings', () => {
         const buildings =
             spectator.inject(OrganisationService).active_buildings;
-        (buildings as any).next([
+        (buildings as any).set([
             { id: 'bld-1', name: 'Building 1' },
             { id: 'bld-2', name: 'Building 2' },
         ]);
@@ -79,7 +78,7 @@ describe('ExploreMapControlComponent', () => {
 
     it('should allow switching levels', fakeAsync(() => {
         const levels = spectator.inject(OrganisationService).active_levels;
-        (levels as any).next([
+        (levels as any).set([
             { id: 'lvl-1', name: 'Level 1' },
             { id: 'lvl-2', name: 'Level 2' },
         ]);

@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { ParkingService } from '@placeos/bookings';
@@ -10,7 +11,7 @@ import {
 import { endOfDay, startOfDay } from 'date-fns';
 import { endInFuture } from 'libs/events/src/lib/validators';
 import { MockProvider } from 'ng-mocks';
-import { firstValueFrom, of } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { ParkingRequestFormDetailsComponent } from '../../app/book/parking-request-flow/parking-request-form-details.component';
 
 import * as ts_client from '@placeos/ts-client';
@@ -19,7 +20,7 @@ jest.mock('@placeos/ts-client', () => {
     const actual = jest.requireActual('@placeos/ts-client');
     return {
         ...actual,
-        get: jest.fn(() => of([])),
+        get: jest.fn(() => Promise.resolve([])),
     };
 });
 
@@ -42,7 +43,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
         component: ParkingRequestFormDetailsComponent,
         providers: [
             MockProvider(ParkingService, {
-                spaces: of([]),
+                spaces: signal([]),
             }),
             MockProvider(SettingsService as any, {
                 get: jest.fn(
@@ -53,10 +54,10 @@ describe('ParkingRequestFormDetailsComponent', () => {
                 time_format: 'h:mm a',
             }),
             MockProvider(OrganisationService as any, {
-                initialised: of(true),
-                active_building: of({ id: 'bld-1', timezone: 'UTC' }),
-                active_buildings: of([]),
-                level_list: of([]),
+                initialised: signal(true),
+                active_building: signal({ id: 'bld-1', timezone: 'UTC' }),
+                active_buildings: signal([]),
+                level_list: signal([]),
                 building: { id: 'bld-1', timezone: 'UTC' },
             }),
         ],
@@ -65,7 +66,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
     afterEach(() => {
         jest.restoreAllMocks();
         (ts_client.get as jest.Mock).mockReset();
-        (ts_client.get as jest.Mock).mockReturnValue(of([]));
+        (ts_client.get as jest.Mock).mockResolvedValue([]);
         now_spy = null;
     });
 
@@ -295,17 +296,16 @@ describe('ParkingRequestFormDetailsComponent', () => {
     it('should default the selected building to the first desk booking location for the selected day', async () => {
         spectator.component.default_location_from_desk_booking.set(true);
         const org = spectator.inject(OrganisationService) as any;
-        org.active_buildings = of([
+        (org.active_buildings as any).set([
             { id: 'bld-1', timezone: 'UTC', levels: [{ id: 'lvl-1' }] },
             { id: 'bld-2', timezone: 'UTC', levels: [{ id: 'lvl-2' }] },
         ]);
-        org.level_list = of([
+        (org.level_list as any).set([
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
             { id: 'lvl-2', parent_id: 'bld-2', tags: ['parking'] },
         ]);
         org.building = { id: 'bld-1', timezone: 'UTC' };
-        (ts_client.get as jest.Mock).mockReturnValue(
-            of([
+        (ts_client.get as jest.Mock).mockResolvedValue([
                 {
                     id: 'desk-booking-1',
                     booking_type: 'desk',
@@ -322,10 +322,10 @@ describe('ParkingRequestFormDetailsComponent', () => {
                     booking_end: 2,
                     zones: ['lvl-1', 'bld-1'],
                 },
-            ]) as any,
-        );
+            ] as any);
 
         await spectator.component.ngOnInit();
+        await spectator.fixture.whenStable();
 
         expect(org.building.id).toBe('bld-2');
         expect(spectator.component.desk_booking_building_id()).toBe('bld-2');
@@ -345,11 +345,11 @@ describe('ParkingRequestFormDetailsComponent', () => {
 
     it('should not default the selected building from desk bookings when disabled by settings', async () => {
         const org = spectator.inject(OrganisationService) as any;
-        org.active_buildings = of([
+        (org.active_buildings as any).set([
             { id: 'bld-1', timezone: 'UTC', levels: [{ id: 'lvl-1' }] },
             { id: 'bld-2', timezone: 'UTC', levels: [{ id: 'lvl-2' }] },
         ]);
-        org.level_list = of([
+        (org.level_list as any).set([
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
             { id: 'lvl-2', parent_id: 'bld-2', tags: ['parking'] },
         ]);
@@ -365,21 +365,21 @@ describe('ParkingRequestFormDetailsComponent', () => {
     it('should use the selected host when defaulting the selected building from desk bookings', async () => {
         spectator.component.default_location_from_desk_booking.set(true);
         const org = spectator.inject(OrganisationService) as any;
-        org.active_buildings = of([
+        (org.active_buildings as any).set([
             { id: 'bld-1', timezone: 'UTC', levels: [{ id: 'lvl-1' }] },
             { id: 'bld-2', timezone: 'UTC', levels: [{ id: 'lvl-2' }] },
         ]);
-        org.level_list = of([
+        (org.level_list as any).set([
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
             { id: 'lvl-2', parent_id: 'bld-2', tags: ['parking'] },
         ]);
         org.building = { id: 'bld-1', timezone: 'UTC' };
-        (ts_client.get as jest.Mock).mockReturnValue(of([]));
+        (ts_client.get as jest.Mock).mockResolvedValue([]);
         await spectator.component.ngOnInit();
+        await spectator.fixture.whenStable();
         expect(org.building.id).toBe('bld-1');
 
-        (ts_client.get as jest.Mock).mockReturnValue(
-            of([
+        (ts_client.get as jest.Mock).mockResolvedValue([
                 {
                     id: 'current-user-desk',
                     booking_type: 'desk',
@@ -396,13 +396,13 @@ describe('ParkingRequestFormDetailsComponent', () => {
                     booking_end: 2,
                     zones: ['lvl-1', 'bld-1'],
                 },
-            ]) as any,
-        );
+            ] as any);
 
         spectator.component.form().controls.user.setValue({
             email: 'other@test.com',
             name: 'Other',
         });
+        await spectator.fixture.whenStable();
 
         expect(org.building.id).toBe('bld-1');
         expect(spectator.component.desk_booking_building_id()).toBe('bld-1');
@@ -421,14 +421,13 @@ describe('ParkingRequestFormDetailsComponent', () => {
             timezone: 'UTC',
             levels: [{ id: 'lvl-2' }],
         };
-        org.active_buildings = of([bld_1, bld_2]);
-        org.level_list = of([
+        (org.active_buildings as any).set([bld_1, bld_2]);
+        (org.level_list as any).set([
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
             { id: 'lvl-2', parent_id: 'bld-2', tags: ['parking'] },
         ]);
         org.building = bld_1;
-        (ts_client.get as jest.Mock).mockReturnValue(
-            of([
+        (ts_client.get as jest.Mock).mockResolvedValue([
                 {
                     id: 'desk-booking-1',
                     booking_type: 'desk',
@@ -437,9 +436,9 @@ describe('ParkingRequestFormDetailsComponent', () => {
                     booking_end: 2,
                     zones: ['lvl-2', 'bld-2'],
                 },
-            ]) as any,
-        );
+            ] as any);
         await spectator.component.ngOnInit();
+        await spectator.fixture.whenStable();
         expect(spectator.component.desk_booking_building_id()).toBe('bld-2');
 
         spectator.component.setBuilding(bld_1);
@@ -450,11 +449,11 @@ describe('ParkingRequestFormDetailsComponent', () => {
 
     it('should hide buildings without parking levels from the location options', async () => {
         const org = spectator.inject(OrganisationService) as any;
-        org.active_buildings = of([
+        (org.active_buildings as any).set([
             { id: 'bld-1', timezone: 'UTC' },
             { id: 'bld-2', timezone: 'UTC' },
         ]);
-        org.level_list = of([
+        (org.level_list as any).set([
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
             { id: 'lvl-2', parent_id: 'bld-2', tags: ['level'] },
         ]);
@@ -468,11 +467,11 @@ describe('ParkingRequestFormDetailsComponent', () => {
 
     it('should hide buildings listed in the hidden buildings setting', async () => {
         const org = spectator.inject(OrganisationService) as any;
-        org.active_buildings = of([
+        (org.active_buildings as any).set([
             { id: 'bld-1', timezone: 'UTC' },
             { id: 'bld-2', timezone: 'UTC' },
         ]);
-        org.level_list = of([
+        (org.level_list as any).set([
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
             { id: 'lvl-2', parent_id: 'bld-2', tags: ['parking'] },
         ]);
@@ -490,17 +489,18 @@ describe('ParkingRequestFormDetailsComponent', () => {
 
     it('should switch the active building when the selected building is not a valid parking location', async () => {
         const org = spectator.inject(OrganisationService) as any;
-        org.active_building = of({ id: 'bld-1', timezone: 'UTC' });
+        (org.active_building as any).set({ id: 'bld-1', timezone: 'UTC' });
         org.building = { id: 'bld-1', timezone: 'UTC' };
-        org.active_buildings = of([
+        (org.active_buildings as any).set([
             { id: 'bld-1', timezone: 'UTC' },
             { id: 'bld-2', timezone: 'UTC' },
         ]);
-        org.level_list = of([
+        (org.level_list as any).set([
             { id: 'lvl-2', parent_id: 'bld-2', tags: ['parking'] },
         ]);
 
         await spectator.component.ngOnInit();
+        spectator.detectChanges();
 
         expect(org.building.id).toBe('bld-2');
     });

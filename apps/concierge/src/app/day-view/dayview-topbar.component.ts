@@ -5,10 +5,9 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
-import { first } from 'rxjs/operators';
 
 import {
     AsyncHandler,
@@ -125,7 +124,7 @@ export class DayviewTopbarComponent extends AsyncHandler implements OnInit {
     public readonly type_list = signal(this.types.map((i) => `${i.id}`));
     /** List of levels for the active building */
     public readonly levels = toSignal(
-        this._state.levels || this._org.active_levels,
+        this._state.levels || toObservable(this._org.active_levels),
         {
             initialValue: [],
         },
@@ -172,7 +171,7 @@ export class DayviewTopbarComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await this._org.waitUntilInitialised();
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {

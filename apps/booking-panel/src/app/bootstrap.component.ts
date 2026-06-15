@@ -183,7 +183,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
 
     private readonly _space_list$ = combineLatest([
         toObservable(this.system_id),
-        this._org.initialised,
+        toObservable(this._org.initialised),
     ]).pipe(
         debounceTime(300),
         switchMap(([search]) => {

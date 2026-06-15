@@ -26,10 +26,10 @@ describe('ExploreSearchService', () => {
         service: ExploreSearchService,
         providers: [
             MockProvider(OrganisationService, {
-                initialised_signal: signal(true),
+                initialised: signal(true),
                 organisation: new Organisation(),
                 binding: jest.fn(() => 'sys-1'),
-                building_signal: signal(new Building()),
+                active_building: signal(new Building()),
             }),
             MockProvider(SettingsService, {
                 get: jest.fn(),

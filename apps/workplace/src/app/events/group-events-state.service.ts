@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import {
     currentUser,
     OrganisationService,
@@ -52,7 +53,9 @@ export class GroupEventsStateService {
     public readonly filters = this._filters.asObservable();
     public readonly tags = this._tag_list.asObservable();
 
-    public readonly calendar_system = this._org.active_building.pipe(
+    public readonly calendar_system = toObservable(
+        this._org.active_building,
+    ).pipe(
         debounceTime(100),
         switchMap((bld) =>
             !bld
@@ -66,7 +69,7 @@ export class GroupEventsStateService {
     );
 
     public readonly events = combineLatest([
-        this._org.active_building,
+        toObservable(this._org.active_building),
         this.calendar_system,
         this._options,
     ]).pipe(

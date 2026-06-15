@@ -96,7 +96,7 @@ export class ControlSpaceListComponent extends AsyncHandler {
     public readonly search = new BehaviorSubject('');
     /** List of controlable spaces for the active building */
     public readonly space_list = combineLatest([
-        this._org.active_building,
+        toObservable(this._org.active_building),
         toObservable(this._spaces.all_spaces),
         toObservable(this._spaces.initialised),
     ]).pipe(

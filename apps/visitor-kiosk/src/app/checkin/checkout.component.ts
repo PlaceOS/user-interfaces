@@ -75,7 +75,7 @@ export class CheckoutComponent implements OnInit {
     public loading = signal(false);
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await this._org.waitUntilInitialised();
         const event = await this._state.event.pipe(first()).toPromise();
         if (!event) this._router.navigate(['/checkin']);
     }

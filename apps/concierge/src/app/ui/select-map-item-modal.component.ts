@@ -285,9 +285,7 @@ export class SelectMapItemModalComponent
     public readonly hovered = signal('');
     public readonly search = signal('');
     public readonly changed = signal(0);
-    public readonly level_list = toSignal(this._org.active_levels, {
-        initialValue: [] as BuildingLevel[],
-    });
+    public readonly level_list = this._org.active_levels;
     public readonly actions = [
         { id: '*', action: 'click', callback: (e, p) => this.selectID(p || e) },
     ];
@@ -390,7 +388,7 @@ export class SelectMapItemModalComponent
         if (this._data?.location && typeof this._data.location === 'string') {
             this.selected.set(this._data.location as string);
         }
-        const levels = this._org.active_levels_signal();
+        const levels = this._org.active_levels();
         if (levels.length) {
             let level = levels[0];
             if (this._data?.level_id) {
