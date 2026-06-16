@@ -1,6 +1,5 @@
 import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { of } from 'rxjs';
 
 import { OrganisationService } from '@placeos/common';
 import { ExploreStateService } from '@placeos/explore';
@@ -22,8 +21,8 @@ describe('ExploreLevelSelectComponent', () => {
             {
                 provide: OrganisationService,
                 useValue: {
-                    initialised: of(true),
-                    active_levels: of([
+                    initialised: signal(true),
+                    active_levels: signal([
                         { id: 'lvl-1', name: 'Level 1' },
                         { id: 'lvl-2', name: 'Level 2' },
                     ]),

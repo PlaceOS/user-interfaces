@@ -3,7 +3,7 @@ import {
     DragDropModule,
     moveItemInArray,
 } from '@angular/cdk/drag-drop';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
@@ -103,7 +103,8 @@ import { SignageService } from '../signage.service';
                         class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                         (click)="sharePlaylist()"
                         [attr.aria-label]="
-                            'SIGNAGE_MANAGER.SHARE_SELECTED_PLAYLIST' | translate
+                            'SIGNAGE_MANAGER.SHARE_SELECTED_PLAYLIST'
+                                | translate
                         "
                     >
                         <icon>ios_share</icon>
@@ -115,12 +116,14 @@ import { SignageService } from '../signage.service';
                         type="button"
                         matRipple
                         [matTooltip]="
-                            'SIGNAGE_MANAGER.DELETE_PLAYLIST_TOOLTIP' | translate
+                            'SIGNAGE_MANAGER.DELETE_PLAYLIST_TOOLTIP'
+                                | translate
                         "
                         class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                         (click)="removePlaylist()"
                         [attr.aria-label]="
-                            'SIGNAGE_MANAGER.DELETE_SELECTED_PLAYLIST' | translate
+                            'SIGNAGE_MANAGER.DELETE_SELECTED_PLAYLIST'
+                                | translate
                         "
                     >
                         <icon class="text-error">delete</icon>
@@ -132,7 +135,11 @@ import { SignageService } from '../signage.service';
                     class="flex flex-1 flex-col items-center justify-center space-y-3 p-8 opacity-70"
                 >
                     <mat-spinner diameter="32" />
-                    <p>{{ 'SIGNAGE_MANAGER.LOADING_PLAYLIST_ITEMS' | translate }}</p>
+                    <p>
+                        {{
+                            'SIGNAGE_MANAGER.LOADING_PLAYLIST_ITEMS' | translate
+                        }}
+                    </p>
                 </div>
             } @else if (items().length > 0) {
                 <div
@@ -328,6 +335,7 @@ import { SignageService } from '../signage.service';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         DragDropModule,
         MatRippleModule,

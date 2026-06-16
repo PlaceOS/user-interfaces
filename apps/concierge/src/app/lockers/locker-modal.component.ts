@@ -1,5 +1,6 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 import {
+    ChangeDetectionStrategy,
     Component,
     effect,
     EventEmitter,
@@ -291,6 +292,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         IconComponent,
@@ -387,7 +389,7 @@ export class LockerModalComponent extends AsyncHandler implements OnInit {
 
     public async ngOnInit() {
         if (this.locker?.assigned_to) {
-            const user = await showStaff(this.locker.assigned_to).toPromise();
+            const user = await showStaff(this.locker.assigned_to);
             if (user) {
                 this.form.patchValue({
                     assigned_user: user,

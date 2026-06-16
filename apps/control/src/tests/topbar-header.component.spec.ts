@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { OrganisationService, SettingsService } from '@placeos/common';
@@ -26,7 +27,7 @@ describe('TopbarHeaderComponent', () => {
         providers: [
             MockProvider(SettingsService, { get: jest.fn(), theme: 'light' }),
             MockProvider(OrganisationService, {
-                active_building: new BehaviorSubject({} as any),
+                active_building: signal({} as any),
             } as any),
             MockProvider(ControlStateService, {
                 system: new BehaviorSubject([]),

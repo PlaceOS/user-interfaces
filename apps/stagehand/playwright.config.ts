@@ -19,7 +19,7 @@ export default defineConfig({
         trace: 'on-first-retry',
     },
     webServer: {
-        command: 'npx nx serve stagehand --port=4210',
+        command: 'bunx nx serve stagehand --port=4210',
         url: 'http://localhost:4210',
         reuseExistingServer: !process.env.CI,
         cwd: workspaceRoot,

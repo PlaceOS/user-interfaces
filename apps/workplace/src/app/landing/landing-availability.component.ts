@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
 import { settingSignal, Space } from '@placeos/common';
@@ -10,7 +10,6 @@ import {
     LevelPipe,
     TranslatePipe,
 } from '@placeos/components';
-import { SpacePipe } from '@placeos/events';
 import { ExploreSpacesService } from '@placeos/explore';
 import { LandingStateService } from './landing-state.service';
 
@@ -37,7 +36,7 @@ import { LandingStateService } from './landing-state.service';
                     class="mx-4 flex w-[calc(100%-2rem)] snap-x items-center space-x-2 overflow-auto py-2"
                     [class.mb-4]="!hide_rooms()"
                 >
-                    @for (lvl of levels_free | async; track lvl) {
+                    @for (lvl of levels_free(); track lvl) {
                         <button
                             name="landing-view-space"
                             matRipple
@@ -84,7 +83,7 @@ import { LandingStateService } from './landing-state.service';
                             </div>
                         </button>
                     }
-                    @if (!(levels_free | async).length) {
+                    @if (!levels_free().length) {
                         <span class="mb-2 text-sm opacity-60">
                             {{
                                 'APP.WORKPLACE.AVAILABLE_LIST_SPACES_EMPTY'
@@ -101,7 +100,7 @@ import { LandingStateService } from './landing-state.service';
                     <div>
                         {{ 'APP.WORKPLACE.AVAILABLE_LIST_ROOMS' | translate }}
                     </div>
-                    @if (loading_spaces | async) {
+                    @if (loading_spaces()) {
                         <mat-spinner diameter="24"></mat-spinner>
                     }
                 </div>
@@ -111,7 +110,7 @@ import { LandingStateService } from './landing-state.service';
                     class="mx-4 flex w-[calc(100%-2rem)] snap-x items-center space-x-2 overflow-auto py-2"
                 >
                     @for (
-                        space of space_list | async;
+                        space of space_list();
                         track trackBySpaceId($index, space)
                     ) {
                         <button
@@ -123,15 +122,10 @@ import { LandingStateService } from './landing-state.service';
                             <div
                                 class="bg-base-200 flex h-16 w-16 min-w-16 items-center justify-center overflow-hidden rounded-sm"
                             >
-                                @if (
-                                    (space.id | space | async)?.images?.length
-                                ) {
+                                @if (space.images?.length) {
                                     <img
                                         auth
-                                        [source]="
-                                            (space.id | space | async)
-                                                ?.images[0]
-                                        "
+                                        [source]="space.images[0]"
                                         class="h-full w-full object-cover object-center"
                                     />
                                 } @else {
@@ -161,7 +155,7 @@ import { LandingStateService } from './landing-state.service';
                             </div>
                         </button>
                     }
-                    @if (!(space_list | async)?.length) {
+                    @if (!space_list().length) {
                         <span class="mb-2 text-sm opacity-60">
                             {{
                                 'APP.WORKPLACE.AVAILABLE_LIST_ROOMS_EMPTY'
@@ -181,12 +175,12 @@ import { LandingStateService } from './landing-state.service';
         `,
     ],
     providers: [ExploreSpacesService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,
         LevelPipe,
         BuildingPipe,
-        SpacePipe,
         MatProgressSpinnerModule,
         RouterModule,
         IconComponent,

@@ -1,6 +1,7 @@
 import {
     provideHttpClient,
     withInterceptorsFromDi,
+    withXhr,
 } from '@angular/common/http';
 import {
     ErrorHandler,
@@ -57,7 +58,7 @@ import { PanelViewComponent } from './panel-view.component';
             deps: [Router],
         },
 
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
     ],
 })
 export class AppModule {

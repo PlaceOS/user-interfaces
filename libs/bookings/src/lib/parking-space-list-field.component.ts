@@ -88,12 +88,12 @@ const EMPTY_FAVS: string[] = [];
                         matRipple
                         fav
                         class="absolute top-1 right-1"
-                        [class.text-info]="favorites.includes(space?.id)"
+                        [class.text-info]="favorites().includes(space?.id)"
                         (click)="toggleFavourite(space)"
                     >
                         <icon
                             [className]="
-                                favorites.includes(space?.id)
+                                favorites().includes(space?.id)
                                     ? 'material-symbols-rounded'
                                     : 'material-symbols-outlined'
                             "
@@ -146,13 +146,11 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
     private _onChange: (_: BookingAsset[]) => void;
     private _onTouch: (_: BookingAsset[]) => void;
 
-    public get favorites() {
-        return this._settings.signal<string[]>(
-            SETTING_KEYS.FAVORITE_PARKING_SPACES,
-            EMPTY_FAVS,
-            true,
-        )();
-    }
+    public readonly favorites = this._settings.signal<string[]>(
+        SETTING_KEYS.FAVORITE_PARKING_SPACES,
+        EMPTY_FAVS,
+        true,
+    );
 
     /** Add or edit selected spaces */
     public changeResources() {
@@ -199,7 +197,7 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
     public readonly setDisabledState = (s: boolean) => this.disabled.set(s);
 
     public toggleFavourite(space: BookingAsset) {
-        const fav_list = this.favorites;
+        const fav_list = this.favorites() || EMPTY_FAVS;
         const new_state = !fav_list.includes(space.id);
         if (new_state) {
             this._settings.saveUserSetting(

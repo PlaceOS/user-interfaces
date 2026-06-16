@@ -1,5 +1,6 @@
 import { CdkTreeModule } from '@angular/cdk/tree';
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -43,7 +44,9 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                 >
                     <input
                         matInput
-                        [placeholder]="'SIGNAGE_MANAGER.SEARCH_ZONES' | translate"
+                        [placeholder]="
+                            'SIGNAGE_MANAGER.SEARCH_ZONES' | translate
+                        "
                         [ngModel]="search()"
                         (ngModelChange)="search.set($event)"
                         [attr.aria-label]="
@@ -71,7 +74,11 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                             [attr.aria-label]="
                                 'SIGNAGE_MANAGER.OPEN_ZONE'
                                     | translate
-                                        : { name: zone.display_name || zone.name }
+                                        : {
+                                              name:
+                                                  zone.display_name ||
+                                                  zone.name,
+                                          }
                             "
                             (click)="selectZone(zone)"
                         >
@@ -251,6 +258,7 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FormsModule,
         RouterLink,
@@ -266,9 +274,7 @@ export class ZoneListComponent {
     private readonly _org = inject(OrganisationService);
     private readonly _service = inject(SignageService);
 
-    private readonly _org_initialised = toSignal(this._org.initialised, {
-        initialValue: false,
-    });
+    private readonly _org_initialised = this._org.initialised;
     private readonly _all_zones = toSignal(this._service.all_zones, {
         initialValue: [] as PlaceZone[],
     });

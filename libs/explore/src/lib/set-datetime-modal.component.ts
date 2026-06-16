@@ -160,7 +160,7 @@ export class SetDatetimeModalComponent implements OnInit {
     private _settings = inject(SettingsService);
 
     public readonly host = signal(this._data.host);
-    public form = new FormGroup({
+    public readonly form = new FormGroup({
         user: new FormControl(this._data.user),
         date: new FormControl(this._data.date),
         duration: new FormControl(this._data.duration),

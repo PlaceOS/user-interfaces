@@ -1,9 +1,10 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
+    effect,
     inject,
     model,
-    OnInit,
     signal,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
@@ -258,9 +259,10 @@ const FEATURE_MENU_ITEMS: FooterMenuItem[] = [
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, IconComponent, RouterModule, MatRippleModule],
 })
-export class FooterMenuComponent extends AsyncHandler implements OnInit {
+export class FooterMenuComponent extends AsyncHandler {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
@@ -278,24 +280,23 @@ export class FooterMenuComponent extends AsyncHandler implements OnInit {
         () => this.features().length + this.menu_embeds().length,
     );
 
-    public ngOnInit() {
-        this.subscription(
-            'building',
-            this._org.active_building.subscribe(() => {
-                this.dark_mode.set(
-                    this._settings.get('app.allow_dark_mode') &&
-                        this._settings.theme === 'dark',
-                );
-                this.features.set(this._settings.get('app.features') || []);
-                this.menu_embeds.set(
-                    (this._settings.get('app.menu_embeds') || []).filter(
-                        (item) => item?.id && item?.name && item?.url,
-                    ),
-                );
-                this.default_page.set(
-                    this._settings.get('app.default_route') || '/landing',
-                );
-            }),
-        );
+    constructor() {
+        super();
+        effect(() => {
+            this._org.active_building();
+            this.dark_mode.set(
+                this._settings.get('app.allow_dark_mode') &&
+                    this._settings.theme === 'dark',
+            );
+            this.features.set(this._settings.get('app.features') || []);
+            this.menu_embeds.set(
+                (this._settings.get('app.menu_embeds') || []).filter(
+                    (item) => item?.id && item?.name && item?.url,
+                ),
+            );
+            this.default_page.set(
+                this._settings.get('app.default_route') || '/landing',
+            );
+        });
     }
 }

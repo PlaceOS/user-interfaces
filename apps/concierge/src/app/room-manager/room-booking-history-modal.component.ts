@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -339,6 +345,7 @@ type HistoryPeriod = 'week' | 'month' | '3_months' | '12_months';
         `,
     ],
     providers: [UserPipe],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         FormsModule,
@@ -401,9 +408,7 @@ export class RoomBookingHistoryModalComponent {
             period_start: getUnixTime(start),
             period_end: getUnixTime(end),
             include_cancelled: true,
-        })
-            .toPromise()
-            .catch(() => []);
+        }).catch(() => []);
         this._events.set(events || []);
         this.loading.set(false);
     }
@@ -469,9 +474,9 @@ export class RoomBookingHistoryModalComponent {
         } else {
             params.system_ids = this.room.id;
         }
-        const changes = await queryEventHistory(params)
-            .toPromise()
-            .catch(() => [] as CalendarEventChange[]);
+        const changes = await queryEventHistory(params).catch(
+            () => [] as CalendarEventChange[],
+        );
         const sorted = [...(changes || [])].sort(
             (a, b) => (b.updated_at || 0) - (a.updated_at || 0),
         );

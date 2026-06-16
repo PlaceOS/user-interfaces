@@ -1,12 +1,17 @@
-import { Component, computed, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { i18n } from '@placeos/common';
 import {
     CustomTooltipComponent,
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { i18n } from '@placeos/common';
 import { lastValueFrom } from 'rxjs';
 import { SignageService } from '../signage.service';
 import { GroupSelectModalComponent } from './group-select-modal.component';
@@ -33,7 +38,8 @@ import { GroupSelectModalComponent } from './group-select-modal.component';
                     class="hover:bg-base-100/30 focus-visible:bg-base-100/30 relative flex h-18 w-18 flex-col items-center justify-center rounded-xl"
                     [attr.aria-label]="
                         'SIGNAGE_MANAGER.SIGNAGE_GROUP_LABEL'
-                            | translate: { name: (selected_label() | translate) }
+                            | translate
+                                : { name: (selected_label() | translate) }
                     "
                     (click)="selectGroup()"
                 >
@@ -104,6 +110,7 @@ import { GroupSelectModalComponent } from './group-select-modal.component';
             </ng-template>
         }
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         CustomTooltipComponent,
@@ -120,9 +127,7 @@ export class SignageGroupSelectorComponent {
     public readonly selected_group_id = this._service.selected_group_id;
     public readonly is_sys_admin = this._service.is_sys_admin;
     public readonly selected_label = computed(
-        () =>
-            this.selected_group()?.group.name ||
-            'SIGNAGE_MANAGER.ALL_GROUPS',
+        () => this.selected_group()?.group.name || 'SIGNAGE_MANAGER.ALL_GROUPS',
     );
     public readonly selected_hierarchy = computed(() => {
         const selected_group = this.selected_group();

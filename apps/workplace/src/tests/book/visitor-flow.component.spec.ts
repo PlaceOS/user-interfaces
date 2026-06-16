@@ -1,7 +1,13 @@
-import { FormControl, FormGroup } from '@angular/forms';
+import { Injector, signal, WritableSignal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { BookingFormService } from '@placeos/bookings';
+import {
+    BookingForm,
+    BookingFormValue,
+    BookingFormService,
+    generateBookingForm,
+} from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
 import { ActivatedRoute } from '@angular/router';
 import { NEVER, of } from 'rxjs';
@@ -9,7 +15,8 @@ import { VisitorFlowNewComponent } from 'apps/workplace/src/app/book/visitor-flo
 
 describe('VisitorFlowNewComponent', () => {
     let spectator: SpectatorRouting<VisitorFlowNewComponent>;
-    let form: FormGroup;
+    let form: BookingForm;
+    let model: WritableSignal<BookingFormValue>;
     let save_user_setting: jest.Mock;
     let clear_form: jest.Mock;
     let dialog_open: jest.Mock;
@@ -22,18 +29,28 @@ describe('VisitorFlowNewComponent', () => {
             {
                 provide: BookingFormService,
                 useFactory: () => {
-                    form = new FormGroup({
-                        id: new FormControl(''),
-                        title: new FormControl('Visit'),
-                        description: new FormControl(''),
-                        asset_name: new FormControl(''),
-                        asset_id: new FormControl(''),
-                        company: new FormControl(''),
-                        phone: new FormControl(''),
-                        assets: new FormControl([]),
-                    });
+                    // Build a real signal-forms booking form so the component
+                    // can read `form().valid()`/`form().dirty()` and `model()`.
+                    const injector = TestBed.inject(Injector);
+                    const refs = TestBed.runInInjectionContext(() =>
+                        generateBookingForm(undefined, injector),
+                    );
+                    form = refs.form;
+                    model = refs.model;
+                    model.update((m) => ({
+                        ...m,
+                        id: '',
+                        title: 'Visit',
+                        description: '',
+                        asset_name: '',
+                        asset_id: '',
+                        company: '',
+                        phone: '',
+                        assets: [],
+                    }));
                     return {
                         form,
+                        model,
                         view: () => 'details',
                         booking: null,
                         last_count: 0,
@@ -90,7 +107,7 @@ describe('VisitorFlowNewComponent', () => {
     });
 
     it('should show edit visitor details heading in the visit details section when editing a booking', () => {
-        form.patchValue({ id: 'visitor-booking-3' });
+        model.update((m) => ({ ...m, id: 'visitor-booking-3' }));
 
         expect(spectator.component.visit_heading()).toBe(
             'BOOKINGS.EDIT_VISITOR_DETAILS',
@@ -98,12 +115,13 @@ describe('VisitorFlowNewComponent', () => {
     });
 
     it('should save visitor phone in recent visitors history', () => {
-        form.patchValue({
+        model.update((m) => ({
+            ...m,
             asset_id: 'visitor.one@example.com',
             asset_name: 'Visitor One',
             company: 'Acme',
             phone: '+61400111222',
-        });
+        }));
 
         (spectator.component as any)._saveRecentVisitors(false);
 
@@ -113,7 +131,7 @@ describe('VisitorFlowNewComponent', () => {
     });
 
     it('should allow navigation without prompting when the edit form has no unsaved changes', async () => {
-        form.patchValue({ id: 'visitor-booking-3' });
+        model.update((m) => ({ ...m, id: 'visitor-booking-3' }));
 
         await expect(spectator.component.canDeactivate()).resolves.toBe(true);
 
@@ -122,8 +140,8 @@ describe('VisitorFlowNewComponent', () => {
     });
 
     it('should discard dirty edit state after confirming navigation', async () => {
-        form.patchValue({ id: 'visitor-booking-3' });
-        form.markAsDirty();
+        model.update((m) => ({ ...m, id: 'visitor-booking-3' }));
+        form().markAsDirty();
 
         await expect(spectator.component.canDeactivate()).resolves.toBe(true);
 
@@ -138,8 +156,8 @@ describe('VisitorFlowNewComponent', () => {
             afterClosed: () => of(null),
             close: jest.fn(),
         });
-        form.patchValue({ id: 'visitor-booking-3' });
-        form.markAsDirty();
+        model.update((m) => ({ ...m, id: 'visitor-booking-3' }));
+        form().markAsDirty();
 
         await expect(spectator.component.canDeactivate()).resolves.toBe(false);
 

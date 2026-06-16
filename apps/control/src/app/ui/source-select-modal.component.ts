@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -42,6 +42,7 @@ export class SourceSelectModalData {
             </button>
         </div>
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatDialogModule,
         IconComponent,

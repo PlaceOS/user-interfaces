@@ -22,7 +22,7 @@ export default defineConfig({
         trace: 'on-first-retry',
     },
     webServer: {
-        command: 'npx nx serve assistant-panel --port=4201',
+        command: 'bunx nx serve assistant-panel --port=4201',
         url: 'http://localhost:4201',
         reuseExistingServer: !process.env.CI,
         cwd: workspaceRoot,

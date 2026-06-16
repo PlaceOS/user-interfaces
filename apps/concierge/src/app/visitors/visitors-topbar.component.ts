@@ -1,6 +1,13 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    Injector,
+    OnInit,
+    inject,
+    signal,
+} from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { first } from 'rxjs/operators';
 
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -58,6 +65,7 @@ import { VisitorsStateService } from './visitors-state.service';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         DateOptionsComponent,
         SearchbarComponent,
@@ -72,6 +80,7 @@ export class VisitorsTopbarComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
+    private _injector = inject(Injector);
 
     /** List of selected levels */
     public readonly zones = signal<string[]>([]);
@@ -96,7 +105,7 @@ export class VisitorsTopbarComponent extends AsyncHandler implements OnInit {
     };
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await this._org.waitUntilInitialised();
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
@@ -115,7 +124,9 @@ export class VisitorsTopbarComponent extends AsyncHandler implements OnInit {
         );
         this.subscription(
             'levels',
-            this._org.active_levels.subscribe((levels) => {
+            toObservable(this._org.active_levels, {
+                injector: this._injector,
+            }).subscribe((levels) => {
                 const current_levels = levels || [];
                 this.levels.set(current_levels);
                 const zones = this.zones().filter((zone) =>

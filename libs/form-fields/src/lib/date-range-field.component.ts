@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, contentChild, input, viewChild } from '@angular/core';
+import {
+    Component,
+    computed,
+    contentChild,
+    input,
+    viewChild,
+} from '@angular/core';
 import { NgControl } from '@angular/forms';
 import { AsyncHandler } from '@placeos/common';
 import { startOfDay } from 'date-fns';
@@ -39,8 +45,8 @@ import { DateRangeCalendarComponent } from './date-range-calendar.component';
             <div class="bg-base-100 relative w-73 rounded-sm px-2 py-4">
                 <date-range-calendar
                     [month]="start_date()?.control?.value || now"
-                    [from]="from"
-                    [to]="until"
+                    [from]="from()"
+                    [to]="until()"
                     [offset_weekday]="week_start()"
                     (startChange)="setStartDate($event)"
                     (endChange)="setEndDate($event)"
@@ -76,14 +82,14 @@ export class DateRangeFieldComponent extends AsyncHandler {
     public readonly end_date = contentChild('endDate', { read: NgControl });
 
     /** First allowed date on the calendar */
-    public get from(): number {
+    public readonly from = computed((): number => {
         const from = this.from_date();
         return from !== undefined ? from : startOfDay(new Date()).valueOf();
-    }
+    });
     /** Current date value */
-    public get until(): number {
+    public readonly until = computed((): number => {
         return this.to_date();
-    }
+    });
 
     private readonly _tooltip = viewChild(CustomTooltipComponent);
 

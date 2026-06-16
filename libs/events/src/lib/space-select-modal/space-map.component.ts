@@ -1,5 +1,6 @@
 import {
     Component,
+    computed,
     DestroyRef,
     inject,
     input,
@@ -74,7 +75,7 @@ import { SpaceLocationPinComponent } from './space-location-pin.component';
         }
         <div class="relative w-full flex-1">
             <interactive-map
-                [src]="map_url"
+                [src]="map_url()"
                 [(zoom)]="zoom"
                 [(center)]="center"
                 [styles]="styles()"
@@ -114,25 +115,23 @@ export class SpaceMapComponent implements OnInit {
     public readonly is_displayed = input(false);
     public readonly onSelect = output<Space>();
 
-    public zoom = 1;
-    public center = { x: 0.5, y: 0.5 };
-    public coordinates = undefined;
+    public readonly zoom = signal(1);
+    public readonly center = signal({ x: 0.5, y: 0.5 });
+    public readonly coordinates = signal(undefined);
     public readonly use_region = settingSignal('use_region', false);
 
     private _seletedSpace = (s) => () => {
         this.onSelect.emit(s);
         this._change.set(Date.now());
     };
-    public level: BuildingLevel = null;
+    public readonly level = signal<BuildingLevel>(null);
     private _change = signal(0);
 
-    public get map_url() {
-        return this.level?.map_id || '';
-    }
+    public readonly map_url = computed(() => this.level()?.map_id || '');
 
     private readonly _levels$ = combineLatest([
-        this._org.active_region,
-        this._org.active_building,
+        toObservable(this._org.active_region),
+        toObservable(this._org.active_building),
     ]).pipe(
         map(([region, bld]) => {
             const level_list = this.use_region()
@@ -141,8 +140,8 @@ export class SpaceMapComponent implements OnInit {
             const viewable_levels = level_list.filter(
                 (lvl) => !lvl.tags.includes('parking'),
             );
-            if (!this.level && viewable_levels.length) {
-                this.level = viewable_levels[0];
+            if (!this.level() && viewable_levels.length) {
+                this.level.set(viewable_levels[0]);
             }
             return viewable_levels.sort(
                 (a, b) =>
@@ -160,9 +159,13 @@ export class SpaceMapComponent implements OnInit {
     public readonly setOptions = (o) => this._event_form.setOptions(o);
 
     private readonly _change$ = toObservable(this._change);
+    private readonly _spaces$ = toObservable(this._event_form.spaces);
+    private readonly _available_spaces$ = toObservable(
+        this._event_form.available_spaces,
+    );
 
     private readonly _features$ = combineLatest([
-        this._event_form.available_spaces,
+        this._available_spaces$,
         this._change$,
     ]).pipe(
         debounceTime(300),
@@ -181,7 +184,7 @@ export class SpaceMapComponent implements OnInit {
 
     public readonly features = toSignal(this._features$, { initialValue: [] });
 
-    private readonly _actions$ = this._event_form.available_spaces.pipe(
+    private readonly _actions$ = this._available_spaces$.pipe(
         map((l) =>
             l.map((space) => ({
                 id: space.map_id,
@@ -194,8 +197,8 @@ export class SpaceMapComponent implements OnInit {
     public readonly actions = toSignal(this._actions$, { initialValue: [] });
 
     private readonly _styles$ = combineLatest([
-        this._event_form.spaces$,
-        this._event_form.available_spaces,
+        this._spaces$,
+        this._available_spaces$,
     ]).pipe(
         map(([spaces, free_spaces]) =>
             spaces.reduce((styles, space) => {
@@ -216,12 +219,14 @@ export class SpaceMapComponent implements OnInit {
 
     public readonly styles = toSignal(this._styles$, { initialValue: {} });
 
+    private readonly _options$ = toObservable(this._event_form.options);
+
     public ngOnInit() {
-        this._event_form.options$
+        this._options$
             .pipe(takeUntilDestroyed(this._destroy_ref))
             .subscribe(({ zones }) => {
                 const level = this._org.levelWithID(zones);
-                if (level) this.level = level;
+                if (level) this.level.set(level);
             });
     }
 
@@ -232,17 +237,17 @@ export class SpaceMapComponent implements OnInit {
             const [latitude, longitude] = (level.location || bld.location)
                 .split(',')
                 .map((_) => parseFloat(_));
-            this.coordinates = { latitude, longitude };
+            this.coordinates.set({ latitude, longitude });
         }
-        this.level = level;
+        this.level.set(level);
     }
 
     public setZoom(new_zoom: number) {
-        this.zoom = Math.max(0.5, Math.min(10, new_zoom));
+        this.zoom.set(Math.max(0.5, Math.min(10, new_zoom)));
     }
 
     public resetMap() {
-        this.zoom = 1;
-        this.center = { x: 0.5, y: 0.5 };
+        this.zoom.set(1);
+        this.center.set({ x: 0.5, y: 0.5 });
     }
 }

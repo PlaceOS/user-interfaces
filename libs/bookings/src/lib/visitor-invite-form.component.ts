@@ -1,8 +1,8 @@
-import { AsyncPipe } from '@angular/common';
 import {
     Component,
     computed,
     inject,
+    Injector,
     input,
     OnChanges,
     OnInit,
@@ -10,7 +10,8 @@ import {
     signal,
     SimpleChanges,
 } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -20,11 +21,11 @@ import {
     alignDateToBookableHours,
     AsyncHandler,
     currentUser,
-    firstTruthyValueFrom,
-    getInvalidFields,
+    getInvalidSignalFields,
     i18n,
     notifyError,
     notifySuccess,
+    onFieldChange,
     OrganisationService,
     randomString,
     settingSignal,
@@ -44,19 +45,20 @@ import { BookingFormService } from './booking-form.service';
     selector: 'visitor-invite-form',
     template: `
         @if (form) {
-            <form [formGroup]="form">
-                @if ((buildings | async)?.length > 1) {
+            <form>
+                @if (buildings()?.length > 1) {
                     <div class="flex flex-col">
                         <label for="building">
                             {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
                         </label>
                         <mat-form-field appearance="outline">
                             <mat-select
-                                [ngModel]="form.value.zones[0]"
+                                [ngModel]="model().zones[0]"
                                 (ngModelChange)="
-                                    form.patchValue({
+                                    model.update((m) => ({
+                                        ...m,
                                         zones: [$event],
-                                    })
+                                    }))
                                 "
                                 [ngModelOptions]="{
                                     standalone: true,
@@ -64,7 +66,7 @@ import { BookingFormService } from './booking-form.service';
                                 name="building"
                                 placeholder="Select building"
                             >
-                                @for (bld of buildings | async; track bld) {
+                                @for (bld of buildings(); track bld) {
                                     <mat-option [value]="bld.id">
                                         {{ bld.display_name || bld.name }}
                                     </mat-option>
@@ -77,19 +79,16 @@ import { BookingFormService } from './booking-form.service';
                     <label for="date">
                         {{ 'FORM.DATE' | translate }}<span>*</span>
                     </label>
-                    <a-date-field
-                        name="date"
-                        formControlName="date"
-                    ></a-date-field>
+                    <a-date-field [formField]="form.date"></a-date-field>
                 </div>
                 @if (allow_all_day()) {
                     <div class="-mt-2 mb-2 flex justify-end">
-                        <mat-checkbox formControlName="all_day">
+                        <mat-checkbox [formField]="form.all_day">
                             {{ 'COMMON.ALL_DAY' | translate }}
                         </mat-checkbox>
                     </div>
                 }
-                @if (!form.value.all_day) {
+                @if (!model().all_day) {
                     <div class="flex items-center space-x-2">
                         <div class="flex w-1/3 flex-1 flex-col">
                             <label for="start-time">
@@ -98,9 +97,9 @@ import { BookingFormService } from './booking-form.service';
                             </label>
                             <a-time-field
                                 name="start-time"
-                                [ngModel]="form.value.date"
+                                [ngModel]="model().date"
                                 (ngModelChange)="
-                                    form.patchValue({ date: $event })
+                                    model.update((m) => ({ ...m, date: $event }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr()"
@@ -115,9 +114,8 @@ import { BookingFormService } from './booking-form.service';
                                 <span>*</span>
                             </label>
                             <a-duration-field
-                                name="end-time"
-                                formControlName="duration"
-                                [time]="form.value.date"
+                                [formField]="form.duration"
+                                [time]="model().date"
                                 [max]="max_duration()"
                                 [use_24hr]="use_24hr()"
                                 [end_time]="bookable_hours()?.end"
@@ -132,9 +130,8 @@ import { BookingFormService } from './booking-form.service';
                             {{ 'FORM.HOST' | translate }}<span>*</span>
                         </label>
                         <a-user-search-field
-                            name="host"
                             class="mb-4"
-                            formControlName="user"
+                            [formField]="form.user"
                         ></a-user-search-field>
                     </div>
                 } @else if (can_book_for_others()) {
@@ -143,8 +140,7 @@ import { BookingFormService } from './booking-form.service';
                             {{ 'FORM.HOST' | translate }}<span>*</span>
                         </label>
                         <host-select-field
-                            name="host"
-                            formControlName="user"
+                            [formField]="form.user"
                         ></host-select-field>
                     </div>
                 }
@@ -157,13 +153,12 @@ import { BookingFormService } from './booking-form.service';
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
-                                name="visitor-name"
-                                formControlName="asset_name"
+                                [formField]="form.asset_name"
                                 [placeholder]="
                                     'BOOKINGS.VISITOR_NAME_PLACEHOLDER'
                                         | translate
                                 "
-                                (focus)="search_term.set(form.value.asset_name)"
+                                (focus)="search_term.set(model().asset_name)"
                                 [matAutocomplete]="name_auto"
                             />
                         </mat-form-field>
@@ -196,14 +191,13 @@ import { BookingFormService } from './booking-form.service';
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
-                                name="visitor-email"
                                 type="email"
-                                formControlName="asset_id"
+                                [formField]="form.asset_id"
                                 [placeholder]="
                                     'BOOKINGS.VISITOR_EMAIL_PLACEHOLDER'
                                         | translate
                                 "
-                                (focus)="search_term.set(form.value.asset_id)"
+                                (focus)="search_term.set(model().asset_id)"
                                 [matAutocomplete]="email_auto"
                             />
                             <mat-error>
@@ -236,15 +230,14 @@ import { BookingFormService } from './booking-form.service';
                     >
                         <div class="flex flex-1 flex-col">
                             <label for="company">{{
-                                'COMMON.ORGANISATION' | translate
+                                'BOOKINGS.VISITOR_COMPANY' | translate
                             }}</label>
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
-                                    name="company"
-                                    formControlName="company"
+                                    [formField]="form.company"
                                     [placeholder]="
-                                        'COMMON.ORGANISATION' | translate
+                                        'BOOKINGS.VISITOR_COMPANY' | translate
                                     "
                                 />
                             </mat-form-field>
@@ -256,9 +249,8 @@ import { BookingFormService } from './booking-form.service';
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
-                                    name="phone"
                                     type="tel"
-                                    formControlName="phone"
+                                    [formField]="form.phone"
                                     [placeholder]="
                                         'BOOKINGS.VISITOR_PHONE_PLACEHOLDER'
                                             | translate
@@ -268,22 +260,22 @@ import { BookingFormService } from './booking-form.service';
                         </div>
                     </div>
                 } @else {
-                    <div class="flex flex-col" [formGroup]="form">
+                    <div class="flex flex-col">
                         <label for="visitor-name">
                             {{ 'BOOKINGS.VISITOR_LIST' | translate }}
                             <span>*</span>
                         </label>
                         <a-user-list-field
-                            formControlName="assets"
+                            [formField]="form.assets"
                             [guests_only]="true"
                         ></a-user-list-field>
                     </div>
-                    @if (allow_international() && form.value.assets?.length) {
+                    @if (allow_international() && model().assets?.length) {
                         <div class="mb-2 flex flex-col">
                             <label>International Visitors</label>
                             <div class="flex flex-wrap gap-x-4 gap-y-2">
                                 @for (
-                                    item of form.value.assets;
+                                    item of model().assets;
                                     track item.id || item.email
                                 ) {
                                     <mat-checkbox
@@ -315,9 +307,8 @@ import { BookingFormService } from './booking-form.service';
                     }}</label>
                     <mat-form-field appearance="outline">
                         <input
-                            name="reason"
                             matInput
-                            formControlName="title"
+                            [formField]="form.title"
                             [placeholder]="
                                 'BOOKINGS.VISITOR_REASON_PLACEHOLDER'
                                     | translate
@@ -332,9 +323,8 @@ import { BookingFormService } from './booking-form.service';
                         }}</label>
                         <mat-form-field appearance="outline">
                             <input
-                                name="pass"
                                 matInput
-                                formControlName="pass_number"
+                                [formField]="form.pass_number"
                                 [placeholder]="
                                     'BOOKINGS.VISITOR_PASS_PLACEHOLDER'
                                         | translate
@@ -345,7 +335,7 @@ import { BookingFormService } from './booking-form.service';
                 }
                 @if (allow_international() && !multiple()) {
                     <div class="-mt-2 mb-2 flex justify-end">
-                        <mat-checkbox formControlName="international">
+                        <mat-checkbox [formField]="form.international">
                             International Visitor
                         </mat-checkbox>
                     </div>
@@ -355,7 +345,6 @@ import { BookingFormService } from './booking-form.service';
     `,
     styles: [``],
     imports: [
-        AsyncPipe,
         TranslatePipe,
         MatFormFieldModule,
         MatInputModule,
@@ -368,7 +357,7 @@ import { BookingFormService } from './booking-form.service';
         DateFieldComponent,
         DurationFieldComponent,
         TimeFieldComponent,
-        ReactiveFormsModule,
+        FormField,
         FormsModule,
     ],
 })
@@ -377,6 +366,7 @@ export class VisitorInviteFormComponent
     implements OnInit, OnChanges
 {
     private _service = inject(BookingFormService);
+    private _injector = inject(Injector);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
     private readonly _visitor_allow_all_day = this._settings.signal(
@@ -477,6 +467,10 @@ export class VisitorInviteFormComponent
         return this._service.form;
     }
 
+    public get model() {
+        return this._service.model;
+    }
+
     public readonly time_format = this._settings.time_format_signal;
     public readonly allow_all_day = computed(
         () => this._visitor_allow_all_day() ?? this._booking_allow_all_day(),
@@ -485,9 +479,6 @@ export class VisitorInviteFormComponent
     public async ngOnInit() {
         this._service.clearOldState();
         await this.initFormZone();
-        this.form
-            .get('asset_id')
-            .setValidators([Validators.required, Validators.email]);
         const visitors = this._settings.get('visitor-invitees') || [];
         this.visitors.update((list) => {
             for (const item of visitors) {
@@ -503,41 +494,44 @@ export class VisitorInviteFormComponent
             return list;
         });
         this.search_term.set('');
-        this.subscription(
-            'email',
-            this.form
-                .get('asset_id')
-                .valueChanges.subscribe((_) => this.search_term.set(_)),
+        const email_handle = onFieldChange(
+            this.model,
+            (m) => m.asset_id,
+            (_) => this.search_term.set(_),
+            this._injector,
         );
-        this.subscription(
-            'name',
-            this.form
-                .get('asset_name')
-                .valueChanges.subscribe((_) => this.search_term.set(_)),
+        this.subscription('email', () => email_handle.destroy());
+        const name_handle = onFieldChange(
+            this.model,
+            (m) => m.asset_name,
+            (_) => this.search_term.set(_),
+            this._injector,
         );
-        this.syncVisitorInternational(this.form.value.assets || []);
-        this.subscription(
-            'assets',
-            this.form
-                .get('assets')
-                .valueChanges.subscribe((_) =>
-                    this.syncVisitorInternational(_ || []),
-                ),
+        this.subscription('name', () => name_handle.destroy());
+        this.syncVisitorInternational(this.model().assets || []);
+        const assets_handle = onFieldChange(
+            this.model,
+            (m) => m.assets,
+            (_) => this.syncVisitorInternational(_ || []),
+            this._injector,
         );
-        if (this.multiple() && !this.form.value.id)
-            this.form.patchValue({ asset_id: 'multiple@place.tech' });
-        if (!this.form.value.id) this.form.patchValue({ title: 'Visit' });
+        this.subscription('assets', () => assets_handle.destroy());
+        if (this.multiple() && !this.model().id)
+            this.model.update((m) => ({ ...m, asset_id: 'multiple@place.tech' }));
+        if (!this.model().id)
+            this.model.update((m) => ({ ...m, title: 'Visit' }));
     }
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.date && this.date()) {
-            this.form.patchValue({
+            this.model.update((m) => ({
+                ...m,
                 date: alignDateToBookableHours(
                     this.date(),
                     this.bookable_hours(),
-                    this.form.getRawValue().date,
+                    this.model().date,
                 ),
-            });
+            }));
         }
         if (changes.confirm && this.confirm() > 0) {
             this.sendInvite();
@@ -545,13 +539,14 @@ export class VisitorInviteFormComponent
     }
 
     public setVisitor(item) {
-        this.form.patchValue({
+        this.model.update((m) => ({
+            ...m,
             asset_id: item.email,
             asset_name: item.name,
             company: item.company,
             phone: item.phone,
             international: !!item.international,
-        });
+        }));
     }
 
     public setVisitorInternational(item: User, international: boolean) {
@@ -561,8 +556,9 @@ export class VisitorInviteFormComponent
             ...this.visitor_international,
             [key]: !!international,
         };
-        this.form.patchValue({
-            assets: (this.form.value.assets || []).map((user) => {
+        this.model.update((m) => ({
+            ...m,
+            assets: (this.model().assets || []).map((user) => {
                 const user_key = user.email || user.id;
                 return user_key !== key
                     ? user
@@ -575,33 +571,35 @@ export class VisitorInviteFormComponent
                           },
                       } as any);
             }),
-        });
+        }));
     }
 
     public async sendInvite() {
-        this.form.markAllAsTouched();
+        this.form().markAsTouched();
         if (
-            !this.form.valid ||
-            (this.multiple() && !this.form.value.assets.length)
+            !this.form().valid() ||
+            (this.multiple() && !this.model().assets.length)
         ) {
             return notifyError(
                 `Some fields are invalid. [${
-                    getInvalidFields(this.form).join(', ') || 'visitors'
+                    getInvalidSignalFields(this.form, this.model).join(', ') ||
+                    'visitors'
                 }]`,
             );
         }
-        if (!this.form.value.user_email || !this.can_book_for_others()) {
-            this.form.patchValue({ user: currentUser() });
+        if (!this.model().user_email || !this.can_book_for_others()) {
+            this.model.update((m) => ({ ...m, user: currentUser() }));
         }
         const visitor_reason =
-            this.form.value.title || this.form.value.description || 'Visit';
-        this.form.patchValue({
+            this.model().title || this.model().description || 'Visit';
+        this.model.update((m) => ({
+            ...m,
             title: visitor_reason,
             description: visitor_reason,
-        });
+        }));
         const old_visitors = this._settings.get('visitor-invitees') || [];
         const { asset_id, asset_name, company, international, assets } =
-            this.form.value;
+            this.model();
         if (this.multiple() && assets?.length) {
             const asset_ids = assets.map((_) => _.email).filter((_) => !!_);
             this._settings.saveUserSetting('visitor-invitees', [
@@ -632,61 +630,64 @@ export class VisitorInviteFormComponent
                 this.multiple()
                     ? 'BOOKINGS.VISITOR_SENT_MULTIPLE'
                     : 'BOOKINGS.VISITOR_SENT_SINGLE',
-                { name: asset_name, count: this.form.value.attendees?.length },
+                { name: asset_name, count: this.model().attendees?.length },
             ),
         );
-        this.done.emit(this.form.value.attendees?.length || 1);
+        this.done.emit(this.model().attendees?.length || 1);
     }
 
     private async initFormZone() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         this._service.loadForm();
         this._service.setOptions({ type: 'visitor' });
-        if (!this.form.value.id) this._service.newForm('visitor');
-        this.form.patchValue({ booking_type: 'visitor' });
-        if (!this.form.value.zones?.length) {
-            this.form.patchValue({ zones: [this._org.building?.id] });
+        if (!this.model().id) this._service.newForm('visitor');
+        this.model.update((m) => ({ ...m, booking_type: 'visitor' }));
+        if (!this.model().zones?.length) {
+            this.model.update((m) => ({ ...m, zones: [this._org.building?.id] }));
         }
-        if (this.multiple() && !this.form.value.id)
-            this.form.patchValue({ asset_id: 'multiple@place.tech' });
-        if (this.form.value.id) {
-            if (!this.form.value.assets?.length) {
-                const attendees = this.form.value.attendees || [];
+        if (this.multiple() && !this.model().id)
+            this.model.update((m) => ({ ...m, asset_id: 'multiple@place.tech' }));
+        if (this.model().id) {
+            if (!this.model().assets?.length) {
+                const attendees = this.model().attendees || [];
                 if (attendees.length) {
-                    this.form.patchValue({ assets: attendees });
-                } else if (this.form.value.asset_id) {
-                    this.form.patchValue({
+                    this.model.update((m) => ({ ...m, assets: attendees }));
+                } else if (this.model().asset_id) {
+                    this.model.update((m) => ({
+                        ...m,
                         assets: [
                             new User({
-                                name: this.form.value.asset_name,
-                                email: this.form.value.asset_id,
-                                organisation: this.form.value.company,
+                                name: this.model().asset_name,
+                                email: this.model().asset_id,
+                                organisation: this.model().company,
                                 is_external: true,
                             }),
                         ],
-                    });
+                    }));
                 }
             }
-            if (!this.multiple() && this.form.value.assets?.length) {
-                const [visitor] = this.form.value.assets as User[];
+            if (!this.multiple() && this.model().assets?.length) {
+                const [visitor] = this.model().assets as User[];
                 if (visitor?.email) {
-                    this.form.patchValue({
+                    this.model.update((m) => ({
+                        ...m,
                         asset_id: visitor.email,
                         asset_name: visitor.name || visitor.email,
                         company:
                             (visitor as any).company ||
                             visitor.organisation ||
-                            this.form.value.company,
-                        phone: visitor.phone || this.form.value.phone,
-                    });
+                            this.model().company,
+                        phone: visitor.phone || this.model().phone,
+                    }));
                 }
             }
         }
     }
 
     private async _bookForOne() {
-        const value = this.form.value;
-        this.form.patchValue({
+        const value = this.model();
+        this.model.update((m) => ({
+            ...m,
             name: value.asset_name,
             attendees: [
                 new User({
@@ -696,7 +697,7 @@ export class VisitorInviteFormComponent
                     phone: value.phone,
                 }),
             ],
-        });
+        }));
         await this._service.postForm().catch((e) => {
             notifyError(e);
             throw e;
@@ -705,11 +706,12 @@ export class VisitorInviteFormComponent
 
     private async _bookForMany() {
         const group = `grp-${randomString(8)}`;
-        const value = this.form.value;
+        const value = this.model();
         const assets = value.assets;
         for (const user of assets) {
             if (!user.email) continue;
-            this.form.patchValue({
+            this.model.update((m) => ({
+                ...m,
                 ...value,
                 booking_type: 'visitor',
                 asset_id: user.email,
@@ -727,7 +729,7 @@ export class VisitorInviteFormComponent
                         phone: user.phone,
                     }),
                 ],
-            });
+            }));
             await this._service.postForm().catch((e) => {
                 notifyError(e);
                 throw e;

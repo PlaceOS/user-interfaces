@@ -1,5 +1,4 @@
-import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { OrganisationService } from '@placeos/common';
 import { ExploreStateService } from '@placeos/explore';
@@ -37,15 +36,14 @@ import { ExploreStateService } from '@placeos/explore';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule],
 })
 export class ExploreLevelSelectComponent {
     private _org = inject(OrganisationService);
     private _state = inject(ExploreStateService);
 
-    public readonly levels = toSignal(this._org.active_levels, {
-        initialValue: [],
-    });
+    public readonly levels = this._org.active_levels;
     public readonly level = this._state.level;
 
     public readonly setLevel = (lvl) => this._state.setLevel(lvl.id);

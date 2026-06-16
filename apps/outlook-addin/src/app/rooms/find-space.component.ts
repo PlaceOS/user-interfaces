@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     OnInit,
     computed,
@@ -6,8 +7,8 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
 import {
     MatBottomSheet,
     MatBottomSheetRef,
@@ -24,8 +25,9 @@ import {
     HashMap,
     OrganisationService,
     Space,
+    ViewerFeature,
+    ViewerStyles,
     i18n,
-    nextValueFrom,
 } from '@placeos/common';
 import {
     IconComponent,
@@ -33,7 +35,6 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { EventFormService, SpacesService } from '@placeos/events';
-import { ViewerFeature, ViewerStyles } from '@placeos/common';
 import { Observable, combineLatest, of } from 'rxjs';
 import { filter, first, map } from 'rxjs/operators';
 import { FeaturesFilterService } from './features-filter.service';
@@ -466,6 +467,7 @@ import { RoomConfirmService } from './room-confirm.service';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         MatProgressSpinnerModule,
@@ -475,7 +477,6 @@ import { RoomConfirmService } from './room-confirm.service';
         FindSpaceItemComponent,
         MatButtonToggleModule,
         FormsModule,
-        ReactiveFormsModule,
         IconComponent,
         TranslatePipe,
         MatTooltipModule,
@@ -485,6 +486,7 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
     private _bottomSheet = inject(MatBottomSheet);
     private _org = inject(OrganisationService);
     private _spaces = inject(SpacesService);
+    private _spaces_initialised = toObservable(this._spaces.initialised);
     private _state = inject(EventFormService);
     private _featuresFilterService = inject(FeaturesFilterService);
     private _mapService = inject(MapService);
@@ -508,11 +510,11 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
     public readonly selected_feature_count = computed(
         () => this.selected_features()?.length || 0,
     );
-    public readonly loading = toSignal(this._state.loading$, {
-        initialValue: '',
-    });
-    public readonly spaces$: Observable<Space[]> = this._state.available_spaces;
-    public readonly spaces = toSignal(this.spaces$, { initialValue: [] });
+    public readonly loading = this._state.loading;
+    public readonly spaces$: Observable<Space[]> = toObservable(
+        this._state.available_spaces,
+    );
+    public readonly spaces = this._state.available_spaces;
     public readonly maps_list = toSignal(this._mapService.maps_list$, {
         initialValue: [],
     });
@@ -538,6 +540,10 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
         return this._state.form;
     }
 
+    public get model() {
+        return this._state.model;
+    }
+
     public readonly book_space = signal<HashMap<boolean>>({});
     public space_list: Space[] = [];
     public quick_capacities = [
@@ -548,16 +554,12 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
         { name: 'Huge (32+)', value: 33 },
     ];
 
-    public readonly buildings = toSignal(this._org.building_list, {
-        initialValue: [],
-    });
-    public readonly building = toSignal(this._org.active_building, {
-        initialValue: this._org.building,
-    });
+    public readonly buildings = this._org.building_list;
+    public readonly building = this._org.active_building;
 
     public readonly levels = combineLatest([
-        this._org.active_building,
-        this._state.options$,
+        toObservable(this._org.active_building),
+        toObservable(this._state.options),
     ]).pipe(
         filter(([_]) => !!_),
         map(([bld]) => [
@@ -590,9 +592,9 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
         this._state.setView('find');
         this.setTimeChips();
 
-        await this._org.initialised.pipe(first((_) => !!_)).toPromise();
-        await this._spaces.initialised.pipe(first((_) => !!_)).toPromise();
-        await nextValueFrom(this._state.available_spaces);
+        await this._org.waitUntilInitialised();
+        await this._spaces_initialised.pipe(first((_) => !!_)).toPromise();
+        await this._state.listAvailableSpaces();
 
         this.setBuilding(this._org.building);
         this.book_space.set({});
@@ -640,15 +642,14 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
 
     setTimeChips() {
         this.start_time$ = of(
-            new Date(this.form?.controls?.date?.value).toLocaleTimeString(
-                'en-US',
-                { hour: 'numeric', minute: 'numeric', hour12: true },
-            ),
+            new Date(this.model()?.date).toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true,
+            }),
         );
-        this.duration_minutes = this.form?.controls?.duration?.value;
-        const end =
-            this.form?.controls?.date?.value +
-            this.duration_minutes * 60 * 1000;
+        this.duration_minutes = this.model()?.duration;
+        const end = this.model()?.date + this.duration_minutes * 60 * 1000;
         this.end_time$ = of(
             new Date(end).toLocaleTimeString('en-US', {
                 hour: 'numeric',

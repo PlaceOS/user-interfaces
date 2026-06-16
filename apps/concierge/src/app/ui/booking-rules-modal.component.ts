@@ -4,7 +4,12 @@ import {
     moveItemInArray,
 } from '@angular/cdk/drag-drop';
 
-import { Component, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    signal,
+} from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -404,6 +409,7 @@ import {
         </fullscreen-modal-shell>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatDialogModule,
         MatRippleModule,
@@ -430,7 +436,7 @@ export class BookingRulesModalComponent {
     public readonly change = signal(0);
     public readonly show_children = signal<Record<string, boolean>>({});
     private readonly _booking_rules = combineLatest([
-        this._org.active_building,
+        toObservable(this._org.active_building),
         toObservable(this.change),
     ]).pipe(
         filter(([_]) => !!_),

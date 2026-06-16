@@ -1,13 +1,14 @@
 import { CommonModule } from '@angular/common';
 import {
     Component,
+    computed,
     ElementRef,
     inject,
     signal,
     ViewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -41,7 +42,6 @@ import {
     UserListFieldComponent,
 } from '@placeos/form-fields';
 import { FindAvailabilityModalComponent } from '@placeos/users';
-import { BehaviorSubject, combineLatest, map, startWith, tap } from 'rxjs';
 
 @Component({
     selector: 'meeting-flow-options',
@@ -204,12 +204,12 @@ import { BehaviorSubject, combineLatest, map, startWith, tap } from 'rxjs';
                     {{ 'CALENDAR_EVENT.OPTIONAL_EXTRAS_HEADER' | translate }}
                 </div>
             </div>
-            <div class="p-4" [formGroup]="form()">
+            <div class="p-4">
                 <h3 class="flex items-center space-x-2 text-xl">
                     {{ 'CALENDAR_EVENT.ATTENDEES' | translate }}
                 </h3>
                 <a-user-list-field
-                    formControlName="attendees"
+                    [formField]="form.attendees"
                     [time]="form_value().date"
                     [guests]="allow_externals()"
                 >
@@ -225,12 +225,12 @@ import { BehaviorSubject, combineLatest, map, startWith, tap } from 'rxjs';
                         <div class="fle sm:hidden">Availability</div>
                     </button>
                 </a-user-list-field>
-                @if (has_catering | async) {
+                @if (has_catering()) {
                     <h3 class="mb-2 mt-4 flex items-center space-x-2 text-xl">
                         {{ 'CALENDAR_EVENT.CATERING' | translate }}
                     </h3>
                     <catering-list-field
-                        formControlName="catering"
+                        [formField]="form.catering"
                         [options]="{
                             date: form_value().date,
                             duration: form_value().duration,
@@ -240,14 +240,14 @@ import { BehaviorSubject, combineLatest, map, startWith, tap } from 'rxjs';
                                 : '',
                         }"
                     ></catering-list-field>
-                    @if (form_value().catering?.length && has_codes | async) {
+                    @if (form_value().catering?.length && has_codes()) {
                         <mat-form-field
                             appearance="outline"
                             class="mt-2 w-full"
                             (openedChange)="focusInput()"
                         >
                             <mat-select
-                                formControlName="catering_charge_code"
+                                [formField]="form.catering_charge_code"
                                 [placeholder]="
                                     'CALENDAR_EVENT.CATERING_CHARGE_CODE'
                                         | translate
@@ -256,8 +256,8 @@ import { BehaviorSubject, combineLatest, map, startWith, tap } from 'rxjs';
                                 <input
                                     #input
                                     class="sticky top-0 z-50 w-full rounded-none border-x-0 border-b border-t-0 border-base-200 bg-base-100 px-4 py-3 text-base focus:border-b"
-                                    [ngModel]="code_filter.getValue()"
-                                    (ngModelChange)="code_filter.next($event)"
+                                    [ngModel]="code_filter()"
+                                    (ngModelChange)="code_filter.set($event)"
                                     [ngModelOptions]="{
                                         standalone: true,
                                     }"
@@ -268,7 +268,7 @@ import { BehaviorSubject, combineLatest, map, startWith, tap } from 'rxjs';
                                 />
                                 <mat-option class="hidden"></mat-option>
                                 @for (
-                                    code of filtered_codes | async;
+                                    code of filtered_codes();
                                     track code
                                 ) {
                                     <mat-option [value]="code">
@@ -289,12 +289,12 @@ import { BehaviorSubject, combineLatest, map, startWith, tap } from 'rxjs';
                             appearance="outline"
                             class="w-full"
                             [class.mt-2]="
-                                !(form_value().catering?.length && (has_codes | async))
+                                !(form_value().catering?.length && has_codes())
                             "
                         >
                             <textarea
                                 matInput
-                                formControlName="catering_notes"
+                                [formField]="form.catering_notes"
                                 [placeholder]="
                                     'CALENDAR_EVENT.CATERING_NOTES' | translate
                                 "
@@ -322,7 +322,7 @@ import { BehaviorSubject, combineLatest, map, startWith, tap } from 'rxjs';
                                 : '',
                         }"
                         [rejected_ids]="invalid_assets"
-                        formControlName="assets"
+                        [formField]="form.assets"
                     />
                 }
                 @if (!hide_notes()) {
@@ -330,8 +330,7 @@ import { BehaviorSubject, combineLatest, map, startWith, tap } from 'rxjs';
                         {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
                     </h3>
                     <rich-text-input
-                        name="notes"
-                        formControlName="body"
+                        [formField]="form.body"
                         [placeholder]="'CALENDAR_EVENT.NOTES_INFO' | translate"
                     />
                 }
@@ -386,8 +385,8 @@ import { BehaviorSubject, combineLatest, map, startWith, tap } from 'rxjs';
         IconComponent,
         TranslatePipe,
         UserListFieldComponent,
-        ReactiveFormsModule,
         FormsModule,
+        FormField,
         MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
@@ -407,13 +406,7 @@ export class MeetingFlowOptionsComponent {
 
     @ViewChild('input') private _input: ElementRef<HTMLInputElement>;
 
-    public readonly form = signal(this._event_form.form);
-    public readonly form_value = toSignal(
-        this._event_form.form.valueChanges.pipe(
-            startWith(this._event_form.form.getRawValue()),
-        ),
-        { initialValue: this._event_form.form.getRawValue() },
-    );
+    public readonly form_value = this._event_form.model;
     public readonly loading = signal(false);
     public readonly allow_externals = settingSignal(
         'events.allow_externals',
@@ -425,35 +418,35 @@ export class MeetingFlowOptionsComponent {
         'events.hide_attendees',
         false,
     );
-    public code_filter = new BehaviorSubject('');
+    public readonly code_filter = signal('');
     public invalid_assets = [];
+
+    public get form() {
+        return this._event_form.form;
+    }
+
+    public get model() {
+        return this._event_form.model;
+    }
 
     public get is_multiday() {
         return this.form_value().duration > 24 * 60;
     }
 
-    public readonly has_catering = this._catering.available_menu.pipe(
-        map((l) => l.length > 0),
+    public readonly has_catering = computed(
+        () => this._catering.available_menu().length > 0,
     );
 
-    public readonly has_codes = this._catering.charge_codes.pipe(
-        map((l) => l.length > 0),
-        tap((has_codes) => {
-            if (!has_codes) {
-                this.form().get('catering_charge_code').setValidators([]);
-                this.form().updateValueAndValidity();
-            }
-        }),
+    public readonly has_codes = computed(
+        () => this._catering.charge_codes().length > 0,
     );
 
-    public readonly filtered_codes = combineLatest([
-        this.code_filter,
-        this._catering.charge_codes,
-    ]).pipe(
-        map(([s, l]) =>
-            l.filter((_) => _.toLowerCase().includes(s.toLowerCase())),
-        ),
-    );
+    public readonly filtered_codes = computed(() => {
+        const search = this.code_filter().toLowerCase();
+        return this._catering
+            .charge_codes()
+            .filter((_) => _.toLowerCase().includes(search));
+    });
 
     public get time_format() {
         return this._settings.time_format;
@@ -517,7 +510,7 @@ export class MeetingFlowOptionsComponent {
         const value = this.form_value();
         const space = value.resources[0];
         if (!value.host) {
-            this._event_form.form.patchValue({ host: currentUser()?.email });
+            this.model.update((m) => ({ ...m, host: currentUser()?.email }));
         }
         if (
             !this.allow_daily_allday_recurrence() &&
@@ -551,8 +544,7 @@ export class MeetingFlowOptionsComponent {
     }
 
     public findAvailableTime() {
-        const { attendees, organiser, date, duration } =
-            this.form().getRawValue();
+        const { attendees, organiser, date, duration } = this.model();
         const ref = this._dialog.open(FindAvailabilityModalComponent, {
             data: {
                 users: attendees ?? [],
@@ -563,11 +555,12 @@ export class MeetingFlowOptionsComponent {
         });
         ref.afterClosed().subscribe((d) => {
             if (!d) return;
-            this.form().patchValue({
+            this.model.update((m) => ({
+                ...m,
                 date: ref.componentInstance.date(),
                 attendees: ref.componentInstance.users(),
                 duration: ref.componentInstance.duration(),
-            });
+            }));
         });
     }
 }

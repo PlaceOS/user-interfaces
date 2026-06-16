@@ -1,4 +1,10 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    inject,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, CalendarEvent } from '@placeos/common';
@@ -247,6 +253,7 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
         `,
     ],
     providers: [PanelStateService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         IconComponent,
         TranslatePipe,

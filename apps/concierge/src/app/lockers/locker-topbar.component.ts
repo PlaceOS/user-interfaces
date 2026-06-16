@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -11,7 +12,6 @@ import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 
 import {
     AsyncHandler,
-    firstTruthyValueFrom,
     nextValueFrom,
     OrganisationService,
     SettingsService,
@@ -170,6 +170,7 @@ import { LockerFilters, LockerStateService } from './locker-state.service';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         DateOptionsComponent,
         IconComponent,
@@ -334,7 +335,7 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         await lastValueFrom(timer(1000));
         this._state.setSearch('');
         this._ready.set(true);

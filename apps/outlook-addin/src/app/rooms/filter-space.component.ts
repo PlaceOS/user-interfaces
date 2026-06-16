@@ -1,7 +1,13 @@
-import { Component, computed, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import {
     MAT_BOTTOM_SHEET_DATA,
     MatBottomSheetRef,
@@ -25,7 +31,7 @@ import { FeaturesFilterService } from './features-filter.service';
     template: `
         <div class="z-0 m-0 flex min-h-[800px] flex-1 flex-col overflow-y-auto">
             @if (form) {
-                <form [formGroup]="form">
+                <form>
                     <section
                         class="border-base-200 flex flex-col items-center border-b py-5"
                     >
@@ -101,7 +107,7 @@ import { FeaturesFilterService } from './features-filter.service';
                                     </label>
                                     <a-date-field
                                         [from]="minDate"
-                                        formControlName="date"
+                                        [formField]="form.date"
                                     ></a-date-field>
                                     <div class="flex w-full flex-row space-x-2">
                                         <div class="flex w-1/3 flex-1 flex-col">
@@ -111,11 +117,12 @@ import { FeaturesFilterService } from './features-filter.service';
                                                 Start Time*
                                             </label>
                                             <a-time-field
-                                                [ngModel]="form?.value.date"
+                                                [ngModel]="model().date"
                                                 (ngModelChange)="
-                                                    form.patchValue({
+                                                    model.update((m) => ({
+                                                        ...m,
                                                         date: $event,
-                                                    })
+                                                    }))
                                                 "
                                                 [ngModelOptions]="{
                                                     standalone: true,
@@ -131,11 +138,11 @@ import { FeaturesFilterService } from './features-filter.service';
                                                 End Time*
                                             </label>
                                             <a-duration-field
-                                                [time]="form?.value.date"
+                                                [time]="model().date"
                                                 [max]="10 * 60"
                                                 [min]="60"
                                                 [step]="60"
-                                                formControlName="duration"
+                                                [formField]="form.duration"
                                             ></a-duration-field>
                                         </div>
                                     </div>
@@ -194,11 +201,12 @@ import { FeaturesFilterService } from './features-filter.service';
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         MatCheckboxModule,
         FormsModule,
-        ReactiveFormsModule,
+        FormField,
         DateFieldComponent,
         TimeFieldComponent,
         DurationFieldComponent,
@@ -216,12 +224,8 @@ export class FilterSpaceComponent {
     private _state = inject(EventFormService);
     private _org = inject(OrganisationService);
 
-    readonly buildings = toSignal(this._org.building_list, {
-        initialValue: [],
-    });
-    readonly building = toSignal(this._org.active_building, {
-        initialValue: null,
-    });
+    readonly buildings = this._org.building_list;
+    readonly building = this._org.active_building;
     readonly features = toSignal(this._featuresFilterService.features$, {
         initialValue: [],
     });
@@ -229,6 +233,7 @@ export class FilterSpaceComponent {
         () => this.buildings().length > 1,
     );
     readonly form = this._state.form;
+    readonly model = this._state.model;
     minDate = Date.now();
 
     public readonly setBuilding = (b) => (this._org.building = b);

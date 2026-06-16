@@ -9,7 +9,6 @@ import {
     User,
 } from '@placeos/common';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { first, map } from 'rxjs/operators';
 
 import { OrganisationService } from '@placeos/common';
 
@@ -55,13 +54,10 @@ export class DesksService {
             DeskQuestionsModalComponent,
         );
         let success = await Promise.race([
-            ref.componentInstance.event
-                .pipe(first((_: DialogEvent) => _.reason === 'done'))
-                .toPromise(),
-            ref
-                .afterClosed()
-                .pipe(map((_) => null))
-                .toPromise(),
+            this._doneEvent(ref.componentInstance.event),
+            new Promise((resolve) =>
+                ref.afterClosed().subscribe(() => resolve(null)),
+            ),
         ]);
         if (!success) return;
         ref.close();
@@ -76,13 +72,10 @@ export class DesksService {
             },
         });
         success = await Promise.race([
-            ref.componentInstance.event
-                .pipe(first((_: DialogEvent) => _.reason === 'done'))
-                .toPromise(),
-            ref
-                .afterClosed()
-                .pipe(map((_) => null))
-                .toPromise(),
+            this._doneEvent(ref.componentInstance.event),
+            new Promise((resolve) =>
+                ref.afterClosed().subscribe(() => resolve(null)),
+            ),
         ]);
         if (!success) return;
         host = ref.componentInstance.host || host;
@@ -98,7 +91,7 @@ export class DesksService {
             type: 'desk',
             period_start: getUnixTime(startOfDay(date || new Date())),
             period_end: getUnixTime(endOfDay(date || new Date())),
-        }).toPromise();
+        });
         const desk_list = bookings.filter(
             (d) => d.user_email?.toLowerCase() === host.email?.toLowerCase(),
         );
@@ -158,6 +151,17 @@ export class DesksService {
                 for_user: for_user?.email,
             },
         };
-        return saveBooking(booking_data as any).toPromise();
+        return saveBooking(booking_data as any);
+    }
+
+    private _doneEvent(event: { subscribe: (callback: any) => any }) {
+        return new Promise<DialogEvent>((resolve) => {
+            let sub: any;
+            sub = event.subscribe((details: DialogEvent) => {
+                if (details.reason !== 'done') return;
+                sub?.unsubscribe?.();
+                resolve(details);
+            });
+        });
     }
 }

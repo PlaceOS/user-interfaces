@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -6,7 +7,7 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import {
     ActivatedRoute,
@@ -331,6 +332,7 @@ import { DesksStateService } from './desks-state.service';
         `,
     ],
     providers: [UserPipe],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatProgressBarModule,
         MatProgressSpinnerModule,
@@ -372,8 +374,8 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
         'desks.hide_user_list_download',
     );
     private readonly _all_levels$ = combineLatest([
-        this._org.active_building,
-        this._org.active_region,
+        toObservable(this._org.active_building),
+        toObservable(this._org.active_region),
     ]).pipe(
         map(([bld, region]) =>
             this._settings.get('app.use_region')

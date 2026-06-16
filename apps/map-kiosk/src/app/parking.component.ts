@@ -1,10 +1,15 @@
-import { Component, computed, inject, OnInit } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    OnInit,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import {
     AsyncHandler,
-    firstTruthyValueFrom,
     log,
     OrganisationService,
     Point,
@@ -64,6 +69,7 @@ import {
     `,
     styles: [``],
     providers: [ExploreStateService, ExploreParkingService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [InteractiveMapComponent, IconComponent],
 })
 export class ParkingComponent extends AsyncHandler implements OnInit {
@@ -115,7 +121,9 @@ export class ParkingComponent extends AsyncHandler implements OnInit {
         ) {
             this._explore.setOptions({ is_public: true });
         }
-        await firstTruthyValueFrom(this._spaces.initialised);
+        while (!this._spaces.initialised()) {
+            await new Promise((resolve) => setTimeout(resolve, 100));
+        }
         this.reset_delay =
             this._settings.get('app.inactivity_timeout_secs') || 180;
         this.resetKiosk(false);

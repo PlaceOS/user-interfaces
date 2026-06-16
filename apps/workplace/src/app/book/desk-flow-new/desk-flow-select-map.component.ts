@@ -2,13 +2,14 @@ import { CommonModule } from '@angular/common';
 import {
     Component,
     computed,
+    effect,
     inject,
+    Injector,
     input,
     OnInit,
     output,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -28,7 +29,6 @@ import {
 } from '@placeos/components';
 import { DEFAULT_COLOURS } from '@placeos/explore';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
-import { combineLatest, map } from 'rxjs';
 
 @Component({
     selector: 'desk-flow-select-map',
@@ -142,6 +142,7 @@ export class DeskFlowSelectMapComponent extends AsyncHandler implements OnInit {
     private _booking_form = inject(BookingFormService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private _injector = inject(Injector);
     private readonly _use_region = this._settings.signal('use_region', false);
 
     public readonly selected_items = input<string[]>([]);
@@ -156,13 +157,8 @@ export class DeskFlowSelectMapComponent extends AsyncHandler implements OnInit {
     private _selectedItem = (s) => () => this.item_selected.emit(s);
     public readonly setOptions = (o) => this._booking_form.setOptions(o);
     public readonly level = signal<BuildingLevel>(null);
-    public readonly available_resources = toSignal(
-        this._booking_form.available_resources,
-    );
-    public readonly form_value = toSignal(
-        this._booking_form.form.valueChanges,
-        { initialValue: this._booking_form.form.value },
-    );
+    public readonly available_resources = this._booking_form.available_resources;
+    public readonly form_value = this._booking_form.model;
 
     // Keep the active desk visible even if it falls outside the current
     // availability result set while the form is loading or filters are updating.
@@ -186,42 +182,33 @@ export class DeskFlowSelectMapComponent extends AsyncHandler implements OnInit {
     });
 
     public readonly map_url = computed(() => this.level()?.map_id || '');
-    public readonly resource_list = toSignal(this._booking_form.resources);
+    public readonly resource_list = this._booking_form.resources;
     public readonly features = signal([]);
     public readonly use_region = this._use_region;
-    public readonly levels = toSignal(
-        combineLatest([
-            this._org.active_region,
-            this._org.active_building,
-            this._booking_form.resources,
-        ]).pipe(
-            map(([region, bld, resources]) => {
-                const level_list = this.use_region()
-                    ? this._org.levelsForRegion(region)
-                    : this._org.levelsForBuilding(bld);
-                const level_ids = new Set(
-                    resources
-                        .filter((resource) => resource.bookable !== false)
-                        .map((resource) => resource.zone?.id)
-                        .filter((_) => _),
-                );
-                return level_list
-                    .filter(
-                        (lvl) =>
-                            !lvl.tags.includes('parking') &&
-                            level_ids.has(lvl.id),
-                    )
-                    .sort(
-                        (a, b) =>
-                            a.parent_id.localeCompare(b.parent_id) ||
-                            (a.display_name || '').localeCompare(
-                                b.display_name || '',
-                            ),
-                    );
-            }),
-        ),
-        { initialValue: [] },
-    );
+    public readonly levels = computed(() => {
+        const region = this._org.active_region();
+        const bld = this._org.active_building();
+        const resources = this._booking_form.resources();
+        const level_list = this.use_region()
+            ? this._org.levelsForRegion(region)
+            : this._org.levelsForBuilding(bld);
+        const level_ids = new Set(
+            resources
+                .filter((resource) => resource.bookable !== false)
+                .map((resource) => resource.zone?.id)
+                .filter((_) => _),
+        );
+        return level_list
+            .filter(
+                (lvl) =>
+                    !lvl.tags.includes('parking') && level_ids.has(lvl.id),
+            )
+            .sort(
+                (a, b) =>
+                    a.parent_id.localeCompare(b.parent_id) ||
+                    (a.display_name || '').localeCompare(b.display_name || ''),
+            );
+    });
 
     public readonly selected_desk = computed(() => {
         const selected_ids = this.selected_items();
@@ -258,15 +245,19 @@ export class DeskFlowSelectMapComponent extends AsyncHandler implements OnInit {
     });
 
     public ngOnInit() {
-        this.subscription(
-            'levels_update',
-            this._booking_form.options.subscribe((details) => {
+        const ref = effect(
+            () => {
+                const details = this._booking_form.options();
                 const level = this._org.levelWithID(
                     (details as any).zones || [details.zone_id],
                 );
                 if (level) this.level.set(level);
-            }),
+            },
+            { injector: this._injector },
         );
+        this.subscription('levels_update', {
+            unsubscribe: () => ref.destroy(),
+        } as any);
     }
 
     public setLevel(level: BuildingLevel) {

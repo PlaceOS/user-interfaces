@@ -1,5 +1,4 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -7,7 +6,7 @@ import { BookingFormService } from '@placeos/bookings';
 import {
     AsyncHandler,
     Booking,
-    getInvalidFields,
+    getInvalidSignalFields,
     i18n,
     notifyError,
     notifySuccess,
@@ -140,24 +139,24 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
     public readonly view = this._booking_form.view;
     public readonly loading = signal(false);
 
-    public readonly form_value = toSignal(
-        this._booking_form.form.valueChanges,
-        {
-            initialValue: this._booking_form.form.value,
-        },
-    );
+    private get _form() {
+        return this._booking_form.form;
+    }
+    private get _model() {
+        return this._booking_form.model;
+    }
 
     public readonly is_multiple = computed(
-        () => !!this.form_value()?.assets?.length,
+        () => !!this._model()?.assets?.length,
     );
     public readonly visit_heading = computed(() =>
-        this.form_value()?.id
+        this._model()?.id
             ? 'BOOKINGS.EDIT_VISITOR_DETAILS'
             : 'BOOKINGS.VISITOR_TIME_HEADER',
     );
 
     public ngOnInit() {
-        this._booking_form.form.patchValue({ booking_type: 'visitor' });
+        this._model.update((m) => ({ ...m, booking_type: 'visitor' }));
         this._booking_form.setOptions({ type: 'visitor' });
         this.subscription(
             'route.params',
@@ -170,7 +169,7 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
     }
 
     private async _loadGroupVisitors() {
-        const value = this._booking_form.form.getRawValue();
+        const value = this._model();
         if (!value.id) return;
         const booking = this._booking_form.booking;
         const is_group =
@@ -191,27 +190,26 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
                     phone: s.extension_data?.phone,
                 }),
         );
-        this._booking_form.form.patchValue({
+        this._model.update((m) => ({
+            ...m,
             assets: visitors,
             asset_id: 'multiple@place.tech',
-        });
+        }));
         this._booking_form.setOptions({ group: true });
     }
 
     public async confirmBooking() {
-        this._booking_form.form.markAllAsTouched();
+        this._form().markAsTouched();
 
         const is_multiple = this.is_multiple();
         const visitor_reason =
-            this.form_value()?.title ||
-            this.form_value()?.description ||
-            'Visit';
+            this._model()?.title || this._model()?.description || 'Visit';
 
         // Validate form
-        if (!this._booking_form.form.valid) {
+        if (!this._form().valid()) {
             return notifyError(
                 i18n('FORM.INVALID_FIELDS', {
-                    field_list: getInvalidFields(this._booking_form.form)
+                    field_list: getInvalidSignalFields(this._form, this._model)
                         .join(', ')
                         .replace('asset_id', i18n('BOOKINGS.VISITOR')),
                 }),
@@ -219,19 +217,20 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
         }
 
         // Additional validation for multiple visitors
-        if (is_multiple && !this.form_value()?.assets?.length) {
+        if (is_multiple && !this._model()?.assets?.length) {
             return notifyError(i18n('BOOKINGS.VISITOR_REQUIRED'));
         }
 
         this.loading.set(true);
         try {
-            const asset_name = this.form_value()?.asset_name;
-            this._booking_form.form.patchValue({
+            const asset_name = this._model()?.asset_name;
+            this._model.update((m) => ({
+                ...m,
                 title: visitor_reason,
                 description: visitor_reason,
-            });
+            }));
             this._booking_form.last_count = is_multiple
-                ? this.form_value()?.assets?.length || 1
+                ? this._model()?.assets?.length || 1
                 : 1;
             this._saveRecentVisitors(is_multiple);
             await (is_multiple ? this._bookForMany() : this._bookForOne());
@@ -257,8 +256,8 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
     }
 
     public async canDeactivate() {
-        const value = this._booking_form.form.getRawValue();
-        if (!value.id || !this._booking_form.form.dirty) return true;
+        const value = this._model();
+        if (!value.id || !this._form().dirty()) return true;
         const result = await openConfirmModal(
             {
                 title: 'Unsaved changes',
@@ -278,7 +277,7 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
     private _saveRecentVisitors(is_multiple: boolean) {
         const old_visitors: string[] =
             this._settings.get('visitor-invitees') || [];
-        const value = this._booking_form.form.getRawValue();
+        const value = this._model();
         const toEntry = (
             email: string,
             name = '',
@@ -316,8 +315,9 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
     }
 
     private async _bookForOne() {
-        const value = this._booking_form.form.value;
-        this._booking_form.form.patchValue({
+        const value = this._model();
+        this._model.update((m) => ({
+            ...m,
             name: value.asset_name,
             attendees: [
                 new User({
@@ -327,12 +327,12 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
                     phone: value.phone,
                 }),
             ],
-        });
+        }));
         await this._booking_form.postForm();
     }
 
     private async _bookForMany() {
-        const value = this._booking_form.form.getRawValue();
+        const value = this._model();
         const visitor_reason = value.title || value.description || 'Visit';
         const assets: User[] = value.assets || [];
         const visitor_members = assets
@@ -354,11 +354,11 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
             if (!existing_siblings.length) {
                 existing_siblings =
                     await this._booking_form.loadGroupSiblings(
-                        new Booking(value),
+                        new Booking(value as any),
                     );
             }
             if (!existing_siblings.length) {
-                existing_siblings = [new Booking(value)];
+                existing_siblings = [new Booking(value as any)];
             }
             this._existing_siblings = existing_siblings;
             await this._booking_form.editFormForGroup(existing_siblings);

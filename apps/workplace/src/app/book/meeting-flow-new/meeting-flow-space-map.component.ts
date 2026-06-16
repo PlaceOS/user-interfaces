@@ -2,13 +2,12 @@ import { CommonModule } from '@angular/common';
 import {
     Component,
     computed,
+    effect,
     inject,
     input,
-    OnInit,
     output,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -31,7 +30,6 @@ import {
 } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import { DEFAULT_COLOURS } from '@placeos/explore';
-import { combineLatest, map } from 'rxjs';
 
 @Component({
     selector: 'meeting-flow-space-map',
@@ -141,10 +139,7 @@ import { combineLatest, map } from 'rxjs';
         AuthenticatedImageDirective,
     ],
 })
-export class MeetingFlowSpaceMapComponent
-    extends AsyncHandler
-    implements OnInit
-{
+export class MeetingFlowSpaceMapComponent extends AsyncHandler {
     private _event_form = inject(EventFormService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
@@ -162,43 +157,32 @@ export class MeetingFlowSpaceMapComponent
     public readonly setOptions = (o) => this._event_form.setOptions(o);
     public readonly level = signal<BuildingLevel>(null);
     public readonly use_region = settingSignal('use_region', false);
-    public readonly available_spaces = toSignal(
-        this._event_form.available_spaces,
-    );
+    public readonly available_spaces = this._event_form.available_spaces;
 
     public readonly map_url = computed(() => this.level()?.map_id || '');
-    public readonly space_list = toSignal(this._event_form.spaces$);
+    public readonly space_list = this._event_form.spaces;
     public readonly features = signal([]);
-    public readonly levels = toSignal(
-        combineLatest([
-            this._org.active_region,
-            this._org.active_building,
-            this._event_form.spaces$,
-        ]).pipe(
-            map(([region, bld, spaces]) => {
-                const level_list = this.use_region()
-                    ? this._org.levelsForRegion(region)
-                    : this._org.levelsForBuilding(bld);
-                const level_ids = new Set(
-                    flatten(spaces.map((space) => space.zones || [])),
-                );
-                return level_list
-                    .filter(
-                        (lvl) =>
-                            !lvl.tags.includes('parking') &&
-                            level_ids.has(lvl.id),
-                    )
-                    .sort(
-                        (a, b) =>
-                            a.parent_id.localeCompare(b.parent_id) ||
-                            (a.display_name || '').localeCompare(
-                                b.display_name || '',
-                            ),
-                    );
-            }),
-        ),
-        { initialValue: [] },
-    );
+    public readonly levels = computed(() => {
+        const region = this._org.active_region();
+        const bld = this._org.active_building();
+        const spaces = this._event_form.spaces();
+        const level_list = this.use_region()
+            ? this._org.levelsForRegion(region)
+            : this._org.levelsForBuilding(bld);
+        const level_ids = new Set(
+            flatten(spaces.map((space) => space.zones || [])),
+        );
+        return level_list
+            .filter(
+                (lvl) =>
+                    !lvl.tags.includes('parking') && level_ids.has(lvl.id),
+            )
+            .sort(
+                (a, b) =>
+                    a.parent_id.localeCompare(b.parent_id) ||
+                    (a.display_name || '').localeCompare(b.display_name || ''),
+            );
+    });
 
     public readonly selected_space = computed(() => {
         const selected_ids = this.selected_spaces();
@@ -237,15 +221,11 @@ export class MeetingFlowSpaceMapComponent
         }, {});
     });
 
-    public ngOnInit() {
-        this.subscription(
-            'levels_update',
-            this._event_form.options$.subscribe(({ zones }) => {
-                const level = this._org.levelWithID(zones);
-                if (level) this.level.set(level);
-            }),
-        );
-    }
+    private readonly _levels_update = effect(() => {
+        const { zones } = this._event_form.options();
+        const level = this._org.levelWithID(zones);
+        if (level) this.level.set(level);
+    });
 
     public setLevel(level: BuildingLevel) {
         this.setOptions({ zones: [level?.id] });

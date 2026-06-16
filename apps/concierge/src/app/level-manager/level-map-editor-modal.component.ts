@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     OnDestroy,
     OnInit,
@@ -606,6 +607,7 @@ const HOVERED_OUTLINE_COLOUR = '#FFB020';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FormsModule,
         FullscreenModalShellComponent,

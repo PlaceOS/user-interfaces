@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, output, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -29,7 +29,6 @@ import {
     DurationFieldComponent,
     TimeFieldComponent,
 } from '@placeos/form-fields';
-import { combineLatest, map } from 'rxjs';
 import { MeetingFlowSpaceListComponent } from './meeting-flow-space-list.component';
 import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component';
 
@@ -66,7 +65,6 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
             }
             <div
                 class="relative flex w-full overflow-hidden p-2 sm:space-x-2"
-                [formGroup]="form()"
             >
                 <!-- Filters Sidebar - Desktop -->
                 <div
@@ -81,7 +79,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                         <label for="location">{{
                             'COMMON.LOCATION' | translate
                         }}</label>
-                        @if (use_region() && (regions | async)?.length) {
+                        @if (use_region() && regions()?.length) {
                             <mat-form-field appearance="outline" class="w-full">
                                 <mat-select
                                     name="region"
@@ -93,7 +91,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                             | translate
                                     "
                                 >
-                                    @for (reg of regions | async; track reg) {
+                                    @for (reg of regions(); track reg) {
                                         <mat-option [value]="reg">
                                             {{ reg.display_name || reg.name }}
                                         </mat-option>
@@ -101,19 +99,19 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                 </mat-select>
                             </mat-form-field>
                         }
-                        @if (!use_region() && (buildings | async)?.length > 1) {
+                        @if (!use_region() && (buildings())?.length > 1) {
                             <mat-form-field appearance="outline" class="w-full">
                                 <mat-select
                                     name="building"
-                                    [ngModel]="building | async"
+                                    [ngModel]="building()"
                                     (ngModelChange)="setBuilding($event)"
                                     [ngModelOptions]="{ standalone: true }"
                                     [placeholder]="
-                                        (building | async)?.display_name ||
-                                        (building | async)?.name
+                                        (building())?.display_name ||
+                                        (building())?.name
                                     "
                                 >
-                                    @for (bld of buildings | async; track bld) {
+                                    @for (bld of buildings(); track bld) {
                                         <mat-option [value]="bld">
                                             {{ bld.display_name || bld.name }}
                                         </mat-option>
@@ -125,7 +123,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                             <mat-form-field appearance="outline" class="w-full">
                                 <mat-select
                                     name="location-multi"
-                                    [ngModel]="(options | async)?.zones"
+                                    [ngModel]="options()?.zones"
                                     (ngModelChange)="
                                         setOptions({ zones: $event })
                                     "
@@ -135,7 +133,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                     "
                                     [multiple]="true"
                                 >
-                                    @for (lvl of levels | async; track lvl) {
+                                    @for (lvl of levels(); track lvl) {
                                         <mat-option [value]="lvl.id">
                                             <div class="flex flex-col-reverse">
                                                 @if (use_region()) {
@@ -166,11 +164,11 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                             </mat-form-field>
                         }
                         <label for="date">{{ 'FORM.DATE' | translate }}</label>
-                        <date-field formControlName="date" />
+                        <date-field [formField]="form.date" />
                         @if (allow_all_day()) {
                             <settings-toggle
                                 class="mb-2"
-                                formControlName="all_day"
+                                [formField]="form.all_day"
                                 >{{
                                     'COMMON.ALL_DAY' | translate
                                 }}</settings-toggle
@@ -185,16 +183,16 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                     class="flex-1"
                                     [ngModel]="field('date')"
                                     (ngModelChange)="
-                                        form().patchValue({ date: $event })
+                                        model.update((m) => ({ ...m, date: $event }))
                                     "
                                     [ngModelOptions]="{ standalone: true }"
-                                    [disabled]="form().controls.date.disabled"
+                                    [disabled]="form.date().disabled()"
                                     [use_24hr]="use_24hr()"
                                     [timezone]="timezone"
                                 />
                                 <duration-field
                                     class="w-1/3 flex-1"
-                                    formControlName="duration"
+                                    [formField]="form.duration"
                                     [time]="field('date')"
                                     [max]="max_duration()"
                                     [min]="min_duration()"
@@ -208,7 +206,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                         @if (view() === 'list') {
                             <settings-toggle
                                 class="mb-4"
-                                [ngModel]="(filters | async)?.show_fav"
+                                [ngModel]="filters()?.show_fav"
                                 (ngModelChange)="setFilters({ show_fav: $event })"
                                 [ngModelOptions]="{ standalone: true }"
                                 >{{
@@ -217,12 +215,12 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                             >
                         }
                         @if (view() === 'list') {
-                            @if ((features | async)?.length) {
+                            @if (features()?.length) {
                                 <h2 class="text-lg font-medium">
                                     {{ 'CALENDAR_EVENT.FACILITIES' | translate }}
                                 </h2>
                                 <div class="mb-4 flex flex-col space-y-2">
-                                    @for (feat of features | async; track feat) {
+                                    @for (feat of features(); track feat) {
                                         @if (!hide_features().includes(feat)) {
                                             <settings-toggle
                                                 class="w-full"
@@ -230,9 +228,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                                     feature_display()[feat] || feat
                                                 "
                                                 [ngModel]="
-                                                    (
-                                                        filters | async
-                                                    )?.features?.includes(feat)
+                                                    filters()?.features?.includes(feat)
                                                 "
                                                 (ngModelChange)="
                                                     toggleFeature(feat, $event)
@@ -256,10 +252,10 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                             class="border-base-300 bg-base-100 flex flex-1 flex-wrap rounded-lg border p-2"
                         >
                             @let feature_list =
-                                (filters | async)?.features || [];
-                            @let zones = (options | async)?.zones || [];
-                            @let capacity = (filters | async)?.capacity || -1;
-                            @let event = form().getRawValue();
+                                filters()?.features || [];
+                            @let zones = options()?.zones || [];
+                            @let capacity = filters()?.capacity || -1;
+                            @let event = model();
                             @let zone = (zones | level) || (zones | building);
                             @let location =
                                 zone?.display_name || zone?.name || '';
@@ -371,7 +367,6 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                 class="filters-panel-mobile border-base-300 bg-base-100 fixed right-0 bottom-0 left-0 z-30 w-full border-t shadow-lg transition-transform duration-300 sm:hidden"
                 [class.translate-y-full]="!filters_open()"
                 [class.translate-y-0]="filters_open()"
-                [formGroup]="form()"
             >
                 <div
                     class="border-base-300 flex w-full items-center justify-between border-b p-2"
@@ -387,7 +382,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                     <label for="location">{{
                         'COMMON.LOCATION' | translate
                     }}</label>
-                    @if (use_region() && (regions | async)?.length) {
+                    @if (use_region() && (regions())?.length) {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="region"
@@ -399,7 +394,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                         | translate
                                 "
                             >
-                                @for (reg of regions | async; track reg) {
+                                @for (reg of regions(); track reg) {
                                     <mat-option [value]="reg">
                                         {{ reg.display_name || reg.name }}
                                     </mat-option>
@@ -407,19 +402,19 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                             </mat-select>
                         </mat-form-field>
                     }
-                    @if (!use_region() && (buildings | async)?.length > 1) {
+                    @if (!use_region() && (buildings())?.length > 1) {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="building"
-                                [ngModel]="building | async"
+                                [ngModel]="building()"
                                 (ngModelChange)="setBuilding($event)"
                                 [ngModelOptions]="{ standalone: true }"
                                 [placeholder]="
-                                    (building | async)?.display_name ||
-                                    (building | async)?.name
+                                    (building())?.display_name ||
+                                    (building())?.name
                                 "
                             >
-                                @for (bld of buildings | async; track bld) {
+                                @for (bld of buildings(); track bld) {
                                     <mat-option [value]="bld">
                                         {{ bld.display_name || bld.name }}
                                     </mat-option>
@@ -431,13 +426,13 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="location-multi-mobile"
-                                [ngModel]="(options | async)?.zones"
+                                [ngModel]="options()?.zones"
                                 (ngModelChange)="setOptions({ zones: $event })"
                                 [ngModelOptions]="{ standalone: true }"
                                 [placeholder]="'COMMON.LEVEL_ANY' | translate"
                                 [multiple]="true"
                             >
-                                @for (lvl of levels | async; track lvl) {
+                                @for (lvl of levels(); track lvl) {
                                     <mat-option [value]="lvl.id">
                                         <div class="flex flex-col-reverse">
                                             @if (use_region()) {
@@ -465,11 +460,11 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                         </mat-form-field>
                     }
                     <label for="date">{{ 'FORM.DATE' | translate }}</label>
-                    <date-field formControlName="date" />
+                    <date-field [formField]="form.date" />
                     @if (allow_all_day()) {
                         <settings-toggle
                             class="mb-2"
-                            formControlName="all_day"
+                            [formField]="form.all_day"
                             >{{ 'COMMON.ALL_DAY' | translate }}</settings-toggle
                         >
                     }
@@ -480,16 +475,16 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                 class="flex-1"
                                 [ngModel]="field('date')"
                                 (ngModelChange)="
-                                    form().patchValue({ date: $event })
+                                    model.update((m) => ({ ...m, date: $event }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
-                                [disabled]="form().controls.date.disabled"
+                                [disabled]="form.date().disabled()"
                                 [use_24hr]="use_24hr()"
                                 [timezone]="timezone"
                             />
                             <duration-field
                                 class="w-1/3 flex-1"
-                                formControlName="duration"
+                                [formField]="form.duration"
                                 [time]="field('date')"
                                 [max]="max_duration()"
                                 [min]="min_duration()"
@@ -503,7 +498,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                     @if (view() === 'list') {
                         <settings-toggle
                             class="mb-4"
-                            [ngModel]="(filters | async)?.show_fav"
+                            [ngModel]="filters()?.show_fav"
                             (ngModelChange)="setFilters({ show_fav: $event })"
                             [ngModelOptions]="{ standalone: true }"
                             >{{
@@ -512,20 +507,18 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                         >
                     }
                     @if (view() === 'list') {
-                        @if ((features | async)?.length) {
+                        @if (features()?.length) {
                             <h2 class="text-lg font-medium">
                                 {{ 'CALENDAR_EVENT.FACILITIES' | translate }}
                             </h2>
                             <div class="mb-4 flex flex-col space-y-2">
-                                @for (feat of features | async; track feat) {
+                                @for (feat of features(); track feat) {
                                     @if (!hide_features().includes(feat)) {
                                         <settings-toggle
                                             class="w-full"
                                             [name]="feature_display()[feat] || feat"
                                             [ngModel]="
-                                                (
-                                                    filters | async
-                                                )?.features?.includes(feat)
+                                                filters()?.features?.includes(feat)
                                             "
                                             (ngModelChange)="
                                                 toggleFeature(feat, $event)
@@ -606,8 +599,8 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
         DateFieldComponent,
         TimeFieldComponent,
         DurationFieldComponent,
-        ReactiveFormsModule,
         FormsModule,
+        FormField,
         SettingsToggleComponent,
         TranslatePipe,
         BuildingPipe,
@@ -649,17 +642,18 @@ export class MeetingFlowSpaceSelectComponent {
         'events.hide_features',
         [],
     );
-    public readonly form = signal(this._event_form.form);
     public readonly view = signal<'map' | 'list'>('list');
     public readonly filters_open = signal(false);
 
-    private readonly form_changes = toSignal(
-        this._event_form.form.valueChanges,
-    );
-    private readonly form_value = computed(() => {
-        this.form_changes();
-        return this._event_form.form.getRawValue();
-    });
+    public get form() {
+        return this._event_form.form;
+    }
+
+    public get model() {
+        return this._event_form.model;
+    }
+
+    private readonly form_value = this._event_form.model;
 
     public readonly selected = computed(() => {
         const resources = this.form_value().resources || [];
@@ -672,8 +666,8 @@ export class MeetingFlowSpaceSelectComponent {
             this.form_value()?.resources.length > 0,
     );
 
-    public readonly options = this._event_form.options$;
-    public readonly filters = this._event_form.filters$;
+    public readonly options = this._event_form.options;
+    public readonly filters = this._event_form.filters;
 
     public readonly building = this._org.active_building;
     public readonly buildings = this._org.active_buildings;
@@ -684,46 +678,38 @@ export class MeetingFlowSpaceSelectComponent {
     public readonly setRegion = (region) => (this._org.region = region);
     public readonly setOptions = (o) => this._event_form.setOptions(o);
     public readonly setFilters = (f) => this._event_form.setFilters(f);
-    public readonly loading = this._event_form.loading$;
+    public readonly loading = this._event_form.loading;
 
     public readonly room_alerts = this._event_form.room_alerts;
     public readonly active = signal('');
-    private readonly bookable_spaces = toSignal(this._event_form.spaces$, {
-        initialValue: [],
+    private readonly bookable_spaces = this._event_form.spaces;
+
+    public readonly levels = computed(() => {
+        const region = this._org.active_region();
+        const bld = this._org.active_building();
+        const spaces = this._event_form.spaces();
+        const level_list = this.use_region()
+            ? this._org.levelsForRegion(region)
+            : this._org.levelsForBuilding(bld);
+        const level_ids = new Set(
+            flatten(spaces.map((space) => space.zones || [])),
+        );
+        const viewable_levels = level_list.filter(
+            (lvl) => !lvl.tags.includes('parking') && level_ids.has(lvl.id),
+        );
+        return viewable_levels.sort(
+            (a, b) =>
+                a.parent_id.localeCompare(b.parent_id) ||
+                (a.name || '').localeCompare(b.name || '') ||
+                (a.display_name || '').localeCompare(b.display_name || ''),
+        );
     });
 
-    public readonly levels = combineLatest([
-        this._org.active_region,
-        this._org.active_building,
-        this._event_form.spaces$,
-    ]).pipe(
-        map(([region, bld, spaces]) => {
-            const level_list = this.use_region()
-                ? this._org.levelsForRegion(region)
-                : this._org.levelsForBuilding(bld);
-            const level_ids = new Set(
-                flatten(spaces.map((space) => space.zones || [])),
-            );
-            const viewable_levels = level_list.filter(
-                (lvl) => !lvl.tags.includes('parking') && level_ids.has(lvl.id),
-            );
-            return viewable_levels.sort(
-                (a, b) =>
-                    a.parent_id.localeCompare(b.parent_id) ||
-                    (a.name || '').localeCompare(b.name || '') ||
-                    (a.display_name || '').localeCompare(b.display_name || ''),
-            );
-        }),
-    );
-
-    public readonly features = combineLatest([
-        this._spaces.features,
-        this._event_form.available_spaces,
-    ]).pipe(
-        map(([features, spaces]) =>
-            unique(features.concat(flatten(spaces.map((_) => _.features)))),
-        ),
-    );
+    public readonly features = computed(() => {
+        const features = this._spaces.features();
+        const spaces = this._event_form.available_spaces();
+        return unique(features.concat(flatten(spaces.map((_) => _.features))));
+    });
 
     public get timezone() {
         return this._settings.get('app.events.use_building_timezone')
@@ -736,18 +722,18 @@ export class MeetingFlowSpaceSelectComponent {
     }
 
     public field(name: string) {
-        return this.form()?.getRawValue()?.[name];
+        return this.model()?.[name];
     }
 
     public async toggleFeature(feat: string, state: boolean) {
-        const { features } = this._event_form.filters;
+        const { features } = this._event_form.filters();
         const new_list = (features || []).filter((_) => feat !== _);
         if (state) new_list.push(feat);
         this._event_form.setFilters({ features: new_list });
     }
 
     public removeFeature(feat: string) {
-        const { features } = this._event_form.filters;
+        const { features } = this._event_form.filters();
         const new_list = (features || []).filter((_) => feat !== _);
         this._event_form.setFilters({ features: new_list });
     }
@@ -768,7 +754,7 @@ export class MeetingFlowSpaceSelectComponent {
             (lvl) => !lvl.tags.includes('parking') && level_ids.has(lvl.id),
         );
         if (viewable_levels.length) {
-            const current_zones = this._event_form.options?.zones || [];
+            const current_zones = this._event_form.options()?.zones || [];
             const current_zone_valid = current_zones.some((zone) =>
                 viewable_levels.some((lvl) => lvl.id === zone),
             );
@@ -796,10 +782,10 @@ export class MeetingFlowSpaceSelectComponent {
             const new_resources = resources.find(({ id }) => id === space.id)
                 ? resources.filter(({ id }) => id !== space.id)
                 : [...resources, space];
-            this.form().patchValue({ resources: new_resources });
+            this.model.update((m) => ({ ...m, resources: new_resources }));
             // selected signal will update automatically via computed
         } else {
-            this.form().patchValue({ resources: [space] });
+            this.model.update((m) => ({ ...m, resources: [space] }));
             // selected signal will update automatically via computed
             // Close filters on mobile after selecting a space
             this.filters_open.set(false);

@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -9,7 +10,6 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
     AsyncHandler,
-    firstTruthyValueFrom,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
@@ -36,6 +36,7 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
     `,
     styles: [``],
     providers: [ExploreParkingService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [InteractiveMapComponent],
 })
 export class ParkingMapComponent extends AsyncHandler implements OnInit {
@@ -92,7 +93,7 @@ export class ParkingMapComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         this._ready.set(true);
         this.subscription('parking_poll', this._ex_parking.startPolling());
         this._ex_parking.on_book = async (space) => {

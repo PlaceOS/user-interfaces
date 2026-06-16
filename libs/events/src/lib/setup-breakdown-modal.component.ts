@@ -7,7 +7,6 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { CalendarEvent, notifyError, notifySuccess } from '@placeos/common';
-import { firstValueFrom } from 'rxjs';
 
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -100,26 +99,22 @@ export class SetupBreakdownModalComponent {
             system_id: this._event?.resources[0]?.id || this._event?.system?.id,
             ical_uid: this._event?.ical_uid,
         };
-        let event = await firstValueFrom(
-            saveEvent(
-                new CalendarEvent({
-                    ...this._event,
-                    setup_time: this.form.value.setup,
-                    breakdown_time: this.form.value.breakdown,
-                }).toJSON(),
-                query,
-            ),
+        let event = await saveEvent(
+            new CalendarEvent({
+                ...this._event,
+                setup_time: this.form.value.setup,
+                breakdown_time: this.form.value.breakdown,
+            }).toJSON(),
+            query,
         ).catch((_) => null);
         if (!event) {
-            event = await firstValueFrom(
-                updateEventMetadata(this._event.id, query.system_id, {
-                    ...this._event.extension_data,
-                    setup_time: this.form.value.setup,
-                    breakdown_time: this.form.value.breakdown,
-                    setup: this.form.value.setup,
-                    breakdown: this.form.value.breakdown,
-                } as any),
-            ).catch((_) => null);
+            event = await updateEventMetadata(this._event.id, query.system_id, {
+                ...this._event.extension_data,
+                setup_time: this.form.value.setup,
+                breakdown_time: this.form.value.breakdown,
+                setup: this.form.value.setup,
+                breakdown: this.form.value.breakdown,
+            } as any).catch((_) => null);
         }
         if (!event) {
             this.loading.set(false);

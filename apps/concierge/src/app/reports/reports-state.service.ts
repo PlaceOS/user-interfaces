@@ -181,52 +181,64 @@ export class ReportsStateService {
             let request$: Observable<(CalendarEvent | Booking)[]>;
             switch (options.type) {
                 case 'desks':
-                    request$ = queryAllBookings({
-                        ...bookings_query,
-                        zones: zones,
-                        type: 'desk',
-                        limit: 1000,
-                    });
+                    request$ = from(
+                        queryAllBookings({
+                            ...bookings_query,
+                            zones: zones,
+                            type: 'desk',
+                            limit: 1000,
+                        }),
+                    );
                     break;
                 case 'parking':
-                    request$ = queryAllBookings({
-                        ...bookings_query,
-                        zones: zones,
-                        type: 'parking',
-                        limit: 1000,
-                    });
+                    request$ = from(
+                        queryAllBookings({
+                            ...bookings_query,
+                            zones: zones,
+                            type: 'parking',
+                            limit: 1000,
+                        }),
+                    );
                     break;
                 case 'lockers':
-                    request$ = queryAllBookings({
-                        ...bookings_query,
-                        zones: zones,
-                        type: 'locker',
-                        limit: 1000,
-                    });
+                    request$ = from(
+                        queryAllBookings({
+                            ...bookings_query,
+                            zones: zones,
+                            type: 'locker',
+                            limit: 1000,
+                        }),
+                    );
                     break;
                 case 'assets':
-                    request$ = queryAllBookings({
-                        ...bookings_query,
-                        zones: zones,
-                        type: 'asset-request',
-                        limit: 1000,
-                    });
+                    request$ = from(
+                        queryAllBookings({
+                            ...bookings_query,
+                            zones: zones,
+                            type: 'asset-request',
+                            limit: 1000,
+                        }),
+                    );
                     break;
                 case 'catering':
-                    request$ = queryAllBookings({
-                        ...bookings_query,
-                        zones: zones,
-                        type: 'catering-order',
-                        limit: 1000,
-                    });
+                    request$ = from(
+                        queryAllBookings({
+                            ...bookings_query,
+                            zones: zones,
+                            type: 'catering-order',
+                            limit: 1000,
+                        }),
+                    );
                     break;
                 case 'events':
-                    request$ = queryAllEvents({
-                        ...query,
-                        zone_ids: zones,
-                        include_cancelled: true,
-                        limit: 1000,
-                    }).pipe(catchError((_) => of([])));
+                    request$ = from(
+                        queryAllEvents({
+                            ...query,
+                            zone_ids: zones,
+                            include_cancelled: true,
+                            limit: 1000,
+                        }),
+                    ).pipe(catchError((_) => of([])));
                     break;
                 default:
                     request$ = of([]);
@@ -304,7 +316,7 @@ export class ReportsStateService {
                     ? this._org.region?.id
                     : this._org.building?.id;
                 if (!scope_id) return of([]);
-                return queryParkingSpacesForZones([scope_id]).pipe(
+                return from(queryParkingSpacesForZones([scope_id])).pipe(
                     map((spaces) =>
                         zones.map((z) => [
                             z,
@@ -342,10 +354,10 @@ export class ReportsStateService {
                     return of([zone_id, 0]);
                 }
                 return forkJoin([
-                    queryLockerBankAssetsForZones([parent_id]).pipe(
+                    from(queryLockerBankAssetsForZones([parent_id])).pipe(
                         catchError(() => of([])),
                     ),
-                    queryLockerAssetsForZones([parent_id]).pipe(
+                    from(queryLockerAssetsForZones([parent_id])).pipe(
                         catchError(() => of([])),
                     ),
                 ]).pipe(

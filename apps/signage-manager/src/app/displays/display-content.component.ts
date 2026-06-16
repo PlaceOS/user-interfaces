@@ -1,4 +1,11 @@
-import { Component, computed, effect, inject, input } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    effect,
+    inject,
+    input,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -294,7 +301,10 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                     {{
                                         'SIGNAGE_MANAGER.ZONES_COUNT'
                                             | translate
-                                                : { count: display_zones().length }
+                                                : {
+                                                      count: display_zones()
+                                                          .length,
+                                                  }
                                                 : display_zones().length
                                     }}
                                 </h5>
@@ -367,7 +377,9 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                 class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
             >
                 <icon class="text-6xl">tv</icon>
-                <p>{{ 'SIGNAGE_MANAGER.DISPLAY_SELECT_DETAILS' | translate }}</p>
+                <p>
+                    {{ 'SIGNAGE_MANAGER.DISPLAY_SELECT_DETAILS' | translate }}
+                </p>
             </div>
         }
     `,
@@ -380,6 +392,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         MatTooltipModule,

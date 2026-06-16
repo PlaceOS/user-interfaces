@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { SignageService } from '../signage.service';
@@ -7,6 +7,7 @@ import { MediaSectionComponent } from './media.component';
 @Component({
     selector: 'nav-sidebar',
     template: '',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: true,
 })
 class NavSidebarStubComponent {}
@@ -14,6 +15,7 @@ class NavSidebarStubComponent {}
 @Component({
     selector: 'media-list-header',
     template: '',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: true,
 })
 class MediaListHeaderStubComponent {}
@@ -21,6 +23,7 @@ class MediaListHeaderStubComponent {}
 @Component({
     selector: 'media-list',
     template: '',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: true,
 })
 class MediaListStubComponent {
@@ -30,6 +33,7 @@ class MediaListStubComponent {
 @Component({
     selector: 'playlist-sidebar',
     template: '',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: true,
 })
 class PlaylistSidebarStubComponent {}
@@ -37,6 +41,7 @@ class PlaylistSidebarStubComponent {}
 @Component({
     selector: 'nav-footer',
     template: '',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: true,
 })
 class NavFooterStubComponent {}
@@ -44,6 +49,7 @@ class NavFooterStubComponent {}
 @Component({
     selector: 'icon',
     template: '<ng-content />',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: true,
 })
 class IconStubComponent {}

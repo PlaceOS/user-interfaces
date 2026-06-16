@@ -73,14 +73,13 @@ export class DeskFlowAutoAssignComponent {
     private _dialog = inject(MatDialog);
     private _router = inject(Router);
 
-    public get form() {
-        return this._booking_form.form;
+    public get model() {
+        return this._booking_form.model;
     }
 
     public readonly autoAssignDesk = () => {
         // Get current form values for date and duration
-        const form_value = this.form.getRawValue();
-        const { date, duration } = form_value;
+        const { date, duration } = this.model();
 
         // Open the auto-assigned desk modal
         const dialog_ref = this._dialog.open(AutoAssignedDeskModalComponent, {

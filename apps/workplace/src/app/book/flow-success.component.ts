@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import { currentUser } from '@placeos/common';
@@ -45,6 +45,7 @@ import { IconComponent } from '@placeos/components';
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [RouterModule, MatRippleModule, IconComponent],
 })
 export class FlowSuccessComponent {

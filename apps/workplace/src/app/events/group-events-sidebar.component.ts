@@ -1,11 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { DateCalendarComponent } from '@placeos/form-fields';
 import {
@@ -16,7 +22,6 @@ import {
     startOfMonth,
     startOfWeek,
 } from 'date-fns';
-import { BehaviorSubject } from 'rxjs';
 import { GroupEventsStateService } from './group-events-state.service';
 
 @Component({
@@ -28,8 +33,8 @@ import { GroupEventsStateService } from './group-events-state.service';
                     btn
                     matRipple
                     class="flex-1"
-                    [class.inverse]="(period | async) !== 'week'"
-                    (click)="period.next('week')"
+                    [class.inverse]="period() !== 'week'"
+                    (click)="setPeriodType('week')"
                 >
                     {{ 'COMMON.WEEK' | translate }}
                 </button>
@@ -37,8 +42,8 @@ import { GroupEventsStateService } from './group-events-state.service';
                     btn
                     matRipple
                     class="flex-1"
-                    [class.inverse]="(period | async) !== 'month'"
-                    (click)="period.next('month')"
+                    [class.inverse]="period() !== 'month'"
+                    (click)="setPeriodType('month')"
                 >
                     {{ 'COMMON.MONTH' | translate }}
                 </button>
@@ -66,7 +71,7 @@ import { GroupEventsStateService } from './group-events-state.service';
             />
             <div class="hidden flex-1 flex-col overflow-auto sm:flex">
                 <date-calendar
-                    [ngModel]="(options | async).date"
+                    [ngModel]="options().date"
                     (ngModelChange)="setPeriodFromDate($event)"
                 ></date-calendar>
                 <hr class="border-base-200 mx-auto w-[calc(100%-1rem)]" />
@@ -74,10 +79,10 @@ import { GroupEventsStateService } from './group-events-state.service';
                     <h2 class="p-4 text-lg font-medium">
                         {{ 'COMMON.FILTERS' | translate }}
                     </h2>
-                    @if ((tags | async)?.length) {
+                    @if (tags().length) {
                         <div class="flex flex-col space-y-2 px-4">
                             <h3>{{ 'COMMON.TAGS' | translate }}</h3>
-                            @for (tag of tags | async; track tag) {
+                            @for (tag of tags(); track tag) {
                                 <button
                                     matRipple
                                     class="flex w-full items-center rounded-sm text-left"
@@ -85,9 +90,7 @@ import { GroupEventsStateService } from './group-events-state.service';
                                 >
                                     <mat-checkbox
                                         [ngModel]="
-                                            (filters | async)?.tags?.includes(
-                                                tag
-                                            )
+                                            filters().tags?.includes(tag)
                                         "
                                     >
                                         {{ tag }}
@@ -101,6 +104,7 @@ import { GroupEventsStateService } from './group-events-state.service';
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         FormsModule,
@@ -119,7 +123,7 @@ export class GroupEventsSidebarComponent
     private _settings = inject(SettingsService);
     private _state = inject(GroupEventsStateService);
 
-    public period = new BehaviorSubject<'week' | 'month'>('week');
+    public period = signal<'week' | 'month'>('week');
     public period_list = [];
     public selected_range: number;
     public readonly options = this._state.options;
@@ -127,16 +131,6 @@ export class GroupEventsSidebarComponent
     public readonly tags = this._state.tags;
 
     public ngOnInit(): void {
-        this.subscription(
-            'period',
-            this.period.subscribe(() => {
-                this._generatePeriods();
-                if (this.period_list.length) {
-                    this.setPeriod(this.period_list[0].id);
-                    this.selected_range = this.period_list[0].id;
-                }
-            }),
-        );
         this._generatePeriods();
         if (this.period_list.length) {
             this.setPeriod(this.period_list[0].id);
@@ -144,12 +138,21 @@ export class GroupEventsSidebarComponent
         }
     }
 
-    public async toggleTag(tag: string) {
-        const tags = (await nextValueFrom(this.filters))?.tags || [];
+    public toggleTag(tag: string) {
+        const tags = this.filters().tags || [];
         if (tags.includes(tag)) {
             this._state.setFilters({ tags: tags.filter((_) => _ !== tag) });
         } else {
             this._state.setFilters({ tags: [...tags, tag] });
+        }
+    }
+
+    public setPeriodType(period: 'week' | 'month') {
+        this.period.set(period);
+        this._generatePeriods();
+        if (this.period_list.length) {
+            this.setPeriod(this.period_list[0].id);
+            this.selected_range = this.period_list[0].id;
         }
     }
 
@@ -170,7 +173,7 @@ export class GroupEventsSidebarComponent
 
     private _generatePeriods() {
         const periods = [];
-        const period_type = this.period.value;
+        const period_type = this.period();
         let date = Date.now();
         const end_date = addDays(date, 12 * 30).valueOf();
         const week_offset = this._settings.get('app.week_start') || 0;

@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { AsyncHandler, currentUser, log, randomInt } from '@placeos/common';
 import { BehaviorSubject } from 'rxjs';
 import { distinctUntilChanged, filter, map, shareReplay } from 'rxjs/operators';
@@ -36,8 +37,8 @@ export class VoiceAssistantService extends AsyncHandler {
     public readonly enabled = this._enabled.asObservable();
     public readonly error = this._error.asObservable();
     public readonly active = this._active.asObservable();
-    public readonly progress = this._chat_service.progress;
-    public readonly waiting = this._chat_service.messages.pipe(
+    public readonly progress = toObservable(this._chat_service.progress);
+    public readonly waiting = toObservable(this._chat_service.messages).pipe(
         map(
             (_) =>
                 _.length !== 0 &&
@@ -63,7 +64,7 @@ export class VoiceAssistantService extends AsyncHandler {
         const user = currentUser();
         this.subscription(
             'chat.messages',
-            this._chat_service.messages.subscribe((list) => {
+            toObservable(this._chat_service.messages).subscribe((list) => {
                 // this._scrollToBottom();
                 const msg_list = list.filter((_) => _.user_id !== user?.id);
                 const last_message = msg_list[msg_list.length - 1];

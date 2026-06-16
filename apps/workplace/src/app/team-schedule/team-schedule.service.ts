@@ -315,7 +315,7 @@ export class TeamScheduleService {
     }
 
     private async _initializeData() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         await this._loadUsers();
     }
 
@@ -494,14 +494,12 @@ export class TeamScheduleService {
 
         // Fetch desk bookings for all users in parallel
         const bookings_promises = users.map((user) =>
-            lastValueFrom(
-                queryBookings({
-                    email: user.email,
-                    type: 'desk',
-                    period_start: getUnixTime(week_start),
-                    period_end: getUnixTime(week_end),
-                }).pipe(catchError(() => of([] as Booking[]))),
-            ),
+            queryBookings({
+                email: user.email,
+                type: 'desk',
+                period_start: getUnixTime(week_start),
+                period_end: getUnixTime(week_end),
+            }).catch(() => [] as Booking[]),
         );
 
         const all_bookings = await Promise.all(bookings_promises);

@@ -1,11 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    effect,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
     BookingFormService,
-    loadLockerBanks,
-    loadLockers,
+    loadLockerResources,
     queryBookings,
 } from '@placeos/bookings';
 import {
@@ -17,8 +24,6 @@ import {
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { addHours, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { combineLatest } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
 import { BookLockerFlowConfirmComponent } from './locker-flow/locker-flow-confirm.component';
 import { BookLockerFlowFormComponent } from './locker-flow/locker-flow-form.component';
 import { BookLockerFlowSuccessComponent } from './locker-flow/locker-flow-success.component';
@@ -26,7 +31,7 @@ import { BookLockerFlowSuccessComponent } from './locker-flow/locker-flow-succes
 @Component({
     selector: 'placeos-book-locker-flow',
     template: `
-        @if (!((assigned_space | async) && (has_booking | async))) {
+        @if (!(assigned_space() && has_booking())) {
             <div class="bg-base-100 z-50 h-full w-full">
                 @switch (view()) {
                     @case ('success') {
@@ -49,7 +54,9 @@ import { BookLockerFlowSuccessComponent } from './locker-flow/locker-flow-succes
                     {{
                         'APP.WORKPLACE.LOCKER_ASSIGNED'
                             | translate
-                                : { name: (assigned_space | async)?.name }
+                                : {
+                                      name: assigned_space()?.name,
+                                  }
                     }}
                 </p>
                 <a btn matRipple class="w-48" [routerLink]="['/your-bookings']">
@@ -66,6 +73,7 @@ import { BookLockerFlowSuccessComponent } from './locker-flow/locker-flow-succes
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,
@@ -83,37 +91,30 @@ export class BookLockerFlowComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
 
     public readonly view = this._state.view;
+    private readonly _lockers = signal([]);
 
-    private _lockers_banks = loadLockerBanks(
-        this._org,
-        combineLatest([this._org.active_building, this._org.active_region]),
-        () => this._settings.get('app.use_region'),
-    );
-    private _lockers = loadLockers(
-        this._org,
-        combineLatest([this._org.active_building, this._org.active_region]),
-        this._lockers_banks,
-        () => this._settings.get('app.use_region'),
-    );
-
-    public readonly assigned_space = this._lockers.pipe(
-        map((list) =>
-            list.find(
-                (_) =>
-                    _.assigned_to?.toLowerCase() ===
-                    currentUser().email?.toLowerCase(),
-            ),
+    public readonly assigned_space = computed(() =>
+        this._lockers().find(
+            (_) =>
+                _.assigned_to?.toLowerCase() ===
+                currentUser().email?.toLowerCase(),
         ),
     );
 
-    public readonly has_booking = queryBookings({
-        period_start: getUnixTime(addHours(startOfDay(Date.now()), 1)),
-        period_end: getUnixTime(addHours(endOfDay(Date.now()), -1)),
-        type: 'locker',
-    }).pipe(
-        map((_) => _.length > 0),
-        shareReplay(1),
-    );
+    public readonly has_booking = signal(false);
+
+    constructor() {
+        super();
+        effect(async () => {
+            const bld = this._org.active_building();
+            const region = this._org.active_region();
+            const scope_id = this._settings.get('app.use_region')
+                ? region?.id || this._org.region?.id
+                : bld?.id;
+            this._lockers.set(await loadLockerResources(this._org, scope_id));
+        });
+        void this._loadTodaysBookings();
+    }
 
     public get last_success() {
         return this._state.last_success;
@@ -122,10 +123,10 @@ export class BookLockerFlowComponent extends AsyncHandler implements OnInit {
     public ngOnInit() {
         this._state.loadForm();
         this._state.setOptions({ type: 'locker' });
-        if (!this._state.form.value.id) this._state.newForm('locker');
-        this._state.form.patchValue({ booking_type: 'locker' });
-        if (this._state.form.value.id) {
-            const booking = new Booking(this._state.form.getRawValue());
+        if (!this._state.model().id) this._state.newForm('locker');
+        this._state.model.update((m) => ({ ...m, booking_type: 'locker' }));
+        if (this._state.model().id) {
+            const booking = new Booking(this._state.model() as any);
             const is_group =
                 !!booking.parent_id ||
                 !!booking.group ||
@@ -141,18 +142,18 @@ export class BookLockerFlowComponent extends AsyncHandler implements OnInit {
                     );
             }
         }
-        this.subscription(
-            'route.params',
-            this._route.paramMap.subscribe((param) => {
-                if (param.has('step'))
-                    this._state.setView(param.get('step') as any);
-            }),
-        );
-        this.subscription(
-            'route.query',
-            this._route.queryParamMap.subscribe((param) => {
-                if (param.has('success')) this._state.setView('success');
-            }),
-        );
+        const param = this._route.snapshot.paramMap;
+        if (param.has('step')) this._state.setView(param.get('step') as any);
+        const query = this._route.snapshot.queryParamMap;
+        if (query.has('success')) this._state.setView('success');
+    }
+
+    private async _loadTodaysBookings() {
+        const bookings = await queryBookings({
+            period_start: getUnixTime(addHours(startOfDay(Date.now()), 1)),
+            period_end: getUnixTime(addHours(endOfDay(Date.now()), -1)),
+            type: 'locker',
+        }).catch(() => []);
+        this.has_booking.set(bookings.length > 0);
     }
 }

@@ -1,9 +1,9 @@
+import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { BookingDetailsModalComponent } from '@placeos/bookings';
 import { Booking, CalendarEvent, OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { LandingUpcomingBookingComponent } from '../../app/landing-new/landing-upcoming-booking.component';
 import { LandingStateService } from '../../app/landing/landing-state.service';
@@ -11,7 +11,7 @@ import { ScheduleStateService } from '../../app/schedule/schedule-state.service'
 
 describe('LandingUpcomingBookingComponent', () => {
     let spectator: SpectatorRouting<LandingUpcomingBookingComponent>;
-    const upcoming_events = new BehaviorSubject([
+    const upcoming_events = signal<any[]>([
         new Booking({
             id: 'booking-1',
             booking_type: 'desk',
@@ -54,7 +54,7 @@ describe('LandingUpcomingBookingComponent', () => {
             MockProvider(OrganisationService, {
                 levelWithID: jest.fn(),
                 buildings: [],
-                initialised: new BehaviorSubject(true),
+                initialised: signal(true),
             } as any),
         ],
     });
@@ -65,7 +65,7 @@ describe('LandingUpcomingBookingComponent', () => {
         jest.spyOn(SpacePipe.prototype, 'transform').mockImplementation(
             async (id: string) => ({ id }) as any,
         );
-        upcoming_events.next([
+        upcoming_events.set([
             new Booking({
                 id: 'booking-1',
                 booking_type: 'desk',
@@ -103,7 +103,7 @@ describe('LandingUpcomingBookingComponent', () => {
     });
 
     it('should disable edit when the booking details modal cannot edit', () => {
-        upcoming_events.next([
+        upcoming_events.set([
             new Booking({
                 id: 'booking-visitor-1',
                 booking_type: 'visitor',
@@ -121,7 +121,7 @@ describe('LandingUpcomingBookingComponent', () => {
     });
 
     it('should disable edit when the event details modal cannot edit', () => {
-        upcoming_events.next([
+        upcoming_events.set([
             new CalendarEvent({
                 id: 'event-shared-1',
                 title: 'Shared Event',
@@ -140,7 +140,7 @@ describe('LandingUpcomingBookingComponent', () => {
     it('should update checked in state immediately for room events', () => {
         jest.useFakeTimers();
         const date = Date.now();
-        upcoming_events.next([
+        upcoming_events.set([
             new CalendarEvent({
                 id: 'event-1',
                 title: 'Room Booking',
@@ -151,6 +151,10 @@ describe('LandingUpcomingBookingComponent', () => {
                 system: { id: 'sys-1' },
             } as any),
         ]);
+
+        // Flush the room-resolving effect (resets room state for new event)
+        // before simulating the live driver bindings.
+        spectator.detectChanges();
         spectator.component.room_status.set('busy');
         spectator.component.room_booking_start.set(date / 1000);
 
@@ -166,7 +170,7 @@ describe('LandingUpcomingBookingComponent', () => {
     it('should not show checked in for room events when the driver booking start does not match', () => {
         jest.useFakeTimers();
         const date = Date.now();
-        upcoming_events.next([
+        upcoming_events.set([
             new CalendarEvent({
                 id: 'event-1',
                 title: 'Room Booking',
@@ -198,14 +202,18 @@ describe('LandingUpcomingBookingComponent', () => {
             status: 'approved',
             system: { id: 'calendar-resource-id' },
         };
-        upcoming_events.next([new CalendarEvent(event_details as any)]);
+        upcoming_events.set([new CalendarEvent(event_details as any)]);
+        // Flush the effect so the event becomes the current room event
+        spectator.detectChanges();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        // Simulate the live driver bindings populating room state
         spectator.component.room_status.set('busy');
         spectator.component.room_booking_start.set(event_details.date / 1000);
         spectator.component.room_system_id.set('room-system-1');
 
-        spectator.detectChanges();
-
-        upcoming_events.next([new CalendarEvent(event_details as any)]);
+        // Refresh with the same event - state should be preserved
+        upcoming_events.set([new CalendarEvent(event_details as any)]);
         await new Promise((resolve) => setTimeout(resolve, 0));
         spectator.detectChanges();
 
@@ -219,7 +227,7 @@ describe('LandingUpcomingBookingComponent', () => {
         const transform_spy = SpacePipe.prototype
             .transform as jest.MockedFunction<any>;
         transform_spy.mockResolvedValue({ id: 'room-system-1' } as any);
-        upcoming_events.next([
+        upcoming_events.set([
             new CalendarEvent({
                 id: 'event-3',
                 title: 'Room Booking',
@@ -230,6 +238,8 @@ describe('LandingUpcomingBookingComponent', () => {
             } as any),
         ]);
 
+        // Flush the room-resolving effect, then wait for the async lookup
+        spectator.detectChanges();
         await new Promise((resolve) => setTimeout(resolve, 0));
         spectator.detectChanges();
 

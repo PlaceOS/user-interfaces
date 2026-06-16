@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -18,7 +19,6 @@ import { debounceTime, filter, map, startWith } from 'rxjs/operators';
 import {
     AsyncHandler,
     currentUser,
-    firstTruthyValueFrom,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
@@ -366,6 +366,7 @@ import {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         FormsModule,
@@ -707,7 +708,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
 
     public async ngOnInit() {
         this._updatePath();
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         await lastValueFrom(timer(1000));
         this.setSearch('');
         this._ready.set(true);

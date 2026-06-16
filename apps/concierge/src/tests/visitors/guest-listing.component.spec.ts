@@ -1,7 +1,8 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { OrganisationService, SettingsService } from '@placeos/common';
+import { signal } from '@angular/core';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { ParkingStateService } from '../../app/parking/parking-state.service';
 import { GuestListingComponent } from '../../app/visitors/guest-listing.component';
 import { VisitorsStateService } from '../../app/visitors/visitors-state.service';
@@ -37,7 +38,7 @@ describe('GuestListingComponent', () => {
             MockProvider(ParkingStateService, { editReservation: jest.fn() }),
             MockProvider(SettingsService, settings as any),
             MockProvider(OrganisationService, {
-                active_building: of({ id: 'bld-1' }),
+                active_building: signal({ id: 'bld-1' }),
                 building: { timezone: 'Australia/Sydney' },
                 organisation: { id: 'org-1' },
                 module: jest.fn(),

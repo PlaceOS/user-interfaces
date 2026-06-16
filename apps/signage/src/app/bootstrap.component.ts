@@ -1,9 +1,15 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import {
     AsyncHandler,
-    firstTruthyValueFrom,
     i18n,
     Identity,
     log,
@@ -124,6 +130,7 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,
@@ -152,7 +159,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
 
     public readonly buildings = this._org.building_list;
 
-    public readonly displays = this._org.initialised.pipe(
+    public readonly displays = toObservable(this._org.initialised).pipe(
         first((_) => !!_),
         switchMap(() =>
             querySystems({
@@ -201,7 +208,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                 }
             }),
         );
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         this.timeout('check', () => this.checkBootstrap(), 1000);
     }
 

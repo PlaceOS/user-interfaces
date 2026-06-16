@@ -9,7 +9,6 @@ import { BookingFormService } from '@placeos/bookings';
 import { Booking, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 import { LandingStateService } from '../../app/landing/landing-state.service';
 import { LandingColleaguesNewComponent } from '../../app/landing-new/landing-colleagues-new.component';
 import { TeamScheduleService } from '../../app/team-schedule/team-schedule.service';
@@ -32,12 +31,12 @@ describe('LandingColleaguesNewComponent', () => {
         imports: [NoopAnimationsModule],
         providers: [
             MockProvider(LandingStateService, {
-                contacts: new BehaviorSubject([
+                contacts: signal([
                     {
                         name: 'Test User',
                         email: 'test@example.com',
                     },
-                ]),
+                ]) as any,
                 removeContact: jest.fn(),
             }),
             MockProvider(MatDialog, {

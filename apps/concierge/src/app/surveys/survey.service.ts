@@ -1,10 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import {
-    firstTruthyValueFrom,
-    notifySuccess,
-    OrganisationService,
-} from '@placeos/common';
+import { notifySuccess, OrganisationService } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
 import {
     queryAnswers,
@@ -86,7 +82,7 @@ export class SurveyService {
     });
 
     constructor() {
-        firstTruthyValueFrom(this._org.initialised).then(() => {
+        this._org.waitUntilInitialised().then(() => {
             setTimeout(() => this._load(), 300);
         });
     }
@@ -147,7 +143,7 @@ export class SurveyService {
     }
 
     private async _load(type = LoadType.ALL) {
-        const buildings = this._org.buildings_signal();
+        const buildings = this._org.building_list();
         if (!buildings) return;
         this.loading.set('Loading survey data...');
         if (type === LoadType.ALL || type === LoadType.SURVEYS) {

@@ -1,4 +1,9 @@
-import { Component, effect, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    effect,
+    inject,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
@@ -89,6 +94,7 @@ import { TopbarHeaderComponent } from './topbar-header.component';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TopbarHeaderComponent,
         ControlPageViewComponent,

@@ -1,5 +1,6 @@
 import {
     AfterViewInit,
+    ChangeDetectionStrategy,
     Component,
     ElementRef,
     inject,
@@ -21,7 +22,6 @@ import {
     BookingType,
     CalendarEvent,
     currentUser,
-    firstTruthyValueFrom,
     notifyError,
     scanForQRCode,
 } from '@placeos/common';
@@ -38,7 +38,6 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { OrganisationService } from '@placeos/common';
-import { lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'book-code-flow',
@@ -181,6 +180,7 @@ import { lastValueFrom } from 'rxjs';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatInputModule,
         MatRippleModule,
@@ -216,7 +216,7 @@ export class BookCodeFlowComponent
     }
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
@@ -257,17 +257,15 @@ export class BookCodeFlowComponent
     ) {
         this.loading.set(true);
         this.unsub('scan_for_qr_code');
-        let bookings = await lastValueFrom(
-            queryBookings({
-                period_start: getUnixTime(Date.now()),
-                period_end: getUnixTime(addMinutes(Date.now(), 5)),
-                type,
-                email: currentUser().email,
-            }),
-        ).catch((_) => [] as Booking[]);
+        let bookings = await queryBookings({
+            period_start: getUnixTime(Date.now()),
+            period_end: getUnixTime(addMinutes(Date.now(), 5)),
+            type,
+            email: currentUser().email,
+        }).catch((_) => [] as Booking[]);
         const item = bookings.find((_) => _.asset_id === asset_id);
         if (item) {
-            await lastValueFrom(checkinBooking(item.id, true)).catch((_) => {
+            await checkinBooking(item.id, true).catch((_) => {
                 notifyError(
                     `Unable to checkin booking with resource "${asset_id}"`,
                 );
@@ -276,13 +274,11 @@ export class BookCodeFlowComponent
             });
             this._router.navigate(['/book', 'code', 'success']);
         } else {
-            bookings = await lastValueFrom(
-                queryBookings({
-                    period_start: getUnixTime(Date.now()),
-                    period_end: getUnixTime(endOfDay(Date.now())),
-                    type,
-                }),
-            ).catch((_) => [] as Booking[]);
+            bookings = await queryBookings({
+                period_start: getUnixTime(Date.now()),
+                period_end: getUnixTime(endOfDay(Date.now())),
+                type,
+            }).catch((_) => [] as Booking[]);
             let item = bookings.find((_) => _.asset_id === asset_id);
             if (item) {
                 this._router.navigate(['/book', 'code', 'error'], {
@@ -290,13 +286,11 @@ export class BookCodeFlowComponent
                 });
                 return;
             }
-            bookings = await lastValueFrom(
-                queryBookings({
-                    period_start: getUnixTime(Date.now()),
-                    period_end: getUnixTime(addMinutes(Date.now(), 5)),
-                    type,
-                }),
-            ).catch((_) => [] as Booking[]);
+            bookings = await queryBookings({
+                period_start: getUnixTime(Date.now()),
+                period_end: getUnixTime(addMinutes(Date.now(), 5)),
+                type,
+            }).catch((_) => [] as Booking[]);
             item = bookings.find((_) => _.asset_id === asset_id);
             if (item) {
                 this._router.navigate(['/book', 'code', 'error'], {
@@ -317,25 +311,21 @@ export class BookCodeFlowComponent
         if (!email) email = currentUser().email;
         this.loading.set(true);
         this.unsub('scan_for_qr_code');
-        const bookings = await lastValueFrom(
-            queryEvents({
-                period_start: getUnixTime(Date.now()),
-                period_end: getUnixTime(Date.now() + 5 * 60 * 1000),
-            }),
-        ).catch((_) => []);
+        const bookings = await queryEvents({
+            period_start: getUnixTime(Date.now()),
+            period_end: getUnixTime(Date.now() + 5 * 60 * 1000),
+        }).catch((_) => []);
         const item = bookings.find((_) =>
             _.resources.find((s) => s.id === space_id || s.email === space_id),
         );
         if (item) {
-            await lastValueFrom(checkinEventGuest(item.id, email, true)).catch(
-                (_) => {
-                    notifyError(
-                        `Unable to checkin event with resource "${space_id}"`,
-                    );
-                    this.loading.set(false);
-                    throw _;
-                },
-            );
+            await checkinEventGuest(item.id, email, true).catch((_) => {
+                notifyError(
+                    `Unable to checkin event with resource "${space_id}"`,
+                );
+                this.loading.set(false);
+                throw _;
+            });
             this._router.navigate(['/book', 'code', 'success']);
             this.loading.set(false);
         } else {

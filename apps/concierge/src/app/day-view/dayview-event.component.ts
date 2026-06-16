@@ -1,4 +1,10 @@
-import { Component, computed, inject, input } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    input,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { addMinutes, differenceInMinutes, format, startOfDay } from 'date-fns';
 
@@ -136,6 +142,7 @@ const DAY_IN_MINUTES = 24 * 60;
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class DayviewEventComponent {

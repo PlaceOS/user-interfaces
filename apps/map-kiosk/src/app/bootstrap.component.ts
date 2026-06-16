@@ -1,6 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -22,7 +28,6 @@ import {
     TranslatePipe,
     VirtualKeyboardComponent,
 } from '@placeos/components';
-import { first } from 'rxjs/operators';
 
 @Component({
     selector: '[bootstrap]',
@@ -333,6 +338,7 @@ import { first } from 'rxjs/operators';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         MatProgressSpinnerModule,
@@ -370,15 +376,9 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
 
     public readonly rotations = signal<Identity[]>([]);
 
-    public readonly regions = toSignal(this._org.region_list, {
-        initialValue: [],
-    });
-    public readonly buildings = toSignal(this._org.active_buildings, {
-        initialValue: [],
-    });
-    public readonly levels = toSignal(this._org.active_levels, {
-        initialValue: [],
-    });
+    public readonly regions = this._org.region_list;
+    public readonly buildings = this._org.active_buildings;
+    public readonly levels = this._org.active_levels;
 
     public setRegion(region: Region) {
         this._org.region = region;
@@ -407,7 +407,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     });
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await this._org.waitUntilInitialised();
         this.active_region.set(this._org.region);
         this.subscription(
             'route.query',

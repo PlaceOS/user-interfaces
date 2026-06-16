@@ -5,9 +5,9 @@ import {
     inject,
     OnDestroy,
     OnInit,
+    resource,
     signal,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -37,7 +37,6 @@ import {
     startOfDay,
     startOfWeek,
 } from 'date-fns';
-import { catchError, of, shareReplay, switchMap, tap } from 'rxjs';
 import { ScheduleStateService } from '../schedule/schedule-state.service';
 
 interface WeekDay {
@@ -429,7 +428,6 @@ export class LandingDeskWeekComponent
     private _booking_form = inject(BookingFormService);
     private _schedule = inject(ScheduleStateService);
 
-    public readonly loading = signal(false);
     public readonly selected_date = signal(Date.now());
     public readonly offset_weekday = settingSignal<WeekdayIndex>(
         'week_start',
@@ -482,29 +480,29 @@ export class LandingDeskWeekComponent
         return isSameDay(current_week_start, selected_week_start);
     });
 
-    private readonly _desk_bookings$ = toObservable(this.selected_date).pipe(
-        tap(() => this.loading.set(true)),
-        switchMap((date) => {
-            const week_start = startOfWeek(date, {
-                weekStartsOn: this.offset_weekday(),
-            });
-            const week_end = endOfWeek(date, {
-                weekStartsOn: this.offset_weekday(),
-            });
+    private readonly _desk_bookings_resource = resource({
+        params: () => ({
+            date: this.selected_date(),
+            week_start: this.offset_weekday(),
+        }),
+        loader: ({ params: { date, week_start } }) => {
+            const start = startOfWeek(date, { weekStartsOn: week_start });
+            const end = endOfWeek(date, { weekStartsOn: week_start });
             return queryBookings({
-                period_start: getUnixTime(week_start),
-                period_end: getUnixTime(week_end),
+                period_start: getUnixTime(start),
+                period_end: getUnixTime(end),
                 type: 'desk',
                 include_checked_out: true,
-            }).pipe(catchError(() => of([])));
-        }),
-        tap(() => this.loading.set(false)),
-        shareReplay(1),
-    );
-
-    public readonly desk_bookings = toSignal(this._desk_bookings$, {
-        initialValue: [],
+            }).catch(() => [] as Booking[]);
+        },
     });
+
+    public readonly desk_bookings = computed(
+        () => this._desk_bookings_resource.value() ?? ([] as Booking[]),
+    );
+    public readonly loading = computed(() =>
+        this._desk_bookings_resource.isLoading(),
+    );
 
     public readonly bookings_by_date = computed(() => {
         const bookings = this.desk_bookings();
@@ -521,7 +519,7 @@ export class LandingDeskWeekComponent
         // Start polling for updates
         this.interval(
             'poll_bookings',
-            () => this.selected_date.set(this.selected_date()),
+            () => this._desk_bookings_resource.reload(),
             2 * 60 * 1000,
         );
     }
@@ -579,6 +577,7 @@ export class LandingDeskWeekComponent
                 remove_fn: async (b, s) => {
                     await this._schedule.remove(b, s);
                     this.selected_date.set(Date.now());
+                    this._desk_bookings_resource.reload();
                 },
                 end_fn: (b) => this._schedule.end(b),
             },
@@ -593,7 +592,8 @@ export class LandingDeskWeekComponent
         this._router.navigate(['/book', 'desk']);
         this.timeout(
             'set_date',
-            () => this._booking_form.form.patchValue({ date }),
+            () =>
+                this._booking_form.model.update((m) => ({ ...m, date })),
             100,
         );
     }

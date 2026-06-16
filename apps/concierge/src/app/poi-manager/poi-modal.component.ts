@@ -1,5 +1,10 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -22,7 +27,6 @@ import {
     Building,
     createShortURL,
     getInvalidFields,
-    nextValueFrom,
     notifyError,
     OrganisationService,
     randomString,
@@ -272,6 +276,7 @@ import { PointOfInterest } from './poi-management.service';
         </fullscreen-modal-shell>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         IconComponent,
@@ -299,12 +304,8 @@ export class POIModalComponent extends AsyncHandler implements OnInit {
     public readonly location_type = signal(
         this._data?.location instanceof Array ? 'coordinates' : 'map_id',
     );
-    public readonly building_list = toSignal(this._org.building_list, {
-        initialValue: [],
-    });
-    public readonly level_list = toSignal(this._org.active_levels, {
-        initialValue: [],
-    });
+    public readonly building_list = this._org.building_list;
+    public readonly level_list = this._org.active_levels;
     public readonly extra_details = this._data?.extra_details || [];
 
     public get building() {
@@ -333,7 +334,7 @@ export class POIModalComponent extends AsyncHandler implements OnInit {
 
     public async ngOnInit() {
         if (!this.form.value.level_id) {
-            const levels = await nextValueFrom(this._org.active_levels);
+            const levels = this._org.active_levels();
             if (levels.length) this.form.patchValue({ level_id: levels[0].id });
         }
     }

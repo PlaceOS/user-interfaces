@@ -19,7 +19,7 @@ export class RedirectComponent implements OnInit {
 
     public async ngOnInit() {
         await firstTruthyValueFrom(this._settings.initialised);
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         if (!this._settings.get('app.default_route')) return;
         this._router.navigate(
             this._settings.get('app.default_route').split('/'),

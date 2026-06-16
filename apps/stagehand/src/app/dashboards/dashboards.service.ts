@@ -1,8 +1,8 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, Injector, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
-    firstTruthyValueFrom,
     i18n,
     log,
     notifySuccess,
@@ -202,6 +202,7 @@ export class DashboardsService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
     private _push = inject(AlertNotificationService);
+    private _injector = inject(Injector);
 
     private _mqtt_broker: mqtt.MqttClient;
     private _connected = false;
@@ -238,7 +239,7 @@ export class DashboardsService extends AsyncHandler {
     constructor() {
         super();
 
-        firstTruthyValueFrom(this._org.initialised).then(() => {
+        this._org.waitUntilInitialised().then(() => {
             // Check for region/building in URL query params immediately
             this._initFromQueryParams();
 
@@ -249,7 +250,9 @@ export class DashboardsService extends AsyncHandler {
                 // Subscribe to catch late region restoration (e.g., from localStorage)
                 this.subscription(
                     'org_region',
-                    this._org.active_region.subscribe((region) => {
+                    toObservable(this._org.active_region, {
+                        injector: this._injector,
+                    }).subscribe((region) => {
                         if (!this._region_set_from_params) {
                             this.region_id.set(region?.id || '');
                         }
@@ -257,7 +260,9 @@ export class DashboardsService extends AsyncHandler {
                 );
                 this.subscription(
                     'org_building',
-                    this._org.active_building.subscribe((building) => {
+                    toObservable(this._org.active_building, {
+                        injector: this._injector,
+                    }).subscribe((building) => {
                         if (!this._region_set_from_params) {
                             this.building_id.set(building?.id || '');
                         }
@@ -401,7 +406,7 @@ export class DashboardsService extends AsyncHandler {
         if (this._initialising()) return;
         this._initialising.set(true);
         try {
-            await firstTruthyValueFrom(this._org.initialised);
+            await this._org.waitUntilInitialised();
             this.unsubWith('alert:');
             _org_id = this._org.organisation.id;
             const jwt = token();

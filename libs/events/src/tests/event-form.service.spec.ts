@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
@@ -7,12 +8,17 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { BehaviorSubject, of, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 
 import { EventFormService } from '../lib/event-form.service';
 import * as events_fn from '../lib/events.fn';
+
+jest.mock('@placeos/ts-client', () => ({
+    ...jest.requireActual('@placeos/ts-client'),
+    showMetadata: jest.fn(() => Promise.resolve({ details: [] })),
+}));
 
 jest.mock('../lib/events.fn', () => ({
     ...jest.requireActual('../lib/events.fn'),
@@ -36,10 +42,10 @@ describe('EventFormService', () => {
                     provide: OrganisationService,
                     useValue: {
                         building: { id: 'bld-1', timezone: 'Australia/Sydney' },
-                        building_list: new BehaviorSubject([]),
-                        active_building: new BehaviorSubject({}),
-                        active_region: new BehaviorSubject({}),
-                        initialised: new BehaviorSubject(true),
+                        building_list: signal([]),
+                        active_building: signal({}),
+                        active_region: signal({}),
+                        initialised: signal(true),
                         organisation: { id: 'org-1' },
                         region: { id: 'reg-1' },
                     },
@@ -48,7 +54,7 @@ describe('EventFormService', () => {
                     provide: SettingsService,
                     useValue: {
                         get: jest.fn(() => undefined),
-                        overrides$: new BehaviorSubject([]),
+                        overrides: signal([]),
                     },
                 },
                 {
@@ -137,7 +143,7 @@ describe('EventFormService', () => {
 
         service.newForm(event);
 
-        expect(service.form.getRawValue().all_day).toBe(true);
+        expect(service.model().all_day).toBe(true);
     });
 
     it('should keep custom all-day events marked all-day after reloading the form', () => {
@@ -152,7 +158,7 @@ describe('EventFormService', () => {
 
         service.loadForm();
 
-        expect(service.form.getRawValue().all_day).toBe(true);
+        expect(service.model().all_day).toBe(true);
     });
 
     it('should allow multiday events ending exactly at the bookable-hours end', async () => {
@@ -182,7 +188,8 @@ describe('EventFormService', () => {
             );
 
         service.newForm();
-        service.form.patchValue({
+        service.model.update((m) => ({
+            ...m,
             host: 'host@test.com',
             organiser: { email: 'host@test.com' } as any,
             creator: 'host@test.com',
@@ -192,7 +199,7 @@ describe('EventFormService', () => {
             date_end: end,
             attendees: [],
             resources: [],
-        });
+        }));
 
         await expect(service.postForm(true)).resolves.toBeTruthy();
         expect(perform_booking_spy).toHaveBeenCalled();
@@ -237,10 +244,11 @@ describe('EventFormService', () => {
             );
 
         service.newForm(event);
-        service.form.patchValue({
+        service.model.update((m) => ({
+            ...m,
             host: new_host,
             organiser: { email: new_host, name: 'New Host' } as any,
-        });
+        }));
 
         await expect(service.postForm(true)).resolves.toBeTruthy();
         expect(perform_booking_spy).toHaveBeenCalledWith(
@@ -259,7 +267,8 @@ describe('EventFormService', () => {
             .mockRejectedValue({ status: 403, error: 'Forbidden' });
 
         service.newForm();
-        service.form.patchValue({
+        service.model.update((m) => ({
+            ...m,
             host: 'unauthorised.user@example.com',
             organiser: {
                 email: 'unauthorised.user@example.com',
@@ -272,10 +281,10 @@ describe('EventFormService', () => {
             duration: 60,
             attendees: [],
             resources: [],
-        });
+        }));
         sessionStorage.setItem(
             'PLACEOS.event_form',
-            JSON.stringify(service.form.getRawValue()),
+            JSON.stringify(service.model()),
         );
 
         await expect(service.postForm(true)).rejects.toMatchObject({
@@ -290,7 +299,7 @@ describe('EventFormService', () => {
         expect(saved_form.host).toBe(current_user.email);
         expect(saved_form.organiser.email).toBe(current_user.email);
         expect(saved_form.calendar).toBe(current_user.email);
-        expect(service.form.getRawValue().host).toBe(current_user.email);
+        expect(service.model().host).toBe(current_user.email);
     });
 
     it('should preserve the original start time for in-progress bookings', async () => {
@@ -327,14 +336,15 @@ describe('EventFormService', () => {
             );
 
         service.newForm(event);
-        service.form.patchValue({
+        service.model.update((m) => ({
+            ...m,
             host: 'host@test.com',
             calendar: 'host@test.com',
             creator: 'host@test.com',
             title: 'Updated standup',
-        });
+        }));
 
-        expect(service.form.get('date')?.disabled).toBe(true);
+        expect(service.form.date().disabled()).toBe(true);
 
         await expect(service.postForm(true)).resolves.toBeTruthy();
         expect(perform_booking_spy).toHaveBeenCalledWith(
@@ -374,7 +384,8 @@ describe('EventFormService', () => {
                 );
 
             service.newForm();
-            service.form.patchValue({
+            service.model.update((m) => ({
+                ...m,
                 host: 'host@test.com',
                 organiser: { email: 'host@test.com' } as any,
                 creator: 'host@test.com',
@@ -382,8 +393,8 @@ describe('EventFormService', () => {
                 date: new Date(2028, 5, 15, 8, 0, 0, 0).valueOf(),
                 attendees: [],
                 resources: [],
-            });
-            service.form.controls.all_day.setValue(true);
+            }));
+            service.model.update((m) => ({ ...m, all_day: true }));
 
             await expect(service.postForm(true)).resolves.toBeTruthy();
             expect(perform_booking_spy).toHaveBeenCalledWith(
@@ -403,7 +414,7 @@ describe('EventFormService', () => {
     it('should block recurring room bookings that clash by default', async () => {
         const date = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
         jest.mocked(events_fn.findEventClashes).mockReturnValue(
-            of([
+            Promise.resolve([
                 {
                     asset_id: 'space-1',
                     booking_start: Math.floor(date / 1000) + 24 * 60 * 60,

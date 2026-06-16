@@ -1,6 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     formatDuration,
@@ -196,6 +202,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         ContactTracingOptionsComponent,
@@ -237,7 +244,7 @@ export class ContactTracingReportComponent {
     }
 
     public readonly logo = toSignal(
-        this._org.active_building.pipe(
+        toObservable(this._org.active_building).pipe(
             debounceTime(500),
             map(
                 () =>

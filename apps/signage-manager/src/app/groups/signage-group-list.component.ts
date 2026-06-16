@@ -1,5 +1,6 @@
 import { CdkTreeModule } from '@angular/cdk/tree';
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -43,7 +44,9 @@ interface GroupListRow extends GroupTreeNode {
                         matInput
                         id="group-search"
                         name="group-search"
-                        [placeholder]="'SIGNAGE_MANAGER.SEARCH_GROUPS' | translate"
+                        [placeholder]="
+                            'SIGNAGE_MANAGER.SEARCH_GROUPS' | translate
+                        "
                         [(ngModel)]="search"
                         [attr.aria-label]="
                             'SIGNAGE_MANAGER.GROUPS_SEARCH_ARIA' | translate
@@ -250,6 +253,7 @@ interface GroupListRow extends GroupTreeNode {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FormsModule,
         MatRippleModule,

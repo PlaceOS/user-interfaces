@@ -1,4 +1,9 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+} from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { PlaceOS_Service, setMocks } from '@placeos/common';
 import {
@@ -26,6 +31,7 @@ import { mocksInit } from '@placeos/mocks';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [RouterOutlet, GlobalBannerComponent, GlobalLoadingComponent],
 })
 export class AppComponent implements OnInit {

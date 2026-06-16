@@ -1,5 +1,4 @@
 import { CalendarEvent, GuestUser, VERSION } from '@placeos/common';
-import { of } from 'rxjs';
 import {
     approveEvent,
     checkinEventGuest,
@@ -24,11 +23,11 @@ describe('Event API Methods', () => {
         it('should allow calling GET request for listing events', async () => {
             const spy = jest.spyOn(ts_client, 'get');
             expect(spy).not.toHaveBeenCalled();
-            spy.mockImplementation(() => of([{}]) as any);
+            spy.mockResolvedValue([{}] as any);
             const events = await queryEvents({
                 period_start: 1,
                 period_end: 2,
-            }).toPromise();
+            });
             expect(events).toHaveLength(1);
             expect(events[0]).toBeInstanceOf(CalendarEvent);
             expect(ts_client.get).toHaveBeenCalledWith(
@@ -42,8 +41,8 @@ describe('Event API Methods', () => {
         it('should allow calling GET request for a specific event', async () => {
             const spy = jest.spyOn(ts_client, 'get');
             expect(spy).not.toHaveBeenCalled();
-            spy.mockImplementation(() => of({}) as any);
-            const event = await showEvent('1').toPromise();
+            spy.mockResolvedValue({} as any);
+            const event = await showEvent('1');
             expect(event).toBeInstanceOf(CalendarEvent);
             expect(ts_client.get).toHaveBeenCalledWith(
                 `/api/staff/v1/events/1`,
@@ -97,9 +96,9 @@ describe('Event API Methods', () => {
     describe('saveEvent', () => {
         it('should create new events', async () => {
             const spy = jest.spyOn(ts_client, 'post');
-            spy.mockImplementation(() => of({}) as any);
+            spy.mockResolvedValue({} as any);
             expect(ts_client.post).not.toHaveBeenCalled();
-            await saveEvent({}).toPromise();
+            await saveEvent({});
             expect(ts_client.post).toHaveBeenCalledWith(
                 `/api/staff/v1/events`,
                 expect.objectContaining({
@@ -113,9 +112,9 @@ describe('Event API Methods', () => {
         });
         it('should update existing events', async () => {
             const spy = jest.spyOn(ts_client, 'patch');
-            spy.mockImplementation(() => of({}) as any);
+            spy.mockResolvedValue({} as any);
             expect(ts_client.patch).not.toHaveBeenCalled();
-            await saveEvent({ id: '1' }).toPromise();
+            await saveEvent({ id: '1' });
             expect(ts_client.patch).toHaveBeenCalledWith(
                 `/api/staff/v1/events/1`,
                 expect.objectContaining({
@@ -133,8 +132,8 @@ describe('Event API Methods', () => {
         it('should allow calling POST request for approving an event', async () => {
             const spy = jest.spyOn(ts_client, 'post');
             expect(spy).not.toHaveBeenCalled();
-            spy.mockImplementation(() => of({}) as any);
-            const event = await approveEvent('1', 'sys-1').toPromise();
+            spy.mockResolvedValue({} as any);
+            const event = await approveEvent('1', 'sys-1');
             expect(event).toBeInstanceOf(CalendarEvent);
             expect(ts_client.post).toHaveBeenCalledWith(
                 `/api/staff/v1/events/1/approve?system_id=sys-1`,
@@ -148,8 +147,8 @@ describe('Event API Methods', () => {
         it('should allow calling POST request for rejecting an event', async () => {
             const spy = jest.spyOn(ts_client, 'post');
             expect(spy).not.toHaveBeenCalled();
-            spy.mockImplementation(() => of({}) as any);
-            const event = await rejectEvent('1', 'sys-1').toPromise();
+            spy.mockResolvedValue({} as any);
+            const event = await rejectEvent('1', 'sys-1');
             expect(event).toBeInstanceOf(CalendarEvent);
             expect(ts_client.post).toHaveBeenCalledWith(
                 `/api/staff/v1/events/1/reject?system_id=sys-1`,
@@ -163,8 +162,8 @@ describe('Event API Methods', () => {
         it('should allow calling POST request for querying guest in an event', async () => {
             const spy = jest.spyOn(ts_client, 'get');
             expect(spy).not.toHaveBeenCalled();
-            spy.mockImplementation(() => of([{}]) as any);
-            const guests = await queryEventGuests('1').toPromise();
+            spy.mockResolvedValue([{}] as any);
+            const guests = await queryEventGuests('1');
             expect(guests[0]).toBeInstanceOf(GuestUser);
             expect(ts_client.get).toHaveBeenCalledWith(
                 `/api/staff/v1/events/1/guests`,
@@ -177,12 +176,8 @@ describe('Event API Methods', () => {
         it('should allow calling POST request for checking in an event guest', async () => {
             const spy = jest.spyOn(ts_client, 'post');
             expect(spy).not.toHaveBeenCalled();
-            spy.mockImplementation(() => of([{}]) as any);
-            const guest = await checkinEventGuest(
-                '1',
-                'guest-1',
-                true,
-            ).toPromise();
+            spy.mockResolvedValue({} as any);
+            const guest = await checkinEventGuest('1', 'guest-1', true);
             expect(guest).toBeInstanceOf(GuestUser);
             expect(ts_client.post).toHaveBeenCalledWith(
                 `/api/staff/v1/events/1/guests/guest-1/checkin?state=true`,

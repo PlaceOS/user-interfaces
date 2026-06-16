@@ -464,7 +464,7 @@ export class SignageService {
     );
 
     public readonly media = combineLatest([
-        this._org.initialised,
+        toObservable(this._org.initialised),
         this._change,
         this._api_group_id$,
     ]).pipe(
@@ -504,7 +504,7 @@ export class SignageService {
     );
 
     public readonly playlists = combineLatest([
-        this._org.initialised,
+        toObservable(this._org.initialised),
         this._change,
         this._api_group_id$,
     ]).pipe(
@@ -527,7 +527,7 @@ export class SignageService {
     );
 
     public readonly displays = combineLatest([
-        combineLatest([this._org.initialised, this._change]).pipe(
+        combineLatest([toObservable(this._org.initialised), this._change]).pipe(
             filter(([initialised]) => !!initialised),
             debounceTime(300),
             switchMap(() => this._api_group_id$),
@@ -551,7 +551,7 @@ export class SignageService {
     );
 
     public readonly zones = combineLatest([
-        combineLatest([this._org.initialised, this._change]).pipe(
+        combineLatest([toObservable(this._org.initialised), this._change]).pipe(
             filter(([initialised]) => !!initialised),
             debounceTime(300),
             switchMap(() => this._api_group_id$),
@@ -575,7 +575,7 @@ export class SignageService {
     );
 
     public readonly all_zones = combineLatest([
-        combineLatest([this._org.initialised, this._change]).pipe(
+        combineLatest([toObservable(this._org.initialised), this._change]).pipe(
             filter(([initialised]) => !!initialised),
             debounceTime(300),
             switchMap(() => this._api_group_id$),
@@ -600,7 +600,7 @@ export class SignageService {
     );
 
     public readonly root_zones = combineLatest([
-        combineLatest([this._org.initialised, this._change]).pipe(
+        combineLatest([toObservable(this._org.initialised), this._change]).pipe(
             filter(([initialised]) => !!initialised),
             debounceTime(300),
             switchMap(() => this._api_group_id$),
@@ -642,7 +642,7 @@ export class SignageService {
     }
 
     public readonly plugins = combineLatest([
-        this._org.initialised,
+        toObservable(this._org.initialised),
         this._change,
     ]).pipe(
         filter(([initialised]) => !!initialised),
@@ -1951,14 +1951,26 @@ export class SignageService {
         ).catch(() => null);
         let media_id: string;
         if (upload_options) {
-            const details = await lastValueFrom(
-                this._uploads
-                    .uploadFileWithProgress(
-                        upload_file,
-                        false,
-                        upload_options.permissions,
-                    )
-                    .pipe(tap((d) => upload_options.on_progress?.(d.progress))),
+            const upload = this._uploads.uploadFileWithProgress(
+                upload_file,
+                false,
+                upload_options.permissions,
+            );
+            const details = await new Promise<ReturnType<typeof upload>>(
+                (resolve, reject) => {
+                    const interval = setInterval(() => {
+                        const state = upload();
+                        upload_options.on_progress?.(state.progress);
+                        if (state.error) {
+                            clearInterval(interval);
+                            reject(state.error);
+                            return;
+                        }
+                        if (state.progress < 100) return;
+                        clearInterval(interval);
+                        resolve(state);
+                    }, 100);
+                },
             );
             media_id = details.upload_id || details.upload?.id || details.id;
             if (!media_id) {

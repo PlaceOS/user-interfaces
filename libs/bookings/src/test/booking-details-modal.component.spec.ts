@@ -15,7 +15,7 @@ import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.c
 import { IndoorMapsComponent } from 'libs/components/src/lib/indoor-maps.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { BookingDetailsModalComponent } from '../lib/booking-details-modal.component';
 import * as bookings_fn from '../lib/bookings.fn';
 
@@ -119,12 +119,12 @@ describe('BookingDetailsModalComponent', () => {
 
     it('should refresh parent state after toggling checked in', async () => {
         jest.spyOn(bookings_fn, 'checkinBooking').mockReturnValue(
-            of(
+            Promise.resolve(
                 new Booking({
                     id: 'booking-1',
                     checked_in: true,
                 } as any),
-            ),
+            ) as any,
         );
 
         await spectator.component.toggleCheckedIn();

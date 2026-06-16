@@ -1,5 +1,12 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -70,7 +77,7 @@ const COMPACT_SIGNAL = signal(false);
                     <div class="space-y-2 p-2">
                         @if (r_list.length > 0) {
                             <label
-                                class="block px-1 text-xs font-medium uppercase tracking-wide"
+                                class="block px-1 text-xs font-medium tracking-wide uppercase"
                                 for="sidebar-region"
                             >
                                 Region
@@ -106,7 +113,7 @@ const COMPACT_SIGNAL = signal(false);
                         }
                         @if (bld_list.length > 0 && region()) {
                             <label
-                                class="block px-1 text-xs font-medium uppercase tracking-wide"
+                                class="block px-1 text-xs font-medium tracking-wide uppercase"
                                 for="sidebar-building"
                             >
                                 Building
@@ -337,6 +344,7 @@ const COMPACT_SIGNAL = signal(false);
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         AsyncPipe,
         MatRippleModule,
@@ -384,8 +392,8 @@ export class SidebarComponent {
     public readonly region = this._dash.region_id;
     public readonly building = this._dash.building_id;
 
-    public readonly region_list = this._org.region_list;
-    public readonly building_list = this._org.active_buildings;
+    public readonly region_list = toObservable(this._org.region_list);
+    public readonly building_list = toObservable(this._org.active_buildings);
 
     public readonly setRegion = (r) => {
         this._org.region = r;

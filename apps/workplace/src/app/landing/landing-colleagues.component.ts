@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, inject, viewChild } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    ElementRef,
+    inject,
+    viewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
@@ -19,8 +26,6 @@ import {
     UserAvatarComponent,
 } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { LandingStateService } from './landing-state.service';
 
 @Component({
@@ -32,13 +37,13 @@ import { LandingStateService } from './landing-state.service';
             <h2>
                 {{
                     'APP.WORKPLACE.COLLEAGUES_COUNT'
-                        | translate: { count: (contacts | async)?.length || 0 }
+                        | translate: { count: contacts().length || 0 }
                 }}
             </h2>
         </div>
         <div class="h-1/2 w-full flex-1 space-y-4 overflow-auto pt-4">
-            @if ((contacts | async)?.length) {
-                @for (user of contacts | async; track user) {
+            @if (contacts().length) {
+                @for (user of contacts(); track user) {
                     <div class="relative flex items-center space-x-2 px-2" user>
                         <div class="relative text-xl">
                             <a-user-avatar [user]="user"></a-user-avatar>
@@ -72,8 +77,8 @@ import { LandingStateService } from './landing-state.service';
                         </div>
                         <button
                             icon
+                            default
                             name="colleague-more"
-                            class="bg-base-200 rounded-sm!"
                             [matMenuTriggerFor]="menu"
                         >
                             <icon>more_horiz</icon>
@@ -139,7 +144,7 @@ import { LandingStateService } from './landing-state.service';
         >
             <input
                 #search_input
-                [ngModel]="(options | async)?.search"
+                [ngModel]="options().search"
                 (ngModelChange)="updateSearch($event)"
                 [placeholder]="'FORM.USER_SEARCH' | translate"
                 class="border-base-200 w-full border-b p-2"
@@ -152,10 +157,10 @@ import { LandingStateService } from './landing-state.service';
             >
                 <icon>close</icon>
             </button>
-            @if (!(loading | async)) {
+            @if (!loading()) {
                 <div class="flex h-1/2 flex-1 flex-col space-y-2 overflow-auto">
-                    @if ((search_results | async)?.length) {
-                        @for (user of search_results | async; track user) {
+                    @if (search_results().length) {
+                        @for (user of search_results(); track user) {
                             <button
                                 matRipple
                                 name="add-colleague"
@@ -186,14 +191,13 @@ import { LandingStateService } from './landing-state.service';
                         >
                             <p class="text-center text-sm opacity-60">
                                 {{
-                                    !(options | async)?.search
+                                    !options().search
                                         ? ('APP.WORKPLACE.COLLEAGUE_SEARCH_EMPTY'
                                           | translate)
                                         : ('APP.WORKPLACE.COLLEAGUE_SEARCH_EMPTY'
                                           | translate
                                               : {
-                                                    text: (options | async)
-                                                        ?.search,
+                                                    text: options().search,
                                                 })
                                 }}
                             </p>
@@ -228,6 +232,7 @@ import { LandingStateService } from './landing-state.service';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,
@@ -249,18 +254,18 @@ export class LandingColleaguesComponent extends AsyncHandler {
     public show_search = false;
     public readonly contacts = this._state.contacts;
 
-    public readonly search_results = combineLatest([
-        this._state.search_results,
-        this._state.contacts,
-    ]).pipe(
-        map(([list, contacts]) =>
-            list.filter(
+    public readonly search_results = computed(() =>
+        this._state
+            .search_results()
+            .filter(
                 (_) =>
-                    !contacts.find(
-                        (user) => user.id === _.id || user.email === _.email,
-                    ),
+                    !this._state
+                        .contacts()
+                        .find(
+                            (user) =>
+                                user.id === _.id || user.email === _.email,
+                        ),
             ),
-        ),
     );
 
     public readonly options = this._state.options;
@@ -288,7 +293,10 @@ export class LandingColleaguesComponent extends AsyncHandler {
     public newMeeting(user: StaffUser) {
         this._event_form.newForm();
         setTimeout(() => {
-            this._event_form.form.patchValue({ attendees: [user] });
+            this._event_form.model.update((m) => ({
+                ...m,
+                attendees: [user],
+            }));
         }, 300);
         if (this._settings.get('app.new_features')) {
             this._router.navigate(['/book', 'meeting']);

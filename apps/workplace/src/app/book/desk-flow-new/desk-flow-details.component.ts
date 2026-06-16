@@ -1,7 +1,6 @@
-import { AsyncPipe } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -110,7 +109,7 @@ type FormType = 'single' | 'group' | 'other';
                     <div>Book for other</div>
                 </button>
             </div>
-            <div class="mt-4" [formGroup]="form">
+            <div class="mt-4">
                 @if (active_form() === 'other') {
                     <div class="mb-4 w-full">
                         <label for="user"
@@ -118,7 +117,7 @@ type FormType = 'single' | 'group' | 'other';
                             }}<span required>*</span></label
                         >
                         <a-user-search-field
-                            formControlName="user"
+                            [formField]="form.user"
                         ></a-user-search-field>
                     </div>
                 }
@@ -130,8 +129,7 @@ type FormType = 'single' | 'group' | 'other';
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 matInput
-                                name="title"
-                                formControlName="title"
+                                [formField]="form.title"
                                 [placeholder]="
                                     'BOOKINGS.DESK_TITLE_PLACEHOLDER'
                                         | translate
@@ -149,17 +147,12 @@ type FormType = 'single' | 'group' | 'other';
                     <div class="relative flex-1">
                         <label for="date">{{ 'FORM.DATE' | translate }}</label>
                         <date-field
-                            name="date"
-                            formControlName="date"
+                            [formField]="form.date"
                             [to]="end_date()"
                         />
                         @if (allow_all_day()) {
                             <mat-checkbox
-                                [ngModel]="form_value().all_day"
-                                (ngModelChange)="
-                                    form.patchValue({ all_day: $event })
-                                "
-                                [ngModelOptions]="{ standalone: true }"
+                                [formField]="form.all_day"
                                 class="absolute -top-2 right-2"
                             >
                                 {{ 'COMMON.ALL_DAY' | translate }}
@@ -173,9 +166,9 @@ type FormType = 'single' | 'group' | 'other';
                             }}</label>
                             <time-field
                                 name="time"
-                                [ngModel]="form_value().date"
+                                [ngModel]="model().date"
                                 (ngModelChange)="
-                                    form.patchValue({ date: $event })
+                                    model.update((m) => ({ ...m, date: $event }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                             />
@@ -185,15 +178,14 @@ type FormType = 'single' | 'group' | 'other';
                                 'FORM.DURATION' | translate
                             }}</label>
                             <duration-field
-                                name="duration"
-                                [time]="form_value().date"
+                                [time]="model().date"
                                 [max]="max_duration()"
                                 [min]="min_duration()"
                                 [custom_options]="custom_duration_options()"
                                 [step]="duration_step()"
                                 [use_24hr]="use_24hr()"
                                 [timezone]="timezone"
-                                formControlName="duration"
+                                [formField]="form.duration"
                             />
                         </div>
                     }
@@ -205,15 +197,15 @@ type FormType = 'single' | 'group' | 'other';
                         </label>
                         <recurrence-field
                             name="recurrence"
-                            [date]="form_value().date"
-                            [ngModel]="form.value"
+                            [date]="model().date"
+                            [ngModel]="model()"
                             (ngModelChange)="onRecurrenceChange($event)"
                             (first_instance)="onFirstInstanceChange($event)"
                             [ngModelOptions]="{ standalone: true }"
                             [available_days]="available_days()"
                         ></recurrence-field>
-                        @if (form.value.id) {
-                            <mat-checkbox formControlName="update_master">
+                        @if (model().id) {
+                            <mat-checkbox [formField]="form.update_master">
                                 {{ 'FORM.UPDATE_FUTURE' | translate }}
                             </mat-checkbox>
                         }
@@ -224,9 +216,10 @@ type FormType = 'single' | 'group' | 'other';
                         <mat-checkbox
                             [ngModel]="!!form_value().secondary_resource"
                             (ngModelChange)="
-                                form.patchValue({
+                                model.update((m) => ({
+                                    ...m,
                                     secondary_resource: $event ? 'locker' : '',
-                                })
+                                }))
                             "
                             [ngModelOptions]="{ standalone: true }"
                         >
@@ -240,10 +233,10 @@ type FormType = 'single' | 'group' | 'other';
                             {{ 'BOOKINGS.DESK_GROUP_MEMBERS' | translate }}
                         </label>
                         <a-user-list-field
-                            [ngModel]="(options | async)?.members || []"
+                            [ngModel]="options()?.members || []"
                             (ngModelChange)="setOptions({ members: $event })"
                             [ngModelOptions]="{ standalone: true }"
-                            [time]="form_value().date"
+                            [time]="model().date"
                         >
                             <button
                                 btn
@@ -273,7 +266,6 @@ type FormType = 'single' | 'group' | 'other';
     `,
     styles: [``],
     imports: [
-        AsyncPipe,
         MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
@@ -283,7 +275,7 @@ type FormType = 'single' | 'group' | 'other';
         DurationFieldComponent,
         TimeFieldComponent,
         FormsModule,
-        ReactiveFormsModule,
+        FormField,
         TranslatePipe,
         IconComponent,
         RecurrenceFieldComponent,
@@ -303,28 +295,14 @@ export class DeskFlowDetailsComponent {
         group: { icon: 'group_add', label: 'Group' },
         other: { icon: 'person_add', label: 'Book for other' },
     });
-    public readonly form_value = toSignal(this.form.valueChanges, {
-        initialValue: this.form.value,
-    });
+    public readonly form_value = this._booking_form.model;
     public readonly options = this._booking_form.options;
-    private readonly _options_signal = toSignal(this._booking_form.options);
 
     private _options_sync = effect(() => {
-        const options = this._options_signal();
+        const options = this.options();
         if (options?.group && this.active_form() !== 'group') {
             this.active_form.set('group');
         }
-    });
-
-    private _user_validation_sync = effect(() => {
-        const form_type = this.active_form();
-        const user_control = this.form.get('user');
-        if (form_type === 'other') {
-            user_control?.setValidators([Validators.required]);
-        } else {
-            user_control?.clearValidators();
-        }
-        user_control?.updateValueAndValidity();
     });
 
     public readonly hide_title = settingSignal('desks.hide_title', false);
@@ -339,6 +317,10 @@ export class DeskFlowDetailsComponent {
 
     public get form() {
         return this._booking_form.form;
+    }
+
+    public get model() {
+        return this._booking_form.model;
     }
     public readonly duration_step = computed(
         () =>
@@ -389,11 +371,15 @@ export class DeskFlowDetailsComponent {
         this.active_form.set(form as any);
         this._booking_form.setOptions({ group: form === 'group' });
         if (form === 'single') {
-            this.form.patchValue({ user: currentUser(), attendees: [] });
+            this.model.update((m) => ({
+                ...m,
+                user: currentUser(),
+                attendees: [],
+            }));
         } else if (form === 'group') {
-            this.form.patchValue({ user: currentUser() });
+            this.model.update((m) => ({ ...m, user: currentUser() }));
         } else {
-            this.form.patchValue({ user: null, attendees: [] });
+            this.model.update((m) => ({ ...m, user: null, attendees: [] }));
         }
     }
 
@@ -402,16 +388,16 @@ export class DeskFlowDetailsComponent {
     }
 
     public onRecurrenceChange(recurrence: any) {
-        this.form.patchValue(recurrence);
+        this.model.update((m) => ({ ...m, ...recurrence }));
     }
 
     public onFirstInstanceChange(date: number) {
-        this.form.patchValue({ date });
+        this.model.update((m) => ({ ...m, date }));
     }
 
     public findAvailableTime() {
-        const { date, duration } = this.form.getRawValue();
-        const members = this._options_signal()?.members ?? [];
+        const { date, duration } = this.model();
+        const members = this.options()?.members ?? [];
         const ref = this._dialog.open(FindAvailabilityModalComponent, {
             data: {
                 users: members,
@@ -422,10 +408,11 @@ export class DeskFlowDetailsComponent {
         });
         ref.afterClosed().subscribe((result) => {
             if (!result) return;
-            this.form.patchValue({
+            this.model.update((m) => ({
+                ...m,
                 date: ref.componentInstance.date(),
                 duration: ref.componentInstance.duration(),
-            });
+            }));
             this.setOptions({ members: ref.componentInstance.users() });
         });
     }

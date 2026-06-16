@@ -1,19 +1,24 @@
+import { Injector, signal, type WritableSignal } from '@angular/core';
 import {
-    AbstractControl,
-    FormControl,
-    FormGroup,
-    Validators,
-} from '@angular/forms';
+    disabled,
+    form,
+    required,
+    validate,
+    type FieldTree,
+} from '@angular/forms/signals';
 import {
     Booking,
     CalendarEvent,
     LOCAL_TIMEZONE,
+    onFieldChange,
     SettingsService,
-    User,
-    currentUser,
     setupFormTimeSync,
+    type FormTimeSyncHandle,
+    type SignalFormRef,
     timePeriodsIntersect,
     unique,
+    User,
+    currentUser,
 } from '@placeos/common';
 import {
     add,
@@ -22,6 +27,7 @@ import {
     format,
     formatDuration,
     getTime,
+    isAfter,
     isSameDay,
     setHours,
     setMinutes,
@@ -30,166 +36,231 @@ import {
 } from 'date-fns';
 
 import { getNextFreeTimeSlot } from './helpers';
-import { endInFuture } from './validators';
 
 let BOOKING_DATE = add(setMinutes(setHours(new Date(), 6), 0), { days: -1 });
 
-const validateCateringField =
-    (catering_control: AbstractControl) => (control: AbstractControl) => {
-        if (catering_control.value?.length && !control.value) {
-            return { catering_field: 'Catering sub-fields are required' };
-        }
-        return null;
-    };
+/** Raw value held by the event form model. */
+export interface EventFormValue {
+    id: string;
+    ical_uid: string;
+    host: string;
+    organiser: User;
+    creator: string;
+    calendar: string;
+    attendees: any[];
+    resources: any[];
+    title: string;
+    body: string;
+    private: boolean;
+    date: number;
+    duration: number;
+    all_day: boolean;
+    date_end: number;
+    recurring: boolean;
+    recurrence: any;
+    recurring_event_id: string;
+    master: any;
+    attachments: any;
+    catering: any[];
+    catering_notes: string;
+    catering_charge_code: string;
+    setup_time: number;
+    breakdown_time: number;
+    assets: any[];
+    visitor_type: any;
+    location: string;
+    visibility: string;
+    needs_space: boolean;
+    needs_parking: boolean;
+    event_type: string;
+    category: string;
+    tags: string[];
+    update_master: boolean;
+    system: any;
+    attendance_type: string;
+    timezone: string;
+    shared_event: boolean;
+    view_access: string;
+    images: any[];
+    featured: boolean;
+    meeting_provider: any;
+}
+
+/** Build the raw event form value from a calendar event. */
+export function eventFormValue(
+    event: CalendarEvent = new CalendarEvent(),
+): EventFormValue {
+    // Every field must be non-`undefined`: the signal-forms FieldTree only
+    // exposes a sub-field for keys whose value is defined, so an `undefined`
+    // seed would make `[formField]="form.x"` bind to nothing at runtime.
+    return {
+        id: event.id || '',
+        ical_uid: event.ical_uid || '',
+        host:
+            event.host || event.organiser?.email || currentUser()?.email || '',
+        organiser: event.organiser || ({ email: event.host || '' } as User),
+        creator: event.creator || currentUser()?.email || '',
+        calendar: event.calendar || '',
+        attendees: event.attendees || [],
+        resources: event.resources || [],
+        title: event.title || '',
+        body: event.body || '',
+        private: event.private ?? false,
+        date: event.date ?? 0,
+        duration: event.duration ?? 0,
+        all_day: event.all_day ?? false,
+        date_end: event.date_end ?? 0,
+        recurring: event.recurring ?? false,
+        recurrence: event.recurrence ?? null,
+        recurring_event_id: event.recurring_event_id || '',
+        master: event.master ?? null,
+        attachments: event.attachments ?? null,
+        catering: (event.extension_data?.catering as any) || [],
+        catering_notes: event.extension_data?.catering?.[0]?.notes || '',
+        catering_charge_code:
+            event.extension_data?.catering?.[0]?.charge_code || '',
+        setup_time: event.setup_time || 0,
+        breakdown_time: event.breakdown_time || 0,
+        assets: event.extension_data?.assets || [],
+        visitor_type: event.extension_data?.visitor_type ?? null,
+        location: event.location || '',
+        visibility: event.visibility || 'normal',
+        needs_space: true,
+        needs_parking: event.extension_data?.needs_parking || false,
+        event_type: event.extension_data?.event_type || '',
+        category: event.extension_data?.category || '',
+        tags: event.extension_data?.tags || [],
+        update_master: false,
+        system: event.system ?? null,
+        attendance_type: event.extension_data?.attendance_type || 'ONSITE',
+        timezone: event.timezone || LOCAL_TIMEZONE,
+        shared_event: event.extension_data?.shared_event || false,
+        view_access: event.extension_data?.view_access || 'OPEN',
+        images: event.extension_data?.images || [],
+        featured: event.extension_data?.featured || false,
+        meeting_provider: event.meeting_provider || null,
+    } as EventFormValue;
+}
+
+/** FieldTree for the event form, with attached time-sync + lock handles. */
+export type EventForm = FieldTree<EventFormValue> & {
+    _time_sync?: FormTimeSyncHandle;
+    _lock_start_time?: WritableSignal<boolean>;
+};
+
+export type EventFormRef = SignalFormRef<EventFormValue, EventForm> & {
+    /** Time-sync handle for runtime duration/bookable-hours reconfiguration. */
+    time_sync: FormTimeSyncHandle;
+    /** Signal controlling whether the start time is locked (in-progress events). */
+    lock_start_time: WritableSignal<boolean>;
+};
 
 export function generateEventForm(
     event: CalendarEvent = new CalendarEvent(),
     settings?: SettingsService,
-) {
+    injector?: Injector,
+): EventFormRef {
     if (!event) event = new CalendarEvent();
-    const lock_start_time =
+    const lock_start_time = signal(
         !!event.id &&
-        (event.state === 'started' || event.state === 'in_progress');
-    const form = new FormGroup({
-        id: new FormControl(event.id),
-        ical_uid: new FormControl(event.ical_uid),
-        host: new FormControl(
-            event.host || event.organiser?.email || currentUser()?.email || '',
-            [Validators.required],
-        ),
-        organiser: new FormControl(
-            event.organiser || ({ email: event.host || '' } as User),
-        ),
-        creator: new FormControl(event.creator || currentUser()?.email),
-        calendar: new FormControl(event.calendar),
-        attendees: new FormControl(event.attendees || []),
-        resources: new FormControl(event.resources || []),
-        title: new FormControl(event.title),
-        body: new FormControl(event.body),
-        private: new FormControl(event.private),
-        date: new FormControl(event.date, [Validators.required]),
-        duration: new FormControl(event.duration, [endInFuture]),
-        all_day: new FormControl(event.all_day),
-        date_end: new FormControl(event.date_end),
-        recurring: new FormControl(event.recurring),
-        recurrence: new FormControl(event.recurrence),
-        recurring_event_id: new FormControl(event.recurring_event_id),
-        master: new FormControl(event.master),
-        attachments: new FormControl(event.attachments),
-        catering: new FormControl(event.extension_data?.catering as any),
-        catering_notes: new FormControl(
-            event.extension_data?.catering[0]?.notes || '',
-        ),
-        catering_charge_code: new FormControl(
-            event.extension_data?.catering[0]?.charge_code || '',
-        ),
-        setup_time: new FormControl(event.setup_time || 0),
-        breakdown_time: new FormControl(event.breakdown_time || 0),
-        assets: new FormControl(event.extension_data?.assets),
-        // has_catering: new FormControl(event.has_catering || false),
-        visitor_type: new FormControl(event.extension_data?.visitor_type),
-        location: new FormControl(event.location),
-        visibility: new FormControl(event.visibility || 'normal'),
-        needs_space: new FormControl(true),
-        needs_parking: new FormControl(
-            event.extension_data?.needs_parking || false,
-        ),
-        event_type: new FormControl(event.extension_data?.event_type || ''),
-        category: new FormControl(event.extension_data?.category || ''),
-        tags: new FormControl(event.extension_data?.tags || []),
-        update_master: new FormControl(false),
-        system: new FormControl<any>(event.system),
-        attendance_type: new FormControl(
-            event.extension_data?.attendance_type || 'ONSITE',
-        ),
-        timezone: new FormControl(event.timezone || LOCAL_TIMEZONE),
-        shared_event: new FormControl(
-            event.extension_data?.shared_event || false,
-        ),
-        view_access: new FormControl(
-            event.extension_data?.view_access || 'OPEN',
-        ),
-        images: new FormControl(event.extension_data?.images || []),
-        featured: new FormControl(event.extension_data?.featured || false),
-        meeting_provider: new FormControl(event.meeting_provider || null),
-    });
-    (form as any)._lock_start_time = lock_start_time;
-    const is_start_time_locked = () => !!(form as any)._lock_start_time;
-    form.get('organiser').valueChanges.subscribe((o) =>
-        form.controls.host.setValue(o?.email),
+            (event.state === 'started' || event.state === 'in_progress'),
     );
-    form.get('resources').valueChanges.subscribe((l) => {
-        form.controls.system.setValue(l?.length ? (l[0] as any) : null);
-        form.controls.assets[l?.length ? 'enable' : 'disable']();
-    });
-    const setCateringTime = () => {
-        if (!form.value.catering?.length || !form.getRawValue().date) return;
-        form.patchValue(
-            {
-                catering: form.value.catering.map((order: any) => ({
-                    ...order,
-                    event: {
-                        date: form.value.all_day
-                            ? startOfDay(form.getRawValue().date)
-                            : form.getRawValue().date,
-                        duration: form.value.all_day
-                            ? 24 * 60
-                            : form.value.duration,
-                    },
-                })),
-            },
-            { emitEvent: false },
+    const has_id = !!event.id;
+    const notes_required = () =>
+        !!(
+            settings?.get('app.events.catering_notes_required') ||
+            settings?.value('require_catering_notes')
         );
-    };
-    form.valueChanges.subscribe((v) => {
-        if (is_start_time_locked()) {
-            form.get('date')?.disable({ emitEvent: false });
-        } else {
-            form.get('date')?.enable({ emitEvent: false });
-        }
-        if (v.date || v.duration || v.all_day) setCateringTime();
-    });
-    (form as any)._time_sync = setupFormTimeSync(form, {
-        on_time_change: setCateringTime,
-    });
+
+    const model: WritableSignal<EventFormValue> = signal(
+        eventFormValue(event),
+    );
+
+    const event_form = form<EventFormValue>(model, (p) => {
+        required(p.host);
+        required(p.date);
+        validate(p.duration, ({ value, valueOf }) => {
+            const date = valueOf(p.date);
+            return date && isAfter(Date.now(), addMinutes(date, value()))
+                ? { kind: 'duration' }
+                : undefined;
+        });
+        required(p.catering_notes, {
+            when: ({ valueOf }) =>
+                !!valueOf(p.catering)?.length && notes_required(),
+        });
+        disabled(p.host, { when: () => has_id });
+        disabled(p.organiser, { when: () => has_id });
+        disabled(p.date, { when: () => lock_start_time() });
+        disabled(p.assets, { when: ({ valueOf }) => !valueOf(p.resources)?.length });
+        disabled(p.duration, { when: ({ valueOf }) => !!valueOf(p.all_day) });
+    }, { injector }) as EventForm;
+
+    // organiser → host
+    onFieldChange(
+        model,
+        (v) => v.organiser,
+        (organiser) =>
+            model.update((m) => ({ ...m, host: (organiser as any)?.email })),
+        injector,
+    );
+    // resources → system
+    onFieldChange(
+        model,
+        (v) => v.resources,
+        (resources) =>
+            model.update((m) => ({
+                ...m,
+                system: resources?.length ? resources[0] : null,
+            })),
+        injector,
+    );
     // Sync recurrence day-of-week when the date changes
-    form.controls.date.valueChanges.subscribe((date) => {
-        if (
-            form.value.recurrence?._pattern !== 'custom_display' &&
-            form.value.recurrence?._pattern !== 'none'
-        ) {
-            form.patchValue({
-                recurrence: {
-                    ...form.value.recurrence,
-                    days_of_week: [new Date(date).getDay()],
+    onFieldChange(
+        model,
+        (v) => v.date,
+        (date) => {
+            const recurrence = model().recurrence;
+            if (
+                recurrence?._pattern !== 'custom_display' &&
+                recurrence?._pattern !== 'none'
+            ) {
+                model.update((m) => ({
+                    ...m,
+                    recurrence: {
+                        ...m.recurrence,
+                        days_of_week: [new Date(date).getDay()],
+                    },
+                }));
+            }
+        },
+        injector,
+    );
+
+    const setCateringTime = () => {
+        const value = model();
+        if (!value.catering?.length || !value.date) return;
+        model.update((m) => ({
+            ...m,
+            catering: (m.catering || []).map((order: any) => ({
+                ...order,
+                event: {
+                    date: m.all_day ? startOfDay(m.date) : m.date,
+                    duration: m.all_day ? 24 * 60 : m.duration,
                 },
-            });
-        }
-    });
-    form.controls.catering.valueChanges.subscribe((_) => {
-        const catering = form.getRawValue().catering || [];
-        if (
-            catering?.length &&
-            (settings?.get('app.events.catering_notes_required') ||
-                settings.value('require_catering_notes'))
-        ) {
-            form.get('catering_notes')?.setValidators([Validators.required]);
-            form.get('catering_notes').patchValue(form.value.catering_notes);
-        } else {
-            form.get('catering_notes')?.clearValidators();
-            form.get('catering_notes').setErrors(null);
-        }
-        form.updateValueAndValidity();
-    });
-    form.get('catering_charge_code').setValidators([
-        validateCateringField(form.get('catering')),
-    ]);
-    if (event.id) {
-        form.get('host').disable();
-        form.get('organiser').disable();
-    }
-    if (is_start_time_locked()) form.get('date').disable();
-    return form;
+            })),
+        }));
+    };
+    // Recompute catering times when the catering list changes
+    onFieldChange(model, (v) => v.catering, setCateringTime, injector);
+
+    const time_sync = setupFormTimeSync(
+        model,
+        { on_time_change: setCateringTime },
+        injector,
+    );
+
+    return { model, form: event_form, time_sync, lock_start_time };
 }
 
 /**

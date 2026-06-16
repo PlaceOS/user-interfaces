@@ -1,4 +1,9 @@
-import { Component, effect, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    effect,
+    inject,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 
@@ -74,6 +79,7 @@ import { VideoCallPageComponent } from './video-call-page.component';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TopbarHeaderComponent,
         VideoCallPageComponent,

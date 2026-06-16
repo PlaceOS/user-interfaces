@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     EventEmitter,
     inject,
@@ -172,6 +173,7 @@ import { ParkingSpace } from './parking-state.service';
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatDialogModule,
         TranslatePipe,
@@ -227,7 +229,7 @@ export class ParkingSpaceModalComponent implements OnInit {
 
     public async ngOnInit() {
         if (this._data.assigned_to) {
-            const user = await showStaff(this._data.assigned_to).toPromise();
+            const user = await showStaff(this._data.assigned_to);
             if (user) {
                 this.form.patchValue({
                     assigned_user: user,

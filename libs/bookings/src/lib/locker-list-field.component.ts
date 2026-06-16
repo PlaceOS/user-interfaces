@@ -172,15 +172,11 @@ export class LockerListFieldComponent implements ControlValueAccessor {
     private _onChange: (_: BookingAsset[]) => void;
     private _onTouch: (_: BookingAsset[]) => void;
 
-    public get favorites() {
-        return (
-            this._settings.signal<string[]>(
-                SETTING_KEYS.FAVORITE_LOCKERS,
-                EMPTY_FAVS,
-                true,
-            )() || EMPTY_FAVS
-        );
-    }
+    public readonly favorites = this._settings.signal<string[]>(
+        SETTING_KEYS.FAVORITE_LOCKERS,
+        EMPTY_FAVS,
+        true,
+    );
 
     /** Add or edit selected items */
     public changeResources() {
@@ -237,7 +233,7 @@ export class LockerListFieldComponent implements ControlValueAccessor {
     }
 
     public toggleFavourite(space: BookingAsset) {
-        const fav_list = this.favorites;
+        const fav_list = this.favorites() || EMPTY_FAVS;
         const new_state = !fav_list.includes(space.id);
         if (new_state) {
             this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_LOCKERS, [

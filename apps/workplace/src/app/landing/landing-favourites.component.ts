@@ -1,7 +1,11 @@
-import { Component, OnInit, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    inject,
+    signal,
+} from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map, shareReplay, tap } from 'rxjs/operators';
 
 import { BookingFormService } from '@placeos/bookings';
 import {
@@ -38,9 +42,7 @@ const EMPTY = [];
                     'APP.WORKPLACE.FAVOURITES_COUNT'
                         | translate
                             : {
-                                  count:
-                                      (spaces?.length || 0) +
-                                      (assets | async)?.length,
+                                  count: spaces().length + assets().length,
                               }
                 }}
             </h2>
@@ -48,9 +50,8 @@ const EMPTY = [];
         <div
             class="divide-base-200 h-1/2 w-full flex-1 space-y-2 divide-y overflow-auto pt-4"
         >
-            @if (spaces?.length || (assets | async)?.length) {
-                @for (item of spaces; track item || $index) {
-                    @let space = item | space | async;
+            @if (spaces().length || assets().length) {
+                @for (space of spaces(); track space.id || $index) {
                     @if (space?.id) {
                         <div
                             class="relative mx-2 flex flex-col items-center space-y-2 pt-2"
@@ -114,8 +115,8 @@ const EMPTY = [];
                                 name="book-favourite"
                                 matRipple
                                 class="inverse w-full"
-                                [disabled]="isClosed(item)"
-                                (click)="newSpaceMeeting(item)"
+                                [disabled]="isClosed(space.id)"
+                                (click)="newSpaceMeeting(space.id)"
                             >
                                 {{ 'COMMON.BOOK' | translate }}
                             </button>
@@ -138,7 +139,7 @@ const EMPTY = [];
                                 <button
                                     name="landing-remove-favourite"
                                     mat-menu-item
-                                    (click)="removeFavourite('space', item)"
+                                    (click)="removeFavourite('space', space.id)"
                                 >
                                     <div class="flex items-center space-x-2">
                                         <icon class="text-error text-2xl"
@@ -156,7 +157,7 @@ const EMPTY = [];
                         </div>
                     }
                 }
-                @for (item of assets | async; track item) {
+                @for (item of assets(); track item) {
                     <div
                         class="relative mx-2 flex flex-col items-center space-y-2 pt-2"
                         item
@@ -217,9 +218,10 @@ const EMPTY = [];
                         </button>
                         <button
                             icon
+                            default
                             name="favourite-more"
                             [matMenuTriggerFor]="menu"
-                            class="bg-base-200 absolute top-22 right-0 m-0! rounded-sm!"
+                            class="absolute top-2 right-0"
                         >
                             <icon>more_horiz</icon>
                         </button>
@@ -280,13 +282,13 @@ const EMPTY = [];
         `,
     ],
     providers: [SpacePipe],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,
         IconComponent,
         MatRippleModule,
         MatMenuModule,
-        SpacePipe,
         AuthenticatedImageDirective,
     ],
 })
@@ -298,28 +300,11 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
     private _booking_form = inject(BookingFormService);
     private _router = inject(Router);
 
-    private _change = new BehaviorSubject(0);
     private _room_alerts: Record<string, [string, string]>;
-    public readonly assets = combineLatest([
-        this._booking_form.loadResourceList('desks' as any),
-        this._booking_form.loadParkingResources(),
-        this._change,
-    ]).pipe(
-        map(([desks, parking]) => {
-            return [
-                ...desks
-                    .filter(({ id }) => this.desks.includes(id))
-                    .map((_) => ({ ..._, type: 'desk' })),
-                ...parking
-                    .filter(({ id }) => this.parking_spaces.includes(id))
-                    .map((_) => ({ ..._, type: 'parking' })),
-            ];
-        }),
-        tap((_) => console.log(_)),
-        shareReplay(1),
-    );
+    public readonly spaces = signal<Space[]>([]);
+    public readonly assets = signal([]);
 
-    public get spaces() {
+    public get space_ids() {
         return (
             this._settings.get<string[]>(SETTING_KEYS.FAVORITE_ROOMS) || EMPTY
         );
@@ -362,13 +347,37 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
             'room_alerts',
         );
         this._room_alerts = metadata.details as any;
+        await this.loadSpaces();
+        await this.loadAssets();
+    }
+
+    public async loadSpaces() {
+        const spaces = await Promise.all(
+            this.space_ids.map((id) => this._space_pipe.transform(id)),
+        );
+        this.spaces.set(spaces.filter((space) => !!space?.id));
+    }
+
+    public async loadAssets() {
+        const [desks, parking] = await Promise.all([
+            this._booking_form.loadResourceList('desks' as any),
+            this._booking_form.loadParkingResources(),
+        ]);
+        this.assets.set([
+            ...desks
+                .filter(({ id }) => this.desks.includes(id))
+                .map((_) => ({ ..._, type: 'desk' as const })),
+            ...parking
+                .filter(({ id }) => this.parking_spaces.includes(id))
+                .map((_) => ({ ..._, type: 'parking' as const })),
+        ]);
     }
 
     public removeFavourite(
         type: 'space' | 'desk' | 'parking' | 'locker',
         id: string,
     ) {
-        let fav_list = this.spaces;
+        let fav_list = this.space_ids;
         let key = SETTING_KEYS.FAVORITE_ROOMS;
         switch (type) {
             case 'desk':
@@ -388,7 +397,8 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
             key,
             fav_list.filter((_) => _ !== id),
         );
-        this._change.next(Date.now());
+        this.loadSpaces();
+        this.loadAssets();
     }
 
     public async newSpaceMeeting(id: string) {
@@ -401,7 +411,10 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
             this._router.navigate(['/book', 'spaces']);
         }
         setTimeout(() => {
-            this._event_form.form.patchValue({ resources: [space] });
+            this._event_form.model.update((m) => ({
+                ...m,
+                resources: [space],
+            }));
         }, 300);
     }
 
@@ -425,11 +438,12 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
         setTimeout(() => {
             this._booking_form.newForm(type);
             this._booking_form.setOptions({ type });
-            this._booking_form.form.patchValue({
+            this._booking_form.model.update((m) => ({
+                ...m,
                 resources: [item],
                 asset_id: item.id,
                 booking_type: type,
-            });
+            }));
         }, 100);
     }
 }

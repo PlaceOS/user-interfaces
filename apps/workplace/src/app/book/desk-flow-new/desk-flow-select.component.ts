@@ -4,11 +4,12 @@ import {
     computed,
     effect,
     inject,
+    Injector,
     OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -36,7 +37,6 @@ import {
     TimeFieldComponent,
 } from '@placeos/form-fields';
 import { addDays, endOfDay } from 'date-fns';
-import { combineLatest, map, pairwise } from 'rxjs';
 import { DeskFlowSelectListComponent } from './desk-flow-select-list.component';
 import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
 
@@ -69,10 +69,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                     (click)="filters_open.set(false)"
                 ></div>
             }
-            <div
-                class="relative flex w-full overflow-hidden p-2 sm:space-x-2"
-                [formGroup]="form()"
-            >
+            <div class="relative flex w-full overflow-hidden p-2 sm:space-x-2">
                 <!-- Filters Sidebar - Desktop -->
                 <div
                     class="hidden sm:sticky sm:top-0 sm:block sm:w-[20rem] sm:max-w-[20rem]"
@@ -86,11 +83,11 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                         <label for="location">{{
                             'COMMON.LOCATION' | translate
                         }}</label>
-                        @if (use_region() && (regions | async)?.length) {
+                        @if (use_region() && regions()?.length) {
                             <mat-form-field appearance="outline" class="w-full">
                                 <mat-select
                                     name="region"
-                                    [ngModel]="region"
+                                    [ngModel]="region()"
                                     (ngModelChange)="setRegion($event)"
                                     [ngModelOptions]="{ standalone: true }"
                                     [placeholder]="
@@ -98,7 +95,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                             | translate
                                     "
                                 >
-                                    @for (reg of regions | async; track reg) {
+                                    @for (reg of regions(); track reg) {
                                         <mat-option [value]="reg">
                                             {{ reg.display_name || reg.name }}
                                         </mat-option>
@@ -106,19 +103,19 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                 </mat-select>
                             </mat-form-field>
                         }
-                        @if (!use_region() && (buildings | async)?.length > 1) {
+                        @if (!use_region() && buildings()?.length > 1) {
                             <mat-form-field appearance="outline" class="w-full">
                                 <mat-select
                                     name="building"
-                                    [ngModel]="building | async"
+                                    [ngModel]="building()"
                                     (ngModelChange)="setBuilding($event)"
                                     [ngModelOptions]="{ standalone: true }"
                                     [placeholder]="
-                                        (building | async)?.display_name ||
-                                        (building | async)?.name
+                                        building()?.display_name ||
+                                        building()?.name
                                     "
                                 >
-                                    @for (bld of buildings | async; track bld) {
+                                    @for (bld of buildings(); track bld) {
                                         <mat-option [value]="bld">
                                             {{ bld.display_name || bld.name }}
                                         </mat-option>
@@ -130,7 +127,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                             <mat-form-field appearance="outline" class="w-full">
                                 <mat-select
                                     name="location-multi"
-                                    [ngModel]="(options | async)?.zones"
+                                    [ngModel]="options()?.zones"
                                     (ngModelChange)="
                                         setOptions({ zones: $event })
                                     "
@@ -140,7 +137,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                     "
                                     [multiple]="true"
                                 >
-                                    @for (lvl of levels | async; track lvl) {
+                                    @for (lvl of levels(); track lvl) {
                                         <mat-option [value]="lvl.id">
                                             <div class="flex flex-col-reverse">
                                                 @if (use_region()) {
@@ -171,10 +168,10 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                             </mat-form-field>
                         }
                         <label for="date">{{ 'FORM.DATE' | translate }}</label>
-                        <date-field formControlName="date" [to]="end_date()" />
+                        <date-field [formField]="form.date" [to]="end_date()" />
                         <settings-toggle
                             class="mb-2"
-                            formControlName="all_day"
+                            [formField]="form.all_day"
                             >{{ 'COMMON.ALL_DAY' | translate }}</settings-toggle
                         >
                         @if (!field('all_day')) {
@@ -186,16 +183,18 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                     class="flex-1"
                                     [ngModel]="field('date')"
                                     (ngModelChange)="
-                                        form().patchValue({ date: $event })
+                                        model.update((m) => ({
+                                            ...m,
+                                            date: $event,
+                                        }))
                                     "
                                     [ngModelOptions]="{ standalone: true }"
-                                    [disabled]="form().controls.date.disabled"
                                     [use_24hr]="use_24hr()"
                                     [timezone]="timezone"
                                 />
                                 <duration-field
                                     class="w-1/3 flex-1"
-                                    formControlName="duration"
+                                    [formField]="form.duration"
                                     [time]="field('date')"
                                     [max]="max_duration()"
                                     [min]="min_duration()"
@@ -209,7 +208,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                         @if (view() === 'list') {
                             <settings-toggle
                                 class="mb-4"
-                                [ngModel]="(options | async)?.show_fav"
+                                [ngModel]="options()?.show_fav"
                                 (ngModelChange)="setOptions({ show_fav: $event })"
                                 [ngModelOptions]="{ standalone: true }"
                                 >{{
@@ -220,15 +219,15 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                 {{ 'BOOKINGS.FACILITIES' | translate }}
                             </h2>
                             <div class="mb-4 flex flex-col space-y-2">
-                                @for (feat of features | async; track feat) {
+                                @for (feat of features(); track feat) {
                                     @if (!hide_features().includes(feat)) {
                                         <settings-toggle
                                             class="w-full"
                                             [name]="feature_display()[feat] || feat"
                                             [ngModel]="
-                                                (
-                                                    options | async
-                                                )?.features?.includes(feat)
+                                                options()?.features?.includes(
+                                                    feat
+                                                )
                                             "
                                             (ngModelChange)="
                                                 toggleFeature(feat, $event)
@@ -249,9 +248,9 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                             class="flex flex-1 flex-wrap rounded-lg border border-base-300 bg-base-100 p-2"
                         >
                             @let feature_list =
-                                (options | async)?.features || [];
-                            @let zones = (options | async)?.zones || [];
-                            @let event = form().getRawValue();
+                                options()?.features || [];
+                            @let zones = options()?.zones || [];
+                            @let event = model();
                             @let zone = (zones | level) || (zones | building);
                             @let location =
                                 zone?.display_name || zone?.name || '';
@@ -351,7 +350,6 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                 class="filters-panel-mobile fixed bottom-0 left-0 right-0 z-30 w-full border-t border-base-300 bg-base-100 shadow-lg transition-transform duration-300 sm:hidden"
                 [class.translate-y-full]="!filters_open()"
                 [class.translate-y-0]="filters_open()"
-                [formGroup]="form()"
             >
                 <div
                     class="flex w-full items-center justify-between border-b border-base-300 p-2"
@@ -367,11 +365,11 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                     <label for="location">{{
                         'COMMON.LOCATION' | translate
                     }}</label>
-                    @if (use_region() && (regions | async)?.length) {
+                    @if (use_region() && regions()?.length) {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="region"
-                                [ngModel]="region"
+                                [ngModel]="region()"
                                 (ngModelChange)="setRegion($event)"
                                 [ngModelOptions]="{ standalone: true }"
                                 [placeholder]="
@@ -379,7 +377,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                         | translate
                                 "
                             >
-                                @for (reg of regions | async; track reg) {
+                                @for (reg of regions(); track reg) {
                                     <mat-option [value]="reg">
                                         {{ reg.display_name || reg.name }}
                                     </mat-option>
@@ -387,19 +385,19 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                             </mat-select>
                         </mat-form-field>
                     }
-                    @if (!use_region() && (buildings | async)?.length > 1) {
+                    @if (!use_region() && buildings()?.length > 1) {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="building"
-                                [ngModel]="building | async"
+                                [ngModel]="building()"
                                 (ngModelChange)="setBuilding($event)"
                                 [ngModelOptions]="{ standalone: true }"
                                 [placeholder]="
-                                    (building | async)?.display_name ||
-                                    (building | async)?.name
+                                    building()?.display_name ||
+                                    building()?.name
                                 "
                             >
-                                @for (bld of buildings | async; track bld) {
+                                @for (bld of buildings(); track bld) {
                                     <mat-option [value]="bld">
                                         {{ bld.display_name || bld.name }}
                                     </mat-option>
@@ -411,13 +409,13 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="location-multi-mobile"
-                                [ngModel]="(options | async)?.zones"
+                                [ngModel]="options()?.zones"
                                 (ngModelChange)="setOptions({ zones: $event })"
                                 [ngModelOptions]="{ standalone: true }"
                                 [placeholder]="'COMMON.LEVEL_ANY' | translate"
                                 [multiple]="true"
                             >
-                                @for (lvl of levels | async; track lvl) {
+                                @for (lvl of levels(); track lvl) {
                                     <mat-option [value]="lvl.id">
                                         <div class="flex flex-col-reverse">
                                             @if (use_region()) {
@@ -445,8 +443,8 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                         </mat-form-field>
                     }
                     <label for="date">{{ 'FORM.DATE' | translate }}</label>
-                    <date-field formControlName="date" [to]="end_date()" />
-                    <settings-toggle class="mb-2" formControlName="all_day">{{
+                    <date-field [formField]="form.date" [to]="end_date()" />
+                    <settings-toggle class="mb-2" [formField]="form.all_day">{{
                         'COMMON.ALL_DAY' | translate
                     }}</settings-toggle>
                     @if (!field('all_day')) {
@@ -456,16 +454,15 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                 class="flex-1"
                                 [ngModel]="field('date')"
                                 (ngModelChange)="
-                                    form().patchValue({ date: $event })
+                                    model.update((m) => ({ ...m, date: $event }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
-                                [disabled]="form().controls.date.disabled"
                                 [use_24hr]="use_24hr()"
                                 [timezone]="timezone"
                             />
                             <duration-field
                                 class="w-1/3 flex-1"
-                                formControlName="duration"
+                                [formField]="form.duration"
                                 [time]="field('date')"
                                 [min]="min_duration()"
                                 [max]="max_duration()"
@@ -479,7 +476,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                     @if (view() === 'list') {
                         <settings-toggle
                             class="mb-4"
-                            [ngModel]="(options | async)?.show_fav"
+                            [ngModel]="options()?.show_fav"
                             (ngModelChange)="setOptions({ show_fav: $event })"
                             [ngModelOptions]="{ standalone: true }"
                             >{{
@@ -490,15 +487,13 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                             {{ 'CALENDAR_EVENT.FACILITIES' | translate }}
                         </h2>
                         <div class="mb-4 flex flex-col space-y-2">
-                            @for (feat of features | async; track feat) {
+                            @for (feat of features(); track feat) {
                                 @if (!hide_features().includes(feat)) {
                                     <settings-toggle
                                         class="w-full"
                                         [name]="feature_display()[feat] || feat"
                                         [ngModel]="
-                                            (options | async)?.features?.includes(
-                                                feat
-                                            )
+                                            options()?.features?.includes(feat)
                                         "
                                         (ngModelChange)="
                                             toggleFeature(feat, $event)
@@ -560,7 +555,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
         DateFieldComponent,
         TimeFieldComponent,
         DurationFieldComponent,
-        ReactiveFormsModule,
+        FormField,
         FormsModule,
         SettingsToggleComponent,
         TranslatePipe,
@@ -575,6 +570,7 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
     private _spaces = inject(SpacesService);
+    private _injector = inject(Injector);
 
     public readonly use_24hr = settingSignal('use_24_hour_time', false);
     public readonly use_region = settingSignal('use_region', false);
@@ -615,18 +611,14 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
         'desks.hide_features',
         [],
     );
-    public readonly form = signal(this._booking_form.form);
+    public readonly form = this._booking_form.form;
+    public readonly model = this._booking_form.model;
     public readonly selected = signal<string[]>([]);
     public readonly promote_selected = signal(false);
     public readonly view = signal<'map' | 'list'>('list');
     public readonly filters_open = signal(false);
 
-    private readonly form_value = toSignal(
-        this._booking_form.form.valueChanges,
-        {
-            initialValue: this._booking_form.form.value,
-        },
-    );
+    private readonly form_value = this._booking_form.model;
 
     public readonly has_item = computed(
         () =>
@@ -635,8 +627,7 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
     );
 
     public readonly options = this._booking_form.options;
-    public readonly options_value = toSignal(this._booking_form.options);
-    // public readonly filters = this._booking_form.;
+    public readonly options_value = this._booking_form.options;
 
     public readonly building = this._org.active_building;
     public readonly buildings = this._org.active_buildings;
@@ -650,9 +641,7 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
 
     public readonly active = signal('');
     private _manual_selection = false;
-    private readonly bookable_resources = toSignal(this._booking_form.resources, {
-        initialValue: [],
-    });
+    private readonly bookable_resources = this._booking_form.resources;
 
     constructor() {
         super();
@@ -668,41 +657,36 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
         });
     }
 
-    public readonly levels = combineLatest([
-        this._org.active_region,
-        this._org.active_building,
-        this._booking_form.resources,
-    ]).pipe(
-        map(([region, bld, resources]) => {
-            const level_list = this.use_region()
-                ? this._org.levelsForRegion(region)
-                : this._org.levelsForBuilding(bld);
-            const level_ids = new Set(
-                resources
-                    .filter((resource) => resource.bookable !== false)
-                    .map((resource) => resource.zone?.id)
-                    .filter((_) => _),
-            );
-            const viewable_levels = level_list.filter(
-                (lvl) => !lvl.tags.includes('parking') && level_ids.has(lvl.id),
-            );
-            return viewable_levels.sort(
-                (a, b) =>
-                    a.parent_id.localeCompare(b.parent_id) ||
-                    (a.display_name || '').localeCompare(b.display_name || ''),
-            );
-        }),
-    );
+    public readonly levels = computed(() => {
+        const region = this._org.active_region();
+        const bld = this._org.active_building();
+        const resources = this._booking_form.resources();
+        const level_list = this.use_region()
+            ? this._org.levelsForRegion(region)
+            : this._org.levelsForBuilding(bld);
+        const level_ids = new Set(
+            resources
+                .filter((resource) => resource.bookable !== false)
+                .map((resource) => resource.zone?.id)
+                .filter((_) => _),
+        );
+        const viewable_levels = level_list.filter(
+            (lvl) => !lvl.tags.includes('parking') && level_ids.has(lvl.id),
+        );
+        return viewable_levels.sort(
+            (a, b) =>
+                a.parent_id.localeCompare(b.parent_id) ||
+                (a.display_name || '').localeCompare(b.display_name || ''),
+        );
+    });
 
-    public readonly features = combineLatest([
-        this._booking_form.resources,
-    ]).pipe(
-        map(([resources]) =>
-            unique(
-                flatten(resources.map((_) => _.features)).filter((_) =>
-                    _.trim(),
-                ),
-            ),
+    public readonly features = computed(() =>
+        unique(
+            flatten(
+                this._booking_form
+                    .resources()
+                    .map((_) => _.features),
+            ).filter((_) => _.trim()),
         ),
     );
 
@@ -717,12 +701,19 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit() {
+        let previous_building_id = this._org.active_building()?.id;
         this.subscription(
             'clear_selected_desk_on_building_change',
-            this._org.active_building.pipe(pairwise()).subscribe(([old_bld, bld]) => {
-                if (old_bld?.id && bld?.id && old_bld.id !== bld.id) {
+            this._effect(() => {
+                const bld = this._org.active_building();
+                if (
+                    previous_building_id &&
+                    bld?.id &&
+                    previous_building_id !== bld.id
+                ) {
                     this.clearSelectedDesk();
                 }
+                previous_building_id = bld?.id;
             }),
         );
 
@@ -736,31 +727,32 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
                 // Set the selected ID immediately for UI feedback
                 selected_ids.push(asset_id);
 
-                // Subscribe to available resources to populate the full resource object
-                // once the resources are loaded
+                // React to available resources to populate the full resource
+                // object once the resources are loaded
                 this.subscription(
                     'load_existing_resource',
-                    this._booking_form.available_resources.subscribe(
-                        (available) => {
-                            if (!available.length) return;
+                    this._effect(() => {
+                        const available =
+                            this._booking_form.available_resources();
+                        if (!available.length) return;
 
-                            const matching_resource = available.find(
-                                (r) => r.id === asset_id,
-                            );
+                        const matching_resource = available.find(
+                            (r) => r.id === asset_id,
+                        );
 
-                            // Only patch if we found the resource and resources array is still empty
-                            if (
-                                matching_resource &&
-                                !this.field('resources')?.length
-                            ) {
-                                this.form().patchValue({
-                                    resources: [matching_resource],
-                                    asset_id: matching_resource.id,
-                                });
-                                this.selected.set([matching_resource.id]);
-                            }
-                        },
-                    ),
+                        // Only patch if we found the resource and resources array is still empty
+                        if (
+                            matching_resource &&
+                            !this.field('resources')?.length
+                        ) {
+                            this.model.update((m) => ({
+                                ...m,
+                                resources: [matching_resource],
+                                asset_id: matching_resource.id,
+                            }));
+                            this.selected.set([matching_resource.id]);
+                        }
+                    }),
                 );
             }
         }
@@ -768,12 +760,18 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
         this.selected.set(selected_ids);
     }
 
+    /** Create an effect and return a teardown compatible with subscription() */
+    private _effect(fn: () => void) {
+        const ref = effect(fn, { injector: this._injector });
+        return { unsubscribe: () => ref.destroy() } as any;
+    }
+
     public field(name: string) {
-        return this.form()?.getRawValue()?.[name];
+        return this.model()?.[name];
     }
 
     public clearSelectedDesk() {
-        this.form().patchValue({ resources: [], asset_id: '' });
+        this.model.update((m) => ({ ...m, resources: [], asset_id: '' }));
         this.selected.set([]);
     }
 
@@ -838,16 +836,18 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
             const new_resources = resources.find(({ id }) => id === space.id)
                 ? resources.filter(({ id }) => id !== space.id)
                 : [...resources, space];
-            this.form().patchValue({
+            this.model.update((m) => ({
+                ...m,
                 resources: new_resources,
                 asset_id: new_resources[0]?.id || '',
-            });
+            }));
             this.selected.set(new_resources.map(({ id }) => id));
         } else {
-            this.form().patchValue({
+            this.model.update((m) => ({
+                ...m,
                 resources: [space],
                 asset_id: space.id,
-            });
+            }));
             this.selected.set([space.id]);
             // Close filters on mobile after selecting a space
             this.filters_open.set(false);

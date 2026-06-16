@@ -1,4 +1,10 @@
-import { Component, ViewEncapsulation, computed, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    ViewEncapsulation,
+    computed,
+    inject,
+} from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { DesksStateService } from './desks-state.service';
 
@@ -92,6 +98,7 @@ import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
         `,
     ],
     encapsulation: ViewEncapsulation.None,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatDialogModule,
         MatRippleModule,

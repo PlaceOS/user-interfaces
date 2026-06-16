@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -184,24 +183,12 @@ export class LandingAvailableNowComponent implements OnInit {
             (this.features().includes('spaces') ? 1 : 0),
     );
 
-    public readonly all_levels = toSignal(this.levels_free, {
-        initialValue: [],
-    });
+    public readonly all_levels = this.levels_free;
 
-    public readonly available_spaces = toSignal(
-        this._event_form.available_spaces,
-        { initialValue: [] },
-    );
-    public readonly booking_loading = toSignal(this._booking_form.loading, {
-        initialValue: '',
-    });
-    public readonly room_loading = toSignal(this._event_form.loading$, {
-        initialValue: '',
-    });
-    public readonly available_resources = toSignal(
-        this._booking_form.available_resources,
-        { initialValue: [] },
-    );
+    public readonly available_spaces = this._event_form.available_spaces;
+    public readonly booking_loading = this._booking_form.loading;
+    public readonly room_loading = this._event_form.loading;
+    public readonly available_resources = this._booking_form.available_resources;
     public readonly availability_loading = computed(
         () =>
             this._loading() ||
@@ -264,20 +251,22 @@ export class LandingAvailableNowComponent implements OnInit {
     }
 
     private ensureBookingWindow() {
-        const { date, duration } = this._booking_form.form.getRawValue();
+        const { date, duration } = this._booking_form.model();
         if (date && duration) return;
-        this._booking_form.form.patchValue({
+        this._booking_form.model.update((m) => ({
+            ...m,
             date: date || Date.now(),
             duration: duration || 60,
-        });
+        }));
     }
 
     private ensureRoomWindow() {
-        const { date, duration } = this._event_form.form.getRawValue();
+        const { date, duration } = this._event_form.model();
         if (date && duration) return;
-        this._event_form.form.patchValue({
+        this._event_form.model.update((m) => ({
+            ...m,
             date: date || Date.now(),
             duration: duration || 60,
-        });
+        }));
     }
 }

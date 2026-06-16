@@ -3,6 +3,7 @@ import {
     Component,
     computed,
     input,
+    linkedSignal,
     model,
     OnChanges,
     OnInit,
@@ -116,9 +117,11 @@ export class DateRangeCalendarComponent implements OnInit, OnChanges {
     /** Maximum number of days allowed in the selected range (default: 31 days / ~1 month) */
     public readonly max_range_days = input(31);
     /** Start date of the selected range */
-    public readonly start = model<number>(undefined);
+    public readonly startInput = input<number>(undefined, { alias: 'start' });
+    public readonly start = linkedSignal(this.startInput);
     /** End date of the selected range */
-    public readonly end = model<number>(undefined);
+    public readonly endInput = input<number>(undefined, { alias: 'end' });
+    public readonly end = linkedSignal(this.endInput);
     /** Month to display the calendar for */
     public readonly month = model(startOfDay(Date.now()).valueOf());
     /** Emitter for when the start date changes */

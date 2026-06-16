@@ -10,7 +10,7 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { format, isSameDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, from, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -87,7 +87,7 @@ export class ParkingReportService {
                 ? this._org.region?.id
                 : this._org.building?.id;
             if (!scope_id) return of([]);
-            return queryParkingSpacesForZones([scope_id]).pipe(
+            return from(queryParkingSpacesForZones([scope_id])).pipe(
                 catchError(() => of([])),
                 map((spaces) =>
                     zones.map(

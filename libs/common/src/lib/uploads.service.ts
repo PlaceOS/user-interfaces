@@ -1,6 +1,12 @@
-import { Injectable, InjectionToken, Type, inject } from '@angular/core';
+import {
+    inject,
+    Injectable,
+    InjectionToken,
+    signal,
+    Type,
+    WritableSignal,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { BehaviorSubject, lastValueFrom } from 'rxjs';
 
 import {
     humanReadableByteCount,
@@ -8,8 +14,6 @@ import {
     uploadFile,
 } from '@placeos/cloud-uploads';
 import { authorise, token } from '@placeos/ts-client';
-import { Observable } from 'rxjs';
-import { takeWhile } from 'rxjs/operators';
 import { AsyncHandler } from './async-handler.class';
 import { log } from './general';
 
@@ -51,14 +55,14 @@ export class UploadsService extends AsyncHandler {
         optional: true,
     });
 
-    private _upload_list = new BehaviorSubject<UploadDetails[]>([]);
+    private _upload_list = signal<UploadDetails[]>([]);
 
-    public readonly upload_list = this._upload_list.asObservable();
+    public readonly upload_list = this._upload_list.asReadonly();
 
     constructor() {
         super();
         if (localStorage) {
-            this._upload_list.next(
+            this._upload_list.set(
                 JSON.parse(localStorage.getItem('BACKOFFICE.uploads') || '[]'),
             );
         }
@@ -79,10 +83,10 @@ export class UploadsService extends AsyncHandler {
     }
 
     public clearList() {
-        const in_progress_list = this._upload_list
-            .getValue()
-            .filter((file) => file.progress < 100 && !file.error);
-        this._upload_list.next(in_progress_list);
+        const in_progress_list = this._upload_list().filter(
+            (file) => file.progress < 100 && !file.error,
+        );
+        this._upload_list.set(in_progress_list);
     }
 
     public uploadFileWithPermissions(file: File, default_public = false) {
@@ -100,17 +104,16 @@ export class UploadsService extends AsyncHandler {
                 data: { file, is_public: default_public },
             });
             ref.afterClosed().subscribe(async (details) => {
-                if (details) {
-                    const id = await this.uploadFile(
-                        details.file,
-                        details.is_public,
-                        details.permissions,
-                    ).catch((e) => {
-                        reject(e);
-                        throw e;
-                    });
-                    resolve(id);
-                } else reject();
+                if (!details) return reject();
+                const id = await this.uploadFile(
+                    details.file,
+                    details.is_public,
+                    details.permissions,
+                ).catch((e) => {
+                    reject(e);
+                    throw e;
+                });
+                resolve(id);
             });
         });
     }
@@ -129,14 +132,12 @@ export class UploadsService extends AsyncHandler {
                     );
                     resolved = true;
                 }
-                this._upload_list.next([
-                    ...this._upload_list
-                        .getValue()
-                        .filter((_) => _.id !== details.id),
+                this._upload_list.set([
+                    ...this._upload_list().filter((_) => _.id !== details.id),
                     details,
                 ]);
             };
-            this._uploadFile(file, pub, permissions).subscribe({
+            this._uploadFile(file, pub, permissions, {
                 next: update_fn,
                 error: (details) => {
                     if (details?.id) update_fn(details);
@@ -152,9 +153,7 @@ export class UploadsService extends AsyncHandler {
         pub = false,
         permissions: UploadPermissions = 'none',
     ) {
-        const details = await lastValueFrom(
-            this.uploadFileWithProgress(file, pub, permissions),
-        );
+        const details = await this._uploadFileToDetails(file, pub, permissions);
         const upload_id = details.upload_id || details.upload?.id || details.id;
         if (!upload_id) throw new Error('Failed to get uploaded file ID');
         return upload_id;
@@ -195,14 +194,20 @@ export class UploadsService extends AsyncHandler {
         file: File,
         pub = false,
         permissions: UploadPermissions = 'none',
-    ): Observable<UploadDetails> {
-        return this._uploadFile(file, pub, permissions);
+    ): WritableSignal<UploadDetails> {
+        const progress = signal<UploadDetails>(null);
+        this._uploadFile(file, pub, permissions, {
+            next: (details) => progress.set(details),
+            error: (details) => progress.set(details),
+            complete: () => this._updateUploadHistory(),
+        });
+        return progress;
     }
 
     private _updateUploadHistory() {
-        const done_list = this._upload_list
-            .getValue()
-            .filter((file) => file.progress >= 100);
+        const done_list = this._upload_list().filter(
+            (file) => file.progress >= 100,
+        );
         done_list.forEach((i) => delete i.upload);
         if (localStorage) {
             localStorage.setItem('PLACEOS.uploads', JSON.stringify(done_list));
@@ -231,54 +236,72 @@ export class UploadsService extends AsyncHandler {
         file: File,
         pub = false,
         permissions: UploadPermissions = 'none',
-    ): Observable<UploadDetails> {
-        return new Observable((observer) => {
-            this._updateUploadToken()
-                .then(() =>
-                    uploadFile(file, {
-                        permissions,
-                        public: pub,
-                    }),
-                )
-                .then((upload) => {
-                    const upload_details: UploadDetails = {
-                        id: upload?.id || `upi-${randomString(8)}`,
-                        name: file.name,
-                        progress: 0,
-                        link: '',
-                        formatted_size: humanReadableByteCount(file.size),
-                        size: file.size,
-                        upload,
-                    };
-                    upload.state
-                        .pipe(takeWhile((_) => _.status !== 'COMPLETED', true))
-                        .subscribe((state) => {
-                            upload_details.upload_id = upload.id;
-                            console.log('Upload:', state, upload);
-                            if (
-                                (upload as any).access_url ||
-                                state.progress >= 100
-                            ) {
-                                const local_url = `${
-                                    location.origin
-                                }/api/engine/v2/uploads/${encodeURIComponent(
-                                    upload_details.upload_id || upload.id,
-                                )}/url`;
-                                upload_details.link = local_url;
-                            }
-                            upload_details.progress = state.progress;
-                            observer.next(upload_details);
-                            if (state.status === 'FAILED')
-                                observer.error({
-                                    ...upload_details,
-                                    error: (state as any).error || 'Error',
-                                });
-                            if (state.status === 'COMPLETED')
-                                observer.complete();
-                        });
+        observer: {
+            next: (_: UploadDetails) => void;
+            error: (_: any) => void;
+            complete: () => void;
+        },
+    ) {
+        this._updateUploadToken()
+            .then(() =>
+                uploadFile(file, {
+                    permissions,
+                    public: pub,
+                }),
+            )
+            .then((upload) => {
+                const upload_details: UploadDetails = {
+                    id: upload?.id || `upi-${randomString(8)}`,
+                    name: file.name,
+                    progress: 0,
+                    link: '',
+                    formatted_size: humanReadableByteCount(file.size),
+                    size: file.size,
+                    upload,
+                };
+                upload.state.subscribe((state) => {
+                    upload_details.upload_id = upload.id;
+                    console.log('Upload:', state, upload);
+                    if ((upload as any).access_url || state.progress >= 100) {
+                        const local_url = `${
+                            location.origin
+                        }/api/engine/v2/uploads/${encodeURIComponent(
+                            upload_details.upload_id || upload.id,
+                        )}/url`;
+                        upload_details.link = local_url;
+                    }
+                    upload_details.progress = state.progress;
                     observer.next(upload_details);
-                })
-                .catch((upload_error) => observer.error(upload_error));
+                    if (state.status === 'FAILED') {
+                        observer.error({
+                            ...upload_details,
+                            error: (state as any).error || 'Error',
+                        });
+                    }
+                    if (state.status === 'COMPLETED') observer.complete();
+                });
+                observer.next(upload_details);
+            })
+            .catch((upload_error) => observer.error(upload_error));
+    }
+
+    private _uploadFileToDetails(
+        file: File,
+        pub = false,
+        permissions: UploadPermissions = 'none',
+    ) {
+        return new Promise<UploadDetails>((resolve, reject) => {
+            let last_details: UploadDetails;
+            this._uploadFile(file, pub, permissions, {
+                next: (details) => {
+                    last_details = details;
+                },
+                error: reject,
+                complete: () => {
+                    this._updateUploadHistory();
+                    resolve(last_details);
+                },
+            });
         });
     }
 }

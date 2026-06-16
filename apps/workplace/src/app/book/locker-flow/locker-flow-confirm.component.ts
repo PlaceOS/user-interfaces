@@ -1,5 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, model } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    model,
+} from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -9,7 +14,6 @@ import {
     Booking,
     OrganisationService,
     SettingsService,
-    nextValueFrom,
     notifyError,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -24,7 +28,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                 {{ 'APP.WORKPLACE.LOCKER_CONFIRM_TITLE' | translate }}
             </h2>
             <div class="">
-                @if (loading | async) {
+                @if (loading()) {
                     <mat-spinner diameter="32"></mat-spinner>
                 }
                 @if (show_close()) {
@@ -90,7 +94,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
             </section>
         }
         <footer class="border-base-200 mt-4 w-full border-t p-2">
-            @if (!(loading | async)) {
+            @if (!loading()) {
                 <button
                     name="confirm-locker"
                     btn
@@ -104,6 +108,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
         </footer>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,
@@ -124,8 +129,8 @@ export class BookLockerFlowConfirmComponent extends AsyncHandler {
 
     public readonly postForm = async () => {
         try {
-            if ((await nextValueFrom(this._state.options))?.group) {
-                const booking = new Booking(this._state.form.getRawValue());
+            if (this._state.options()?.group) {
+                const booking = new Booking(this._state.model() as any);
                 if (booking.id) {
                     const sibling_list =
                         await this._state.loadGroupSiblings(booking);
@@ -150,7 +155,7 @@ export class BookLockerFlowConfirmComponent extends AsyncHandler {
     }
 
     public get booking() {
-        return this._state.form.getRawValue() as any;
+        return this._state.model() as any;
     }
 
     public get assets() {

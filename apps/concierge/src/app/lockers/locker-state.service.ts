@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import {
     deleteLockerAsset,
@@ -50,7 +51,6 @@ import {
     BehaviorSubject,
     combineLatest,
     from,
-    lastValueFrom,
     Observable,
     of,
     Subject,
@@ -187,7 +187,7 @@ export class LockerStateService extends AsyncHandler {
     private _loading = new BehaviorSubject<string>('');
     private _change = new BehaviorSubject(0);
     /** List of available locker levels for the current building */
-    public levels = this._org.level_list.pipe(
+    public levels = toObservable(this._org.level_list).pipe(
         map((_) => {
             if (!this._settings.get('app.use_region')) {
                 const blds = this._org.buildingsForRegion();
@@ -219,8 +219,8 @@ export class LockerStateService extends AsyncHandler {
     public readonly search = this._search.asObservable();
 
     public readonly lockers_banks$: Observable<LockerBank[]> = combineLatest([
-        this._org.active_building,
-        this._org.active_region,
+        toObservable(this._org.active_building),
+        toObservable(this._org.active_region),
         this._change,
     ]).pipe(
         debounceTime(300),
@@ -229,15 +229,15 @@ export class LockerStateService extends AsyncHandler {
                 ? region?.id
                 : building?.id;
             if (!scope_id) return of([] as LockerBank[]);
-            return queryLockerBankAssetsForZones([scope_id]).pipe(
+            return from(queryLockerBankAssetsForZones([scope_id])).pipe(
                 map((assets) => assets.map(lockerBankFromAsset)),
             );
         }),
         shareReplay(1),
     );
     public readonly lockers$: Observable<Locker[]> = combineLatest([
-        this._org.active_building,
-        this._org.active_region,
+        toObservable(this._org.active_building),
+        toObservable(this._org.active_region),
         this._change,
         this.lockers_banks$,
     ]).pipe(
@@ -247,7 +247,7 @@ export class LockerStateService extends AsyncHandler {
                 ? region?.id
                 : building?.id;
             if (!scope_id) return of([] as Locker[]);
-            return queryLockerAssetsForZones([scope_id]).pipe(
+            return from(queryLockerAssetsForZones([scope_id])).pipe(
                 map((assets) => {
                     const lockers = assets.map((_) =>
                         lockerFromAsset(_, banks),
@@ -344,7 +344,7 @@ export class LockerStateService extends AsyncHandler {
     private _all_zones_keys = ['All', -1, '-1'];
     public readonly setup_paging = combineLatest([
         this._filters,
-        this._org.initialised,
+        toObservable(this._org.initialised),
     ]).pipe(
         debounceTime(500),
         tap(([filters, loaded]) => {
@@ -652,9 +652,7 @@ export class LockerStateService extends AsyncHandler {
             ...state.metadata,
             id: bank.id,
         };
-        await saveLockerBankAsset(
-            lockerBankToAsset(new_bank, zone_id),
-        ).toPromise();
+        await saveLockerBankAsset(lockerBankToAsset(new_bank, zone_id));
         this._change.next(Date.now());
         ref.close();
     }
@@ -684,9 +682,7 @@ export class LockerStateService extends AsyncHandler {
         ) {
             await this._clearAssignedBooking(locker);
         }
-        const saved = await saveLockerAsset(
-            lockerToAsset(new_locker, zone_id),
-        ).toPromise();
+        const saved = await saveLockerAsset(lockerToAsset(new_locker, zone_id));
         if (
             locker.assigned_to !== new_locker.assigned_to &&
             new_locker.assigned_to
@@ -729,7 +725,7 @@ export class LockerStateService extends AsyncHandler {
                         is_assigned: true,
                     },
                 }),
-            ).toPromise();
+            );
         }
         this._change.next(Date.now());
         ref.close();
@@ -748,16 +744,14 @@ export class LockerStateService extends AsyncHandler {
         );
         if (state?.reason !== 'done') return;
         state.loading(i18n('APP.CONCIERGE.LOCKERS_BANK_REMOVE_LOADING'));
-        await deleteLockerBankAsset(bank.id)
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    i18n('APP.CONCIERGE.LOCKERS_BANK_REMOVE_ERROR', {
-                        error: e,
-                    }),
-                );
-                throw e;
-            });
+        await deleteLockerBankAsset(bank.id).catch((e) => {
+            notifyError(
+                i18n('APP.CONCIERGE.LOCKERS_BANK_REMOVE_ERROR', {
+                    error: e,
+                }),
+            );
+            throw e;
+        });
         state.close();
         notifySuccess(i18n('APP.CONCIERGE.LOCKERS_BANK_REMOVE_SUCCESS'));
         this._change.next(Date.now());
@@ -777,14 +771,12 @@ export class LockerStateService extends AsyncHandler {
         if (state?.reason !== 'done') return;
         state.loading(i18n('APP.CONCIERGE.LOCKERS_REMOVE_LOADING'));
         await this._clearAssignedBooking(locker);
-        await deleteLockerAsset(locker.id)
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    i18n('APP.CONCIERGE.LOCKERS_REMOVE_ERROR', { error: e }),
-                );
-                throw e;
-            });
+        await deleteLockerAsset(locker.id).catch((e) => {
+            notifyError(
+                i18n('APP.CONCIERGE.LOCKERS_REMOVE_ERROR', { error: e }),
+            );
+            throw e;
+        });
         state.close();
         notifySuccess(i18n('APP.CONCIERGE.LOCKERS_REMOVE_SUCCESS'));
         this._change.next(Date.now());
@@ -834,9 +826,10 @@ export class LockerStateService extends AsyncHandler {
     }
 
     public async checkinLocker(locker: Booking, state = true) {
-        const status: any = await checkinBooking(locker.id, state ?? true)
-            .toPromise()
-            .catch((_) => ({ failed: true, error: _ }));
+        const status: any = await checkinBooking(
+            locker.id,
+            state ?? true,
+        ).catch((_) => ({ failed: true, error: _ }));
         if (status.failed) {
             notifyError(
                 i18n(
@@ -857,9 +850,7 @@ export class LockerStateService extends AsyncHandler {
     }
 
     public async approveLocker(locker: Booking) {
-        const success = await approveBooking(locker.id)
-            .toPromise()
-            .catch((_) => 'failed');
+        const success = await approveBooking(locker.id).catch((_) => 'failed');
         if (success === 'failed') {
             return notifyError(i18n('APP.CONCIERGE.LOCKERS_APPROVE_ERROR'));
         }
@@ -875,9 +866,7 @@ export class LockerStateService extends AsyncHandler {
     }
 
     public async rejectLocker(locker: Booking) {
-        const success = await rejectBooking(locker.id)
-            .toPromise()
-            .catch((_) => 'failed');
+        const success = await rejectBooking(locker.id).catch((_) => 'failed');
         if (success === 'failed') {
             return notifyError(i18n('APP.CONCIERGE.LOCKERS_REJECT_ERROR'));
         }
@@ -895,9 +884,7 @@ export class LockerStateService extends AsyncHandler {
     public async giveAccess(locker: Booking) {
         const success = await saveBooking(
             new Booking({ ...locker, access: true }),
-        )
-            .toPromise()
-            .catch((_) => 'failed');
+        ).catch((_) => 'failed');
         if (success === 'failed')
             return notifyError('Error giving building access booking host');
         notifySuccess(
@@ -924,12 +911,12 @@ export class LockerStateService extends AsyncHandler {
         );
         if (resp.reason !== 'done') return;
         resp.loading(i18n('APP.CONCIERGE.LOCKERS_REJECT_ALL_LOADING'));
-        await Promise.all(
-            list.map((locker) => rejectBooking(locker.id).toPromise()),
-        ).catch((e) => {
-            notifyError(i18n('APP.CONCIERGE.LOCKERS_REJECT_ALL_ERROR'));
-            throw e;
-        });
+        await Promise.all(list.map((locker) => rejectBooking(locker.id))).catch(
+            (e) => {
+                notifyError(i18n('APP.CONCIERGE.LOCKERS_REJECT_ALL_ERROR'));
+                throw e;
+            },
+        );
         notifySuccess(i18n('APP.CONCIERGE.LOCKERS_REJECT_ALL_SUCCESS'));
         resp.close();
         this.refresh();
@@ -937,29 +924,25 @@ export class LockerStateService extends AsyncHandler {
 
     private async _clearAssignedBooking(resource: Locker) {
         const today = Date.now();
-        const booking_list = await lastValueFrom(
-            queryBookings({
-                period_start: getUnixTime(startOfDay(today)),
-                period_end: getUnixTime(endOfDay(today)),
-                type: 'locker',
-                email: resource.assigned_to,
-                include_checked_out: true,
-            }),
-        );
+        const booking_list = await queryBookings({
+            period_start: getUnixTime(startOfDay(today)),
+            period_end: getUnixTime(endOfDay(today)),
+            type: 'locker',
+            email: resource.assigned_to,
+            include_checked_out: true,
+        });
         const filtered = booking_list.filter((_) => _.asset_id === resource.id);
         for (const booking of filtered) {
             const is_recurring = booking.instance;
             if (is_recurring) {
                 const yesterday_end = getUnixTime(endOfDay(subDays(today, 1)));
-                await lastValueFrom(
-                    updateBooking(
-                        booking.id,
-                        { recurrence_end: yesterday_end },
-                        'patch',
-                    ),
+                await updateBooking(
+                    booking.id,
+                    { recurrence_end: yesterday_end },
+                    'patch',
                 );
             } else {
-                await lastValueFrom(removeBooking(booking.id));
+                await removeBooking(booking.id);
             }
         }
     }

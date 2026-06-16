@@ -49,9 +49,9 @@ describe('ParkingTopbarComponent', () => {
                 editReservation: jest.fn(),
             } as any),
             MockProvider(OrganisationService, {
-                active_region: of(null),
-                active_building: of({ id: 'bld-1', timezone: 'UTC' }),
-                initialised: of(true),
+                active_region: signal(null),
+                active_building: signal({ id: 'bld-1', timezone: 'UTC' }),
+                initialised: signal(true),
                 levelWithID: jest.fn(),
                 buildings: [],
                 building: { id: 'bld-1', timezone: 'UTC' },

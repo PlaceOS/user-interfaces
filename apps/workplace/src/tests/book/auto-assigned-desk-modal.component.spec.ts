@@ -1,16 +1,16 @@
-import { FormControl, FormGroup } from '@angular/forms';
+import { signal, WritableSignal } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
+
 import { AutoAssignedDeskModalComponent } from '../../app/book/desk-flow/auto-assigned-desk-modal.component';
 
 describe('AutoAssignedDeskModalComponent', () => {
     let spectator: Spectator<AutoAssignedDeskModalComponent>;
-    let form: FormGroup;
+    let model: WritableSignal<any>;
 
     const desk_resource = {
         id: 'desk-123',
@@ -27,21 +27,25 @@ describe('AutoAssignedDeskModalComponent', () => {
         providers: [
             MockProvider(BookingFormService, {
                 setOptions: jest.fn(),
-                postForm: jest.fn(() => Promise.resolve()),
-                postFormForGroup: jest.fn(() => Promise.resolve()),
-                options: of({ type: 'desk' }),
-                resources: of([desk_resource]),
-                available_resources: of([desk_resource]),
-                form: (() => {
-                    form = new FormGroup({
-                        booking_type: new FormControl('desk'),
-                        date: new FormControl(Date.now()),
-                        duration: new FormControl(60),
-                        all_day: new FormControl(false),
-                        resources: new FormControl([]),
-                        asset_id: new FormControl(''),
+                postForm: jest.fn(() => Promise.resolve()) as any,
+                postFormForGroup: jest.fn(() => Promise.resolve()) as any,
+                listResources: jest.fn(async () => [desk_resource]) as any,
+                listAvailableResources: jest.fn(
+                    async () => [desk_resource],
+                ) as any,
+                options: signal({ type: 'desk' }),
+                resources: signal([desk_resource]),
+                available_resources: signal([desk_resource]),
+                model: (() => {
+                    model = signal<any>({
+                        booking_type: 'desk',
+                        date: Date.now(),
+                        duration: 60,
+                        all_day: false,
+                        resources: [],
+                        asset_id: '',
                     });
-                    return form;
+                    return model;
                 })(),
             } as any),
             MockProvider(OrganisationService, {
@@ -70,7 +74,7 @@ describe('AutoAssignedDeskModalComponent', () => {
     it('should auto-assign desks as all-day bookings', async () => {
         await spectator.component.ngOnInit();
 
-        expect(form.getRawValue()).toEqual(
+        expect(model()).toEqual(
             expect.objectContaining({
                 all_day: true,
                 asset_id: 'desk-123',

@@ -24,7 +24,6 @@ import {
     generateQRCode,
     getTimezoneDifferenceInHours,
     i18n,
-    nextValueFrom,
     notifyError,
     notifyInfo,
     notifySuccess,
@@ -131,8 +130,8 @@ export class DesksStateService extends AsyncHandler {
     private readonly _desks$ = combineLatest([
         toObservable(this._filters),
         toObservable(this._change),
-        this._org.active_building,
-        this._org.active_region,
+        toObservable(this._org.active_building),
+        toObservable(this._org.active_region),
     ]).pipe(
         debounceTime(500),
         switchMap(([filters]) => {
@@ -181,7 +180,7 @@ export class DesksStateService extends AsyncHandler {
     });
 
     /** List of levels with bookable desk resources */
-    public readonly levels = this._org.active_levels.pipe(
+    public readonly levels = toObservable(this._org.active_levels).pipe(
         switchMap((levels) => {
             if (!levels.length) {
                 return of(
@@ -218,9 +217,9 @@ export class DesksStateService extends AsyncHandler {
     private _all_zones_keys = ['All', -1, '-1', ''];
     public readonly setup_paging = combineLatest([
         toObservable(this._filters),
-        this._org.initialised,
-        this._org.active_building,
-        this._org.active_region,
+        toObservable(this._org.initialised),
+        toObservable(this._org.active_building),
+        toObservable(this._org.active_region),
     ]).pipe(
         debounceTime(500),
         tap(([filters, loaded]) => {
@@ -239,15 +238,17 @@ export class DesksStateService extends AsyncHandler {
                     : [this._org.building.id]
                 : filters.zones;
             this._first_page = () =>
-                queryPagedBookings({
-                    period_start: getUnixTime(period_start),
-                    period_end: getUnixTime(period_end),
-                    type: 'desk',
-                    zones: zones.join(','),
-                    include_checked_out: true,
-                    include_deleted: true,
-                    limit: 500,
-                } as any).pipe(
+                from(
+                    queryPagedBookings({
+                        period_start: getUnixTime(period_start),
+                        period_end: getUnixTime(period_end),
+                        type: 'desk',
+                        zones: zones.join(','),
+                        include_checked_out: true,
+                        include_deleted: true,
+                        limit: 500,
+                    } as any),
+                ).pipe(
                     catchError((_) => of({ data: [], total: 0, next: null })),
                 );
             this._next_page.next(this._first_page);
@@ -437,42 +438,42 @@ export class DesksStateService extends AsyncHandler {
             (desk.assigned_to !== new_desk.assigned_to || recreate) &&
             new_desk.assigned_to
         ) {
-            await saveBooking(this._createAssignedBooking(new_desk, zone))
-                .toPromise()
-                .catch(async (e) => {
-                    await this._rollbackMetadata(zone, original_desk_list);
-                    if (recreate) {
-                        await this._restoreAssignedBooking(desk, zone).catch(
-                            (restore_err) =>
-                                console.error(
-                                    'Failed to restore assigned booking during rollback',
-                                    restore_err,
-                                ),
-                        );
-                    }
-                    if (e?.status === 409) {
-                        notifyError(
-                            i18n('APP.CONCIERGE.DESKS_ASSIGN_CONFLICT_ERROR'),
-                        );
-                    } else {
-                        notifyError(
-                            i18n('APP.CONCIERGE.DESKS_SAVE_ERROR', {
-                                error: e,
-                            }),
-                        );
-                    }
-                    ref.componentInstance.loading.set(false);
-                    throw e;
-                });
+            await saveBooking(
+                this._createAssignedBooking(new_desk, zone),
+            ).catch(async (e) => {
+                await this._rollbackMetadata(zone, original_desk_list);
+                if (recreate) {
+                    await this._restoreAssignedBooking(desk, zone).catch(
+                        (restore_err) =>
+                            console.error(
+                                'Failed to restore assigned booking during rollback',
+                                restore_err,
+                            ),
+                    );
+                }
+                if (e?.status === 409) {
+                    notifyError(
+                        i18n('APP.CONCIERGE.DESKS_ASSIGN_CONFLICT_ERROR'),
+                    );
+                } else {
+                    notifyError(
+                        i18n('APP.CONCIERGE.DESKS_SAVE_ERROR', {
+                            error: e,
+                        }),
+                    );
+                }
+                ref.componentInstance.loading.set(false);
+                throw e;
+            });
         }
         this._change.set(Date.now());
         ref.close();
     }
 
     public async checkinDesk(desk: Booking, state = true) {
-        const status: any = await checkinBooking(desk.id, state ?? true)
-            .toPromise()
-            .catch((_) => ({ failed: true, error: _ }));
+        const status: any = await checkinBooking(desk.id, state ?? true).catch(
+            (_) => ({ failed: true, error: _ }),
+        );
         if (status.failed) {
             notifyError(
                 i18n(
@@ -494,9 +495,10 @@ export class DesksStateService extends AsyncHandler {
     }
 
     public async approveDesk(desk: Booking) {
-        const status: any = await approveBooking(desk.id)
-            .toPromise()
-            .catch((_) => ({ failed: true, error: _ }));
+        const status: any = await approveBooking(desk.id).catch((_) => ({
+            failed: true,
+            error: _,
+        }));
         if (status.failed) {
             return notifyError(
                 i18n('APP.CONCIERGE.DESKS_APPROVE_ERROR', {
@@ -512,9 +514,10 @@ export class DesksStateService extends AsyncHandler {
     }
 
     public async rejectDesk(desk: Booking) {
-        const status: any = await this._rejectDeskBooking(desk)
-            .toPromise()
-            .catch((_) => ({ failed: true, error: _ }));
+        const status: any = await this._rejectDeskBooking(desk).catch((_) => ({
+            failed: true,
+            error: _,
+        }));
         if (status.failed) {
             return notifyError(
                 i18n('APP.CONCIERGE.DESKS_REJECT_ERROR', {
@@ -561,7 +564,7 @@ export class DesksStateService extends AsyncHandler {
         const booking_id = series
             ? booking.parent_id || booking.id
             : booking.id;
-        await nextValueFrom(removeBooking(booking_id, query)).catch((e) => {
+        await removeBooking(booking_id, query).catch((e) => {
             notifyError(
                 i18n('APP.CONCIERGE.DESKS_BOOKING_DELETE_ERROR', { error: e }),
             );
@@ -576,9 +579,7 @@ export class DesksStateService extends AsyncHandler {
     public async giveAccess(desk: Booking) {
         const status: any = await saveBooking(
             new Booking({ ...desk, access: true }),
-        )
-            .toPromise()
-            .catch((_) => ({ failed: true, error: _ }));
+        ).catch((_) => ({ failed: true, error: _ }));
         if (status.failed) {
             return notifyError(
                 i18n('APP.CONCIERGE.DESKS_ACCESS_ERROR', {
@@ -610,7 +611,7 @@ export class DesksStateService extends AsyncHandler {
         resp.loading(i18n('APP.CONCIERGE.DESKS_REJECT_ALL_LOADING'));
         try {
             await Promise.all(
-                list.map((desk) => this._rejectDeskBooking(desk).toPromise()),
+                list.map((desk) => this._rejectDeskBooking(desk)),
             );
             list.forEach((desk) => {
                 (desk as any).approved = false;
@@ -735,36 +736,30 @@ export class DesksStateService extends AsyncHandler {
 
     private async _restoreAssignedBooking(desk: Desk, zone?: string) {
         if (!desk.assigned_to) return;
-        await lastValueFrom(
-            saveBooking(this._createAssignedBooking(desk, zone)),
-        );
+        await saveBooking(this._createAssignedBooking(desk, zone));
     }
 
     private async _clearAssignedBooking(desk: Desk) {
         const today = Date.now();
-        const booking_list = await lastValueFrom(
-            queryBookings({
-                period_start: getUnixTime(startOfDay(today)),
-                period_end: getUnixTime(endOfDay(today)),
-                type: 'desk',
-                email: desk.assigned_to,
-                include_checked_out: true,
-            }),
-        );
+        const booking_list = await queryBookings({
+            period_start: getUnixTime(startOfDay(today)),
+            period_end: getUnixTime(endOfDay(today)),
+            type: 'desk',
+            email: desk.assigned_to,
+            include_checked_out: true,
+        });
         const filtered = booking_list.filter((_) => _.asset_id === desk.id);
         for (const booking of filtered) {
             const is_recurring = booking.instance;
             if (is_recurring) {
                 const yesterday_end = getUnixTime(endOfDay(subDays(today, 1)));
-                await lastValueFrom(
-                    updateBooking(
-                        booking.id,
-                        { recurrence_end: yesterday_end },
-                        'patch',
-                    ),
+                await updateBooking(
+                    booking.id,
+                    { recurrence_end: yesterday_end },
+                    'patch',
                 );
             } else {
-                await lastValueFrom(removeBooking(booking.id));
+                await removeBooking(booking.id);
             }
         }
     }

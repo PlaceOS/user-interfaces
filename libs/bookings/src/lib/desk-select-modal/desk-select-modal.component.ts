@@ -166,10 +166,10 @@ import { DeskMapComponent } from './desk-map.component';
             </main>
             <footer
                 class="bg-base-200 flex w-full items-center space-x-2 rounded-sm border-none p-2"
-                [class.justify-between]="allow_multiple"
-                [class.justify-end]="!allow_multiple"
+                [class.justify-between]="allow_multiple()"
+                [class.justify-end]="!allow_multiple()"
             >
-                @if (allow_multiple) {
+                @if (allow_multiple()) {
                     <button
                         btn
                         matRipple
@@ -191,13 +191,13 @@ import { DeskMapComponent } from './desk-map.component';
                     name="toggle-desk"
                     [disabled]="!displayed()"
                     [class.inverse]="
-                        allow_multiple && isSelected(displayed()?.id)
+                        allow_multiple() && isSelected(displayed()?.id)
                     "
                     (click)="toggleDisplayedDesk()"
                 >
                     <div class="flex items-center">
                         <icon class="text-xl">{{
-                            allow_multiple
+                            allow_multiple()
                                 ? isSelected(displayed()?.id)
                                     ? 'remove'
                                     : 'add'
@@ -205,7 +205,7 @@ import { DeskMapComponent } from './desk-map.component';
                         }}</icon>
                         <div class="mr-1">
                             {{
-                                allow_multiple
+                                allow_multiple()
                                     ? ((isSelected(displayed()?.id)
                                           ? 'COMMON.REMOVE_FROM'
                                           : 'COMMON.ADD_TO'
@@ -268,9 +268,9 @@ export class DeskSelectModalComponent {
         this._settings.get<string[]>(SETTING_KEYS.FAVORITE_DESKS) || [],
     );
 
-    public get allow_multiple() {
-        return !!this._data.options?.group;
-    }
+    public readonly allow_multiple = computed(
+        () => !!this._data.options?.group,
+    );
 
     constructor() {
         const selected_desks =
@@ -300,7 +300,9 @@ export class DeskSelectModalComponent {
         if (!this.displayed()) return;
         this.setSelected(
             this.displayed(),
-            this.allow_multiple ? !this.isSelected(this.displayed()?.id) : true,
+            this.allow_multiple()
+                ? !this.isSelected(this.displayed()?.id)
+                : true,
         );
     }
 

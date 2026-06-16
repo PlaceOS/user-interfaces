@@ -1,5 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    signal,
+} from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -127,6 +131,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
         </fullscreen-modal-shell>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FullscreenModalShellComponent,
         MatFormFieldModule,
@@ -144,9 +149,7 @@ export class LevelModalComponent {
         inject<MatDialogRef<LevelModalComponent>>(MatDialogRef);
 
     public readonly loading = signal(false);
-    public readonly building_list = toSignal(this._org.building_list, {
-        initialValue: [],
-    });
+    public readonly building_list = this._org.building_list;
 
     public readonly form = new FormGroup({
         id: new FormControl(this._data?.id || ''),

@@ -1,3 +1,4 @@
+import { inject, Injector } from '@angular/core';
 import {
     MAT_DIALOG_DATA,
     MatDialogModule,
@@ -26,19 +27,30 @@ describe('SpaceSelectModalComponent', () => {
             }),
             MockProvider(MAT_DIALOG_DATA, []),
             MockProvider(MatDialogRef, { close: jest.fn() }),
-            MockProvider(EventFormService, {
-                loading$: new BehaviorSubject(''),
-                room_alerts: new BehaviorSubject({}),
-                options$: new BehaviorSubject({}),
-                filters$: new BehaviorSubject({}),
-                available_spaces: new BehaviorSubject([]),
-                spaces$: new BehaviorSubject([]),
-                form: generateEventForm(),
-                filters: {},
-                setOptions: jest.fn(),
-                setFilters: jest.fn(),
-                setView: jest.fn(),
-            }),
+            {
+                provide: EventFormService,
+                useFactory: () => {
+                    const { model, form } = generateEventForm(
+                        undefined,
+                        undefined,
+                        inject(Injector),
+                    );
+                    return {
+                        loading$: new BehaviorSubject(''),
+                        room_alerts: new BehaviorSubject({}),
+                        options$: new BehaviorSubject({}),
+                        filters$: new BehaviorSubject({}),
+                        available_spaces: new BehaviorSubject([]),
+                        spaces$: new BehaviorSubject([]),
+                        model,
+                        form,
+                        filters: {},
+                        setOptions: jest.fn(),
+                        setFilters: jest.fn(),
+                        setView: jest.fn(),
+                    } as Partial<EventFormService>;
+                },
+            },
         ],
         imports: [
             MockModule(MatDialogModule),
@@ -107,19 +119,30 @@ describe('SpaceSelectModalComponent (with favourites)', () => {
             }),
             MockProvider(MAT_DIALOG_DATA, []),
             MockProvider(MatDialogRef, { close: jest.fn() }),
-            MockProvider(EventFormService, {
-                loading$: new BehaviorSubject(''),
-                room_alerts: new BehaviorSubject({}),
-                options$: new BehaviorSubject({}),
-                filters$: new BehaviorSubject({}),
-                available_spaces: new BehaviorSubject([]),
-                spaces$: new BehaviorSubject([]),
-                form: generateEventForm(),
-                filters: {},
-                setOptions: jest.fn(),
-                setFilters: jest.fn(),
-                setView: jest.fn(),
-            }),
+            {
+                provide: EventFormService,
+                useFactory: () => {
+                    const { model, form } = generateEventForm(
+                        undefined,
+                        undefined,
+                        inject(Injector),
+                    );
+                    return {
+                        loading$: new BehaviorSubject(''),
+                        room_alerts: new BehaviorSubject({}),
+                        options$: new BehaviorSubject({}),
+                        filters$: new BehaviorSubject({}),
+                        available_spaces: new BehaviorSubject([]),
+                        spaces$: new BehaviorSubject([]),
+                        model,
+                        form,
+                        filters: {},
+                        setOptions: jest.fn(),
+                        setFilters: jest.fn(),
+                        setView: jest.fn(),
+                    } as Partial<EventFormService>;
+                },
+            },
         ],
         imports: [
             MockModule(MatDialogModule),

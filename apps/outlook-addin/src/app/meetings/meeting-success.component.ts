@@ -1,5 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import { EventFormService, SpacePipe } from '@placeos/events';
@@ -20,8 +25,10 @@ import { EventFormService, SpacePipe } from '@placeos/events';
                     booking_location() || room?.display_name || room?.name
                 }}</i>
                 has been successfully booked for the
-                {{ booking?.date | date: 'dd MMMM yyyy' }} at
-                {{ booking?.date | date: 'shortTime' }} -
+                {{ booking?.date | date: 'dd MMMM yyyy' }}
+                at
+                {{ booking?.date | date: 'shortTime' }}
+                -
                 {{ booking_end() | date: 'shortTime' }}
             </p>
             <a btn matRipple [routerLink]="['/book', 'meeting']" class="w-64">
@@ -37,6 +44,7 @@ import { EventFormService, SpacePipe } from '@placeos/events';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, SpacePipe, MatRippleModule, RouterModule],
 })
 export class MeetingBookingSuccessComponent {

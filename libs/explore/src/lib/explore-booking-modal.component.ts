@@ -1,5 +1,4 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import {
     MAT_DIALOG_DATA,
     MatDialogModule,
@@ -17,7 +16,7 @@ import {
 } from '@placeos/common';
 
 import { DatePipe } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -54,14 +53,14 @@ export interface ExploreBookingModalData {
         </header>
         @if (!loading()) {
             @if (form) {
-                <main [formGroup]="form" class="max-w-[85vw] px-4">
+                <main class="max-w-[85vw] px-4">
                     <div class="flex flex-col">
                         <label for="title">Title<span>*</span>:</label>
                         <mat-form-field appearance="outline">
                             <input
+                                id="title"
                                 matInput
-                                name="title"
-                                formControlName="title"
+                                [formField]="form.title"
                                 placeholder="Booking Title"
                             />
                             <mat-error>{{
@@ -76,8 +75,7 @@ export interface ExploreBookingModalData {
                                 }}<span>*</span>:</label
                             >
                             <a-user-search-field
-                                name="host"
-                                formControlName="organiser"
+                                [formField]="form.organiser"
                                 class="mb-4"
                             ></a-user-search-field>
                         </div>
@@ -91,9 +89,8 @@ export interface ExploreBookingModalData {
                             class="border-base-200 mb-4 w-full rounded-sm border px-4 py-3"
                         >
                             {{
-                                form.controls.resources?.value[0]
-                                    ?.display_name ||
-                                    form.controls.resources?.value[0]?.name
+                                model().resources?.[0]?.display_name ||
+                                    model().resources?.[0]?.name
                             }}
                         </div>
                         @if (alert()?.[0]) {
@@ -117,7 +114,7 @@ export interface ExploreBookingModalData {
                         }
                     </div>
                     <div class="flex flex-wrap sm:space-x-4">
-                        @if (form.controls.date) {
+                        @if (form.date) {
                             <div
                                 class="flex w-full min-w-48 flex-1 flex-col sm:w-auto"
                             >
@@ -125,25 +122,22 @@ export interface ExploreBookingModalData {
                                 <div
                                     class="border-base-200 mb-4 w-full rounded-sm border px-4 py-3"
                                 >
-                                    {{ form.value.date | date: 'mediumDate' }}
-                                    @if (!form.value.all_day) {
+                                    {{ model().date | date: 'mediumDate' }}
+                                    @if (!model().all_day) {
                                         at
-                                        {{
-                                            form.value.date
-                                                | date: time_format()
-                                        }}
+                                        {{ model().date | date: time_format() }}
                                     }
                                 </div>
                             </div>
                         }
-                        @if (form.controls.duration) {
+                        @if (form.duration) {
                             <div class="flex w-full flex-col sm:w-auto">
                                 <label
                                     >{{ 'FORM.DURATION' | translate }}:</label
                                 >
                                 <a-duration-field
-                                    formControlName="duration"
-                                    [time]="form.value.date"
+                                    [formField]="form.duration"
+                                    [time]="model().date"
                                     [max]="max_duration()"
                                     [end_time]="bookable_hours()?.end"
                                     class="w-full"
@@ -154,7 +148,7 @@ export interface ExploreBookingModalData {
                     </div>
                     @if (allow_all_day()) {
                         <div class="-mt-2 mb-2 flex justify-end">
-                            <mat-checkbox formControlName="all_day">
+                            <mat-checkbox [formField]="form.all_day">
                                 {{ 'COMMON.ALL_DAY' | translate }}
                             </mat-checkbox>
                         </div>
@@ -195,7 +189,7 @@ export interface ExploreBookingModalData {
         UserSearchFieldComponent,
         MatFormFieldModule,
         MatInputModule,
-        ReactiveFormsModule,
+        FormField,
         IconComponent,
         MatDialogModule,
     ],
@@ -208,15 +202,18 @@ export class ExploreBookingModalComponent implements OnInit {
         inject<MatDialogRef<ExploreBookingModalComponent>>(MatDialogRef);
     private _router = inject(Router);
 
-    private _service_loading = toSignal(this._event_form.loading$);
     private _min_loading = signal(true);
     public readonly loading = computed(
-        () => this._min_loading() || this._service_loading(),
+        () => this._min_loading() || !!this._event_form.loading(),
     );
     public readonly alert = signal(this._data.alert);
 
     public get form() {
         return this._event_form.form;
+    }
+
+    public get model() {
+        return this._event_form.model;
     }
 
     public readonly max_duration = settingSignal('events.max_duration', 4 * 60);
@@ -252,16 +249,13 @@ export class ExploreBookingModalComponent implements OnInit {
             return;
         }
         this._event_form.newForm();
-        this.form.patchValue({
+        this.model.update((m) => ({
+            ...m,
             resources: [this._data.space],
             host: currentUser().email,
             organiser: currentUser(),
-        });
+        }));
         setTimeout(() => this._min_loading.set(false), 500);
-        this.form.valueChanges.subscribe((v) => {
-            this._checkAllDay(v.all_day);
-        });
-        this._checkAllDay(this.form.value.all_day);
     }
 
     public async save() {
@@ -275,13 +269,5 @@ export class ExploreBookingModalComponent implements OnInit {
             notifySuccess(i18n('EXPLORE.BOOKING_SUCCESS'));
         }
         this._dialog_ref.close();
-    }
-
-    private _checkAllDay(value: boolean) {
-        if (value) {
-            this.form.controls.duration.disable({ emitEvent: false });
-        } else {
-            this.form.controls.duration.enable({ emitEvent: false });
-        }
     }
 }

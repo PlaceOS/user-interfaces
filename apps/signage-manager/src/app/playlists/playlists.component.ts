@@ -1,4 +1,10 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    effect,
+    inject,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -198,7 +204,9 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                     aria-controls="playlist-items-panel"
                                     id="playlist-items-tab"
                                 >
-                                    {{ 'SIGNAGE_MANAGER.TAB_ITEMS' | translate }}
+                                    {{
+                                        'SIGNAGE_MANAGER.TAB_ITEMS' | translate
+                                    }}
                                 </button>
                                 <button
                                     type="button"
@@ -278,6 +286,7 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         NavSidebarComponent,
         NavFooterComponent,

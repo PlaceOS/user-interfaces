@@ -7,7 +7,7 @@
     "tags": [],
     "targets": {
         "build": {
-            "executor": "@angular-devkit/build-angular:application",
+            "executor": "@angular/build:application",
             "options": {
                 "baseHref": "./",
                 "outputPath": "dist/apps/outlook-addin",
@@ -123,7 +123,7 @@
             }
         },
         "serve": {
-            "executor": "@angular-devkit/build-angular:dev-server",
+            "executor": "@angular/build:dev-server",
             "options": {
                 "proxyConfig": "config/proxy.conf.js",
                 "ssl": true,

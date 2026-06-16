@@ -269,9 +269,9 @@ export class ExploreDeskInfoComponent extends AsyncHandler implements OnInit {
         () => this.display_booking()?.date_end || this.end(),
     );
 
-    public y_pos = signal<'top' | 'bottom'>('top');
+    public readonly y_pos = signal<'top' | 'bottom'>('top');
 
-    public x_pos = signal<'left' | 'right'>('left');
+    public readonly x_pos = signal<'left' | 'right'>('left');
 
     public ngOnInit(tries = 0) {
         if (tries > 10) return;

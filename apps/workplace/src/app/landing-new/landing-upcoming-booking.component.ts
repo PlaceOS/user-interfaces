@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    signal,
+    untracked,
+} from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -277,7 +284,7 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
     private _router = inject(Router);
     private _space_pipe = new SpacePipe(this._org);
 
-    public readonly upcomingEvents = toSignal(this._state.upcoming_events);
+    public readonly upcomingEvents = this._state.upcoming_events;
     public readonly room_status = signal('');
     public readonly room_booking_start = signal(0);
     public readonly room_system_id = signal('');
@@ -404,23 +411,25 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
 
     constructor() {
         super();
-        this.subscription(
-            'sync_room_status',
-            this._state.upcoming_events.subscribe((events) => {
-                const event = events?.[0];
-                if (
-                    !(event instanceof CalendarEvent) ||
-                    event.extension_data?.shared_event
-                ) {
+        effect(() => {
+            const events = this._state.upcoming_events();
+            const event = events?.[0];
+            if (
+                !(event instanceof CalendarEvent) ||
+                event.extension_data?.shared_event
+            ) {
+                untracked(() => {
                     this._room_event_key.set('');
                     this.room_status.set('');
                     this.room_booking_start.set(0);
                     this.room_system_id.set('');
-                    return;
-                }
-                const event_key = (event as any).instance
-                    ? `${event.id}|${(event as any).instance}`
-                    : event.id;
+                });
+                return;
+            }
+            const event_key = (event as any).instance
+                ? `${event.id}|${(event as any).instance}`
+                : event.id;
+            untracked(() => {
                 const same_event = this._room_event_key() === event_key;
                 this._room_event_key.set(event_key);
                 if (!same_event) {
@@ -431,8 +440,8 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
                 if (!same_event || !this.room_system_id()) {
                     this._resolveRoomSystem(event);
                 }
-            }),
-        );
+            });
+        });
     }
 
     public readonly attendeeCount = computed(() => {
@@ -450,13 +459,13 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
 
         try {
             if (event instanceof Booking) {
-                await checkinBooking(event.id, true).toPromise();
+                await checkinBooking(event.id, true);
             } else if (event.extension_data?.shared_event) {
                 const user_email = currentUser()?.email;
                 if (!user_email) throw new Error('Missing current user email');
                 await checkinEventGuest(event.id, user_email, true, {
                     system_id: event.system?.id,
-                }).toPromise();
+                });
             } else {
                 const room_id =
                     this.room_system_id() ||

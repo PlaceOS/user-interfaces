@@ -1,6 +1,7 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import {
     Component,
+    computed,
     forwardRef,
     inject,
     Injector,
@@ -56,7 +57,7 @@ export enum TimezoneDiffRange {
                 >
                     <div class="text-base font-normal">
                         @if (date() !== null && date() !== undefined) {
-                            {{ date() | date: date_format }}
+                            {{ date() | date: date_format() }}
                         } @else {
                             <span class="opacity-30">{{
                                 'FORM.DATE_EMPTY' | translate
@@ -65,19 +66,19 @@ export enum TimezoneDiffRange {
                     </div>
                     @if (
                         timezone() &&
-                        tz &&
+                        tz() &&
                         date() !== null &&
                         date() !== undefined
                     ) {
                         <div class="truncate text-xs opacity-30">
                             @if (range() !== 2) {
-                                <span>{{ start_of_day }}</span>
+                                <span>{{ start_of_day() }}</span>
                             }
                             @if (range() === 0) {
                                 <span> - </span>
                             }
                             @if (range() !== 1) {
-                                <span>{{ end_of_day }}</span>
+                                <span>{{ end_of_day() }}</span>
                             }
                         </div>
                     }
@@ -113,8 +114,8 @@ export enum TimezoneDiffRange {
             <div class="bg-base-100 relative w-[18rem] rounded-sm px-2 py-4">
                 <date-calendar
                     [ngModel]="date() || now"
-                    [from]="from.valueOf()"
-                    [to]="until.valueOf()"
+                    [from]="from().valueOf()"
+                    [to]="until().valueOf()"
                     [offset_weekday]="week_start()"
                     (ngModelChange)="setValue($event)"
                 ></date-calendar>
@@ -178,27 +179,27 @@ export class DateFieldComponent
     private _onTouch: (_: number | null) => void;
     private _control?: NgControl;
 
-    public get date_format() {
-        return this.short() ? 'MMM d, yyyy' : 'MMMM d, yyyy';
-    }
+    public readonly date_format = computed(() =>
+        this.short() ? 'MMM d, yyyy' : 'MMMM d, yyyy',
+    );
 
-    public get time_format() {
-        return this.use_24hr() ? 'HH : mm' : 'h : mm a';
-    }
+    public readonly time_format = computed(() =>
+        this.use_24hr() ? 'HH : mm' : 'h : mm a',
+    );
 
     private _date_pipe = new DatePipe('en');
 
-    public get start_of_day() {
+    public readonly start_of_day = computed(() => {
         const start = startOfDay(this.date() || Date.now()).valueOf();
-        const format = `MMM d, ${this.time_format}${this.range() === 1 ? ' (z)' : ''}`;
-        return this._date_pipe.transform(start, format, this.tz);
-    }
+        const format = `MMM d, ${this.time_format()}${this.range() === 1 ? ' (z)' : ''}`;
+        return this._date_pipe.transform(start, format, this.tz());
+    });
 
-    public get end_of_day() {
+    public readonly end_of_day = computed(() => {
         const end = endOfDay(this.date() || Date.now()).valueOf();
-        const format = `MMM d, ${this.time_format}${this.range() === 1 ? ' (z)' : ''}`;
-        return this._date_pipe.transform(end, format, this.tz);
-    }
+        const format = `MMM d, ${this.time_format()}${this.range() === 1 ? ' (z)' : ''}`;
+        return this._date_pipe.transform(end, format, this.tz());
+    });
 
     public get has_error(): boolean {
         return this._control?.invalid && this._control?.touched;
@@ -208,12 +209,12 @@ export class DateFieldComponent
         Intl.DateTimeFormat().resolvedOptions().timeZone,
     );
 
-    public get tz() {
+    public readonly tz = computed(() => {
         const tz = this.timezone();
         if (!tz) return '';
         const tz_offset = getTimezoneOffsetString(tz);
         return tz_offset === this._local_tz ? '' : tz_offset;
-    }
+    });
 
     private readonly _tooltip = viewChild(CustomTooltipComponent);
 
@@ -222,17 +223,17 @@ export class DateFieldComponent
     }
 
     /** First allowed date on the calendar */
-    public get from(): Date {
+    public readonly from = computed((): Date => {
         return this.from_date()
             ? new Date(this.from_date())
             : startOfDay(new Date());
-    }
+    });
     /** Current date value */
-    public get until(): Date {
+    public readonly until = computed((): Date => {
         return this.to_date()
             ? new Date(this.to_date())
             : addYears(endOfDay(new Date()), 1);
-    }
+    });
 
     public ngOnInit() {
         this._control = this._injector.get(NgControl);
@@ -269,8 +270,8 @@ export class DateFieldComponent
             ).valueOf();
         }
         // Check that new date is not before the configured minimum.
-        if (new_date < this.from.valueOf()) {
-            new_date = this.from.valueOf();
+        if (new_date < this.from().valueOf()) {
+            new_date = this.from().valueOf();
         }
         // Ensure we don't select a past datetime when switching dates
         if (new_date < Date.now()) {

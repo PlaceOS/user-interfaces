@@ -1,7 +1,7 @@
+import { signal } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
 import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
@@ -15,8 +15,10 @@ describe('CateringOrderListComponent', () => {
         declarations: [MockComponent(SimpleTableComponent)],
         providers: [
             MockProvider(CateringOrdersService, {
-                filtered: new BehaviorSubject([]),
-                loading: new BehaviorSubject(false),
+                filtered: signal([]),
+                loading: signal(false),
+                order_filters: signal({}),
+                caterers: signal([]),
                 startPolling: jest.fn(),
                 stopPolling: jest.fn(),
             }),

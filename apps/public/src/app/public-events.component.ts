@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     DestroyRef,
     OnInit,
@@ -22,6 +23,7 @@ import { PublicPageShellComponent } from './public-page-shell.component';
         PublicEventDetailsComponent,
         PublicPageShellComponent,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
         <placeos-public-page-shell [logo]="service.logo_url()">
             @if (!system_id()) {

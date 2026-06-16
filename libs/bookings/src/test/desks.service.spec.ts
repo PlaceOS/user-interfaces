@@ -48,7 +48,7 @@ describe('DesksService', () => {
 
     it('should prevent booking without a host', async () => {
         (common_mod as any).notifyError = jest.fn();
-        (booking_fn as any).queryBookings = jest.fn(() => of([]));
+        (booking_fn as any).queryBookings = jest.fn(() => Promise.resolve([]));
         expect(common_mod.notifyError).not.toHaveBeenCalled();
         await spectator.service.bookDesk({ desks: [new Desk()] });
         expect(common_mod.notifyError).toHaveBeenCalledWith(
@@ -78,7 +78,7 @@ describe('DesksService', () => {
         (common_mod as any).notifyError = jest.fn();
         expect(common_mod.notifyError).not.toHaveBeenCalled();
         (booking_fn as any).queryBookings = jest.fn(() =>
-            of([new Booking({ user_email: 'test@example.com' })]),
+            Promise.resolve([new Booking({ user_email: 'test@example.com' })]),
         );
         await spectator.service.bookDesk({
             desks: [new Desk()],
@@ -87,8 +87,12 @@ describe('DesksService', () => {
         expect(common_mod.notifyError).toHaveBeenCalledWith(
             'You currently already have a desk booked for the selected date.',
         );
-        (booking_fn as any).queryBookings.mockImplementation(() => of([]));
-        (booking_fn as any).saveBooking = jest.fn(() => of(new Booking()));
+        (booking_fn as any).queryBookings.mockImplementation(() =>
+            Promise.resolve([]),
+        );
+        (booking_fn as any).saveBooking = jest.fn(() =>
+            Promise.resolve(new Booking()),
+        );
         (common_mod as any).notifySuccess = jest.fn();
         await spectator.service.bookDesk({
             desks: [new Desk()],
@@ -102,8 +106,10 @@ describe('DesksService', () => {
     });
 
     it('should allow booking desks for multiple people', async () => {
-        (booking_fn as any).queryBookings = jest.fn(() => of([]));
-        (booking_fn as any).saveBooking = jest.fn(() => of(new Booking()));
+        (booking_fn as any).queryBookings = jest.fn(() => Promise.resolve([]));
+        (booking_fn as any).saveBooking = jest.fn(() =>
+            Promise.resolve(new Booking()),
+        );
         (common_mod as any).notifySuccess = jest.fn();
         await spectator.service.bookDesk({
             desks: [new Desk(), new Desk(), new Desk()],

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, DestroyRef, inject, input } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -15,7 +15,6 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { addMinutes, format, isSameDay, isSameWeek } from 'date-fns';
-import { map } from 'rxjs/operators';
 
 import { OrganisationService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -33,7 +32,7 @@ import { ParkingService } from './parking.service';
                 @if (show_day()) {
                     <span day>{{ day() }},&nbsp;</span>
                 }
-                {{ booking()?.date | date: time_format }}
+                {{ booking()?.date | date: time_format() }}
                 <span class="px-2 text-xs"
                     >({{ booking()?.date | date: 'zzzz' }})</span
                 >
@@ -44,7 +43,9 @@ import { ParkingService } from './parking.service';
                 name="view-booking-details"
                 class="relative w-full cursor-pointer overflow-hidden"
                 [routerLink]="['./']"
-                [queryParams]="{ booking: booking()?.id }"
+                [queryParams]="{
+                    booking: booking()?.id,
+                }"
                 (click)="viewDetails()"
             >
                 <div
@@ -74,12 +75,18 @@ import { ParkingService } from './parking.service';
                             >
                                 <icon class="text-lg">person</icon>
                                 <span class="truncate">
-                                    {{ 'BOOKINGS.BOOKED_FOR' | translate: { name: booked_for_label() } }}
+                                    {{
+                                        'BOOKINGS.BOOKED_FOR'
+                                            | translate
+                                                : { name: booked_for_label() }
+                                    }}
                                 </span>
                             </div>
                         }
                         @if (booking().instance) {
-                            <icon class="text-2xl" [matTooltip]="recurr_tooltip"
+                            <icon
+                                class="text-2xl"
+                                [matTooltip]="recurr_tooltip()"
                                 >event_repeat</icon
                             >
                         }
@@ -208,17 +215,14 @@ export class BookingCardComponent {
         this.removeHtmlTags(this.booking()?.description),
     );
 
-    public readonly is_reserved_parking_space = toSignal(
-        this._parking.assigned_space.pipe(
-            map(
-                (space) =>
-                    this.booking()?.booking_type === 'parking' &&
-                    !!space &&
-                    this.booking()?.asset_id === space.id,
-            ),
-        ),
-        { initialValue: false },
-    );
+    public readonly is_reserved_parking_space = computed(() => {
+        const space = this._parking.assigned_space();
+        return (
+            this.booking()?.booking_type === 'parking' &&
+            !!space &&
+            this.booking()?.asset_id === space.id
+        );
+    });
 
     public readonly for_current_user = computed(
         () =>
@@ -256,9 +260,7 @@ export class BookingCardComponent {
         );
     });
 
-    public get time_format() {
-        return this._settings.time_format_signal();
-    }
+    public readonly time_format = this._settings.time_format_signal;
 
     public readonly status = computed(() => {
         const booking = this.booking();
@@ -275,15 +277,13 @@ export class BookingCardComponent {
         return 'warning';
     });
 
-    public get recurr_tooltip() {
-        return (
+    public readonly recurr_tooltip = computed(
+        () =>
             formatRecurrence(
                 fromBookingRecurrence(this.booking()),
                 this.booking()?.date,
-            ) ||
-            i18n('CALENDAR_EVENT.RECURRING_TOOLTIP')
-        );
-    }
+            ) || i18n('CALENDAR_EVENT.RECURRING_TOOLTIP'),
+    );
 
     public readonly type = computed(() => this.booking()?.type);
 
@@ -366,9 +366,9 @@ export class BookingCardComponent {
         })
             .replace(' hour', 'hr')
             .replace(' minute', 'min');
-        return `${format(start, this.time_format)} - ${format(
+        return `${format(start, this.time_format())} - ${format(
             end,
-            this.time_format,
+            this.time_format(),
         )} (${dur})`;
     });
 

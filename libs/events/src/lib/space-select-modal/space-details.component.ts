@@ -8,8 +8,7 @@ import {
     signal,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { Space } from '@placeos/common';
-import { ViewerFeature } from '@placeos/common';
+import { Space, ViewerFeature } from '@placeos/common';
 
 import { OrganisationService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';

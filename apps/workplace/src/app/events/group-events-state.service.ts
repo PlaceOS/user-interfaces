@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import {
     currentUser,
     OrganisationService,
@@ -8,16 +8,6 @@ import {
 import { queryEvents } from '@placeos/events';
 import { querySystemsWithEmails } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, from, of } from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    filter,
-    map,
-    shareReplay,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
 
 export interface GroupEventOptions {
     date: number;
@@ -36,52 +26,60 @@ export class GroupEventsStateService {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    private _options = new BehaviorSubject<GroupEventOptions>({
+    private _options = signal<GroupEventOptions>({
         date: Date.now(),
     });
-    private _filters = new BehaviorSubject<GroupEventFilters>({
+    private _filters = signal<GroupEventFilters>({
         categories: [],
         tags: [],
     });
-    private _tag_list = new BehaviorSubject<string[]>([]);
+    private _tag_list = signal<string[]>([]);
+    private _events = signal<any[]>([]);
 
     public get calendar() {
         return this._settings.get('app.group_events_calendar');
     }
 
-    public readonly filters = this._filters.asObservable();
-    public readonly tags = this._tag_list.asObservable();
+    public readonly filters = this._filters.asReadonly();
+    public readonly tags = this._tag_list.asReadonly();
+    public readonly events = this._events.asReadonly();
+    public readonly filtered_events = computed(() => {
+        const tag_list = this._filters().tags.map((_) => _.toLowerCase());
+        return this._events().filter((event) => {
+            const event_tags = (event.extension_data.tags || []).map((_) =>
+                _.toLowerCase(),
+            );
+            return (
+                tag_list.every((tag) => event_tags.includes(tag)) &&
+                event.date_end > Date.now()
+            );
+        });
+    });
+    public readonly options = this._options.asReadonly();
 
-    public readonly calendar_system = this._org.active_building.pipe(
-        debounceTime(100),
-        switchMap((bld) =>
-            !bld
-                ? of(null)
-                : from(querySystemsWithEmails({ in: this.calendar })).pipe(
-                      map((r) => r.data?.[0]),
-                      catchError(() => of(null)),
-                  ),
-        ),
-        shareReplay(1),
-    );
-
-    public readonly events = combineLatest([
-        this._org.active_building,
-        this.calendar_system,
-        this._options,
-    ]).pipe(
-        filter(([building, sys]) => !!building && !!sys),
-        switchMap(([building, sys, options]) =>
-            queryEvents({
+    constructor() {
+        effect(async () => {
+            const building = this._org.active_building();
+            const options = this._options();
+            if (!building) {
+                this._events.set([]);
+                return;
+            }
+            const sys = await querySystemsWithEmails({ in: this.calendar })
+                .then((r) => r.data?.[0])
+                .catch(() => null);
+            if (!sys) {
+                this._events.set([]);
+                return;
+            }
+            const list = await queryEvents({
                 period_start: getUnixTime(startOfDay(options.date)),
                 period_end: getUnixTime(
                     endOfDay(options.end || options.date || Date.now()),
                 ),
                 system_ids: sys.id,
-            }),
-        ),
-        map((list) =>
-            list
+            }).catch(() => []);
+            const events = list
                 .filter(
                     (_) =>
                         (_.permission !== 'private' ||
@@ -90,44 +88,20 @@ export class GroupEventsStateService {
                             currentUser()?.email === _.mailbox) &&
                         _.extension_data.shared_event,
                 )
-                .sort((a, b) => a.date - b.date),
-        ),
-        tap((list) => {
-            const old_tags = this._tag_list.getValue();
-            const tags = list
+                .sort((a, b) => a.date - b.date);
+            this._events.set(events);
+            const tags = events
                 .map((event) => event.extension_data.tags || [])
                 .flat();
-            this._tag_list.next(unique([...old_tags, ...tags]));
-        }),
-        shareReplay(1),
-    );
-
-    public readonly filtered_events = combineLatest([
-        this.events,
-        this._filters,
-    ]).pipe(
-        map(([list, { tags }]) => {
-            const tag_list = tags.map((_) => _.toLowerCase());
-            return list.filter((event) => {
-                const event_tags = (event.extension_data.tags || []).map((_) =>
-                    _.toLowerCase(),
-                );
-                return (
-                    tag_list.every((tag) => event_tags.includes(tag)) &&
-                    event.date_end > Date.now()
-                );
-            });
-        }),
-        shareReplay(1),
-    );
-
-    public readonly options = this._options.asObservable();
+            this._tag_list.set(unique([...this._tag_list(), ...tags]));
+        });
+    }
 
     public setOptions(options: Partial<GroupEventOptions>) {
-        this._options.next({ ...this._options.value, ...options });
+        this._options.update((old_options) => ({ ...old_options, ...options }));
     }
 
     public setFilters(filters: Partial<GroupEventFilters>) {
-        this._filters.next({ ...this._filters.value, ...filters });
+        this._filters.update((old_filters) => ({ ...old_filters, ...filters }));
     }
 }

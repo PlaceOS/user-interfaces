@@ -6,9 +6,8 @@
 ## Setup
 
 1. Install [NodeJS](https://nodejs.org/en/download/current/)
-1. Run `npm install` in the root folder
-1. Run `npm install --global nx` to install [NX](https://github.com/nrwl/nx)
-1. Run `npm install --global @angular/cli` to install [Angular CLI](https://github.com/angular/angular-cli)
+1. Install [Bun](https://bun.sh/)
+1. Run `bun install` in the root folder
 
 ## Development
 
@@ -42,23 +41,23 @@ Mobile commands are exposed as Nx targets on each supported app:
 
 ```bash
 # Build the Angular app with its mobile configuration
-npx nx build workplace --configuration=mobile
+bunx nx build workplace --configuration=mobile
 
 # Generate/update the native project and copy web assets
-npx nx run workplace:mobile:sync:ios
-npx nx run workplace:mobile:sync:android
+bunx nx run workplace:mobile:sync:ios
+bunx nx run workplace:mobile:sync:android
 
 # Open the generated native project in Xcode or Android Studio
-npx nx run workplace:mobile:open:ios
-npx nx run workplace:mobile:open:android
+bunx nx run workplace:mobile:open:ios
+bunx nx run workplace:mobile:open:android
 
 # Build native debug artifacts
-npx nx run workplace:mobile:build:ios
-npx nx run workplace:mobile:build:android
+bunx nx run workplace:mobile:build:ios
+bunx nx run workplace:mobile:build:android
 
 # Build, install and launch on a booted simulator or emulator
-npx nx run workplace:mobile:run:ios
-npx nx run workplace:mobile:run:android
+bunx nx run workplace:mobile:run:ios
+bunx nx run workplace:mobile:run:android
 ```
 
 Replace `workplace` with another supported app name when needed. The `mobile:*` targets always run the mobile Angular build before syncing native assets.
@@ -67,10 +66,10 @@ Generated native projects and artifacts are written to `.capacitor/<app>/`. Buil
 
 ### Mobile prerequisites
 
-- Install dependencies with `npm install` before running mobile targets.
+- Install dependencies with `bun install` before running mobile targets.
 - iOS sync/open/build/run requires macOS and Xcode. `mobile:run:ios` also requires a booted iOS Simulator.
 - Android build/run requires a Java runtime, Android Studio/SDK and an emulator or connected device. `mobile:run:android` uses `adb` to launch the app.
-- If `nx` is not installed globally, use `npx nx ...` as shown above.
+- Use `bunx nx ...` as shown above when running mobile targets directly.
 
 ### What the mobile helper does
 
@@ -124,7 +123,7 @@ A list of application settings (configurable via Zone.metadata) is available at 
 ## Upgrade
 
 `nx migrate latest`
-`npm install`
+`bun install`
 `nx migrate --run-migrations`
 
 ## Generate Changelog

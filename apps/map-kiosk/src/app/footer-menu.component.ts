@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import { IconComponent } from '@placeos/components';
@@ -35,6 +35,7 @@ import { IconComponent } from '@placeos/components';
             </a>
         </div>
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, RouterModule, IconComponent],
 })
 export class FooterMenuComponent {}

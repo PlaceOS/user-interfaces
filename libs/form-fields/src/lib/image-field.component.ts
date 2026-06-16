@@ -12,7 +12,6 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
-    nextValueFrom,
     notifyInfo,
     UPLOAD_PERMISSIONS_MODAL,
     UploadsService,
@@ -175,7 +174,7 @@ export class ImageFieldComponent
     }
 
     private async _updateUploadHistory(id: string) {
-        const global_list = await nextValueFrom(this._uploads.upload_list);
+        const global_list = this._uploads.upload_list();
         const file = global_list.find((_) => _.id === id);
         if (!file) return;
         this.progress.set(file.progress);

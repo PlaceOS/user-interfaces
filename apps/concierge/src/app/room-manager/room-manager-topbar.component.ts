@@ -1,5 +1,12 @@
-import { Component, OnInit, effect, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    effect,
+    inject,
+    signal,
+} from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -18,7 +25,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { combineLatest } from 'rxjs';
-import { first, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import {
@@ -86,6 +93,7 @@ import {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         IconComponent,
         TranslatePipe,
@@ -112,8 +120,8 @@ export class RoomManagerTopbarComponent extends AsyncHandler implements OnInit {
     /** List of levels for the active building */
     public readonly levels = toSignal(
         combineLatest([
-            this._org.active_building,
-            this._org.active_region,
+            toObservable(this._org.active_building),
+            toObservable(this._org.active_region),
         ]).pipe(
             map(([bld, region]) =>
                 this.use_region
@@ -177,7 +185,7 @@ export class RoomManagerTopbarComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await this._org.waitUntilInitialised();
         this._ready.set(true);
         this.setSearch('');
     }

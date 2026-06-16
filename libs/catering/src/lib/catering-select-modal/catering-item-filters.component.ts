@@ -1,16 +1,14 @@
 import { CommonModule } from '@angular/common';
 import {
     Component,
+    computed,
     inject,
     input,
     model,
     OnInit,
-    output,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -27,7 +25,6 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
-import { of } from 'rxjs';
 import { CateringOrderStateService } from '../catering-order-modal/catering-order-state.service';
 
 const ICONS = {
@@ -128,7 +125,7 @@ const ICONS = {
                 <settings-toggle
                     [name]="'CATERING.ORDERS_DELIVER_EXACT' | translate"
                     [ngModel]="at_time()"
-                    (ngModelChange)="at_timeChange.emit($event)"
+                    (ngModelChange)="at_time.set($event)"
                     [matTooltip]="exact_tooltip()"
                 ></settings-toggle>
                 @if (day_options().length > 1) {
@@ -141,7 +138,7 @@ const ICONS = {
                     >
                         <mat-select
                             [ngModel]="offset_day()"
-                            (ngModelChange)="offset_dayChange.emit($event)"
+                            (ngModelChange)="offset_day.set($event)"
                         >
                             @for (day of day_options(); track day) {
                                 <mat-option [value]="day.id">
@@ -154,13 +151,11 @@ const ICONS = {
                 <label>{{ 'CATERING.ORDERS_DELIVER_AFTER' | translate }}</label>
                 <a-duration-field
                     [ngModel]="offset()"
-                    (ngModelChange)="
-                        offsetChange.emit($event); offset.set($event)
-                    "
-                    [time]="offset_day() > 0 ? start_of_date : filters().date"
-                    [step]="step_interval"
-                    [min]="min_offset"
-                    [max]="max_offset"
+                    (ngModelChange)="offset.set($event)"
+                    [time]="offset_day() > 0 ? start_of_date() : filters().date"
+                    [step]="step_interval()"
+                    [min]="min_offset()"
+                    [max]="max_offset()"
                     [use_24hr]="use_24hr()"
                 ></a-duration-field>
             </div>
@@ -189,7 +184,6 @@ const ICONS = {
     imports: [
         CommonModule,
         TranslatePipe,
-        MatCheckboxModule,
         IconComponent,
         MatFormFieldModule,
         DurationFieldComponent,
@@ -209,42 +203,33 @@ export class CateringItemFiltersComponent
 
     public readonly search = input(false);
 
-    public readonly at_time = input(false);
-    public readonly at_timeChange = output<boolean>();
+    public readonly at_time = model(false);
     public readonly offset = model(0);
-    public readonly offsetChange = output<number>();
-    public readonly offset_day = input(0);
-    public readonly offset_dayChange = output<number>();
+    public readonly offset_day = model(0);
 
-    private _min_offset = 0;
-    private _max_offset = 60;
+    private readonly _min_offset = signal(0);
+    private readonly _max_offset = signal(60);
 
     public readonly icons = ICONS;
 
-    public readonly filters = toSignal(this._state.filters, {
-        initialValue: this._state.getFilters(),
-    });
+    public readonly filters = this._state.filters;
 
     public readonly setFilters = (f) => this._state.setFilters(f);
 
-    public readonly categories = toSignal(this._state.categories || of([]), {
-        initialValue: [],
-    });
-    public readonly caterers = toSignal(this._state.caterers || of([]), {
-        initialValue: [],
-    });
+    public readonly categories = this._state.categories;
+    public readonly caterers = this._state.caterers;
 
     public readonly exact_tooltip = signal('');
 
-    public get start_of_date() {
+    public readonly start_of_date = computed(() => {
         return startOfDay(
-            addDays(this._state.getFilters().date, this.offset_day()),
+            addDays(this.filters().date, this.offset_day()),
         ).valueOf();
-    }
+    });
 
-    public get min_offset() {
-        return this.offset_day() > 0 ? 0 : this._min_offset;
-    }
+    public readonly min_offset = computed(() =>
+        this.offset_day() > 0 ? 0 : this._min_offset(),
+    );
     private readonly _step_interval = this._settings.signal(
         'catering.step_interval',
         5,
@@ -262,23 +247,16 @@ export class CateringItemFiltersComponent
         0,
     );
 
-    public get step_interval() {
-        return this._step_interval();
-    }
+    public readonly step_interval = this._step_interval;
 
-    public get max_offset() {
+    public readonly max_offset = computed(() => {
         const end = Math.min(
-            endOfDay(
-                addDays(this._state.getFilters().date, this.offset_day()),
-            ).valueOf(),
-            addMinutes(
-                this._state.getFilters().date,
-                this._state.getFilters().duration,
-            ).valueOf(),
+            endOfDay(addDays(this.filters().date, this.offset_day())).valueOf(),
+            addMinutes(this.filters().date, this.filters().duration).valueOf(),
         );
-        const diff = differenceInMinutes(end, this._state.getFilters().date);
-        return Math.min(diff, Math.min(24 * 60 - 1, this._max_offset));
-    }
+        const diff = differenceInMinutes(end, this.filters().date);
+        return Math.min(diff, Math.min(24 * 60 - 1, this._max_offset()));
+    });
 
     public readonly use_24hr = this._use_24hr;
 
@@ -289,18 +267,13 @@ export class CateringItemFiltersComponent
     }
 
     public ngOnInit() {
-        this._min_offset = Math.max(this._min_offset_setting(), 0);
+        this._min_offset.set(Math.max(this._min_offset_setting(), 0));
         this.exact_tooltip.set(i18n('CATERING.ORDERS_DELIVER_EXACT_INFO'));
-        this.subscription(
-            'filters',
-            this._state.filters.subscribe(() => {
-                this._max_offset = Math.max(
-                    15,
-                    (this._state.getFilters().duration || 60) -
-                        this._end_offset(),
-                );
-                this._updateDayOptions();
-            }),
+        this._max_offset.set(
+            Math.max(
+                15,
+                (this._state.getFilters().duration || 60) - this._end_offset(),
+            ),
         );
         this._updateDayOptions();
     }

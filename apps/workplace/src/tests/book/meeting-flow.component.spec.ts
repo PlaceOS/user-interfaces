@@ -3,7 +3,6 @@ import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { mockComponent } from '@placeos/common/tests';
 import { EventFormService } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 import { BookMeetingFlowComponent } from '../../app/book/meeting-flow.component';
 import { MeetingFlowConfirmComponent } from '../../app/book/meeting-flow/meeting-flow-confirm.component';
 import { MeetingFlowFormComponent } from '../../app/book/meeting-flow/meeting-flow-form.component';
@@ -11,7 +10,7 @@ import { MeetingFlowSuccessComponent } from '../../app/book/meeting-flow/meeting
 
 describe('BookMeetingFlowComponent', () => {
     let spectator: SpectatorRouting<BookMeetingFlowComponent>;
-    const viewSubject = new BehaviorSubject('form');
+    const view = signal('form');
     const createComponent = createRoutingFactory({
         component: BookMeetingFlowComponent,
         providers: [
@@ -19,10 +18,10 @@ describe('BookMeetingFlowComponent', () => {
                 loadForm: jest.fn(),
                 newForm: jest.fn(),
                 setView: jest.fn(),
-                view$: viewSubject,
+                view,
                 listenForStatusChanges: jest.fn(),
                 last_success: signal(null),
-                available_spaces: new BehaviorSubject([]),
+                available_spaces: signal([]),
             } as any),
         ],
         declarations: [
@@ -36,7 +35,7 @@ describe('BookMeetingFlowComponent', () => {
         spectator = createComponent();
         const event_service: any = spectator.inject(EventFormService);
         event_service.setView.mockImplementation((_) => {
-            viewSubject.next(_);
+            view.set(_);
             spectator.detectChanges();
         });
         event_service.setView('form');

@@ -1,4 +1,9 @@
-import { Component, computed, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -152,6 +157,7 @@ export interface GroupSelectModalData {
             }
         </main>
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, MatDialogModule, IconComponent, TranslatePipe],
 })
 export class GroupSelectModalComponent {

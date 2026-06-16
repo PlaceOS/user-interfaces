@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { StaffUser } from '@placeos/common';
 import { searchStaff } from '@placeos/users';
-import { Observable, of } from 'rxjs';
+import { from, Observable, of } from 'rxjs';
 import { catchError, map, shareReplay } from 'rxjs/operators';
 
 const USER_LIST = {};
@@ -17,7 +17,7 @@ export class GetUserPipe implements PipeTransform {
     public transform(id: string): Observable<StaffUser> {
         if (!id) return of(null);
         if (!USER_LIST[id]) {
-            USER_LIST[id] = searchStaff(id).pipe(
+            USER_LIST[id] = from(searchStaff(id)).pipe(
                 map((_) => _[0] || new StaffUser({ id, name: id })),
                 catchError((_) => of(new StaffUser({ id, name: id }))),
                 shareReplay(1),

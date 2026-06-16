@@ -7,7 +7,6 @@ import {
     signal,
     untracked,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import {
     alignDateToBookableHours,
     AsyncHandler,
@@ -32,7 +31,6 @@ import {
     startOfDay,
     startOfMinute,
 } from 'date-fns';
-import { firstValueFrom } from 'rxjs';
 
 import { queryParkingSpacesForZones } from '@placeos/assets';
 import { OrganisationService } from '@placeos/common';
@@ -67,24 +65,12 @@ export class ExploreParkingService extends AsyncHandler {
     private _options = signal<ParkingOptions>({});
     private _poll = signal<number>(0);
 
-    private _building = toSignal(this._org.active_building, {
-        initialValue: null,
-    });
-    private _active_levels = toSignal(this._org.active_levels, {
-        initialValue: [],
-    });
-    private _parking_users = toSignal(this._parking.users, {
-        initialValue: [],
-    });
-    private _assigned_space = toSignal(this._parking.assigned_space, {
-        initialValue: null,
-    });
-    private _deny_parking_access = toSignal(this._parking.deny_parking_access, {
-        initialValue: false,
-    });
-    private _booked_space = toSignal(this._parking.booked_space, {
-        initialValue: null,
-    });
+    private _building = this._org.active_building;
+    private _active_levels = this._org.active_levels;
+    private _parking_users = this._parking.users;
+    private _assigned_space = this._parking.assigned_space;
+    private _deny_parking_access = this._parking.deny_parking_access;
+    private _booked_space = this._parking.booked_space;
 
     public readonly options = this._options.asReadonly();
     public on_book: (ParkingSpace) => Promise<void> = null;
@@ -120,21 +106,17 @@ export class ExploreParkingService extends AsyncHandler {
         loader: ({ params: { bld, is_public, date } }) =>
             is_public
                 ? Promise.resolve([])
-                : firstValueFrom(
-                      queryBookings({
-                          period_start: getUnixTime(
-                              startOfMinute(date || Date.now()),
-                          ),
-                          period_end: getUnixTime(
-                              endOfMinute(date || Date.now()),
-                          ),
-                          type: 'parking',
-                          zones: this._settings.get('app.use_region')
-                              ? bld?.parent_id
-                              : bld?.id,
-                          rejected: false,
-                      }),
-                  ).catch(() => []),
+                : queryBookings({
+                      period_start: getUnixTime(
+                          startOfMinute(date || Date.now()),
+                      ),
+                      period_end: getUnixTime(endOfMinute(date || Date.now())),
+                      type: 'parking',
+                      zones: this._settings.get('app.use_region')
+                          ? bld?.parent_id
+                          : bld?.id,
+                      rejected: false,
+                  }).catch(() => []),
     });
     /** List of current bookings for the current building */
     public readonly events = computed(() => this._events.value() ?? []);
@@ -146,14 +128,12 @@ export class ExploreParkingService extends AsyncHandler {
             user: this._options().user,
         }),
         loader: ({ params: { date, user } }) =>
-            firstValueFrom(
-                queryBookings({
-                    period_start: getUnixTime(startOfDay(date || Date.now())),
-                    period_end: getUnixTime(endOfDay(date || Date.now())),
-                    type: 'parking',
-                    email: user || currentUser()?.email,
-                }),
-            ).catch(() => []),
+            queryBookings({
+                period_start: getUnixTime(startOfDay(date || Date.now())),
+                period_end: getUnixTime(endOfDay(date || Date.now())),
+                type: 'parking',
+                email: user || currentUser()?.email,
+            }).catch(() => []),
     });
     /** Any event that the selected user has for the current date */
     public readonly user_events = computed(
@@ -167,9 +147,7 @@ export class ExploreParkingService extends AsyncHandler {
             return levels.length ? levels.map((l) => l.id) : undefined;
         },
         loader: ({ params: zones }) =>
-            firstValueFrom(queryParkingSpacesForZones(zones)).catch(
-                () => [] as ParkingSpace[],
-            ),
+            queryParkingSpacesForZones(zones).catch(() => [] as ParkingSpace[]),
     });
     /** List of parking spaces for the active building */
     public readonly spaces = computed<ParkingSpace[]>(
@@ -370,7 +348,8 @@ export class ExploreParkingService extends AsyncHandler {
                 if (bookable_hours) {
                     date = alignDateToBookableHours(date, bookable_hours);
                 }
-                this._bookings.form.patchValue({
+                this._bookings.model.update((m) => ({
+                    ...m,
                     resources: [space],
                     asset_id: space.id,
                     asset_name: space.name,
@@ -388,7 +367,7 @@ export class ExploreParkingService extends AsyncHandler {
                         zone?.parent_id,
                         zone?.id,
                     ],
-                });
+                }));
                 await this._bookings.confirmPost().catch((e) => {
                     if (e === 'User cancelled') throw e;
                     notifyError(

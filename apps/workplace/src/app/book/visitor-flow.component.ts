@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { InviteVisitorFormComponent } from '@placeos/bookings';
 
@@ -22,6 +22,7 @@ import { InviteVisitorFormComponent } from '@placeos/bookings';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [InviteVisitorFormComponent],
 })
 export class VisitorFlowComponent {

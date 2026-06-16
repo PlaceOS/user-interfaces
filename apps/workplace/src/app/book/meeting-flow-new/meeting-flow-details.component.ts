@@ -1,7 +1,6 @@
-import { AsyncPipe } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Component, computed, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -22,8 +21,6 @@ import {
     RecurrenceFieldComponent,
     TimeFieldComponent,
 } from '@placeos/form-fields';
-import { merge } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'meeting-flow-details',
@@ -42,7 +39,7 @@ import { map } from 'rxjs/operators';
                         }}
                     </div>
                 </div>
-                <div class="flex flex-col p-4" [formGroup]="form()">
+                <div class="flex flex-col p-4">
                     <label class="uppercase"
                         >{{ 'CALENDAR_EVENT.MEETING_TITLE_LABEL' | translate }}
                         <span required>*</span></label
@@ -50,7 +47,7 @@ import { map } from 'rxjs/operators';
                     <mat-form-field appearance="outline">
                         <input
                             matInput
-                            formControlName="title"
+                            [formField]="form.title"
                             [placeholder]="
                                 'CALENDAR_EVENT.TITLE_PLACEHOLDER' | translate
                             "
@@ -63,10 +60,10 @@ import { map } from 'rxjs/operators';
                             <label for="date" class="uppercase">{{
                                 'FORM.DATE' | translate
                             }}</label>
-                            <date-field name="date" formControlName="date" />
+                            <date-field [formField]="form.date" />
                             @if (allow_all_day()) {
                                 <mat-checkbox
-                                    formControlName="all_day"
+                                    [formField]="form.all_day"
                                     class="absolute -top-2 right-2"
                                 >
                                     {{ 'COMMON.ALL_DAY' | translate }}
@@ -81,7 +78,7 @@ import { map } from 'rxjs/operators';
                                 name="time"
                                 [ngModel]="form_value().date"
                                 (ngModelChange)="
-                                    form().patchValue({ date: $event })
+                                    model.update((m) => ({ ...m, date: $event }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [range]="bookable_hours()"
@@ -93,7 +90,6 @@ import { map } from 'rxjs/operators';
                                 'FORM.DURATION' | translate
                             }}</label>
                             <duration-field
-                                name="duration"
                                 [time]="form_value().date"
                                 [max]="max_duration()"
                                 [min]="min_duration()"
@@ -102,7 +98,7 @@ import { map } from 'rxjs/operators';
                                 [use_24hr]="use_24hr()"
                                 [end_time]="bookable_hours()?.end"
                                 [timezone]="timezone"
-                                formControlName="duration"
+                                [formField]="form.duration"
                                 [disabled]="form_value().all_day"
                             />
                         </div>
@@ -114,15 +110,14 @@ import { map } from 'rxjs/operators';
                                 }}<span>*</span>
                             </label>
                             <recurrence-field
-                                name="recurrence"
                                 type="event"
-                                [date]="form().getRawValue().date"
+                                [date]="model().date"
                                 [available_days]="available_days()"
                                 (first_instance)="onFirstInstanceChange($event)"
-                                formControlName="recurrence"
+                                [formField]="form.recurrence"
                             ></recurrence-field>
-                            @if (form().value.id) {
-                                <mat-checkbox formControlName="update_master">
+                            @if (model().id) {
+                                <mat-checkbox [formField]="form.update_master">
                                     {{ 'FORM.UPDATE_FUTURE' | translate }}
                                 </mat-checkbox>
                             }
@@ -138,7 +133,7 @@ import { map } from 'rxjs/operators';
                     </div>
                 </div>
                 <div class="-mx-1 flex flex-wrap p-4">
-                    @let capacity = (options | async)?.capacity || -1;
+                    @let capacity = options()?.capacity || -1;
                     <button
                         btn
                         matRipple
@@ -244,7 +239,6 @@ import { map } from 'rxjs/operators';
         `,
     ],
     imports: [
-        AsyncPipe,
         MatRippleModule,
         IconComponent,
         MatFormFieldModule,
@@ -254,7 +248,7 @@ import { map } from 'rxjs/operators';
         RecurrenceFieldComponent,
         TimeFieldComponent,
         FormsModule,
-        ReactiveFormsModule,
+        FormField,
         RouterModule,
         TranslatePipe,
         MatCheckboxModule,
@@ -267,23 +261,8 @@ export class MeetingFlowDetailsComponent {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
-    public readonly form = signal(this._event_form.form);
-    public readonly options = this._event_form.filters$;
-    public readonly form_value = toSignal(
-        merge(
-            this._event_form.form.valueChanges,
-            this._event_form.form.statusChanges,
-        ).pipe(map(() => this._event_form.form.getRawValue())),
-        {
-            initialValue: this._event_form.form.getRawValue(),
-        },
-    );
-    public readonly date_status = toSignal(
-        this._event_form.form.controls.date.statusChanges,
-        {
-            initialValue: this._event_form.form.controls.date.status,
-        },
-    );
+    public readonly options = this._event_form.filters;
+    public readonly form_value = this._event_form.model;
     public readonly allow_all_day = settingSignal(
         'events.allow_all_day',
         false,
@@ -309,6 +288,14 @@ export class MeetingFlowDetailsComponent {
         { start: number; end: number } | undefined
     >('events.bookable_hours', undefined);
 
+    public get form() {
+        return this._event_form.form;
+    }
+
+    public get model() {
+        return this._event_form.model;
+    }
+
     public get timezone() {
         return this._settings.get('app.events.use_building_timezone')
             ? this._org.building.timezone
@@ -317,10 +304,9 @@ export class MeetingFlowDetailsComponent {
     public readonly has_title = computed(
         () => !!this.form_value()?.title?.trim(),
     );
-    public readonly start_time_disabled = computed(() => {
-        this.date_status();
-        return this.form_value().all_day || this.form().controls.date.disabled;
-    });
+    public readonly start_time_disabled = computed(
+        () => this.form_value().all_day || this.form.date().disabled(),
+    );
     public readonly setCapacity = (capacity: number) => {
         this._event_form.setFilters({ capacity });
     };
@@ -331,7 +317,7 @@ export class MeetingFlowDetailsComponent {
     );
 
     public onFirstInstanceChange(date: number) {
-        this.form().patchValue({ date });
+        this.model.update((m) => ({ ...m, date }));
     }
 
     public searchRooms() {

@@ -34,8 +34,8 @@ describe('DesksTopbarComponent', () => {
                 rejectDesk: jest.fn(),
             } as any),
             MockProvider(OrganisationService, {
-                active_levels: of([]),
-                initialised: of(true),
+                active_levels: signal([]),
+                initialised: signal(true),
                 levelWithID: jest.fn(),
                 buildings: [],
             }),

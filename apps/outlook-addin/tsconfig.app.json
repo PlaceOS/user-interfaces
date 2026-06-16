@@ -13,6 +13,14 @@
         "files": true
     },
     "types": ["office-js"],
+    "angularCompilerOptions": {
+        "extendedDiagnostics": {
+            "checks": {
+                "nullishCoalescingNotNullable": "suppress",
+                "optionalChainNotNullable": "suppress"
+            }
+        }
+    },
     "files": ["src/main.ts"],
     "exclude": ["jest.config.ts"]
 }

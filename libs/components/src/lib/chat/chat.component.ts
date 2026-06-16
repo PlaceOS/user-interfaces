@@ -3,11 +3,11 @@ import {
     ElementRef,
     OnInit,
     computed,
+    effect,
     inject,
     signal,
     viewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -250,9 +250,9 @@ export class ChatComponent extends AsyncHandler implements OnInit {
         call_function: 'settings',
         task_complete: 'check_circle',
     };
-    public readonly hint = toSignal(this._chat.chat_hint);
-    public readonly messages = toSignal(this._chat.messages);
-    public readonly progress = toSignal(this._chat.progress);
+    public readonly hint = this._chat.chat_hint;
+    public readonly messages = this._chat.messages;
+    public readonly progress = this._chat.progress;
     public readonly waiting = computed(() => {
         const msgs = this.messages();
         return (
@@ -276,25 +276,28 @@ export class ChatComponent extends AsyncHandler implements OnInit {
             'current_user',
             current_user.subscribe((user) => this.user.set(user)),
         );
-        this.subscription(
-            'hint',
-            this._chat.chat_hint.subscribe(() => this.scrollToBottom(500)),
-        );
-        this.subscription(
-            'messages',
-            this._chat.messages.subscribe(() => this.scrollToBottom()),
-        );
-        this.subscription(
-            'progress',
-            this._chat.progress.subscribe((i) =>
-                i ? this.scrollToBottom() : this.show_info.set(false),
-            ),
-        );
         this.interval(
             'offset',
             () => this.offset.set(this.offset ? 0 : 1),
             20 * 1000,
         );
+    }
+
+    constructor() {
+        super();
+        effect(() => {
+            this._chat.chat_hint();
+            this.scrollToBottom(500);
+        });
+        effect(() => {
+            this._chat.messages();
+            this.scrollToBottom();
+        });
+        effect(() => {
+            const progress = this._chat.progress();
+            if (progress) this.scrollToBottom();
+            else this.show_info.set(false);
+        });
     }
 
     public resizeInput() {

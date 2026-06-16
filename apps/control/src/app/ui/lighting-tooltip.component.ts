@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
     BindingDirective,
@@ -58,6 +58,7 @@ import {
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [BindingDirective, TranslatePipe, MatRippleModule],
 })
 export class LightingTooltipComponent {

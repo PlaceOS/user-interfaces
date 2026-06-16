@@ -1,4 +1,9 @@
-import { Component, inject, input } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    input,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { AsyncHandler } from '@placeos/common';
 import {
@@ -51,6 +56,7 @@ import { ControlStateService } from '../control-state.service';
             </div>
         }
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [BindingDirective, MatRippleModule, AuthenticatedImageDirective],
 })
 export class TVControlsComponent extends AsyncHandler {

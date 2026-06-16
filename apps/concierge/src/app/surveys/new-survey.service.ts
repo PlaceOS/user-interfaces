@@ -1,4 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { flatten, notifySuccess, OrganisationService } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
@@ -56,7 +57,7 @@ export class NewSurveyService {
     public readonly survey_list = signal<Survey[]>([]);
     public readonly answer_list = signal<SurveyAnswer[]>([]);
     public readonly building_surveys = computed(() => {
-        const bld_id = this._org.building_signal().id;
+        const bld_id = this._org.active_building().id;
         return this.survey_list().filter(
             (survey) => survey.building_id === bld_id,
         );
@@ -69,7 +70,7 @@ export class NewSurveyService {
     });
 
     public readonly survey_list$ = combineLatest([
-        this._org.building_list,
+        toObservable(this._org.building_list),
         this._change,
     ]).pipe(
         tap(() => this._loading.next(true)),

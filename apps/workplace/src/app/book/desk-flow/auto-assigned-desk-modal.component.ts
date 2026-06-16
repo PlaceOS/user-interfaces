@@ -7,7 +7,6 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -21,9 +20,7 @@ import {
     AsyncHandler,
     currentUser,
     Desk,
-    firstTruthyValueFrom,
     i18n,
-    nextValueFrom,
     notifyError,
     OrganisationService,
     SettingsService,
@@ -258,31 +255,30 @@ export class AutoAssignedDeskModalComponent
 
             // Initialize booking state for desk
             this._state.setOptions({ type: 'desk' });
-            this._state.form.patchValue({ booking_type: 'desk' });
+            this._state.model.update((m) => ({ ...m, booking_type: 'desk' }));
 
             // Set default values
-            const form = this._state.form;
             const now = Date.now();
+            const current_date = this._state.model().date;
             const booking_date =
                 this.date() ||
-                (isBefore(form.value.date || 0, now)
+                (isBefore(current_date || 0, now)
                     ? startOfMinute(now).valueOf()
-                    : form.value.date);
+                    : current_date);
             const booking_duration =
                 this.duration() ||
                 this._settings.get('app.desks.default_duration') ||
                 60;
 
-            form.patchValue({
+            this._state.model.update((m) => ({
+                ...m,
                 date: booking_date,
                 duration: booking_duration,
                 all_day: true,
-            });
+            }));
 
             // Get available resources (desks)
-            let available_desks = await firstTruthyValueFrom(
-                this._state.available_resources,
-            );
+            let available_desks = await this._state.listAvailableResources();
 
             if (!available_desks?.length) {
                 notifyError(i18n('BOOKINGS.DESK_AUTO_ASSIGN_EMPTY'));
@@ -308,9 +304,7 @@ export class AutoAssignedDeskModalComponent
                 }
 
                 // Try to find the level by looking at nearby desk in all resources
-                const all_resources = await firstTruthyValueFrom(
-                    this._state.resources,
-                );
+                const all_resources = await this._state.listResources();
                 const nearby_resource = all_resources.find(
                     (r) =>
                         r.id === nearby_desk_id || r.map_id === nearby_desk_id,
@@ -397,10 +391,11 @@ export class AutoAssignedDeskModalComponent
                 assigned_desk = level_with_most_desks[1][0];
             }
 
-            form.patchValue({
+            this._state.model.update((m) => ({
+                ...m,
                 asset_id: assigned_desk.id,
                 resources: [assigned_desk],
-            });
+            }));
 
             this.assigned_desk.set(assigned_desk);
 
@@ -440,9 +435,7 @@ export class AutoAssignedDeskModalComponent
         return level?.display_name || level?.name || 'N/A';
     });
 
-    public readonly desks = toSignal(this._state.resources, {
-        initialValue: [],
-    });
+    public readonly desks = this._state.resources;
 
     // Map features (desk pin for the assigned desk)
     public readonly styles = computed(() => {
@@ -479,13 +472,14 @@ export class AutoAssignedDeskModalComponent
     public readonly confirm = async () => {
         this.loading.set('booking');
         this._state.setOptions({ type: 'desk' });
-        this._state.form.patchValue({ booking_type: 'desk' });
-        this._state.form.patchValue({
+        this._state.model.update((m) => ({
+            ...m,
+            booking_type: 'desk',
             asset_id: this.assigned_desk().id,
             resources: [this.assigned_desk()],
-        });
+        }));
         try {
-            if ((await nextValueFrom(this._state.options))?.group) {
+            if (this._state.options()?.group) {
                 await this._state.postFormForGroup();
             } else {
                 await this._state.postForm();

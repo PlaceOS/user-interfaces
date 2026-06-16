@@ -1,5 +1,12 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -112,6 +119,7 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         ReportsOptionsComponent,
         ReportMetricGuideComponent,
@@ -144,7 +152,7 @@ export class VisitorsReportComponent extends AsyncHandler implements OnInit {
     public readonly generateReport = () => this._state.generateReport();
 
     public readonly logo = toSignal(
-        this._org.active_building.pipe(
+        toObservable(this._org.active_building).pipe(
             debounceTime(500),
             map(
                 () =>

@@ -1,6 +1,12 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { Router } from '@angular/router';
 import {
@@ -11,10 +17,7 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import {
-    SanitizePipe,
-    TranslatePipe,
-} from '@placeos/components';
+import { SanitizePipe, TranslatePipe } from '@placeos/components';
 import { UserLabelComponent } from '@placeos/users';
 import { roundToNearestMinutes, startOfMinute } from 'date-fns';
 import { combineLatest, firstValueFrom, of } from 'rxjs';
@@ -82,7 +85,8 @@ const DEFAULT_TEMPLATE = `
                                 host: ev?.user_name || ev.user_email,
                                 zones: ev?.zones,
                                 date: ev?.date || date(),
-                                extra_details: ev?.extension_data?.extra_details,
+                                extra_details:
+                                    ev?.extension_data?.extra_details,
                                 pass_number: ev?.extension_data?.pass_number,
                                 qr_code: qr_code(),
                             })
@@ -103,6 +107,7 @@ const DEFAULT_TEMPLATE = `
         `,
     ],
     providers: [DatePipe],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatRippleModule,
@@ -136,9 +141,10 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
     });
 
     public readonly level = toSignal(
-        combineLatest([this._checkin.event, this._org.initialised]).pipe(
-            map(([_]) => (_ ? this._org.levelWithID(_.zones) : null)),
-        ),
+        combineLatest([
+            this._checkin.event,
+            toObservable(this._org.initialised),
+        ]).pipe(map(([_]) => (_ ? this._org.levelWithID(_.zones) : null))),
         { initialValue: null },
     );
 

@@ -5,8 +5,8 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
+import { signal } from '@angular/core';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
 import { DayviewTopbarComponent } from '../../app/day-view/dayview-topbar.component';
@@ -19,8 +19,8 @@ describe('DayviewTopbarComponent', () => {
         component: DayviewTopbarComponent,
         providers: [
             MockProvider(OrganisationService, {
-                initialised: of(true),
-                active_levels: new BehaviorSubject([]),
+                initialised: signal(true),
+                active_levels: signal([]),
                 levelWithID: jest.fn(),
             }),
             MockProvider(EventsStateService, {

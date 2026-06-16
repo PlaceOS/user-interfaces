@@ -6,7 +6,6 @@ import {
     model,
     output,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 
 import {
     MapElementBounds,
@@ -98,7 +97,7 @@ export class InteractiveMapComponent {
     public focus = input('');
     public mapInfo = output<Record<string, MapElementBounds>>();
 
-    public readonly use_mapsindoors = toSignal(this._mapspeople.available$);
+    public readonly use_mapsindoors = this._mapspeople.available;
 
     public readonly metadata = computed<MapMetadata>(() => ({
         actions: this.actions() || [],

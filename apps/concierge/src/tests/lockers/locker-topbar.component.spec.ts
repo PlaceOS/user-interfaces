@@ -4,6 +4,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { OrganisationService, SettingsService } from '@placeos/common';
+import { signal } from '@angular/core';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
@@ -32,9 +33,9 @@ describe('LockersTopbarComponent', () => {
                 releaseAllLockers: jest.fn(),
             } as any),
             MockProvider(OrganisationService, {
-                initialised: of(true),
-                active_region: of(null),
-                active_building: of({ id: 'bld-1', timezone: 'UTC' }),
+                initialised: signal(true),
+                active_region: signal(null),
+                active_building: signal({ id: 'bld-1', timezone: 'UTC' }),
                 levelWithID: jest.fn(),
                 buildings: [],
                 building: { id: 'bld-1', timezone: 'UTC' },

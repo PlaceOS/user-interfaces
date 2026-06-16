@@ -13,9 +13,15 @@ import {
 } from '../lib/custom-tooltip.component';
 import { SanitizePipe } from '../lib/sanitise.pipe';
 
-@Component({ selector: 'fake', template: 'Fake Component' })
+@Component({
+    selector: 'fake',
+    template: 'Fake Component',
+})
 export class FakeComponent {}
-@Component({ selector: 'fake-data', template: '<span>{{ data }}<span>' })
+@Component({
+    selector: 'fake-data',
+    template: '<span>{{ data }}<span>',
+})
 export class FakeDataComponent {
     private _data = inject(CustomTooltipData);
 

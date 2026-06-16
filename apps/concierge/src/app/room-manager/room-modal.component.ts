@@ -1,5 +1,12 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import {
@@ -86,7 +93,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                                         | translate
                                 "
                             >
-                                @for (level of levels | async; track level) {
+                                @for (level of levels(); track level) {
                                     <mat-option [value]="level.id">
                                         {{ level.display_name || level.name }}
                                     </mat-option>
@@ -463,6 +470,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,

@@ -8,8 +8,6 @@ import {
 } from '@placeos/common';
 import { del, get, patch, post, put, query } from '@placeos/ts-client';
 import { addMinutes, getUnixTime } from 'date-fns';
-import { combineLatest, from, Observable, of } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
 
 import { queryCalendarAvailability, querySpaceFreeBusy } from './calendar.fn';
 import { EventExtensionData } from './event.interfaces';
@@ -98,51 +96,52 @@ function withAppVersion<T extends { extension_data?: Record<string, any> }>(
  * List events
  * @param q Parameters to pass to the API request
  */
-export function queryEvents(
+export async function queryEvents(
     q: CalendarEventQueryParams,
-): Observable<CalendarEvent[]> {
+): Promise<CalendarEvent[]> {
     const query = toQueryString(q);
-    return from(get(`${EVENTS_ENDPOINT}${query ? '?' + query : ''}`)).pipe(
-        map((list) => list.map((e) => new CalendarEvent(e))),
-        catchError((_) => of([])),
-    );
+    try {
+        const list = await get(`${EVENTS_ENDPOINT}${query ? '?' + query : ''}`);
+        return list.map((e) => new CalendarEvent(e));
+    } catch (_) {
+        return [];
+    }
 }
 
-export function queryEventHistory(
+export async function queryEventHistory(
     q: CalendarEventHistoryQueryParams,
-): Observable<CalendarEventChange[]> {
+): Promise<CalendarEventChange[]> {
     const query = toQueryString(q);
-    return from(
-        get(`${EVENTS_ENDPOINT}/history${query ? '?' + query : ''}`),
-    ).pipe(
-        map((list) => list as CalendarEventChange[]),
-        catchError((_) => of([] as CalendarEventChange[])),
-    );
+    try {
+        return (await get(
+            `${EVENTS_ENDPOINT}/history${query ? '?' + query : ''}`,
+        )) as CalendarEventChange[];
+    } catch (_) {
+        return [];
+    }
 }
 
-export function queryAllEvents(
+export async function queryAllEvents(
     q: CalendarEventQueryParams,
-): Observable<CalendarEvent[]> {
-    return from(
-        query<CalendarEvent>({
+): Promise<CalendarEvent[]> {
+    try {
+        let { data, next } = await query<CalendarEvent>({
             query_params: q,
             fn: (item) => new CalendarEvent(item),
             endpoint: EVENTS_ENDPOINT,
             path: '',
-        }),
-    ).pipe(
-        switchMap(async ({ data, next }) => {
-            let list = [...data];
-            while (next) {
-                const resp = await next();
-                data = resp.data;
-                next = resp.next;
-                list = [...list, ...data];
-            }
-            return list;
-        }),
-        catchError((_) => of([])),
-    );
+        });
+        let list = [...data];
+        while (next) {
+            const resp = await next();
+            data = resp.data;
+            next = resp.next;
+            list = [...list, ...data];
+        }
+        return list;
+    } catch (_) {
+        return [];
+    }
 }
 
 /**
@@ -150,28 +149,31 @@ export function queryAllEvents(
  * @param id ID of the event to grab
  * @param q Parameters to pass to the API request
  */
-export function showEvent(id: string, q: CalendarEventShowParams = {}) {
+export async function showEvent(
+    id: string,
+    q: CalendarEventShowParams = {},
+): Promise<CalendarEvent> {
     const query = toQueryString(q);
-    return from(
-        get(
-            `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${
-                query ? '?' + query : ''
-            }`,
-        ),
-    ).pipe(map((item) => new CalendarEvent(item)));
+    const item = await get(
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${
+            query ? '?' + query : ''
+        }`,
+    );
+    return new CalendarEvent(item);
 }
 
 /**
  * Create new calendar event and add it to the database
  * @param data New calendar event fields
  */
-export function createEvent(data: Partial<CalendarEvent>) {
-    return from(
-        post(
-            `${EVENTS_ENDPOINT}`,
-            new CalendarEvent(withAppVersion(data)).toJSON(),
-        ),
-    ).pipe(map((item) => new CalendarEvent(item)));
+export async function createEvent(
+    data: Partial<CalendarEvent>,
+): Promise<CalendarEvent> {
+    const item = await post(
+        `${EVENTS_ENDPOINT}`,
+        new CalendarEvent(withAppVersion(data)).toJSON(),
+    );
+    return new CalendarEvent(item);
 }
 
 /**
@@ -181,21 +183,20 @@ export function createEvent(data: Partial<CalendarEvent>) {
  * @param q Parameters to pass to the API request
  * @param method HTTP verb to use with API request
  */
-export function updateEvent(
+export async function updateEvent(
     id: string,
     data: Partial<CalendarEvent>,
     q: CalendarEventShowParams = {},
     method: 'put' | 'patch' = 'patch',
-) {
+): Promise<CalendarEvent> {
     const query = toQueryString(q);
-    return from(
-        (method === 'patch' ? patch : put)(
-            `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${
-                query ? '?' + query : ''
-            }`,
-            new CalendarEvent(withAppVersion(data)).toJSON(),
-        ),
-    ).pipe(map((item) => new CalendarEvent(item)));
+    const item = await (method === 'patch' ? patch : put)(
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${
+            query ? '?' + query : ''
+        }`,
+        new CalendarEvent(withAppVersion(data)).toJSON(),
+    );
+    return new CalendarEvent(item);
 }
 
 /**
@@ -203,10 +204,10 @@ export function updateEvent(
  * @param data State of the calendar event
  * @param q Parameters to pass to the API request
  */
-export const saveEvent = (
+export const saveEvent = async (
     data: Partial<CalendarEvent>,
     q?: CalendarEventShowParams,
-) => {
+): Promise<CalendarEvent> => {
     const id = data.update_master
         ? data.recurring_event_id || data.id
         : data.id;
@@ -219,17 +220,18 @@ export const saveEvent = (
  * @param id ID of the event to remove
  * @param q Parameters to pass to the API request
  */
-export function removeEvent(id: string, q: CalendarEventShowParams = {}) {
+export function removeEvent(
+    id: string,
+    q: CalendarEventShowParams = {},
+): Promise<void> {
     const query = toQueryString(q);
-    return from(
-        del(
-            `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${
-                query ? '?' + query : ''
-            }`,
-            {
-                response_type: 'void',
-            },
-        ),
+    return del(
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${
+            query ? '?' + query : ''
+        }`,
+        {
+            response_type: 'void',
+        },
     );
 }
 
@@ -238,15 +240,17 @@ export function removeEvent(id: string, q: CalendarEventShowParams = {}) {
  * @param id ID of the event to approve
  * @param system_id Associated system to approve
  */
-export function approveEvent(id: string, system_id: string) {
-    return from(
-        post(
-            `${EVENTS_ENDPOINT}/${encodeURIComponent(
-                id,
-            )}/approve?system_id=${encodeURIComponent(system_id)}`,
-            '',
-        ),
-    ).pipe(map((item) => new CalendarEvent(item)));
+export async function approveEvent(
+    id: string,
+    system_id: string,
+): Promise<CalendarEvent> {
+    const item = await post(
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(
+            id,
+        )}/approve?system_id=${encodeURIComponent(system_id)}`,
+        '',
+    );
+    return new CalendarEvent(item);
 }
 
 /**
@@ -254,15 +258,17 @@ export function approveEvent(id: string, system_id: string) {
  * @param id ID of the event to reject
  * @param system_id Associated system to reject
  */
-export function rejectEvent(id: string, system_id: string) {
-    return from(
-        post(
-            `${EVENTS_ENDPOINT}/${encodeURIComponent(
-                id,
-            )}/reject?system_id=${encodeURIComponent(system_id)}`,
-            '',
-        ),
-    ).pipe(map((item) => new CalendarEvent(item)));
+export async function rejectEvent(
+    id: string,
+    system_id: string,
+): Promise<CalendarEvent> {
+    const item = await post(
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(
+            id,
+        )}/reject?system_id=${encodeURIComponent(system_id)}`,
+        '',
+    );
+    return new CalendarEvent(item);
 }
 
 /**
@@ -270,16 +276,18 @@ export function rejectEvent(id: string, system_id: string) {
  * @param id ID of the event to decline
  * @returns
  */
-export function declineEvent(id: string, query: CalendarEventShowParams = {}) {
+export async function declineEvent(
+    id: string,
+    query: CalendarEventShowParams = {},
+): Promise<CalendarEvent> {
     const q = toQueryString(query);
-    return from(
-        post(
-            `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/decline${
-                q ? '?' + q : ''
-            }`,
-            '',
-        ),
-    ).pipe(map((item) => new CalendarEvent(item)));
+    const item = await post(
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/decline${
+            q ? '?' + q : ''
+        }`,
+        '',
+    );
+    return new CalendarEvent(item);
 }
 
 /**
@@ -287,18 +295,17 @@ export function declineEvent(id: string, query: CalendarEventShowParams = {}) {
  * @param id ID of the event to grab
  * @param q Parameters to pass to the API request
  */
-export function queryEventGuests(
+export async function queryEventGuests(
     id: string,
     q: CalendarEventShowParams = {},
-): Observable<GuestUser[]> {
+): Promise<GuestUser[]> {
     const query = toQueryString(q);
-    return from(
-        get(
-            `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/guests${
-                query ? '?' + query : ''
-            }`,
-        ),
-    ).pipe(map((list) => list.map((item) => new GuestUser(item))));
+    const list = await get(
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/guests${
+            query ? '?' + query : ''
+        }`,
+    );
+    return list.map((item) => new GuestUser(item));
 }
 
 /**
@@ -308,21 +315,20 @@ export function queryEventGuests(
  * @param state New checkin state of the guest
  * @param q Parameters to pass to the API request
  */
-export function checkinEventGuest(
+export async function checkinEventGuest(
     id: string,
     guest_id: string,
     state: boolean,
     q: CalendarEventShowParams = {},
-) {
+): Promise<GuestUser> {
     const query = toQueryString({ ...q, state });
-    return from(
-        post(
-            `${EVENTS_ENDPOINT}/${encodeURIComponent(
-                id,
-            )}/guests/${guest_id}/checkin${query ? '?' + query : ''}`,
-            '',
-        ),
-    ).pipe(map((item) => new GuestUser(item)));
+    const item = await post(
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(
+            id,
+        )}/guests/${guest_id}/checkin${query ? '?' + query : ''}`,
+        '',
+    );
+    return new GuestUser(item);
 }
 
 /**
@@ -330,18 +336,17 @@ export function checkinEventGuest(
  * @param id ID of the booking
  * @param guest Guest to add to the booking
  */
-export function addEventGuest(
+export async function addEventGuest(
     id: string,
     guest: GuestUser,
     q: CalendarEventShowParams = {},
-) {
+): Promise<GuestUser> {
     const query = toQueryString(q);
-    return from(
-        post(
-            `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/attendee${query ? '?' + query : ''}`,
-            guest,
-        ),
-    ).pipe(map((item) => new GuestUser(item)));
+    const item = await post(
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/attendee${query ? '?' + query : ''}`,
+        guest,
+    );
+    return new GuestUser(item);
 }
 
 /**
@@ -349,19 +354,18 @@ export function addEventGuest(
  * @param id ID of the booking
  * @param guest Guest to remove from the booking
  */
-export function removeEventGuest(
+export async function removeEventGuest(
     id: string,
     guest: GuestUser,
     q: CalendarEventShowParams = {},
-) {
+): Promise<GuestUser> {
     const query = toQueryString(q);
-    return from(
-        del(
-            `${EVENTS_ENDPOINT}/${encodeURIComponent(
-                id,
-            )}/attendee/${encodeURIComponent(guest.email)}${query ? '?' + query : ''}`,
-        ),
-    ).pipe(map((item) => new GuestUser(item)));
+    const item = await del(
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(
+            id,
+        )}/attendee/${encodeURIComponent(guest.email)}${query ? '?' + query : ''}`,
+    );
+    return new GuestUser(item);
 }
 
 /**
@@ -370,19 +374,17 @@ export function removeEventGuest(
  * @param system_id  ID of the system associated with the event
  * @param query Extra query parameters to pass to the API request
  */
-export function getEventMetadata(
+export async function getEventMetadata(
     id: string,
     system_id: string,
     query: { ical_uid?: string } = {},
-) {
+): Promise<EventExtensionData> {
     const q = toQueryString({ ...query });
-    return from(
-        get(
-            `${EVENTS_ENDPOINT}/${encodeURIComponent(
-                id,
-            )}/metadata/${encodeURIComponent(system_id)}${q ? '?' + q : ''}`,
-        ),
-    ).pipe(map((item) => item as EventExtensionData));
+    return (await get(
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(
+            id,
+        )}/metadata/${encodeURIComponent(system_id)}${q ? '?' + q : ''}`,
+    )) as EventExtensionData;
 }
 
 /**
@@ -391,19 +393,17 @@ export function getEventMetadata(
  * @param system_id ID of the system associated with the event
  * @param query Extra query parameters to pass to the API request
  */
-export function showEventMetadata(
+export async function showEventMetadata(
     id: string,
     system_id: string,
     query: { ical_uid?: string } = {},
-) {
+): Promise<EventExtensionData> {
     const q = toQueryString({ ...query });
-    return from(
-        get(
-            `${EVENTS_ENDPOINT}/${encodeURIComponent(
-                id,
-            )}/metadata/${encodeURIComponent(system_id)}${q ? '?' + q : ''}`,
-        ),
-    ).pipe(map((item) => item as EventExtensionData));
+    return (await get(
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(
+            id,
+        )}/metadata/${encodeURIComponent(system_id)}${q ? '?' + q : ''}`,
+    )) as EventExtensionData;
 }
 
 /**
@@ -413,21 +413,19 @@ export function showEventMetadata(
  * @param metadata New metadata value to merge to exisiting
  * @param query Extra query parameters to pass to the API request
  */
-export function updateEventMetadata(
+export async function updateEventMetadata(
     id: string,
     system_id: string,
     metadata: Partial<EventExtensionData>,
     query: { ical_uid?: string } = {},
-) {
+): Promise<EventExtensionData> {
     const q = toQueryString({ ...query });
-    return from(
-        patch(
-            `${EVENTS_ENDPOINT}/${encodeURIComponent(
-                id,
-            )}/metadata/${encodeURIComponent(system_id)}${q ? '?' + q : ''}`,
-            metadata,
-        ),
-    ).pipe(map((item) => item as EventExtensionData));
+    return (await patch(
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(
+            id,
+        )}/metadata/${encodeURIComponent(system_id)}${q ? '?' + q : ''}`,
+        metadata,
+    )) as EventExtensionData;
 }
 
 /**
@@ -437,17 +435,18 @@ export function updateEventMetadata(
  * @param duration Duration of the availability block in minutes
  * @param ignore ID of a booking to ignore when checking availability
  */
-export function isSpaceAvailable(
+export async function isSpaceAvailable(
     id: string,
     start: number,
     duration: number,
     ignore?: string,
-) {
-    return queryEvents({
+): Promise<boolean> {
+    const events = await queryEvents({
         system_ids: id,
         period_start: getUnixTime(start),
         period_end: getUnixTime(addMinutes(start, duration)),
-    }).pipe(map((_) => _.filter((_) => _.id !== ignore).length === 0));
+    });
+    return events.filter((_) => _.id !== ignore).length === 0;
 }
 
 /**
@@ -457,52 +456,47 @@ export function isSpaceAvailable(
  * @param duration Duration of the availability block in minutes
  * @param ignore ID of a booking to ignore when checking availability
  */
-export function querySpaceAvailability(
+export async function querySpaceAvailability(
     id_list: string[],
     start: number,
     duration: number,
     ignore?: string,
     type?: any,
     ignore_period: [number, number] = [0, 0],
-) {
+): Promise<boolean[]> {
     const end = addMinutes(start, duration).valueOf();
-    return combineLatest([
+    const [spaces, ignore_check] = await Promise.all([
         queryCalendarAvailability({
             system_ids: id_list.join(),
             period_start: getUnixTime(start),
             period_end: getUnixTime(end),
-        }).pipe(catchError((_) => of([]))),
+        }).catch(() => []),
         ignore && id_list.includes(ignore)
             ? querySpaceFreeBusy({
                   period_start: getUnixTime(start),
                   period_end: getUnixTime(end),
                   system_ids: ignore,
               })
-            : of([]),
-    ]).pipe(
-        map(([spaces, ignore_check]) => {
-            const short_list = id_list.map(
-                (id) =>
-                    !!spaces.find(
-                        (s) => s.id === id || (s as any).resource?.id === id,
-                    ),
-            );
-            for (const space of ignore_check) {
-                if (!id_list.includes(space.id)) continue;
-                const availability = space.availability.filter(
-                    (i) =>
-                        !(
-                            i.date === ignore_period[0] &&
-                            i.duration === ignore_period[1]
-                        ),
-                );
-                short_list[id_list.indexOf(space.id)] = !availability.find(
-                    (i) => i.status !== 'free',
-                );
-            }
-            return short_list;
-        }),
+            : Promise.resolve([]),
+    ]);
+    const short_list = id_list.map(
+        (id) =>
+            !!spaces.find((s) => s.id === id || (s as any).resource?.id === id),
     );
+    for (const space of ignore_check) {
+        if (!id_list.includes(space.id)) continue;
+        const availability = space.availability.filter(
+            (i) =>
+                !(
+                    i.date === ignore_period[0] &&
+                    i.duration === ignore_period[1]
+                ),
+        );
+        short_list[id_list.indexOf(space.id)] = !availability.find(
+            (i) => i.status !== 'free',
+        );
+    }
+    return short_list;
 }
 
 export interface EventClashQueryOptions {
@@ -516,22 +510,20 @@ export interface EventClashQueryOptions {
  * List resources that clash within the given parameters
  * @param q Parameters to pass to the API request
  */
-export function findEventClashes(
+export async function findEventClashes(
     event: CalendarEvent,
     q: EventClashQueryOptions = {},
-): Observable<string[] | BookingClash[]> {
+): Promise<string[] | BookingClash[]> {
     const query = toQueryString({ ...q, limit: 10000 });
-    return from(
-        post(
+    try {
+        const list = await post(
             `${EVENTS_ENDPOINT}/clashing-assets${query ? '?' + query : ''}`,
             event.toJSON(),
-        ),
-    ).pipe(
-        map((list) =>
-            q.include_clash_time
-                ? (list as BookingClash[])
-                : (list as string[]),
-        ),
-        catchError((_) => of([])),
-    );
+        );
+        return q.include_clash_time
+            ? (list as BookingClash[])
+            : (list as string[]);
+    } catch (_) {
+        return [];
+    }
 }

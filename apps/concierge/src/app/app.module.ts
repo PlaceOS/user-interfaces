@@ -1,6 +1,7 @@
 import {
     provideHttpClient,
     withInterceptorsFromDi,
+    withXhr,
 } from '@angular/common/http';
 import {
     ErrorHandler,
@@ -80,7 +81,7 @@ import { AppComponent } from './app.component';
             useFactory: (localeService: LocaleService) => localeService.locale,
         },
         { provide: TitleStrategy, useClass: SettingsTitleStrategy },
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
     ],
 })
 export class AppModule {

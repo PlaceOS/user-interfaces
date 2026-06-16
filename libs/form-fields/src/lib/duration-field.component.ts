@@ -362,8 +362,7 @@ export class DurationFieldComponent
     private _updateNoOptions(): void {
         const next_no_options =
             !this.disabled() &&
-                (!this.duration_options() ||
-                    this.duration_options().length === 0);
+            (!this.duration_options() || this.duration_options().length === 0);
         if (this.no_options() === next_no_options) return;
         this.no_options.set(next_no_options);
         this._onValidatorChange?.();

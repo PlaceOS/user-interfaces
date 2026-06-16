@@ -7,8 +7,6 @@ import {
     signal,
     untracked,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { firstValueFrom } from 'rxjs';
 
 import {
     AsyncHandler,
@@ -39,12 +37,8 @@ export class ExploreLockersService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    private _building = toSignal(this._org.active_building, {
-        initialValue: null,
-    });
-    private _region = toSignal(this._org.active_region, {
-        initialValue: null,
-    });
+    private _building = this._org.active_building;
+    private _region = this._org.active_region;
 
     private _status = signal<Record<string, any>[]>([]);
     private _change = signal(0);
@@ -65,9 +59,9 @@ export class ExploreLockersService extends AsyncHandler {
             return scope_id ? { scope_id, changed } : undefined;
         },
         loader: async ({ params: { scope_id } }) => {
-            const assets = await firstValueFrom(
-                queryLockerBankAssetsForZones([scope_id]),
-            ).catch(() => []);
+            const assets = await queryLockerBankAssetsForZones([
+                scope_id,
+            ]).catch(() => []);
             const banks = assets.map(lockerBankFromAsset);
             for (const bank of banks) {
                 bank.zone = this._org.levelWithID(bank.zones || []) as any;
@@ -86,9 +80,9 @@ export class ExploreLockersService extends AsyncHandler {
             return scope_id && banks.length ? { scope_id, banks } : undefined;
         },
         loader: async ({ params: { scope_id, banks } }) => {
-            const assets = await firstValueFrom(
-                queryLockerAssetsForZones([scope_id]),
-            ).catch(() => []);
+            const assets = await queryLockerAssetsForZones([scope_id]).catch(
+                () => [],
+            );
             const lockers = assets.map((_) => lockerFromAsset(_, banks));
             for (const bank of banks) {
                 bank.lockers = lockers

@@ -1,6 +1,6 @@
+import { signal } from '@angular/core';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/common';
-import { of } from 'rxjs';
 import { StaffStateService } from '../../app/staff/staff-state.service';
 
 describe('StaffStateService', () => {
@@ -11,8 +11,8 @@ describe('StaffStateService', () => {
             {
                 provide: OrganisationService,
                 useValue: {
-                    active_levels: of([]),
-                    initialised: of(true),
+                    active_levels: signal([]),
+                    initialised: signal(true),
                     levelWithID: jest.fn(),
                     buildings: [],
                 },

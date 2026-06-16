@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, inject } from '@angular/core';
+import { Component, EventEmitter, OnInit, inject, signal } from '@angular/core';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
@@ -57,7 +57,7 @@ export async function openConfirmModal(
                 .toPromise(),
             ref.afterClosed().toPromise(),
         ])),
-        loading: (s) => (ref.componentInstance.loading = s),
+        loading: (s) => ref.componentInstance.loading?.set(s),
         close: () => ref.close(),
     };
 }
@@ -68,14 +68,14 @@ export async function openConfirmModal(
         <header
             class="bg-base-200 sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] min-w-[20rem] rounded-sm border-none p-2"
         >
-            <h2 class="px-2 text-xl font-medium">{{ title }}</h2>
+            <h2 class="px-2 text-xl font-medium">{{ title() }}</h2>
         </header>
-        @if (!loading) {
+        @if (!loading()) {
             <main
                 class="flex w-md max-w-[85vw] flex-col items-center space-y-4 p-4 sm:h-auto"
             >
-                <icon [icon]="icon" class="text-5xl"></icon>
-                <p content class="text-center" [innerHTML]="content"></p>
+                <icon [icon]="icon()" class="text-5xl"></icon>
+                <p content class="text-center" [innerHTML]="content()"></p>
             </main>
         } @else {
             <main loading>
@@ -83,11 +83,11 @@ export async function openConfirmModal(
                     class="flex h-48 w-full flex-col items-center justify-center space-y-4"
                 >
                     <mat-spinner diameter="32"></mat-spinner>
-                    <p>{{ loading }}</p>
+                    <p>{{ loading() }}</p>
                 </div>
             </main>
         }
-        @if (!loading) {
+        @if (!loading()) {
             <footer
                 class="bg-base-200 sticky bottom-0 m-2 flex items-center justify-center space-x-2 rounded-sm border-none p-2"
             >
@@ -97,7 +97,7 @@ export async function openConfirmModal(
                     class="inverse bg-base-100 flex-1"
                     mat-dialog-close
                 >
-                    {{ cancel_text | translate }}
+                    {{ cancel_text() | translate }}
                 </button>
                 <button
                     btn
@@ -106,7 +106,7 @@ export async function openConfirmModal(
                     class="flex-1"
                     (click)="onConfirm()"
                 >
-                    {{ confirm_text | translate }}
+                    {{ confirm_text() | translate }}
                 </button>
             </footer>
         }
@@ -126,24 +126,28 @@ export class ConfirmModalComponent extends AsyncHandler implements OnInit {
     private _data = inject<ConfirmModalData>(MAT_DIALOG_DATA);
 
     /** Loading state */
-    public loading: string;
+    public readonly loading = signal('');
     /** Emitter for user action on the modal */
     public readonly event = new EventEmitter<DialogEvent>();
     /** Title of the confirm modal */
-    public readonly title: string = this._data.title || 'COMMON.CONFIRM';
+    public readonly title = signal(this._data.title || 'COMMON.CONFIRM');
     /** Body of the confirm modal */
-    public readonly content: string = this._data.content || 'Are you sure?';
+    public readonly content = signal(this._data.content || 'Are you sure?');
     /** Display text on the confirm button */
-    public readonly confirm_text: string =
-        this._data.confirm_text || 'COMMON.ACCEPT';
+    public readonly confirm_text = signal(
+        this._data.confirm_text || 'COMMON.ACCEPT',
+    );
     /** Display text on the cancel button */
-    public readonly cancel_text: string =
-        this._data.cancel_text || 'COMMON.CANCEL';
+    public readonly cancel_text = signal(
+        this._data.cancel_text || 'COMMON.CANCEL',
+    );
     /** Display icon properties */
-    public readonly icon: ApplicationIcon = this._data.icon || {
-        class: 'material-symbols-rounded',
-        content: 'done',
-    };
+    public readonly icon = signal<ApplicationIcon>(
+        this._data.icon || {
+            class: 'material-symbols-rounded',
+            content: 'done',
+        },
+    );
     /** Prevent user from closing the modal */
     public readonly disableClose = () => (this._dialog_ref.disableClose = true);
     /** Allow the user to close the modal */

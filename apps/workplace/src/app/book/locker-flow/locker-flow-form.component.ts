@@ -1,4 +1,9 @@
-import { Component, OnInit, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    inject,
+} from '@angular/core';
 import {
     MatBottomSheet,
     MatBottomSheetRef,
@@ -8,15 +13,12 @@ import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
     OrganisationService,
-    firstTruthyValueFrom,
-    getInvalidFields,
+    getInvalidSignalFields,
     i18n,
-    nextValueFrom,
     notifyError,
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { isBefore, startOfMinute } from 'date-fns';
-import { first } from 'rxjs/operators';
 import { BookLockerFlowConfirmComponent } from './locker-flow-confirm.component';
 import { LockerFormDetailsComponent } from './locker-form-details.component';
 
@@ -54,6 +56,7 @@ import { LockerFormDetailsComponent } from './locker-form-details.component';
             </div>
         </div>
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, TranslatePipe, LockerFormDetailsComponent],
 })
 export class BookLockerFlowFormComponent implements OnInit {
@@ -70,16 +73,23 @@ export class BookLockerFlowFormComponent implements OnInit {
         return this._state.form;
     }
 
+    public get model() {
+        return this._state.model;
+    }
+
     public readonly clearForm = () => {
         this.level = this._org.building.id;
         this._state.clearForm();
     };
 
     public readonly viewConfirm = () => {
-        if (!this.form.valid)
+        if (!this.form().valid())
             return notifyError(
                 i18n('FORM.INVALID_FIELDS', {
-                    field_list: getInvalidFields(this.form).join(', '),
+                    field_list: getInvalidSignalFields(
+                        this.form,
+                        this.model,
+                    ).join(', '),
                 }),
             );
         this.sheet_ref = this._bottom_sheet.open(
@@ -95,18 +105,25 @@ export class BookLockerFlowFormComponent implements OnInit {
     };
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
-        await nextValueFrom(
-            this._org.active_levels.pipe(first((_) => _?.length > 0)),
-        );
+        await this._org.waitUntilInitialised();
+        await this._waitForActiveLevels();
         this._state.setOptions({ type: 'locker' });
         this.level = this._org.building?.id;
         this.levels = [
             { id: this._org.building?.id, name: 'Any Level' },
             ...this._org.levelsForBuilding(this._org.building),
         ];
-        if (isBefore(this.form.value.date, Date.now())) {
-            this.form.patchValue({ date: startOfMinute(Date.now()).valueOf() });
+        if (isBefore(this.model().date, Date.now())) {
+            this.model.update((m) => ({
+                ...m,
+                date: startOfMinute(Date.now()).valueOf(),
+            }));
+        }
+    }
+
+    private async _waitForActiveLevels() {
+        while (!this._org.active_levels()?.length) {
+            await new Promise((resolve) => setTimeout(resolve, 50));
         }
     }
 }

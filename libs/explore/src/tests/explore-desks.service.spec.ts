@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { Injector, signal } from '@angular/core';
 import { fakeAsync } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
@@ -8,7 +8,6 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { BehaviorSubject, of } from 'rxjs';
 
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 import { generateBookingForm } from 'libs/bookings/src/lib/booking.utilities';
@@ -17,7 +16,10 @@ import { DesksService } from 'libs/bookings/src/lib/desk.service';
 import { ExploreDesksService } from '../lib/explore-desks.service';
 import { ExploreStateService } from '../lib/explore-state.service';
 
-jest.mock('@placeos/ts-client');
+jest.mock('@placeos/ts-client', () => ({
+    ...jest.requireActual('@placeos/ts-client'),
+    showMetadata: jest.fn(),
+}));
 jest.mock('@placeos/bookings');
 
 import * as ts_client from '@placeos/ts-client';
@@ -37,8 +39,8 @@ describe('ExploreDesksService', () => {
             }),
             MockProvider(OrganisationService, {
                 binding: jest.fn(() => 'sys-1'),
-                active_building: new BehaviorSubject(new Building()),
-                initialised: of(true),
+                active_building: signal(new Building()),
+                initialised: signal(true),
                 levels: [],
                 buildings: [],
             }),
@@ -50,15 +52,19 @@ describe('ExploreDesksService', () => {
     });
 
     beforeEach(() => {
-        (ts_client as any).showMetadata = jest.fn((_, name) =>
-            name.includes('restrictions')
-                ? Promise.resolve([])
-                : Promise.resolve({
-                      details: [
-                          { id: 'desk-1', name: '1', bookable: true },
-                          { id: 'desk-2', name: '2', bookable: false },
-                      ],
-                  }),
+        jest.clearAllMocks();
+        jest.mocked(ts_client.showMetadata).mockImplementation(
+            (_, name) =>
+                Promise.resolve(
+                    `${name}`.includes('restrictions')
+                        ? []
+                        : {
+                              details: [
+                                  { id: 'desk-1', name: '1', bookable: true },
+                                  { id: 'desk-2', name: '2', bookable: false },
+                              ],
+                          },
+                ) as any,
         );
         spectator = createService();
     });
@@ -119,11 +125,17 @@ describe('ExploreDesksService', () => {
 
     it('should use the desk map id as the asset id when booking a map-only desk', async () => {
         const booking_service = spectator.inject(BookingFormService) as any;
-        booking_service.form = generateBookingForm();
-        booking_service.form.patchValue({
+        const { model, form } = generateBookingForm(
+            undefined,
+            spectator.inject(Injector),
+        );
+        booking_service.model = model;
+        booking_service.form = form;
+        booking_service.model.update((m: any) => ({
+            ...m,
             date: Date.now() + 60 * 60 * 1000,
             duration: 60,
-        });
+        }));
         booking_service.newForm = jest.fn();
         booking_service.setOptions = jest.fn();
         booking_service.confirmPost = jest.fn().mockResolvedValue({});
@@ -139,8 +151,8 @@ describe('ExploreDesksService', () => {
             {},
         );
 
-        expect(booking_service.form.value.asset_id).toBe('map-desk-1');
-        expect(booking_service.form.value.resources[0].id).toBe('map-desk-1');
+        expect(booking_service.model().asset_id).toBe('map-desk-1');
+        expect(booking_service.model().resources[0].id).toBe('map-desk-1');
         expect(booking_service.confirmPost).toHaveBeenCalled();
     });
 });

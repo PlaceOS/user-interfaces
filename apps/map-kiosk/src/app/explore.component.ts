@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -7,7 +8,6 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
@@ -15,7 +15,6 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
-    firstTruthyValueFrom,
     flatten,
     log,
     notifyError,
@@ -280,6 +279,7 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
         SpacePipe,
     ],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         AccessibilityControlsComponent,
         MatRippleModule,
@@ -317,12 +317,8 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         { id: 'pending', name: 'Space Pending', color: '#ffb300' },
         { id: 'not-bookable', name: 'Space Not-bookable', color: '#ccc' },
     ];
-    private readonly _region = toSignal(this._org.active_region, {
-        initialValue: null,
-    });
-    private readonly _building = toSignal(this._org.active_building, {
-        initialValue: null,
-    });
+    private readonly _region = this._org.active_region;
+    private readonly _building = this._org.active_building;
     public readonly levels = computed(() => {
         const region = this._region();
         const building = this._building();
@@ -412,7 +408,9 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         ) {
             this._state.setOptions({ is_public: true });
         }
-        await firstTruthyValueFrom(this._spaces.initialised);
+        while (!this._spaces.initialised()) {
+            await new Promise((resolve) => setTimeout(resolve, 100));
+        }
         this._desks.setOptions({ custom: true });
         this.reset_delay =
             this._settings.get('app.inactivity_timeout_secs') || 180;
@@ -442,7 +440,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
                     let user = this._settings.value('last_search');
                     if (!user || params.get('user') !== user.email) {
                         user = null;
-                        user = await showStaff(params.get('user')).toPromise();
+                        user = await showStaff(params.get('user'));
                     }
                     if (!user)
                         return notifyError(

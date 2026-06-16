@@ -1,14 +1,14 @@
-import { Component, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
-import {
-    nextValueFrom,
-    notifyError,
-    settingSignal,
-    SettingsService,
-} from '@placeos/common';
+import { notifyError, settingSignal, SettingsService } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 
 @Component({
@@ -81,6 +81,7 @@ import { TranslatePipe } from '@placeos/components';
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, MatRippleModule, MatProgressSpinnerModule],
 })
 export class LandingQuickBookComponent {
@@ -97,25 +98,24 @@ export class LandingQuickBookComponent {
         this.loading.set(type);
         this._book_form.newForm(type as any);
         this._book_form.setOptions({ type: type as any });
-        const resources = await nextValueFrom(
-            this._book_form.available_resources,
-        );
+        const resources = await this._book_form.listAvailableResources();
         if (!resources.length) {
             notifyError(`No ${type} available for the current building`);
             this.loading.set('');
             return;
         }
-        this._book_form.form.patchValue({
+        this._book_form.model.update((m) => ({
+            ...m,
             resources: [resources[0]],
             asset_id: resources[0].id,
             asset_name: resources[0].name,
-        });
+        }));
         console.log('Resource:', resources[0], type);
         this.loading.set('');
         try {
             await this._book_form.confirmPost();
             this._router.navigate(['/book', type, 'success']);
         } catch {}
-        this._book_form.form.reset();
+        this._book_form.resetForm();
     }
 }

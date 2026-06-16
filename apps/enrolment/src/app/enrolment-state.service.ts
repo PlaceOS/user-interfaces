@@ -101,7 +101,7 @@ export class EnrolmentStateService {
             this._event_id.getValue(),
             this._guest_id.getValue(),
             true,
-        ).toPromise();
+        );
         this._view.next('complete');
         this._loading.next('');
     }

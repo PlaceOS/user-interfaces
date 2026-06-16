@@ -1,4 +1,9 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    inject,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
@@ -31,6 +36,7 @@ import { MeetingFlowSuccessComponent } from './meeting-flow/meeting-flow-success
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MeetingFlowSuccessComponent,
         MeetingFlowConfirmComponent,
@@ -41,15 +47,11 @@ export class BookMeetingFlowComponent extends AsyncHandler implements OnInit {
     private _state = inject(EventFormService);
     private _route = inject(ActivatedRoute);
 
-    public readonly view = signal('form');
+    public readonly view = this._state.view;
     public readonly last_success = this._state.last_success;
 
     public ngOnInit() {
         this._state.loadForm();
-        this.subscription(
-            'state:view',
-            this._state.view$.subscribe((v) => this.view.set(v)),
-        );
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((param) => {

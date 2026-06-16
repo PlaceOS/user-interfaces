@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { SimpleTableComponent, TranslatePipe } from '@placeos/components';
@@ -87,6 +87,7 @@ import {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, SimpleTableComponent, TranslatePipe],
 })
 export class AssetPurchaseOrderListComponent {
@@ -106,7 +107,7 @@ export class AssetPurchaseOrderListComponent {
                         _.invoice_number
                             ?.toLowerCase()
                             .includes(search.toLowerCase()),
-                )
+                ),
             ),
         ),
         { initialValue: [] },

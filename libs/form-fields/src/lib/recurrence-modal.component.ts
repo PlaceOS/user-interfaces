@@ -286,10 +286,7 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
 
         if (value.end_type === 'instances' && value.end_instances) {
             value.end_date = recurrenceEndDate(value, this.date);
-            while (
-                value.end_instances > 1 &&
-                value.end_date > this.end_date
-            ) {
+            while (value.end_instances > 1 && value.end_date > this.end_date) {
                 value.end_instances--;
                 value.end_date = recurrenceEndDate(value, this.date);
             }

@@ -12,7 +12,8 @@ Native launcher icons and splash assets are also regenerated on demand from each
 ## Prerequisites
 
 - Node.js 20
-- `npm install`
+- Bun
+- `bun install`
 - Android Studio and Android SDK for Android builds
 - Xcode for iOS builds
 - macOS for any iOS sync, open, or build workflow

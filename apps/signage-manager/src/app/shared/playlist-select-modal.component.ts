@@ -1,4 +1,10 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -40,7 +46,9 @@ import { SignageService } from '../signage.service';
                     matInput
                     [ngModel]="search()"
                     (ngModelChange)="search.set($event)"
-                    [placeholder]="'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate"
+                    [placeholder]="
+                        'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate
+                    "
                     [attr.aria-label]="
                         'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate
                     "
@@ -85,6 +93,7 @@ import { SignageService } from '../signage.service';
             }
         </main>
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FormsModule,
         MatRippleModule,

@@ -1,4 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -40,7 +45,9 @@ import { SignageService } from '../signage.service';
                     [ngModel]="search()"
                     (ngModelChange)="setSearch($event)"
                     [placeholder]="'SIGNAGE_MANAGER.SEARCH_USERS' | translate"
-                    [attr.aria-label]="'SIGNAGE_MANAGER.SEARCH_USERS' | translate"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.SEARCH_USERS' | translate
+                    "
                 />
             </mat-form-field>
             @if (users().length > 0) {
@@ -80,6 +87,7 @@ import { SignageService } from '../signage.service';
             }
         </main>
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FormsModule,
         MatRippleModule,

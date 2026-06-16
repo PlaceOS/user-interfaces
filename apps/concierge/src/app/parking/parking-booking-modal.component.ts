@@ -1,5 +1,14 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    Injector,
+    OnInit,
+    signal,
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -15,8 +24,9 @@ import {
     Booking,
     BuildingLevel,
     currentUser,
-    getInvalidFields,
+    getInvalidSignalFields,
     i18n,
+    onFieldChange,
     notifyError,
     notifySuccess,
     settingSignal,
@@ -50,12 +60,11 @@ import { addDays, endOfDay } from 'date-fns';
             "
             (confirm)="postForm()"
         >
-            <form [formGroup]="form">
+            <form>
                 @if (!user) {
                     <div class="mb-4 flex items-center space-x-2">
                         <a-user-search-field
-                            name="user"
-                            formControlName="user"
+                            [formField]="form.user"
                             class="flex-1"
                         ></a-user-search-field>
                     </div>
@@ -68,8 +77,7 @@ import { addDays, endOfDay } from 'date-fns';
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 matInput
-                                name="user-name"
-                                formControlName="user_name"
+                                [formField]="form.user_name"
                                 [placeholder]="'FORM.NAME' | translate"
                             />
                             <mat-error>{{
@@ -84,8 +92,7 @@ import { addDays, endOfDay } from 'date-fns';
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 matInput
-                                name="email"
-                                formControlName="user_email"
+                                [formField]="form.user_email"
                                 [placeholder]="'FORM.EMAIL' | translate"
                             />
                             <mat-error>{{
@@ -96,17 +103,17 @@ import { addDays, endOfDay } from 'date-fns';
                 </div>
                 <div class="relative">
                     <label for="date">{{ 'FORM.DATE' | translate }}</label>
-                    <a-date-field formControlName="date"></a-date-field>
-                    @if (allow_all_day() && !form.controls.duration.disabled) {
+                    <a-date-field [formField]="form.date"></a-date-field>
+                    @if (allow_all_day() && !form.duration().disabled()) {
                         <mat-checkbox
-                            formControlName="all_day"
+                            [formField]="form.all_day"
                             class="absolute -top-2 right-0"
                         >
                             {{ 'COMMON.ALL_DAY' | translate }}
                         </mat-checkbox>
                     }
                 </div>
-                @if (!form.value.all_day) {
+                @if (!model().all_day) {
                     <div class="flex items-center space-x-2">
                         <div class="w-1/3 flex-1">
                             <label for="start-time"
@@ -115,12 +122,12 @@ import { addDays, endOfDay } from 'date-fns';
                             >
                             <a-time-field
                                 name="start-time"
-                                [ngModel]="form.value.date"
+                                [ngModel]="model().date"
                                 (ngModelChange)="
-                                    form.patchValue({ date: $event })
+                                    model.update((m) => ({ ...m, date: $event }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
-                                [disabled]="form.controls.date.disabled"
+                                [disabled]="form.date().disabled()"
                                 [use_24hr]="use_24hr()"
                                 [range]="bookable_hours()"
                                 [min_duration]="effective_min_duration()"
@@ -132,9 +139,8 @@ import { addDays, endOfDay } from 'date-fns';
                                 }}<span>*</span></label
                             >
                             <a-duration-field
-                                name="end-time"
-                                formControlName="duration"
-                                [time]="form?.getRawValue()?.date"
+                                [formField]="form.duration"
+                                [time]="model().date"
                                 [max]="max_duration()"
                                 [custom_options]="custom_duration_options()"
                                 [use_24hr]="use_24hr()"
@@ -148,8 +154,7 @@ import { addDays, endOfDay } from 'date-fns';
                     'APP.CONCIERGE.PARKING_SPACE' | translate
                 }}</label>
                 <parking-space-list-field
-                    name="parking-space"
-                    formControlName="resources"
+                    [formField]="form.resources"
                     class="mb-2"
                 ></parking-space-list-field>
                 <label for="plate-number">
@@ -161,8 +166,7 @@ import { addDays, endOfDay } from 'date-fns';
                 <mat-form-field appearance="outline" class="w-full">
                     <input
                         matInput
-                        name="plate-number"
-                        formControlName="plate_number"
+                        [formField]="form.plate_number"
                         [placeholder]="
                             'EXPLORE.PARKING_PLATE_NUMBER' | translate
                         "
@@ -171,13 +175,12 @@ import { addDays, endOfDay } from 'date-fns';
                         'BOOKINGS.PARKING_PLATE_NUMBER_REQUIRED' | translate
                     }}</mat-error>
                 </mat-form-field>
-                @if (form.value.notes) {
+                @if (model().notes) {
                     <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <textarea
                             matInput
-                            name="notes"
-                            formControlName="notes"
+                            [formField]="form.notes"
                             rows="3"
                             [placeholder]="'FORM.NOTES' | translate"
                         ></textarea>
@@ -187,9 +190,10 @@ import { addDays, endOfDay } from 'date-fns';
         </fullscreen-modal-shell>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FullscreenModalShellComponent,
-        ReactiveFormsModule,
+        FormField,
         FormsModule,
         MatFormFieldModule,
         MatInputModule,
@@ -222,6 +226,7 @@ export class ParkingBookingModalComponent
     private _dialog_ref =
         inject<MatDialogRef<ParkingBookingModalComponent>>(MatDialogRef);
     private _settings = inject(SettingsService);
+    private _injector = inject(Injector);
 
     public readonly loading = signal(false);
     public readonly user = this._data.user;
@@ -229,8 +234,9 @@ export class ParkingBookingModalComponent
     public readonly allow_time_changes = this._data.allow_time_changes;
 
     public form = this._booking_form.form;
+    public model = this._booking_form.model;
 
-    public readonly id = computed(() => this.form.value.id || '');
+    public readonly id = computed(() => this.model().id || '');
 
     public readonly end_date = computed(() =>
         endOfDay(
@@ -283,77 +289,74 @@ export class ParkingBookingModalComponent
     public ngOnInit() {
         this._booking_form.newForm('parking', this._data.booking);
         this._booking_form.setOptions({ type: 'parking' });
-        this.subscription(
-            'user_changes',
-            this.form.controls.user.valueChanges.subscribe((user) => {
+        const user_changes = onFieldChange(
+            this.model,
+            (m) => m.user,
+            (user) => {
                 if (!user) return;
-                this.form.patchValue({
+                this.model.update((m) => ({
+                    ...m,
                     user_name: user.name,
                     user_email: user.email,
                     attendees: [user],
-                });
-            }),
+                }));
+            },
+            this._injector,
         );
-        this.form.patchValue({
+        this.subscription('user_changes', {
+            unsubscribe: () => user_changes.destroy(),
+        } as any);
+        this.model.update((m) => ({
+            ...m,
             booking_type: 'parking',
             all_day: this._data.booking
                 ? this._data.booking.duration > 12 * 60
                 : true,
-        });
-        if (!this.form.value.user) {
-            this.form.patchValue({
+        }));
+        if (!this.model().user) {
+            this.model.update((m) => ({
+                ...m,
                 user:
                     (this._data.booking?.attendees[0] as any) || currentUser(),
-            });
+            }));
         }
         if (this._data.parent_id) {
-            this.form.patchValue({
+            this.model.update((m) => ({
+                ...m,
                 parent_id: this._data.parent_id,
-            });
+            }));
         }
         if (this._data.user) {
-            this.form.patchValue({
+            this.model.update((m) => ({
+                ...m,
                 user: this._data.user as any,
                 user_email: this._data.user.email,
                 user_name: this._data.user.name,
                 attendees: [this._data.user],
-            });
-            this.form.controls.plate_number.setValidators([
-                Validators.required,
-            ]);
-            this.form.controls.user_name.disable();
-            this.form.controls.user_email.disable();
-        }
-        if (this._data.booking?.id) {
-            this.form.controls.user.disable();
-            this.form.controls.user_name.disable();
-            this.form.controls.user_email.disable();
-        } else {
-            this.form.controls.user.enable();
-            this.form.controls.user_name.enable();
-            this.form.controls.user_email.enable();
+            }));
         }
         if (this._data.level) {
             this._booking_form.setOptions({ zone_id: this._data.level.id });
         }
         if (this._data.link_id) {
-            this.form.patchValue({ parent_id: this._data.link_id });
+            this.model.update((m) => ({ ...m, parent_id: this._data.link_id }));
         }
         if (this._data.space) {
-            this.form.patchValue({ resources: [this._data.space] });
+            this.model.update((m) => ({ ...m, resources: [this._data.space] }));
         }
         if (this._data.date) {
             console.log('Date:', this._data.date);
             this.timeout(
                 'init_date',
                 () => {
-                    this.form.patchValue({
+                    this.model.update((m) => ({
+                        ...m,
                         date: alignDateToBookableHours(
                             this._data.date,
                             this.bookable_hours(),
-                            this.form.getRawValue().date,
+                            this.model().date,
                         ),
-                    });
+                    }));
                 },
                 300,
             );
@@ -362,36 +365,34 @@ export class ParkingBookingModalComponent
 
     public async postForm() {
         if (
-            !this.form.value.all_day &&
-            this.form.value.duration > this.max_duration()
+            !this.model().all_day &&
+            this.model().duration > this.max_duration()
         ) {
-            this.form.patchValue({ duration: 30 });
+            this.model.update((m) => ({ ...m, duration: 30 }));
         }
-        this.form.markAllAsTouched();
-        this.form.updateValueAndValidity();
-        if (this.form.invalid) {
+        this.form().markAsTouched();
+        if (this.form().invalid()) {
             return notifyError(
                 i18n('FORM.INVALID_FIELDS', {
-                    field_list: getInvalidFields(this.form).join(', '),
+                    field_list: getInvalidSignalFields(
+                        this.form,
+                        this.model,
+                    ).join(', '),
                 }),
             );
         }
         this.loading.set(true);
-        this.form.patchValue({ user_id: undefined, booking_type: 'parking' });
+        this.model.update((m) => ({
+            ...m,
+            user_id: undefined,
+            booking_type: 'parking',
+        }));
         const result = await this._booking_form.postForm().catch((e) => {
             this.loading.set(false);
-            this.form.controls.plate_number.setValidators([]);
             notifyError(e);
             throw e;
         });
-        this.form.controls.plate_number.setValidators([]);
         notifySuccess(i18n('APP.CONCIERGE.PARKING_SAVE'));
-
-        this.form.get('date').enable();
-        this.form.get('duration').enable();
-        this.form.controls.user.disable();
-        this.form.controls.user_name.disable();
-        this.form.controls.user_email.disable();
         this._dialog_ref.close(result.id);
     }
 }

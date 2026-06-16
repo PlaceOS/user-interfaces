@@ -1,4 +1,10 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -53,6 +59,7 @@ import { CheckinStateService } from './checkin-state.service';
         </div>
     `,
     styles: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, MatRippleModule, MatCheckboxModule, FormsModule],
 })
 export class CheckinInductionComponent {
@@ -88,7 +95,7 @@ export class CheckinInductionComponent {
     );
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await this._org.waitUntilInitialised();
         const event = await this.event.pipe(first()).toPromise();
         if (!event) this._router.navigate(['/checkin']);
         if (!this.is_enabled() || event.induction === 'accepted') {

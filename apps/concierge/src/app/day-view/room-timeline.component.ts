@@ -1,5 +1,11 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, OnInit, computed, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    computed,
+    inject,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -240,6 +246,7 @@ import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         DateOptionsComponent,
@@ -257,9 +264,7 @@ export class RoomBookingsTimelineComponent
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
-    private _building = toSignal(this._org.active_building, {
-        initialValue: this._org.building,
-    });
+    private _building = this._org.active_building;
     private _filtered = toSignal(this._state.filtered, { initialValue: [] });
 
     public block_width = 14;
@@ -463,14 +468,12 @@ Host:  ${event.organiser?.name || event.host}`;
         await declineEvent(item.id, {
             calendar: item.calendar || item.mailbox || item.host,
             system_id: space_id,
-        })
-            .toPromise()
-            .catch((e) => {
-                this._state.restore(item);
-                notifyError(`Unable to cancel booking. ${e}`);
-                resp.close();
-                throw e;
-            });
+        }).catch((e) => {
+            this._state.restore(item);
+            notifyError(`Unable to cancel booking. ${e}`);
+            resp.close();
+            throw e;
+        });
         notifySuccess('Successfully cancelled booking.');
         this._dialog.closeAll();
     }

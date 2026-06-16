@@ -1,5 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, input, OnInit } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    effect,
+    inject,
+    input,
+    OnInit,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -24,7 +32,6 @@ import {
     DateRangeCalendarComponent,
 } from '@placeos/form-fields';
 import { endOfDay, isSameDay, startOfDay } from 'date-fns';
-import { debounceTime, filter } from 'rxjs/operators';
 import {
     ScheduleOptions,
     ScheduleStateService,
@@ -136,6 +143,7 @@ import {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatCheckboxModule,
@@ -264,32 +272,32 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
         return this._settings.get('app.week_start') || 0;
     }
 
-    public ngOnInit() {
-        this.subscription(
-            'building',
-            this._org.active_building
-                .pipe(
-                    filter((_) => !!_),
-                    debounceTime(1000),
-                )
-                .subscribe((_) => {
-                    this._state.setType('event', this.hasFeature('spaces'));
-                    this._state.setType('desk', this.hasFeature('desks'));
-                    this._state.setType(
-                        'parking',
-                        this.hasFeature('parking') ||
-                            this.hasFeature('parking-requests'),
-                    );
-                    this._state.setType(
-                        'visitor',
-                        this.hasFeature('visitor-invite'),
-                    );
-                    this._state.setType('locker', this.hasFeature('lockers'));
-                    this._state.setType(
-                        'group-event',
-                        this.hasFeature('group-events'),
-                    );
-                }),
-        );
+    constructor() {
+        super();
+        effect((onCleanup) => {
+            const bld = this._org.active_building();
+            if (!bld) return;
+            const timeout = setTimeout(() => {
+                this._state.setType('event', this.hasFeature('spaces'));
+                this._state.setType('desk', this.hasFeature('desks'));
+                this._state.setType(
+                    'parking',
+                    this.hasFeature('parking') ||
+                        this.hasFeature('parking-requests'),
+                );
+                this._state.setType(
+                    'visitor',
+                    this.hasFeature('visitor-invite'),
+                );
+                this._state.setType('locker', this.hasFeature('lockers'));
+                this._state.setType(
+                    'group-event',
+                    this.hasFeature('group-events'),
+                );
+            }, 1000);
+            onCleanup(() => clearTimeout(timeout));
+        });
     }
+
+    public ngOnInit() {}
 }

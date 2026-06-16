@@ -1,9 +1,18 @@
-import { Component, input, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    input,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
-import { DateFromPipe, IconComponent, TranslatePipe } from '@placeos/components';
 import { i18n } from '@placeos/common';
+import {
+    DateFromPipe,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { differenceInMinutes, format, startOfDay } from 'date-fns';
 import {
     MINUTES_PER_DAY,
@@ -137,7 +146,10 @@ import {
                             [style.height]="row_height + 'rem'"
                         >
                             <icon class="text-sm">event_busy</icon>
-                            {{ 'SIGNAGE_MANAGER.NO_PLAYLISTS_SCHEDULED' | translate }}
+                            {{
+                                'SIGNAGE_MANAGER.NO_PLAYLISTS_SCHEDULED'
+                                    | translate
+                            }}
                         </div>
                     }
 
@@ -289,6 +301,7 @@ import {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         MatTooltipModule,

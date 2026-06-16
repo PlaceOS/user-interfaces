@@ -1,6 +1,14 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    Injector,
+    OnInit,
+    signal,
+} from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { first, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -15,7 +23,6 @@ import {
 } from '@placeos/catering';
 import {
     AsyncHandler,
-    nextValueFrom,
     notifySuccess,
     OrganisationService,
     SettingsService,
@@ -179,6 +186,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         DateOptionsComponent,
         MatRippleModule,
@@ -200,6 +208,7 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
+    private _injector = inject(Injector);
 
     /** List of selected levels */
     public readonly zones = signal<string[]>([]);
@@ -252,7 +261,7 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await this._org.waitUntilInitialised();
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
@@ -275,44 +284,29 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
                 this.page.set(params?.get('view') || '');
             }),
         );
-        if (this._orders.order_filters?.subscribe) {
-            this.subscription(
-                'filters',
-                this._orders.order_filters.subscribe((filters) => {
-                    this.filters.set(filters || {});
+        this.filters.set(this._orders.order_filters() || {});
+        this.caterers.set(this._catering.caterers() || []);
+        this.subscription(
+            'levels',
+            combineLatest([
+                toObservable(this._org.active_building, {
+                    injector: this._injector,
                 }),
-            );
-        }
-        if (this._catering.caterers?.subscribe) {
-            this.subscription(
-                'caterers',
-                this._catering.caterers.subscribe((caterers) => {
-                    this.caterers.set(caterers || []);
+                toObservable(this._org.active_region, {
+                    injector: this._injector,
                 }),
-            );
-        }
-        if (
-            this._org.active_building?.subscribe &&
-            this._org.active_region?.subscribe
-        ) {
-            this.subscription(
-                'levels',
-                combineLatest([
-                    this._org.active_building,
-                    this._org.active_region,
-                ])
-                    .pipe(
-                        map(([bld, region]) =>
-                            this._settings.get('app.use_region')
-                                ? this._org.levelsForRegion?.(region)
-                                : this._org.levelsForBuilding?.(bld),
-                        ),
-                    )
-                    .subscribe((levels) => {
-                        this.levels.set(levels || []);
-                    }),
-            );
-        }
+            ])
+                .pipe(
+                    map(([bld, region]) =>
+                        this._settings.get('app.use_region')
+                            ? this._org.levelsForRegion?.(region)
+                            : this._org.levelsForBuilding?.(bld),
+                    ),
+                )
+                .subscribe((levels) => {
+                    this.levels.set(levels || []);
+                }),
+        );
         this._catering.zone =
             (this.filters()?.zones || [])[0] || this._org.building?.id;
     }
@@ -321,9 +315,7 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
         const ref = this._dialog.open(AvailableRoomsStateModalComponent, {
             data: {
                 type: 'Catering',
-                disabled_rooms: await nextValueFrom(
-                    this._catering.availability,
-                ),
+                disabled_rooms: this._catering.availability(),
             },
         });
         this.subscription(

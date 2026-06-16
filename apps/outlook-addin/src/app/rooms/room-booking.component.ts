@@ -1,5 +1,13 @@
-import { Component, DOCUMENT, OnInit, inject, signal } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    DOCUMENT,
+    OnInit,
+    inject,
+    signal,
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -27,7 +35,7 @@ import { FeaturesFilterService } from './features-filter.service';
                     <h2 class="text-xl font-medium capitalize">Book Room</h2>
                 </header>
                 @if (form(); as form) {
-                    <form [formGroup]="form" class="divide-base-200 divide-y">
+                    <form class="divide-base-200 divide-y">
                         <section class="px-4 py-2">
                             <div class="my-2 flex space-x-4">
                                 <div
@@ -47,7 +55,7 @@ import { FeaturesFilterService } from './features-filter.service';
                                         <input
                                             matInput
                                             placeholder="e.g Team meeting"
-                                            formControlName="title"
+                                            [formField]="form.title"
                                         />
                                     </mat-form-field>
                                 </div>
@@ -55,7 +63,7 @@ import { FeaturesFilterService } from './features-filter.service';
                                     <label>Date<span>*</span></label>
                                     <a-date-field
                                         [from]="min_date"
-                                        formControlName="date"
+                                        [formField]="form.date"
                                     ></a-date-field>
                                 </div>
                             </div>
@@ -65,9 +73,12 @@ import { FeaturesFilterService } from './features-filter.service';
                                         Start Time<span>*</span>
                                     </label>
                                     <a-time-field
-                                        [ngModel]="form.value.date"
+                                        [ngModel]="model().date"
                                         (ngModelChange)="
-                                            form.patchValue({ date: $event })
+                                            model.update((m) => ({
+                                                ...m,
+                                                date: $event
+                                            }))
                                         "
                                         [ngModelOptions]="{ standalone: true }"
                                     ></a-time-field>
@@ -77,11 +88,11 @@ import { FeaturesFilterService } from './features-filter.service';
                                         End Time<span>*</span>
                                     </label>
                                     <a-duration-field
-                                        [time]="form.get('date')?.value"
+                                        [time]="model().date"
                                         [max]="10 * 60"
                                         [min]="60"
                                         [step]="60"
-                                        formControlName="duration"
+                                        [formField]="form.duration"
                                     ></a-duration-field>
                                 </div>
                             </div>
@@ -98,7 +109,7 @@ import { FeaturesFilterService } from './features-filter.service';
                             <div class="flex flex-col">
                                 <label> Add Attendees </label>
                                 <a-user-list-field
-                                    formControlName="attendees"
+                                    [formField]="form.attendees"
                                     [custom_template]="true"
                                     (download)="downloadTemplate()"
                                 ></a-user-list-field>
@@ -131,6 +142,7 @@ import { FeaturesFilterService } from './features-filter.service';
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         UserListFieldComponent,
@@ -139,7 +151,7 @@ import { FeaturesFilterService } from './features-filter.service';
         DateFieldComponent,
         MatFormFieldModule,
         MatInputModule,
-        ReactiveFormsModule,
+        FormField,
         FormsModule,
     ],
 })
@@ -154,6 +166,7 @@ export class RoomBookingComponent implements OnInit {
 
     min_date = Date.now();
     public readonly form = signal(this._state.form);
+    public readonly model = this._state.model;
 
     public readonly clearForm = () => {
         this._state.clearForm();
@@ -169,9 +182,10 @@ export class RoomBookingComponent implements OnInit {
         const form = this.form() || this._state.form;
         if (form && !this.form()) this.form.set(form);
         if (!form) return;
-        form.markAllAsTouched();
-        if (!form.value.host) form.patchValue({ host: currentUser()?.email });
-        if (!form.valid) return;
+        form().markAsTouched();
+        if (!this.model().host)
+            this.model.update((m) => ({ ...m, host: currentUser()?.email }));
+        if (!form().valid()) return;
         await this._state.storeForm();
         this.router.navigate(['/schedule/view']);
     }

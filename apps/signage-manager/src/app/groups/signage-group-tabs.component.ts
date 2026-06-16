@@ -1,10 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { TranslatePipe } from '@placeos/components';
 import { SignageService } from '../signage.service';
 
 @Component({
     selector: 'signage-group-tabs',
     imports: [TranslatePipe],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
         <nav
             class="bg-base-100 border-base-300 mx-2 mt-2 flex overflow-hidden rounded-lg border"

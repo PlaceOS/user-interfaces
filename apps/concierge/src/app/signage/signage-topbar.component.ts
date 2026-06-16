@@ -58,9 +58,7 @@ export class SignageTopbarComponent {
     /** List of selected levels */
     public zones = signal<string[]>([]);
     /** List of levels for the active building */
-    public readonly levels = toSignal(this._org.active_levels, {
-        initialValue: [],
-    });
+    public readonly levels = this._org.active_levels;
     /** Route query parameters */
     private readonly _queryParams = toSignal(this._route.queryParamMap);
 

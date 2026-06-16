@@ -1,12 +1,17 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import {
     AsyncHandler,
     Building,
     BuildingLevel,
-    firstTruthyValueFrom,
     Identity,
     isPublicMode,
     OrganisationService,
@@ -393,6 +398,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatRippleModule,
@@ -429,15 +435,9 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
 
     public readonly rotations = signal<Identity[]>([]);
 
-    public readonly regions = toSignal(this._org.region_list, {
-        initialValue: [],
-    });
-    public readonly buildings = toSignal(this._org.active_buildings, {
-        initialValue: [],
-    });
-    public readonly levels = toSignal(this._org.active_levels, {
-        initialValue: [],
-    });
+    public readonly regions = this._org.region_list;
+    public readonly buildings = this._org.active_buildings;
+    public readonly levels = this._org.active_levels;
     public readonly is_public_mode = isPublicMode;
 
     public setRegion(region: Region) {
@@ -467,7 +467,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     });
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         this.active_region.set(this._org.region);
         this._startup_action = this.getActionParamFromUrl();
         this.subscription(

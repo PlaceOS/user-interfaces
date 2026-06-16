@@ -1,5 +1,12 @@
-import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnDestroy,
+    OnInit,
+    inject,
+    signal,
+} from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { AsyncHandler, OrganisationService, Space } from '@placeos/common';
 import { querySystems } from '@placeos/ts-client';
 import { combineLatest, from, of } from 'rxjs';
@@ -113,6 +120,7 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class DayviewTimelineComponent
@@ -135,7 +143,7 @@ export class DayviewTimelineComponent
         initialValue: null,
     });
 
-    public readonly spaces = this._org.active_building.pipe(
+    public readonly spaces = toObservable(this._org.active_building).pipe(
         filter((_) => !!_),
         switchMap(({ id }) =>
             from(querySystems({ zone_id: id, limit: 1000 })).pipe(

@@ -1,19 +1,14 @@
 import {
     Component,
     computed,
-    DestroyRef,
     effect,
     inject,
     input,
-    OnInit,
+    model,
     output,
     signal,
 } from '@angular/core';
-import {
-    takeUntilDestroyed,
-    toObservable,
-    toSignal,
-} from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -103,11 +98,10 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
         BuildingPipe,
     ],
 })
-export class LockerMapComponent implements OnInit {
+export class LockerMapComponent {
     private _state = inject(BookingFormService);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
-    private _destroyRef = inject(DestroyRef);
 
     public readonly is_displayed = input(false);
     public readonly active = input('');
@@ -116,20 +110,26 @@ export class LockerMapComponent implements OnInit {
 
     public readonly lockers_banks$ = loadLockerBanks(
         this._org,
-        combineLatest([this._org.active_building, this._org.active_region]),
+        combineLatest([
+            toObservable(this._org.active_building),
+            toObservable(this._org.active_region),
+        ]),
         () => this._use_region(),
     );
 
     public readonly lockers$ = loadLockers(
         this._org,
-        combineLatest([this._org.active_building, this._org.active_region]),
+        combineLatest([
+            toObservable(this._org.active_building),
+            toObservable(this._org.active_region),
+        ]),
         this.lockers_banks$,
         () => this._use_region(),
     );
 
     private readonly _locker_banks$ = combineLatest([
-        this._state.options,
-        this._state.available_resources,
+        toObservable(this._state.options),
+        toObservable(this._state.available_resources),
         this.lockers_banks$,
         this.lockers$,
     ]).pipe(
@@ -157,8 +157,8 @@ export class LockerMapComponent implements OnInit {
 
     public readonly loading = this._state.loading;
 
-    public zoom = 1;
-    public center = { x: 0.5, y: 0.5 };
+    public readonly zoom = model(1);
+    public readonly center = model({ x: 0.5, y: 0.5 });
     public readonly level = signal<BuildingLevel | undefined>(undefined);
     public readonly coordinates = signal<any>(undefined);
 
@@ -167,8 +167,8 @@ export class LockerMapComponent implements OnInit {
 
     public readonly levels = toSignal(
         combineLatest([
-            this._org.active_region,
-            this._org.active_building,
+            toObservable(this._org.active_region),
+            toObservable(this._org.active_building),
         ]).pipe(
             map(([region, bld]) => {
                 const level_list = this._use_region()
@@ -209,7 +209,7 @@ export class LockerMapComponent implements OnInit {
     public readonly features = toSignal(
         combineLatest([
             this._locker_banks$,
-            this._state.available_resources,
+            toObservable(this._state.available_resources),
         ]).pipe(
             map(([lockers]) => {
                 return this._settings.get('app.lockers.hide_user')
@@ -235,7 +235,7 @@ export class LockerMapComponent implements OnInit {
     public readonly styles = toSignal(
         combineLatest([
             this._locker_banks$,
-            this._state.available_resources,
+            toObservable(this._state.available_resources),
             this._change$,
         ]).pipe(
             map(([banks, free_lockers]) =>
@@ -274,15 +274,11 @@ export class LockerMapComponent implements OnInit {
             this.active();
             this._change.set(Date.now());
         });
-    }
-
-    public ngOnInit(): void {
-        this._state.options
-            .pipe(takeUntilDestroyed(this._destroyRef))
-            .subscribe(({ zone_id }) => {
-                const level = this._org.levelWithID([zone_id]);
-                if (level) this.level.set(level);
-            });
+        effect(() => {
+            const { zone_id } = this._state.options();
+            const level = this._org.levelWithID([zone_id]);
+            if (level) this.level.set(level);
+        });
     }
 
     public selectLocker(locker: BookingAsset) {
@@ -302,11 +298,11 @@ export class LockerMapComponent implements OnInit {
     }
 
     public setZoom(new_zoom: number) {
-        this.zoom = Math.max(0.5, Math.min(10, new_zoom));
+        this.zoom.set(Math.max(0.5, Math.min(10, new_zoom)));
     }
 
     public resetMap() {
-        this.zoom = 1;
-        this.center = { x: 0.5, y: 0.5 };
+        this.zoom.set(1);
+        this.center.set({ x: 0.5, y: 0.5 });
     }
 }

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, RemoteLoggingService, VERSION } from '@placeos/common';
@@ -61,6 +61,7 @@ import { PanelViewStatusComponent } from './panel-view-status.component';
     `,
     styles: [``],
     providers: [PanelStateService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         PanelViewStatusComponent,
         PanelViewDetailsComponent,

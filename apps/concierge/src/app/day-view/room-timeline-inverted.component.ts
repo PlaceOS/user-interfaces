@@ -1,6 +1,7 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import {
     AfterViewInit,
+    ChangeDetectionStrategy,
     Component,
     ElementRef,
     OnInit,
@@ -269,6 +270,7 @@ import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         DateOptionsComponent,
@@ -287,9 +289,7 @@ export class RoomBookingsInvertedTimelineComponent
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
     private _timeline_el = viewChild<ElementRef<HTMLElement>>('timeline_el');
-    private _building = toSignal(this._org.active_building, {
-        initialValue: this._org.building,
-    });
+    private _building = this._org.active_building;
     private _filtered = toSignal(this._state.filtered, { initialValue: [] });
     private _did_auto_scroll = false;
     public readonly hovered_row = signal(-1);
@@ -508,14 +508,12 @@ Host:  ${event.organiser?.name || event.host}`;
         await declineEvent(item.id, {
             calendar: item.calendar || item.mailbox || item.host,
             system_id: space_id,
-        })
-            .toPromise()
-            .catch((e) => {
-                this._state.restore(item);
-                notifyError(`Unable to cancel booking. ${e}`);
-                resp.close();
-                throw e;
-            });
+        }).catch((e) => {
+            this._state.restore(item);
+            notifyError(`Unable to cancel booking. ${e}`);
+            resp.close();
+            throw e;
+        });
         notifySuccess('Successfully cancelled booking.');
         this._dialog.closeAll();
     }

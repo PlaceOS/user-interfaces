@@ -36,9 +36,13 @@ export class RoomConfirmService {
         return this._state.form;
     }
 
+    public get model() {
+        return this._state.model;
+    }
+
     constructor() {
         this.book_space = {};
-        const resources = this._state.form?.get('resources')?.value || [];
+        const resources = this._state.model().resources || [];
         resources.forEach((_) => (this.book_space[_.id] = true));
         this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
     }
@@ -79,7 +83,11 @@ export class RoomConfirmService {
         const spaces = await Promise.all(
             id_list.map((id) => this._space_pipe.transform(id)),
         );
-        this.form.patchValue({ resources: spaces, system: spaces[0] });
+        this.model.update((m) => ({
+            ...m,
+            resources: spaces,
+            system: spaces[0],
+        }));
         this.space_list = this._spaces.filter((s) => this.book_space[s.id]);
         this.postForm();
     }

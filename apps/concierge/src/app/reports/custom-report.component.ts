@@ -1,4 +1,9 @@
-import { Component, computed, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { SettingsService } from '@placeos/common';
@@ -24,6 +29,7 @@ const EMPTY = {};
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [SafePipe],
 })
 export class CustomReportComponent {

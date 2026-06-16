@@ -95,7 +95,7 @@ export interface SpaceInfoData {
                         </div>
                         @if (status() !== 'not-bookable') {
                             <div available-until>
-                                {{ available_until }}
+                                {{ available_until() }}
                             </div>
                         }
                     </div>
@@ -194,7 +194,6 @@ export interface SpaceInfoData {
             }
         `,
     ],
-
     imports: [
         AsyncPipe,
         DatePipe,
@@ -247,6 +246,8 @@ export class ExploreSpaceInfoComponent extends AsyncHandler implements OnInit {
         false,
     );
 
+    public readonly available_until = computed(() => '');
+
     public ngOnInit() {
         this.space.set(this._details.space || new Space());
         this.events.set(this._details.events || []);
@@ -260,9 +261,5 @@ export class ExploreSpaceInfoComponent extends AsyncHandler implements OnInit {
         this.y_pos.set(
             pos.y < document.body.clientHeight / 2 ? 'top' : 'bottom',
         );
-    }
-
-    public get available_until() {
-        return '';
     }
 }

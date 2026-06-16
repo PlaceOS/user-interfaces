@@ -1,17 +1,22 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    effect,
+    inject,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     AsyncHandler,
     Building,
     OrganisationService,
     settingSignal,
-    SettingsService,
     userSignal,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { startOfMinute } from 'date-fns';
-import { debounceTime } from 'rxjs';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { TopbarComponent } from '../components/topbar.component';
 import { LandingAvailabilityComponent } from './landing-availability.component';
@@ -87,7 +92,10 @@ import { LandingUpcomingComponent } from './landing-upcoming.component';
                         <div class="font-medium sm:text-xl">
                             {{
                                 'APP.WORKPLACE.WELCOME_MESSAGE'
-                                    | translate: { name: user()?.name }
+                                    | translate
+                                        : {
+                                              name: user()?.name,
+                                          }
                             }}
                         </div>
                         <div date class="text-sm sm:text-base">
@@ -142,6 +150,7 @@ import { LandingUpcomingComponent } from './landing-upcoming.component';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TopbarComponent,
@@ -157,9 +166,8 @@ import { LandingUpcomingComponent } from './landing-upcoming.component';
         LandingUpcomingComponent,
     ],
 })
-export class LandingComponent extends AsyncHandler implements OnInit {
+export class LandingComponent extends AsyncHandler {
     private _org = inject(OrganisationService);
-    private _settings = inject(SettingsService);
 
     public readonly time = signal(0);
     public readonly tab = signal('people');
@@ -177,15 +185,17 @@ export class LandingComponent extends AsyncHandler implements OnInit {
         startOfMinute(this.time() || Date.now()),
     );
 
-    public ngOnInit() {
-        this.subscription(
-            'building',
-            this._org.active_building.pipe(debounceTime(300)).subscribe(() => {
+    constructor() {
+        super();
+        effect((onCleanup) => {
+            this._org.active_building();
+            const timeout = setTimeout(() => {
                 this.hide_nav.set(
                     localStorage.getItem('PlaceOS.hide_nav') === 'true',
                 );
                 this.building.set(this._org.building);
-            }),
-        );
+            }, 300);
+            onCleanup(() => clearTimeout(timeout));
+        });
     }
 }

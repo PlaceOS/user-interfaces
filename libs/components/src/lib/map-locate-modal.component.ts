@@ -1,4 +1,11 @@
-import { Component, inject, OnInit, output, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    OnInit,
+    output,
+    signal,
+} from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { ViewerFeature, ViewerStyles } from '@placeos/common';
 
@@ -90,22 +97,28 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
     /** Emitter for user action on the modal */
     public readonly event = output();
     /** Space to show the location of on the map */
-    public readonly item = signal<Locatable>({} as any);
+    public readonly item = signal(this._data.item);
     /** Features of the map */
     public readonly features = signal<ViewerFeature[]>([]);
     /** Mapping of elements to CSS styles */
-    public readonly style_map = signal<ViewerStyles>({});
-    /** Level that the locatable item is to be on **/
-    public readonly level = signal<BuildingLevel>(new BuildingLevel());
+    public style_map = signal<ViewerStyles>({});
+
+    public readonly level = computed<BuildingLevel>(
+        () =>
+            this.item().level || this._org.levelWithID(this.item().zones || []),
+    );
+
+    constructor() {
+        super();
+        if (!this.item().level?.id) {
+            this.item.update((item) => {
+                delete item.level;
+                return item;
+            });
+        }
+    }
 
     public ngOnInit(): void {
-        this.item.set(this._data.item);
-        this.level.set(
-            this.item().level || this._org.levelWithID(this.item().zones || []),
-        );
-        if (!this.level().id) {
-            this.level.set(this._org.levelWithID(this.item().zones || []));
-        }
         this.timeout(
             'init',
             () => {
@@ -118,7 +131,7 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
 
     public processStyles(): void {
         const styles: ViewerStyles = {};
-        if (this.item().map_id) {
+        if (this.item()?.map_id) {
             styles[`#zones`] = { display: 'none' };
             styles[`#Zones`] = { display: 'none' };
         }
@@ -127,13 +140,14 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
 
     /** Point on map to focus on */
     public processFeature(): void {
-        if (!this.item()) return null;
+        const item = this.item();
+        if (!item) return null;
         const focus = {
-            location: this.item().map_id,
+            location: item.map_id,
             track_id: `focus_item`,
             content: MapPinComponent,
             data: {
-                name: this.item().name,
+                name: item.name,
             },
             z_index: 99,
             zoom: 100,

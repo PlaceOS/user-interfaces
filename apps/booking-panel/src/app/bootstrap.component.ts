@@ -1,4 +1,10 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { querySystems } from '@placeos/ts-client';
@@ -151,6 +157,7 @@ import { TranslatePipe } from '@placeos/components';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatRippleModule,
@@ -176,7 +183,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
 
     private readonly _space_list$ = combineLatest([
         toObservable(this.system_id),
-        this._org.initialised,
+        toObservable(this._org.initialised),
     ]).pipe(
         debounceTime(300),
         switchMap(([search]) => {

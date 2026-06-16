@@ -1,5 +1,5 @@
+import { signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormControl, FormGroup } from '@angular/forms';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { BookingFormService, ParkingService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
@@ -9,7 +9,8 @@ import { ParkingRequestFormComponent } from '../../app/book/parking-request-flow
 
 describe('ParkingRequestFormComponent', () => {
     let spectator: Spectator<ParkingRequestFormComponent>;
-    let form: FormGroup;
+    let model: ReturnType<typeof signal<Record<string, any>>>;
+    let form: any;
     let post_form: jest.Mock;
     const createComponent = createComponentFactory({
         component: ParkingRequestFormComponent,
@@ -40,24 +41,26 @@ describe('ParkingRequestFormComponent', () => {
     });
 
     beforeEach(() => {
-        form = new FormGroup({
-            id: new FormControl(''),
-            date: new FormControl(Date.now() + 60 * 60 * 1000),
-            duration: new FormControl(60),
-            title: new FormControl('Parking Request'),
-            asset_id: new FormControl(''),
-            asset_name: new FormControl(''),
-            description: new FormControl(''),
-            zones: new FormControl([]),
-            location: new FormControl(''),
-            extension_data: new FormControl({}),
+        model = signal({
+            id: '',
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+            title: 'Parking Request',
+            asset_id: '',
+            asset_name: '',
+            description: '',
+            zones: [],
+            location: '',
+            extension_data: {},
         });
+        form = () => ({ valid: () => true });
         post_form = jest.fn(() => Promise.resolve({ id: 'booking-1' }));
         spectator = createComponent({
             detectChanges: false,
             providers: [
                 MockProvider(BookingFormService, {
                     form,
+                    model,
                     view: jest.fn(),
                     setOptions: jest.fn(),
                     setView: jest.fn(),
@@ -71,11 +74,9 @@ describe('ParkingRequestFormComponent', () => {
     it('should set the parking request location from the selected building before submitting', async () => {
         await spectator.component.submitRequest();
 
-        expect(form.getRawValue().zones).toEqual(['org-1', 'reg-1', 'bld-1']);
-        expect(form.getRawValue().location).toBe('Headquarters');
-        expect(form.getRawValue().extension_data.location).toBe(
-            'Headquarters',
-        );
+        expect(model().zones).toEqual(['org-1', 'reg-1', 'bld-1']);
+        expect(model().location).toBe('Headquarters');
+        expect(model().extension_data.location).toBe('Headquarters');
         expect(post_form).toHaveBeenCalled();
     });
 });

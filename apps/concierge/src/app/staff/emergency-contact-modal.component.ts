@@ -1,4 +1,10 @@
-import { Component, inject, signal, viewChild } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    signal,
+    viewChild,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
     FormControl,
@@ -201,6 +207,7 @@ import {
         </ng-template>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         IconComponent,
@@ -240,9 +247,7 @@ export class EmergencyContactModalComponent {
         roles: new FormControl(this._data?.roles || []),
     });
     /** List of levels for the active building */
-    public readonly levels = toSignal(this._org.active_levels, {
-        initialValue: [],
-    });
+    public readonly levels = this._org.active_levels;
 
     private readonly _tooltip = viewChild(CustomTooltipComponent);
 

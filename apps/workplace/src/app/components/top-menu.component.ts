@@ -1,25 +1,24 @@
 import { NgTemplateOutlet } from '@angular/common';
 import {
     afterNextRender,
+    ChangeDetectionStrategy,
     Component,
     computed,
+    DestroyRef,
     effect,
     ElementRef,
     inject,
     signal,
     viewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
-import { combineLatest } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
 import {
     i18n,
     OrganisationService,
-    SettingsService,
     settingSignal,
+    SettingsService,
     userSignal,
 } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
@@ -82,7 +81,7 @@ export function hasLoadedTopMenuSettings(state: TopMenuSettingsState) {
                 (window:resize)="checkMenu()"
                 class="text-base-content flex h-full w-full min-w-full items-center justify-center overflow-hidden"
             >
-                @for (route of visible_routes(); track route.id) {
+                @for (route of visible_routes(); track trackRoute(route)) {
                     @if (route.external) {
                         <a
                             matRipple
@@ -132,7 +131,7 @@ export function hasLoadedTopMenuSettings(state: TopMenuSettingsState) {
             </div>
         }
         <mat-menu #menu="matMenu">
-            @for (route of visible_routes(); track route.id) {
+            @for (route of visible_routes(); track trackRoute(route)) {
                 @if (route.external) {
                     <a
                         mat-menu-item
@@ -224,6 +223,7 @@ export function hasLoadedTopMenuSettings(state: TopMenuSettingsState) {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatMenuModule,
         IconComponent,
@@ -237,45 +237,30 @@ export class TopMenuComponent {
     private _org = inject(OrganisationService);
     private _router = inject(Router);
     private _settings = inject(SettingsService);
+    private _destroy_ref = inject(DestroyRef);
 
     private readonly menu =
         viewChild<ElementRef<HTMLDivElement>>('menuContainer');
 
-    public readonly buildings = this._org.building_list;
-    public readonly building = toSignal(this._org.active_building);
-    private readonly settings_ready = toSignal(
-        combineLatest([
-            this._settings.initialised,
-            this._org.initialised,
-            this._org.active_region,
-            this._org.active_building,
-            this._settings.overrides$,
-        ]).pipe(
-            map(
-                ([
-                    settings_initialised,
-                    org_initialised,
-                    region,
-                    building,
-                    overrides,
-                ]) => {
-                    const has_region_context =
-                        !this._org.regions.length || !!region?.id;
-                    const required_overrides =
-                        (this._org.settings?.length || 0) + 2;
-                    return hasLoadedTopMenuSettings({
-                        settings_initialised,
-                        org_initialised,
-                        has_region_context,
-                        has_building_context: !!building?.id,
-                        override_count: overrides.length,
-                        required_override_count: required_overrides,
-                    });
-                },
-            ),
-        ),
-        { initialValue: false },
+    public readonly building = this._org.active_building;
+    private readonly settings_initialised = signal(
+        this._settings.is_initialised,
     );
+    private readonly settings_ready = computed(() => {
+        const region = this._org.active_region();
+        const building = this._org.active_building();
+        const overrides = this._settings.overrides();
+        const has_region_context = !this._org.regions.length || !!region?.id;
+        const required_overrides = (this._org.settings?.length || 0) + 2;
+        return hasLoadedTopMenuSettings({
+            settings_initialised: this.settings_initialised(),
+            org_initialised: this._org.initialised(),
+            has_region_context,
+            has_building_context: !!building?.id,
+            override_count: overrides.length,
+            required_override_count: required_overrides,
+        });
+    });
     private readonly previous_size = signal(9999);
     public readonly checking = signal(false);
     public readonly mobile_menu = signal(false);
@@ -317,13 +302,7 @@ export class TopMenuComponent {
         );
     });
 
-    private readonly url = toSignal(
-        this._router.events.pipe(
-            filter((e) => e instanceof NavigationEnd),
-            map(() => this._router.url),
-        ),
-        { initialValue: this._router.url },
-    );
+    private readonly url = signal(this._router.url);
 
     public readonly type = computed(() => {
         const url = this.url();
@@ -443,10 +422,22 @@ export class TopMenuComponent {
         );
     });
 
+    public readonly trackRoute = (route: TopMenuRoute) => route.id;
+
     private _check_menu_timer: ReturnType<typeof setTimeout> | null = null;
 
     constructor() {
         this.checking.set(true);
+        const settings_sub = this._settings.initialised.subscribe((value) =>
+            this.settings_initialised.set(value),
+        );
+        const route_sub = this._router.events.subscribe((event) => {
+            if (event instanceof NavigationEnd) this.url.set(this._router.url);
+        });
+        this._destroy_ref.onDestroy(() => {
+            settings_sub.unsubscribe();
+            route_sub.unsubscribe();
+        });
 
         effect(() => {
             this.building();

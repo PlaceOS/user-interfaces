@@ -29,7 +29,7 @@ import { AddColleaguesModalComponent } from './add-colleagues-modal.component';
     selector: 'landing-colleagues-new',
     template: `
         <div class="border-base-300 bg-base-100 rounded-lg border p-4">
-            @let contact_list = contacts | async;
+            @let contact_list = contacts();
             <div class="mb-2 flex items-center justify-between">
                 <h3 class="text-lg font-medium">
                     {{ 'APP.WORKPLACE.COLLEAGUES' | translate }}

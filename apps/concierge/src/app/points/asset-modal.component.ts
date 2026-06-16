@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Output, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    EventEmitter,
+    Output,
+    inject,
+    signal,
+} from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import {
     FormControl,
@@ -252,6 +259,7 @@ import { DesksStateService } from '../desks/desks-state.service';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         TranslatePipe,
@@ -295,7 +303,7 @@ export class PointsAssetModalComponent extends AsyncHandler {
     public readonly asset_options = toSignal(
         combineLatest([
             this.form.valueChanges.pipe(startWith(this.form.getRawValue())),
-            this._spaces.list,
+            toObservable(this._spaces.list),
             toObservable(this._desks.desks),
         ]).pipe(
             map(([{ type, name }, spaces, desks]) => {

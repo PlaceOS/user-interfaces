@@ -18,16 +18,7 @@ import {
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { queryBookings } from '@placeos/bookings';
 import { AsyncHandler, User } from '@placeos/common';
-import {
-    DurationPipe,
-    IconComponent,
-    TranslatePipe,
-    UserAvatarComponent,
-} from '@placeos/components';
-import { queryUserFreeBusy } from '@placeos/events';
-import { DateFieldComponent, UserSearchFieldComponent } from '@placeos/form-fields';
 import {
     addMinutes,
     differenceInMinutes,
@@ -38,7 +29,15 @@ import {
     setHours,
     startOfDay,
 } from 'date-fns';
-import { forkJoin, of } from 'rxjs';
+import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
+import { DurationPipe } from 'libs/components/src/lib/duration.pipe';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
+import { queryUserFreeBusy } from 'libs/events/src/lib/calendar.fn';
+import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
+import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
+import { forkJoin, from, Observable, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -328,23 +327,27 @@ export class FindAvailabilityModalComponent
             // Query calendar free/busy and desk bookings per user
             const desk_queries = all_emails.reduce(
                 (acc, email) => {
-                    acc[email] = queryBookings({
-                        type: 'desk',
-                        email,
-                        period_start,
-                        period_end,
-                    }).pipe(catchError(() => of([])));
+                    acc[email] = from(
+                        queryBookings({
+                            type: 'desk',
+                            email,
+                            period_start,
+                            period_end,
+                        }),
+                    ).pipe(catchError(() => of([] as any[])));
                     return acc;
                 },
-                {} as Record<string, ReturnType<typeof queryBookings>>,
+                {} as Record<string, Observable<any[]>>,
             );
 
             return forkJoin({
-                calendar: queryUserFreeBusy({
-                    calendars: all_emails.join(','),
-                    period_start,
-                    period_end,
-                }).pipe(catchError(() => of([]))),
+                calendar: from(
+                    queryUserFreeBusy({
+                        calendars: all_emails.join(','),
+                        period_start,
+                        period_end,
+                    }),
+                ).pipe(catchError(() => of([]))),
                 desks: forkJoin(desk_queries).pipe(
                     catchError(() => of({} as Record<string, any[]>)),
                 ),

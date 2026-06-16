@@ -1,5 +1,5 @@
 import { Component, inject, input, output } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { OrganisationService, SettingsService } from '@placeos/common';
@@ -185,21 +185,27 @@ export class LockerBankListComponent {
 
     private readonly _lockers_banks$ = loadLockerBanks(
         this._org,
-        combineLatest([this._org.active_building, this._org.active_region]),
+        combineLatest([
+            toObservable(this._org.active_building),
+            toObservable(this._org.active_region),
+        ]),
         () => this._use_region(),
     );
 
     private readonly _lockers$ = loadLockers(
         this._org,
-        combineLatest([this._org.active_building, this._org.active_region]),
+        combineLatest([
+            toObservable(this._org.active_building),
+            toObservable(this._org.active_region),
+        ]),
         this._lockers_banks$,
         () => this._use_region(),
     );
 
     public readonly locker_banks = toSignal(
         combineLatest([
-            this._state.options,
-            this._state.available_resources,
+            toObservable(this._state.options),
+            toObservable(this._state.available_resources),
             this._lockers_banks$,
             this._lockers$,
         ]).pipe(
@@ -235,9 +241,7 @@ export class LockerBankListComponent {
         ),
         { initialValue: [] },
     );
-    public readonly loading = toSignal(this._state.loading, {
-        initialValue: '',
-    });
+    public readonly loading = this._state.loading;
 
     public isFavourite(locker_bank_id: string) {
         return this.favorites().includes(locker_bank_id);

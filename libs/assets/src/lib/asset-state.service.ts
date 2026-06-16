@@ -1,4 +1,11 @@
-import { Injectable, inject } from '@angular/core';
+import {
+    computed,
+    effect,
+    inject,
+    Injectable,
+    signal,
+    untracked,
+} from '@angular/core';
 import { AssetGroup, OrganisationService } from '@placeos/common';
 import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
 import {
@@ -10,16 +17,6 @@ import {
     startOfMinute,
 } from 'date-fns';
 import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    filter,
-    map,
-    shareReplay,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
 import { updateAssetGroupList } from './asset-group.pipe';
 import { assetAvailable, getAssetRulesForZone } from './asset.utilities';
 import {
@@ -36,185 +33,193 @@ export interface AssetOptions {
     ignore?: string[];
 }
 
+function assetOptionsMatch(a: AssetOptions, b: AssetOptions) {
+    const keys = Array.from(
+        new Set([
+            ...(Object.keys(a) as (keyof AssetOptions)[]),
+            ...(Object.keys(b) as (keyof AssetOptions)[]),
+        ]),
+    );
+    return keys.every((key) => Object.is(a[key], b[key]));
+}
+
 @Injectable({
     providedIn: 'root',
 })
 export class AssetStateService {
     private _org = inject(OrganisationService);
 
-    private _options = new BehaviorSubject<AssetOptions>({ date: Date.now() });
-    private _search = new BehaviorSubject<string>('');
-    private _category = new BehaviorSubject<string[]>([]);
-    private _loading = new BehaviorSubject<string>('');
+    private _options = signal<AssetOptions>({ date: Date.now() });
+    private _search = signal<string>('');
+    private _category = signal<string[]>([]);
+    private _loading = signal<string>('');
+    private _rules = signal([]);
+    private _asset_list = signal<any>(null);
+    private _asset_bookings = signal<any[]>([]);
+    private _available_groups = signal<AssetGroup[]>([]);
+    private _category_list = signal<any[]>([]);
+    private _settings = signal<Record<string, any>>({});
 
-    public readonly search = this._search.asObservable();
-    public readonly category = this._category.asObservable();
-    public readonly options = this._options.asObservable();
-    public readonly loading = this._loading.asObservable();
-
-    public readonly rules = combineLatest([
-        this._options,
-        this._org.active_building,
-    ]).pipe(
-        filter(([_, bld]) => !!bld),
-        debounceTime(300),
-        switchMap(([options, bld]) => {
-            this._loading.next(this._loading.getValue() + '[Rules]');
-            return getAssetRulesForZone(
-                options.zone || options.zone_id || bld.id || '',
-            );
-        }),
-        tap((_) =>
-            this._loading.next(
-                this._loading.getValue().replace(/\[Rules\]/g, ''),
-            ),
-        ),
-        shareReplay(1),
+    public readonly search = this._search.asReadonly();
+    public readonly category = this._category.asReadonly();
+    public readonly options = this._options.asReadonly();
+    public readonly loading = this._loading.asReadonly();
+    public readonly rules = this._rules.asReadonly();
+    public readonly asset_list = this._asset_list.asReadonly();
+    public readonly asset_bookings = this._asset_bookings.asReadonly();
+    public readonly available_groups = this._available_groups.asReadonly();
+    public readonly category_list = this._category_list.asReadonly();
+    public readonly visible_category_ids = computed(() =>
+        this._category_list().map((item) => item.id),
+    );
+    public readonly filtered_assets = computed(() => {
+        const search = this._search().toLowerCase();
+        const category = this._category();
+        const visible_categories = this.visible_category_ids();
+        const assets = this._available_groups();
+        const rules = this._rules();
+        return assets.filter(
+            (_) =>
+                _.assets?.length &&
+                visible_categories.includes(_.category_id) &&
+                (!category.length || category.includes(_.category_id)) &&
+                (_.name.toLowerCase().includes(search) ||
+                    _.description.toLowerCase().includes(search)) &&
+                assetAvailable(_, rules, this._options() as any),
+        );
+    });
+    public readonly settings = this._settings.asReadonly();
+    public readonly disabled_rooms = computed(
+        () => this._settings().disabled_rooms || [],
     );
 
-    public readonly asset_list = of(0).pipe(
-        switchMap(() => {
-            this._loading.next(this._loading.getValue() + '[Assets]');
-            return queryAssets();
-        }),
-        tap((_) =>
-            this._loading.next(
-                this._loading.getValue().replace(/\[Assets\]/g, ''),
-            ),
-        ),
-        shareReplay(1),
-    );
-
-    public readonly asset_bookings = this._options.pipe(
-        debounceTime(300),
-        switchMap(({ zone, zone_id, date }) => {
-            this._loading.next(this._loading.getValue() + '[Bookings]');
-            return queryBookings({
-                zones: zone || zone_id || '',
-                period_start: getUnixTime(startOfDay(date)),
-                period_end: getUnixTime(endOfDay(date)),
-                type: 'asset-request',
+    constructor() {
+        this._loadAssetList();
+        effect(() => {
+            const options = this._options();
+            const bld = this._org.active_building();
+            if (!bld?.id) return;
+            untracked(() => {
+                this._loadRules(options, bld.id);
+                this._loadAssetBookings(options);
+                this._loadAvailableGroups(options, bld.id);
+                this._loadSettings(bld.id);
+                this._loadCategories();
             });
-        }),
-        tap((_) =>
-            this._loading.next(
-                this._loading.getValue().replace(/\[Bookings\]/g, ''),
-            ),
-        ),
-        shareReplay(1),
-    );
-
-    public readonly available_groups = combineLatest([
-        this._options,
-        this._org.active_building,
-    ]).pipe(
-        debounceTime(1000),
-        switchMap(([{ zone, zone_id, date, duration, ignore }, bld]) => {
-            return queryGroupAvailability(
-                {
-                    zones: zone || zone_id || bld.id || '',
-                    period_start: getUnixTime(startOfMinute(date)),
-                    period_end: getUnixTime(
-                        endOfMinute(addMinutes(date, duration || 30)),
-                    ),
-                    type: 'asset-request',
-                    rejected: false,
-                } as any,
-                ignore,
-            ).pipe(
-                catchError((e) => {
-                    console.error(e);
-                    return of([] as AssetGroup[]);
-                }),
-            );
-        }),
-        map((list) => list.sort((a, b) => a.name.localeCompare(b.name))),
-        tap((l) => console.log('Items returned:', l)),
-        tap((_) => updateAssetGroupList(_)),
-        shareReplay(1),
-    );
-
-    public readonly category_list = this._org.active_building.pipe(
-        filter((bld) => !!bld),
-        // Asset categories are global, not building-scoped.
-        switchMap(() => queryAssetCategories()),
-        map((_) =>
-            _.data
-                .sort((a, b) => a.name.localeCompare(b.name))
-                .filter((c) => !c.hidden),
-        ),
-        shareReplay(1),
-    );
-
-    public readonly visible_category_ids = this.category_list.pipe(
-        map((list) => list.map((item) => item.id)),
-        tap((visible_ids) => {
-            const selected_categories = this._category.getValue();
+        });
+        effect(() => {
+            const visible_ids = this.visible_category_ids();
+            const selected_categories = this._category();
             const valid_categories = selected_categories.filter((item) =>
                 visible_ids.includes(item),
             );
             if (valid_categories.length !== selected_categories.length) {
-                this._category.next(valid_categories);
+                this._category.set(valid_categories);
             }
-        }),
-        shareReplay(1),
-    );
-
-    public readonly filtered_assets = combineLatest([
-        this._search,
-        this._category,
-        this.visible_category_ids,
-        this.available_groups,
-        this.rules,
-    ]).pipe(
-        map(([search, category, visible_categories, assets, rules]) => {
-            const s = search.toLowerCase();
-            const list = assets.filter(
-                (_) =>
-                    _.assets?.length &&
-                    visible_categories.includes(_.category_id) &&
-                    (!category.length || category.includes(_.category_id)) &&
-                    (_.name.toLowerCase().includes(s) ||
-                        _.description.toLowerCase().includes(s)) &&
-                    assetAvailable(_, rules, this._options.getValue() as any),
-            );
-            return list;
-        }),
-        shareReplay(1),
-    );
-
-    public readonly settings = combineLatest([this._org.active_building]).pipe(
-        filter(([_]) => !!_),
-        switchMap(([_]) =>
-            showMetadata(_.id, 'assets-settings').catch(
-                () => ({}) as PlaceMetadata,
-            ),
-        ),
-        map((_) => (_.details as Record<string, any>) || {}),
-        shareReplay(1),
-    );
-    public readonly disabled_rooms = this.settings.pipe(
-        map((_) => _.disabled_rooms || []),
-    );
+        });
+    }
 
     public setSearch(value: string) {
-        this._search.next(`${value}`);
+        this._search.set(`${value}`);
     }
 
     public toggleCategory(value: string) {
-        const categories = this._category.getValue();
+        const categories = untracked(this._category);
         if (categories.includes(value)) {
-            this._category.next(categories.filter((_) => _ !== value));
+            this._category.set(categories.filter((_) => _ !== value));
         } else {
-            this._category.next([...categories, value]);
+            this._category.set([...categories, value]);
         }
     }
 
     public getOptions() {
-        return this._options.getValue();
+        return this._options();
     }
 
     public setOptions(options: Partial<AssetOptions>) {
-        this._options.next({ ...this._options.value, ...options });
+        const current = untracked(this._options);
+        const next = { ...current, ...options };
+        if (assetOptionsMatch(current, next)) {
+            return;
+        }
+        this._options.set(next);
+    }
+
+    private _appendLoading(value: string) {
+        this._loading.set(this._loading() + value);
+    }
+
+    private _removeLoading(value: string) {
+        this._loading.set(this._loading().split(value).join(''));
+    }
+
+    private async _loadRules(options: AssetOptions, building_id: string) {
+        this._appendLoading('[Rules]');
+        this._rules.set(
+            await getAssetRulesForZone(
+                options.zone || options.zone_id || building_id || '',
+            ),
+        );
+        this._removeLoading('[Rules]');
+    }
+
+    private async _loadAssetList() {
+        this._appendLoading('[Assets]');
+        this._asset_list.set(await queryAssets());
+        this._removeLoading('[Assets]');
+    }
+
+    private async _loadAssetBookings({ zone, zone_id, date }: AssetOptions) {
+        this._appendLoading('[Bookings]');
+        this._asset_bookings.set(
+            await queryBookings({
+                zones: zone || zone_id || '',
+                period_start: getUnixTime(startOfDay(date)),
+                period_end: getUnixTime(endOfDay(date)),
+                type: 'asset-request',
+            }),
+        );
+        this._removeLoading('[Bookings]');
+    }
+
+    private async _loadAvailableGroups(
+        { zone, zone_id, date, duration, ignore }: AssetOptions,
+        building_id: string,
+    ) {
+        const list = await queryGroupAvailability(
+            {
+                zones: zone || zone_id || building_id || '',
+                period_start: getUnixTime(startOfMinute(date)),
+                period_end: getUnixTime(
+                    endOfMinute(addMinutes(date, duration || 30)),
+                ),
+                type: 'asset-request',
+                rejected: false,
+            } as any,
+            ignore,
+        ).catch((e) => {
+            console.error(e);
+            return [] as AssetGroup[];
+        });
+        const sorted_list = list.sort((a, b) => a.name.localeCompare(b.name));
+        updateAssetGroupList(sorted_list);
+        this._available_groups.set(sorted_list);
+    }
+
+    private async _loadCategories() {
+        const categories = await queryAssetCategories();
+        this._category_list.set(
+            categories.data
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .filter((c) => !c.hidden),
+        );
+    }
+
+    private async _loadSettings(building_id: string) {
+        const metadata = await showMetadata(
+            building_id,
+            'assets-settings',
+        ).catch(() => ({}) as PlaceMetadata);
+        this._settings.set((metadata.details as Record<string, any>) || {});
     }
 }

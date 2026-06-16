@@ -6,8 +6,9 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import { signal } from '@angular/core';
 import { endOfDay, startOfDay } from 'date-fns';
-import { BehaviorSubject, of, timer } from 'rxjs';
+import { of, timer } from 'rxjs';
 import { MockProvider } from 'ng-mocks';
 import { EventStateService } from '../../app/events/event-state.service';
 
@@ -20,9 +21,7 @@ describe('EventStateService', () => {
         service: EventStateService,
         providers: [
             MockProvider(OrganisationService, {
-                active_building: new BehaviorSubject(
-                    new Building({ id: 'bld-123' }),
-                ),
+                active_building: signal(new Building({ id: 'bld-123' })),
             } as any),
             MockProvider(SettingsService, {
                 get: jest.fn((key: string) =>

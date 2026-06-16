@@ -6,8 +6,6 @@ import {
     queryAssetTypes,
     removeAsset,
 } from '@placeos/ts-client';
-import { defer, forkJoin, from, Observable, of, throwError } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
 import { saveAsset, saveAssetCategory, saveAssetType } from './assets.fn';
 
 const CATERING_CATEGORY_NAME = '_CATERING_';
@@ -59,7 +57,7 @@ async function ensure_hidden_category(name: string) {
         category = await saveAssetCategory({
             name,
             hidden: true,
-        } as any).toPromise();
+        } as any);
         reset_hidden_categories_cache();
         return category;
     } catch (error) {
@@ -94,8 +92,8 @@ export function isCateringTypeName(type_name: string = '') {
     return type_name.startsWith(CATERING_TYPE_PREFIX);
 }
 
-export function resolveCateringCategoryId(): Observable<string> {
-    if (_catering_category_id) return of(_catering_category_id);
+export function resolveCateringCategoryId(): Promise<string> {
+    if (_catering_category_id) return Promise.resolve(_catering_category_id);
     if (!_catering_category_id_promise) {
         _catering_category_id_promise = ensure_hidden_category(
             CATERING_CATEGORY_NAME,
@@ -104,63 +102,46 @@ export function resolveCateringCategoryId(): Observable<string> {
             return category.id;
         });
     }
-    return defer(() => from(_catering_category_id_promise));
+    return _catering_category_id_promise;
 }
 
-function query_catering_types(): Observable<any[]> {
-    if (_catering_types_promise)
-        return defer(() => from(_catering_types_promise));
-    _catering_types_promise = resolveCateringCategoryId()
-        .pipe(
-            switchMap((category_id) =>
-                queryAssetTypes({ category_id, limit: 500 }),
-            ),
-            map((_) => _.data.filter((type) => isCateringTypeName(type.name))),
-        )
-        .toPromise()
-        .catch(() => []);
-    return defer(() => from(_catering_types_promise));
+function query_catering_types(): Promise<any[]> {
+    if (!_catering_types_promise) {
+        _catering_types_promise = resolveCateringCategoryId()
+            .then((category_id) => queryAssetTypes({ category_id, limit: 500 }))
+            .then((_) => _.data.filter((type) => isCateringTypeName(type.name)))
+            .catch(() => []);
+    }
+    return _catering_types_promise;
 }
 
-export function resolveCateringTypeId(
+export async function resolveCateringTypeId(
     caterer: string = '',
-): Observable<string> {
+): Promise<string> {
     const type_name = toCateringTypeName(caterer);
-    return query_catering_types().pipe(
-        switchMap((types) => {
-            const type = types.find(
-                (_) => normalise_name(_.name) === normalise_name(type_name),
-            );
-            if (type) return of(type.id);
-            return resolveCateringCategoryId().pipe(
-                switchMap((category_id) =>
-                    saveAssetType({
-                        name: type_name,
-                        brand: 'PlaceOS',
-                        category_id,
-                    } as any),
-                ),
-                map((type: any) => {
-                    reset_catering_types_cache();
-                    return type.id;
-                }),
-                catchError((error) => {
-                    reset_catering_types_cache();
-                    return query_catering_types().pipe(
-                        map((types) => {
-                            const type = types.find(
-                                (_) =>
-                                    normalise_name(_.name) ===
-                                    normalise_name(type_name),
-                            );
-                            if (type) return type.id;
-                            throw error;
-                        }),
-                    );
-                }),
-            );
-        }),
+    const types = await query_catering_types();
+    const type = types.find(
+        (_) => normalise_name(_.name) === normalise_name(type_name),
     );
+    if (type) return type.id;
+    try {
+        const category_id = await resolveCateringCategoryId();
+        const type = await saveAssetType({
+            name: type_name,
+            brand: 'PlaceOS',
+            category_id,
+        } as any);
+        reset_catering_types_cache();
+        return type.id;
+    } catch (error) {
+        reset_catering_types_cache();
+        const types = await query_catering_types();
+        const type = types.find(
+            (_) => normalise_name(_.name) === normalise_name(type_name),
+        );
+        if (type) return type.id;
+        throw error;
+    }
 }
 
 export function toCateringItem(asset: PlaceAsset, caterer: string) {
@@ -217,69 +198,60 @@ function to_asset_data(
     };
 }
 
-export function queryCateringItems(
+export async function queryCateringItems(
     zone_id: string,
-): Observable<CateringItem[]> {
-    if (!zone_id) return of([]);
-    return query_catering_types().pipe(
-        switchMap((types) => {
-            if (!types.length) return of([] as CateringItem[]);
-            return forkJoin(
-                types.map((type) =>
-                    queryAssets({
-                        zone_id,
-                        type_id: type.id,
-                        limit: 500,
-                    }).then((assets) =>
-                        assets.data.map((asset) =>
-                            toCateringItem(
-                                asset,
-                                fromCateringTypeName(type.name),
-                            ),
-                        ),
-                    ),
+): Promise<CateringItem[]> {
+    if (!zone_id) return [];
+    const types = await query_catering_types();
+    if (!types.length) return [];
+    const results = await Promise.all(
+        types.map((type) =>
+            queryAssets({
+                zone_id,
+                type_id: type.id,
+                limit: 500,
+            }).then((assets) =>
+                assets.data.map((asset) =>
+                    toCateringItem(asset, fromCateringTypeName(type.name)),
                 ),
-            ).pipe(map((results) => flatten<CateringItem>(results)));
-        }),
-        map((items) => items.sort((a, b) => a.name.localeCompare(b.name))),
+            ),
+        ),
+    );
+    return flatten<CateringItem>(results).sort((a, b) =>
+        a.name.localeCompare(b.name),
     );
 }
 
-export function queryCateringItemsForZones(
+export async function queryCateringItemsForZones(
     zone_ids: string[],
-): Observable<CateringItem[]> {
-    if (!zone_ids?.length) return of([]);
-    return forkJoin(
+): Promise<CateringItem[]> {
+    if (!zone_ids?.length) return [];
+    const results = await Promise.all(
         zone_ids.map((zone_id) => queryCateringItems(zone_id)),
-    ).pipe(map((results) => flatten<CateringItem>(results)));
+    );
+    return flatten<CateringItem>(results);
 }
 
-export function saveCateringItem(
+export async function saveCateringItem(
     item: Partial<CateringItem>,
     zone_id: string,
-): Observable<CateringItem> {
-    return resolveCateringTypeId(item.caterer).pipe(
-        switchMap((asset_type_id) => {
-            const asset = to_asset_data(item, zone_id, asset_type_id);
-            return saveAsset(asset).pipe(
-                catchError((error) => {
-                    if (!asset.id || error?.status !== 404) {
-                        return throwError(() => error);
-                    }
-                    const { id, ...new_asset } = asset;
-                    return saveAsset(new_asset);
-                }),
-                map((saved) =>
-                    toCateringItem(
-                        saved,
-                        fromCateringTypeName(toCateringTypeName(item.caterer)),
-                    ),
-                ),
-            );
-        }),
+): Promise<CateringItem> {
+    const asset_type_id = await resolveCateringTypeId(item.caterer);
+    const asset = to_asset_data(item, zone_id, asset_type_id);
+    let saved: PlaceAsset;
+    try {
+        saved = await saveAsset(asset);
+    } catch (error) {
+        if (!asset.id || (error as any)?.status !== 404) throw error;
+        const { id, ...new_asset } = asset;
+        saved = await saveAsset(new_asset);
+    }
+    return toCateringItem(
+        saved,
+        fromCateringTypeName(toCateringTypeName(item.caterer)),
     );
 }
 
 export function deleteCateringItem(id: string) {
-    return from(removeAsset(id));
+    return removeAsset(id);
 }

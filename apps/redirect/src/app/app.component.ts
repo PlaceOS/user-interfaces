@@ -1,4 +1,9 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+} from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { SettingsService } from '@placeos/common';
 import { authority, setAPI_Key } from '@placeos/ts-client';
@@ -75,6 +80,7 @@ import { current_user, currentUser, setupPlace } from '@placeos/common';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     providers: [SettingsService],
 })
 export class AppComponent implements OnInit {

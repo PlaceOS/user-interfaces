@@ -1,9 +1,9 @@
-import { EventEmitter } from '@angular/core';
+import { EventEmitter, WritableSignal, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/common';
 import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, lastValueFrom, of, throwError } from 'rxjs';
+import { lastValueFrom, of } from 'rxjs';
 
 import * as booking_mod from '@placeos/bookings';
 import * as common_mod from '@placeos/common';
@@ -20,13 +20,13 @@ jest.mock('@placeos/ts-client');
 
 describe('DesksStateService', () => {
     let spectator: SpectatorService<DesksStateService>;
-    let active_building: BehaviorSubject<any>;
-    let active_region: BehaviorSubject<any>;
+    let active_building: WritableSignal<any>;
+    let active_region: WritableSignal<any>;
     let current_building: any;
     let settings_map: Record<string, any>;
     const organisation_service: any = {
-        active_levels: of([]),
-        initialised: of(true),
+        active_levels: signal([]),
+        initialised: signal(true),
         levelWithID: jest.fn(),
         organisation: { id: 'org-1' },
         region: { id: 'region-1' },
@@ -56,8 +56,8 @@ describe('DesksStateService', () => {
     beforeEach(() => {
         current_building = { id: 'bld-1' };
         settings_map = { 'app.use_region': false };
-        active_building = new BehaviorSubject(current_building);
-        active_region = new BehaviorSubject({ id: 'region-1' });
+        active_building = signal(current_building);
+        active_region = signal({ id: 'region-1' });
         organisation_service.active_building = active_building;
         organisation_service.active_region = active_region;
         organisation_service.region = { id: 'region-1' };
@@ -65,11 +65,19 @@ describe('DesksStateService', () => {
             of({ data: [], total: 0, next: null }),
         );
         (booking_mod as any).queryBookings = jest.fn(() => of([]));
-        (booking_mod as any).saveBooking = jest.fn(() => of({}));
-        (booking_mod as any).removeBooking = jest.fn(() => of(undefined));
-        (booking_mod as any).rejectBooking = jest.fn(() => of({}));
-        (booking_mod as any).rejectBookingInstance = jest.fn(() => of({}));
-        (booking_mod as any).updateBooking = jest.fn(() => of({}));
+        (booking_mod as any).saveBooking = jest.fn(() => Promise.resolve({}));
+        (booking_mod as any).removeBooking = jest.fn(() =>
+            Promise.resolve(undefined),
+        );
+        (booking_mod as any).rejectBooking = jest.fn(() =>
+            Promise.resolve({}),
+        );
+        (booking_mod as any).rejectBookingInstance = jest.fn(() =>
+            Promise.resolve({}),
+        );
+        (booking_mod as any).updateBooking = jest.fn(() =>
+            Promise.resolve({}),
+        );
         jest.spyOn(ts_client_mod, 'updateMetadata').mockResolvedValue(
             {} as never,
         );
@@ -105,7 +113,7 @@ describe('DesksStateService', () => {
             { id: 'bld-1-lvl-1' },
         ]);
         current_building = { id: 'bld-2' };
-        active_building.next(current_building);
+        active_building.set(current_building);
         expect((spectator.service as any)._currentLevelList()).toEqual([
             { id: 'bld-2-lvl-1' },
         ]);
@@ -113,7 +121,7 @@ describe('DesksStateService', () => {
 
     it('should apply building timezone to desk booking listing requests', () => {
         current_building = { id: 'bld-1', timezone: 'Australia/Sydney' };
-        active_building.next(current_building);
+        active_building.set(current_building);
         (spectator.inject(SettingsService).get as any) = jest.fn(
             (name: string) => {
                 if (name === 'app.use_region') return false;
@@ -171,7 +179,7 @@ describe('DesksStateService', () => {
         const mock_now = new Date('2026-06-15T12:00:00Z').valueOf();
         const assigned_start = new Date('2026-06-15T01:00:00Z').valueOf();
         current_building = { id: 'bld-1', timezone: 'Australia/Sydney' };
-        active_building.next(current_building);
+        active_building.set(current_building);
         settings_map['app.bookings.use_building_timezone'] = true;
         jest.spyOn(Date, 'now').mockReturnValue(mock_now);
         (common_mod as any).setTimeInTimezone.mockReturnValue(assigned_start);
@@ -321,7 +329,7 @@ describe('DesksStateService', () => {
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
         spectator.service.setFilters({ zones: ['level-1'] });
         (booking_mod.queryBookings as jest.Mock).mockReturnValue(
-            of([
+            Promise.resolve([
                 {
                     id: 'booking-1',
                     asset_id: 'desk-1',
@@ -329,8 +337,8 @@ describe('DesksStateService', () => {
             ]),
         );
         (booking_mod.saveBooking as jest.Mock)
-            .mockReturnValueOnce(throwError(() => ({ status: 409 })))
-            .mockReturnValueOnce(of({}));
+            .mockRejectedValueOnce({ status: 409 })
+            .mockResolvedValueOnce({});
 
         await spectator.service.editDesk(original_desk).catch(() => undefined);
 
@@ -473,7 +481,7 @@ describe('DesksStateService', () => {
             }),
         });
         (booking_mod.rejectBookingInstance as jest.Mock).mockReturnValue(
-            throwError(() => '405 Method Not Allowed'),
+            Promise.reject('405 Method Not Allowed'),
         );
         const refresh_spy = jest.spyOn(spectator.service, 'refresh');
 

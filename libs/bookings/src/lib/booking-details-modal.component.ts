@@ -23,7 +23,6 @@ import {
     userSignal,
 } from '@placeos/common';
 import { addMinutes, format, isSameWeek } from 'date-fns';
-import { lastValueFrom } from 'rxjs';
 
 import { OrganisationService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -94,7 +93,9 @@ export function canEditBooking(booking: Booking) {
                             {{ period() }}
                         </status-pill>
                         @if (booking().instance) {
-                            <icon class="text-2xl" [matTooltip]="recurr_tooltip"
+                            <icon
+                                class="text-2xl"
+                                [matTooltip]="recurr_tooltip()"
                                 >event_repeat</icon
                             >
                         }
@@ -289,10 +290,7 @@ export function canEditBooking(booking: Booking) {
                                     <button
                                         matRipple
                                         class="flex w-full items-center space-x-2 p-3"
-                                        (click)="
-                                            show_request[request.id] =
-                                                !show_request[request.id]
-                                        "
+                                        (click)="toggleRequest(request.id)"
                                     >
                                         <div class="flex-1 text-left">
                                             <div class="text-sm">
@@ -304,7 +302,7 @@ export function canEditBooking(booking: Booking) {
                                                                       request.deliver_at
                                                                       | date
                                                                           : 'MMM d, ' +
-                                                                                time_format,
+                                                                                time_format(),
                                                               }
                                                 }}
                                             </div>
@@ -351,7 +349,7 @@ export function canEditBooking(booking: Booking) {
                                         >
                                             <icon class="text-2xl">
                                                 {{
-                                                    show_request[request.id]
+                                                    showRequest(request.id)
                                                         ? 'expand_less'
                                                         : 'expand_more'
                                                 }}
@@ -361,7 +359,7 @@ export function canEditBooking(booking: Booking) {
                                     <div
                                         class="divide-base-100 bg-base-200 flex flex-col divide-y"
                                         [@show]="
-                                            show_request[request.id]
+                                            showRequest(request.id)
                                                 ? 'show'
                                                 : 'hide'
                                         "
@@ -522,7 +520,7 @@ export class BookingDetailsModalComponent {
     public readonly edit = this._data.edit_fn;
     public readonly remove = this._data.remove_fn;
     public readonly end = this._data.end_fn;
-    public show_request = {};
+    private readonly _show_request = signal<Record<string, boolean>>({});
     public readonly features = computed(() => [
         {
             location:
@@ -715,9 +713,7 @@ export class BookingDetailsModalComponent {
         return start <= ts && ts <= end;
     });
 
-    public get time_format() {
-        return this._settings.time_format_signal();
-    }
+    public readonly time_format = this._settings.time_format_signal;
 
     private readonly _is_visible_waitlisted = computed(() => {
         const booking = this.booking();
@@ -753,23 +749,34 @@ export class BookingDetailsModalComponent {
         })
             .replace(' hour', 'hr')
             .replace(' minute', 'min');
-        return `${format(start, this.time_format)} - ${format(
+        return `${format(start, this.time_format())} - ${format(
             end,
-            this.time_format,
+            this.time_format(),
         )} (${dur})`;
     });
+
+    public showRequest(id: string) {
+        return this._show_request()[id];
+    }
+
+    public toggleRequest(id: string) {
+        this._show_request.update((value) => ({
+            ...value,
+            [id]: !value[id],
+        }));
+    }
 
     public async toggleCheckedIn() {
         this.checking_in.set(true);
         const bkn = this.booking();
-        const promise = lastValueFrom(
+        const promise = (
             bkn.instance
                 ? checkinBookingInstance(
                       bkn.id,
                       bkn.instance,
                       !this.booking().checked_in,
                   )
-                : checkinBooking(this.booking().id, !this.booking().checked_in),
+                : checkinBooking(this.booking().id, !this.booking().checked_in)
         ).catch((_) => {
             notifyError(i18n('BOOKINGS.CHECK_IN_ERROR'));
             this.checking_in.set(false);
@@ -792,14 +799,13 @@ export class BookingDetailsModalComponent {
         this.checking_in.set(false);
     }
 
-    public get recurr_tooltip() {
-        return (
+    public readonly recurr_tooltip = computed(
+        () =>
             formatRecurrence(
                 fromBookingRecurrence(this.booking()),
                 this.booking()?.date,
-            ) || i18n('CALENDAR_EVENT.RECURRING_TOOLTIP')
-        );
-    }
+            ) || i18n('CALENDAR_EVENT.RECURRING_TOOLTIP'),
+    );
 
     public status(id: string): string {
         const booking = this.booking().linked_bookings.find(

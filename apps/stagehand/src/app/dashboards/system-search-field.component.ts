@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     ElementRef,
     forwardRef,
@@ -196,6 +197,7 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
             multi: true,
         },
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatAutocompleteModule,

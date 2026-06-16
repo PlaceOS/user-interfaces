@@ -12,12 +12,9 @@ import {
     firstTruthyValueFrom,
     GroupPermission,
     hasPermission,
-    observableFromSignal,
     user_groups_loaded,
 } from '@placeos/common';
 import { authority, onlineState, waitForSignal } from '@placeos/ts-client';
-import { combineLatest, lastValueFrom } from 'rxjs';
-import { first } from 'rxjs/operators';
 
 import { OrganisationService } from '@placeos/common';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
@@ -69,12 +66,8 @@ export class AuthorisedUserGuard {
         } else if (!groups.length) {
             can_activate = true;
         } else {
-            await lastValueFrom(
-                combineLatest([
-                    observableFromSignal(onlineState()),
-                    this._org.initialised,
-                ]).pipe(first(([online, org_init]) => online && org_init)),
-            );
+            await waitForSignal(onlineState(), Boolean);
+            await this._org.waitUntilInitialised();
             const user = await firstTruthyValueFrom(current_user);
             can_activate = !!(
                 user && groups.find((_) => user.groups.includes(_))

@@ -30,7 +30,7 @@ const DEFAULT_SPACE_RESTRICTION_OPTIONS = [
                 {{ 'APP.WORKPLACE.PARKING_REQUEST_CONFIRM_TITLE' | translate }}
             </h2>
             <div class="">
-                @if (loading | async) {
+                @if (loading()) {
                     <mat-spinner diameter="32"></mat-spinner>
                 }
                 @if (show_close()) {
@@ -134,7 +134,7 @@ const DEFAULT_SPACE_RESTRICTION_OPTIONS = [
             </div>
         </section>
         <footer class="border-base-200 mt-4 w-full border-t p-2">
-            @if (!(loading | async)) {
+            @if (!loading()) {
                 <button
                     confirm
                     btn
@@ -199,7 +199,7 @@ export class ParkingRequestConfirmComponent extends AsyncHandler {
     }
 
     public get booking() {
-        return this._state.form.getRawValue() as any;
+        return this._state.model() as any;
     }
 
     public get location() {

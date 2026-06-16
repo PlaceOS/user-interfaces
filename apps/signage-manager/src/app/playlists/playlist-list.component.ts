@@ -1,4 +1,9 @@
-import { Component, effect, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    effect,
+    inject,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -35,7 +40,9 @@ type PlaylistStatus =
                 >
                     <input
                         matInput
-                        [placeholder]="'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate"
+                        [placeholder]="
+                            'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate
+                        "
                         [ngModel]="search()"
                         (ngModelChange)="search.set($event)"
                         [attr.aria-label]="
@@ -118,10 +125,7 @@ type PlaylistStatus =
                                     <span
                                         class="bg-base-200 shrink-0 rounded px-1.5 py-0.5"
                                     >
-                                        {{
-                                            'COMMON.DISABLED'
-                                                | translate
-                                        }}
+                                        {{ 'COMMON.DISABLED' | translate }}
                                     </span>
                                 }
                                 @switch (getStatus(playlist)) {
@@ -139,10 +143,7 @@ type PlaylistStatus =
                                         <span
                                             class="bg-info text-info-content shrink-0 rounded px-1.5 py-0.5"
                                         >
-                                            {{
-                                                'COMMON.PENDING'
-                                                    | translate
-                                            }}
+                                            {{ 'COMMON.PENDING' | translate }}
                                         </span>
                                     }
                                     @case ('awaiting_review') {
@@ -202,6 +203,7 @@ type PlaylistStatus =
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FormsModule,
         RouterLink,

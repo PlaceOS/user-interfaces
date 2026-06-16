@@ -1,5 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
@@ -10,7 +9,6 @@ import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.c
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { of } from 'rxjs';
 import { CateringOrderItemComponent } from './catering-order-item.component';
 import { CateringOrdersService } from './catering-orders.service';
 import { statusList } from './catering.vars';
@@ -38,7 +36,7 @@ import { statusList } from './catering.vars';
                     {
                         key: 'caterer',
                         name: 'CATERING.CATERER' | translate,
-                        show: !filters?.caterer && caterers().length > 1,
+                        show: !filters()?.caterer && caterers().length > 1,
                     },
                     {
                         key: 'deliver_at',
@@ -100,15 +98,16 @@ import { statusList } from './catering.vars';
                     <div>
                         {{
                             'CATERING.ORDERS_DELIVER_TIME'
-                                | translate: { time: data | date: time_format }
+                                | translate
+                                    : { time: data | date: time_format() }
                         }}
                     </div>
                     <div class="text-xs opacity-30">
                         {{ row?.event?.date | date: 'MMM d' }},
-                        {{ row?.event?.date | date: time_format }}
+                        {{ row?.event?.date | date: time_format() }}
                         -
                         {{ row?.event?.date_end | date: 'MMM d' }},
-                        {{ row?.event?.date_end | date: time_format }}
+                        {{ row?.event?.date_end | date: time_format() }}
                     </div>
                 </div>
             </ng-template>
@@ -255,21 +254,13 @@ export class CateringOrderListComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
 
     /** List of filtered orders */
-    public readonly order_list = toSignal(this._orders.filtered, {
-        initialValue: [],
-    });
+    public readonly order_list = this._orders.filtered;
     /** Whether order list is loading */
-    public readonly loading = toSignal(this._orders.loading, {
-        initialValue: false,
-    });
+    public readonly loading = this._orders.loading;
 
-    public get filters() {
-        return this._orders.filters;
-    }
+    public readonly filters = this._orders.order_filters;
 
-    public readonly caterers = toSignal(this._orders.caterers || of([]), {
-        initialValue: [],
-    });
+    public readonly caterers = this._orders.caterers;
 
     public readonly statuses = signal(statusList());
     public readonly show_children = signal<Record<string, boolean>>({});
@@ -279,9 +270,9 @@ export class CateringOrderListComponent extends AsyncHandler implements OnInit {
         this.timeout('status-change', () => ((order as any).status = s));
     };
 
-    public get time_format() {
-        return this._settings.time_format_signal();
-    }
+    public readonly time_format = computed(() =>
+        this._settings.time_format_signal(),
+    );
 
     public status(value: string) {
         return this.statuses().find((i) => i.id === value);

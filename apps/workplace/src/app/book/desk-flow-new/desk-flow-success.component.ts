@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import {
@@ -12,7 +19,6 @@ import {
     Building,
     BuildingLevel,
     currentUser,
-    firstTruthyValueFrom,
     formatRecurrence,
     fromBookingRecurrence,
     OrganisationService,
@@ -33,8 +39,6 @@ import {
     generateGoogleCalendarLink,
     generateMicrosoftCalendarLink,
 } from '@placeos/events';
-import { UserPipe } from '@placeos/users';
-import { forkJoin, lastValueFrom } from 'rxjs';
 
 interface GroupBookingListItem {
     id: string;
@@ -150,7 +154,6 @@ interface GroupBookingListItem {
                                 >
                                     <a-user-avatar
                                         [user]="
-                                            (item.email | user | async) ||
                                             $any({
                                                 name: item.name,
                                                 email: item.email,
@@ -264,6 +267,7 @@ interface GroupBookingListItem {
         </div>
     `,
     providers: [LevelPipe, BuildingPipe],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,
@@ -272,7 +276,6 @@ interface GroupBookingListItem {
         RouterModule,
         SanitizePipe,
         SafePipe,
-        UserPipe,
         UserAvatarComponent,
     ],
 })
@@ -369,7 +372,7 @@ export class NewDeskFlowSuccessComponent implements OnInit {
     }
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         this.last_event.set(this._state.last_success);
         const event: any = {
             ...this.last_event(),
@@ -400,8 +403,8 @@ export class NewDeskFlowSuccessComponent implements OnInit {
         if (booking_ids.length <= 1) return;
 
         try {
-            const bookings = await lastValueFrom(
-                forkJoin(booking_ids.map((id) => showBooking(id))),
+            const bookings = await Promise.all(
+                booking_ids.map((id) => showBooking(id)),
             );
             this.group_bookings.set(
                 bookings.filter((_) => _.booking_type !== 'group'),

@@ -1,5 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    inject,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatRippleModule } from '@angular/material/core';
@@ -14,6 +19,7 @@ import {
     VERSION,
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { querySystems } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { debounceTime, map, shareReplay, switchMap } from 'rxjs/operators';
@@ -136,6 +142,7 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
         </div>
     `,
     styles: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatAutocompleteModule,
         MatFormFieldModule,
@@ -162,7 +169,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
 
     public readonly space_list = combineLatest([
         this.system_id$,
-        this._org.initialised,
+        toObservable(this._org.initialised),
     ]).pipe(
         debounceTime(300),
         switchMap(([search]) => {

@@ -1,5 +1,4 @@
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import {
     Component,
     computed,
@@ -16,9 +15,11 @@ import {
     signal,
     TemplateRef,
     Type,
+    untracked,
     viewChild,
     viewChildren,
 } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     MAP_FEATURE_DATA,
@@ -87,9 +88,9 @@ interface DebugDetailEntry {
             <div
                 class="absolute top-2 right-2 z-40 flex max-h-[80%] max-w-[32rem] flex-col rounded bg-black/80 font-mono text-[11px] leading-4 text-white"
             >
-                <div class="pointer-events-none p-2 whitespace-pre">{{
-                    debug_text()
-                }}</div>
+                <div class="pointer-events-none p-2 whitespace-pre">
+                    {{ debug_text() }}
+                </div>
                 <div class="flex gap-1 px-2 pb-2">
                     @for (section of debug_sections(); track section.key) {
                         <button
@@ -144,7 +145,10 @@ interface DebugDetailEntry {
                                 }}</span>
                             }
                         } @else {
-                            @for (entry of debug_detail_entries(); track entry.text) {
+                            @for (
+                                entry of debug_detail_entries();
+                                track entry.text
+                            ) {
                                 <div
                                     class="rounded px-1"
                                     [class.bg-red-500/20]="entry.missing"
@@ -168,7 +172,7 @@ interface DebugDetailEntry {
                 }
             </div>
         }
-        @if (injectors?.length) {
+        @if (injectors().length) {
             <div hidden>
                 @for (
                     element of features();
@@ -188,7 +192,7 @@ interface DebugDetailEntry {
                                         <ng-container
                                             *ngComponentOutlet="
                                                 $any(element.content);
-                                                injector: injectors[i]
+                                                injector: injectors()[i]
                                             "
                                         ></ng-container>
                                     }
@@ -268,7 +272,7 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
     public focus = input('');
     public mapInfo = output<Record<string, MapElementBounds>>();
 
-    public injectors: Injector[] = [];
+    public injectors = signal<Injector[]>([]);
     public loading = signal(false);
     public error = signal(false);
 
@@ -883,23 +887,28 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
 
     private _updateInjectors() {
         const old_injectors = new Map(
-            (this.injectors || []).map((injector) => [
+            untracked(() => this.injectors()).map((injector) => [
                 injector.get(MAP_FEATURE_DATA)?.track_id,
                 injector,
             ]),
         );
-        this.injectors = (this.features() || []).map(
-            (f: any) =>
-                (f.track_id && old_injectors.get(f.track_id)) ||
-                Injector.create({
-                    providers: [
-                        {
-                            provide: MAP_FEATURE_DATA,
-                            useValue: { track_id: f.track_id, ...f.data },
-                        },
-                    ],
-                    parent: this._injector,
-                }),
+        this.injectors.set(
+            (this.features() || []).map(
+                (f: any) =>
+                    (f.track_id && old_injectors.get(f.track_id)) ||
+                    Injector.create({
+                        providers: [
+                            {
+                                provide: MAP_FEATURE_DATA,
+                                useValue: {
+                                    track_id: f.track_id,
+                                    ...f.data,
+                                },
+                            },
+                        ],
+                        parent: this._injector,
+                    }),
+            ),
         );
     }
 }

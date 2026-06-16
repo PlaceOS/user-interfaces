@@ -1,5 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, model } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    model,
+} from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -22,7 +27,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                 {{ 'APP.WORKPLACE.PARKING_CONFIRM_TITLE' | translate }}
             </h2>
             <div class="">
-                @if (loading | async) {
+                @if (loading()) {
                     <mat-spinner diameter="32"></mat-spinner>
                 }
                 @if (show_close()) {
@@ -88,7 +93,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
             </section>
         }
         <footer class="border-base-200 mt-4 w-full border-t p-2">
-            @if (!(loading | async)) {
+            @if (!loading()) {
                 <button
                     confirm
                     btn
@@ -115,6 +120,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatRippleModule,
@@ -147,7 +153,7 @@ export class NewParkingFlowConfirmComponent extends AsyncHandler {
     }
 
     public get booking() {
-        return this._state.form.getRawValue() as any;
+        return this._state.model() as any;
     }
 
     public get assets() {

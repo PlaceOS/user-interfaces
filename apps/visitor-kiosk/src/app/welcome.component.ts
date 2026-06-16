@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
 import {
+    ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
     computed,
+    effect,
     inject,
     OnDestroy,
     OnInit,
@@ -176,6 +178,7 @@ import {
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,
@@ -199,6 +202,9 @@ export class WelcomeComponent
     public readonly now = signal(Date.now());
     /** Level to initially load on explore */
     public readonly level = signal('');
+    private readonly _level_sync = effect(() =>
+        this.level.set(this._settings.listen('KIOSK.level')()),
+    );
 
     public readonly hide_explore = settingSignal('hide_explore');
     public readonly background = settingSignal('welcome_background');
@@ -226,12 +232,6 @@ export class WelcomeComponent
 
     public ngOnInit() {
         this.interval('time', () => this.now.set(Date.now()), 30 * 1000);
-        this.subscription(
-            'level',
-            this._settings
-                .listen('KIOSK.level')
-                .subscribe((lvl) => this.level.set(lvl)),
-        );
         this.level.set(localStorage?.getItem('KIOSK.level'));
         this.subscription(
             'route.params',

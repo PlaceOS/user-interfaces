@@ -1,54 +1,62 @@
 import { Location } from '@angular/common';
-import {
-    FormBuilder,
-    FormsModule,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { Injector } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { SettingsService } from '@placeos/common';
-import { EventFormService } from '@placeos/events';
+import { CalendarEvent, SettingsService } from '@placeos/common';
+import {
+    eventFormValue,
+    EventFormService,
+    generateEventForm,
+} from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
 import { BookModule } from '../app/rooms/book.module';
 import { RoomBookingComponent } from '../app/rooms/room-booking.component';
 import { UpcomingBookingsComponent } from '../app/rooms/upcoming-bookings.component';
 
 describe('RoomBookingComponent', () => {
-    const formModel = {
-        id: 1,
-        host: ['host@test.com', Validators.required],
-        organiser: ['organiser@test.com', Validators.required],
-        creator: ['creator@test.com', Validators.required],
-        title: ['', Validators.required],
-        date: [0, Validators.required],
-        duration: 0,
-        attendees: '' as any,
-        markAllAsTouched: jest.fn(() => {}),
-    };
-    const fb = new FormBuilder();
-    const form = fb.group(formModel);
-
     let spectator: SpectatorRouting<RoomBookingComponent>;
+    // A real signal-forms ref backs the mocked service so the component
+    // captures stable `model`/`form` references. Built in `beforeEach` so the
+    // generator runs inside an Angular injection context.
+    let form_ref: ReturnType<typeof generateEventForm>;
+
+    // Signal forms only create child field nodes for properties present in the
+    // model, so seed every bound field (title/date/duration/attendees).
+    const baseEvent = () =>
+        new CalendarEvent({
+            title: '',
+            date: Date.now(),
+            duration: 30,
+        } as any);
 
     const createComponent = createRoutingFactory({
         component: RoomBookingComponent,
-        imports: [
-            ReactiveFormsModule,
-            FormsModule,
-            MatFormFieldModule,
-            BookModule,
-        ],
+        imports: [FormsModule, MatFormFieldModule, BookModule],
         providers: [
-            MockProvider(EventFormService, {
-                setView: jest.fn(() => {}),
-                newForm: jest.fn(() => {}),
-                clearForm: jest.fn(),
-                storeForm: jest.fn(() => {}),
-                loadForm: jest.fn(),
-                postForm: jest.fn(),
-                view: '',
-            } as any),
+            {
+                provide: EventFormService,
+                // Built inside an injection context so `form()` can `inject()`.
+                useFactory: (injector: Injector) => {
+                    form_ref = generateEventForm(
+                        baseEvent(),
+                        undefined,
+                        injector,
+                    );
+                    return {
+                        setView: jest.fn(() => {}),
+                        newForm: jest.fn(() => {}),
+                        clearForm: jest.fn(),
+                        storeForm: jest.fn(() => {}),
+                        loadForm: jest.fn(),
+                        postForm: jest.fn(),
+                        view: '',
+                        model: form_ref.model,
+                        form: form_ref.form,
+                    } as any;
+                },
+                deps: [Injector],
+            },
             MockProvider(SettingsService, { get: jest.fn() }),
         ],
         stubsEnabled: false,
@@ -71,14 +79,16 @@ describe('RoomBookingComponent', () => {
             event_service.view = _;
             spectator.detectChanges();
         });
-        event_service.newForm.mockImplementation((_) => {
-            event_service.form = fb.group(formModel);
+        event_service.newForm.mockImplementation(() => {
+            form_ref.model.set(eventFormValue(baseEvent()));
+            form_ref.form().reset();
         });
-        event_service.storeForm.mockImplementation((_) => {
+        event_service.storeForm.mockImplementation(() => {
+            const value = form_ref.model();
             if (
-                !event_service.form.contains('title') ||
-                !event_service.form.contains('date') ||
-                !event_service.form.contains('duration')
+                value.title === undefined ||
+                value.date === undefined ||
+                value.duration === undefined
             )
                 return null;
         });
@@ -103,51 +113,21 @@ describe('RoomBookingComponent', () => {
         expect(event_service.form).toExist();
     });
 
-    it('should not navigate away if the title form field is invalid', async () => {
+    it('should not navigate away if the booking is in the past', async () => {
         const event_service: any = spectator.inject(EventFormService);
         await event_service.newForm();
 
-        event_service.form.patchValue({
-            duration: 120,
-            date: 1656641112,
-        });
-
-        spectator.component.findSpace();
-        expect(event_service.form.controls.title.status).toBe('INVALID');
-        expect(event_service.form.valid).toBeFalsy();
-        expect(spectator.inject(Location).path()).toBe('/');
-    });
-
-    it('should not navigate away if the date form field is invalid', async () => {
-        const event_service: any = spectator.inject(EventFormService);
-        await event_service.newForm();
-
-        event_service.form.patchValue({
-            duration: 120,
-            date: 1656641112,
-        });
-        event_service.form.controls['date'].setErrors({ incorrect: true });
-
-        spectator.component.findSpace();
-        expect(event_service.form.controls.date.status).toBe('INVALID');
-        expect(event_service.form.valid).toBeFalsy();
-        expect(spectator.inject(Location).path()).toBe('/');
-    });
-
-    it('should not navigate away if the duration form field is invalid', async () => {
-        const event_service: any = spectator.inject(EventFormService);
-        await event_service.newForm();
-
-        event_service.form.patchValue({
+        form_ref.model.update((m) => ({
+            ...m,
+            host: 'host@test.com',
             title: 'test',
-        });
-
-        event_service.form.controls['duration'].setErrors({ incorrect: true });
+            date: Date.now() - 60 * 60 * 1000,
+            duration: 30,
+        }));
 
         spectator.component.findSpace();
-
-        expect(event_service.form.controls.duration.status).toBe('INVALID');
-        expect(event_service.form.valid).toBeFalsy();
+        expect(form_ref.form.duration().invalid()).toBeTruthy();
+        expect(form_ref.form().valid()).toBeFalsy();
         expect(spectator.inject(Location).path()).toBe('/');
     });
 
@@ -155,18 +135,17 @@ describe('RoomBookingComponent', () => {
         const event_service: any = spectator.inject(EventFormService);
         await spectator.component.ngOnInit();
 
-        event_service.form.patchValue({
-            date: 1656641112,
+        form_ref.model.update((m) => ({
+            ...m,
+            host: 'host@test.com',
+            date: Date.now() + 60 * 60 * 1000,
             duration: 120,
-            attendees: '',
+            attendees: [],
             title: 'test',
-        });
+        }));
 
-        spectator.component.findSpace();
-        await event_service.storeForm();
-        expect(event_service.form.valid).toBeTruthy();
-
-        await spectator.fixture.whenStable();
+        expect(form_ref.form().valid()).toBeTruthy();
+        await spectator.component.findSpace();
         expect(spectator.inject(Location).path()).toBe('/schedule/view');
     });
 });

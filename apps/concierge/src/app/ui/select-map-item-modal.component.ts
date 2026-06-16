@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -10,11 +17,10 @@ import { MatSelectModule } from '@angular/material/select';
 import {
     AsyncHandler,
     BuildingLevel,
+    MapElementBounds,
     MapsPeopleService,
     OrganisationService,
-    nextValueFrom,
     unique,
-    MapElementBounds,
 } from '@placeos/common';
 import {
     IconComponent,
@@ -248,6 +254,7 @@ declare let mapsindoors: any;
         </main>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatDialogModule,
         MatRippleModule,
@@ -278,9 +285,7 @@ export class SelectMapItemModalComponent
     public readonly hovered = signal('');
     public readonly search = signal('');
     public readonly changed = signal(0);
-    public readonly level_list = toSignal(this._org.active_levels, {
-        initialValue: [] as BuildingLevel[],
-    });
+    public readonly level_list = this._org.active_levels;
     public readonly actions = [
         { id: '*', action: 'click', callback: (e, p) => this.selectID(p || e) },
     ];
@@ -321,7 +326,7 @@ export class SelectMapItemModalComponent
     public readonly search_results = toSignal(
         combineLatest([
             toObservable(this.search),
-            this._maps_people.available$,
+            toObservable(this._maps_people.available),
             toObservable(this.changed),
         ]).pipe(
             debounceTime(300),
@@ -383,7 +388,7 @@ export class SelectMapItemModalComponent
         if (this._data?.location && typeof this._data.location === 'string') {
             this.selected.set(this._data.location as string);
         }
-        const levels = await nextValueFrom(this._org.active_levels);
+        const levels = this._org.active_levels();
         if (levels.length) {
             let level = levels[0];
             if (this._data?.level_id) {
@@ -400,9 +405,7 @@ export class SelectMapItemModalComponent
 
     public selectID(e: any) {
         this.timeout('select_id', async () => {
-            const use_maps_indoors = await nextValueFrom(
-                this._maps_people.available$,
-            );
+            const use_maps_indoors = this._maps_people.available();
             if (!use_maps_indoors) {
                 const pos: { x: number; y: number } = e;
                 const short_list: [string, number][] = [];

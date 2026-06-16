@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -84,7 +91,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                         [placeholder]="'COMMON.BUILDING_SELECT' | translate"
                         formControlName="building_id"
                     >
-                        @for (b of buildings$ | async; track b) {
+                        @for (b of buildings$(); track b) {
                             <mat-option [value]="b.id">{{
                                 b.display_name || b.name
                             }}</mat-option>
@@ -102,7 +109,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                         <mat-option [value]="form.value.building_id">
                             {{ 'COMMON.LEVEL_ALL' | translate }}
                         </mat-option>
-                        @for (b of levels$ | async; track b) {
+                        @for (b of levels$(); track b) {
                             <mat-option [value]="b.id">{{
                                 b.display_name || b.name
                             }}</mat-option>
@@ -510,6 +517,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         RouterModule,

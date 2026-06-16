@@ -1,8 +1,8 @@
+import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
 
 import { CateringOrderStateService } from '../../lib/catering-order-modal/catering-order-state.service';
 
@@ -14,7 +14,7 @@ describe('CateringOrderStateService', () => {
             MockProvider(MatDialog, { open: jest.fn() } as any),
             MockProvider(OrganisationService, {
                 building: { id: '' },
-                active_building: of({}),
+                active_building: signal({}),
             } as any),
             MockProvider(SettingsService, { get: jest.fn() }),
         ],

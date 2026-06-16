@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
@@ -9,7 +10,6 @@ import {
 } from '@placeos/common';
 import { EventFormService, SpacesService } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
 
 import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
 
@@ -26,15 +26,15 @@ describe('ScheduleStateService', () => {
         providers: [
             MockProvider(SettingsService, {
                 get: jest.fn(),
-                listen: jest.fn(() => of(0)),
+                listen: jest.fn(() => signal(0)),
             } as any),
             MockProvider(OrganisationService, {
-                initialised: of(true),
-                active_building: of({} as any),
-                building_list: new BehaviorSubject([]),
-                level_list: of([]),
-                building_list: of([]),
-            }),
+                active_building: signal({} as any),
+                active_region: signal(null),
+                building_list: signal([]),
+                level_list: signal([]),
+                module: jest.fn(() => null),
+            } as any),
             MockProvider(MatDialog, { closeAll: jest.fn() }),
             MockProvider(Router, router),
             MockProvider(EventFormService, event_form),

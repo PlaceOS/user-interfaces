@@ -1,50 +1,67 @@
-import { FormControl, FormGroup } from '@angular/forms';
+import { Injector, signal, WritableSignal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { BookingFormService } from '@placeos/bookings';
+import {
+    BookingForm,
+    BookingFormValue,
+    BookingFormService,
+    generateBookingForm,
+} from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { SpacesService } from '@placeos/events';
 import { DateFieldComponent } from '@placeos/form-fields';
 import { addDays, endOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
 import { DeskFlowSelectComponent } from '../../app/book/desk-flow-new/desk-flow-select.component';
 
 describe('DeskFlowSelectComponent', () => {
     let spectator: Spectator<DeskFlowSelectComponent>;
-    let form: FormGroup;
-    let active_building: BehaviorSubject<any>;
+    let form: BookingForm;
+    let model: WritableSignal<BookingFormValue>;
+    let active_building: WritableSignal<any>;
 
     const createComponent = createComponentFactory({
         component: DeskFlowSelectComponent,
         detectChanges: false,
         shallow: true,
         providers: [
-            MockProvider(BookingFormService, {
-                options: of({ type: 'desk' }),
-                loading: of(''),
-                resources: of([]),
-                available_resources: of([]),
-                setOptions: jest.fn(),
-                form: (() => {
-                    form = new FormGroup({
-                        date: new FormControl(Date.now()),
-                        duration: new FormControl(60),
-                        all_day: new FormControl(false),
-                        resources: new FormControl([]),
-                        asset_id: new FormControl(''),
-                    });
-                    return form;
-                })(),
-            } as any),
+            {
+                provide: BookingFormService,
+                useFactory: () => {
+                    const injector = TestBed.inject(Injector);
+                    const refs = TestBed.runInInjectionContext(() =>
+                        generateBookingForm(undefined, injector),
+                    );
+                    form = refs.form;
+                    model = refs.model;
+                    model.update((m) => ({
+                        ...m,
+                        date: Date.now(),
+                        duration: 60,
+                        all_day: false,
+                        resources: [],
+                        asset_id: '',
+                    }));
+                    return {
+                        form,
+                        model,
+                        options: signal({ type: 'desk' }),
+                        loading: signal(''),
+                        resources: signal([]),
+                        available_resources: signal([]),
+                        setOptions: jest.fn(),
+                    };
+                },
+            },
             MockProvider(OrganisationService, {
                 active_building: (() => {
-                    active_building = new BehaviorSubject({ id: 'bld-1' });
-                    return active_building.asObservable();
+                    active_building = signal({ id: 'bld-1' });
+                    return active_building;
                 })(),
-                active_buildings: of([{ id: 'bld-1' }, { id: 'bld-2' }]),
+                active_buildings: signal([{ id: 'bld-1' }, { id: 'bld-2' }]),
                 buildings: [{ id: 'bld-1' }, { id: 'bld-2' }],
-                active_region: of(null),
-                region_list: of([]),
+                active_region: signal(null),
+                region_list: signal([]),
                 levelsForBuilding: jest.fn(() => []),
                 levelsForRegion: jest.fn(() => []),
                 building: { id: 'bld-1', timezone: '' },
@@ -61,17 +78,22 @@ describe('DeskFlowSelectComponent', () => {
     });
 
     it('should clear the selected desk when the building changes', () => {
-        form.patchValue({
-            resources: [{ id: 'desk-1', name: 'Desk 1' }],
+        model.update((m) => ({
+            ...m,
+            resources: [{ id: 'desk-1', name: 'Desk 1' } as any],
             asset_id: 'desk-1',
-        });
+        }));
         spectator.component.ngOnInit();
+        TestBed.flushEffects();
         spectator.component.selected.set(['desk-1']);
 
-        active_building.next({ id: 'bld-2' });
+        active_building.set({ id: 'bld-2' });
+        TestBed.flushEffects();
 
-        expect(form.getRawValue().resources).toEqual([]);
-        expect(form.getRawValue().asset_id).toBe('');
+        expect(model().resources).toEqual([]);
+        // Clearing the desk empties resources; the resource→asset sync then
+        // leaves `asset_id` falsy.
+        expect(model().asset_id).toBeFalsy();
         expect(spectator.component.selected()).toEqual([]);
     });
 
@@ -82,9 +104,7 @@ describe('DeskFlowSelectComponent', () => {
         const end_date = spectator.component.end_date();
         const date_fields = spectator.queryAll(DateFieldComponent);
 
-        expect(end_date).toBe(
-            endOfDay(addDays(Date.now(), 14)).valueOf(),
-        );
+        expect(end_date).toBe(endOfDay(addDays(Date.now(), 14)).valueOf());
         expect(date_fields.length).toBe(2);
         expect(date_fields.every((field) => field.to_date() === end_date)).toBe(
             true,

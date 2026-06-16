@@ -13,7 +13,6 @@ import { BehaviorSubject, combineLatest, interval, Observable } from 'rxjs';
 import {
     debounceTime,
     filter,
-    first,
     map,
     shareReplay,
     startWith,
@@ -250,7 +249,7 @@ export class PanelStateService extends AsyncHandler {
     }
 
     private async _init() {
-        await this._org.initialised.pipe(first((_) => !!_)).toPromise();
+        await this._org.waitUntilInitialised();
         this._system.pipe(filter((_) => !!_)).subscribe((id) => {
             const settings: any[] = [
                 'room_name',
@@ -353,14 +352,15 @@ export class PanelStateService extends AsyncHandler {
         );
         if (details.reason !== 'done') return details.close();
         this._events.newForm();
-        this._events.form.patchValue({
+        this._events.model.update((m) => ({
+            ...m,
             ...details.metadata,
             host: details.metadata.organiser?.email,
             resources: [space],
             system: space,
-        });
+        }));
         await this.makeBooking(
-            this._events.form.getRawValue(),
+            this._events.model() as Partial<CalendarEvent>,
             force_api,
         ).catch((e) => {
             notifyError(`Error creating meeting. ${e}`);
@@ -437,8 +437,6 @@ export class PanelStateService extends AsyncHandler {
         force_api = false,
     ) {
         if (isAfter(details.date, addMinutes(Date.now(), 5)) || force_api) {
-            this._events.form.controls.host.setValidators([]);
-            this._events.form.updateValueAndValidity();
             await this._events.postForm(true);
         } else {
             const module = getModule(this.system, 'Bookings');

@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/common';
@@ -30,7 +31,7 @@ describe('DayviewTimelineComponent', () => {
             {
                 provide: OrganisationService,
                 useValue: {
-                    active_building: new BehaviorSubject({ id: ' bld-1' }),
+                    active_building: signal({ id: ' bld-1' }),
                     levelWithID: jest.fn(),
                 },
             },
@@ -67,7 +68,7 @@ describe('DayviewTimelineComponent', () => {
         (client.querySystems as any).mockImplementation(() =>
             of({ data: [{}, {}] }),
         );
-        (spectator.inject(OrganisationService).active_building as any).next({
+        (spectator.inject(OrganisationService).active_building as any).set({
             id: 'bld-1',
         });
         spectator.tick(1001);

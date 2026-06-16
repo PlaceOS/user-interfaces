@@ -1,10 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, input } from '@angular/core';
-import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    input,
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { BookingForm, BookingFormService } from '@placeos/bookings';
 import {
     AsyncHandler,
     OrganisationService,
@@ -23,7 +30,7 @@ import { addDays, endOfDay } from 'date-fns';
     selector: 'parking-form-details',
     template: `
         @if (form()) {
-            <div [formGroup]="form()">
+            <div>
                 <div class="flex flex-wrap items-center sm:space-x-2">
                     <div class="min-w-[256px] flex-1">
                         <label for="title">
@@ -31,11 +38,11 @@ import { addDays, endOfDay } from 'date-fns';
                         </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
-                                [ngModel]="building | async"
+                                [ngModel]="building()"
                                 (ngModelChange)="setBuilding($event)"
                                 [ngModelOptions]="{ standalone: true }"
                             >
-                                @for (bld of building_list | async; track bld) {
+                                @for (bld of building_list(); track bld) {
                                     <mat-option [value]="bld">
                                         {{ bld.display_name || bld.name }}
                                     </mat-option>
@@ -53,8 +60,7 @@ import { addDays, endOfDay } from 'date-fns';
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 matInput
-                                name="title"
-                                formControlName="title"
+                                [formField]="form().title"
                                 placeholder="e.g. Team Meeting"
                             />
                             <mat-error>{{
@@ -67,8 +73,7 @@ import { addDays, endOfDay } from 'date-fns';
                             {{ 'FORM.DATE' | translate }}<span>*</span>
                         </label>
                         <a-date-field
-                            name="date"
-                            formControlName="date"
+                            [formField]="form().date"
                             [to]="end_date"
                             [timezone]="timezone"
                         >
@@ -76,7 +81,7 @@ import { addDays, endOfDay } from 'date-fns';
                         </a-date-field>
                         @if (allow_all_day) {
                             <mat-checkbox
-                                formControlName="all_day"
+                                [formField]="form().all_day"
                                 class="absolute -top-2 right-0"
                             >
                                 {{ 'COMMON.ALL_DAY' | translate }}
@@ -84,7 +89,7 @@ import { addDays, endOfDay } from 'date-fns';
                         }
                     </div>
                 </div>
-                @if (!form().value.all_day) {
+                @if (!model().all_day) {
                     <div class="flex items-center space-x-2">
                         <div class="w-1/3 flex-1">
                             <label for="start-time"
@@ -93,15 +98,18 @@ import { addDays, endOfDay } from 'date-fns';
                             >
                             <a-time-field
                                 name="start-time"
-                                [ngModel]="form().getRawValue().date"
+                                [ngModel]="model().date"
                                 (ngModelChange)="
-                                    form().patchValue({ date: $event })
+                                    model.update((m) => ({
+                                        ...m,
+                                        date: $event,
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr"
                                 [range]="bookable_hours"
                                 [min_duration]="effective_min_duration"
-                                [disabled]="form().controls.date.disabled"
+                                [disabled]="form().date().disabled()"
                                 [timezone]="timezone"
                             ></a-time-field>
                         </div>
@@ -110,9 +118,8 @@ import { addDays, endOfDay } from 'date-fns';
                                 {{ 'FORM.TIME_END' | translate }}<span>*</span>
                             </label>
                             <a-duration-field
-                                name="end-time"
-                                formControlName="duration"
-                                [time]="form()?.getRawValue()?.date"
+                                [formField]="form().duration"
+                                [time]="model().date"
                                 [max]="max_duration"
                                 [custom_options]="custom_duration_options"
                                 [use_24hr]="use_24hr"
@@ -129,8 +136,7 @@ import { addDays, endOfDay } from 'date-fns';
                             {{ 'FORM.HOST' | translate }}<span>*</span>
                         </label>
                         <host-select-field
-                            name="host"
-                            formControlName="user"
+                            [formField]="form().user"
                         ></host-select-field>
                     </div>
                 }
@@ -141,8 +147,7 @@ import { addDays, endOfDay } from 'date-fns';
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
-                            name="plate-number"
-                            formControlName="plate_number"
+                            [formField]="form().plate_number"
                             [placeholder]="
                                 'BOOKINGS.PARKING_PLATE_NUMBER_PLACEHOLDER'
                                     | translate
@@ -160,10 +165,11 @@ import { addDays, endOfDay } from 'date-fns';
         }
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
-        ReactiveFormsModule,
         FormsModule,
+        FormField,
         MatFormFieldModule,
         MatInputModule,
         MatSelectModule,
@@ -176,10 +182,13 @@ import { addDays, endOfDay } from 'date-fns';
     ],
 })
 export class ParkingFormDetailsComponent extends AsyncHandler {
+    private _state = inject(BookingFormService);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
-    public readonly form = input<FormGroup>(undefined);
+    public readonly form = input<BookingForm>(undefined);
+    /** Writable signal holding the raw booking form value */
+    public readonly model = this._state.model;
 
     public readonly building = this._org.active_building;
     public readonly building_list = this._org.building_list;

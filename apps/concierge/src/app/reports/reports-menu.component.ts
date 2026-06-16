@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import { SettingsService } from '@placeos/common';
@@ -132,6 +132,7 @@ const DEFAULT_FEATURES = [
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [RouterModule, IconComponent, MatRippleModule, TranslatePipe],
 })
 export class ReportsMenuComponent {

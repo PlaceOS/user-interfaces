@@ -1,11 +1,17 @@
-import { FormControl, FormGroup } from '@angular/forms';
+import { Injector, signal, WritableSignal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { ActivatedRoute } from '@angular/router';
-import { BookingFormService, findNearbyFeature } from '@placeos/bookings';
+import {
+    BookingForm,
+    BookingFormValue,
+    BookingFormService,
+    findNearbyFeature,
+    generateBookingForm,
+} from '@placeos/bookings';
 import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
-import { signal } from '@angular/core';
+import { of } from 'rxjs';
 import {
     listChildMetadata,
     querySystemsWithEmails,
@@ -26,40 +32,63 @@ jest.mock('@placeos/bookings', () => ({
 
 describe('DeskFlowNewComponent', () => {
     let spectator: Spectator<DeskFlowNewComponent>;
-    let form: FormGroup;
+    let model: WritableSignal<BookingFormValue>;
+    let form: BookingForm;
     let query_params: Record<string, string>;
+    let resource_list: any[];
     const desk_resource = {
         id: 'desk-123',
         name: 'Desk 123',
         zone: { id: 'level-1', parent_id: 'building-1' },
     };
-    const resources = new BehaviorSubject([desk_resource]);
 
     const createComponent = createComponentFactory({
         component: DeskFlowNewComponent,
         detectChanges: false,
         shallow: true,
         providers: [
-            MockProvider(BookingFormService, {
-                setView: jest.fn(),
-                setOptions: jest.fn(),
-                newForm: jest.fn(),
-                postForm: jest.fn(),
-                postFormForGroup: jest.fn(),
-                view: signal('form'),
-                options: of({ type: 'desk' }),
-                loading: of(false),
-                resources: resources.asObservable(),
-                available_resources: resources.asObservable(),
-                form: (() => {
-                    form = new FormGroup({
-                        booking_type: new FormControl('desk'),
-                        resources: new FormControl([]),
-                        asset_id: new FormControl(''),
-                    });
-                    return form;
-                })(),
-            } as any),
+            {
+                provide: BookingFormService,
+                useFactory: () => {
+                    const injector = TestBed.inject(Injector);
+                    const refs = TestBed.runInInjectionContext(() =>
+                        generateBookingForm(undefined, injector),
+                    );
+                    form = refs.form;
+                    model = refs.model;
+                    model.update((m) => ({
+                        ...m,
+                        booking_type: 'desk',
+                        resources: [],
+                        asset_id: '',
+                    }));
+                    return {
+                        form,
+                        model,
+                        view: signal('form'),
+                        options: signal({ type: 'desk' }),
+                        loading: signal(false),
+                        resources: signal(resource_list),
+                        available_resources: signal(resource_list),
+                        setView: jest.fn(),
+                        setOptions: jest.fn(),
+                        newForm: jest.fn(() => {
+                            model.update((m) => ({
+                                ...m,
+                                booking_type: 'desk',
+                                resources: [],
+                                asset_id: '',
+                            }));
+                        }),
+                        postForm: jest.fn(() => Promise.resolve()),
+                        postFormForGroup: jest.fn(() => Promise.resolve()),
+                        listResources: jest.fn(async () => resource_list),
+                        listAvailableResources: jest.fn(
+                            async () => resource_list,
+                        ),
+                    };
+                },
+            },
             MockProvider(ActivatedRoute, {
                 paramMap: of({
                     has: (key: string) => key === 'step',
@@ -71,11 +100,8 @@ describe('DeskFlowNewComponent', () => {
                 }),
             } as any),
             MockProvider(OrganisationService, {
-                initialised: of(true),
-                buildings: [
-                    { id: 'building-1' },
-                    { id: 'building-2' },
-                ],
+                initialised: signal(true),
+                buildings: [{ id: 'building-1' }, { id: 'building-2' }],
                 levelWithID: jest.fn((zones = []) =>
                     zones.includes('level-1')
                         ? { id: 'level-1', map_id: 'level-map-1' }
@@ -90,7 +116,8 @@ describe('DeskFlowNewComponent', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-        jest.mocked(listChildMetadata).mockReturnValue(of([]) as any);
+        resource_list = [desk_resource];
+        jest.mocked(listChildMetadata).mockResolvedValue([] as any);
         jest.mocked(showSystem).mockReturnValue(
             of({
                 id: 'room-1',
@@ -102,9 +129,7 @@ describe('DeskFlowNewComponent', () => {
         jest.mocked(querySystemsWithEmails).mockReturnValue(
             of({ data: [] }) as any,
         );
-        resources.next([desk_resource]);
         query_params = { asset_id: 'desk-123' };
-        form?.patchValue({ booking_type: 'desk', resources: [], asset_id: '' });
     });
 
     it('should hydrate the selected desk from the asset_id query param', async () => {
@@ -113,51 +138,41 @@ describe('DeskFlowNewComponent', () => {
         await Promise.resolve();
         await Promise.resolve();
 
-        expect(spectator.inject(BookingFormService).setOptions).toHaveBeenCalledWith(
-            { type: 'desk', zones: ['level-1'] },
-        );
+        expect(
+            spectator.inject(BookingFormService).setOptions,
+        ).toHaveBeenCalledWith({ type: 'desk', zones: ['level-1'] });
         expect(spectator.inject(OrganisationService).find).toHaveBeenCalledWith(
             'building-1',
         );
         expect(spectator.inject(OrganisationService).building).toEqual({
             id: 'building-1',
         });
-        expect(form.getRawValue()).toEqual({
-            booking_type: 'desk',
-            resources: [
-                {
-                    id: 'desk-123',
-                    name: 'Desk 123',
-                    zone: { id: 'level-1', parent_id: 'building-1' },
-                },
-            ],
-            asset_id: 'desk-123',
-        });
+        expect(model().resources).toEqual([desk_resource]);
+        expect(model().asset_id).toBe('desk-123');
     });
 
     it('should initialise new desk bookings through the booking form service', async () => {
         spectator = createComponent();
         await spectator.component.ngOnInit();
 
-        expect(spectator.inject(BookingFormService).newForm).toHaveBeenCalledWith(
-            'desk',
-        );
+        expect(
+            spectator.inject(BookingFormService).newForm,
+        ).toHaveBeenCalledWith('desk');
     });
 
     it('should wait for the selected desk to load from the resources stream', async () => {
-        resources.next([]);
+        resource_list = [];
         spectator = createComponent();
 
         await spectator.component.ngOnInit();
         await Promise.resolve();
-        expect(form.getRawValue().asset_id).toBe('');
+        expect(model().asset_id).toBe('');
 
-        resources.next([desk_resource]);
-        await Promise.resolve();
-        await Promise.resolve();
+        resource_list = [desk_resource];
+        await new Promise((resolve) => setTimeout(resolve, 75));
 
-        expect(form.getRawValue().asset_id).toBe('desk-123');
-        expect(form.getRawValue().resources).toEqual([desk_resource]);
+        expect(model().asset_id).toBe('desk-123');
+        expect(model().resources).toEqual([desk_resource]);
     });
 
     it('should update the active building when the query param desk is in another building', async () => {
@@ -165,10 +180,10 @@ describe('DeskFlowNewComponent', () => {
             id: 'desk-456',
             name: 'Desk 456',
         };
-        resources.next([]);
+        resource_list = [];
         jest.mocked(listChildMetadata).mockImplementation(
             (building_id: string) =>
-                of(
+                Promise.resolve(
                     building_id === 'building-2'
                         ? [
                               {
@@ -185,9 +200,7 @@ describe('DeskFlowNewComponent', () => {
                 ) as any,
         );
 
-        spectator = createComponent({
-            providers: [],
-        });
+        spectator = createComponent();
         query_params = { asset_id: 'desk-456' };
 
         await spectator.component.ngOnInit();
@@ -196,17 +209,14 @@ describe('DeskFlowNewComponent', () => {
         expect(spectator.inject(OrganisationService).building).toEqual({
             id: 'building-2',
         });
-        expect(form.getRawValue()).toEqual({
-            booking_type: 'desk',
-            resources: [
-                {
-                    id: 'desk-456',
-                    name: 'Desk 456',
-                    zone: { id: 'level-2', parent_id: 'building-2' },
-                },
-            ],
-            asset_id: 'desk-456',
-        });
+        expect(model().resources).toEqual([
+            expect.objectContaining({
+                id: 'desk-456',
+                name: 'Desk 456',
+                zone: { id: 'level-2', parent_id: 'building-2' },
+            }),
+        ]);
+        expect(model().asset_id).toBe('desk-456');
     });
 
     it('should select a nearby desk by resource id when no map id is available', async () => {
@@ -216,7 +226,7 @@ describe('DeskFlowNewComponent', () => {
             zone: { id: 'level-1', parent_id: 'building-1' },
         };
         jest.mocked(findNearbyFeature).mockResolvedValue('desk-nearby');
-        resources.next([desk_without_map_id]);
+        resource_list = [desk_without_map_id];
         query_params = {};
 
         spectator = createComponent();
@@ -240,10 +250,7 @@ describe('DeskFlowNewComponent', () => {
             'room-map-1',
             ['desk-nearby'],
         );
-        expect(form.getRawValue()).toEqual({
-            booking_type: 'desk',
-            resources: [desk_without_map_id],
-            asset_id: 'desk-nearby',
-        });
+        expect(model().resources).toEqual([desk_without_map_id]);
+        expect(model().asset_id).toBe('desk-nearby');
     });
 });

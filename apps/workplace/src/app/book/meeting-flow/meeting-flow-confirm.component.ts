@@ -1,5 +1,11 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, OnInit, inject, model } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    inject,
+    model,
+} from '@angular/core';
 import {
     MatBottomSheetModule,
     MatBottomSheetRef,
@@ -38,10 +44,10 @@ import { SpacePipe } from '@placeos/events';
             <h2 class="m-0 flex-1 text-xl font-medium capitalize">
                 {{ 'APP.WORKPLACE.MEETING_CONFIRM' | translate }}
             </h2>
-            @if (loading | async) {
+            @if (loading()) {
                 <mat-spinner diameter="32"></mat-spinner>
             }
-            @if (show_close() && !(loading | async)) {
+            @if (show_close() && !loading()) {
                 <button icon matRipple (click)="dismiss()">
                     <icon class="text-2xl">close</icon>
                 </button>
@@ -139,21 +145,11 @@ import { SpacePipe } from '@placeos/events';
                 name="confirm-meeting"
                 matRipple
                 class="w-full"
-                [disabled]="loading | async"
+                [disabled]="loading()"
                 (click)="postForm()"
             >
                 {{ 'COMMON.CONFIRM' | translate }}
             </button>
-            <!-- <button
-          btn
-          matRipple
-          class="inverse w-full"
-          *ngIf="loading | async"
-          (click)="cancelPost()"
-
-          >
-          Undo
-        </button> -->
         </footer>
     `,
     styles: [
@@ -176,6 +172,7 @@ import { SpacePipe } from '@placeos/events';
         `,
     ],
     providers: [SpacePipe],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatProgressSpinnerModule,
@@ -201,7 +198,7 @@ export class MeetingFlowConfirmComponent
 
     private _date: DatePipe = new DatePipe('en');
 
-    public readonly loading = this._event_form.loading$;
+    public readonly loading = this._event_form.loading;
 
     public readonly postForm = async () => {
         if (!this.space) {
@@ -269,8 +266,7 @@ export class MeetingFlowConfirmComponent
     }
 
     public get formatted_recurrence() {
-        const recurrence_start =
-            this.event.recurrence.start || this.event.date;
+        const recurrence_start = this.event.recurrence.start || this.event.date;
         return formatRecurrence(
             fromEventRecurrence({
                 ...this.event.recurrence,
@@ -281,7 +277,7 @@ export class MeetingFlowConfirmComponent
     }
 
     public get event(): CalendarEvent {
-        return this._event_form.form.getRawValue() as any;
+        return this._event_form.model() as any;
     }
 
     public get space() {

@@ -1,5 +1,11 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, inject, model } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    model,
+} from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -16,12 +22,10 @@ import {
     fromBookingRecurrence,
     getTimezoneOffsetString,
     i18n,
-    nextValueFrom,
     notifyError,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { addMinutes, endOfDay } from 'date-fns';
-import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'desk-flow-confirm',
@@ -33,10 +37,10 @@ import { map } from 'rxjs/operators';
                 {{ 'APP.WORKPLACE.DESK_CONFIRM_TITLE' | translate }}
             </h2>
             <div class="">
-                @if (loading | async) {
+                @if (loading()) {
                     <mat-spinner diameter="32"></mat-spinner>
                 }
-                @if (show_close() && !(loading | async)) {
+                @if (show_close() && !loading()) {
                     <button
                         icon
                         name="close-desk-confirm"
@@ -92,7 +96,7 @@ import { map } from 'rxjs/operators';
                         <icon>person</icon>
                         <span>
                             {{
-                                ((is_group | async)
+                                (is_group()
                                     ? 'BOOKINGS.DESK_COUNT_GROUP'
                                     : 'BOOKINGS.DESK_COUNT_LONE'
                                 ) | translate
@@ -206,7 +210,7 @@ import { map } from 'rxjs/operators';
             </section>
         }
         <footer class="border-base-200 mt-4 w-full border-t p-2">
-            @if (!(loading | async)) {
+            @if (!loading()) {
                 <button
                     name="confirm-desk"
                     btn
@@ -220,6 +224,7 @@ import { map } from 'rxjs/operators';
         </footer>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,
@@ -248,12 +253,12 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
     }
 
     public readonly loading = this._state.loading;
-    public readonly is_group = this._state.options.pipe(map((_) => _.group));
+    public readonly is_group = computed(() => this._state.options().group);
 
     public readonly postForm = async () => {
         try {
-            if ((await nextValueFrom(this._state.options))?.group) {
-                const booking = new Booking(this._state.form.getRawValue());
+            if (this._state.options()?.group) {
+                const booking = new Booking(this._state.model() as any);
                 if (booking.id) {
                     const sibling_list =
                         await this._state.loadGroupSiblings(booking);
@@ -304,7 +309,7 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
     }
 
     public get booking() {
-        return this._state.form.value as any;
+        return this._state.model() as any;
     }
 
     public get is_multiday() {
@@ -361,7 +366,7 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
     }
 
     public async ngOnInit() {
-        const resources = await nextValueFrom(this._state.resources);
+        const resources = await this._state.listResources();
         const asset = this.booking.booking_asset;
         this.booking_asset = resources.find((_) => _.id == asset.id) as Desk;
     }

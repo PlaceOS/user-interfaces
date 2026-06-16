@@ -6,7 +6,6 @@ import {
     resource,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import {
     Asset,
     AssetCategory,
@@ -33,7 +32,6 @@ import {
     queryUsers,
     showMetadata,
 } from '@placeos/ts-client';
-import { firstValueFrom } from 'rxjs';
 
 import { toQueryString } from '@placeos/common';
 import { searchStaff } from '@placeos/users';
@@ -155,15 +153,9 @@ export class ExploreSearchService {
     private _state = inject(ExploreStateService);
     private _injector = inject(Injector);
 
-    private _initialised = toSignal(this._org.initialised, {
-        initialValue: false,
-    });
-    private _building = toSignal(this._org.active_building, {
-        initialValue: null,
-    });
-    private _maps_people_available = toSignal(this._maps_people.available$, {
-        initialValue: false,
-    });
+    private _initialised = this._org.initialised;
+    private _building = this._org.active_building;
+    private _maps_people_available = this._maps_people.available;
 
     /** In-progress bookings/events for sorting priority */
     private _in_progress_bookings = signal<(Booking | CalendarEvent)[]>([]);
@@ -599,7 +591,7 @@ export class ExploreSearchService {
             ? queryUsers({ q, authority_id: authority()?.id }).then(
                   (_) => _.data as any as StaffUser[],
               )
-            : firstValueFrom(searchStaff(q));
+            : searchStaff(q);
 
     public hideItem(name: string) {
         const hide_items =

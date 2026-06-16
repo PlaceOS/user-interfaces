@@ -3,9 +3,7 @@ import { RouterModule } from '@angular/router';
 
 import { LandingComponent } from './landing.component';
 
-const ROUTES = [
-    { path: '', component: LandingComponent, title: 'Home' },
-];
+const ROUTES = [{ path: '', component: LandingComponent, title: 'Home' }];
 
 @NgModule({
     declarations: [],

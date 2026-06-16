@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     inject,
     input,
@@ -8,7 +9,7 @@ import {
 } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { catchError, first, map, shareReplay, switchMap } from 'rxjs/operators';
+import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
 
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -148,6 +149,7 @@ const resource_level_cache = new Map<string, Observable<Set<string>>>();
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatFormFieldModule,
         MatSelectModule,
@@ -189,8 +191,8 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
     public type_list: string[] = this.types.map((i) => `${i.id}`);
     public readonly levels = toSignal(
         combineLatest([
-            this._org.active_building,
-            this._org.active_region,
+            toObservable(this._org.active_building),
+            toObservable(this._org.active_region),
             toObservable(this.resource_type),
         ]).pipe(
             map(([bld, region, resource_type]) => {
@@ -325,7 +327,7 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
                     map((spaces) => this._zonesForResources(spaces)),
                 );
             case 'parking':
-                return queryParkingSpacesForZones([scope_id]).pipe(
+                return from(queryParkingSpacesForZones([scope_id])).pipe(
                     map((spaces) => this._zonesForResources(spaces)),
                 );
             case 'lockers':
@@ -364,7 +366,7 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await this._org.waitUntilInitialised();
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {

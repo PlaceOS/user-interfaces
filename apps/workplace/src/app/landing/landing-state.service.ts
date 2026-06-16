@@ -1,5 +1,11 @@
-import { inject, Injectable } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import {
+    computed,
+    effect,
+    inject,
+    Injectable,
+    signal,
+    untracked,
+} from '@angular/core';
 import {
     authority,
     getModule,
@@ -10,16 +16,6 @@ import {
     showUser,
     updateMetadata,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, from, Observable, of } from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    filter,
-    map,
-    shareReplay,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
 
 import {
     AsyncHandler,
@@ -27,9 +23,7 @@ import {
     BuildingLevel,
     currentUser,
     filterResourcesFromRules,
-    firstTruthyValueFrom,
     HashMap,
-    observableFromSignal,
     OrganisationService,
     SettingsService,
     StaffUser,
@@ -54,140 +48,120 @@ export class LandingStateService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    private _options = new BehaviorSubject<LandingOptions>({});
-    private _loading = new BehaviorSubject<string>('');
-    private _loading_spaces = new BehaviorSubject<boolean>(false);
-    /**  */
-    private _contacts = new BehaviorSubject<StaffUser[]>([]);
-    /**  */
-    private _level_occupancy = new BehaviorSubject<BuildingLevel[]>([]);
-    /**  */
+    private _options = signal<LandingOptions>({});
+    private _loading = signal('');
+    private _loading_spaces = signal(false);
+    private _contacts = signal<StaffUser[]>([]);
+    private _level_occupancy = signal<BuildingLevel[]>([]);
     private _occupancy_binding: PlaceVariableBinding;
-    /**  */
+    private _booking_rules = signal<BookingRuleset[]>([]);
+    private _space_list = signal<any[]>([]);
+    private _space_statuses = signal<any[]>([]);
+    private _search_results = signal<StaffUser[]>([]);
+    private _upcoming_events = signal<any[]>([]);
 
-    public _booking_rules: Observable<BookingRuleset[]> =
-        this._org.active_building.pipe(
-            filter((bld) => !!bld),
-            switchMap((bld) =>
-                from(showMetadata(bld.id, `room_booking_rules`)).pipe(
-                    catchError(() => of({ details: [] })),
-                ),
-            ),
-            map((_) => (_?.details instanceof Array ? _.details : [])),
-            shareReplay(1),
-        );
-
-    private _space_list = this._org.active_building.pipe(
-        filter((_) => !!_),
-        switchMap((bld) => requestSpacesForZone(bld.id)),
-        map((_) => _.filter((s) => s.bookable)),
-        shareReplay(1),
-    );
-
-    private _filtered_spaces = combineLatest([
-        this._space_list,
-        this._booking_rules,
-    ]).pipe(
-        map(([list, rules]) =>
-            filterResourcesFromRules(
-                list,
-                {
-                    date: Date.now(),
-                    duration: 60,
-                    host: currentUser(),
-                    resource: null,
-                },
-                rules,
-            ),
+    private _filtered_spaces = computed(() =>
+        filterResourcesFromRules(
+            this._space_list(),
+            {
+                date: Date.now(),
+                duration: 60,
+                host: currentUser(),
+                resource: null,
+            },
+            this._booking_rules(),
         ),
     );
 
-    private _space_statuses = this._filtered_spaces.pipe(
-        tap((_) => this.unsubWith('bind:')),
-        switchMap((list) =>
-            combineLatest(
-                (list || []).map((_) => {
-                    const binding = getModule(_.id, 'Bookings').variable(
-                        'status',
-                    );
-                    const obs = observableFromSignal(binding.listen());
-                    this.subscription(`bind:${_.id}`, binding.bind());
-                    return obs;
-                }),
-            ),
-        ),
-        shareReplay(1),
+    public readonly free_space_list = computed(() =>
+        (this._space_list() || [])
+            .filter((_, idx) => this._space_statuses()[idx] === 'free')
+            .sort((a, b) => a.capacity - b.capacity),
     );
+    public readonly upcoming_events = this._upcoming_events.asReadonly();
+    public contacts = this._contacts.asReadonly();
+    public options = this._options.asReadonly();
+    public loading = this._loading.asReadonly();
+    public loading_spaces = this._loading_spaces.asReadonly();
+    public readonly search_results = this._search_results.asReadonly();
+    public level_occupancy = this._level_occupancy.asReadonly();
 
-    public readonly free_space_list = combineLatest([
-        this._space_list,
-        this._space_statuses,
-    ]).pipe(
-        map(([list, statuses]) =>
-            (list || [])
-                .filter((_, idx) => statuses[idx] === 'free')
-                .sort((a, b) => a.capacity - b.capacity),
-        ),
-        shareReplay(1),
-    );
-    /**  */
-    public readonly upcoming_events = toObservable(
-        this._schedule.bookings,
-    ).pipe(
-        map((_) =>
-            _.filter(
-                (i) => i.state !== 'done' && isSameDay(i.date, Date.now()),
-            ),
-        ),
-    );
-    /**  */
-    public contacts = this._contacts.asObservable();
-    /**  */
-    public options = this._options.asObservable();
-    /**  */
-    public loading = this._loading.asObservable();
-    /**  */
-    public loading_spaces = this._loading_spaces.asObservable();
-    /** Function used to query for users */
-    public search_fn = (q: string) =>
+    public search_fn = async (q: string) =>
+
         this._settings.get('app.basic_user_search') ||
         this._settings.get('app.colleagues_require_auth') !== false
-            ? from(queryUsers({ q, authority_id: authority()?.id })).pipe(
-                  map(({ data }) => data.map((_) => new StaffUser(_ as any))),
+            ? queryUsers({ q, authority_id: authority()?.id }).then(
+                  ({ data }) => data.map((_) => new StaffUser(_ as any)),
               )
             : searchStaff(q);
 
-    public readonly search_results = this._options.pipe(
-        debounceTime(500),
-        switchMap(({ search }) => {
-            this._loading.next('Loading users...');
-            return search
-                ? this.search_fn(search).pipe(catchError(() => of([])))
-                : of([]);
-        }),
-        tap(() => this._loading.next('')),
-        shareReplay(1),
-    );
-    /**  */
-    public level_occupancy = this._level_occupancy.asObservable();
-
     constructor() {
         super();
+        effect(async (onCleanup) => {
+            const bld = this._org.active_building();
+            if (!bld) return;
+            let active = true;
+            onCleanup(() => (active = false));
+            const metadata = await showMetadata(
+                bld.id,
+                `room_booking_rules`,
+            ).catch(() => ({ details: [] }));
+            const spaces = await requestSpacesForZone(bld.id)
+                .toPromise()
+                .catch(() => []);
+            if (!active) return;
+            this._booking_rules.set(
+                metadata?.details instanceof Array ? metadata.details : [],
+            );
+            this._space_list.set((spaces || []).filter((s) => s.bookable));
+            this.updateBuildingMetadata();
+            this.updateOccupancy({});
+        });
+        effect((onCleanup) => {
+            const list = this._filtered_spaces();
+            this.unsubWith('bind:');
+            this._space_statuses.set(Array(list.length).fill(null));
+            for (const [idx, space] of list.entries()) {
+                const binding = getModule(space.id, 'Bookings').variable(
+                    'status',
+                );
+                const unsubscribe = binding.bindThenSubscribe((status) => {
+                    const next_statuses = [...untracked(this._space_statuses)];
+                    next_statuses[idx] = status;
+                    this._space_statuses.set(next_statuses);
+                });
+                this.subscription(`bind:${space.id}`, unsubscribe);
+            }
+            onCleanup(() => this.unsubWith('bind:'));
+        });
+        effect((onCleanup) => {
+            const { search } = this._options();
+            const timeout = setTimeout(async () => {
+                this._loading.set('Loading users...');
+                const results = search
+                    ? await this.search_fn(search).catch(() => [])
+                    : [];
+                this._search_results.set(results);
+                this._loading.set('');
+            }, 500);
+            onCleanup(() => clearTimeout(timeout));
+        });
+        effect(() => {
+            this._upcoming_events.set(
+                this._schedule
+                    .filtered_bookings()
+                    .filter(
+                        (i) =>
+                            i.state !== 'done' && isSameDay(i.date, Date.now()),
+                    ),
+            );
+        });
         this.init();
     }
 
     public async init() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         this.updateContacts();
-        this.subscription(
-            'building',
-            this._org.active_building
-                .pipe(filter((bld) => !!bld))
-                .subscribe(() => {
-                    this.updateBuildingMetadata();
-                    this.updateOccupancy({});
-                }),
-        );
         const mod = this._org.module('area_management', 'AreaManagement');
         if (!mod) return;
         const binding = mod.variable('overview');
@@ -198,7 +172,7 @@ export class LandingStateService extends AsyncHandler {
     }
 
     public setOptions(options: Partial<LandingOptions>) {
-        this._options.next({ ...this._options.getValue(), ...options });
+        this._options.update((old_options) => ({ ...old_options, ...options }));
     }
 
     public pollUpcomingEvents(delay: number = 2 * 60 * 1000) {
@@ -225,11 +199,11 @@ export class LandingStateService extends AsyncHandler {
         const users = await Promise.all(
             list.map((_) => showUser(_.email).catch(() => _)),
         );
-        this._contacts.next(users.map((i) => new StaffUser(i as any)));
+        this._contacts.set(users.map((i) => new StaffUser(i as any)));
     }
 
     public async addContact(user: StaffUser) {
-        let users = [...this._contacts.getValue()];
+        let users = [...this._contacts()];
         users.push(user);
         users = unique(users, 'email');
         await updateMetadata(currentUser().id, {
@@ -241,7 +215,7 @@ export class LandingStateService extends AsyncHandler {
     }
 
     public async addContacts(user_list: User[]) {
-        let users = [...this._contacts.getValue(), ...user_list];
+        let users = [...this._contacts(), ...user_list];
         users = unique(users, 'email');
         await updateMetadata(currentUser().id, {
             name: 'contacts',
@@ -252,7 +226,7 @@ export class LandingStateService extends AsyncHandler {
     }
 
     public async removeContact(user: User) {
-        let users = [...this._contacts.getValue()];
+        let users = [...this._contacts()];
         users = users.filter((u) => u.email !== user.email);
         await updateMetadata(currentUser().id, {
             name: 'contacts',
@@ -267,11 +241,11 @@ export class LandingStateService extends AsyncHandler {
         levels.sort(
             (a, b) => map[a.id]?.recommendation - map[b.id]?.recommendation,
         );
-        this._level_occupancy.next(levels);
+        this._level_occupancy.set(levels);
     }
 
     private async updateBuildingMetadata() {
-        this._level_occupancy.next([]);
+        this._level_occupancy.set([]);
         const occupancy: any = this._org.binding('occupancy');
         if (!occupancy) return;
         const { sys, module, index } = occupancy;
@@ -281,14 +255,14 @@ export class LandingStateService extends AsyncHandler {
         this.subscription(
             'occupancy_binding',
             this._occupancy_binding.bindThenSubscribe((value) => {
-                const levels = Object.keys(value).map((key) => ({
+                const levels = Object.keys(value || {}).map((key) => ({
                     id: key,
                     ...value[key],
                 }));
                 levels.sort(
                     (a, b) => a.recommendation_factor - b.recommendation_factor,
                 );
-                this._level_occupancy.next(
+                this._level_occupancy.set(
                     levels.map((i) => this._org.levelWithID([i.id])),
                 );
             }),

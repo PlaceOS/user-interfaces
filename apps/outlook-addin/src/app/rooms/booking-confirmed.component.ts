@@ -1,5 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { Router } from '@angular/router';
 import { CalendarEvent } from '@placeos/common';
@@ -51,6 +56,7 @@ import { EventFormService } from '@placeos/events';
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, MatRippleModule],
 })
 export class BookingConfirmedComponent {

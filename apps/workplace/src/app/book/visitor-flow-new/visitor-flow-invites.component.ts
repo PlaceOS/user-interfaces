@@ -1,6 +1,13 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+    Component,
+    computed,
+    inject,
+    Injector,
+    OnInit,
+    signal,
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,6 +16,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { BookingFormService } from '@placeos/bookings';
 import {
     AsyncHandler,
+    onFieldChange,
     settingSignal,
     SettingsService,
     User,
@@ -20,7 +28,7 @@ import { UserListFieldComponent } from '@placeos/form-fields';
     selector: 'visitor-flow-invites',
     template: `
         <div class="w-full px-4 pt-4">
-            <div [formGroup]="form">
+            <div>
                 @if (is_single()) {
                     <div
                         class="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2"
@@ -33,16 +41,13 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
-                                    name="visitor-name"
-                                    formControlName="asset_name"
+                                    [formField]="form.asset_name"
                                     [placeholder]="
                                         'BOOKINGS.VISITOR_NAME_PLACEHOLDER'
                                             | translate
                                     "
                                     (focus)="
-                                        search_term.set(
-                                            form.value.asset_name || ''
-                                        )
+                                        search_term.set(model().asset_name || '')
                                     "
                                     [matAutocomplete]="name_auto"
                                 />
@@ -79,17 +84,14 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
-                                    name="visitor-email"
                                     type="email"
-                                    formControlName="asset_id"
+                                    [formField]="form.asset_id"
                                     [placeholder]="
                                         'BOOKINGS.VISITOR_EMAIL_PLACEHOLDER'
                                             | translate
                                     "
                                     (focus)="
-                                        search_term.set(
-                                            form.value.asset_id || ''
-                                        )
+                                        search_term.set(model().asset_id || '')
                                     "
                                     [matAutocomplete]="email_auto"
                                 />
@@ -132,8 +134,7 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
-                                    name="company"
-                                    formControlName="company"
+                                    [formField]="form.company"
                                     [placeholder]="
                                         'COMMON.ORGANISATION' | translate
                                     "
@@ -147,9 +148,8 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
-                                    name="phone"
                                     type="tel"
-                                    formControlName="phone"
+                                    [formField]="form.phone"
                                     [placeholder]="
                                         'BOOKINGS.VISITOR_PHONE_PLACEHOLDER'
                                             | translate
@@ -159,13 +159,13 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                         </div>
                     </div>
                 } @else {
-                    <div class="flex flex-col" [formGroup]="form">
+                    <div class="flex flex-col">
                         <label for="visitor-name">
                             {{ 'BOOKINGS.VISITOR_LIST' | translate }}
                             <span>*</span>
                         </label>
                         <a-user-list-field
-                            formControlName="assets"
+                            [formField]="form.assets"
                             [guests_only]="true"
                         ></a-user-list-field>
                     </div>
@@ -177,9 +177,8 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                         }}</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
-                                name="pass"
                                 matInput
-                                formControlName="pass_number"
+                                [formField]="form.pass_number"
                                 [placeholder]="
                                     'BOOKINGS.VISITOR_PASS_PLACEHOLDER'
                                         | translate
@@ -200,7 +199,7 @@ import { UserListFieldComponent } from '@placeos/form-fields';
         MatRippleModule,
         UserListFieldComponent,
         TranslatePipe,
-        ReactiveFormsModule,
+        FormField,
         FormsModule,
     ],
 })
@@ -210,12 +209,11 @@ export class VisitorFlowInvitesComponent
 {
     private _booking_form = inject(BookingFormService);
     private _settings = inject(SettingsService);
+    private _injector = inject(Injector);
 
     public readonly search_term = signal<string>('');
     public readonly visitors = signal<User[]>([]);
-    public readonly options = toSignal(this._booking_form.options, {
-        initialValue: { type: 'visitor', group: false },
-    });
+    public readonly options = this._booking_form.options;
 
     public readonly is_single = computed(() => {
         // The toggle controls the mode - check if group option is set
@@ -234,10 +232,6 @@ export class VisitorFlowInvitesComponent
         );
     });
 
-    public readonly form_value = toSignal(this.form.valueChanges, {
-        initialValue: this.form.value,
-    });
-
     public readonly allow_pass_number = settingSignal(
         'visitors.allow_pass_number',
         false,
@@ -252,11 +246,14 @@ export class VisitorFlowInvitesComponent
         return this._booking_form.form;
     }
 
+    public get model() {
+        return this._booking_form.model;
+    }
+
     public ngOnInit() {
-        // Set email validator
-        this.form
-            .get('asset_id')
-            ?.setValidators([Validators.required, Validators.email]);
+        // The booking form schema already declares the required + email
+        // validators for `asset_id` on visitor bookings, so no manual
+        // validator wiring is needed here.
 
         // Load previous visitors from settings
         const visitors = this._settings.get('visitor-invitees') || [];
@@ -265,32 +262,41 @@ export class VisitorFlowInvitesComponent
         // Initialize search term
         this.search_term.set('');
 
-        // Subscribe to form changes for autocomplete
-        this.subscription(
-            'email',
-            this.form
-                .get('asset_id')
-                ?.valueChanges.subscribe((_) => this.search_term.set(_ || '')),
+        // Track form changes for autocomplete
+        const email_handle = onFieldChange(
+            this.model,
+            (m) => m.asset_id,
+            (_) => this.search_term.set(_ || ''),
+            this._injector,
         );
-        this.subscription(
-            'name',
-            this.form
-                .get('asset_name')
-                ?.valueChanges.subscribe((_) => this.search_term.set(_ || '')),
+        this.subscription('email', () => email_handle.destroy());
+        const name_handle = onFieldChange(
+            this.model,
+            (m) => m.asset_name,
+            (_) => this.search_term.set(_ || ''),
+            this._injector,
         );
+        this.subscription('name', () => name_handle.destroy());
 
         if (
-            !this.form.value.id &&
-            !this.form.value.title &&
-            !this.form.value.description
+            !this.model().id &&
+            !this.model().title &&
+            !this.model().description
         ) {
-            this.form.patchValue({ title: 'Visit', description: 'Visit' });
+            this.model.update((m) => ({
+                ...m,
+                title: 'Visit',
+                description: 'Visit',
+            }));
         }
 
         // Initialize based on current mode
         const is_group = this.options()?.group === true;
-        if (is_group && !this.form.value.asset_id) {
-            this.form.patchValue({ asset_id: 'multiple@place.tech' });
+        if (is_group && !this.model().asset_id) {
+            this.model.update((m) => ({
+                ...m,
+                asset_id: 'multiple@place.tech',
+            }));
         }
     }
 
@@ -300,12 +306,13 @@ export class VisitorFlowInvitesComponent
         const company = item?.company || item?.organisation || '';
         if (!asset_id) return;
 
-        this.form.patchValue({
+        this.model.update((m) => ({
+            ...m,
             asset_id,
             asset_name,
             company,
             phone: item.phone,
-        });
+        }));
 
         // Save to visitor history
         const visitor_details = `${asset_id}|${asset_name}|${company}|${

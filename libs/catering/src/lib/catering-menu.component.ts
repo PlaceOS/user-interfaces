@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -33,7 +32,7 @@ import { CateringStateService } from './catering-state.service';
                 {
                     key: 'caterer',
                     name: 'CATERING.CATERER' | translate,
-                    show: !filters()?.caterer && caterers.length > 1,
+                    show: !filters()?.caterer && caterers().length > 1,
                 },
                 {
                     key: 'unit_price',
@@ -68,7 +67,7 @@ import { CateringStateService } from './catering-state.service';
             <div
                 class="bg-secondary text-secondary-content mx-auto flex items-center rounded-sm px-2 py-1 font-mono text-xs"
             >
-                {{ data / 100 | currency: currency_code }}
+                {{ data / 100 | currency: currency_code() }}
             </div>
         </ng-template>
         <ng-template #actions_template let-row="row">
@@ -76,8 +75,8 @@ import { CateringStateService } from './catering-state.service';
                 <button
                     icon
                     matRipple
-                    [disabled]="!can_edit"
-                    [class.opacity-0]="!can_edit"
+                    [disabled]="!can_edit()"
+                    [class.opacity-0]="!can_edit()"
                     [matMenuTriggerFor]="menu"
                 >
                     <icon>more_vert</icon>
@@ -154,7 +153,7 @@ import { CateringStateService } from './catering-state.service';
                             {{ option.group }}
                         </div>
                     </div>
-                    @if (can_edit) {
+                    @if (can_edit()) {
                         <button
                             icon
                             matRipple
@@ -166,7 +165,7 @@ import { CateringStateService } from './catering-state.service';
                             <icon>edit</icon>
                         </button>
                     }
-                    @if (can_edit) {
+                    @if (can_edit()) {
                         <button
                             icon
                             matRipple
@@ -210,17 +209,11 @@ export class CateringMenuComponent {
     private _orders = inject(CateringOrdersService);
     private _org = inject(OrganisationService);
 
-    public get currency_code() {
-        return this._org.currency_code;
-    }
+    public readonly currency_code = this._catering.currency;
 
     public readonly show_children = signal<Record<string, boolean>>({});
-    public readonly filters = toSignal(this._orders.order_filters, {
-        initialValue: this._orders.filters || {},
-    });
-    private readonly _menu = toSignal(this._catering.menu, {
-        initialValue: [],
-    });
+    public readonly filters = this._orders.order_filters;
+    private readonly _menu = this._catering.menu;
     /** Signal for the currently active menu */
     public readonly menu = computed(() => {
         const filters = this.filters();
@@ -244,17 +237,15 @@ export class CateringMenuComponent {
 
     public readonly removeItem = (item) => this._catering.deleteItem(item);
 
-    public get can_edit() {
-        return this._catering.is_editable;
-    }
+    public readonly can_edit = computed(() => this._catering.is_editable);
 
-    public get categories() {
-        return this._catering.categories;
-    }
+    public readonly categories = computed(() =>
+        unique(this._menu().map((i) => i.category)),
+    );
 
-    public get caterers() {
-        return this._catering.caterer_list;
-    }
+    public readonly caterers = computed(() =>
+        unique(this._menu().map((i) => i.caterer)),
+    );
 
     public isExpanded(id: string) {
         return !!this.show_children()[id];

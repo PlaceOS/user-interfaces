@@ -1,5 +1,4 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -10,11 +9,9 @@ import {
 import {
     AsyncHandler,
     currentUser,
-    firstTruthyValueFrom,
     flatten,
-    getInvalidFields,
+    getInvalidSignalFields,
     i18n,
-    nextValueFrom,
     notifyError,
     notifySuccess,
     OrganisationService,
@@ -23,15 +20,6 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SpacePipe } from '@placeos/events';
 import { listChildMetadata } from '@placeos/ts-client';
 import { set } from 'date-fns';
-import {
-    catchError,
-    filter,
-    firstValueFrom,
-    from,
-    map,
-    of,
-    timeout,
-} from 'rxjs';
 import { DeskFlowAutoAssignComponent } from './desk-flow-auto-assign.component';
 import { DeskFlowDetailsComponent } from './desk-flow-details.component';
 import { DeskFlowSelectComponent } from './desk-flow-select.component';
@@ -139,14 +127,9 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
 
     public readonly view = this._booking_form.view;
     public readonly loading = signal(false);
-    public readonly options = toSignal(this._booking_form.options);
+    public readonly options = this._booking_form.options;
 
-    public readonly form_value = toSignal(
-        this._booking_form.form.valueChanges,
-        {
-            initialValue: this._booking_form.form.value,
-        },
-    );
+    public readonly form_value = this._booking_form.model;
 
     public readonly has_title = computed(
         () => !!this.form_value()?.title?.trim(),
@@ -161,12 +144,15 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
     public readonly is_edit_mode = computed(() => !!this.form_value()?.id);
 
     public ngOnInit() {
-        const { id, booking_type } = this._booking_form.form.getRawValue();
+        const { id, booking_type } = this._booking_form.model();
         if (!id || booking_type !== 'desk') this._booking_form.newForm('desk');
-        this._booking_form.form.patchValue({ booking_type: 'desk' });
+        this._booking_form.model.update((m) => ({
+            ...m,
+            booking_type: 'desk',
+        }));
         this._booking_form.setOptions({ type: 'desk' });
-        if (!this._booking_form.form.value.id)
-            this._booking_form.form.patchValue({ title: 'Booking' });
+        if (!this._booking_form.model().id)
+            this._booking_form.model.update((m) => ({ ...m, title: 'Booking' }));
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((param) => {
@@ -186,16 +172,14 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
                 }
                 if (!params.has('asset_id')) return;
                 const asset_id = params.get('asset_id');
-                const form = this._booking_form.form.getRawValue();
+                const form = this._booking_form.model();
                 if (
                     asset_id === form.asset_id &&
                     (form.resources || []).some(({ id }) => id === asset_id)
                 ) {
                     return;
                 }
-                await firstTruthyValueFrom(
-                    this._booking_form.loading.pipe(map((_) => !_)),
-                );
+                await this._waitForLoaded();
                 if (!asset_id) return;
                 const resource = await this._findDeskResource(asset_id);
                 if (!resource) return;
@@ -209,13 +193,21 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
                     type: 'desk',
                     ...(resource.zone?.id ? { zones: [resource.zone.id] } : {}),
                 });
-                this._booking_form.form.patchValue({
+                this._booking_form.model.update((m) => ({
+                    ...m,
                     booking_type: 'desk',
                     resources: [resource],
                     asset_id: resource.id,
-                });
+                }));
             }),
         );
+    }
+
+    /** Resolve once the booking form has finished its current load */
+    private async _waitForLoaded() {
+        while (this._booking_form.loading()) {
+            await new Promise((resolve) => setTimeout(resolve, 50));
+        }
     }
 
     private async _findDeskResource(
@@ -237,38 +229,34 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
         asset_id: string,
         wait_ms: number,
     ): Promise<BookingAsset | null> {
-        return firstValueFrom(
-            this._booking_form.resources.pipe(
-                map((resources) =>
-                    resources.find((item) => item.id === asset_id),
-                ),
-                filter((resource) => !!resource),
-                timeout({ first: wait_ms, with: () => of(null) }),
-            ),
-        );
+        const deadline = Date.now() + wait_ms;
+        do {
+            const resources = await this._booking_form.listResources();
+            const resource = resources.find((item) => item.id === asset_id);
+            if (resource) return resource;
+            if (Date.now() >= deadline) break;
+            await new Promise((resolve) => setTimeout(resolve, 50));
+        } while (Date.now() < deadline);
+        return null;
     }
 
     private async _findDeskResourceFromBuildings(
         asset_id: string,
     ): Promise<BookingAsset | null> {
         for (const building of this._org.buildings || []) {
-            const resources = await firstValueFrom(
-                from(listChildMetadata(building.id, { name: 'desks' })).pipe(
-                    map((data) =>
-                        flatten<BookingAsset>(
-                            data.map((metadata) =>
-                                (metadata?.metadata?.desks?.details instanceof Array
-                                    ? metadata.metadata.desks.details
-                                    : []
-                                ).map((desk) => ({
-                                    ...desk,
-                                    id: desk.id || desk.map_id,
-                                    zone: metadata.zone,
-                                })),
-                            ),
-                        ),
-                    ),
-                    catchError(() => of([])),
+            const data = await listChildMetadata(building.id, {
+                name: 'desks',
+            }).catch(() => []);
+            const resources = flatten<BookingAsset>(
+                data.map((metadata) =>
+                    (metadata?.metadata?.desks?.details instanceof Array
+                        ? metadata.metadata.desks.details
+                        : []
+                    ).map((desk) => ({
+                        ...desk,
+                        id: desk.id || desk.map_id,
+                        zone: metadata.zone,
+                    })),
                 ),
             );
             const resource = resources.find((item) => item.id === asset_id);
@@ -281,16 +269,15 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
         const space = await this._space_pipe.transform(space_id);
         const level = this._org.levelWithID(space?.zones);
         this._booking_form.setOptions({ type: 'desk', zone_id: level?.id });
-        this._booking_form.form.patchValue({
+        this._booking_form.model.update((m) => ({
+            ...m,
             date: set(event_date, { hours: 8, minutes: 0 }).valueOf(),
             duration: 10 * 60,
             all_day: true,
             booking_type: 'desk',
             user: currentUser(),
-        });
-        const resources = await nextValueFrom(
-            this._booking_form.available_resources,
-        );
+        }));
+        const resources = await this._booking_form.listAvailableResources();
         const bookable_desks = resources
             .map((_) => _.map_id || _.id)
             .filter((i) => i);
@@ -306,7 +293,8 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
         );
         if (!resource)
             return notifyError(i18n('APP.WORKPLACE.MEETING_DESK_ERROR'));
-        this._booking_form.form.patchValue({
+        this._booking_form.model.update((m) => ({
+            ...m,
             date: set(event_date, { hours: 8, minutes: 0 }).valueOf(),
             duration: 10 * 60,
             all_day: true,
@@ -314,19 +302,25 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
             asset_id: resource.id,
             asset_name: resource.name,
             resources: [resource],
-        });
+        }));
     }
 
     public async confirmBooking() {
-        const { asset_id, resources } = this._booking_form.form.getRawValue();
+        const { asset_id, resources } = this._booking_form.model();
         if (resources?.length && asset_id !== resources[0].id) {
-            this._booking_form.form.patchValue({ asset_id: resources[0].id });
+            this._booking_form.model.update((m) => ({
+                ...m,
+                asset_id: resources[0].id,
+            }));
         }
-        this._booking_form.form.markAllAsTouched();
-        if (!this._booking_form.form.valid) {
+        this._booking_form.form().markAsTouched();
+        if (!this._booking_form.form().valid()) {
             return notifyError(
                 i18n('FORM.INVALID_FIELDS', {
-                    field_list: getInvalidFields(this._booking_form.form)
+                    field_list: getInvalidSignalFields(
+                        this._booking_form.form,
+                        this._booking_form.model,
+                    )
                         .join(', ')
                         .replace('asset_id', i18n('RESOURCE.DESK')),
                 }),

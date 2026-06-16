@@ -1,6 +1,6 @@
+import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 
 import { MatTabsModule } from '@angular/material/tabs';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -19,13 +19,14 @@ describe('CateringMenuComponent', () => {
         ],
         providers: [
             MockProvider(CateringStateService, {
-                menu: new BehaviorSubject([]),
+                menu: signal([]),
+                currency: signal('USD'),
                 categories: [],
                 caterer_list: [],
             }),
             MockProvider(CateringOrdersService, {
                 filters: {},
-                order_filters: new BehaviorSubject({}),
+                order_filters: signal({}),
             }),
         ],
         imports: [MockModule(MatTabsModule)],

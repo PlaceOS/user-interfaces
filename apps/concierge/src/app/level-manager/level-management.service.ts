@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import {
     BuildingLevel,
@@ -35,8 +36,8 @@ export class LevelManagementService {
     public readonly level_list = this._org.level_list;
 
     public readonly filtered_levels = combineLatest([
-        this._org.building_list,
-        this.level_list,
+        toObservable(this._org.building_list),
+        toObservable(this.level_list),
         this._options,
     ]).pipe(
         switchMap(async ([buildings, list, options]) => {

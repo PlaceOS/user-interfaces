@@ -1,5 +1,12 @@
 import { DatePipe } from '@angular/common';
-import { Component, inject, OnInit, signal, viewChildren } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+    signal,
+    viewChildren,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, log, SettingsService, VERSION } from '@placeos/common';
@@ -72,6 +79,7 @@ function isDebugEnabled(value: string | null) {
             -webkit-text-stroke: 1px #000;
         }
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [DatePipe, MediaPlayerComponent],
 })
 export class SignagePanelComponent extends AsyncHandler implements OnInit {

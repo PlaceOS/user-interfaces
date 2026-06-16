@@ -1,4 +1,11 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DesksService } from '@placeos/bookings';
@@ -87,6 +94,7 @@ import { EventPinComponent } from './event-pin.component';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TopbarComponent,
         FooterMenuComponent,
@@ -104,7 +112,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     private _explore = inject(ExploreStateService);
     private _org = inject(OrganisationService);
 
-    private _upcoming = toSignal(this._landing.upcoming_events);
+    private _upcoming = this._landing.upcoming_events;
     private _time = signal(Date.now());
 
     public readonly next_event = computed(() => {

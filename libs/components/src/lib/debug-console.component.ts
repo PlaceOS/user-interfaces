@@ -1,12 +1,11 @@
 import {
     Component,
     computed,
+    effect,
     inject,
     model,
-    OnInit,
     signal,
 } from '@angular/core';
-import { first } from 'rxjs/operators';
 
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatRippleModule } from '@angular/material/core';
@@ -181,7 +180,7 @@ const URL_STARTS = [
     styles: [``],
     imports: [ScrollingModule, MatRippleModule],
 })
-export class DebugConsoleComponent extends AsyncHandler implements OnInit {
+export class DebugConsoleComponent extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _logs = inject(RemoteLoggingService);
     private _hotkey = inject(HotkeysService);
@@ -218,39 +217,29 @@ export class DebugConsoleComponent extends AsyncHandler implements OnInit {
 
     constructor() {
         super();
+        effect(() => {
+            if (!this._org.initialised()) return;
+            this._org.active_building();
+            const binding = this._org.binding('remote_logger');
+            const system_id = binding instanceof Object ? binding.id : binding;
+            this._logs.setSystem(system_id);
+        });
+        effect(() => {
+            const log_list = this._logs.history();
+            const limit = this._log_limits();
+            this.logs.set(
+                log_list.length > limit ? log_list.slice(-limit) : log_list,
+            );
+        });
     }
 
-    public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
-        this.subscription(
-            'binding',
-            this._org.active_building.subscribe(() => {
-                const binding = this._org.binding('remote_logger');
-                const system_id =
-                    binding instanceof Object ? binding.id : binding;
-                this._logs.setSystem(system_id);
-            }),
-        );
-        this.subscription(
-            'logs',
-            this._logs.history.subscribe((event) => {
-                const current_logs = this.logs();
-                const trimmed =
-                    current_logs.length > this._log_limits()
-                        ? current_logs.slice(1)
-                        : current_logs;
-                this.logs.set([...trimmed, event]);
-            }),
-        );
+    public ngOnInit() {
         this.subscription(
             'toggle',
             this._hotkey.listen(['Control', 'Backquote'], () =>
                 this.show.set(!this.show()),
             ),
         );
-        const binding = this._org.binding('remote_logger');
-        const system_id = binding instanceof Object ? binding.id : binding;
-        this._logs.setSystem(system_id);
     }
 
     public type(item: any) {

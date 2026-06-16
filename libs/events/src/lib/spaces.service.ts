@@ -1,7 +1,5 @@
-import { inject, Injectable } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { querySystems, showSystem } from '@placeos/ts-client';
-import { BehaviorSubject, lastValueFrom } from 'rxjs';
-import { first, map, shareReplay } from 'rxjs/operators';
 
 import { OrganisationService } from '@placeos/common';
 
@@ -18,22 +16,23 @@ export class SpacesService {
     private _settings = inject(SettingsService);
 
     /** Subject to store list of spaces */
-    private _all_spaces = new BehaviorSubject<Space[]>([]);
+    private _all_spaces = signal<Space[]>([]);
     /** Subject which stores the initialised state of the object */
-    protected readonly _initialised = new BehaviorSubject<boolean>(false);
-    /** Observable of the initialised state of the object */
-    public readonly initialised = this._initialised.asObservable();
-    /** Observable of all spaces */
-    public readonly all_spaces = this._all_spaces.asObservable();
-    /** Observable for list of spaces */
-    public readonly list = this._all_spaces.pipe(
-        map((spaces) => spaces.filter((space) => space.map_id)),
-        shareReplay(1),
+    protected readonly _initialised = signal<boolean>(false);
+    /** Signal of the initialised state of the object */
+    public readonly initialised = this._initialised.asReadonly();
+    /** Signal of all spaces */
+    public readonly all_spaces = this._all_spaces.asReadonly();
+    /** Signal for list of spaces */
+    public readonly list = computed(() =>
+        this._all_spaces().filter((space) => space.map_id),
     );
     /** List of available features */
-    public readonly features = this.list.pipe(
-        map((_) =>
-            unique(flatten(_.map((i) => i.features.filter((_) => _.trim())))),
+    public readonly features = computed(() =>
+        unique(
+            flatten(
+                this.list().map((i) => i.features.filter((_) => _.trim())),
+            ),
         ),
     );
     /** Default predicate for filter method */
@@ -42,19 +41,21 @@ export class SpacesService {
 
     /** List of available spaces */
     public get space_list(): Space[] {
-        return this._all_spaces.getValue().filter((s) => s.map_id);
+        return this._all_spaces().filter((s) => s.map_id);
     }
 
     constructor() {
         SPACE_PIPE = new SpacePipe();
         if (!SPACE_PIPE.org) SPACE_PIPE.org = this._org;
-        this._init();
+        effect(() => {
+            if (!this._org.initialised()) return;
+            this._init();
+        });
     }
 
-    private async _init() {
-        await lastValueFrom(this._org.initialised.pipe(first((_) => _)));
+    private _init() {
         if (!this._settings.get('app.prevent_space_init')) this.loadSpaces();
-        else this._initialised.next(true);
+        else this._initialised.set(true);
     }
 
     /**
@@ -98,9 +99,9 @@ export class SpacesService {
                     level: this._org.levelWithID([...sys.zones]),
                 }),
         );
-        this._all_spaces.next(space_list);
+        this._all_spaces.set(space_list);
         // Remove spaces without a map ID
         SPACE_PIPE.updateSpaceList(this.space_list);
-        this._initialised.next(true);
+        this._initialised.set(true);
     }
 }

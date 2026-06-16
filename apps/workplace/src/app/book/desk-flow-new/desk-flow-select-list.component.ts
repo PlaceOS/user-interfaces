@@ -9,7 +9,6 @@ import {
     output,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BookingFormService } from '@placeos/bookings';
@@ -222,21 +221,11 @@ export class DeskFlowSelectListComponent {
     public readonly promote_selected = input(false);
     public readonly item_selected = output<Space>();
 
-    public readonly loading = toSignal(this._booking_form.loading, {
-        initialValue: '',
-    });
+    public readonly loading = this._booking_form.loading;
 
-    private readonly _available_items = toSignal(
-        this._booking_form.available_resources,
-        { initialValue: [] },
-    );
+    private readonly _available_items = this._booking_form.available_resources;
 
-    private readonly form_value = toSignal(
-        this._booking_form.form.valueChanges,
-        {
-            initialValue: this._booking_form.form.value,
-        },
-    );
+    private readonly form_value = this._booking_form.model;
 
     private readonly _promote_on_list_change = signal(false);
 

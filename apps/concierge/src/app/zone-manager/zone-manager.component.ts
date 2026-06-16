@@ -1,4 +1,11 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
@@ -7,7 +14,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, OrganisationService } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { first } from 'rxjs/operators';
 import { BuildingListComponent } from '../building-manager/building-list.component';
 import { BuildingManagementService } from '../building-manager/building-management.service';
 import { LevelListComponent } from '../level-manager/level-list.component';
@@ -145,6 +151,7 @@ import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         ApplicationTopbarComponent,
         ApplicationSidebarComponent,
@@ -196,7 +203,7 @@ export class ZoneManagerComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        await this._org.waitUntilInitialised();
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {

@@ -19,7 +19,7 @@ export default defineConfig({
         trace: 'on-first-retry',
     },
     webServer: {
-        command: 'npx nx serve timetable --port=4212',
+        command: 'bunx nx serve timetable --port=4212',
         url: 'http://localhost:4212',
         reuseExistingServer: !process.env.CI,
         cwd: workspaceRoot,

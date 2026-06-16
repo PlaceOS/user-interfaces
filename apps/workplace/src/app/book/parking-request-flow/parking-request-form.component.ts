@@ -1,5 +1,11 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 
 import { Router } from '@angular/router';
@@ -7,8 +13,7 @@ import { BookingFormService, ParkingService } from '@placeos/bookings';
 import {
     AsyncHandler,
     currentUser,
-    getInvalidFields,
-    nextValueFrom,
+    getInvalidSignalFields,
     notifyError,
     OrganisationService,
     randomString,
@@ -42,7 +47,7 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
                         <icon>local_parking</icon>
                         <div>
                             {{
-                                (form.value.id
+                                (model().id
                                     ? 'APP.WORKPLACE.PARKING_REQUEST_EDIT_HEADER'
                                     : 'BOOKINGS.PARKING_REQUEST_TITLE'
                                 ) | translate
@@ -60,6 +65,7 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
                     <!-- Form Details -->
                     <parking-request-form-details
                         [form]="form"
+                        [model_input]="model"
                         [show_special_needs]="show_special_needs()"
                     ></parking-request-form-details>
 
@@ -133,7 +139,7 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
                         </div>
 
                         <!-- Conditional after-hours warning -->
-                        @if (form.value.request_type === 'after_hours') {
+                        @if (model().request_type === 'after_hours') {
                             <div class="text-warning flex items-center gap-2">
                                 <icon class="text-lg">error</icon>
                                 <span class="text-sm">{{
@@ -216,9 +222,9 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
-        ReactiveFormsModule,
         TranslatePipe,
         SanitizePipe,
         IconComponent,
@@ -251,8 +257,12 @@ export class ParkingRequestFormComponent
         return this._state.form;
     }
 
+    public get model() {
+        return this._state.model;
+    }
+
     public get user_name(): string {
-        const user = this.form.value.user;
+        const user = this.model().user;
         return user?.name || user?.email || '';
     }
 
@@ -281,48 +291,49 @@ export class ParkingRequestFormComponent
         // class), so the existing `!date` guard never trips and the form
         // would otherwise open at "current time, 1 hour" instead of the
         // shift the user expects.
-        if (!this.form.getRawValue().id) {
+        if (!this.model().id) {
             const day_start = startOfDay(now);
             defaults.date = day_start.valueOf() + 7 * 60 * 60 * 1000;
             defaults.duration = 600;
         }
-        this.form.patchValue(defaults);
-        const parking_user = await nextValueFrom(this._parking.user_details);
+        this.model.update((m) => ({ ...m, ...defaults }));
+        const parking_user = this._parking.user_details();
         if (parking_user?.email) {
-            if (!this.form.value.plate_number) {
-                this.form.patchValue({
+            if (!this.model().plate_number) {
+                this.model.update((m) => ({
+                    ...m,
                     plate_number:
                         this._settings.get('plate_number') ||
                         parking_user.plate_number ||
                         '',
-                });
+                }));
             }
             this.show_special_needs.set(!!parking_user.special_needs || true);
         }
     }
 
     public readonly submitRequest = async () => {
-        const { date } = this.form.getRawValue();
+        const { date } = this.model();
         if (!date) {
-            const state = this.form.controls.date.disabled;
-            if (state) this.form.controls.date.enable();
-            this.form.patchValue({
+            // Disabled state no longer blocks writing the model value.
+            this.model.update((m) => ({
+                ...m,
                 date: roundToNearestMinutes(Date.now(), {
                     nearestTo: 5,
                     roundingMethod: 'ceil',
                 }).valueOf(),
-            });
-            if (state) this.form.controls.date.disable();
+            }));
         }
-        this.form.patchValue({
+        this.model.update((m) => ({
+            ...m,
             asset_id: `unallocated-${randomString(8)}`,
             asset_name: 'Parking Request',
             description: 'Parking Request',
-            title: this.form.value.title || 'Parking Request',
-        });
+            title: m.title || 'Parking Request',
+        }));
         if (
-            this.form.value.request_type === 'special' &&
-            !`${this.form.value.notes || ''}`.trim()
+            this.model().request_type === 'special' &&
+            !`${this.model().notes || ''}`.trim()
         ) {
             return notifyError(
                 'Reason for request is required for P2 Special Needs Request.',
@@ -330,32 +341,30 @@ export class ParkingRequestFormComponent
         }
         const building = this._org.building;
         const location =
-            building?.display_name ||
-            building?.name ||
-            this.form.value.location;
+            building?.display_name || building?.name || this.model().location;
         const extension_data = {
-            ...((this.form.getRawValue() as any).extension_data || {}),
+            ...((this.model() as any).extension_data || {}),
             location,
         };
-        this.form.patchValue({
-            zones: [
-                this._org.organisation.id,
-                this._org.region?.id,
-                building?.id,
-            ].filter(Boolean),
-            location,
-        });
-        if ((this.form.controls as any).extension_data) {
-            this.form.patchValue({ extension_data } as any);
-        } else {
-            this.form.addControl(
-                'extension_data' as any,
-                new FormControl(extension_data),
-            );
-        }
-        if (!this.form.valid)
+        this.model.update(
+            (m) =>
+                ({
+                    ...m,
+                    zones: [
+                        this._org.organisation.id,
+                        this._org.region?.id,
+                        building?.id,
+                    ].filter(Boolean),
+                    location,
+                    extension_data,
+                }) as any,
+        );
+        if (!this.form().valid())
             return notifyError(
-                `Some fields are invalid. [${getInvalidFields(this.form).join(', ')}]`,
+                `Some fields are invalid. [${getInvalidSignalFields(
+                    this.form,
+                    this.model,
+                ).join(', ')}]`,
             );
         this.loading.set(true);
         try {

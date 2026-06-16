@@ -1,8 +1,12 @@
+import { signal } from '@angular/core';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { OrganisationService, Space } from '@placeos/common';
 import { of } from 'rxjs';
 
-jest.mock('@placeos/ts-client');
+jest.mock('@placeos/ts-client', () => ({
+    ...jest.requireActual('@placeos/ts-client'),
+    querySystems: jest.fn(),
+}));
 
 import * as ts_client from '@placeos/ts-client';
 
@@ -18,7 +22,7 @@ describe('SpacesService', () => {
         service: SpacesService,
         providers: [
             MockProvider(OrganisationService, {
-                initialised: of(true),
+                initialised: signal(true),
                 organisation: { id: 'zone-1' },
                 levelWithID: jest.fn(),
             } as any),
@@ -27,6 +31,7 @@ describe('SpacesService', () => {
     });
 
     beforeEach(() => {
+        jest.clearAllMocks();
         spaces = new Array(30).fill(0).map(
             (_, idx) =>
                 new Space(
@@ -35,9 +40,9 @@ describe('SpacesService', () => {
                     }),
                 ),
         );
-        (ts_client as any).querySystems = jest.fn(() =>
-            Promise.resolve({ data: spaces }),
-        );
+        jest.mocked(ts_client.querySystems).mockResolvedValue({
+            data: spaces,
+        } as any);
         spectator = createService();
     });
 

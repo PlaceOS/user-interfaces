@@ -1,4 +1,11 @@
-import { Component, ElementRef, inject, viewChild } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    inject,
+    viewChild,
+} from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, currentUser } from '@placeos/common';
 import {
@@ -9,7 +16,7 @@ import {
     TranslatePipe,
     UserAvatarComponent,
 } from '@placeos/components';
-import { first, map, tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
@@ -230,6 +237,7 @@ declare let loadVosklet: any;
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         CommonModule,
@@ -267,11 +275,11 @@ export class PanelViewComponent extends AsyncHandler {
         task_complete: 'check_circle',
     };
 
-    public readonly messages = this._chat.messages;
-    public readonly progress = this._chat.progress.pipe(
+    public readonly messages = toObservable(this._chat.messages);
+    public readonly progress = toObservable(this._chat.progress).pipe(
         tap(() => this._scrollToBottom()),
     );
-    public readonly waiting = this._chat.messages.pipe(
+    public readonly waiting = toObservable(this._chat.messages).pipe(
         map(
             (_) => _.length !== 0 && _[_.length - 1]?.user_id === this.user?.id,
         ),
@@ -292,7 +300,7 @@ export class PanelViewComponent extends AsyncHandler {
     }
 
     public async ngOnInit() {
-        await this._org.initialised.pipe(first((_) => !!_)).toPromise();
+        await this._org.waitUntilInitialised();
         const start_voice = () => {
             this._setupVoiceRecognition();
             window.removeEventListener('click', start_voice);
@@ -305,7 +313,7 @@ export class PanelViewComponent extends AsyncHandler {
         this._chat.startChat();
         this.subscription(
             'chat.messages',
-            this._chat.messages.subscribe((list) => {
+            this.messages.subscribe((list) => {
                 this._scrollToBottom();
                 const msg_list = list.filter(
                     (_) => _.user_id !== this.user?.id,

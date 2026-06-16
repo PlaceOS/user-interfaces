@@ -16,7 +16,7 @@ export default defineConfig({
         trace: 'on-first-retry',
     },
     webServer: {
-        command: 'npx nx serve survey --port=4211',
+        command: 'bunx nx serve survey --port=4211',
         url: 'http://localhost:4211',
         reuseExistingServer: !process.env.CI,
         cwd: workspaceRoot,

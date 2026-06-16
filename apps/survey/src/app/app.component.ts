@@ -1,4 +1,9 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+} from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
@@ -75,6 +80,7 @@ const START_QUERY = location.search;
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [RouterModule, GlobalBannerComponent, GlobalLoadingComponent],
 })
 export class AppComponent extends AsyncHandler implements OnInit {
@@ -144,7 +150,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         }
         /** Wait for authentication details to load */
         await setupPlace(settings).catch((_) => console.error(_));
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         if (this._locale) {
             this._locale.zone_id = this._org.organisation.id;
             this._locale.init();

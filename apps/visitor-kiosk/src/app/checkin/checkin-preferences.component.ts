@@ -1,9 +1,17 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    effect,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { queryCateringItems } from '@placeos/assets';
 import { setToken } from '@placeos/ts-client';
-import { lastValueFrom, of } from 'rxjs';
+import { from, of } from 'rxjs';
 import {
     catchError,
     filter,
@@ -117,6 +125,7 @@ import { parseTokenFromUrl } from './token-from-url';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FormsModule,
         TranslatePipe,
@@ -153,7 +162,7 @@ export class CheckinPreferencesComponent
     private readonly _menu = toObservable(this.bld_id).pipe(
         filter((_) => !!_),
         switchMap((bld) =>
-            queryCateringItems(bld).pipe(
+            from(queryCateringItems(bld)).pipe(
                 catchError(() => of([] as CateringItem[])),
             ),
         ),
@@ -172,14 +181,12 @@ export class CheckinPreferencesComponent
     );
     public readonly menu = toSignal(this._menu, { initialValue: [] });
 
+    private readonly _update_bld_id = effect(() => {
+        this.bld_id.set(this._org.active_building()?.id || '');
+    });
+
     public ngOnInit(): void {
         this.loading.set(true);
-        this.subscription(
-            'bld',
-            this._org.active_building.subscribe((v) =>
-                this.bld_id.set(v?.id || ''),
-            ),
-        );
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe(async (params) => {
@@ -224,11 +231,10 @@ export class CheckinPreferencesComponent
                             'info',
                         );
                     }
-                    const existing = await lastValueFrom(
-                        getGuestCateringItem(event.asset_id, event.id).pipe(
-                            catchError(() => of(null)),
-                        ),
-                    );
+                    const existing = await getGuestCateringItem(
+                        event.asset_id,
+                        event.id,
+                    ).catch(() => null);
                     if (existing) {
                         this.existing_beverage.set(existing);
                         this.beverage.set(existing);
@@ -268,9 +274,7 @@ export class CheckinPreferencesComponent
             ...this.beverage(),
             quantity: 1,
         });
-        await lastValueFrom(
-            setGuestCateringItem(email, catering_item, booking.id),
-        );
+        await setGuestCateringItem(email, catering_item, booking.id);
         notifySuccess(i18n('APP.VISITOR_KIOSK.BEVERAGE_SUCCESS'));
         this.loading.set(false);
         this.next();

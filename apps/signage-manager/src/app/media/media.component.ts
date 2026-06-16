@@ -1,4 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { IconComponent } from '@placeos/components';
 import { NavFooterComponent } from '../shared/nav-footer.component';
@@ -61,6 +66,7 @@ import { PlaylistSidebarComponent } from './playlist-sidebar.component';
         </div>
     `,
     styles: [``],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         NavSidebarComponent,
         MediaListComponent,

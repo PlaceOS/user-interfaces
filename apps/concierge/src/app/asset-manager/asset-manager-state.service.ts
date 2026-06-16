@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import {
     generateAssetForm,
@@ -43,7 +44,7 @@ import {
     updateMetadata,
 } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, from, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -91,13 +92,15 @@ export class AssetManagerStateService extends AsyncHandler {
     /** List of available assets */
     public readonly products: Observable<AssetGroup[]> = combineLatest([
         this._change,
-        this._org.active_building,
+        toObservable(this._org.active_building),
     ]).pipe(
         switchMap(() => {
             this._loading.next(true);
-            return getGroupsWithAssets({
-                zone_id: this._org.building?.id,
-            }).pipe(
+            return from(
+                getGroupsWithAssets({
+                    zone_id: this._org.building?.id,
+                }),
+            ).pipe(
                 map((r) => r.data),
                 catchError(() => of([])),
             );
@@ -110,7 +113,9 @@ export class AssetManagerStateService extends AsyncHandler {
         this._change.pipe(
             switchMap(() => {
                 this._loading.next(true);
-                return queryAssetPurchaseOrders().pipe(map((_) => _.data));
+                return from(queryAssetPurchaseOrders()).pipe(
+                    map((_) => _.data),
+                );
             }),
             tap(() => this._loading.next(false)),
             shareReplay(1),
@@ -118,11 +123,11 @@ export class AssetManagerStateService extends AsyncHandler {
     /** List of requests made by users for assets */
     public readonly requests = combineLatest([
         this._options,
-        this._org.active_building,
-        this._org.active_region,
+        toObservable(this._org.active_building),
+        toObservable(this._org.active_region),
         this._poll,
         this._change,
-        this._spaces.initialised,
+        toObservable(this._spaces.initialised),
     ]).pipe(
         debounceTime(200),
         switchMap(([{ date }, bld, region]) => {
@@ -134,13 +139,15 @@ export class AssetManagerStateService extends AsyncHandler {
                       .map((_) => _.id)
                       .join(',')
                 : bld?.id;
-            return queryBookings({
-                zones,
-                period_start: getUnixTime(start),
-                period_end: getUnixTime(end),
-                include_parent_bookings: true,
-                type: 'asset-request',
-            } as any).pipe(
+            return from(
+                queryBookings({
+                    zones,
+                    period_start: getUnixTime(start),
+                    period_end: getUnixTime(end),
+                    include_parent_bookings: true,
+                    type: 'asset-request',
+                } as any),
+            ).pipe(
                 map((_) =>
                     _.map(
                         (b) =>
@@ -221,7 +228,7 @@ export class AssetManagerStateService extends AsyncHandler {
     /** Currently active asset */
     public readonly active_product = combineLatest([
         this._options,
-        this._org.active_building,
+        toObservable(this._org.active_building),
         this._change,
     ]).pipe(
         filter(([{ active_item }, bld]) => !!active_item && !!bld),
@@ -289,7 +296,7 @@ export class AssetManagerStateService extends AsyncHandler {
     );
 
     public readonly settings = combineLatest([
-        this._org.active_building,
+        toObservable(this._org.active_building),
         this._change,
     ]).pipe(
         filter(([_]) => !!_),
@@ -371,9 +378,9 @@ export class AssetManagerStateService extends AsyncHandler {
     public async setStatus(item: Booking, status: any) {
         let result = item;
         if (status === 'declined') {
-            result = await rejectBooking(item.id).toPromise();
+            result = await rejectBooking(item.id);
         } else if (status === 'approved') {
-            result = await approveBooking(item.id).toPromise();
+            result = await approveBooking(item.id);
         }
         this._change.next(Date.now());
         return result;
@@ -383,7 +390,7 @@ export class AssetManagerStateService extends AsyncHandler {
         const result = await updateBooking(item.id, {
             ...item.toJSON(),
             extension_data: { ...item.extension_data, tracking },
-        }).toPromise();
+        });
         this._change.next(Date.now());
         return result;
     }
@@ -414,7 +421,7 @@ export class AssetManagerStateService extends AsyncHandler {
             delete other_data[key];
         }
         data.other_data = cleanObject(other_data, [undefined, null, '']);
-        const asset = await saveAsset(data as any).toPromise();
+        const asset = await saveAsset(data as any);
         this._change.next(Date.now());
         notifySuccess(`Successfully ${data.id ? 'updated' : 'created'} asset`);
         this.resetForm();

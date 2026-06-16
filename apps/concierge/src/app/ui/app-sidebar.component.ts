@@ -1,4 +1,13 @@
-import { Component, ElementRef, OnInit, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    Injector,
+    OnInit,
+    inject,
+    signal,
+} from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import {
@@ -7,7 +16,6 @@ import {
     OrganisationService,
     SettingsService,
     currentUser,
-    firstTruthyValueFrom,
     i18n,
     unique,
 } from '@placeos/common';
@@ -90,6 +98,7 @@ import { debounceTime, filter } from 'rxjs/operators';
         `,
     ],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [RouterModule, MatRippleModule, IconComponent],
 })
 export class ApplicationSidebarComponent
@@ -98,6 +107,7 @@ export class ApplicationSidebarComponent
 {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
+    private _injector = inject(Injector);
     private _element_ref = inject<ElementRef<HTMLElement>>(ElementRef);
 
     public readonly show_block = signal<Record<string, boolean>>({});
@@ -124,7 +134,7 @@ export class ApplicationSidebarComponent
     }
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        await this._org.waitUntilInitialised();
         this.links = [
             {
                 name: i18n('APP.CONCIERGE.MENU_BOOKINGS'),
@@ -340,7 +350,9 @@ export class ApplicationSidebarComponent
         this.updateFilteredLinks();
         this.subscription(
             'building',
-            this._org.active_building
+            toObservable(this._org.active_building, {
+                injector: this._injector,
+            })
                 .pipe(
                     filter((_) => !!_),
                     debounceTime(100),

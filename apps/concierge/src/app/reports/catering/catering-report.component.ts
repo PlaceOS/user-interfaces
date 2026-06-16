@@ -1,5 +1,12 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    effect,
+    inject,
+    signal,
+} from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
 import { OrganisationService, SettingsService } from '@placeos/common';
@@ -114,6 +121,7 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         MatProgressSpinnerModule,
@@ -136,9 +144,7 @@ export class CateringReportComponent {
     private readonly _query_params = toSignal(this._route.queryParamMap, {
         initialValue: this._route.snapshot.queryParamMap,
     });
-    private readonly _building = toSignal(this._org.active_building, {
-        initialValue: this._org.building,
-    });
+    private readonly _building = this._org.active_building;
     private readonly _stats = toSignal(this._state.stats, {
         initialValue: {} as any,
     });
@@ -153,7 +159,7 @@ export class CateringReportComponent {
     public readonly generateReport = () => this._state.generateReport();
 
     public readonly logo = toSignal(
-        this._org.active_building.pipe(
+        toObservable(this._org.active_building).pipe(
             debounceTime(500),
             map(
                 () =>

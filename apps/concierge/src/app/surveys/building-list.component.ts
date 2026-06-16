@@ -1,4 +1,9 @@
-import { Component, computed, inject } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+} from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { AsyncHandler, flatten, OrganisationService } from '@placeos/common';
 import {
@@ -21,7 +26,9 @@ import { SurveyService } from './survey.service';
                 {{
                     'APP.CONCIERGE.SURVEY_BUILDING_COUNT'
                         | translate
-                            : { count: buildings()?.length }
+                            : {
+                                  count: buildings()?.length,
+                              }
                             : buildings()?.length
                 }}
             </div>
@@ -126,6 +133,7 @@ import { SurveyService } from './survey.service';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         AuthenticatedImageDirective,
         TranslatePipe,
@@ -137,7 +145,7 @@ export class BuildingListComponent extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _survey = inject(SurveyService);
 
-    public readonly buildings = this._org.buildings_signal;
+    public readonly buildings = this._org.building_list;
     public readonly surveys = this._survey.survey_list;
     public readonly answers = this._survey.answer_list;
 

@@ -1,23 +1,23 @@
+import { signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 import { VisitorInviteFormComponent } from 'libs/bookings/src/lib/visitor-invite-form.component';
-import { BehaviorSubject } from 'rxjs';
 
 import { InviteVisitorModalComponent } from '../../app/visitors/invite-visitor-modal.component';
 
 describe('InviteVisitorModalComponent', () => {
-    let loading: BehaviorSubject<string>;
+    let loading: WritableSignal<string>;
     let booking_form: {
-        loading: BehaviorSubject<string>;
+        loading: WritableSignal<string>;
         clearOldState: jest.Mock;
     };
 
     beforeEach(async () => {
-        loading = new BehaviorSubject('Saving booking');
+        loading = signal('Saving booking');
         booking_form = {
             loading,
-            clearOldState: jest.fn(() => loading.next('')),
+            clearOldState: jest.fn(() => loading.set('')),
         };
 
         await TestBed.configureTestingModule({

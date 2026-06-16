@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { AuthenticatedImageDirective } from '@placeos/components';
 
 @Component({
@@ -22,6 +22,7 @@ import { AuthenticatedImageDirective } from '@placeos/components';
         </div>
     `,
     styles: [''],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [AuthenticatedImageDirective],
 })
 export class NotFoundComponent {}

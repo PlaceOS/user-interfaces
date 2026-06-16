@@ -1,4 +1,10 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { startOfMinute } from 'date-fns';
 
@@ -75,6 +81,7 @@ import { PanelStateService } from '../panel-state.service';
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, TranslatePipe],
 })
 export class PanelViewDetailsComponent extends AsyncHandler implements OnInit {

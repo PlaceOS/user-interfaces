@@ -10,8 +10,6 @@ import {
 import { AttachedResourceRuleset } from '@placeos/components';
 import { showMetadata } from '@placeos/ts-client';
 import { isAfter, isBefore, setHours, subHours } from 'date-fns';
-import { from, Observable, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
 
 export function generateAssetCategoryForm(
     category: Partial<PlaceAssetCategory> = {},
@@ -78,22 +76,19 @@ export function generateAssetForm(asset: Partial<PlaceAsset> = {}) {
     });
 }
 
-const RULE_REQUESTS: Record<string, Observable<AttachedResourceRuleset[]>> = {};
+const RULE_REQUESTS: Record<string, Promise<AttachedResourceRuleset[]>> = {};
 
 export function getAssetRulesForZone(zone_id: string, fresh: boolean = false) {
-    if (!zone_id) return of([] as AttachedResourceRuleset[]);
+    if (!zone_id) return Promise.resolve([] as AttachedResourceRuleset[]);
     if (!RULE_REQUESTS[zone_id] || fresh)
-        RULE_REQUESTS[zone_id] = from(
-            showMetadata(zone_id, 'assets_config'),
-        ).pipe(
-            map(
+        RULE_REQUESTS[zone_id] = showMetadata(zone_id, 'assets_config')
+            .then(
                 (_) =>
                     (_.details instanceof Array
                         ? _.details
                         : []) as AttachedResourceRuleset[],
-            ),
-            catchError((e) => of([] as AttachedResourceRuleset[])),
-        );
+            )
+            .catch(() => [] as AttachedResourceRuleset[]);
     return RULE_REQUESTS[zone_id];
 }
 
