@@ -148,7 +148,7 @@ export function hasLoadedTopMenuSettings(state: TopMenuSettingsState) {
                     <a
                         mat-menu-item
                         [routerLink]="route.route"
-                        routerLinkActive="text-secondary active"
+                        routerLinkActive="bg-info-light! active"
                     >
                         <ng-container
                             [ngTemplateOutlet]="mobile_route_contents"
