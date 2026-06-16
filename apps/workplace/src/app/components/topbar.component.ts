@@ -4,7 +4,6 @@ import {
     computed,
     inject,
 } from '@angular/core';
-import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import {
     OrganisationService,
@@ -14,8 +13,7 @@ import {
 } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
-    CustomTooltipComponent,
-    UserControlsComponent,
+    UserControlsSidebarComponent,
 } from '@placeos/components';
 import { UserAvatarComponent } from '../../../../../libs/components/src/lib/user-avatar.component';
 import { GlobalSearchComponent } from './global-search.component';
@@ -49,23 +47,15 @@ const EMPTY = [];
             <div
                 class="relative hidden h-full w-1/2 flex-1 items-center justify-center sm:flex"
             >
-                <top-menu></top-menu>
+                <top-menu />
             </div>
             <div class="flex w-48 items-center justify-end">
                 @if (search) {
-                    <global-search></global-search>
+                    <global-search />
                 }
-                <button
-                    icon
-                    matRipple
-                    avatar
-                    name="user-controls"
-                    class="bg-base-200 mr-2 flex h-10 w-10 items-center justify-center rounded-full"
-                    customTooltip
-                    [content]="user_controls"
-                >
+                <user-controls-sidebar class="mr-2">
                     <a-user-avatar [user]="user()" />
-                </button>
+                </user-controls-sidebar>
             </div>
         </div>
     `,
@@ -78,13 +68,12 @@ const EMPTY = [];
     ],
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
-        MatRippleModule,
         GlobalSearchComponent,
         TopMenuComponent,
         AuthenticatedImageDirective,
         RouterModule,
         UserAvatarComponent,
-        CustomTooltipComponent,
+        UserControlsSidebarComponent,
     ],
 })
 export class TopbarComponent {
@@ -92,7 +81,6 @@ export class TopbarComponent {
     private _org = inject(OrganisationService);
 
     public show_menu: boolean;
-    public readonly user_controls = UserControlsComponent;
     public readonly user = userSignal();
 
     public readonly logo = computed(() => {

@@ -28,12 +28,7 @@ import { ChatService } from './chat.service';
     template: `
         @if (can_show()) {
             <div class="absolute right-0 bottom-0 p-2">
-                <button
-                    icon
-                    matRipple
-                    class="border-base-300 bg-base-100 rounded-full border shadow-sm"
-                    (click)="toggleChat()"
-                >
+                <button icon default matRipple (click)="toggleChat()">
                     <icon>chat</icon>
                 </button>
                 @if (show()) {

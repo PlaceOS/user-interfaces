@@ -39,4 +39,35 @@ describe('UserAvatarComponent', () => {
         expect('[initials]').toExist();
         expect('[initials]').toContainText('JS');
     });
+
+    it('should render blank without a valid user', () => {
+        spectator.detectChanges();
+        expect('[initials]').not.toExist();
+        expect('img').not.toExist();
+    });
+
+    it('should render blank for the empty placeholder user', () => {
+        spectator.setInput(
+            'user',
+            new User({ name: '<empty>', email: '<empty>@dev.place.tech' }),
+        );
+        spectator.detectChanges();
+        expect('[initials]').not.toExist();
+        expect('img').not.toExist();
+    });
+
+    it('should derive initials from email-style names', () => {
+        spectator.setInput('user', new User({ name: '<jane@example.com>' }));
+        spectator.detectChanges();
+        expect('[initials]').toContainText('ja');
+    });
+
+    it('should ignore bracketed email segments in display names', () => {
+        spectator.setInput(
+            'user',
+            new User({ name: 'John Smith <john@example.com>' }),
+        );
+        spectator.detectChanges();
+        expect('[initials]').toContainText('JS');
+    });
 });

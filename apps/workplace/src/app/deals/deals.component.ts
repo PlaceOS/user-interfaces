@@ -125,13 +125,13 @@ import { DealsService } from './deals.service';
                                         <img
                                             auth
                                             [source]="deal.image"
-                                            alt="Deal Image"
-                                            class="h-full w-full object-cover"
+                                            [alt]="deal.name + ' [Image]'"
+                                            class="text-base-content/50 flex h-full w-full items-center justify-center object-cover"
                                         />
                                     }
                                     @if (deal.details) {
                                         <div
-                                            class="bg-info text-info-content absolute bottom-2 left-2 max-w-full truncate rounded-sm px-2 py-1 text-xs shadow-sm"
+                                            class="bg-info text-info-content absolute bottom-2 left-2 max-w-[calc(100%-1rem)] truncate rounded-sm px-2 py-1 text-xs shadow-sm"
                                         >
                                             {{ deal.details }}
                                         </div>
@@ -216,7 +216,9 @@ export class DealsComponent implements OnInit {
     private _settings = inject(SettingsService);
     private _router = inject(Router);
 
-    public readonly deals = this._service.deals;
+    public readonly deals = computed(() =>
+        this._service.deals().filter((_) => _.expires_at > Date.now()),
+    );
     public readonly types = computed(() =>
         unique(
             this.deals()
