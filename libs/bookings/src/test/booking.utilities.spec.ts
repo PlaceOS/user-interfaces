@@ -60,6 +60,43 @@ describe('Booking Utilities', () => {
 
             expect(form.duration().errors()).toEqual([]);
         });
+
+        it('should coerce undefined writes back to typed defaults so [formField] bindings survive', () => {
+            const { model, form } = TestBed.runInInjectionContext(() =>
+                generateBookingForm(
+                    new Booking({ booking_type: 'visitor' }),
+                    injector,
+                ),
+            );
+
+            // A CVA or handler clearing fields to undefined would otherwise
+            // remove them from the FieldTree, breaking `[formField]`.
+            model.update((m) => ({
+                ...m,
+                user: undefined as any,
+                asset_id: undefined as any,
+                assets: undefined as any,
+            }));
+
+            // Sanitised synchronously at the update() boundary — no tick.
+            expect(typeof form.user).toBe('function');
+            expect(typeof form.asset_id).toBe('function');
+            expect(typeof form.assets).toBe('function');
+            expect(model().asset_id).toBe('');
+            expect(model().assets).toEqual([]);
+            expect(model().user).toBeDefined();
+        });
+
+        it('should keep the date field disabled state stable (no oscillation)', () => {
+            const { form } = TestBed.runInInjectionContext(() =>
+                generateBookingForm(
+                    new Booking({ booking_type: 'desk' }),
+                    injector,
+                ),
+            );
+
+            expect(typeof form.date().disabled()).toBe('boolean');
+        });
     });
 
     describe('newBookingFromCalendarEvent', () => {

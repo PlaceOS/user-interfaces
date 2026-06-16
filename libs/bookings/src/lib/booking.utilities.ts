@@ -1,4 +1,4 @@
-import { Injector, signal, type WritableSignal } from '@angular/core';
+import { Injector, signal, untracked, type WritableSignal } from '@angular/core';
 import {
     disabled,
     email,
@@ -17,6 +17,7 @@ import {
     current_user,
     currentUser,
     fromEventRecurrence,
+    guardModelUndefinedWrites,
     onFieldChange,
     OrganisationService,
     Point,
@@ -93,7 +94,10 @@ function setBookingAsset(
     resource: any,
 ) {
     if (!resource) {
-        model.update((m) => ({ ...m, asset_id: undefined }));
+        // Use '' rather than `undefined`: an undefined value removes the
+        // `asset_id` sub-field from the signal-forms FieldTree, breaking any
+        // `[formField]="form.asset_id"` binding (`this.field() is not a function`).
+        model.update((m) => ({ ...m, asset_id: '' }));
         return;
     }
     model.update((m) => ({
@@ -323,6 +327,11 @@ export function generateBookingForm(
         bookingFormValue(booking),
     );
 
+    // Keep every key defined so signal-forms never drops a sub-field bound via
+    // `[formField]` (an undefined value triggers `this.field() is not a
+    // function`). Guards writes synchronously — no reactive surface.
+    guardModelUndefinedWrites(model, bookingFormValue(new Booking()));
+
     const require_plate_number = settingSignal<boolean>(
         'parking.require_plate_number',
         false,
@@ -344,9 +353,14 @@ export function generateBookingForm(
                 ? { kind: 'duration' }
                 : undefined;
         });
-        disabled(p.date, {
-            when: ({ valueOf }) =>
-                started || (valueOf(p.date) < Date.now() && !!valueOf(p.id)),
+        // Depend only on the date field's own value (`ctx.value()`) and read
+        // `id` untracked. `valueOf(p.id)` here threw NG01901 (the resolver
+        // can't navigate `.id` from the `date` field), and reading the whole
+        // `model()` made this recompute on every model change — extra reactive
+        // surface that could feed loops on the explore page.
+        disabled(p.date, ({ value }) => {
+            if (started) return true;
+            return value() < Date.now() && !!untracked(model).id;
         });
     }, { injector }) as BookingForm;
 
@@ -356,12 +370,14 @@ export function generateBookingForm(
         (v) => v.user,
         (user) => {
             if (!user) return;
+            // Coalesce to '' so the sub-fields are never removed from the
+            // FieldTree (an undefined value breaks `[formField]="form.user_*"`).
             model.update((m) => ({
                 ...m,
                 user,
-                user_id: (user as any)?.id,
-                user_email: (user as any)?.email,
-                user_name: (user as any)?.name,
+                user_id: (user as any)?.id ?? '',
+                user_email: (user as any)?.email ?? '',
+                user_name: (user as any)?.name ?? '',
             }));
         },
         injector,
