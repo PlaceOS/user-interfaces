@@ -1,10 +1,4 @@
-import {
-    computed,
-    inject,
-    Injectable,
-    resource,
-    signal,
-} from '@angular/core';
+import { computed, inject, Injectable, resource, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import type { ParkingFleetVehicle, ParkingUser } from '@placeos/assets';
 import {
@@ -1077,6 +1071,7 @@ export class ParkingStateService extends AsyncHandler {
             type: 'parking',
             email: resource.assigned_to,
             include_checked_out: true,
+            limit: 1000,
         });
         const filtered = booking_list.filter((_) => _.asset_id === resource.id);
         for (const booking of filtered) {
