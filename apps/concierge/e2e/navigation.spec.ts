@@ -1,4 +1,5 @@
 import { expect, test } from './fixtures';
+import { gotoMockRoute, waitForHost } from './helpers';
 
 // US-001 / US-002 / US-003: Application shell, default landing route and sidebar navigation.
 test.describe('Application Shell', () => {
@@ -30,5 +31,29 @@ test.describe('Application Shell', () => {
             .click();
         await page.locator('[app-new-dayview]').waitFor({ timeout: 30000 });
         expect(page.url()).toContain('/book/rooms');
+    });
+
+    // US-002 / US-004 / US-160: Sidebar exposes configured feature areas.
+    test('shows configured sidebar feature groups and links', async ({
+        page,
+    }) => {
+        await gotoMockRoute(page, '/#/book/rooms');
+        await waitForHost(page, 'app-sidebar');
+
+        await expect(
+            page.locator('app-sidebar a[href*="/book/rooms"]'),
+        ).toBeVisible();
+        await expect(
+            page.locator('app-sidebar a[href*="/book/desks/events"]'),
+        ).toBeVisible();
+        await expect(
+            page.locator('app-sidebar a[href*="/book/parking/events"]'),
+        ).toBeVisible();
+        await expect(
+            page.locator('app-sidebar a[href*="/reports/attendance"]'),
+        ).toBeVisible();
+        await expect(
+            page.locator('app-sidebar a[href*="/zone-management"]'),
+        ).toBeVisible();
     });
 });

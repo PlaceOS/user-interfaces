@@ -15,7 +15,7 @@ import { ReportSpacesComponent } from './spaces/report-spaces.component';
 import { VisitorsReportComponent } from './visitors/visitors-report.component';
 
 const children: Route[] = [
-    { path: '', component: ReportsOptionsComponent, title: 'Reports' },
+    { path: '', redirectTo: 'desks', pathMatch: 'full' },
     {
         path: 'bookings',
         component: ReportSpacesComponent,
@@ -47,7 +47,11 @@ const children: Route[] = [
         component: ContactTracingReportComponent,
         title: 'Contact Tracing Reports',
     },
-    { path: 'assets', component: AssetsReportComponent, title: 'Asset Reports' },
+    {
+        path: 'assets',
+        component: AssetsReportComponent,
+        title: 'Asset Reports',
+    },
     {
         path: 'visitors',
         component: VisitorsReportComponent,
