@@ -233,8 +233,13 @@ export class PlaceOS_Service extends AsyncHandler {
         setupCache(this._cache);
         log('APP', 'MOCKS:', _mocks);
         if (_mocks) {
-            setLoadingMessage('Initializing mocks...');
-            _mocks();
+            const mocks_enabled =
+                localStorage.getItem('mock') === 'true' ||
+                location.origin.includes('demo.place.tech');
+            if (mocks_enabled) {
+                setLoadingMessage('Initializing mocks...');
+                _mocks();
+            }
             this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyM'], () => {
                 localStorage.setItem(
                     'mock',
