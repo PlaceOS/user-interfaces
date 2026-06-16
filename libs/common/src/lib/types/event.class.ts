@@ -23,13 +23,9 @@ import { LinkedBooking } from '../types';
 import { AssetRequest } from './asset-request.class';
 import { CateringOrder } from './catering.class';
 import { Space } from './space.class';
-import { GuestUser, User } from './user.class';
+import { EMPTY_USER, GuestUser, User } from './user.class';
 
-let _default_user = {
-    id: 'default',
-    name: 'Default User',
-    email: 'default@example.com',
-} as User;
+let _default_user: User = EMPTY_USER;
 
 export function setDefaultCreator(user: User) {
     if (user) _default_user = user;

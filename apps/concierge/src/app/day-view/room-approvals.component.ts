@@ -8,6 +8,7 @@ import {
     signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -304,6 +305,7 @@ import { EventsStateService } from './events-state.service';
         TranslatePipe,
         IconComponent,
         BuildingPipe,
+        MatRippleModule,
         LevelPipe,
         SpacePipe,
         FormsModule,

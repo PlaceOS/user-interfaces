@@ -4,7 +4,9 @@ import { BehaviorSubject, combineLatest, of, timer } from 'rxjs';
 import { catchError, map, retry } from 'rxjs/operators';
 import { isPublicMode } from './public-mode';
 import { setDefaultCreator } from './types/event.class';
-import { StaffUser } from './types/user.class';
+import { EMPTY_USER, StaffUser } from './types/user.class';
+
+export { EMPTY_USER, isEmptyUser } from './types/user.class';
 
 declare let jest;
 
@@ -22,10 +24,6 @@ export enum GroupPermission {
     Share = 1 << 7,
 }
 
-const EMPTY_USER = {
-    name: '<empty>',
-    email: '<empty>@dev.place.tech',
-} as StaffUser;
 const ALL_PERMISSIONS = [
     GroupPermission.Read,
     GroupPermission.Create,
@@ -178,6 +176,7 @@ export function reloadUserData() {
             const p_user = await showUser('current');
             const user = new StaffUser(p_user);
             _current_user.next(user);
+            setDefaultCreator(user);
             loadUserGroups();
         } catch (error) {
             if (isPublicMode()) {
