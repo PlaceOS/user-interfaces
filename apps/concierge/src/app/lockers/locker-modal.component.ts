@@ -129,14 +129,14 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                     <div class="mb-4 flex space-x-4">
                         <settings-toggle
                             class="flex-1"
-                            [name]="
+                            [label]="
                                 'APP.CONCIERGE.LOCKERS_ACCESSIBLE' | translate
                             "
                             formControlName="accessible"
                         ></settings-toggle>
                         <settings-toggle
                             class="flex-1"
-                            [name]="'COMMON.BOOKABLE' | translate"
+                            [label]="'COMMON.BOOKABLE' | translate"
                             formControlName="bookable"
                         ></settings-toggle>
                     </div>

@@ -642,7 +642,7 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                             [custom_options]="[schedule().value.play_period]"
                         ></a-duration-field>
                         <settings-toggle
-                            [name]="
+                            [label]="
                                 'SIGNAGE_MANAGER.TAKEOVER_PLAYBACK' | translate
                             "
                             formControlName="play_takeover"
@@ -958,7 +958,7 @@ export function playlistSchedulePayload(value: any): SignagePlaylistSchedule {
                                 </div>
                             </div>
                             <settings-toggle
-                                [name]="
+                                [label]="
                                     'SIGNAGE_MANAGER.TAKEOVER_PLAYBACK'
                                         | translate
                                 "

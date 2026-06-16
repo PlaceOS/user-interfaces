@@ -114,7 +114,7 @@ import { DesksStateService } from '../desks/desks-state.service';
                 </div>
                 <div class="mb-4 flex items-center">
                     <settings-toggle
-                        [name]="'APP.CONCIERGE.POINTS_ACCEPT' | translate"
+                        [label]="'APP.CONCIERGE.POINTS_ACCEPT' | translate"
                         formControlName="accept_points"
                         class="w-full"
                     ></settings-toggle>

@@ -56,7 +56,7 @@ import { AssetStateService } from '../asset-state.service';
         @if (!search()) {
             <div class="flex flex-col space-y-2 px-2">
                 <settings-toggle
-                    [name]="'BOOKINGS.ASSETS_DELIVER_TOGGLE' | translate"
+                    [label]="'BOOKINGS.ASSETS_DELIVER_TOGGLE' | translate"
                     [ngModel]="at_time()"
                     (ngModelChange)="at_time.set($event)"
                     [matTooltip]="exact_tooltip()"
@@ -101,7 +101,7 @@ import { AssetStateService } from '../asset-state.service';
         <div class="flex flex-col space-y-2 px-2">
             @for (item of categories(); track item.id) {
                 <settings-toggle
-                    [name]="item.name"
+                    [label]="item.name"
                     [ngModel]="category()?.includes(item.id)"
                     (ngModelChange)="toggleCategory(item.id)"
                 ></settings-toggle>

@@ -154,7 +154,7 @@ import { ParkingUser } from './parking-state.service';
                     <div class="mb-4 flex items-center">
                         <settings-toggle
                             class="flex-1"
-                            [name]="
+                            [label]="
                                 'APP.CONCIERGE.PARKING_USER_DENY_PLACEHOLER'
                                     | translate
                             "

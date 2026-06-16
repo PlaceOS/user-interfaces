@@ -180,7 +180,7 @@ const CHARS = '0123456789ABCDEF';
                         <settings-toggle
                             formControlName="bookable"
                             class="flex-1"
-                            [name]="'COMMON.BOOKABLE' | translate"
+                            [label]="'COMMON.BOOKABLE' | translate"
                         >
                         </settings-toggle>
                         <div class="flex-1"></div>

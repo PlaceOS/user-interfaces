@@ -204,7 +204,7 @@ import { BookingFormService } from '../booking-form.service';
                     <div class="flex w-full items-center">
                         <settings-toggle
                             class="w-full"
-                            [name]="'COMMON.FAVOURITES_ONLY' | translate"
+                            [label]="'COMMON.FAVOURITES_ONLY' | translate"
                             [ngModel]="options()?.show_fav"
                             (ngModelChange)="setOptions({ show_fav: $event })"
                             [ngModelOptions]="{ standalone: true }"

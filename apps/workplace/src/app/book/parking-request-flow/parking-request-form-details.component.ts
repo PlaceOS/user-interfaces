@@ -1106,7 +1106,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                     track trackById(option)
                                 ) {
                                     <settings-toggle
-                                        [name]="option.name | translate"
+                                        [label]="option.name | translate"
                                         [ngModel]="
                                             isExtraRestrictionSelected(
                                                 option.id

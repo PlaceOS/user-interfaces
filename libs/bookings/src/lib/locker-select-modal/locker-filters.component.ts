@@ -209,13 +209,13 @@ import { BookingFormService } from '../booking-form.service';
             @if (!hide_levels()) {
                 <section favs class="space-y-4 pb-4">
                     <!-- <settings-toggle
-              [name]="'APP.WORKPLACE.FAVOURITES_SHOW' | translate"
+              [label]="'APP.WORKPLACE.FAVOURITES_SHOW' | translate"
               [ngModel]="options()?.show_fav"
               (ngModelChange)="setOptions({ show_fav: $event })"
               [ngModelOptions]="{ standalone: true }"
             ></settings-toggle> -->
                     <settings-toggle
-                        [name]="'BOOKINGS.LOCKER_ACCESSIBLE_SHOW' | translate"
+                        [label]="'BOOKINGS.LOCKER_ACCESSIBLE_SHOW' | translate"
                         [ngModel]="options()?.show_accessible"
                         (ngModelChange)="
                             setOptions({ show_accessible: $event })
@@ -233,7 +233,7 @@ import { BookingFormService } from '../booking-form.service';
                         <div class="flex flex-wrap items-center space-x-2">
                             <settings-toggle
                                 class="w-full capitalize"
-                                [name]="feat"
+                                [label]="feat"
                                 [ngModel]="
                                     (options()?.features || []).includes(feat)
                                 "

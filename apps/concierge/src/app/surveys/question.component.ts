@@ -40,7 +40,7 @@ import { QuestionType, QuestionTypeOptions } from './types';
                 >
                     <settings-toggle
                         [(ngModel)]="preview"
-                        [name]="'COMMON.PREVIEW' | translate"
+                        [label]="'COMMON.PREVIEW' | translate"
                     ></settings-toggle>
                     <div class="flex-1"></div>
                     @if (!preview()) {
@@ -61,7 +61,7 @@ import { QuestionType, QuestionTypeOptions } from './types';
 
                         <settings-toggle
                             [(ngModel)]="question().required"
-                            [name]="'COMMON.REQUIRED' | translate"
+                            [label]="'COMMON.REQUIRED' | translate"
                         ></settings-toggle>
                     }
                 </div>

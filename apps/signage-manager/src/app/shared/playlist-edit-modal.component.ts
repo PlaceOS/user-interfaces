@@ -83,13 +83,13 @@ export interface PlaylistEditModalData {
                 <div class="mb-4 flex items-center space-x-4">
                     <settings-toggle
                         class="flex-1"
-                        [name]="'COMMON.ENABLED' | translate"
+                        [label]="'COMMON.ENABLED' | translate"
                         formControlName="enabled"
                     >
                     </settings-toggle>
                     <settings-toggle
                         class="flex-1"
-                        [name]="'SIGNAGE_MANAGER.PLAYLIST_SHUFFLE' | translate"
+                        [label]="'SIGNAGE_MANAGER.PLAYLIST_SHUFFLE' | translate"
                         formControlName="random"
                     >
                     </settings-toggle>

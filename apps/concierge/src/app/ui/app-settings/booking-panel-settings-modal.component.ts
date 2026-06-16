@@ -63,11 +63,11 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
                     </h4>
                     <div class="-mx-2 flex flex-wrap items-center">
                         <settings-toggle
-                            name="Disable booking"
+                            label="Disable booking"
                             formControlName="disable_book_now"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Hide booking host options"
+                            label="Hide booking host options"
                             formControlName="disable_book_now_host"
                         ></settings-toggle>
                     </div>
@@ -130,31 +130,31 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
                 </div>
                 <div class="-mx-2 flex flex-wrap items-center">
                     <settings-toggle
-                        name="Disable auto-ending bookings"
+                        label="Disable auto-ending bookings"
                         formControlName="disable_end_meeting"
                         info="Disable ending the current booking early when sensors
 don't detect presence in room after a period of time"
                     ></settings-toggle>
                     <settings-toggle
-                        name="Show button to end booking early"
+                        label="Show button to end booking early"
                         formControlName="enable_end_meeting_button"
                     ></settings-toggle>
                     <settings-toggle
-                        name="Hide Meeting Details"
+                        label="Hide Meeting Details"
                         formControlName="hide_meeting_details"
                         info="When enabled only shows the time of the current meeting"
                     ></settings-toggle>
                     <settings-toggle
-                        name="Hide Meeting Title"
+                        label="Hide Meeting Title"
                         formControlName="hide_meeting_title"
                         info="When enabled only shows the time and host of the current meeting"
                     ></settings-toggle>
                     <settings-toggle
-                        name="Show Booking QR Code"
+                        label="Show Booking QR Code"
                         formControlName="show_qr_code"
                     ></settings-toggle>
                     <settings-toggle
-                        name="Hide QR helper text"
+                        label="Hide QR helper text"
                         formControlName="hide_qr_text"
                     ></settings-toggle>
                 </div>

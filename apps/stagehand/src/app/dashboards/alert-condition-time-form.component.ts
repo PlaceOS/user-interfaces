@@ -50,7 +50,7 @@ export function numberToPosition(num: number): string {
             <div class="alert-condition form time" [formGroup]="form()">
                 <div class="mb-4 flex flex-col">
                     <settings-toggle
-                        [name]="'TRIGGERS.TIME_SCHEDULE' | translate"
+                        [label]="'TRIGGERS.TIME_SCHEDULE' | translate"
                         [(ngModel)]="is_cron"
                         (ngModelChange)="toggleCRON($event)"
                         [ngModelOptions]="{ standalone: true }"

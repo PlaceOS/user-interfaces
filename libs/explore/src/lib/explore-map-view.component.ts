@@ -61,7 +61,7 @@ const EMPTY = [];
                 @if (!hide_zones()) {
                     <settings-toggle
                         class="mt-2"
-                        [name]="'EXPLORE.AREAS' | translate"
+                        [label]="'EXPLORE.AREAS' | translate"
                         [ngModel]="!options()?.disable?.includes('zones')"
                         (ngModelChange)="toggleZones($event)"
                     />
