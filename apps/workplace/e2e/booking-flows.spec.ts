@@ -2,7 +2,7 @@ import { expect, test } from './fixtures';
 
 /**
  * E2E tests for the booking flows.
- * Based on user stories in apps/workplace/USER_STORIES.md (US-020..US-026).
+ * Based on user stories in apps/workplace/USER_STORIES.md (US-020..US-029).
  *
  * Every flow is hosted inside the `placeos-book` shell. These tests verify that
  * each flow loads its entry step; deeper step-by-step interactions depend on
@@ -48,6 +48,70 @@ test.describe('Booking flows', () => {
             timeout: LOAD_TIMEOUT,
         });
         await expect(page.locator('desk-flow-new')).toBeVisible({
+            timeout: LOAD_TIMEOUT,
+        });
+    });
+
+    test('US-026: code booking success and error routes render dedicated states', async ({
+        page,
+    }) => {
+        await page.goto('/#/book/code/success?mock=true');
+        await expect(page.locator('placeos-book')).toBeVisible({
+            timeout: LOAD_TIMEOUT,
+        });
+        await expect(page.getByRole('link', { name: /continue/i })).toBeVisible(
+            { timeout: LOAD_TIMEOUT },
+        );
+
+        await page.goto('/#/book/code/error?mock=true&type=not_started');
+        await expect(page.locator('placeos-book')).toBeVisible({
+            timeout: LOAD_TIMEOUT,
+        });
+        await expect(page.getByText(/booking has not started/i)).toBeVisible({
+            timeout: LOAD_TIMEOUT,
+        });
+    });
+
+    test('US-027: meeting flow exposes details, room selection and confirmation surfaces', async ({
+        page,
+    }) => {
+        await page.goto('/#/book/meeting/form?mock=true&view=0');
+        await expect(page.locator('meeting-flow-details')).toBeVisible({
+            timeout: LOAD_TIMEOUT,
+        });
+
+        await page.goto('/#/book/meeting/form?mock=true&view=1');
+        await expect(page.locator('meeting-flow-space-select')).toBeVisible({
+            timeout: LOAD_TIMEOUT,
+        });
+
+        await page.goto('/#/book/meeting/form?mock=true&view=2');
+        await expect(page.locator('meeting-flow-options')).toBeVisible({
+            timeout: LOAD_TIMEOUT,
+        });
+    });
+
+    test('US-028: parking request form shows configured choice sections before submission', async ({
+        page,
+    }) => {
+        await page.goto('/#/book/parking-request/form?mock=true');
+
+        await expect(page.locator('parking-request-form')).toBeVisible({
+            timeout: LOAD_TIMEOUT,
+        });
+        await expect(page.locator('parking-request-form-details')).toBeVisible({
+            timeout: LOAD_TIMEOUT,
+        });
+        await expect(
+            page.locator('parking-request-form-details mat-select').first(),
+        ).toBeAttached({ timeout: LOAD_TIMEOUT });
+    });
+
+    test('US-029: recurring-capable flows expose recurrence controls when enabled', async ({
+        page,
+    }) => {
+        await page.goto('/#/book/desk/form?mock=true');
+        await expect(page.locator('recurrence-field')).toBeAttached({
             timeout: LOAD_TIMEOUT,
         });
     });

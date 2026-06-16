@@ -3,7 +3,11 @@ import { defineConfig, devices } from '@playwright/test';
 
 import { workspaceRoot } from '@nx/devkit';
 
-const baseURL = process.env['BASE_URL'] || 'http://localhost:4214';
+const baseURL = process.env['BASE_URL'] || 'http://127.0.0.1:4214';
+const serve_url = new URL(baseURL);
+const serve_host = serve_url.hostname || '127.0.0.1';
+const serve_port =
+    serve_url.port || (serve_url.protocol === 'https:' ? '443' : '80');
 
 export default defineConfig({
     ...nxE2EPreset(__filename, { testDir: './e2e' }),
@@ -19,8 +23,8 @@ export default defineConfig({
         trace: 'on-first-retry',
     },
     webServer: {
-        command: 'bunx nx serve workplace --port=4214',
-        url: 'http://localhost:4214',
+        command: `bunx nx serve workplace --host=${serve_host} --port=${serve_port}`,
+        url: baseURL,
         reuseExistingServer: !process.env.CI,
         cwd: workspaceRoot,
         timeout: 120000,

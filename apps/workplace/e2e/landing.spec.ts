@@ -2,7 +2,8 @@ import { expect, test } from './fixtures';
 
 /**
  * E2E tests for the Workplace home/landing page.
- * Based on user stories in apps/workplace/USER_STORIES.md (US-001, US-010..US-014).
+ * Based on user stories in apps/workplace/USER_STORIES.md (US-001, US-010..US-015,
+ * US-018, US-100).
  *
  * The shared fixture (./fixtures) puts the app in mock mode so it serves
  * deterministic mock data instead of talking to a live PlaceOS backend.
@@ -64,6 +65,38 @@ test.describe('Home / Landing', () => {
 
     test('US-014: shows the favourites section', async ({ page }) => {
         await expect(page.locator('landing-favourites-new')).toBeVisible({
+            timeout: LOAD_TIMEOUT,
+        });
+    });
+
+    test('US-015: shows the desk week section', async ({ page }) => {
+        await expect(page.locator('landing-desk-week')).toBeVisible({
+            timeout: LOAD_TIMEOUT,
+        });
+    });
+
+    test('US-018: landing modules stay present when data sections are empty or loading', async ({
+        page,
+    }) => {
+        await expect(page.locator('landing-upcoming-booking')).toBeVisible();
+        await expect(page.locator('landing-available-now')).toBeVisible();
+        await expect(page.locator('landing-quick-actions')).toBeVisible();
+        await expect(page.locator('landing-desk-week')).toBeVisible();
+        await expect(page.locator('landing-favourites-new')).toBeVisible();
+        await expect(page.locator('landing-colleagues-new')).toBeVisible();
+    });
+
+    test('US-100: quick actions preserve booking intent when routing to flows', async ({
+        page,
+    }) => {
+        await page
+            .locator('landing-quick-actions a[href*="/book/meeting"]')
+            .click();
+
+        await expect(page).toHaveURL(/\/book\/meeting\/form/, {
+            timeout: LOAD_TIMEOUT,
+        });
+        await expect(page.locator('meeting-flow-new')).toBeVisible({
             timeout: LOAD_TIMEOUT,
         });
     });
