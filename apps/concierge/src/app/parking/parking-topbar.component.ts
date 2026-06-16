@@ -416,7 +416,10 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     public readonly bookable_levels = this._state.bookable_levels;
     /** List of levels to show for the current section */
     public readonly levels = computed(() =>
-        this.section() === 'manage'
+        // The map always renders a single level and can display any parking
+        // level, so its selector lists every level. The booking list only
+        // offers levels that actually have bookable spaces.
+        this.section() === 'manage' || this.view() === 'map'
             ? this.all_levels()
             : this.bookable_levels(),
     );
@@ -658,6 +661,25 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
             }
             if (this._sameZones(zones, this.zones())) return;
             this.updateZones(zones);
+        });
+        effect(() => {
+            // The events map view always shows a single level, so the selector
+            // must reflect an active level. When the booking list cleared the
+            // zones (selector hidden/disabled) the persisted selection isn't
+            // restored, so default to the persisted or first available level.
+            if (!this._ready()) return;
+            if (this.section() !== 'events' || this.view() !== 'map') return;
+            const levels = this.levels();
+            if (!levels.length) return;
+            const has_valid_zone = this.zones().some((zone) =>
+                levels.find((lvl) => lvl.id === zone),
+            );
+            if (has_valid_zone) return;
+            const persisted = loadPersistedZones(
+                'parking',
+                this._persistScopeId(),
+            ).filter((zone) => levels.find((lvl) => lvl.id === zone));
+            this.updateZones([persisted[0] || levels[0].id]);
         });
     }
 
