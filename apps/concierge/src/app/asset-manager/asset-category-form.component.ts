@@ -5,7 +5,6 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import {
     MAT_DIALOG_DATA,
@@ -123,9 +122,7 @@ export class AssetCategoryFormComponent {
 
     public readonly loading = signal(false);
     public readonly form = generateAssetCategoryForm();
-    public readonly categories_list = toSignal(this._state.categories, {
-        initialValue: [],
-    });
+    public readonly categories_list = this._state.categories;
     public readonly categories = computed(() =>
         this.categories_list().filter(
             (_) => _.parent_category_id !== this.form.value.id,

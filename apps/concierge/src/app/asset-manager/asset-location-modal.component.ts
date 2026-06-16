@@ -4,7 +4,6 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { Booking, OrganisationService } from '@placeos/common';
 import {
     IconComponent,
@@ -161,12 +160,8 @@ export class AssetLocationModalComponent {
     private _state = inject(AssetManagerStateService);
     private _org = inject(OrganisationService);
 
-    public readonly asset = toSignal(this._state.active_product, {
-        initialValue: null,
-    });
-    public readonly requests = toSignal(this._state.active_product_requests, {
-        initialValue: [],
-    });
+    public readonly asset = this._state.active_product;
+    public readonly requests = this._state.active_product_requests;
 
     public readonly _space = new SpacePipe(this._org);
 

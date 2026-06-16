@@ -5,7 +5,6 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -177,9 +176,7 @@ export class AssetFormComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
 
     public readonly form = generateAssetForm();
-    public readonly purchase_orders = toSignal(this._state.purchase_orders, {
-        initialValue: [],
-    });
+    public readonly purchase_orders = this._state.purchase_orders;
     public readonly product = signal<AssetGroup | null>(null);
     public readonly loading = signal('');
 

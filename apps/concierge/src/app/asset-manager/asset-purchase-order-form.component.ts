@@ -3,9 +3,9 @@ import {
     Component,
     OnInit,
     inject,
+    resource,
     signal,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -32,8 +32,6 @@ import {
 import { DateFieldComponent } from '@placeos/form-fields';
 import { showAssetPurchaseOrder } from '@placeos/ts-client';
 import { addYears, getUnixTime } from 'date-fns';
-import { combineLatest, from } from 'rxjs';
-import { filter, shareReplay, switchMap } from 'rxjs/operators';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
@@ -213,30 +211,31 @@ export class AssetPurchaseOrderFormComponent
     public readonly _id = signal('');
     public readonly item = signal<AssetPurchaseOrder | null>(null);
     public readonly from = addYears(Date.now(), -5);
-    public readonly asset_list = toSignal(
-        combineLatest([
-            toObservable(this._id),
-            toObservable(this._org.active_building),
-        ]).pipe(
-            filter(([id, bld]) => !!id && !!bld),
-            switchMap(([id]) => from(queryAssets({ order_id: id }))),
-            switchMap(async (asset_list) => {
-                const groups = await queryAssetTypes({
+    private readonly _asset_list = resource({
+        params: () => ({
+            id: this._id(),
+            building: this._org.active_building()?.id,
+        }),
+        defaultValue: [] as any[],
+        loader: async ({ params }) => {
+            if (!params.id || !params.building) return [];
+            const [asset_list, groups] = await Promise.all([
+                queryAssets({ order_id: params.id }),
+                queryAssetTypes({
                     zone_id: this._org.building.id,
                     limit: 500,
-                });
-                return asset_list.data.map((asset) => ({
-                    ...asset,
-                    name:
-                        groups.data.find(
-                            (_) => _.id === (asset as any).asset_type_id,
-                        )?.name || asset.id,
-                }));
-            }),
-            shareReplay(1),
-        ),
-        { initialValue: [] },
-    );
+                }),
+            ]);
+            return asset_list.data.map((asset) => ({
+                ...asset,
+                name:
+                    groups.data.find(
+                        (_) => _.id === (asset as any).asset_type_id,
+                    )?.name || asset.id,
+            }));
+        },
+    });
+    public readonly asset_list = this._asset_list.value;
 
     public get base_route() {
         return this._state.base_route;

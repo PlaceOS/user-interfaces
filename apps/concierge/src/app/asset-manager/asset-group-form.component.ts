@@ -6,7 +6,6 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -167,9 +166,7 @@ export class AssetGroupFormComponent extends AsyncHandler implements OnInit {
     private _dialog = inject(MatDialog);
 
     public readonly form = generateAssetGroupForm();
-    public readonly categories_list = toSignal(this._state.categories, {
-        initialValue: [],
-    });
+    public readonly categories_list = this._state.categories;
     public readonly new_category = signal<AssetCategory | null>(null);
     public readonly categories = computed(() => {
         const list = this.categories_list();
