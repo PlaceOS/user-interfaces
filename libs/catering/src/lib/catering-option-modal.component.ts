@@ -111,7 +111,7 @@ export interface CateringItemOptionModalData {
                 @if (form.controls.multiple) {
                     <div class="mb-4 flex flex-col">
                         <settings-toggle
-                            [name]="
+                            [label]="
                                 'CATERING.ITEM_OPTION_SELECT_MULTIPLE'
                                     | translate
                             "

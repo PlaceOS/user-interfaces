@@ -160,7 +160,7 @@ export interface CateringItemModalData {
                     <div class="flex flex-1 items-center py-4">
                         <settings-toggle
                             class="w-full"
-                            [name]="'CATERING.ITEM_POINTS' | translate"
+                            [label]="'CATERING.ITEM_POINTS' | translate"
                             formControlName="accept_points"
                         >
                         </settings-toggle>
@@ -238,7 +238,7 @@ export interface CateringItemModalData {
                 <div class="-mx-2 flex flex-wrap items-center pb-2" list>
                     <settings-toggle
                         class="min-w-[40%] flex-1 p-2"
-                        [name]="'CATERING.TAG_GLUTEN_FREE' | translate"
+                        [label]="'CATERING.TAG_GLUTEN_FREE' | translate"
                         [ngModel]="hasTag('Gluten Free')"
                         (ngModelChange)="
                             $event
@@ -250,7 +250,7 @@ export interface CateringItemModalData {
                     </settings-toggle>
                     <settings-toggle
                         class="min-w-[40%] flex-1 p-2"
-                        [name]="'CATERING.TAG_VEGAN' | translate"
+                        [label]="'CATERING.TAG_VEGAN' | translate"
                         [ngModel]="hasTag('Vegan')"
                         (ngModelChange)="
                             $event
@@ -262,7 +262,7 @@ export interface CateringItemModalData {
                     </settings-toggle>
                     <settings-toggle
                         class="min-w-[40%] flex-1 p-2"
-                        [name]="'CATERING.TAG_VEGETARIAN' | translate"
+                        [label]="'CATERING.TAG_VEGETARIAN' | translate"
                         [ngModel]="hasTag('Vegetarian')"
                         (ngModelChange)="
                             $event
@@ -274,7 +274,7 @@ export interface CateringItemModalData {
                     </settings-toggle>
                     <settings-toggle
                         class="min-w-[40%] flex-1 p-2"
-                        [name]="'CATERING.TAG_DAIRY' | translate"
+                        [label]="'CATERING.TAG_DAIRY' | translate"
                         [ngModel]="hasTag('Contains Dairy')"
                         (ngModelChange)="
                             $event
@@ -286,7 +286,7 @@ export interface CateringItemModalData {
                     </settings-toggle>
                     <settings-toggle
                         class="w-1/2 min-w-[40%] p-2"
-                        [name]="'CATERING.TAG_NUTS' | translate"
+                        [label]="'CATERING.TAG_NUTS' | translate"
                         [ngModel]="hasTag('Contains Nuts')"
                         (ngModelChange)="
                             $event

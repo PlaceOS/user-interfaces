@@ -749,9 +749,13 @@ export class DesksStateService extends AsyncHandler {
             include_checked_out: true,
         });
         const filtered = booking_list.filter((_) => _.asset_id === desk.id);
+        const today_start = getUnixTime(startOfDay(today));
         for (const booking of filtered) {
             const is_recurring = booking.instance;
-            if (is_recurring) {
+            const series_starts_today =
+                getUnixTime(startOfDay(booking.booking_start * 1000)) ===
+                today_start;
+            if (is_recurring && !series_starts_today) {
                 const yesterday_end = getUnixTime(endOfDay(subDays(today, 1)));
                 await updateBooking(
                     booking.id,
@@ -759,7 +763,9 @@ export class DesksStateService extends AsyncHandler {
                     'patch',
                 );
             } else {
-                await removeBooking(booking.id);
+                // Series starts today (truncating to yesterday would be
+                // invalid) or it is a one-off booking, so delete it outright.
+                await removeBooking(booking.parent_id || booking.id);
             }
         }
     }

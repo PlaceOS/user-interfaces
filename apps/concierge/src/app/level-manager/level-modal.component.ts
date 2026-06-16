@@ -100,7 +100,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                     <div class="flex space-x-4 pb-4">
                         <settings-toggle
                             class="flex-1"
-                            [name]="
+                            [label]="
                                 'APP.CONCIERGE.LEVELS_HAS_PARKING' | translate
                             "
                             formControlName="parking"

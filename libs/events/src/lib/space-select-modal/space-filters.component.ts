@@ -269,7 +269,7 @@ import { SpacesService } from '../spaces.service';
                     <div class="flex w-full items-center">
                         <settings-toggle
                             class="w-full"
-                            [name]="'COMMON.FAVOURITES_ONLY' | translate"
+                            [label]="'COMMON.FAVOURITES_ONLY' | translate"
                             [ngModel]="filters()?.show_fav"
                             (ngModelChange)="setFilters({ show_fav: $event })"
                             [ngModelOptions]="{ standalone: true }"
@@ -289,7 +289,7 @@ import { SpacesService } from '../spaces.service';
                             <div class="flex items-center">
                                 <settings-toggle
                                     class="w-full"
-                                    [name]="feature_display()[feat] || feat"
+                                    [label]="feature_display()[feat] || feat"
                                     [ngModel]="
                                         filters()?.features?.includes(feat)
                                     "

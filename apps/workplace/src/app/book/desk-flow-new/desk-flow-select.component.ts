@@ -223,7 +223,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                     @if (!hide_features().includes(feat)) {
                                         <settings-toggle
                                             class="w-full"
-                                            [name]="feature_display()[feat] || feat"
+                                            [label]="feature_display()[feat] || feat"
                                             [ngModel]="
                                                 options()?.features?.includes(
                                                     feat
@@ -491,7 +491,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                 @if (!hide_features().includes(feat)) {
                                     <settings-toggle
                                         class="w-full"
-                                        [name]="feature_display()[feat] || feat"
+                                        [label]="feature_display()[feat] || feat"
                                         [ngModel]="
                                             options()?.features?.includes(feat)
                                         "

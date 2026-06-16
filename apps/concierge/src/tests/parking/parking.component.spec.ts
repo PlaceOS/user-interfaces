@@ -1,8 +1,8 @@
 import { Router } from '@angular/router';
 import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
 import { SettingsService, currentUser } from '@placeos/common';
+import { signal } from '@angular/core';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
 
 import { ParkingStateService } from '../../app/parking/parking-state.service';
 import { ParkingTopbarComponent } from '../../app/parking/parking-topbar.component';
@@ -26,7 +26,8 @@ describe('ParkingComponent', () => {
         component: ParkingComponent,
         providers: [
             MockProvider(ParkingStateService, {
-                levels: of([]),
+                levels: signal([]),
+                org_initialised: signal(true),
                 startPolling: jest.fn(),
                 setOptions: jest.fn(),
             } as any),

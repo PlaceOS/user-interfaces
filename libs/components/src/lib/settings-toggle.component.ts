@@ -20,7 +20,7 @@ import { IconComponent } from './icon.component';
         >
             <div class="z-10 flex flex-1 items-center space-x-2 p-2 text-left">
                 <div class="w-full">
-                    {{ name() }}
+                    {{ label() }}
                     <ng-content></ng-content>
                 </div>
                 @if (info()) {
@@ -83,7 +83,7 @@ import { IconComponent } from './icon.component';
 })
 export class SettingsToggleComponent implements ControlValueAccessor {
     public readonly toggle = input<boolean>(undefined);
-    public readonly name = input<string>(undefined);
+    public readonly label = input<string>(undefined);
     public readonly info = input<string>(undefined);
 
     public value = signal<boolean>(undefined);

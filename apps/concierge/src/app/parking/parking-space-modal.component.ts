@@ -127,7 +127,7 @@ import { ParkingSpace } from './parking-state.service';
                         <settings-toggle
                             formControlName="bookable"
                             class="w-full"
-                            [name]="'COMMON.BOOKABLE' | translate"
+                            [label]="'COMMON.BOOKABLE' | translate"
                         >
                         </settings-toggle>
                     </div>

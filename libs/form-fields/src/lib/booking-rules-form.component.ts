@@ -88,7 +88,7 @@ const ITEM_LIST_CONDITIONS = ['groups', 'locations', 'tags', 'resource_ids'];
                 <div class="flex flex-1 flex-col">
                     <settings-toggle
                         formControlName="hidden"
-                        [name]="'BOOKINGS.PREVENT' | translate"
+                        [label]="'BOOKINGS.PREVENT' | translate"
                         [info]="'BOOKINGS.PREVENT_INFO' | translate"
                     >
                     </settings-toggle>
@@ -97,7 +97,7 @@ const ITEM_LIST_CONDITIONS = ['groups', 'locations', 'tags', 'resource_ids'];
                     @if (!form.value.rules.hidden) {
                         <settings-toggle
                             formControlName="auto_approve"
-                            [name]="'BOOKINGS.AUTO_APPROVE' | translate"
+                            [label]="'BOOKINGS.AUTO_APPROVE' | translate"
                             [info]="'BOOKINGS.AUTO_APPROVE_INFO' | translate"
                         >
                         </settings-toggle>

@@ -137,7 +137,7 @@ const EMPTY = [];
                         <div class="flex items-center space-x-2 py-4">
                             <settings-toggle
                                 class="flex-1"
-                                [name]="
+                                [label]="
                                     'CALENDAR_EVENT.GROUP_FEATURED' | translate
                                 "
                                 [formField]="form.featured"

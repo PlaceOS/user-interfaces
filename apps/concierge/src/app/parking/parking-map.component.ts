@@ -7,7 +7,6 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import {
     AsyncHandler,
     OrganisationService,
@@ -15,7 +14,7 @@ import {
 } from '@placeos/common';
 import { InteractiveMapComponent } from '@placeos/components';
 import { ExploreParkingService, ExploreStateService } from '@placeos/explore';
-import { ParkingOptions, ParkingStateService } from './parking-state.service';
+import { ParkingStateService } from './parking-state.service';
 
 @Component({
     selector: 'parking-map',
@@ -46,18 +45,9 @@ export class ParkingMapComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    private readonly _default_options: ParkingOptions = {
-        date: Date.now(),
-        search: '',
-        zones: [],
-        period: 'day',
-        request_filter: 'all',
-    };
     private readonly _ready = signal(false);
 
-    public readonly options = toSignal(this._parking.options, {
-        initialValue: this._default_options,
-    });
+    public readonly options = this._parking.options;
     public readonly url = this._explore.map_url;
     public readonly raw_styles = this._explore.map_styles;
     public readonly features = this._explore.map_features;

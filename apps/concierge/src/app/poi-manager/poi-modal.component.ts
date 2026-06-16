@@ -202,7 +202,7 @@ import { PointOfInterest } from './poi-management.service';
                     <div class="flex items-center space-x-4 pt-2">
                         <settings-toggle
                             class="flex-1"
-                            [name]="'APP.CONCIERGE.POI_SEARCHABLE' | translate"
+                            [label]="'APP.CONCIERGE.POI_SEARCHABLE' | translate"
                             formControlName="can_search"
                         >
                         </settings-toggle>

@@ -145,45 +145,45 @@ import { UploadButtonComponent } from './upload-button.component';
                     </div>
                     <div class="-mx-2 flex flex-wrap items-center">
                         <settings-toggle
-                            name="Enable Induction"
+                            label="Enable Induction"
                             formControlName="induction_enabled"
                         ></settings-toggle>
                         @if (form.value.induction_enabled) {
                             <settings-toggle
-                                name="Induction after Confirm Details"
+                                label="Induction after Confirm Details"
                                 formControlName="induction_after_details"
                             ></settings-toggle>
                         }
                         <settings-toggle
-                            name="Allow Self Registration"
+                            label="Allow Self Registration"
                             formControlName="allow_self_registration"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Allow setting visitor pass number"
+                            label="Allow setting visitor pass number"
                             formControlName="allow_pass_number"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Allow Printing Label"
+                            label="Allow Printing Label"
                             formControlName="allow_printing_label"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Allow Visitor Photo"
+                            label="Allow Visitor Photo"
                             formControlName="allow_user_photo"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Allow Registration Time Options"
+                            label="Allow Registration Time Options"
                             formControlName="allow_registration_time_options"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Allow Beverages"
+                            label="Allow Beverages"
                             formControlName="allow_beverages"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Hide Explore Map option"
+                            label="Hide Explore Map option"
                             formControlName="hide_explore"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Hide Building Image"
+                            label="Hide Building Image"
                             formControlName="hide_building_image"
                         ></settings-toggle>
                     </div>
@@ -452,32 +452,32 @@ import { UploadButtonComponent } from './upload-button.component';
                     }
                     <div class="-mx-2 flex flex-wrap items-center">
                         <settings-toggle
-                            name="Hide device fields"
+                            label="Hide device fields"
                             formControlName="hide_device_fields"
                             info="Hides the MAC address, manufacturer, OS and SSID fields from device info tooltips"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Show Legend"
+                            label="Show Legend"
                             formControlName="show_legend"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Hide Zones"
+                            label="Hide Zones"
                             formControlName="hide_zones"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Show Booking QR Code"
+                            label="Show Booking QR Code"
                             formControlName="show_booking_qr"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Use defined polygons for zones"
+                            label="Use defined polygons for zones"
                             formControlName="use_zone_polygons"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Show labels for zones"
+                            label="Show labels for zones"
                             formControlName="show_zone_labels"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Show zone sensor info"
+                            label="Show zone sensor info"
                             formControlName="show_zone_sensor_info"
                         ></settings-toggle>
                     </div>
@@ -512,7 +512,7 @@ import { UploadButtonComponent } from './upload-button.component';
                     </div>
                     <div class="-mx-2 flex flex-wrap items-center">
                         <settings-toggle
-                            name="Allow all day bookings"
+                            label="Allow all day bookings"
                             formControlName="allow_all_day"
                         ></settings-toggle>
                     </div>

@@ -123,7 +123,7 @@ const ICONS = {
         @if (!search()) {
             <div class="flex flex-col space-y-2 px-2">
                 <settings-toggle
-                    [name]="'CATERING.ORDERS_DELIVER_EXACT' | translate"
+                    [label]="'CATERING.ORDERS_DELIVER_EXACT' | translate"
                     [ngModel]="at_time()"
                     (ngModelChange)="at_time.set($event)"
                     [matTooltip]="exact_tooltip()"
@@ -172,7 +172,7 @@ const ICONS = {
         >
             @for (item of categories(); track item) {
                 <settings-toggle
-                    [name]="item"
+                    [label]="item"
                     [attr.name]="item"
                     [ngModel]="filters().categories?.includes(item)"
                     (ngModelChange)="toggleCategory(item)"

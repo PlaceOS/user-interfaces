@@ -450,23 +450,23 @@ import { UploadButtonComponent } from './upload-button.component';
                     </div>
                     <div class="-mx-2 flex flex-wrap items-center">
                         <settings-toggle
-                            name="Use 24 hour time"
+                            label="Use 24 hour time"
                             formControlName="use_24_hour_time"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Delegated"
+                            label="Delegated"
                             formControlName="delegated"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Force upload state"
+                            label="Force upload state"
                             formControlName="force_upload_state"
                         ></settings-toggle>
                         <settings-toggle
-                            name="All uploads are private"
+                            label="All uploads are private"
                             formControlName="private_uploads"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Use region over building"
+                            label="Use region over building"
                             formControlName="use_region"
                         ></settings-toggle>
                     </div>
@@ -484,7 +484,7 @@ import { UploadButtonComponent } from './upload-button.component';
                             Reports
                         </h3>
                         <settings-toggle
-                            name="Include weekends in site attendance averages"
+                            label="Include weekends in site attendance averages"
                             formControlName="attendance_include_weekends"
                         ></settings-toggle>
                     </section>
@@ -757,59 +757,59 @@ import { UploadButtonComponent } from './upload-button.component';
                                 </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
-                                        name="Allow all day bookings"
+                                        label="Allow all day bookings"
                                         formControlName="allow_all_day"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Default to all day"
+                                        label="Default to all day"
                                         formControlName="all_day_default"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow editing setup/breakdown times"
+                                        label="Allow editing setup/breakdown times"
                                         formControlName="allow_setup_breakdown"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow booking for other users"
+                                        label="Allow booking for other users"
                                         formControlName="can_book_for_others"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow booking for any other users"
+                                        label="Allow booking for any other users"
                                         formControlName="can_book_for_anyone"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow booking with assets"
+                                        label="Allow booking with assets"
                                         formControlName="has_assets"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Hide notes field when booking"
+                                        label="Hide notes field when booking"
                                         formControlName="hide_notes"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Hide attendees field when booking"
+                                        label="Hide attendees field when booking"
                                         formControlName="hide_attendees"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow booking for external users"
+                                        label="Allow booking for external users"
                                         formControlName="allow_externals"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Enforce capacity for rooms"
+                                        label="Enforce capacity for rooms"
                                         formControlName="strict_capacity_check"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow booking for multiple days"
+                                        label="Allow booking for multiple days"
                                         formControlName="allow_multiday"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Display times with building timezone"
+                                        label="Display times with building timezone"
                                         formControlName="use_building_timezone"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow Visibility options"
+                                        label="Allow Visibility options"
                                         formControlName="allow_visibility"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow editing bookings"
+                                        label="Allow editing bookings"
                                         formControlName="allow_edit"
                                     ></settings-toggle>
                                 </div>
@@ -1086,23 +1086,23 @@ import { UploadButtonComponent } from './upload-button.component';
                                 </mat-form-field>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
-                                        name="Allow booking parking for visitors"
+                                        label="Allow booking parking for visitors"
                                         formControlName="has_parking"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow setting pass number for visitors"
+                                        label="Allow setting pass number for visitors"
                                         formControlName="allow_pass_number"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow printing visitor labels"
+                                        label="Allow printing visitor labels"
                                         formControlName="allow_printing_label"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow international flag for visitors"
+                                        label="Allow international flag for visitors"
                                         formControlName="allow_international"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Show calendar links after booking"
+                                        label="Show calendar links after booking"
                                         formControlName="show_calendar_links"
                                     ></settings-toggle>
                                 </div>
@@ -1257,15 +1257,15 @@ import { UploadButtonComponent } from './upload-button.component';
                                 </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
-                                        name="Allow all day bookings"
+                                        label="Allow all day bookings"
                                         formControlName="allow_all_day"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Display times with building timezone"
+                                        label="Display times with building timezone"
                                         formControlName="use_building_timezone"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow booking with assets"
+                                        label="Allow booking with assets"
                                         formControlName="has_assets"
                                     ></settings-toggle>
                                 </div>
@@ -1498,58 +1498,58 @@ import { UploadButtonComponent } from './upload-button.component';
                                 </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
-                                        name="Allow all day bookings"
+                                        label="Allow all day bookings"
                                         formControlName="allow_all_day"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Show assigned users on parking map"
+                                        label="Show assigned users on parking map"
                                         formControlName="show_users"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Show parking status details on map"
+                                        label="Show parking status details on map"
                                         formControlName="show_status_details"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Disable parking map styles"
+                                        label="Disable parking map styles"
                                         formControlName="disable_styles"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Disable reservations"
+                                        label="Disable reservations"
                                         formControlName="disable_bookings"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Show booking requests"
+                                        label="Show booking requests"
                                         formControlName="show_requests"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Show waitlisted status and filter"
+                                        label="Show waitlisted status and filter"
                                         formControlName="show_waitlist"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Always hide bay number column"
+                                        label="Always hide bay number column"
                                         formControlName="hide_bay_number"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Hide level selector on booking list"
+                                        label="Hide level selector on booking list"
                                         formControlName="hide_level_selector_on_booking_list"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Hide users and vehicle tabs"
+                                        label="Hide users and vehicle tabs"
                                         formControlName="hide_users_and_vehicles"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Hide assign space action"
+                                        label="Hide assign space action"
                                         formControlName="hide_assign_space"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        [name]="
+                                        [label]="
                                             'APP.CONCIERGE.PARKING_ALLOW_DELETING'
                                                 | translate
                                         "
                                         formControlName="allow_deleting"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Assign a space when approving requests"
+                                        label="Assign a space when approving requests"
                                         formControlName="assign_space_on_approve"
                                     ></settings-toggle>
                                 </div>
@@ -1697,27 +1697,27 @@ import { UploadButtonComponent } from './upload-button.component';
                                 </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
-                                        name="Allow all day bookings"
+                                        label="Allow all day bookings"
                                         formControlName="allow_all_day"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Default bookings to all day"
+                                        label="Default bookings to all day"
                                         formControlName="all_day_default"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Show Calendar Links after booking"
+                                        label="Show Calendar Links after booking"
                                         formControlName="show_calendar_links"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Hide End time option"
+                                        label="Hide End time option"
                                         formControlName="hide_end_time"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Disable Date selection"
+                                        label="Disable Date selection"
                                         formControlName="disabled_date_select"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Disable start time option"
+                                        label="Disable start time option"
                                         formControlName="disabled_start_time"
                                     ></settings-toggle>
                                 </div>

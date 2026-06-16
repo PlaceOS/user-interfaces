@@ -92,7 +92,7 @@ import { RichTextInputComponent } from '@placeos/form-fields';
                     <div class="item-center flex space-x-4 py-4">
                         <settings-toggle
                             class="flex-1"
-                            [name]="'APP.CONCIERGE.URLS_ENABLED' | translate"
+                            [label]="'APP.CONCIERGE.URLS_ENABLED' | translate"
                             formControlName="enabled"
                         >
                         </settings-toggle>

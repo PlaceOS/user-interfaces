@@ -69,13 +69,13 @@ import { SignageStateService } from './signage-state.service';
                 <div class="mb-4 flex items-center space-x-4">
                     <settings-toggle
                         class="flex-1"
-                        [name]="'COMMON.ENABLED' | translate"
+                        [label]="'COMMON.ENABLED' | translate"
                         formControlName="enabled"
                     >
                     </settings-toggle>
                     <settings-toggle
                         class="flex-1"
-                        [name]="
+                        [label]="
                             'APP.CONCIERGE.SIGNAGE_PLAYLISTS_SHUFFLE'
                                 | translate
                         "

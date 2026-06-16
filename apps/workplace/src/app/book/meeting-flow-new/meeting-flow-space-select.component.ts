@@ -224,7 +224,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                         @if (!hide_features().includes(feat)) {
                                             <settings-toggle
                                                 class="w-full"
-                                                [name]="
+                                                [label]="
                                                     feature_display()[feat] || feat
                                                 "
                                                 [ngModel]="
@@ -516,7 +516,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                     @if (!hide_features().includes(feat)) {
                                         <settings-toggle
                                             class="w-full"
-                                            [name]="feature_display()[feat] || feat"
+                                            [label]="feature_display()[feat] || feat"
                                             [ngModel]="
                                                 filters()?.features?.includes(feat)
                                             "

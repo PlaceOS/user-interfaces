@@ -20,7 +20,8 @@ import { AuthenticatedImageDirective } from './authenticated-image.directive';
                 } @else {
                     <img
                         auth
-                        class="h-full w-full object-cover object-center"
+                        class="flex h-full w-full items-center justify-center object-cover object-center"
+                        [alt]="initials"
                         [source]="user().photo"
                     />
                 }

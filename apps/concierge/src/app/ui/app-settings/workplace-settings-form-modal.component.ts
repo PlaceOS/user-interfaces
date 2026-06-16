@@ -452,67 +452,67 @@ import { UploadButtonComponent } from './upload-button.component';
                     </div>
                     <div class="-mx-2 flex flex-wrap items-center">
                         <settings-toggle
-                            name="Use 24 hour time"
+                            label="Use 24 hour time"
                             formControlName="use_24_hour_time"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Use region over building"
+                            label="Use region over building"
                             formControlName="use_region"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Use imperial units for measurements"
+                            label="Use imperial units for measurements"
                             formControlName="use_imperial_units"
                         ></settings-toggle>
                         @if (form.value.features.includes('support-ticket')) {
                             <settings-toggle
-                                name="Allow images in support tickets"
+                                label="Allow images in support tickets"
                                 formControlName="allow_support_ticket_images"
                             ></settings-toggle>
                         }
                         <settings-toggle
-                            name="Search only authenticated users"
+                            label="Search only authenticated users"
                             formControlName="basic_user_search"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Only authenticated colleagues"
+                            label="Only authenticated colleagues"
                             info="Will limit the available users to add as colleagues to only
  those who have authenticated with the application"
                             formControlName="colleagues_require_auth"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Hide landing sidebar"
+                            label="Hide landing sidebar"
                             formControlName="hide_landing_sidebar"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Hide landing spaces"
+                            label="Hide landing spaces"
                             formControlName="hide_landing_spaces"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Hide landing rooms"
+                            label="Hide landing rooms"
                             formControlName="hide_landing_rooms"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Hide colleagues"
+                            label="Hide colleagues"
                             formControlName="hide_colleagues"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Show landing quick links"
+                            label="Show landing quick links"
                             formControlName="show_quick_links"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Show landing quick book"
+                            label="Show landing quick book"
                             formControlName="show_quick_book"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Allow dark mode"
+                            label="Allow dark mode"
                             formControlName="allow_dark_mode"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Show changelog link"
+                            label="Show changelog link"
                             formControlName="show_changelog"
                         ></settings-toggle>
                         <settings-toggle
-                            name="Show global search"
+                            label="Show global search"
                             formControlName="global_search"
                         ></settings-toggle>
                     </div>
@@ -767,93 +767,93 @@ import { UploadButtonComponent } from './upload-button.component';
                                 </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
-                                        name="Allow all day bookings"
+                                        label="Allow all day bookings"
                                         formControlName="allow_all_day"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Default bookings to all day"
+                                        label="Default bookings to all day"
                                         formControlName="all_day_default"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Disable booking requests"
+                                        label="Disable booking requests"
                                         formControlName="booking_unavailable"
                                         info="Prevent making backend requests for bookings and give users links to create the booking in their own calendars"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow booking for other users"
+                                        label="Allow booking for other users"
                                         formControlName="can_book_for_others"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow booking for any users"
+                                        label="Allow booking for any users"
                                         formControlName="can_book_for_anyone"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow booking with assets"
+                                        label="Allow booking with assets"
                                         formControlName="has_assets"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Hide attendee actions"
+                                        label="Hide attendee actions"
                                         formControlName="hide_user_actions"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow booking multiple spaces"
+                                        label="Allow booking multiple spaces"
                                         formControlName="multiple_spaces"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Force room as host"
+                                        label="Force room as host"
                                         formControlName="room_as_host"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow external attendees"
+                                        label="Allow external attendees"
                                         formControlName="allow_externals"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Enforce room capacity limits"
+                                        label="Enforce room capacity limits"
                                         formControlName="strict_capacity_check"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow Visibility options"
+                                        label="Allow Visibility options"
                                         formControlName="allow_visibility"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Disable notes field"
+                                        label="Disable notes field"
                                         formControlName="hide_notes"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Hide attendees field"
+                                        label="Hide attendees field"
                                         formControlName="hide_attendees"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Hide nearby desk action"
+                                        label="Hide nearby desk action"
                                         info="Hide the book nearby desks button on the meeting success view"
                                         formControlName="hide_nearby_desks"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow recurring meetings"
+                                        label="Allow recurring meetings"
                                         formControlName="allow_recurrence"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow multi-day bookings"
+                                        label="Allow multi-day bookings"
                                         formControlName="allow_multiday"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Use PlaceOS bookings"
+                                        label="Use PlaceOS bookings"
                                         formControlName="use_bookings"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Display times with building timezone"
+                                        label="Display times with building timezone"
                                         formControlName="use_building_timezone"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow daily all-day recurrence"
+                                        label="Allow daily all-day recurrence"
                                         formControlName="allow_daily_allday_recurrence"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Disable standalone bookings"
+                                        label="Disable standalone bookings"
                                         formControlName="no_standalone"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Hide End Time option"
+                                        label="Hide End Time option"
                                         formControlName="hide_end_time"
                                     ></settings-toggle>
                                 </div>
@@ -1058,75 +1058,75 @@ import { UploadButtonComponent } from './upload-button.component';
                                 </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
-                                        name="Allow all day bookings"
+                                        label="Allow all day bookings"
                                         formControlName="allow_all_day"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Default bookings to all day"
+                                        label="Default bookings to all day"
                                         formControlName="all_day_default"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow group bookings"
+                                        label="Allow group bookings"
                                         formControlName="allow_groups"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow time changes"
+                                        label="Allow time changes"
                                         formControlName="allow_time_changes"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Auto-allocation"
+                                        label="Auto-allocation"
                                         formControlName="auto_allocation"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow booking for others"
+                                        label="Allow booking for others"
                                         formControlName="can_book_for_others"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow also booking a locker"
+                                        label="Allow also booking a locker"
                                         formControlName="can_book_lockers"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow requesting assets with booking"
+                                        label="Allow requesting assets with booking"
                                         formControlName="has_assets"
                                     ></settings-toggle>
                                     <!-- <settings-toggle
-                                                                                                      name="Hide reason field for desk booking"
+                                                                                                      label="Hide reason field for desk booking"
                                                                                                       formControlName="hide_reason"
                                                                                                     ></settings-toggle>
                                                                                                     <settings-toggle
-                                                                                                      name="Require a reason for desk booking"
+                                                                                                      label="Require a reason for desk booking"
                                                                                                       formControlName="needs_reason"
                                                                                                     ></settings-toggle> -->
                                     <settings-toggle
-                                        name="Allow Recurring Desk bookings"
+                                        label="Allow Recurring Desk bookings"
                                         formControlName="allow_recurrence"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Auto-checkin map bookingss"
+                                        label="Auto-checkin map bookingss"
                                         formControlName="auto_checkin"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Default to desk select modal to map view"
+                                        label="Default to desk select modal to map view"
                                         formControlName="default_select_as_map"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Show calendar links after booking"
+                                        label="Show calendar links after booking"
                                         formControlName="show_calendar_links"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Enabled desk height"
+                                        label="Enabled desk height"
                                         formControlName="height_enabled"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Hide Checkin Options"
+                                        label="Hide Checkin Options"
                                         formControlName="hide_checkin"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Hide End Time option"
+                                        label="Hide End Time option"
                                         formControlName="hide_end_time"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Display times with building timezone"
+                                        label="Display times with building timezone"
                                         formControlName="use_building_timezone"
                                     ></settings-toggle>
                                 </div>
@@ -1227,36 +1227,36 @@ import { UploadButtonComponent } from './upload-button.component';
                                 </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
-                                        name="Allow all day bookings"
+                                        label="Allow all day bookings"
                                         formControlName="allow_all_day"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Default bookings to all day"
+                                        label="Default bookings to all day"
                                         formControlName="all_day_default"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Display times with building timezone"
+                                        label="Display times with building timezone"
                                         formControlName="use_building_timezone"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow booking for other users"
+                                        label="Allow booking for other users"
                                         formControlName="can_book_for_others"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow booking multiple visitors"
+                                        label="Allow booking multiple visitors"
                                         formControlName="multiple_visitors"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Auto-approve bookings"
+                                        label="Auto-approve bookings"
                                         formControlName="no_approval"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow booking with assets"
+                                        label="Allow booking with assets"
                                         formControlName="allow_assets"
                                     ></settings-toggle>
                                     <ng-container>
                                         <settings-toggle
-                                            name="Show calendar links after visitor invite"
+                                            label="Show calendar links after visitor invite"
                                             [ngModel]="
                                                 form.value.visitors
                                                     .show_calendar_links
@@ -1276,7 +1276,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                     </ng-container>
                                     <ng-container>
                                         <settings-toggle
-                                            name="Allow international flag for visitors"
+                                            label="Allow international flag for visitors"
                                             [ngModel]="
                                                 form.value.visitors
                                                     .allow_international
@@ -1599,32 +1599,32 @@ import { UploadButtonComponent } from './upload-button.component';
                                 }
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
-                                        name="Hide device fields"
+                                        label="Hide device fields"
                                         formControlName="hide_device_fields"
                                         info="Hides the MAC address, manufacturer, OS and SSID fields from device info tooltips"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Show Legend"
+                                        label="Show Legend"
                                         formControlName="show_legend"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Hide Zones"
+                                        label="Hide Zones"
                                         formControlName="hide_zones"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Show Booking QR Code"
+                                        label="Show Booking QR Code"
                                         formControlName="show_booking_qr"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Use defined polygons for zones"
+                                        label="Use defined polygons for zones"
                                         formControlName="use_zone_polygons"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Show labels for zones"
+                                        label="Show labels for zones"
                                         formControlName="show_zone_labels"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Show zone sensor info"
+                                        label="Show zone sensor info"
                                         formControlName="show_zone_sensor_info"
                                     ></settings-toggle>
                                 </div>
@@ -1772,43 +1772,43 @@ import { UploadButtonComponent } from './upload-button.component';
                                 </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
-                                        name="Allow all day bookings"
+                                        label="Allow all day bookings"
                                         formControlName="allow_all_day"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Default bookings to all day"
+                                        label="Default bookings to all day"
                                         formControlName="all_day_default"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Show assigned users on parking map"
+                                        label="Show assigned users on parking map"
                                         formControlName="show_users"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Show parking status details on map"
+                                        label="Show parking status details on map"
                                         formControlName="show_status_details"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow user selecting booking time"
+                                        label="Allow user selecting booking time"
                                         formControlName="allow_time_changes"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Auto-allocate parking spaces"
+                                        label="Auto-allocate parking spaces"
                                         formControlName="auto_allocation"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow booking for other users"
+                                        label="Allow booking for other users"
                                         formControlName="can_book_for_others"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow recurring parking bookings"
+                                        label="Allow recurring parking bookings"
                                         formControlName="allow_recurrence"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Hide End time option"
+                                        label="Hide End time option"
                                         formControlName="hide_end_time"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Display times with building timezone"
+                                        label="Display times with building timezone"
                                         formControlName="use_building_timezone"
                                     ></settings-toggle>
                                 </div>
@@ -1928,35 +1928,35 @@ import { UploadButtonComponent } from './upload-button.component';
                                 </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
-                                        name="Allow all day bookings"
+                                        label="Allow all day bookings"
                                         formControlName="allow_all_day"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Default bookings to all day"
+                                        label="Default bookings to all day"
                                         formControlName="all_day_default"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Show Calendar Links after booking"
+                                        label="Show Calendar Links after booking"
                                         formControlName="show_calendar_links"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Hide End time option"
+                                        label="Hide End time option"
                                         formControlName="hide_end_time"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Allow user selecting booking time"
+                                        label="Allow user selecting booking time"
                                         formControlName="allow_time_changes"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Display times with building timezone"
+                                        label="Display times with building timezone"
                                         formControlName="use_building_timezone"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Disable Date selection"
+                                        label="Disable Date selection"
                                         formControlName="disabled_date_select"
                                     ></settings-toggle>
                                     <settings-toggle
-                                        name="Disable start time option"
+                                        label="Disable start time option"
                                         formControlName="disabled_start_time"
                                     ></settings-toggle>
                                 </div>

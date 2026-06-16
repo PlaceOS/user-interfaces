@@ -244,7 +244,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                     @if (form.controls.approval) {
                         <div class="flex flex-1 flex-col pt-4">
                             <settings-toggle
-                                [name]="'COMMON.REQUIRE_APPROVAL' | translate"
+                                [label]="'COMMON.REQUIRE_APPROVAL' | translate"
                                 formControlName="approval"
                             >
                             </settings-toggle>
@@ -253,7 +253,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                     @if (form.controls.bookable) {
                         <div class="flex flex-1 flex-col pt-4">
                             <settings-toggle
-                                [name]="'COMMON.BOOKABLE' | translate"
+                                [label]="'COMMON.BOOKABLE' | translate"
                                 formControlName="bookable"
                             >
                             </settings-toggle>
