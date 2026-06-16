@@ -1,8 +1,8 @@
 import { Clipboard } from '@angular/cdk/clipboard';
+import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { SimpleTableComponent } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
 
 import { ParkingSpaceListComponent } from '../../app/parking/parking-space-list.component';
 import { ParkingStateService } from '../../app/parking/parking-state.service';
@@ -15,22 +15,22 @@ describe('ParkingSpaceListComponent', () => {
         providers: [
             MockProvider(Clipboard, { copy: jest.fn(() => true) }),
             MockProvider(ParkingStateService, {
-                spaces: of([
+                spaces: signal([
                     {
                         id: 'space-1',
                         identifier: 'Bay 1',
                         features: ['EV Charger', 'Covered'],
                     },
                 ]),
-                options: of({
+                options: signal({
                     date: Date.now(),
                     search: '',
                     zones: [],
                     period: 'day',
                     request_filter: 'all',
                 }),
-                loading: of([]),
-                bookings: of([]),
+                loading: signal([]),
+                bookings: signal([]),
                 editSpace: jest.fn(),
                 removeSpace: jest.fn(),
             } as any),

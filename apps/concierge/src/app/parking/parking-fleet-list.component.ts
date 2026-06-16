@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -8,7 +7,7 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { ParkingOptions, ParkingStateService } from './parking-state.service';
+import { ParkingStateService } from './parking-state.service';
 
 @Component({
     selector: 'parking-fleet-list',
@@ -109,23 +108,9 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
 export class ParkingFleetListComponent {
     private _state = inject(ParkingStateService);
 
-    private readonly _default_options: ParkingOptions = {
-        date: Date.now(),
-        search: '',
-        zones: [],
-        period: 'day',
-        request_filter: 'all',
-    };
-
-    public readonly options = toSignal(this._state.options, {
-        initialValue: this._default_options,
-    });
-    public readonly loading = toSignal(this._state.loading, {
-        initialValue: [],
-    });
-    public readonly fleet_list = toSignal(this._state.fleet_vehicles, {
-        initialValue: [],
-    });
+    public readonly options = this._state.options;
+    public readonly loading = this._state.loading;
+    public readonly fleet_list = this._state.fleet_vehicles;
 
     public readonly editFleetVehicle = (vehicle?) =>
         this._state.editFleetVehicle(vehicle);

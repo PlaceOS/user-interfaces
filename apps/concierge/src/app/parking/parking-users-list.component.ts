@@ -1,7 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -11,7 +10,7 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { ParkingOptions, ParkingStateService } from './parking-state.service';
+import { ParkingStateService } from './parking-state.service';
 
 @Component({
     selector: 'parking-users-list',
@@ -125,23 +124,9 @@ export class ParkingUsersListComponent {
     private _state = inject(ParkingStateService);
     private _clipboard = inject(Clipboard);
 
-    private readonly _default_options: ParkingOptions = {
-        date: Date.now(),
-        search: '',
-        zones: [],
-        period: 'day',
-        request_filter: 'all',
-    };
-
-    public readonly options = toSignal(this._state.options, {
-        initialValue: this._default_options,
-    });
-    public readonly loading = toSignal(this._state.loading, {
-        initialValue: [],
-    });
-    public readonly user_list = toSignal(this._state.users, {
-        initialValue: [],
-    });
+    public readonly options = this._state.options;
+    public readonly loading = this._state.loading;
+    public readonly user_list = this._state.users;
 
     public readonly editUser = (u?) => this._state.editUser(u);
     public readonly removeUser = (u) => this._state.removeUser(u);

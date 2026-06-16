@@ -1,4 +1,5 @@
 import { signal, WritableSignal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
 import { Booking, OrganisationService, SettingsService } from '@placeos/common';
@@ -74,16 +75,22 @@ describe('ParkingStateService', () => {
         organisation_service.active_building = active_building;
         organisation_service.active_region = active_region;
         organisation_service.levels = [];
-        (assets_mod as any).queryParkingUsers = jest.fn(() => of([]));
-        (assets_mod as any).queryParkingFleetVehicles = jest.fn(() => of([]));
-        (assets_mod as any).queryParkingSpaces = jest.fn(() => of([]));
+        (assets_mod as any).queryParkingUsers = jest.fn(() =>
+            Promise.resolve([]),
+        );
+        (assets_mod as any).queryParkingFleetVehicles = jest.fn(() =>
+            Promise.resolve([]),
+        );
+        (assets_mod as any).queryParkingSpaces = jest.fn(() =>
+            Promise.resolve([]),
+        );
         (assets_mod as any).queryParkingSpacesForZones = jest.fn(() =>
             Promise.resolve([]),
         );
         (booking_mod as any).bookedResourceList = jest.fn(() =>
             Promise.resolve([]),
         );
-        (booking_mod as any).queryBookings = jest.fn(() => of([]));
+        (booking_mod as any).queryBookings = jest.fn(() => Promise.resolve([]));
         (booking_mod as any).saveBooking = jest.fn(() => Promise.resolve({}));
         (booking_mod as any).updateBooking = jest.fn(() =>
             Promise.resolve({}),
@@ -117,10 +124,11 @@ describe('ParkingStateService', () => {
     it('should apply building timezone to parking booking listing requests', async () => {
         jest.useFakeTimers();
         const date = new Date('2026-06-15T12:00:00').valueOf();
-        const subscription = spectator.service.bookings.subscribe();
 
         spectator.service.setOptions({ date });
+        TestBed.flushEffects();
         await jest.advanceTimersByTimeAsync(1100);
+        TestBed.flushEffects();
 
         expect(booking_mod.queryBookings).toHaveBeenLastCalledWith(
             expect.objectContaining({
@@ -129,7 +137,6 @@ describe('ParkingStateService', () => {
             }),
         );
 
-        subscription.unsubscribe();
         jest.useRealTimers();
     });
 
@@ -138,10 +145,11 @@ describe('ParkingStateService', () => {
         settings_map['app.bookings.use_building_timezone'] = false;
         settings_map['app.parking.use_building_timezone'] = true;
         const date = new Date('2026-06-15T12:00:00').valueOf();
-        const subscription = spectator.service.bookings.subscribe();
 
         spectator.service.setOptions({ date });
+        TestBed.flushEffects();
         await jest.advanceTimersByTimeAsync(1100);
+        TestBed.flushEffects();
 
         expect(booking_mod.queryBookings).toHaveBeenLastCalledWith(
             expect.objectContaining({
@@ -150,19 +158,19 @@ describe('ParkingStateService', () => {
             }),
         );
 
-        subscription.unsubscribe();
         jest.useRealTimers();
     });
 
     it('should filter booking listings by selected levels for all bookings', async () => {
         jest.useFakeTimers();
-        const subscription = spectator.service.bookings.subscribe();
 
         spectator.service.setOptions({
             request_filter: 'all',
             zones: ['lvl-1', 'lvl-2'],
         });
+        TestBed.flushEffects();
         await jest.advanceTimersByTimeAsync(1100);
+        TestBed.flushEffects();
 
         expect(booking_mod.queryBookings).toHaveBeenLastCalledWith(
             expect.objectContaining({
@@ -170,19 +178,19 @@ describe('ParkingStateService', () => {
             }),
         );
 
-        subscription.unsubscribe();
         jest.useRealTimers();
     });
 
     it('should filter request listings by the building zone when levels are disabled', async () => {
         jest.useFakeTimers();
-        const subscription = spectator.service.bookings.subscribe();
 
         spectator.service.setOptions({
             request_filter: 'requests',
             zones: ['lvl-1', 'lvl-2'],
         });
+        TestBed.flushEffects();
         await jest.advanceTimersByTimeAsync(1100);
+        TestBed.flushEffects();
 
         expect(booking_mod.queryBookings).toHaveBeenLastCalledWith(
             expect.objectContaining({
@@ -190,7 +198,6 @@ describe('ParkingStateService', () => {
             }),
         );
 
-        subscription.unsubscribe();
         jest.useRealTimers();
     });
 
@@ -303,24 +310,22 @@ describe('ParkingStateService', () => {
                 { id: 'space-2', zone_id: 'lvl-2' },
             ]),
         );
-        let spaces: any[] = [];
-        const subscription = spectator.service.spaces.subscribe(
-            (list) => (spaces = list),
-        );
 
         spectator.service.setOptions({ zones: ['lvl-1', 'lvl-2'] });
+        TestBed.flushEffects();
         await jest.advanceTimersByTimeAsync(400);
+        TestBed.flushEffects();
+        await jest.advanceTimersByTimeAsync(0);
 
-        expect(assets_mod.queryParkingSpacesForZones).toHaveBeenLastCalledWith([
+        expect(assets_mod.queryParkingSpacesForZones).toHaveBeenCalledWith([
             'lvl-1',
             'lvl-2',
         ]);
-        expect(spaces).toEqual([
+        expect(spectator.service.spaces()).toEqual([
             expect.objectContaining({ id: 'space-1', zone_id: 'lvl-1' }),
             expect.objectContaining({ id: 'space-2', zone_id: 'lvl-2' }),
         ]);
 
-        subscription.unsubscribe();
         jest.useRealTimers();
     });
 

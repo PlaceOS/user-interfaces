@@ -7,7 +7,6 @@ import { Router } from '@angular/router';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
 
 import { ParkingStateService } from '../../app/parking/parking-state.service';
 import { ParkingTopbarComponent } from '../../app/parking/parking-topbar.component';
@@ -27,17 +26,18 @@ describe('ParkingTopbarComponent', () => {
         ],
         providers: [
             MockProvider(ParkingStateService, {
-                levels: of([]),
-                options: of({
+                levels: signal([]),
+                bookable_levels: signal([]),
+                options: signal({
                     date: Date.now(),
                     search: '',
                     zones: [],
                     period: 'day',
                     request_filter,
                 }),
-                spaces: of([]),
-                bookings: of([]),
-                period: of('day'),
+                spaces: signal([]),
+                bookings: signal([]),
+                period: signal('day'),
                 setOptions: jest.fn(),
                 setPeriod: jest.fn(),
                 activeBookings: jest.fn((list) => list || []),

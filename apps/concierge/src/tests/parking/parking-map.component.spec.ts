@@ -4,7 +4,6 @@ import { OrganisationService, SettingsService } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { InteractiveMapComponent } from '@placeos/components';
 import { ExploreParkingService, ExploreStateService } from '@placeos/explore';
-import { of } from 'rxjs';
 
 import { ParkingMapComponent } from '../../app/parking/parking-map.component';
 import { ParkingStateService } from '../../app/parking/parking-state.service';
@@ -39,7 +38,7 @@ describe('ParkingMapComponent', () => {
             {
                 provide: ParkingStateService,
                 useValue: {
-                    options: of({
+                    options: signal({
                         date: Date.now(),
                         search: '',
                         zones: [],

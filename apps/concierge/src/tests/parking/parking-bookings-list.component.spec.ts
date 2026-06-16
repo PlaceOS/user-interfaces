@@ -3,7 +3,6 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { Booking, settingSignal, SettingsService } from '@placeos/common';
 import { SimpleTableComponent } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
-import { defer, of } from 'rxjs';
 
 import { ParkingBookingsListComponent } from '../../app/parking/parking-bookings-list.component';
 import { ParkingStateService } from '../../app/parking/parking-state.service';
@@ -24,18 +23,16 @@ describe('ParkingBookingsListComponent', () => {
         component: ParkingBookingsListComponent,
         providers: [
             MockProvider(ParkingStateService, {
-                bookings: defer(() => of(bookings)),
-                options: defer(() =>
-                    of({
-                        date: Date.now(),
-                        search: '',
-                        zones: [],
-                        period: 'day',
-                        request_filter,
-                    }),
-                ),
-                loading: of([]),
-                period: of('day'),
+                bookings: (() => bookings) as any,
+                options: (() => ({
+                    date: Date.now(),
+                    search: '',
+                    zones: [],
+                    period: 'day',
+                    request_filter,
+                })) as any,
+                loading: (() => []) as any,
+                period: (() => 'day') as any,
                 startPolling: jest.fn(() => () => null),
                 filterEventList: jest.fn((list: Booking[]) => list),
                 filterEventSearch: jest.fn((list: Booking[]) => list),

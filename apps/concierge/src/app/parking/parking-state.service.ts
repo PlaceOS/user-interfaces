@@ -1,5 +1,10 @@
-import { inject, Injectable } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import {
+    computed,
+    inject,
+    Injectable,
+    resource,
+    signal,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import type { ParkingFleetVehicle, ParkingUser } from '@placeos/assets';
 import {
@@ -34,12 +39,12 @@ import {
     Booking,
     csvToJson,
     currentUser,
+    debouncedSignal,
     downloadFile,
     getTimezoneDifferenceInHours,
     i18n,
     jsonToCsv,
     loadTextFileFromInputEvent,
-    nextValueFrom,
     notifyError,
     notifySuccess,
     OrganisationService,
@@ -62,17 +67,6 @@ import {
     startOfWeek,
     subDays,
 } from 'date-fns';
-import { BehaviorSubject, combineLatest, forkJoin, from, of } from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    filter,
-    first,
-    map,
-    shareReplay,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
 import { ParkingAssignSpaceModalComponent } from './parking-assign-space-modal.component';
 import { ParkingBookingModalComponent } from './parking-booking-modal.component';
 import { ParkingFleetModalComponent } from './parking-fleet-modal.component';
@@ -117,17 +111,13 @@ export class ParkingStateService extends AsyncHandler {
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
 
-    private _poll = new BehaviorSubject<number>(0);
-    private _change = new BehaviorSubject(0);
-    private _fleet_vehicles = new BehaviorSubject<ParkingFleetVehicle[]>([]);
-    private _options = new BehaviorSubject<ParkingOptions>({
+    private readonly _options = signal<ParkingOptions>({
         date: Date.now(),
         search: '',
         zones: [],
         period: 'day',
         request_filter: 'all',
     });
-    private _loading = new BehaviorSubject<string[]>([]);
 
     public get timezone() {
         return this._settings.get('app.bookings.use_building_timezone') ||
@@ -142,122 +132,123 @@ export class ParkingStateService extends AsyncHandler {
         return !tz ? 0 : getTimezoneDifferenceInHours(current_tz, tz);
     }
 
+    /** Currently applied filter/view options for the parking section */
+    public readonly options = this._options.asReadonly();
+    /** Selected view period for the parking section */
+    public readonly period = computed(() => this._options().period);
+
     /** List of available parking levels for the current building */
-    public levels = combineLatest([
-        toObservable(this._org.active_region),
-        toObservable(this._org.active_building),
-    ]).pipe(
-        filter(([_, bld]) => !!bld),
-        map(([_, bld]) => {
-            const levels = this._org.levels.filter((_) =>
-                _.tags.includes('parking'),
+    public readonly levels = computed(() => {
+        this._org.active_region();
+        const bld = this._org.active_building();
+        if (!bld) return [];
+        const levels = this._org.levels.filter((_) =>
+            _.tags.includes('parking'),
+        );
+        if (this._settings.get('app.use_region')) {
+            const blds = this._org.buildingsForRegion();
+            const bld_ids = blds.map((building) => building.id);
+            return levels.filter((lvl) => bld_ids.includes(lvl.parent_id));
+        }
+        return levels.filter((lvl) => lvl.parent_id === bld.id);
+    });
+
+    /** Resource resolving which parking levels have bookable spaces */
+    private readonly _bookable_levels_resource = resource({
+        params: () => this.levels(),
+        loader: async ({ params: levels }) => {
+            if (!levels.length) return [];
+            const checks = await Promise.all(
+                levels.map(async (level) => {
+                    const spaces = await queryParkingSpacesForZones([
+                        level.id,
+                    ]).catch(() => []);
+                    return { level, has_bookable: spaces.length > 0 };
+                }),
             );
-            if (this._settings.get('app.use_region')) {
-                const blds = this._org.buildingsForRegion();
-                const bld_ids = blds.map((bld) => bld.id);
-                const list = levels.filter((lvl) =>
-                    bld_ids.includes(lvl.parent_id),
-                );
-                list.map((lvl) => ({
-                    ...lvl,
-                    display_name: `${
-                        blds.find((_) => _.id === lvl.parent_id)?.display_name
-                    } - ${lvl.display_name}`,
-                }));
-                return list;
-            }
-            return levels.filter((lvl) => lvl.parent_id === bld.id);
-        }),
-    );
-    /** List of parking levels with parking space resources */
-    public bookable_levels = this.levels.pipe(
-        switchMap((levels) => {
-            if (!levels.length) {
-                return of(
-                    [] as {
-                        level: (typeof levels)[number];
-                        has_bookable: boolean;
-                    }[],
-                );
-            }
-            return forkJoin(
-                levels.map((level) =>
-                    from(queryParkingSpacesForZones([level.id])).pipe(
-                        map((spaces) => ({
-                            level,
-                            has_bookable: spaces.length > 0,
-                        })),
-                        catchError(() => of({ level, has_bookable: false })),
-                    ),
-                ),
-            );
-        }),
-        map((levels) =>
-            levels
+            return checks
                 .filter((item) => item.has_bookable)
-                .map((item) => item.level),
-        ),
-        shareReplay(1),
+                .map((item) => item.level);
+        },
+    });
+    /** List of parking levels with parking space resources */
+    public readonly bookable_levels = computed(
+        () => this._bookable_levels_resource.value() ?? [],
     );
+
+    /** Params driving the parking space resource, debounced to coalesce changes */
+    private readonly _spaces_params = computed(() => {
+        const levels = this.levels();
+        const options = this._options();
+        const zone_ids = options.zones.length
+            ? options.zones
+            : levels[0]?.id
+              ? [levels[0].id]
+              : [];
+        return zone_ids.length ? { zone_ids } : undefined;
+    });
+    private readonly _spaces_params_debounced = debouncedSignal(
+        this._spaces_params,
+        300,
+    );
+    /** Resource resolving the parking spaces for the current selection */
+    private readonly _spaces_resource = resource({
+        params: () => this._spaces_params_debounced(),
+        loader: async ({ params: { zone_ids } }) => {
+            const list = await queryParkingSpacesForZones(zone_ids);
+            return list.sort((a, b) =>
+                (a.name || '').localeCompare(b.name || ''),
+            );
+        },
+    });
     /** List of parking spaces for the current building/level */
-    public spaces = combineLatest([
-        this.levels,
-        this._options,
-        this._change,
-    ]).pipe(
-        debounceTime(300),
-        switchMap(([levels, options]) => {
-            const zone_ids = options.zones.length
-                ? options.zones
-                : levels[0]?.id
-                  ? [levels[0].id]
-                  : [];
-            if (!zone_ids.length) {
-                return of([] as ParkingSpace[]);
-            }
-            this._loading.next([...this._loading.getValue(), 'spaces']);
-            return from(queryParkingSpacesForZones(zone_ids));
-        }),
-        map((_) =>
-            _.sort((a, b) => (a.name || '').localeCompare(b.name || '')),
-        ),
-        tap(() =>
-            this._loading.next(
-                this._loading.getValue().filter((_) => _ !== 'spaces'),
-            ),
-        ),
-        shareReplay(1),
+    public readonly spaces = computed<ParkingSpace[]>(
+        () => this._spaces_resource.value() ?? [],
     );
+
+    /** Resource resolving the parking users for the current building */
+    private readonly _users_resource = resource({
+        params: () => {
+            const bld = this._org.active_building();
+            return bld?.id ? { building: bld.id } : undefined;
+        },
+        loader: ({ params: { building } }) => queryParkingUsers(building),
+    });
     /** List of parking users for the current building */
-    public users = combineLatest([
-        toObservable(this._org.active_building),
-        this._change,
-    ]).pipe(
-        filter(([bld]) => !!bld?.id),
-        switchMap(([bld]) => {
-            this._loading.next([...this._loading.getValue(), 'users']);
-            return from(queryParkingUsers(bld.id));
-        }),
-        tap(() =>
-            this._loading.next(
-                this._loading.getValue().filter((_) => _ !== 'users'),
-            ),
-        ),
-        shareReplay(1),
+    public readonly users = computed<ParkingUser[]>(
+        () => this._users_resource.value() ?? [],
     );
+
+    /** Resource resolving the fleet vehicles for the current building */
+    private readonly _fleet_resource = resource({
+        params: () => {
+            const bld = this._org.active_building();
+            return bld?.id ? { building: bld.id } : undefined;
+        },
+        loader: ({ params: { building } }) =>
+            queryParkingFleetVehicles(building),
+    });
     /** List of fleet vehicles for the current building */
-    public readonly fleet_vehicles = this._fleet_vehicles.asObservable();
-    /** List of parking bookings for the current building/level */
-    public bookings = combineLatest([
-        toObservable(this._org.active_building),
-        this._options,
-        this.users,
-        this._poll,
-        this._change,
-    ]).pipe(
-        debounceTime(500),
-        switchMap(([bld, options, users]) => {
-            this._loading.next([...this._loading.getValue(), '[BOOKINGS]']);
+    public readonly fleet_vehicles = computed<ParkingFleetVehicle[]>(
+        () => this._fleet_resource.value() ?? [],
+    );
+
+    /** Params driving the bookings resource, debounced to coalesce changes */
+    private readonly _bookings_params = computed(() => {
+        const bld = this._org.active_building();
+        return { bld, options: this._options(), users: this.users() };
+    });
+    private readonly _bookings_params_debounced = debouncedSignal(
+        this._bookings_params,
+        500,
+    );
+    /** Resource resolving the parking bookings for the current selection */
+    private readonly _bookings_resource = resource({
+        params: () => {
+            const params = this._bookings_params_debounced();
+            return params.bld?.id ? params : undefined;
+        },
+        loader: async ({ params: { bld, options, users } }) => {
             const week_start = this._settings.get('app.week_start') || 0;
             const range_start =
                 options.period === 'week'
@@ -269,43 +260,42 @@ export class ParkingStateService extends AsyncHandler {
                     : endOfDay(options.date);
             const period_start = addMinutes(range_start, this.tz_offset * 60);
             const period_end = addMinutes(range_end, this.tz_offset * 60);
-            return from(
-                queryBookings({
-                    period_start: getUnixTime(period_start),
-                    period_end: getUnixTime(period_end),
-                    type: 'parking',
-                    zones: this._bookingQueryZone(options, bld),
-                    include_checked_out: true,
-                }),
-            ).pipe(
-                map((list) => {
-                    for (const booking of list) {
-                        const user = users.find(
-                            (_) =>
-                                _.email.toLowerCase() ===
-                                booking.user_email.toLowerCase(),
-                        );
-                        if (user) {
-                            booking.extension_data.plate_number =
-                                booking.extension_data.plate_number ||
-                                user.plate_number;
-                        }
-                    }
-                    return list;
-                }),
-            );
-        }),
-        tap(() =>
-            this._loading.next(
-                this._loading.getValue().filter((_) => _ !== '[BOOKINGS]'),
-            ),
-        ),
-        shareReplay(1),
+            const list = await queryBookings({
+                period_start: getUnixTime(period_start),
+                period_end: getUnixTime(period_end),
+                type: 'parking',
+                zones: this._bookingQueryZone(options, bld),
+                include_checked_out: true,
+            });
+            for (const booking of list) {
+                const user = users.find(
+                    (_) =>
+                        _.email.toLowerCase() ===
+                        booking.user_email.toLowerCase(),
+                );
+                if (user) {
+                    booking.extension_data.plate_number =
+                        booking.extension_data.plate_number ||
+                        user.plate_number;
+                }
+            }
+            return list;
+        },
+    });
+    /** List of parking bookings for the current building/level */
+    public readonly bookings = computed<Booking[]>(
+        () => this._bookings_resource.value() ?? [],
     );
 
-    public readonly options = this._options.asObservable();
-    public readonly loading = this._loading.asObservable();
-    public readonly period = this._options.pipe(map((o) => o.period));
+    /** List of loading state tokens for the active parking resources */
+    public readonly loading = computed(() => {
+        const list: string[] = [];
+        if (this._spaces_resource.isLoading()) list.push('spaces');
+        if (this._users_resource.isLoading()) list.push('users');
+        if (this._fleet_resource.isLoading()) list.push('fleet');
+        if (this._bookings_resource.isLoading()) list.push('[BOOKINGS]');
+        return list;
+    });
 
     public get week_start(): 0 | 1 | 2 | 3 | 4 | 5 | 6 {
         return this._settings.get('app.week_start') || 0;
@@ -315,28 +305,43 @@ export class ParkingStateService extends AsyncHandler {
         return this._settings.get('app.parking.show_waitlist') !== false;
     }
 
-    constructor() {
-        super();
-        this.subscription(
-            'fleet_vehicles',
-            combineLatest([
-                toObservable(this._org.active_building),
-                this._change,
-            ])
-                .pipe(
-                    filter(([bld]) => !!bld?.id),
-                    switchMap(([bld]) => this._loadFleetVehicles(bld.id)),
-                )
-                .subscribe((list) => this._fleet_vehicles.next(list)),
-        );
-    }
-
     public setOptions(options: Partial<ParkingOptions>) {
-        this._options.next({ ...this._options.getValue(), ...options });
+        this._options.update((current) => ({ ...current, ...options }));
     }
 
     public setPeriod(period: 'day' | 'week') {
         this.setOptions({ period });
+    }
+
+    /** Reload all parking data resources after a mutation */
+    private _reloadResources() {
+        this._spaces_resource.reload();
+        this._users_resource.reload();
+        this._fleet_resource.reload();
+        this._bookings_resource.reload();
+    }
+
+    /**
+     * Resolve once a modal emits a `done` event or the dialog is closed,
+     * whichever happens first.
+     */
+    private _waitForModalResult<T = any>(ref: any): Promise<T> {
+        return new Promise<T>((resolve) => {
+            let resolved = false;
+            let event_sub: { unsubscribe: () => void } | undefined;
+            let close_sub: { unsubscribe: () => void } | undefined;
+            const done = (value: T) => {
+                if (resolved) return;
+                resolved = true;
+                event_sub?.unsubscribe();
+                close_sub?.unsubscribe();
+                resolve(value);
+            };
+            close_sub = ref.afterClosed().subscribe((value: T) => done(value));
+            event_sub = ref.componentInstance?.event?.subscribe((e: any) => {
+                if (e?.reason === 'done') done(e);
+            });
+        });
     }
 
     private _bookingQueryZone(options: ParkingOptions, bld?: { id?: string }) {
@@ -446,8 +451,8 @@ export class ParkingStateService extends AsyncHandler {
     }
 
     public startPolling(delay = 2 * 60 * 1000) {
-        this._poll.next(Date.now());
-        this.interval('poll', () => this._poll.next(Date.now()), delay);
+        this._bookings_resource.reload();
+        this.interval('poll', () => this._bookings_resource.reload(), delay);
         return () => this.stopPolling();
     }
 
@@ -457,7 +462,7 @@ export class ParkingStateService extends AsyncHandler {
 
     /** Download current parking spaces as a CSV file */
     public async downloadSpacesCSV() {
-        const spaces = await nextValueFrom(this.spaces);
+        const spaces = this.spaces();
         const rows = spaces.map((space) => ({
             id: space.id || '',
             identifier: space.identifier || '',
@@ -500,7 +505,7 @@ export class ParkingStateService extends AsyncHandler {
                 return;
             }
             const zone_id =
-                this._options.getValue().zones[0] ||
+                this._options().zones[0] ||
                 this._org.levelsForBuilding()[0]?.id;
             if (!zone_id) {
                 notifyError(i18n('APP.CONCIERGE.PARKING_CSV_NO_ZONE'));
@@ -552,7 +557,7 @@ export class ParkingStateService extends AsyncHandler {
                     }),
                 );
             }
-            this._change.next(Date.now());
+            this._reloadResources();
         } catch (e) {
             console.error('CSV parsing error:', e);
             notifyError(i18n('APP.CONCIERGE.PARKING_CSV_PARSE_ERROR'));
@@ -564,15 +569,10 @@ export class ParkingStateService extends AsyncHandler {
         const ref = this._dialog.open(ParkingSpaceModalComponent, {
             data: space,
         });
-        const state = await Promise.race([
-            ref.afterClosed().toPromise(),
-            ref.componentInstance.event
-                .pipe(first((_) => _.reason === 'done'))
-                .toPromise(),
-        ]);
+        const state = await this._waitForModalResult(ref);
         if (state?.reason !== 'done') return;
         const zone_id =
-            this._options.getValue().zones[0] ||
+            this._options().zones[0] ||
             space.zone_id ||
             this._org.levelsForBuilding()[0]?.id;
         const asset_data: Partial<ParkingSpace> = {
@@ -673,7 +673,7 @@ export class ParkingStateService extends AsyncHandler {
                 throw e;
             });
         }
-        this._change.next(Date.now());
+        this._reloadResources();
         ref.close();
     }
 
@@ -691,7 +691,7 @@ export class ParkingStateService extends AsyncHandler {
         state.loading('Removing parking space...');
         await this._clearAssignedBooking(space);
         await deleteParkingSpace(space.id);
-        this._change.next(Date.now());
+        this._reloadResources();
         state.close();
     }
 
@@ -700,12 +700,7 @@ export class ParkingStateService extends AsyncHandler {
         const ref = this._dialog.open(ParkingUserModalComponent, {
             data: user,
         });
-        const state = await Promise.race([
-            ref.afterClosed().toPromise(),
-            ref.componentInstance.event
-                .pipe(first((_) => _.reason === 'done'))
-                .toPromise(),
-        ]);
+        const state = await this._waitForModalResult(ref);
         if (state?.reason !== 'done') return;
         const zone = this._org.building.id;
         const new_user = {
@@ -714,7 +709,7 @@ export class ParkingStateService extends AsyncHandler {
         };
         if ('user' in new_user) delete new_user.user;
         await saveParkingUser(new_user, zone);
-        this._change.next(Date.now());
+        this._reloadResources();
         ref.close();
     }
 
@@ -742,7 +737,7 @@ export class ParkingStateService extends AsyncHandler {
         });
         state.close();
         notifySuccess(i18n('APP.CONCIERGE.PARKING_USER_REMOVE_SUCCESS'));
-        this._change.next(Date.now());
+        this._reloadResources();
     }
 
     /** Add or update a fleet vehicle in the available list */
@@ -750,12 +745,7 @@ export class ParkingStateService extends AsyncHandler {
         const ref = this._dialog.open(ParkingFleetModalComponent, {
             data: vehicle,
         });
-        const state = await Promise.race([
-            ref.afterClosed().toPromise(),
-            ref.componentInstance.event
-                .pipe(first((_) => _.reason === 'done'))
-                .toPromise(),
-        ]);
+        const state = await this._waitForModalResult(ref);
         if (state?.reason !== 'done') return;
         const zone = this._org.building.id;
         const new_vehicle = {
@@ -821,13 +811,13 @@ export class ParkingStateService extends AsyncHandler {
                 });
                 ref.afterClosed().subscribe((id) => {
                     resolve(id);
-                    this._poll.next(Date.now());
-                    if (id) this._change.next(Date.now());
+                    if (id) this._reloadResources();
+                    else this._bookings_resource.reload();
                 });
             });
         }
-        const levels = await nextValueFrom(this.levels);
-        const spaces = await nextValueFrom(this.spaces);
+        const levels = this.levels();
+        const spaces = this.spaces();
         if (!space && reservation?.asset_id) {
             space = spaces.find((_) => _.id === reservation.asset_id);
         }
@@ -847,7 +837,7 @@ export class ParkingStateService extends AsyncHandler {
             });
             ref.afterClosed().subscribe((id) => {
                 resolve(id);
-                this._poll.next(Date.now());
+                this._bookings_resource.reload();
             });
         });
     }
@@ -859,9 +849,7 @@ export class ParkingStateService extends AsyncHandler {
             });
             ref.afterClosed().subscribe((id) => {
                 resolve(id);
-                if (!id) return;
-                this._poll.next(Date.now());
-                this._change.next(Date.now());
+                if (id) this._reloadResources();
             });
         });
     }
@@ -889,7 +877,7 @@ export class ParkingStateService extends AsyncHandler {
                           : 'APP.CONCIERGE.PARKING_CHECKOUT_SUCCESS',
                   ),
               );
-        if (success.state !== 'failed') this._change.next(Date.now());
+        if (success.state !== 'failed') this._reloadResources();
     }
 
     public async approveBooking(booking: Booking, series = false) {
@@ -925,7 +913,7 @@ export class ParkingStateService extends AsyncHandler {
                   }),
               )
             : notifySuccess(i18n('APP.CONCIERGE.PARKING_APPROVE_SUCCESS'));
-        if (success.state !== 'failed') this._change.next(Date.now());
+        if (success.state !== 'failed') this._reloadResources();
     }
 
     public async rejectBooking(booking: Booking, series = false) {
@@ -945,7 +933,7 @@ export class ParkingStateService extends AsyncHandler {
                   }),
               )
             : notifySuccess(i18n('APP.CONCIERGE.PARKING_DECLINE_SUCCESS'));
-        if (success.state !== 'failed') this._change.next(Date.now());
+        if (success.state !== 'failed') this._reloadResources();
     }
 
     public async assignSpace(booking: Booking) {
@@ -953,7 +941,7 @@ export class ParkingStateService extends AsyncHandler {
             data: { booking },
         });
         const result = await ref.afterClosed().toPromise();
-        if (result) this._change.next(Date.now());
+        if (result) this._reloadResources();
     }
 
     private async _assignSpaceForApproval(booking: Booking) {
@@ -1044,7 +1032,7 @@ export class ParkingStateService extends AsyncHandler {
         });
         details.close();
         notifySuccess(i18n('APP.CONCIERGE.BOOKING_REMOVE_SUCCESS'));
-        this._change.next(Date.now());
+        this._reloadResources();
     }
 
     private async _checkAssignedParkingLimit(
@@ -1122,7 +1110,7 @@ export class ParkingStateService extends AsyncHandler {
         user_email: string,
         zones: string[],
     ) {
-        const users = await nextValueFrom(this.users);
+        const users = this.users();
         const user = users.find((_) => _.email === user_email);
         const user_details = await USER_PIPE.transform(user_email);
         const timezone = this.timezone;
@@ -1154,21 +1142,10 @@ export class ParkingStateService extends AsyncHandler {
         });
     }
 
-    private _loadFleetVehicles(building_id: string) {
-        this._loading.next([...this._loading.getValue(), 'fleet']);
-        return from(queryParkingFleetVehicles(building_id)).pipe(
-            tap(() =>
-                this._loading.next(
-                    this._loading.getValue().filter((_) => _ !== 'fleet'),
-                ),
-            ),
-        );
-    }
-
     private _upsertFleetVehicle(vehicle: ParkingFleetVehicle) {
-        const fleet_list = this._fleet_vehicles.getValue();
+        const fleet_list = this._fleet_resource.value() ?? [];
         const index = fleet_list.findIndex((_) => _.id === vehicle.id);
-        this._fleet_vehicles.next(
+        this._fleet_resource.value.set(
             index >= 0
                 ? fleet_list.map((item, idx) =>
                       idx === index ? vehicle : item,
@@ -1178,8 +1155,10 @@ export class ParkingStateService extends AsyncHandler {
     }
 
     private _removeFleetVehicleFromList(vehicle_id: string) {
-        this._fleet_vehicles.next(
-            this._fleet_vehicles.getValue().filter((_) => _.id !== vehicle_id),
+        this._fleet_resource.value.set(
+            (this._fleet_resource.value() ?? []).filter(
+                (_) => _.id !== vehicle_id,
+            ),
         );
     }
 }

@@ -6,7 +6,6 @@ import {
     inject,
     OnInit,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -20,7 +19,7 @@ import {
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { addDays, isSameDay, startOfWeek } from 'date-fns';
-import { ParkingOptions, ParkingStateService } from './parking-state.service';
+import { ParkingStateService } from './parking-state.service';
 import { isParkingAllDayBooking } from './parking.utilities';
 
 @Component({
@@ -395,23 +394,9 @@ export class ParkingBookingsWeekViewComponent
     private _settings = inject(SettingsService);
     private _date_pipe = new DatePipe('en');
 
-    private readonly _default_options: ParkingOptions = {
-        date: Date.now(),
-        search: '',
-        zones: [],
-        period: 'day',
-        request_filter: 'all',
-    };
-
-    public readonly loading = toSignal(this._state.loading, {
-        initialValue: [],
-    });
-    public readonly options = toSignal(this._state.options, {
-        initialValue: this._default_options,
-    });
-    public readonly bookings = toSignal(this._state.bookings, {
-        initialValue: [],
-    });
+    public readonly loading = this._state.loading;
+    public readonly options = this._state.options;
+    public readonly bookings = this._state.bookings;
 
     public readonly days = computed(() => {
         const options = this.options();

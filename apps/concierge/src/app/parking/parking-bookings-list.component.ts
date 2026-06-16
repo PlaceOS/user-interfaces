@@ -7,7 +7,6 @@ import {
     OnInit,
     TemplateRef,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -27,7 +26,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { ParkingBookingsWeekViewComponent } from './parking-bookings-week-view.component';
-import { ParkingOptions, ParkingStateService } from './parking-state.service';
+import { ParkingStateService } from './parking-state.service';
 import { isParkingAllDayBooking } from './parking.utilities';
 
 interface ParkingBookingExtensionColumn {
@@ -506,26 +505,10 @@ export class ParkingBookingsListComponent
     private _state = inject(ParkingStateService);
     private _settings = inject(SettingsService);
 
-    private readonly _default_options: ParkingOptions = {
-        date: Date.now(),
-        search: '',
-        zones: [],
-        period: 'day',
-        request_filter: 'all',
-    };
-
-    public readonly bookings = toSignal(this._state.bookings, {
-        initialValue: [],
-    });
-    public readonly options = toSignal(this._state.options, {
-        initialValue: this._default_options,
-    });
-    public readonly loading = toSignal(this._state.loading, {
-        initialValue: [],
-    });
-    public readonly period = toSignal(this._state.period, {
-        initialValue: 'day',
-    });
+    public readonly bookings = this._state.bookings;
+    public readonly options = this._state.options;
+    public readonly loading = this._state.loading;
+    public readonly period = this._state.period;
 
     public readonly filtered_events = computed(() => {
         const { search, request_filter } = this.options();

@@ -5,7 +5,6 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatTabsModule } from '@angular/material/tabs';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { AsyncHandler, SettingsService, currentUser } from '@placeos/common';
@@ -156,7 +155,7 @@ export class ParkingComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
 
     /** List of levels for the active building */
-    public readonly levels = toSignal(this._state.levels, { initialValue: [] });
+    public readonly levels = this._state.levels;
 
     public readonly section = signal<'events' | 'manage'>('events');
     public readonly view = signal<

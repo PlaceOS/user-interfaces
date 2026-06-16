@@ -14,7 +14,7 @@ import {
     Router,
     RouterModule,
 } from '@angular/router';
-import { debounceTime, filter, map, startWith } from 'rxjs/operators';
+import { filter, map, startWith } from 'rxjs/operators';
 
 import {
     AsyncHandler,
@@ -35,13 +35,11 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { lastValueFrom, timer } from 'rxjs';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { DateOptionsComponent } from '../ui/date-options.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
 import {
-    ParkingOptions,
     ParkingRequestFilter,
     ParkingStateService,
 } from './parking-state.service';
@@ -390,13 +388,6 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
 
-    private readonly _default_options: ParkingOptions = {
-        date: Date.now(),
-        search: '',
-        zones: [],
-        period: 'day',
-        request_filter: 'all',
-    };
     private readonly _ready = signal(false);
     private readonly _query_params = toSignal(this._route.queryParamMap, {
         initialValue: this._route.snapshot.queryParamMap,
@@ -420,14 +411,9 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     /** Selected level for views that only support one level */
     public readonly selected_zone = computed(() => this.zones()[0] || '');
     /** List of levels for the active building */
-    public readonly all_levels = toSignal(this._state.levels, {
-        initialValue: [],
-    });
+    public readonly all_levels = this._state.levels;
     /** List of levels with parking spaces */
-    public readonly bookable_levels = toSignal(
-        this._state.bookable_levels || this._state.levels,
-        { initialValue: [] },
-    );
+    public readonly bookable_levels = this._state.bookable_levels;
     /** List of levels to show for the current section */
     public readonly levels = computed(() =>
         this.section() === 'manage'
@@ -435,20 +421,12 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
             : this.bookable_levels(),
     );
     /** Options set for week view */
-    public readonly options = toSignal(this._state.options, {
-        initialValue: this._default_options,
-    });
-    public readonly spaces = toSignal(this._state.spaces, { initialValue: [] });
-    public readonly occupied_bookings = toSignal(
-        this._state.bookings.pipe(
-            debounceTime(50),
-            map((bookings) => this._state.activeBookings(bookings)),
-        ),
-        { initialValue: [] },
+    public readonly options = this._state.options;
+    public readonly spaces = this._state.spaces;
+    public readonly occupied_bookings = computed(() =>
+        this._state.activeBookings(this._state.bookings()),
     );
-    public readonly period = toSignal(this._state.period, {
-        initialValue: 'day',
-    });
+    public readonly period = this._state.period;
     public get filter_options(): ReadonlyArray<{
         label: string;
         value: ParkingRequestFilter;
@@ -709,7 +687,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     public async ngOnInit() {
         this._updatePath();
         await this._org.waitUntilInitialised();
-        await lastValueFrom(timer(1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         this.setSearch('');
         this._ready.set(true);
         this._updatePath();

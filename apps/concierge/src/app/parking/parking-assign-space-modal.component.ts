@@ -7,10 +7,10 @@ import {
     inject,
     OnInit,
     QueryList,
+    resource,
     signal,
     ViewChildren,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -49,8 +49,6 @@ import { PlaceAsset } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { ExploreParkingInfoComponent } from 'libs/explore/src/lib/explore-parking-info.component';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
-import { from, of } from 'rxjs';
-import { catchError, switchMap } from 'rxjs/operators';
 
 type BoundsMap = Record<string, MapElementBounds>;
 
@@ -255,38 +253,33 @@ export class ParkingAssignSpaceModalComponent
 
     public readonly setMapInfo = (info: BoundsMap) => this.map_info.set(info);
 
-    private readonly _all_spaces = toSignal(
-        toObservable(this.selected_level).pipe(
-            switchMap((level) =>
-                level
-                    ? from(queryParkingSpaces(level.id)).pipe(
-                          catchError(() => of([])),
-                      )
-                    : of([]),
-            ),
-        ),
-        { initialValue: [] },
+    private readonly _all_spaces_resource = resource({
+        params: () => this.selected_level(),
+        loader: ({ params: level }) =>
+            level
+                ? queryParkingSpaces(level.id).catch(() => [])
+                : Promise.resolve([]),
+    });
+    private readonly _all_spaces = computed(
+        () => this._all_spaces_resource.value() ?? [],
     );
 
-    private readonly _bookings = toSignal(
-        toObservable(this.selected_level).pipe(
-            switchMap((level) => {
-                if (!level) return of([] as Booking[]);
-                return from(
-                    queryBookings({
-                        period_start: getUnixTime(
-                            startOfDay(this._data.booking.date),
-                        ),
-                        period_end: getUnixTime(
-                            endOfDay(this._data.booking.date),
-                        ),
-                        type: 'parking',
-                        zones: level.id,
-                    }),
-                ).pipe(catchError(() => of([])));
-            }),
-        ),
-        { initialValue: [] },
+    private readonly _bookings_resource = resource({
+        params: () => this.selected_level(),
+        loader: ({ params: level }) =>
+            level
+                ? queryBookings({
+                      period_start: getUnixTime(
+                          startOfDay(this._data.booking.date),
+                      ),
+                      period_end: getUnixTime(endOfDay(this._data.booking.date)),
+                      type: 'parking',
+                      zones: level.id,
+                  }).catch(() => [] as Booking[])
+                : Promise.resolve([] as Booking[]),
+    });
+    private readonly _bookings = computed<Booking[]>(
+        () => this._bookings_resource.value() ?? [],
     );
 
     /** Available spaces for the selected level, excluding those booked during the booking's time range */
