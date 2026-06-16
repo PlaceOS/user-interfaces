@@ -585,16 +585,18 @@ export class LandingDeskWeekComponent
     }
 
     public bookDesk(date: number): void {
-        this._booking_form.newForm(
-            'desk',
-            new Booking({ date, booking_type: 'desk' }),
-        );
-        this._router.navigate(['/book', 'desk']);
-        this.timeout(
-            'set_date',
+        // Navigate first, then prepare the form. The desk flow page resets any
+        // unsaved form in its ngOnInit, so populating beforehand would be wiped.
+        // A native setTimeout is used (not AsyncHandler.timeout) because this
+        // component is destroyed during navigation, which would cancel it.
+        this._router.navigate(['/book', 'desk', 'form']);
+        setTimeout(
             () =>
-                this._booking_form.model.update((m) => ({ ...m, date })),
-            100,
+                this._booking_form.newForm(
+                    'desk',
+                    new Booking({ date, booking_type: 'desk' }),
+                ),
+            300,
         );
     }
 }
