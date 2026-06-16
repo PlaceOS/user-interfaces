@@ -9,6 +9,7 @@ import {
 import {
     Booking,
     CalendarEvent,
+    guardModelUndefinedWrites,
     LOCAL_TIMEZONE,
     onFieldChange,
     SettingsService,
@@ -176,6 +177,11 @@ export function generateEventForm(
         eventFormValue(event),
     );
 
+    // Keep every key defined so signal-forms never drops a sub-field bound via
+    // `[formField]` (an undefined value triggers `this.field() is not a
+    // function`). Guards writes synchronously — no reactive surface.
+    guardModelUndefinedWrites(model, eventFormValue(new CalendarEvent()));
+
     const event_form = form<EventFormValue>(model, (p) => {
         required(p.host);
         required(p.date);
@@ -201,7 +207,9 @@ export function generateEventForm(
         model,
         (v) => v.organiser,
         (organiser) =>
-            model.update((m) => ({ ...m, host: (organiser as any)?.email })),
+            // Coalesce to '' so the `host` sub-field is never removed from the
+            // FieldTree (an undefined value breaks its `required`/`[formField]`).
+            model.update((m) => ({ ...m, host: (organiser as any)?.email ?? '' })),
         injector,
     );
     // resources → system

@@ -1025,6 +1025,33 @@ export interface SignalFormRef<T, F = any> {
 }
 
 /**
+ * Coerce `undefined` values written to a signal-forms model back to a defined
+ * default. Signal-forms removes a sub-field the moment its value becomes
+ * `undefined`, which permanently breaks any `[formField]` bound to it
+ * (`this.field() is not a function`). Wrapping the model's `set`/`update` keeps
+ * every key defined at the write boundary, adding no reactive surface (so it
+ * can never feed a change-detection loop).
+ */
+export function guardModelUndefinedWrites<T extends object>(
+    model: WritableSignal<T>,
+    defaults: T,
+): void {
+    const sanitize = (value: T): T => {
+        for (const key of Object.keys(defaults)) {
+            if ((value as any)[key] === undefined) {
+                (value as any)[key] = (defaults as any)[key];
+            }
+        }
+        return value;
+    };
+    const set = model.set.bind(model);
+    const update = model.update.bind(model);
+    model.set = (value: T) => set(sanitize({ ...value }));
+    model.update = (fn: (current: T) => T) =>
+        update((current) => sanitize({ ...fn(current) }));
+}
+
+/**
  * Signal-forms replacement for `control.valueChanges.subscribe`. Runs
  * `handler` whenever the value selected from `model` changes (compared with
  * `Object.is`). The selected field's previous value is captured *before*

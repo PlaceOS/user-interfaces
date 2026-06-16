@@ -84,6 +84,19 @@ describe('utilities', () => {
             model.update((m) => ({ ...m, title: 'Update' }));
             expect(form.date().disabled()).toBe(true);
         });
+
+        it('should coerce undefined writes back to typed defaults so [formField] bindings survive', () => {
+            const { model, form } = TestBed.runInInjectionContext(() =>
+                generateEventForm(new CalendarEvent(), undefined, injector),
+            );
+
+            model.update((m) => ({ ...m, host: undefined as any }));
+
+            // Sanitisation happens synchronously at the update() boundary, so
+            // the field is never removed from the FieldTree.
+            expect(typeof form.host).toBe('function');
+            expect(model().host).toBeDefined();
+        });
     });
 
     describe('generateSystemsFormFields', () => {
