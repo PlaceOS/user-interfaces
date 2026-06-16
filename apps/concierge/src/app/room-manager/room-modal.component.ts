@@ -7,17 +7,14 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import {
     EncryptionLevel,
     addSystem,
-    queryZones,
     showMetadata,
     updateMetadata,
     updateSystem,
 } from '@placeos/ts-client';
-import { map } from 'rxjs/operators';
 
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -55,7 +52,6 @@ import {
     DurationFieldComponent,
     ImageListFieldComponent,
 } from '@placeos/form-fields';
-import { from } from 'rxjs';
 import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
 
 @Component({
@@ -504,9 +500,8 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
     /** Group of form fields used for creating the system */
     public form = generateSystemsFormFields(this._data.room as any);
     public readonly timezones = signal(TIMEZONES_IANA);
-    private readonly _timezone_query = toSignal(
-        this.form.controls.timezone.valueChanges,
-        { initialValue: this.form.controls.timezone.value || '' },
+    private readonly _timezone_query = signal(
+        this.form.controls.timezone.value || '',
     );
     public readonly filtered_timezones = computed(() => {
         const timezone = `${this._timezone_query() || ''}`.toLowerCase();
@@ -525,14 +520,21 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
         { id: EncryptionLevel.Admin, name: 'Admin' },
         { id: EncryptionLevel.NeverDisplay, name: 'Never Display' },
     ];
-    /** Function for querying zones */
-    public readonly query_fn = (_: string) =>
-        from(queryZones({ q: _ })).pipe(map((resp) => resp.data));
     /** List of separator characters for features */
     public readonly separators: number[] = [ENTER, COMMA, SPACE];
 
     public get feature_list(): string[] {
         return this.form.controls.features.value || [];
+    }
+
+    constructor() {
+        super();
+        this.subscription(
+            'timezone',
+            this.form.controls.timezone.valueChanges.subscribe((value) =>
+                this._timezone_query.set(value || ''),
+            ),
+        );
     }
 
     public async ngOnInit() {

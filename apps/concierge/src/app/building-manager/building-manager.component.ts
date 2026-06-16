@@ -1,9 +1,6 @@
-import { Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { Router } from '@angular/router';
 import { TranslatePipe } from '@placeos/components';
-import { startWith } from 'rxjs/operators';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { BuildingListComponent } from './building-list.component';
@@ -65,19 +62,6 @@ import { BuildingManagementService } from './building-management.service';
 })
 export class BuildingManagerComponent {
     private _state = inject(BuildingManagementService);
-    private _router = inject(Router);
-
-    private readonly _url = toSignal(
-        this._router.events.pipe(startWith(null)),
-        {
-            initialValue: null,
-        },
-    );
 
     public readonly newBuilding = () => this._state.editBuilding();
-    public readonly path = computed(() => {
-        this._url();
-        const parts = this._router.url.split('/');
-        return parts[parts.length - 1].split('?')[0];
-    });
 }

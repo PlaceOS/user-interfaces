@@ -7,8 +7,8 @@ import {
     input,
     linkedSignal,
     output,
+    signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import {
     FormControl,
     FormGroup,
@@ -31,7 +31,6 @@ import {
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
-import { startWith } from 'rxjs/operators';
 
 @Component({
     selector: 'building-form',
@@ -155,11 +154,8 @@ export class BuildingFormComponent extends AsyncHandler {
         ),
         location: new FormControl(''),
     });
-    private readonly _timezone = toSignal(
-        this.form.controls.timezone.valueChanges.pipe(
-            startWith(this.form.controls.timezone.value || ''),
-        ),
-        { initialValue: this.form.controls.timezone.value || '' },
+    private readonly _timezone = signal(
+        this.form.controls.timezone.value || '',
     );
     public readonly filtered_timezones = computed(() => {
         const timezone = (this._timezone() || '').toLowerCase();
@@ -172,6 +168,12 @@ export class BuildingFormComponent extends AsyncHandler {
 
     constructor() {
         super();
+        this.subscription(
+            'timezone',
+            this.form.controls.timezone.valueChanges.subscribe((value) =>
+                this._timezone.set(value || ''),
+            ),
+        );
         effect(() => {
             const building = this.building();
             if (building) this.form.patchValue(building);

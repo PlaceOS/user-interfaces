@@ -2,18 +2,18 @@ import {
     ChangeDetectionStrategy,
     Component,
     OnInit,
+    computed,
     effect,
     inject,
     signal,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import {
     AsyncHandler,
     OrganisationService,
@@ -24,14 +24,9 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
-import {
-    RoomListOptions,
-    RoomManagementService,
-} from './room-management.service';
+import { RoomManagementService } from './room-management.service';
 
 @Component({
     selector: 'room-manager-topbar',
@@ -115,26 +110,18 @@ export class RoomManagerTopbarComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
 
     private readonly _ready = signal(false);
-    private readonly _query_params = toSignal(this._route.queryParamMap);
+    private readonly _query_params = signal<ParamMap | null>(null);
 
     /** List of levels for the active building */
-    public readonly levels = toSignal(
-        combineLatest([
-            toObservable(this._org.active_building),
-            toObservable(this._org.active_region),
-        ]).pipe(
-            map(([bld, region]) =>
-                this.use_region
-                    ? this._org.levelsForRegion(region)
-                    : this._org.levelsForBuilding(bld),
-            ),
-        ),
-        { initialValue: [] },
-    );
-
-    public readonly filters = toSignal(this._manager.options, {
-        initialValue: {} as RoomListOptions,
+    public readonly levels = computed(() => {
+        const bld = this._org.active_building();
+        const region = this._org.active_region();
+        return this.use_region
+            ? this._org.levelsForRegion(region)
+            : this._org.levelsForBuilding(bld);
     });
+
+    public readonly filters = this._manager.options;
     /** Set filtered date */
     public readonly setFilters = (filters) => this._manager.setFilters(filters);
     /** Set filter string */
@@ -185,6 +172,12 @@ export class RoomManagerTopbarComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((params) =>
+                this._query_params.set(params),
+            ),
+        );
         await this._org.waitUntilInitialised();
         this._ready.set(true);
         this.setSearch('');

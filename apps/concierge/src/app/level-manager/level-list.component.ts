@@ -1,6 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { i18n, notifySuccess } from '@placeos/common';
@@ -147,9 +146,7 @@ export class LevelListComponent {
     private _clipboard = inject(Clipboard);
     private _dialog = inject(MatDialog);
 
-    public readonly levels = toSignal(this._manager.filtered_levels, {
-        initialValue: [],
-    });
+    public readonly levels = this._manager.filtered_levels;
 
     public readonly editLevel = (level) => this._manager.editLevel(level);
     public readonly editLevelMap = (level) => this._manager.editLevelMap(level);

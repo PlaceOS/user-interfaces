@@ -5,7 +5,6 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import {
     FormControl,
     FormGroup,
@@ -30,7 +29,6 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
-import { startWith } from 'rxjs/operators';
 
 @Component({
     selector: 'region-modal',
@@ -121,16 +119,23 @@ export class RegionModalComponent extends AsyncHandler {
         ),
         parent_id: new FormControl(this._org.organisation.id),
     });
-    private readonly _timezone = toSignal(
-        this.form.controls.timezone.valueChanges.pipe(
-            startWith(this.form.controls.timezone.value || ''),
-        ),
-        { initialValue: this.form.controls.timezone.value || '' },
+    private readonly _timezone = signal(
+        this.form.controls.timezone.value || '',
     );
     public readonly filtered_timezones = computed(() => {
         const timezone = (this._timezone() || '').toLowerCase();
         return this.timezones.filter((_) => _.toLowerCase().includes(timezone));
     });
+
+    constructor() {
+        super();
+        this.subscription(
+            'timezone',
+            this.form.controls.timezone.valueChanges.subscribe((value) =>
+                this._timezone.set(value || ''),
+            ),
+        );
+    }
 
     public async save() {
         if (!this.form.valid) {

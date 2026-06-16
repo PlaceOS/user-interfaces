@@ -1,6 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { notifySuccess } from '@placeos/common';
 
@@ -173,9 +172,7 @@ export class RegionListComponent {
     private _clipboard = inject(Clipboard);
     private _dialog = inject(MatDialog);
 
-    public readonly regions = toSignal(this._manager.filtered_regions, {
-        initialValue: [],
-    });
+    public readonly regions = this._manager.filtered_regions;
 
     public readonly editRegion = (region) => this._manager.editRegion(region);
     public readonly removeRegion = (region) =>
