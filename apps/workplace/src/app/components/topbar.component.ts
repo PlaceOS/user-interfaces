@@ -41,13 +41,13 @@ const EMPTY = [];
             <div
                 class="relative hidden h-full w-1/2 flex-1 items-center justify-center sm:flex"
             >
-                <top-menu></top-menu>
+                <top-menu />
             </div>
             <div class="flex w-48 items-center justify-end">
                 @if (search) {
-                    <global-search></global-search>
+                    <global-search />
                 }
-                <user-controls-sidebar class="mr-2"></user-controls-sidebar>
+                <user-controls-sidebar class="mr-2" />
             </div>
         </div>
     `,
