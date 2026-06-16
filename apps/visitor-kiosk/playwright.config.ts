@@ -19,7 +19,7 @@ export default defineConfig({
         trace: 'on-first-retry',
     },
     webServer: {
-        command: 'npx nx serve visitor-kiosk --port=4213',
+        command: 'bunx nx serve visitor-kiosk --port=4213',
         url: 'http://localhost:4213',
         reuseExistingServer: !process.env.CI,
         cwd: workspaceRoot,

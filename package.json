@@ -1,6 +1,19 @@
 {
     "name": "@placeos/user-interfaces",
     "version": "1.12.0",
+    "packageManager": "bun@1.3.11",
+    "trustedDependencies": [
+        "@parcel/watcher",
+        "@sentry/cli",
+        "@swc/core",
+        "core-js",
+        "esbuild",
+        "lmdb",
+        "msgpackr-extract",
+        "nx",
+        "sharp",
+        "unrs-resolver"
+    ],
     "license": "MIT",
     "scripts": {
         "ng": "nx",
@@ -26,7 +39,7 @@
         "workspace-generator": "nx workspace-generator",
         "dep-graph": "nx dep-graph",
         "help": "nx help",
-        "version": "node ./tools/apply-version.js && npx standard-version",
+        "version": "node ./tools/apply-version.js && bunx standard-version",
         "build-all": "nx run-many --target=build --parallel=4 --stats-json",
         "test-all": "nx run-many --target=test --runInBand --parallel=4",
         "e2e-all": "nx run-many --target=e2e",

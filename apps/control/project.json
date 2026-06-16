@@ -169,7 +169,7 @@
                 "parallel": false,
                 "commands": [
                     {
-                        "command": "npx nx build control --configuration=mobile"
+                        "command": "bunx nx build control --configuration=mobile"
                     },
                     {
                         "command": "node tools/capacitor/run.mjs sync control android"
@@ -184,7 +184,7 @@
                 "parallel": false,
                 "commands": [
                     {
-                        "command": "npx nx build control --configuration=mobile"
+                        "command": "bunx nx build control --configuration=mobile"
                     },
                     {
                         "command": "node tools/capacitor/run.mjs sync control ios"

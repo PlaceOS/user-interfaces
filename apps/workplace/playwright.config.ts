@@ -19,7 +19,7 @@ export default defineConfig({
         trace: 'on-first-retry',
     },
     webServer: {
-        command: 'npx nx serve workplace --port=4214',
+        command: 'bunx nx serve workplace --port=4214',
         url: 'http://localhost:4214',
         reuseExistingServer: !process.env.CI,
         cwd: workspaceRoot,

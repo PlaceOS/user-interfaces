@@ -174,7 +174,7 @@
                 "parallel": false,
                 "commands": [
                     {
-                        "command": "npx nx build workplace --configuration=mobile"
+                        "command": "bunx nx build workplace --configuration=mobile"
                     },
                     {
                         "command": "node tools/capacitor/run.mjs sync workplace android"
@@ -189,7 +189,7 @@
                 "parallel": false,
                 "commands": [
                     {
-                        "command": "npx nx build workplace --configuration=mobile"
+                        "command": "bunx nx build workplace --configuration=mobile"
                     },
                     {
                         "command": "node tools/capacitor/run.mjs sync workplace ios"

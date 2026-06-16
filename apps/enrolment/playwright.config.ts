@@ -19,7 +19,7 @@ export default defineConfig({
         trace: 'on-first-retry',
     },
     webServer: {
-        command: 'npx nx serve enrolment --port=4205',
+        command: 'bunx nx serve enrolment --port=4205',
         url: 'http://localhost:4205',
         reuseExistingServer: !process.env.CI,
         cwd: workspaceRoot,

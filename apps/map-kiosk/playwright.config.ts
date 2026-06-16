@@ -19,7 +19,7 @@ export default defineConfig({
         trace: 'on-first-retry',
     },
     webServer: {
-        command: 'npx nx serve map-kiosk --port=4206',
+        command: 'bunx nx serve map-kiosk --port=4206',
         url: 'http://localhost:4206',
         reuseExistingServer: !process.env.CI,
         cwd: workspaceRoot,

@@ -19,7 +19,7 @@ export default defineConfig({
         trace: 'on-first-retry',
     },
     webServer: {
-        command: 'npx nx serve booking-panel --port=4202',
+        command: 'bunx nx serve booking-panel --port=4202',
         url: 'http://localhost:4202',
         reuseExistingServer: !process.env.CI,
         cwd: workspaceRoot,

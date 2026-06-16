@@ -22,7 +22,7 @@ jobs:
               uses: actions/cache@v5
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/bun.lock') }}
                   restore-keys: |
                       ${{ runner.os }}-build-${{ env.cache-name }}-
                       ${{ runner.os }}-build-
@@ -33,9 +33,14 @@ jobs:
               with:
                   node-version: '24'
 
+            - name: Setup Bun
+              uses: oven-sh/setup-bun@v2
+              with:
+                  bun-version: '1.3.11'
+
             - name: Install dependencies
               if: steps.cache.outputs.cache-hit != 'true'
-              run: npm ci
+              run: bun install --frozen-lockfile
 
             - name: Get short hash
               id: vars
@@ -94,7 +99,7 @@ jobs:
               uses: actions/cache@v5
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/bun.lock') }}
                   restore-keys: |
                       ${{ runner.os }}-build-${{ env.cache-name }}-
                       ${{ runner.os }}-build-
@@ -105,17 +110,22 @@ jobs:
               uses: actions/cache@v5
               with:
                   path: node_modules/.cache/nx
-                  key: ${{ runner.os }}-nx-${{matrix.package}}-${{ hashFiles('**/package-lock.json') }}
+                  key: ${{ runner.os }}-nx-${{matrix.package}}-${{ hashFiles('**/bun.lock') }}
                   restore-keys: |
                       ${{ runner.os }}-nx-${{matrix.package}}-
                       ${{ runner.os }}-nx-
 
+            - name: Setup Bun
+              uses: oven-sh/setup-bun@v2
+              with:
+                  bun-version: '1.3.11'
+
             - name: Setup version
-              run: npm run postinstall
+              run: bun run postinstall
 
             - name: Test affected code units
               run: |
-                  npx nx test ${{ matrix.package }} --runInBand
+                  bunx nx test ${{ matrix.package }} --runInBand
 
     build:
         runs-on: ubuntu-latest
@@ -137,7 +147,7 @@ jobs:
               uses: actions/cache@v5
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/bun.lock') }}
                   restore-keys: |
                       ${{ runner.os }}-build-${{ env.cache-name }}-
                       ${{ runner.os }}-build-
@@ -148,13 +158,18 @@ jobs:
               uses: actions/cache@v5
               with:
                   path: node_modules/.cache/nx
-                  key: ${{ runner.os }}-nx-${{matrix.package}}-${{ hashFiles('**/package-lock.json') }}
+                  key: ${{ runner.os }}-nx-${{matrix.package}}-${{ hashFiles('**/bun.lock') }}
                   restore-keys: |
                       ${{ runner.os }}-nx-${{matrix.package}}-
                       ${{ runner.os }}-nx-
 
+            - name: Setup Bun
+              uses: oven-sh/setup-bun@v2
+              with:
+                  bun-version: '1.3.11'
+
             - name: Setup version
-              run: npm run postinstall
+              run: bun run postinstall
 
             - name: Initialise Pipeline Chat Status
               uses: fjogeleit/http-request-action@master
@@ -165,7 +180,7 @@ jobs:
 
             - name: Build affected applications
               run: |
-                  npx nx build ${{ matrix.package }} --verbose --configuration=${{ env.configuration }}
+                  bunx nx build ${{ matrix.package }} --verbose --configuration=${{ env.configuration }}
 
             - name: Deploy the application(${{ matrix.package }})
               uses: MrYuion/git-publish-subdir-action@develop

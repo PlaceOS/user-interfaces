@@ -67,7 +67,7 @@ nx build <project>
 nx build <project> --configuration=production
 
 # Build all apps (4 parallel processes)
-npm run build-all
+bun run build-all
 
 # Examples
 nx build workplace
@@ -80,7 +80,7 @@ nx build bookings --configuration=production
 nx test <project>
 
 # Run all tests
-npm run test-all
+bun run test-all
 
 # Run e2e tests (requires dev server running with mock mode enabled)
 nx serve <project>  # Set mock: true in settings.ts first
@@ -94,7 +94,7 @@ nx test bookings
 ### Linting
 ```bash
 # Lint all projects
-npm run lint
+bun run lint
 
 # Lint specific project
 nx lint <project>
@@ -172,8 +172,8 @@ By default, dev servers proxy API requests to a live PlaceOS environment (config
 
 ```bash
 # Update Nx and dependencies
-npm run update
-npm install
+bun run update
+bun install
 nx migrate --run-migrations
 ```
 
