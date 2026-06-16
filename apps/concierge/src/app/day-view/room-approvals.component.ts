@@ -7,7 +7,6 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -39,10 +38,10 @@ import { EventsStateService } from './events-state.service';
                 class="border-base-200 relative flex items-center justify-center space-x-2 border-b p-2"
             >
                 <button
-                    btn
                     icon
+                    default
                     matRipple
-                    class="bg-base-200 absolute top-3 left-2"
+                    class="absolute top-3 left-2"
                     [matTooltip]="
                         'APP.CONCIERGE.ROOMS_PENDING_HIDE' | translate
                     "
@@ -265,10 +264,10 @@ import { EventsStateService } from './events-state.service';
         </div>
         @if (!show()) {
             <button
-                btn
                 icon
+                default
                 matRipple
-                class="border-base-200 hover:bg-info-light absolute top-3 -left-8 border shadow-md"
+                class="absolute top-3 -left-7"
                 (click)="setShow(!show())"
                 [matTooltip]="'APP.CONCIERGE.ROOMS_PENDING_SHOW' | translate"
                 matTooltipPosition="left"
@@ -313,9 +312,7 @@ export class RoomBookingsApprovalsComponent implements OnInit {
     >({});
     public readonly search = signal('');
 
-    public readonly pending = toSignal(this._state.pending, {
-        initialValue: [],
-    });
+    public readonly pending = this._state.pending;
 
     public get time_format() {
         return this._settings.time_format;

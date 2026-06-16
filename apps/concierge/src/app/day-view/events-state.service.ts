@@ -1,5 +1,12 @@
-import { Injectable, inject } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import {
+    Injectable,
+    Signal,
+    computed,
+    effect,
+    inject,
+    resource,
+    signal,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
@@ -11,9 +18,9 @@ import {
     flatten,
     getTimezoneDifferenceInHours,
     i18n,
+    nextValueFrom,
     notifyError,
     notifySuccess,
-    observableFromSignal,
     timePeriodsIntersect,
 } from '@placeos/common';
 import {
@@ -33,24 +40,6 @@ import {
     startOfMonth,
     startOfWeek,
 } from 'date-fns';
-import {
-    BehaviorSubject,
-    Observable,
-    combineLatest,
-    forkJoin,
-    from,
-    of,
-} from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    distinctUntilKeyChanged,
-    filter,
-    map,
-    shareReplay,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
 
 import { openConfirmModal } from '@placeos/components';
 import { EventBookModalComponent } from './event-book-modal.component';
@@ -108,266 +97,195 @@ export class EventsStateService extends AsyncHandler {
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
 
-    /** Emitter for poll events */
-    private _poll = new BehaviorSubject<number>(0);
+    /** Trigger for poll events */
+    private _poll = signal<number>(0);
     /** Period to list bookings for */
-    private _period = new BehaviorSubject<'month' | 'week' | 'day'>('day');
+    private _period = signal<'month' | 'week' | 'day'>('day');
     /** Event to display */
-    private _event = new BehaviorSubject<CalendarEvent>(null);
-    /** Event to display */
-    private _removed_events = new BehaviorSubject<CalendarEvent[]>([]);
-    /** Event to display */
-    private _added_events = new BehaviorSubject<CalendarEvent[]>([]);
+    private _event = signal<CalendarEvent>(null);
+    /** Events optimistically removed from the bookings list */
+    private _removed_events = signal<CalendarEvent[]>([]);
+    /** Events optimistically added to the bookings list */
+    private _added_events = signal<CalendarEvent[]>([]);
     /** Filter details for bookings */
-    private _filters = new BehaviorSubject<BookingFilters>({});
-    /** Filter details for bookings */
-    private _options = new BehaviorSubject<BookingUIOptions>({});
+    private _filters = signal<BookingFilters>({});
+    /** UI display options for bookings */
+    private _options = signal<BookingUIOptions>({});
     /** Currently active date */
-    private _date = new BehaviorSubject<number>(new Date().valueOf());
-    /** Currently displayed zone */
-    private _zones = new BehaviorSubject<string[]>([]);
-    /** Whether booking data is being loaded */
-    private _loading = new BehaviorSubject<boolean>(false);
+    private _date = signal<number>(new Date().valueOf());
+    /** Currently displayed zones */
+    private _zones = signal<string[]>([]);
+    /** Bookings pushed from spaces with a room booking driver */
+    private _driver_events = signal<Record<string, CalendarEvent[]>>({});
+    /** Pending room booking approval requests */
+    private _pending = signal<CalendarEvent[]>([]);
+    /** Whether the pending approval binding has been set up */
+    private _pending_bound = false;
 
-    /** Observable for active date */
-    public readonly date = this._date.asObservable();
-    /** Observable for active zone */
-    public readonly zones = this._zones.asObservable();
-    /** Observable for UI display options */
-    public readonly options = this._options.asObservable();
-    /** Observable for loading state of bookings */
-    public readonly loading = this._loading.asObservable();
-    /** Observable for viewed event */
-    public readonly event = this._event.asObservable();
+    /** Signal for active date */
+    public readonly date = this._date.asReadonly();
+    /** Signal for active zones */
+    public readonly zones = this._zones.asReadonly();
+    /** Signal for UI display options */
+    public readonly options = this._options.asReadonly();
+    /** Signal for the viewed event */
+    public readonly event = this._event.asReadonly();
     /** Period of time to show events for */
-    public readonly period = this._period.asObservable();
+    public readonly period = this._period.asReadonly();
+    /** Pending room booking approval requests */
+    public readonly pending = this._pending.asReadonly();
 
     /** List of levels with bookable room resources */
-    public readonly levels: Observable<BuildingLevel[]> = toObservable(
-        this._org.active_levels,
-    ).pipe(
-        switchMap((levels) => {
-            if (!levels.length) {
-                return of(
-                    [] as { level: BuildingLevel; has_bookable: boolean }[],
-                );
-            }
-            return forkJoin(
-                levels.map((level) =>
-                    requestSpacesForZone(level.id).pipe(
-                        map((spaces) => ({
-                            level,
-                            has_bookable: spaces.some(
-                                (space) => space.bookable,
-                            ),
-                        })),
-                        catchError(() => of({ level, has_bookable: false })),
+    private readonly _levels = resource({
+        params: () => this._org.active_levels(),
+        defaultValue: [] as BuildingLevel[],
+        loader: async ({ params: levels }) => {
+            if (!levels.length) return [];
+            const results = await Promise.all(
+                levels.map(async (level) => {
+                    const spaces = await nextValueFrom(
+                        requestSpacesForZone(level.id),
+                    ).catch(() => [] as Space[]);
+                    return {
+                        level,
+                        has_bookable: (spaces || []).some(
+                            (space) => space.bookable,
+                        ),
+                    };
+                }),
+            );
+            return results
+                .filter((item) => item.has_bookable)
+                .map((item) => item.level);
+        },
+    });
+    public readonly levels: Signal<BuildingLevel[]> = this._levels.value;
+
+    /** List of bookable spaces for the active zones */
+    private readonly _spaces = resource({
+        params: () => ({
+            zones: this._zones(),
+            region_id: this._org.active_region()?.id,
+            building_id: this._org.active_building()?.id,
+        }),
+        defaultValue: [] as Space[],
+        loader: async ({ params }) => {
+            if (!params.building_id) return [];
+            const zone_ids = this._active_zone_ids(params.zones);
+            if (!zone_ids.length) return [];
+            const lists = await Promise.all(
+                zone_ids.map((id) =>
+                    nextValueFrom(requestSpacesForZone(id)).catch(
+                        () => [] as Space[],
                     ),
                 ),
             );
-        }),
-        map((levels) =>
-            levels
-                .filter((item) => item.has_bookable)
-                .map((item) => item.level),
-        ),
-        shareReplay(1),
-    );
-
-    public readonly spaces: Observable<Space[]> = combineLatest([
-        this._zones,
-        toObservable(this._org.active_region).pipe(
-            distinctUntilKeyChanged('id'),
-        ),
-        toObservable(this._org.active_building).pipe(
-            filter((_) => !!_),
-            distinctUntilKeyChanged('id'),
-        ),
-    ]).pipe(
-        debounceTime(300),
-        tap(() => this.unsubWith('bind:')),
-        switchMap(([zones]) => {
-            this._loading.next(true);
-            const zone_ids = this._active_zone_ids(zones);
-            return forkJoin(zone_ids.map((id) => requestSpacesForZone(id)));
-        }),
-        map((l) =>
-            flatten<Space>(l)
-                .filter((_) => _.bookable)
+            return flatten<Space>(lists)
+                .filter((space) => space.bookable)
                 .sort((a, b) =>
                     (a.display_name || a.name || '').localeCompare(
                         b.display_name || b.name || '',
                     ),
-                ),
-        ),
-        tap(() => this._loading.next(false)),
-        shareReplay(1),
-    );
-    /** Observable for list of bookings */
-    public readonly event_list: Observable<CalendarEvent[]> = combineLatest([
-        this._period,
-        this._zones,
-        this._date,
-        this.spaces,
-        this._poll,
-    ]).pipe(
-        filter(([period]) => !!period),
-        debounceTime(300),
-        switchMap(([period, zones, date, spaces]) => {
-            zones = this._active_zone_ids(zones);
-            if (!zones.length) return of([]);
-            this._loading.next(true);
+                );
+        },
+    });
+    public readonly spaces: Signal<Space[]> = this._spaces.value;
+
+    /** Bookings fetched from the API for spaces without a booking driver */
+    private readonly _api_events = resource({
+        params: () => ({
+            period: this._period(),
+            zones: this._zones(),
+            date: this._date(),
+            poll: this._poll(),
+            spaces: this.spaces(),
+        }),
+        defaultValue: [] as CalendarEvent[],
+        loader: async ({ params }) => {
+            const { period, date, spaces } = params;
+            const zones = this._active_zone_ids(params.zones);
+            if (!period || !zones.length) return [];
+            const spaces_without_driver = spaces.filter(
+                (space) => !space.room_booking_url,
+            );
+            if (!spaces_without_driver.length) return [];
             const { start, end } = periodFor(
                 period,
                 date,
                 this.tz_offset,
                 this._week_start,
             );
-            // Split spaces into driver-bound and API-fetched
-            const spaces_with_driver = spaces.filter((s) => s.room_booking_url);
-            const spaces_without_driver = spaces.filter(
-                (s) => !s.room_booking_url,
-            );
-
-            const observables: Observable<CalendarEvent[]>[] = [];
-
-            // Get events from API for spaces without room_booking_url
-            if (spaces_without_driver.length > 0) {
-                observables.push(
-                    from(
-                        queryEvents({
-                            strict: 'limit',
-                            zone_ids: zones.join(','),
-                            period_start: getUnixTime(start),
-                            period_end: getUnixTime(end),
-                        }),
-                    ).pipe(
-                        map((events) =>
-                            events.filter((event) =>
-                                event.resources.some((resource) =>
-                                    spaces_without_driver.some(
-                                        (space) =>
-                                            space.id === resource.id ||
-                                            space.email === resource.email,
-                                    ),
-                                ),
-                            ),
-                        ),
-                        catchError(() => of([])),
-                    ),
-                );
-            }
-
-            // Get events from driver for spaces with room_booking_url
-            for (const space of spaces_with_driver) {
-                const driver_events$ = new Observable<CalendarEvent[]>(
-                    (subscriber) => {
-                        const mod = getModule(space.id, 'Bookings');
-                        const binding = mod.variable('bookings');
-                        const unsub = binding.bindThenSubscribe((value) => {
-                            const events = (value || []).map(
-                                (bkn) => new CalendarEvent(bkn),
-                            );
-                            subscriber.next(events);
-                        });
-                        this.subscription(`bind:${space.id}`, unsub);
-                        return () => this.unsubWith(`bind:${space.id}`);
-                    },
-                );
-                observables.push(driver_events$.pipe(catchError(() => of([]))));
-            }
-
-            // Combine all event sources
-            if (observables.length === 0) return of([]);
-            if (observables.length === 1) return observables[0];
-
-            return combineLatest(observables).pipe(
-                map((event_lists) => flatten(event_lists)),
-            );
-        }),
-        tap(() => {
-            this._loading.next(false);
-            queueMicrotask(() => {
-                this._removed_events.next([]);
-                this._added_events.next([]);
-            });
-        }),
-        shareReplay(1),
-    );
-    /** Obsevable for filtered list of bookings */
-    public readonly filtered = combineLatest([
-        this.event_list,
-        this._removed_events,
-        this._added_events,
-        this._filters,
-        this._date,
-        this._period,
-        this._zones,
-        this._options,
-    ]).pipe(
-        map(
-            ([
-                events,
-                removed,
-                added,
-                filters,
-                date,
-                period,
-                zones,
-                options,
-            ]: any) => {
-                let event_list = [...events];
-                event_list = event_list.filter(
-                    (_) =>
-                        !removed.find(
-                            (e) =>
-                                (_.id && e.id && _.id === e.id) ||
-                                (_.ical_uid &&
-                                    e.ical_uid &&
-                                    _.ical_uid === e.ical_uid),
-                        ),
-                );
-                event_list = event_list.concat(added);
-                const { start, end } = periodFor(
-                    period,
-                    date,
-                    this.tz_offset,
-                    this._week_start,
-                );
-                return this.filterEvents(
-                    event_list,
-                    start,
-                    end,
-                    filters,
-                    zones,
-                    options,
-                );
-            },
-        ),
-        shareReplay(1),
-    );
-
-    public readonly pending: Observable<CalendarEvent[]> = of(1).pipe(
-        switchMap(() => {
-            const mod = this._org.module('approvals', 'RoomBookingApproval');
-            if (!mod) return of([]);
-            const binding =
-                mod.binding<Partial<CalendarEvent>[]>('approval_required');
-            this.subscription('pending', binding.bind());
-            return observableFromSignal(binding.listen()).pipe(
-                map((_) =>
-                    flatten(Object.values(_ || {}))?.map(
-                        (i) => new CalendarEvent(i),
+            const events = await queryEvents({
+                strict: 'limit',
+                zone_ids: zones.join(','),
+                period_start: getUnixTime(start),
+                period_end: getUnixTime(end),
+            }).catch(() => [] as CalendarEvent[]);
+            return (events || []).filter((event) =>
+                event.resources?.some((resource) =>
+                    spaces_without_driver.some(
+                        (space) =>
+                            space.id === resource.id ||
+                            space.email === resource.email,
                     ),
                 ),
             );
-        }),
-        shareReplay(1),
+        },
+    });
+
+    /** Combined list of bookings from the API and booking drivers */
+    public readonly event_list: Signal<CalendarEvent[]> = computed(() => {
+        const api = this._api_events.value() || [];
+        const driver = flatten<CalendarEvent>(
+            Object.values(this._driver_events()),
+        );
+        return [...api, ...driver];
+    });
+
+    /** Filtered list of bookings */
+    public readonly filtered: Signal<CalendarEvent[]> = computed(() => {
+        const removed = this._removed_events();
+        const added = this._added_events();
+        const filters = this._filters();
+        const date = this._date();
+        const period = this._period();
+        const zones = this._zones();
+        const options = this._options();
+        let event_list = this.event_list().filter(
+            (_) =>
+                !removed.find(
+                    (e) =>
+                        (_.id && e.id && _.id === e.id) ||
+                        (_.ical_uid &&
+                            e.ical_uid &&
+                            _.ical_uid === e.ical_uid),
+                ),
+        );
+        event_list = event_list.concat(added);
+        const { start, end } = periodFor(
+            period,
+            date,
+            this.tz_offset,
+            this._week_start,
+        );
+        return this.filterEvents(
+            event_list,
+            start,
+            end,
+            filters,
+            zones,
+            options,
+        );
+    });
+
+    /** Whether booking data is being loaded */
+    public readonly loading: Signal<boolean> = computed(
+        () => this._spaces.isLoading() || this._api_events.isLoading(),
     );
 
     /** Active filters */
     public get filters() {
-        return this._filters.getValue();
+        return this._filters();
     }
 
     public get time_format() {
@@ -386,41 +304,98 @@ export class EventsStateService extends AsyncHandler {
         return this._settings.get('app.week_start');
     }
 
+    constructor() {
+        super();
+        // Manage bookings pushed from spaces with a booking driver. Rebind
+        // whenever the list of driver-bound spaces changes.
+        effect((on_cleanup) => {
+            const driver_spaces = this.spaces().filter(
+                (space) => space.room_booking_url,
+            );
+            const unsubscribes: Record<string, () => void> = {};
+            for (const space of driver_spaces) {
+                const mod = getModule(space.id, 'Bookings');
+                const binding = mod.variable('bookings');
+                unsubscribes[space.id] = binding.bindThenSubscribe((value) => {
+                    const events = (value || []).map(
+                        (bkn) => new CalendarEvent(bkn),
+                    );
+                    this._driver_events.update((map) => ({
+                        ...map,
+                        [space.id]: events,
+                    }));
+                });
+            }
+            on_cleanup(() => {
+                for (const id in unsubscribes) unsubscribes[id]();
+                this._driver_events.set({});
+            });
+        });
+        // Clear optimistic add/remove changes when fresh event data arrives
+        effect(() => {
+            this._api_events.value();
+            this._driver_events();
+            queueMicrotask(() => {
+                this._removed_events.set([]);
+                this._added_events.set([]);
+            });
+        });
+        // Bind to room booking approval requests once the module is available
+        effect(() => {
+            this._org.active_building();
+            if (this._pending_bound) return;
+            const mod = this._org.module?.('approvals', 'RoomBookingApproval');
+            if (!mod) return;
+            this._pending_bound = true;
+            const binding =
+                mod.binding<Partial<CalendarEvent>[]>('approval_required');
+            this.subscription('pending', binding.bind());
+            const listen = binding.listen();
+            const apply = (value) =>
+                this._pending.set(
+                    flatten<Partial<CalendarEvent>>(
+                        Object.values(value || {}),
+                    )?.map((i) => new CalendarEvent(i)) ?? [],
+                );
+            apply(listen());
+            this.subscription('pending-listen', listen.subscribe(apply));
+        });
+    }
+
     public getDate() {
-        return this._date.getValue();
+        return this._date();
     }
 
     public readonly setFilters = (details: BookingFilters) =>
-        this._filters.next(details);
-    public readonly setDate = (date: number) => this._date.next(date);
+        this._filters.set(details);
+    public readonly setDate = (date: number) => this._date.set(date);
     public readonly setPeriod = (period: 'day' | 'week' | 'month') =>
-        this._period.next(period);
+        this._period.set(period);
     public readonly setZones = (zones: string[]) =>
-        this._zones.next(this._clean_zone_ids(zones));
+        this._zones.set(this._clean_zone_ids(zones));
     public readonly setEvent = (event: CalendarEvent) =>
-        this._event.next(event);
+        this._event.set(event);
 
     public setUIOptions(options: BookingUIOptions) {
-        const old_options = this._options.getValue();
-        this._options.next({ ...old_options, ...options });
+        this._options.update((old_options) => ({ ...old_options, ...options }));
     }
 
     public startPolling(
         period: 'day' | 'week' | 'month' = 'day',
         delay: number = 30 * 1000,
     ) {
-        this._period.next(period);
+        this._period.set(period);
         return this.poll(delay);
     }
 
     public poll(delay: number = 30 * 1000) {
-        this._poll.next(Date.now());
-        this.interval('polling', () => this._poll.next(Date.now()), delay);
+        this._poll.set(Date.now());
+        this.interval('polling', () => this._poll.set(Date.now()), delay);
         return () => this.stopPolling();
     }
 
     public stopPolling() {
-        this._poll.next(0);
+        this._poll.set(0);
         this.clearInterval('polling');
     }
 
@@ -438,10 +413,10 @@ export class EventsStateService extends AsyncHandler {
                     },
                 );
             }),
-            ref.afterClosed().toPromise(),
+            nextValueFrom(ref.afterClosed()),
         ]);
-        if (details?.reason !== 'done') return;
-        this.replace(details.metadata);
+        if ((details as any)?.reason !== 'done') return;
+        this.replace((details as any).metadata);
     }
 
     public async removeBooking(event: CalendarEvent, series = false) {
@@ -486,22 +461,17 @@ export class EventsStateService extends AsyncHandler {
      * @param booking
      */
     public replace(booking: CalendarEvent) {
-        this._removed_events.next([
-            ...this._removed_events.getValue(),
-            booking,
-        ]);
-        this._added_events.next([
-            ...this._added_events
-                .getValue()
-                .filter(
-                    (_) =>
-                        !(
-                            (_.id && booking.id && _.id === booking.id) ||
-                            (_.ical_uid &&
-                                booking.ical_uid &&
-                                _.ical_uid === booking.ical_uid)
-                        ),
-                ),
+        this._removed_events.update((list) => [...list, booking]);
+        this._added_events.update((list) => [
+            ...list.filter(
+                (_) =>
+                    !(
+                        (_.id && booking.id && _.id === booking.id) ||
+                        (_.ical_uid &&
+                            booking.ical_uid &&
+                            _.ical_uid === booking.ical_uid)
+                    ),
+            ),
             booking,
         ]);
     }
@@ -511,10 +481,7 @@ export class EventsStateService extends AsyncHandler {
      * @param booking
      */
     public remove(booking: CalendarEvent) {
-        this._removed_events.next([
-            ...this._removed_events.getValue(),
-            booking,
-        ]);
+        this._removed_events.update((list) => [...list, booking]);
     }
 
     /**
@@ -522,18 +489,16 @@ export class EventsStateService extends AsyncHandler {
      * @param booking
      */
     public restore(booking: CalendarEvent) {
-        this._removed_events.next(
-            this._removed_events
-                .getValue()
-                .filter(
-                    (_) =>
-                        !(
-                            (_.id && booking.id && _.id === booking.id) ||
-                            (_.ical_uid &&
-                                booking.ical_uid &&
-                                _.ical_uid === booking.ical_uid)
-                        ),
-                ),
+        this._removed_events.update((list) =>
+            list.filter(
+                (_) =>
+                    !(
+                        (_.id && booking.id && _.id === booking.id) ||
+                        (_.ical_uid &&
+                            booking.ical_uid &&
+                            _.ical_uid === booking.ical_uid)
+                    ),
+            ),
         );
     }
 

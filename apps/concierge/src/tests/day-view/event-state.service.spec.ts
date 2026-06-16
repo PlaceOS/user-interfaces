@@ -1,3 +1,5 @@
+import { signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { SpacesService } from '@placeos/events';
@@ -10,23 +12,32 @@ import {
     startOfMonth,
     startOfWeek,
 } from 'date-fns';
-import { of, timer } from 'rxjs';
-import { signal } from '@angular/core';
 import { EventsStateService } from '../../app/day-view/events-state.service';
 
 jest.mock('@placeos/events');
 
 import * as events_mod from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
+import { of } from 'rxjs';
 
 import {
     Building,
     CalendarEvent,
-    nextValueFrom,
     OrganisationService,
     Region,
     SettingsService,
 } from '@placeos/common';
+
+/**
+ * Flush the reactive graph so resource loaders run and propagate their
+ * resolved values into the dependent signals.
+ */
+async function settle(rounds = 8) {
+    for (let i = 0; i < rounds; i++) {
+        TestBed.tick();
+        await Promise.resolve();
+    }
+}
 
 describe('EventsStateService', () => {
     let spectator: SpectatorService<EventsStateService>;
@@ -42,6 +53,7 @@ describe('EventsStateService', () => {
                     id: 'bld-123',
                     parent_id: 'reg-123',
                 }),
+                active_levels: signal([]),
                 buildingsForRegion: jest.fn(() => [
                     new Building({ id: 'bld-123', parent_id: 'reg-123' }),
                 ]),
@@ -57,7 +69,8 @@ describe('EventsStateService', () => {
 
     beforeEach(() => {
         week_start = 0;
-        // Mock requestSpacesForZone to return spaces without room_booking_url
+        // Mock requestSpacesForZone to return spaces without room_booking_url.
+        // The service bridges this observable to a promise via nextValueFrom.
         (events_mod as any).requestSpacesForZone = jest.fn(() =>
             of([
                 { id: 'space-1', email: '1', bookable: true },
@@ -76,38 +89,32 @@ describe('EventsStateService', () => {
     });
 
     it('should list events', async () => {
+        (events_mod as any).queryEvents = jest.fn(() => Promise.resolve([]));
         spectator.service.setZones(['bld-123']);
-        (events_mod as any).queryEvents = jest.fn(() => of([]));
-        spectator.service.startPolling('day', 2);
-        await timer(4).toPromise();
+        spectator.service.startPolling('day');
+        await settle();
         spectator.service.stopPolling();
-        await timer(301).toPromise();
-        let events = await nextValueFrom(spectator.service.event_list);
-        expect(events).toHaveLength(0);
+        expect(spectator.service.event_list()).toHaveLength(0);
         (events_mod as any).queryEvents = jest.fn(() =>
-            of([
+            Promise.resolve([
                 { resources: [{ email: '1' }] },
                 { resources: [{ email: '2' }] },
             ]),
         );
         spectator.service.setZones(['bld-234']);
-        await timer(301).toPromise();
-        events = await nextValueFrom(spectator.service.event_list);
-        expect(events).toHaveLength(2);
+        await settle();
+        expect(spectator.service.event_list()).toHaveLength(2);
     });
 
     it('should allow filtering of listed events', async () => {
-        (events_mod as any).queryEvents = jest.fn(() => of([]));
-        spectator.service.event_list.subscribe();
+        (events_mod as any).queryEvents = jest.fn(() => Promise.resolve([]));
         spectator.service.setZones(['bld-123']);
-        spectator.service.startPolling('day', 2);
-        await timer(5).toPromise();
+        spectator.service.startPolling('day');
+        await settle();
         spectator.service.stopPolling();
-        await timer(305).toPromise();
-        let events = await nextValueFrom(spectator.service.filtered);
-        expect(events).toHaveLength(0);
+        expect(spectator.service.filtered()).toHaveLength(0);
         (events_mod as any).queryEvents = jest.fn(() =>
-            of([
+            Promise.resolve([
                 {},
                 {
                     date: Date.now(),
@@ -116,9 +123,8 @@ describe('EventsStateService', () => {
             ]),
         );
         spectator.service.setZones([]);
-        await timer(305).toPromise();
-        events = await nextValueFrom(spectator.service.filtered);
-        // expect(events).toHaveLength(1);
+        await settle();
+        // expect(spectator.service.filtered()).toHaveLength(1);
     });
 
     it('should hide setup and breakdown events unless overflow is enabled', () => {
@@ -175,8 +181,8 @@ describe('EventsStateService', () => {
         });
         spectator.service.replace(original);
         spectator.service.replace(updated);
-        const added = (spectator.service as any)._added_events.getValue();
-        const removed = (spectator.service as any)._removed_events.getValue();
+        const added = (spectator.service as any)._added_events();
+        const removed = (spectator.service as any)._removed_events();
 
         expect(added.map((event) => event.status)).toEqual(['approved']);
         expect(removed.map((event) => event.id)).toEqual([
@@ -186,13 +192,10 @@ describe('EventsStateService', () => {
     });
 
     it('should load building events when no levels are selected', async () => {
-        (events_mod as any).queryEvents = jest.fn(() => of([]));
-        spectator.service.event_list.subscribe();
-        spectator.service.filtered.subscribe();
-        spectator.service.startPolling('day', 2);
-        await timer(5).toPromise();
+        (events_mod as any).queryEvents = jest.fn(() => Promise.resolve([]));
+        spectator.service.startPolling('day');
+        await settle();
         spectator.service.stopPolling();
-        await timer(650).toPromise();
         expect(events_mod.queryEvents).toHaveBeenCalledWith({
             zone_ids: 'bld-123',
             strict: 'limit',
@@ -202,14 +205,11 @@ describe('EventsStateService', () => {
     });
 
     it('should allow polling of events for day', async () => {
-        (events_mod as any).queryEvents = jest.fn(() => of([]));
+        (events_mod as any).queryEvents = jest.fn(() => Promise.resolve([]));
         spectator.service.setZones(['bld-123']);
-        spectator.service.event_list.subscribe();
-        spectator.service.filtered.subscribe();
-        spectator.service.startPolling('day', 2);
-        await timer(5).toPromise();
+        spectator.service.startPolling('day');
+        await settle();
         spectator.service.stopPolling();
-        await timer(650).toPromise(); // Increased wait time for spaces + event_list debounce
         expect(events_mod.queryEvents).toHaveBeenCalledWith({
             zone_ids: 'bld-123',
             strict: 'limit',
@@ -219,14 +219,11 @@ describe('EventsStateService', () => {
     });
 
     it('should allow polling of events for week', async () => {
-        (events_mod as any).queryEvents = jest.fn(() => of([]));
+        (events_mod as any).queryEvents = jest.fn(() => Promise.resolve([]));
         spectator.service.setZones(['bld-123']);
-        spectator.service.event_list.subscribe();
-        spectator.service.filtered.subscribe();
-        spectator.service.startPolling('week', 2);
-        await timer(5).toPromise();
+        spectator.service.startPolling('week');
+        await settle();
         spectator.service.stopPolling();
-        await timer(650).toPromise(); // Increased wait time for spaces + event_list debounce
         expect(events_mod.queryEvents).toHaveBeenCalledWith({
             zone_ids: 'bld-123',
             strict: 'limit',
@@ -237,14 +234,11 @@ describe('EventsStateService', () => {
 
     it('should respect the configured week start when polling for week', async () => {
         week_start = 1;
-        (events_mod as any).queryEvents = jest.fn(() => of([]));
+        (events_mod as any).queryEvents = jest.fn(() => Promise.resolve([]));
         spectator.service.setZones(['bld-123']);
-        spectator.service.event_list.subscribe();
-        spectator.service.filtered.subscribe();
-        spectator.service.startPolling('week', 2);
-        await timer(5).toPromise();
+        spectator.service.startPolling('week');
+        await settle();
         spectator.service.stopPolling();
-        await timer(650).toPromise();
         expect(events_mod.queryEvents).toHaveBeenCalledWith({
             zone_ids: 'bld-123',
             strict: 'limit',
@@ -256,14 +250,11 @@ describe('EventsStateService', () => {
     });
 
     it('should allow polling of events for month', async () => {
-        (events_mod as any).queryEvents = jest.fn(() => of([]));
+        (events_mod as any).queryEvents = jest.fn(() => Promise.resolve([]));
         spectator.service.setZones(['bld-123']);
-        spectator.service.event_list.subscribe();
-        spectator.service.filtered.subscribe();
-        spectator.service.startPolling('month', 2);
-        await timer(5).toPromise();
+        spectator.service.startPolling('month');
+        await settle();
         spectator.service.stopPolling();
-        await timer(650).toPromise(); // Increased wait time for spaces + event_list debounce
         expect(events_mod.queryEvents).toHaveBeenCalledWith({
             zone_ids: 'bld-123',
             strict: 'limit',

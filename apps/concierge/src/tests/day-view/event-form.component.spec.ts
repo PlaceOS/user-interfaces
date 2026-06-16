@@ -1,10 +1,9 @@
-import { inject, Injector } from '@angular/core';
+import { inject, Injector, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
 
 import { CateringOrderStateService } from '@placeos/catering';
 import { OrganisationService, SettingsService } from '@placeos/common';
@@ -31,8 +30,8 @@ describe('EventFormComponent', () => {
                 ),
             }),
             MockProvider(CateringOrderStateService, {
-                charge_codes: of([]),
-                available_menu: of([]),
+                charge_codes: signal([]),
+                available_menu: signal([]),
             }),
             {
                 provide: EventFormService,

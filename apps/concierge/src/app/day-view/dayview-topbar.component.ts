@@ -5,9 +5,7 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { of } from 'rxjs';
 
 import {
     AsyncHandler,
@@ -123,17 +121,9 @@ export class DayviewTopbarComponent extends AsyncHandler implements OnInit {
     /** List of selected types */
     public readonly type_list = signal(this.types.map((i) => `${i.id}`));
     /** List of levels for the active building */
-    public readonly levels = toSignal(
-        this._state.levels || toObservable(this._org.active_levels),
-        {
-            initialValue: [],
-        },
-    );
-    /** List of levels for the active building */
-    public readonly ui_options = toSignal(
-        this._state.options || of({} as BookingUIOptions),
-        { initialValue: {} as BookingUIOptions },
-    );
+    public readonly levels = this._state.levels;
+    /** UI display options for bookings */
+    public readonly ui_options = this._state.options;
     /** Set filtered date */
     public readonly setDate = (d) => this._state.setDate(d);
     /**  */

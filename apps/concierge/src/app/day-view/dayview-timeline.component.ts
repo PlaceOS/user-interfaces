@@ -3,20 +3,13 @@ import {
     Component,
     OnDestroy,
     OnInit,
+    computed,
     inject,
+    resource,
     signal,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { AsyncHandler, OrganisationService, Space } from '@placeos/common';
 import { querySystems } from '@placeos/ts-client';
-import { combineLatest, from, of } from 'rxjs';
-import {
-    catchError,
-    filter,
-    map,
-    shareReplay,
-    switchMap,
-} from 'rxjs/operators';
 
 import { EventsStateService } from './events-state.service';
 
@@ -135,46 +128,38 @@ export class DayviewTimelineComponent
     /** Current scroll position of the content */
     public readonly scroll = signal({ x: 0, y: 0 });
     /** Whether event data is loading */
-    public readonly loading = toSignal(this._state.loading || of(false), {
-        initialValue: false,
-    });
+    public readonly loading = this._state.loading;
     /** Event to show more details about */
-    public readonly event = toSignal(this._state.event || of(null), {
-        initialValue: null,
-    });
+    public readonly event = this._state.event;
 
-    public readonly spaces = toObservable(this._org.active_building).pipe(
-        filter((_) => !!_),
-        switchMap(({ id }) =>
-            from(querySystems({ zone_id: id, limit: 1000 })).pipe(
-                catchError(() => of({ data: [] })),
-            ),
-        ),
-        map(({ data }) =>
-            data.map(
+    /** Spaces for the active building */
+    private readonly _spaces = resource({
+        params: () => this._org.active_building()?.id,
+        defaultValue: [] as Space[],
+        loader: async ({ params: id }) => {
+            if (!id) return [];
+            const { data } = await querySystems({
+                zone_id: id,
+                limit: 1000,
+            }).catch(() => ({ data: [] }));
+            return data.map(
                 (_) =>
                     new Space({
                         ..._,
                         level: this._org.levelWithID(_.zones),
                     } as any),
-            ),
-        ),
-        shareReplay(1),
-    );
+            );
+        },
+    });
     /** List of spaces to display */
-    public readonly space_list = toSignal(
-        combineLatest([this.spaces, this._state.zones || of([])]).pipe(
-            map(
-                ([spaces, zones]) =>
-                    spaces.filter(
-                        (space) =>
-                            !zones?.length ||
-                            space.zones.find((z) => zones.includes(z)),
-                    ) || [],
-            ),
-        ),
-        { initialValue: [] },
-    );
+    public readonly space_list = computed(() => {
+        const spaces = this._spaces.value();
+        const zones = this._state.zones();
+        return spaces.filter(
+            (space) =>
+                !zones?.length || space.zones.find((z) => zones.includes(z)),
+        );
+    });
 
     public ngOnInit() {
         this._state.startPolling();

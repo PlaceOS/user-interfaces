@@ -6,7 +6,6 @@ import {
     input,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -25,7 +24,6 @@ import {
     SpaceListFieldComponent,
     UserListFieldComponent,
 } from '@placeos/form-fields';
-import { map } from 'rxjs/operators';
 
 import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-details.component';
 
@@ -184,18 +182,14 @@ export class EventFormComponent {
         return this._event_form.model;
     }
 
-    private readonly _charge_codes = toSignal(this._catering.charge_codes, {
-        initialValue: [],
-    });
+    private readonly _charge_codes = this._catering.charge_codes;
 
-    public readonly has_catering = toSignal(
-        this._catering.available_menu.pipe(map((l) => l.length > 0)),
-        { initialValue: false },
+    public readonly has_catering = computed(
+        () => this._catering.available_menu().length > 0,
     );
 
-    public readonly has_codes = toSignal(
-        this._catering.charge_codes.pipe(map((l) => l.length > 0)),
-        { initialValue: false },
+    public readonly has_codes = computed(
+        () => this._catering.charge_codes().length > 0,
     );
 
     public readonly filtered_codes = computed(() =>

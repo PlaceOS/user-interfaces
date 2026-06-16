@@ -4,7 +4,6 @@ import {
     effect,
     inject,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 
 import { AsyncHandler } from '@placeos/common';
 import { InteractiveMapComponent } from '@placeos/components';
@@ -53,7 +52,7 @@ export class FacilitiesMapComponent extends AsyncHandler {
     public readonly features = this._explore.map_features;
     /** Signal for the active map */
     public readonly actions = this._explore.map_actions;
-    private readonly _zones = toSignal(this._state.zones, { initialValue: [] });
+    private readonly _zones = this._state.zones;
 
     constructor() {
         super();

@@ -5,12 +5,16 @@ import {
     computed,
     inject,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { SettingsService, i18n, settingSignal } from '@placeos/common';
+import {
+    SettingsService,
+    i18n,
+    nextValueFrom,
+    settingSignal,
+} from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
@@ -319,21 +323,11 @@ export class RoomBookingsListComponent {
     private _dialog = inject(MatDialog);
 
     public readonly can_delete = settingSignal('events.allow_deleting', false);
-    public readonly events = toSignal(this._state.filtered, {
-        initialValue: [],
-    });
-    public readonly date = toSignal(this._state.date, {
-        initialValue: Date.now(),
-    });
-    public readonly period = toSignal(this._state.period, {
-        initialValue: 'day' as const,
-    });
-    public readonly spaces = toSignal(this._state.spaces, {
-        initialValue: [],
-    });
-    public readonly loading = toSignal(this._state.loading, {
-        initialValue: false,
-    });
+    public readonly events = this._state.filtered;
+    public readonly date = this._state.date;
+    public readonly period = this._state.period;
+    public readonly spaces = this._state.spaces;
+    public readonly loading = this._state.loading;
     public readonly bookings = computed(() =>
         [...this.events()]
             .filter((event) => !event.extension_data?.shared_event)
@@ -391,7 +385,7 @@ export class RoomBookingsListComponent {
         const ref = this._dialog.open(SetupBreakdownModalComponent, {
             data: event,
         });
-        const data = await ref.afterClosed().toPromise();
+        const data = await nextValueFrom(ref.afterClosed());
         if (data) this._state.replace(data);
     }
 

@@ -7,7 +7,6 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -16,6 +15,7 @@ import {
     getTimezoneOffsetInMinutes,
     getTimezoneOffsetString,
     i18n,
+    nextValueFrom,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
@@ -33,9 +33,8 @@ import {
     startOfMinute,
     startOfWeek,
 } from 'date-fns';
-import { lastValueFrom } from 'rxjs';
 import { DateOptionsComponent } from '../ui/date-options.component';
-import { BookingUIOptions, EventsStateService } from './events-state.service';
+import { EventsStateService } from './events-state.service';
 import { RoomBookingSearchComponent } from './room-booking-search.component';
 import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
 
@@ -223,16 +222,12 @@ export class RoomWeekBookingsTimelineComponent
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
     private _building = this._org.active_building;
-    private _filtered = toSignal(this._state.filtered, { initialValue: [] });
-    private _zones = toSignal(this._state.zones, { initialValue: [] });
+    private _filtered = this._state.filtered;
+    private _zones = this._state.zones;
 
     public hours = Array.from({ length: 24 }, (_, i) => i);
-    public readonly ui_options = toSignal(this._state.options, {
-        initialValue: {} as BookingUIOptions,
-    });
-    public readonly date = toSignal(this._state.date, {
-        initialValue: this._state.getDate(),
-    });
+    public readonly ui_options = this._state.options;
+    public readonly date = this._state.date;
 
     public readonly remove = this._state.removeBooking;
 
@@ -402,7 +397,7 @@ export class RoomWeekBookingsTimelineComponent
                 const ref = this._dialog.open(SetupBreakdownModalComponent, {
                     data: event,
                 });
-                lastValueFrom(ref.afterClosed()).then((data) => {
+                nextValueFrom(ref.afterClosed()).then((data) => {
                     if (data) this._state.replace(data);
                 });
             }),

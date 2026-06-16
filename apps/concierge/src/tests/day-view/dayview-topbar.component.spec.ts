@@ -24,6 +24,8 @@ describe('DayviewTopbarComponent', () => {
                 levelWithID: jest.fn(),
             }),
             MockProvider(EventsStateService, {
+                levels: signal([]),
+                options: signal({}),
                 setFilters: jest.fn(),
                 setDate: jest.fn(),
                 setZones: jest.fn(),
