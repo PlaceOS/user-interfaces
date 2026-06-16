@@ -6,7 +6,6 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BookingCardComponent } from '@placeos/bookings';
 import { AsyncHandler, CalendarEvent, currentUser } from '@placeos/common';
@@ -82,12 +81,8 @@ export class UpcomingBookingsComponent extends AsyncHandler implements OnInit {
     private _schedule = inject(ScheduleStateService);
 
     public user = currentUser();
-    public readonly loading = toSignal(this._schedule.loading, {
-        initialValue: false,
-    });
-    public readonly events = toSignal(this._schedule.filtered_bookings, {
-        initialValue: [],
-    });
+    public readonly loading = this._schedule.loading;
+    public readonly events = this._schedule.filtered_bookings;
     public readonly now = signal(startOfMinute(Date.now()));
 
     public ngOnInit(): void {

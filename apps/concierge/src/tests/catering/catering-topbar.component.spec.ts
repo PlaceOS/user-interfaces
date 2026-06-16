@@ -26,9 +26,12 @@ describe('CateringTopbarComponent', () => {
                 active_building: signal({}),
                 active_region: signal({}),
             } as any),
-            MockProvider(CateringStateService, {}),
+            MockProvider(CateringStateService, {
+                caterers: signal([]),
+            }),
             MockProvider(CateringOrdersService, {
                 filters: new BehaviorSubject({}),
+                order_filters: signal({}),
             } as any),
             MockProvider(MatDialog, { open: jest.fn() }),
             MockProvider(SettingsService, { get: jest.fn() }),

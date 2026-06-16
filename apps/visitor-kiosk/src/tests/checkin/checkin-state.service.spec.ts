@@ -9,11 +9,11 @@ jest.mock('@placeos/ts-client', () => {
     return {
         updateMetadata: jest.fn(),
         PlaceZone: ZONE,
-        get: jest.fn(() => of({})),
-        put: jest.fn(() => of({})),
-        patch: jest.fn(() => of({})),
-        post: jest.fn(() => of({})),
-        query: jest.fn(() => of([])),
+        get: jest.fn(() => Promise.resolve({})),
+        put: jest.fn(() => Promise.resolve({})),
+        patch: jest.fn(() => Promise.resolve({})),
+        post: jest.fn(() => Promise.resolve({})),
+        query: jest.fn(() => Promise.resolve([])),
     };
 });
 jest.mock('@placeos/events', () => ({
@@ -26,7 +26,7 @@ jest.mock('@placeos/events', () => ({
 jest.mock('@placeos/bookings', () => ({
     queryAllBookings: jest.fn(),
     showBooking: jest.fn(),
-    updateBooking: jest.fn(() => of({})),
+    updateBooking: jest.fn(() => Promise.resolve({})),
     checkinBooking: jest.fn(),
 }));
 jest.mock('@placeos/users', () => ({
@@ -53,13 +53,17 @@ describe('CheckinStateService', () => {
     });
 
     it('should allow loading guest and event details', async () => {
-        (events_mod.showEvent as any).mockImplementation(() => of({}));
-        (users_mod.showGuest as any).mockImplementation(() => of({}));
+        (events_mod.showEvent as any).mockImplementation(() =>
+            Promise.resolve({}),
+        );
+        (users_mod.showGuest as any).mockImplementation(() =>
+            Promise.resolve({}),
+        );
         (booking_mod.showBooking as any).mockImplementation(() =>
-            of({ asset_id: 'a@b.com' }),
+            Promise.resolve({ asset_id: 'a@b.com' }),
         );
         (booking_mod.queryAllBookings as any).mockImplementation(() =>
-            of([{ date: Date.now(), asset_id: 'a@b.com' }]),
+            Promise.resolve([{ date: Date.now(), asset_id: 'a@b.com' }]),
         );
         (users_mod.listGuestMeetings as any).mockImplementation(() =>
             of([{ date: Date.now() }]),
@@ -75,10 +79,18 @@ describe('CheckinStateService', () => {
     });
 
     it('should allow updating guests', async () => {
-        (events_mod.showEvent as any).mockImplementation(() => of({}));
-        (users_mod.showGuest as any).mockImplementation(() => of({}));
-        (booking_mod.showBooking as any).mockImplementation(() => of({}));
-        (placeos.updateMetadata as any).mockImplementation(() => of({}));
+        (events_mod.showEvent as any).mockImplementation(() =>
+            Promise.resolve({}),
+        );
+        (users_mod.showGuest as any).mockImplementation(() =>
+            Promise.resolve({}),
+        );
+        (booking_mod.showBooking as any).mockImplementation(() =>
+            Promise.resolve({}),
+        );
+        (placeos.updateMetadata as any).mockImplementation(() =>
+            Promise.resolve({}),
+        );
         await spectator.service.loadGuestAndEvent('a@b.com', 'event-1234');
         await spectator.service.updateGuest({ one: true });
         // expect(placeos.updateMetadata).toBeCalled();
@@ -86,12 +98,20 @@ describe('CheckinStateService', () => {
 
     it('should allow checking in guests', async () => {
         (events_mod.showEvent as any).mockImplementation(() =>
-            of({ resources: [{}] }),
+            Promise.resolve({ resources: [{}] }),
         );
-        (users_mod.showGuest as any).mockImplementation(() => of({}));
-        (booking_mod.showBooking as any).mockImplementation(() => of({}));
-        (booking_mod.checkinBooking as any).mockImplementation(() => of({}));
-        (events_mod.checkinEventGuest as any).mockImplementation(() => of({}));
+        (users_mod.showGuest as any).mockImplementation(() =>
+            Promise.resolve({}),
+        );
+        (booking_mod.showBooking as any).mockImplementation(() =>
+            Promise.resolve({}),
+        );
+        (booking_mod.checkinBooking as any).mockImplementation(() =>
+            Promise.resolve({}),
+        );
+        (events_mod.checkinEventGuest as any).mockImplementation(() =>
+            Promise.resolve({}),
+        );
         await spectator.service.loadGuestAndEvent('a@b.com', 'event-1234');
         await spectator.service.checkinGuest();
         expect(booking_mod.checkinBooking).toHaveBeenCalled();

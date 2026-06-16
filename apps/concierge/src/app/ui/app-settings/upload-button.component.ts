@@ -74,7 +74,6 @@ export class UploadButtonComponent {
      */
     public setValue(new_value: string): void {
         if (this.value() === new_value) return;
-        console.error('Set Value:', this.value, new_value);
         this.value.set(new_value);
         /* istanbul ignore else */
         if (this._onChange) this._onChange(new_value);
@@ -97,41 +96,42 @@ export class UploadButtonComponent {
         if (!element?.files?.length) return;
         const files: FileList = element.files;
         const file = files[0];
-        console.log(`File: ${file.name}`);
         const types = this.types();
         if (!types.some((t) => file.type.includes(t))) {
             return notifyError(`File is not an ${types.join(', ')}`);
         }
-        console.log(`Uploading file...`);
         this.progress.set(0);
         this.uploading.set(true);
         const upload = this._uploads.uploadFileWithProgress(file);
         const effect_ref = effect(
             () => {
-                const s = upload();
-                console.log(`Progress:`, s);
-                this.progress.set(s.progress);
-                if (s.error) {
-                    notifyError('Failed to upload image. Try again later');
-                    this.uploading.set(false);
-                    effect_ref.destroy();
-                    return;
-                }
-                if (s.progress < 100) return;
-                const upload_id = s.upload_id || s.upload?.id || s.id;
-                if (!upload_id) {
-                    notifyError('Failed to get uploaded file ID');
-                    this.uploading.set(false);
-                    effect_ref.destroy();
-                    return;
-                }
-                this.setValue(
-                    `/api/engine/v2/uploads/${encodeURIComponent(upload_id)}/url`,
-                );
-                this.uploading.set(false);
-                effect_ref.destroy();
+                this._setUploadState(upload(), () => effect_ref.destroy());
             },
             { injector: this._injector },
         );
+    }
+
+    private _setUploadState(state, cleanup: () => void) {
+        if (!state) return;
+        this.progress.set(state.progress);
+        if (state.error) {
+            notifyError('Failed to upload image. Try again later');
+            this.uploading.set(false);
+            cleanup();
+            return;
+        }
+        if (state.progress < 100) return;
+        const upload_id = state.upload_id || state.upload?.id || state.id;
+        if (!upload_id) {
+            notifyError('Failed to get uploaded file ID');
+            this.uploading.set(false);
+            cleanup();
+            return;
+        }
+        this.setValue(
+            `/api/engine/v2/uploads/${encodeURIComponent(upload_id)}/url`,
+        );
+        this.uploading.set(false);
+        cleanup();
     }
 }

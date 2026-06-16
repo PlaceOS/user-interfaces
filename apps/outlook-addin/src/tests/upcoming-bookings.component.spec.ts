@@ -3,8 +3,8 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { BookingCardComponent } from '@placeos/bookings';
 import { CalendarEvent } from '@placeos/common';
 import { EventCardComponent } from '@placeos/events';
+import { signal } from '@angular/core';
 import { MockComponent } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 import { UpcomingBookingsComponent } from '../app/rooms/upcoming-bookings.component';
 
 import { ScheduleStateService } from 'apps/workplace/src/app/schedule/schedule-state.service';
@@ -19,8 +19,8 @@ describe('UpcomingBookingsComponent', () => {
             {
                 provide: ScheduleStateService,
                 useValue: {
-                    loading: new BehaviorSubject(false),
-                    filtered_bookings: new BehaviorSubject([]),
+                    loading: signal(false),
+                    filtered_bookings: signal([]),
                     toggleType: jest.fn(),
                     startPolling: jest.fn(),
                 },
@@ -35,8 +35,8 @@ describe('UpcomingBookingsComponent', () => {
     beforeEach(() => (spectator = createComponent()));
 
     afterEach(() => {
-        (spectator.inject(ScheduleStateService).loading as any).next(false);
-        (spectator.inject(ScheduleStateService).filtered_bookings as any).next(
+        (spectator.inject(ScheduleStateService).loading as any).set(false);
+        (spectator.inject(ScheduleStateService).filtered_bookings as any).set(
             [],
         );
     });
@@ -47,7 +47,7 @@ describe('UpcomingBookingsComponent', () => {
 
     it('should show empty state', () => {
         expect('[empty]').toExist();
-        (spectator.inject(ScheduleStateService).filtered_bookings as any).next([
+        (spectator.inject(ScheduleStateService).filtered_bookings as any).set([
             new CalendarEvent(),
         ]);
         spectator.detectChanges();
@@ -56,7 +56,7 @@ describe('UpcomingBookingsComponent', () => {
 
     it("should show user's events", () => {
         expect('event-card').not.toExist();
-        (spectator.inject(ScheduleStateService).filtered_bookings as any).next([
+        (spectator.inject(ScheduleStateService).filtered_bookings as any).set([
             new CalendarEvent(),
         ]);
         spectator.detectChanges();

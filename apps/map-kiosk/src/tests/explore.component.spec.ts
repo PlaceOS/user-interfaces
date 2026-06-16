@@ -77,7 +77,7 @@ describe('ExploreComponent', () => {
                 signal: jest.fn(() => signal(undefined)),
             }),
             MockProvider(SpacesService, {
-                initialised: of(true),
+                initialised: signal(true),
                 get: jest.fn(),
             } as any),
             MockProvider(OrganisationService, {

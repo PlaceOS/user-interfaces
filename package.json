@@ -14,6 +14,13 @@
         "sharp",
         "unrs-resolver"
     ],
+    "overrides": {
+        "esbuild": "0.28.1",
+        "esbuild@0.28.0": "0.28.1"
+    },
+    "resolutions": {
+        "esbuild": "0.28.1"
+    },
     "license": "MIT",
     "scripts": {
         "ng": "nx",

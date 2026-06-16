@@ -121,10 +121,14 @@ describe('VisitorStateService', () => {
     });
 
     it('should allow checking in visitors', async () => {
-        (booking_mod as any).approveBooking = jest.fn(() => of({}));
-        (booking_mod as any).checkinBooking = jest.fn(() => of({}));
+        (booking_mod as any).approveBooking = jest.fn(() =>
+            Promise.resolve({}),
+        );
+        (booking_mod as any).checkinBooking = jest.fn(() =>
+            Promise.resolve({}),
+        );
         (booking_mod as any).updateBookingInductionStatus = jest.fn(() =>
-            of({}),
+            Promise.resolve({}),
         );
         (common_mod as any).notifySuccess = jest.fn(() => null);
         (common_mod as any).unique = jest.fn(() => []);
@@ -135,7 +139,9 @@ describe('VisitorStateService', () => {
     });
 
     it('should allow checking out visitors', async () => {
-        (booking_mod as any).checkinBooking = jest.fn(() => of({}));
+        (booking_mod as any).checkinBooking = jest.fn(() =>
+            Promise.resolve({}),
+        );
         (common_mod as any).notifySuccess = jest.fn(() => null);
         (common_mod as any).unique = jest.fn(() => []);
         expect(booking_mod.checkinBooking).not.toHaveBeenCalled();
@@ -147,7 +153,9 @@ describe('VisitorStateService', () => {
         (booking_mod as any).queryBookings = jest.fn(() =>
             of([{ parent_id: '1', extension_data: {} }]),
         );
-        (booking_mod as any).checkinBooking = jest.fn(() => of({}));
+        (booking_mod as any).checkinBooking = jest.fn(() =>
+            Promise.resolve({}),
+        );
         (common_mod as any).notifySuccess = jest.fn(() => null);
         (common_mod as any).unique = jest.fn(() => []);
         (common_mod as any).nextValueFrom = jest.fn((obs) =>
@@ -162,7 +170,9 @@ describe('VisitorStateService', () => {
         (booking_mod as any).queryBookings = jest.fn(() =>
             of([{ parent_id: '1', extension_data: {} }]),
         );
-        (booking_mod as any).checkinBooking = jest.fn(() => of({}));
+        (booking_mod as any).checkinBooking = jest.fn(() =>
+            Promise.resolve({}),
+        );
         (common_mod as any).notifySuccess = jest.fn(() => null);
         (common_mod as any).unique = jest.fn(() => []);
         (common_mod as any).nextValueFrom = jest.fn((obs) =>

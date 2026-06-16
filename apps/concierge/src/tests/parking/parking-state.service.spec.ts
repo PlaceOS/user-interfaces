@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
 import { Booking, OrganisationService, SettingsService } from '@placeos/common';
 import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 
 import * as assets_mod from '@placeos/assets';
 import * as booking_mod from '@placeos/bookings';
@@ -77,15 +77,29 @@ describe('ParkingStateService', () => {
         (assets_mod as any).queryParkingUsers = jest.fn(() => of([]));
         (assets_mod as any).queryParkingFleetVehicles = jest.fn(() => of([]));
         (assets_mod as any).queryParkingSpaces = jest.fn(() => of([]));
-        (assets_mod as any).queryParkingSpacesForZones = jest.fn(() => of([]));
-        (booking_mod as any).bookedResourceList = jest.fn(() => of([]));
+        (assets_mod as any).queryParkingSpacesForZones = jest.fn(() =>
+            Promise.resolve([]),
+        );
+        (booking_mod as any).bookedResourceList = jest.fn(() =>
+            Promise.resolve([]),
+        );
         (booking_mod as any).queryBookings = jest.fn(() => of([]));
-        (booking_mod as any).saveBooking = jest.fn(() => of({}));
-        (booking_mod as any).updateBooking = jest.fn(() => of({}));
-        (booking_mod as any).updateBookingInstance = jest.fn(() => of({}));
-        (booking_mod as any).approveBooking = jest.fn(() => of({}));
-        (booking_mod as any).approveBookingInstance = jest.fn(() => of({}));
-        (booking_mod as any).removeBooking = jest.fn(() => of({}));
+        (booking_mod as any).saveBooking = jest.fn(() => Promise.resolve({}));
+        (booking_mod as any).updateBooking = jest.fn(() =>
+            Promise.resolve({}),
+        );
+        (booking_mod as any).updateBookingInstance = jest.fn(() =>
+            Promise.resolve({}),
+        );
+        (booking_mod as any).approveBooking = jest.fn(() =>
+            Promise.resolve({}),
+        );
+        (booking_mod as any).approveBookingInstance = jest.fn(() =>
+            Promise.resolve({}),
+        );
+        (booking_mod as any).removeBooking = jest.fn(() =>
+            Promise.resolve({}),
+        );
         (component_mod as any).openConfirmModal = jest.fn(async () => ({
             reason: 'done',
             loading: jest.fn(),
@@ -206,7 +220,7 @@ describe('ParkingStateService', () => {
         };
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
         (assets_mod.saveParkingSpace as jest.Mock).mockReturnValue(
-            of({ id: 'space-1', name: 'Bay 1' }),
+            Promise.resolve({ id: 'space-1', name: 'Bay 1' }),
         );
         jest.spyOn(UserPipe.prototype, 'transform').mockResolvedValue({
             id: 'user-1',
@@ -284,7 +298,7 @@ describe('ParkingStateService', () => {
             { id: 'lvl-2', parent_id: 'bld-1', tags: ['parking'] },
         ];
         (assets_mod as any).queryParkingSpacesForZones = jest.fn(() =>
-            of([
+            Promise.resolve([
                 { id: 'space-1', zone_id: 'lvl-1' },
                 { id: 'space-2', zone_id: 'lvl-2' },
             ]),
@@ -506,7 +520,7 @@ describe('ParkingStateService', () => {
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
         ];
         (assets_mod as any).queryParkingSpaces = jest.fn(() =>
-            of([
+            Promise.resolve([
                 {
                     id: 'space-1',
                     name: 'Bay 1',
@@ -515,7 +529,9 @@ describe('ParkingStateService', () => {
                 },
             ]),
         );
-        (booking_mod as any).bookedResourceList = jest.fn(() => of([]));
+        (booking_mod as any).bookedResourceList = jest.fn(() =>
+            Promise.resolve([]),
+        );
         const request = {
             id: 'req-1',
             asset_id: 'unallocated-1',
@@ -551,7 +567,7 @@ describe('ParkingStateService', () => {
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
         ];
         (assets_mod as any).queryParkingSpaces = jest.fn(() =>
-            of([
+            Promise.resolve([
                 {
                     id: 'space-1',
                     name: 'Bay 1',
@@ -561,7 +577,7 @@ describe('ParkingStateService', () => {
             ]),
         );
         (booking_mod as any).bookedResourceList = jest.fn(() =>
-            of(['space-1']),
+            Promise.resolve(['space-1']),
         );
         const request = {
             id: 'req-1',
@@ -601,7 +617,7 @@ describe('ParkingStateService', () => {
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
         ];
         (assets_mod as any).queryParkingSpacesForZones = jest.fn(() =>
-            of([
+            Promise.resolve([
                 {
                     id: 'space-existing',
                     assigned_to: 'staff@example.com',
@@ -666,7 +682,7 @@ describe('ParkingStateService', () => {
         };
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
         (booking_mod.queryBookings as jest.Mock).mockReturnValue(
-            of([
+            Promise.resolve([
                 {
                     id: 'booking-1',
                     asset_id: 'space-1',
@@ -674,11 +690,11 @@ describe('ParkingStateService', () => {
             ]),
         );
         (assets_mod.saveParkingSpace as jest.Mock)
-            .mockReturnValueOnce(of({ id: 'space-1', name: 'Bay 1' }))
-            .mockReturnValueOnce(of(original_space));
+            .mockResolvedValueOnce({ id: 'space-1', name: 'Bay 1' })
+            .mockResolvedValueOnce(original_space);
         (booking_mod.saveBooking as jest.Mock)
-            .mockReturnValueOnce(throwError(() => ({ status: 409 })))
-            .mockReturnValueOnce(of({}));
+            .mockRejectedValueOnce({ status: 409 })
+            .mockResolvedValueOnce({});
         jest.spyOn(UserPipe.prototype, 'transform').mockResolvedValue({
             id: 'user-1',
             name: 'Staff Name',

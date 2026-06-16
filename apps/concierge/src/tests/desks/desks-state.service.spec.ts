@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/common';
 import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { lastValueFrom, of, throwError } from 'rxjs';
+import { lastValueFrom, of } from 'rxjs';
 
 import * as booking_mod from '@placeos/bookings';
 import * as common_mod from '@placeos/common';
@@ -65,11 +65,19 @@ describe('DesksStateService', () => {
             of({ data: [], total: 0, next: null }),
         );
         (booking_mod as any).queryBookings = jest.fn(() => of([]));
-        (booking_mod as any).saveBooking = jest.fn(() => of({}));
-        (booking_mod as any).removeBooking = jest.fn(() => of(undefined));
-        (booking_mod as any).rejectBooking = jest.fn(() => of({}));
-        (booking_mod as any).rejectBookingInstance = jest.fn(() => of({}));
-        (booking_mod as any).updateBooking = jest.fn(() => of({}));
+        (booking_mod as any).saveBooking = jest.fn(() => Promise.resolve({}));
+        (booking_mod as any).removeBooking = jest.fn(() =>
+            Promise.resolve(undefined),
+        );
+        (booking_mod as any).rejectBooking = jest.fn(() =>
+            Promise.resolve({}),
+        );
+        (booking_mod as any).rejectBookingInstance = jest.fn(() =>
+            Promise.resolve({}),
+        );
+        (booking_mod as any).updateBooking = jest.fn(() =>
+            Promise.resolve({}),
+        );
         jest.spyOn(ts_client_mod, 'updateMetadata').mockResolvedValue(
             {} as never,
         );
@@ -285,7 +293,7 @@ describe('DesksStateService', () => {
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
         spectator.service.setFilters({ zones: ['level-1'] });
         (booking_mod.queryBookings as jest.Mock).mockReturnValue(
-            of([
+            Promise.resolve([
                 {
                     id: 'booking-1',
                     asset_id: 'desk-1',
@@ -293,8 +301,8 @@ describe('DesksStateService', () => {
             ]),
         );
         (booking_mod.saveBooking as jest.Mock)
-            .mockReturnValueOnce(throwError(() => ({ status: 409 })))
-            .mockReturnValueOnce(of({}));
+            .mockRejectedValueOnce({ status: 409 })
+            .mockResolvedValueOnce({});
 
         await spectator.service.editDesk(original_desk).catch(() => undefined);
 
@@ -437,7 +445,7 @@ describe('DesksStateService', () => {
             }),
         });
         (booking_mod.rejectBookingInstance as jest.Mock).mockReturnValue(
-            throwError(() => '405 Method Not Allowed'),
+            Promise.reject('405 Method Not Allowed'),
         );
         const refresh_spy = jest.spyOn(spectator.service, 'refresh');
 
