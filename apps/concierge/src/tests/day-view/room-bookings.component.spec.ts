@@ -7,7 +7,7 @@ import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { signal } from '@angular/core';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of, timer } from 'rxjs';
+import { timer } from 'rxjs';
 
 import { Router } from '@angular/router';
 import { EventsStateService } from '../../app/day-view/events-state.service';
@@ -15,7 +15,7 @@ import { RoomBookingsComponent } from '../../app/day-view/room-bookings.componen
 
 describe('RoomBookingsComponent', () => {
     let spectator: SpectatorRouting<RoomBookingsComponent>;
-    const zones = new BehaviorSubject<string[]>([]);
+    const zones = signal<string[]>([]);
     const active_levels = signal<any[]>([]);
     const createComponent = createRoutingFactory({
         component: RoomBookingsComponent,
@@ -34,14 +34,14 @@ describe('RoomBookingsComponent', () => {
             } as any),
             MockProvider(EventsStateService, {
                 zones,
-                period: of('day'),
-                date: of(Date.now()),
-                options: of({}),
-                filtered: of([]),
-                spaces: of([]),
-                loading: of(false),
+                period: signal('day'),
+                date: signal(Date.now()),
+                options: signal({}),
+                filtered: signal([]),
+                spaces: signal([]),
+                loading: signal(false),
                 filters: {},
-                setZones: jest.fn((zone_ids: string[]) => zones.next(zone_ids)),
+                setZones: jest.fn((zone_ids: string[]) => zones.set(zone_ids)),
                 setPeriod: jest.fn(),
                 setFilters: jest.fn(),
                 setUIOptions: jest.fn(),
@@ -62,7 +62,7 @@ describe('RoomBookingsComponent', () => {
     });
 
     beforeEach(() => {
-        zones.next([]);
+        zones.set([]);
         active_levels.set([]);
         spectator = createComponent();
         spectator.component.view.set('list');

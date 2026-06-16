@@ -4,15 +4,15 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import { signal } from '@angular/core';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 
 import { EventsStateService } from '../../app/day-view/events-state.service';
 import { RoomBookingsApprovalsComponent } from '../../app/day-view/room-approvals.component';
 
 describe('RoomBookingsApprovalsComponent', () => {
     let spectator: Spectator<RoomBookingsApprovalsComponent>;
-    const pending = new BehaviorSubject<CalendarEvent[]>([]);
+    const pending = signal<CalendarEvent[]>([]);
     const execute = jest.fn(() => Promise.resolve());
     const replace = jest.fn();
     const createComponent = createComponentFactory({
@@ -35,7 +35,7 @@ describe('RoomBookingsApprovalsComponent', () => {
     beforeEach(() => {
         execute.mockClear();
         replace.mockClear();
-        pending.next([]);
+        pending.set([]);
         spectator = createComponent();
     });
 
@@ -83,7 +83,7 @@ describe('RoomBookingsApprovalsComponent', () => {
             mailbox: 'room@example.com',
             recurring_event_id: 'series-2',
         });
-        pending.next([series_event, next_series_event, other_event]);
+        pending.set([series_event, next_series_event, other_event]);
 
         await spectator.component.approveSeries(series_event);
 
@@ -96,7 +96,7 @@ describe('RoomBookingsApprovalsComponent', () => {
             spectator.component.filtered_pending().map((event) => event.id),
         ).toEqual(['event-3']);
 
-        pending.next([
+        pending.set([
             series_event,
             next_series_event,
             other_event,

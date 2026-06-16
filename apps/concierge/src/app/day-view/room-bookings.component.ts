@@ -1,11 +1,13 @@
 import {
     ChangeDetectionStrategy,
     Component,
+    effect,
     inject,
     OnInit,
+    resource,
     signal,
+    untracked,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -34,16 +36,8 @@ import {
 import { requestSpacesForZone } from '@placeos/events';
 import { UserPipe } from '@placeos/users';
 import { format } from 'date-fns';
-import { combineLatest, of } from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    map,
-    shareReplay,
-    switchMap,
-} from 'rxjs/operators';
 import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
-import { BookingUIOptions, EventsStateService } from './events-state.service';
+import { EventsStateService } from './events-state.service';
 import { RoomBookingsApprovalsComponent } from './room-approvals.component';
 import { RoomBookingsListComponent } from './room-bookings-list.component';
 import { RoomBookingsInvertedTimelineComponent } from './room-timeline-inverted.component';
@@ -287,25 +281,26 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
         'default',
     );
 
-    public readonly zones = toSignal(this._state.zones, { initialValue: [] });
-    public readonly period = toSignal(this._state.period, {
-        initialValue: 'day' as const,
-    });
+    public readonly zones = this._state.zones;
+    public readonly period = this._state.period;
     public readonly downloading = signal(false);
     public readonly view = signal<'timeline' | 'list'>('timeline');
-    public readonly ui_options = toSignal(this._state.options, {
-        initialValue: {} as BookingUIOptions,
-    });
-    private readonly _levels$ = combineLatest([
-        toObservable(this._org.active_building),
-        toObservable(this._org.active_region),
-    ]).pipe(
-        switchMap(([bld, region]) => {
-            const zone = this.use_region ? region : bld;
-            if (!zone?.id) return of([]);
-            return requestSpacesForZone(zone.id).pipe(catchError(() => of([])));
+    public readonly ui_options = this._state.options;
+    private readonly _levels = resource({
+        params: () => ({
+            building: this._org.active_building()?.id,
+            region: this._org.active_region()?.id,
+            use_region: this.use_region,
         }),
-        map((spaces) => {
+        defaultValue: [],
+        loader: async ({ params }) => {
+            const zone_id = params.use_region
+                ? params.region
+                : params.building;
+            if (!zone_id) return [];
+            const spaces = await nextValueFrom(
+                requestSpacesForZone(zone_id),
+            ).catch(() => []);
             const level_ids = new Set(
                 spaces
                     .filter((space) => space.bookable)
@@ -315,10 +310,38 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
                 ? this._org.levelsForRegion(this._org.region)
                 : this._org.levelsForBuilding(this._org.building);
             return level_list.filter((level) => level_ids.has(level.id));
-        }),
-        shareReplay(1),
-    );
-    public readonly levels = toSignal(this._levels$, { initialValue: [] });
+        },
+    });
+    public readonly levels = this._levels.value;
+
+    constructor() {
+        super();
+        // Restore or normalise the selected levels whenever the available
+        // levels for the active building resolve.
+        effect(() => {
+            const levels = this.levels();
+            if (this._levels.status() !== 'resolved') return;
+            untracked(() => {
+                if (this.use_region) return;
+                const current = this.zones().filter((zone) =>
+                    levels.find((lvl) => lvl.id === zone),
+                );
+                if (!this.zones().length) {
+                    // Restore persisted selection when the view first loads
+                    // without an explicit URL filter. Empty means "all levels".
+                    const persisted = loadPersistedZones(
+                        'room-bookings',
+                        this._persistScopeId(),
+                    ).filter((zone) => levels.find((lvl) => lvl.id === zone));
+                    if (persisted.length) {
+                        this.updateZones(persisted);
+                        return;
+                    }
+                }
+                this.updateZones(current);
+            });
+        });
+    }
     /** List of levels for the active building */
     public readonly updateZones = (zones: string[]) => {
         const zone_ids = this._clean_zone_ids(zones);
@@ -421,29 +444,6 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
                 }
             }),
         );
-        this.subscription(
-            'levels',
-            this._levels$.pipe(debounceTime(300)).subscribe(async (levels) => {
-                if (this.use_region) return;
-                const current = this.zones().filter((zone) =>
-                    levels.find((lvl) => lvl.id === zone),
-                );
-                if (!this.zones().length) {
-                    // Restore persisted selection when the view first
-                    // loads without an explicit URL filter. Empty means
-                    // "all levels".
-                    const persisted = loadPersistedZones(
-                        'room-bookings',
-                        this._persistScopeId(),
-                    ).filter((zone) => levels.find((lvl) => lvl.id === zone));
-                    if (persisted.length) {
-                        this.updateZones(persisted);
-                        return;
-                    }
-                }
-                this.updateZones(current);
-            }),
-        );
     }
 
     private _persistScopeId() {
@@ -463,7 +463,7 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     public async downloadAttendeeList() {
         this.downloading.set(true);
         try {
-            const events = await nextValueFrom(this._state.filtered);
+            const events = this._state.filtered();
             const emails = new Set<string>();
             for (const event of events) {
                 if (event.host && event.system?.email !== event.host)

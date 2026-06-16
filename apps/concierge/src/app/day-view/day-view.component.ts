@@ -1,12 +1,12 @@
 import {
     ChangeDetectionStrategy,
     Component,
+    DestroyRef,
     computed,
     inject,
+    signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { startWith } from 'rxjs/operators';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { RoomBookingsComponent } from './room-bookings.component';
@@ -48,13 +48,16 @@ import { RoomBookingsComponent } from './room-bookings.component';
 })
 export class DayViewComponent {
     private _router = inject(Router);
+    private _destroy = inject(DestroyRef);
 
-    private readonly _url = toSignal(
-        this._router.events.pipe(startWith(null)),
-        {
-            initialValue: null,
-        },
-    );
+    private readonly _url = signal<unknown>(null);
+
+    constructor() {
+        const sub = this._router.events.subscribe(() =>
+            this._url.set(this._router.url),
+        );
+        this._destroy.onDestroy(() => sub.unsubscribe());
+    }
 
     public readonly path = computed(() => {
         this._url();

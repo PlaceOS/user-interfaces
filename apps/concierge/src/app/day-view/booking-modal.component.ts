@@ -96,7 +96,7 @@ export class BookingModalComponent implements OnInit {
                         period_start: event.event_start,
                         period_end: event.event_end,
                         ical_uid: event.ical_uid,
-                    }).toPromise()
+                    })
                 ).find((_) => _.ical_uid === (event as any).ical_uid) || event;
         }
         if (event && !event.id) {

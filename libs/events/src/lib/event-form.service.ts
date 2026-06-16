@@ -23,6 +23,7 @@ import {
     getAllDayTimeRange,
     getInvalidSignalFields,
     getTimeInTimezone,
+    isEmptyUser,
     onFieldChange,
     i18n,
     isWithinBookableHours,
@@ -374,7 +375,7 @@ export class EventFormService extends AsyncHandler {
     }
 
     public async init() {
-        await firstValueWhere(userSignal());
+        await firstValueWhere(userSignal(), (user) => !isEmptyUser(user));
         setDefaultCreator(currentUser());
         onFieldChange(
             this._model,

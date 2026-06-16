@@ -1,7 +1,8 @@
+import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { CalendarEvent, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
+import { of } from 'rxjs';
 
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
@@ -10,9 +11,9 @@ import { EventsStateService } from '../../app/day-view/events-state.service';
 
 describe('RoomBookingsListComponent', () => {
     let spectator: Spectator<RoomBookingsListComponent>;
-    const filtered = new BehaviorSubject<CalendarEvent[]>([]);
-    const spaces = new BehaviorSubject<any[]>([]);
-    const loading = new BehaviorSubject(false);
+    const filtered = signal<CalendarEvent[]>([]);
+    const spaces = signal<any[]>([]);
+    const loading = signal(false);
     const createComponent = createComponentFactory({
         component: RoomBookingsListComponent,
         shallow: true,
@@ -20,8 +21,8 @@ describe('RoomBookingsListComponent', () => {
         providers: [
             MockProvider(EventsStateService, {
                 filtered,
-                date: of(Date.now()),
-                period: of('day'),
+                date: signal(Date.now()),
+                period: signal<'day' | 'week' | 'month'>('day'),
                 spaces,
                 loading,
                 setDate: jest.fn(),
@@ -43,9 +44,9 @@ describe('RoomBookingsListComponent', () => {
     });
 
     beforeEach(() => {
-        filtered.next([]);
-        spaces.next([]);
-        loading.next(false);
+        filtered.set([]);
+        spaces.set([]);
+        loading.set(false);
         spectator = createComponent();
     });
 
@@ -54,7 +55,7 @@ describe('RoomBookingsListComponent', () => {
     });
 
     it('should include setup and breakdown events provided by state', () => {
-        filtered.next([
+        filtered.set([
             new CalendarEvent({ id: 'booking', title: 'Booking' }),
             new CalendarEvent({
                 id: 'setup',
@@ -70,7 +71,7 @@ describe('RoomBookingsListComponent', () => {
     });
 
     it('should hide group events', () => {
-        filtered.next([
+        filtered.set([
             new CalendarEvent({ id: 'booking', title: 'Booking' }),
             new CalendarEvent({
                 id: 'group-event',
@@ -87,7 +88,7 @@ describe('RoomBookingsListComponent', () => {
     it('should expose the state loading value', () => {
         expect(spectator.component.loading()).toBe(false);
 
-        loading.next(true);
+        loading.set(true);
 
         expect(spectator.component.loading()).toBe(true);
     });

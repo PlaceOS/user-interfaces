@@ -7,14 +7,16 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     CalendarEvent,
     getTimezoneOffsetString,
+    notifyError,
+    notifySuccess,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
@@ -39,10 +41,10 @@ import { EventsStateService } from './events-state.service';
                 class="border-base-200 relative flex items-center justify-center space-x-2 border-b p-2"
             >
                 <button
-                    btn
                     icon
+                    default
                     matRipple
-                    class="bg-base-200 absolute top-3 left-2"
+                    class="absolute top-3 left-2"
                     [matTooltip]="
                         'APP.CONCIERGE.ROOMS_PENDING_HIDE' | translate
                     "
@@ -88,7 +90,7 @@ import { EventsStateService } from './events-state.service';
                         </p>
                     </div>
                 }
-                @for (event of filtered_pending(); track event) {
+                @for (event of filtered_pending(); track event.id) {
                     <div
                         class="border-base-300 bg-base-100 relative w-full rounded-lg border p-2"
                     >
@@ -106,6 +108,7 @@ import { EventsStateService } from './events-state.service';
                                 ? (event.resources[0]?.email | space | async)
                                 : (event.mailbox | space | async)) ||
                             event.system;
+                        @let busy = in_progress()[event.id];
                         <h3 class="font-medium">{{ event.title }}</h3>
                         <p class="mb-2 text-xs opacity-30">
                             {{ event.date | date: 'mediumDate' : tz }}
@@ -167,7 +170,9 @@ import { EventsStateService } from './events-state.service';
                                 btn
                                 matRipple
                                 class="border-success bg-success-light flex min-w-0 flex-1 items-center space-x-1 text-black"
-                                [disabled]="status()[event.id] === 'accept'"
+                                [disabled]="
+                                    !!busy || status()[event.id] === 'accept'
+                                "
                                 (click)="approve(event)"
                             >
                                 <div class="ml-2">
@@ -178,13 +183,24 @@ import { EventsStateService } from './events-state.service';
                                         ) | translate
                                     }}
                                 </div>
-                                <icon class="text-success text-2xl">done</icon>
+                                @if (busy === 'accept') {
+                                    <mat-spinner
+                                        class="mx-2 min-w-5"
+                                        diameter="20"
+                                    ></mat-spinner>
+                                } @else {
+                                    <icon class="text-success text-2xl"
+                                        >done</icon
+                                    >
+                                }
                             </button>
                             <button
                                 btn
                                 matRipple
                                 class="border-error bg-error-light flex min-w-0 flex-1 items-center space-x-1 text-black"
-                                [disabled]="status()[event.id] === 'decline'"
+                                [disabled]="
+                                    !!busy || status()[event.id] === 'decline'
+                                "
                                 (click)="reject(event)"
                             >
                                 <div class="ml-2">
@@ -195,13 +211,23 @@ import { EventsStateService } from './events-state.service';
                                         ) | translate
                                     }}
                                 </div>
-                                <icon class="text-error text-2xl">close</icon>
+                                @if (busy === 'decline') {
+                                    <mat-spinner
+                                        class="mx-2 min-w-5"
+                                        diameter="20"
+                                    ></mat-spinner>
+                                } @else {
+                                    <icon class="text-error text-2xl"
+                                        >close</icon
+                                    >
+                                }
                             </button>
                             @if (event.recurring_event_id) {
                                 <button
                                     icon
                                     matRipple
                                     class="border-base-300 bg-base-200 h-12 w-12 rounded-md border"
+                                    [disabled]="!!busy"
                                     [matMenuTriggerFor]="menu"
                                 >
                                     <icon>more_vert</icon>
@@ -249,26 +275,13 @@ import { EventsStateService } from './events-state.service';
                     </div>
                 }
             </div>
-            @if (loading()) {
-                <div
-                    class="absolute top-14 right-0 bottom-0 left-0 flex flex-col items-center justify-center space-y-2 p-2"
-                >
-                    <div
-                        class="bg-base-100 absolute inset-0 z-0 opacity-80"
-                    ></div>
-                    <mat-spinner diameter="32"></mat-spinner>
-                    <p class="relative z-10">
-                        {{ 'APP.CONCIERGE.ROOMS_PENDING_LOADING' | translate }}
-                    </p>
-                </div>
-            }
         </div>
         @if (!show()) {
             <button
-                btn
                 icon
+                default
                 matRipple
-                class="border-base-200 hover:bg-info-light absolute top-3 -left-8 border shadow-md"
+                class="absolute top-3 -left-7"
                 (click)="setShow(!show())"
                 [matTooltip]="'APP.CONCIERGE.ROOMS_PENDING_SHOW' | translate"
                 matTooltipPosition="left"
@@ -292,6 +305,7 @@ import { EventsStateService } from './events-state.service';
         TranslatePipe,
         IconComponent,
         BuildingPipe,
+        MatRippleModule,
         LevelPipe,
         SpacePipe,
         FormsModule,
@@ -307,15 +321,21 @@ export class RoomBookingsApprovalsComponent implements OnInit {
     private _settings = inject(SettingsService);
 
     public readonly show = signal(true);
-    public readonly loading = signal(false);
+    public readonly in_progress = signal<
+        Record<string, 'accept' | 'decline' | undefined>
+    >({});
+    /** Events currently being processed, retained so their card stays visible
+     * with a loading state even after the pending binding drops them. The
+     * index keeps the card in its original list position while processing. */
+    private readonly _in_progress_events = signal<
+        Record<string, { event: CalendarEvent; index: number }>
+    >({});
     public readonly status = signal<
         Record<string, 'accept' | 'decline' | undefined>
     >({});
     public readonly search = signal('');
 
-    public readonly pending = toSignal(this._state.pending, {
-        initialValue: [],
-    });
+    public readonly pending = this._state.pending;
 
     public get time_format() {
         return this._settings.time_format;
@@ -341,7 +361,20 @@ export class RoomBookingsApprovalsComponent implements OnInit {
     public readonly filtered_pending = computed(() => {
         const search = this.search().toLowerCase();
         const status = this.status();
-        return this.pending().filter(
+        const in_progress_events = this._in_progress_events();
+        // Retain events still being processed even if the pending binding has
+        // already dropped them, so their loading state stays visible. Re-insert
+        // them at their original index so the card doesn't jump position.
+        const events = [...this.pending()];
+        const retained = Object.values(in_progress_events)
+            .filter(({ event }) => !events.some((_) => _.id === event.id))
+            .sort((a, b) => a.index - b.index);
+        for (const { event, index } of retained) {
+            const at =
+                index < 0 ? events.length : Math.min(index, events.length);
+            events.splice(at, 0, event);
+        }
+        return events.filter(
             (event) =>
                 !status[event.id] &&
                 (!event.recurring_event_id ||
@@ -370,53 +403,119 @@ export class RoomBookingsApprovalsComponent implements OnInit {
     public async approve(event: CalendarEvent) {
         const mod = this._org.module('approvals', 'RoomBookingApproval');
         if (!mod) return;
-        this.loading.set(true);
-        await mod.execute('accept_event', [event.mailbox, event.id]).catch();
-        this.loading.set(false);
+        this._setInProgress([event], 'accept');
+        try {
+            await mod.execute('accept_event', [event.mailbox, event.id]);
+        } catch (e) {
+            this._clearInProgress([event]);
+            return notifyError(`Failed to approve booking: ${e}`);
+        }
+        this._clearInProgress([event]);
         this.status.update((s) => ({ ...s, [event.id]: 'accept' }));
         this._state.replace(this._eventWithStatus(event, 'approved'));
+        notifySuccess('Booking approved');
     }
 
     public async approveSeries(event: CalendarEvent) {
         const mod = this._org.module('approvals', 'RoomBookingApproval');
         if (!mod) return;
-        this.loading.set(true);
-        await mod
-            .execute(
+        const events = this._seriesEvents(event);
+        this._setInProgress(events, 'accept');
+        try {
+            await mod.execute(
                 'accept_recurring_event',
                 [event.mailbox, event.recurring_event_id || event.id],
                 30 * 1000,
-            )
-            .catch();
-        this.loading.set(false);
+            );
+        } catch (e) {
+            this._clearInProgress(events);
+            return notifyError(`Failed to approve series: ${e}`);
+        }
+        this._clearInProgress(events);
         this._setSeriesStatus(event, 'accept');
         this._replaceSeriesEvents(event, 'approved');
+        notifySuccess('Booking series approved');
     }
 
     public async reject(event: CalendarEvent) {
         const mod = this._org.module('approvals', 'RoomBookingApproval');
         if (!mod) return;
-        this.loading.set(true);
-        await mod.execute('decline_event', [event.mailbox, event.id]).catch();
-        this.loading.set(false);
+        this._setInProgress([event], 'decline');
+        try {
+            await mod.execute('decline_event', [event.mailbox, event.id]);
+        } catch (e) {
+            this._clearInProgress([event]);
+            return notifyError(`Failed to decline booking: ${e}`);
+        }
+        this._clearInProgress([event]);
         this.status.update((s) => ({ ...s, [event.id]: 'decline' }));
         this._state.replace(this._eventWithStatus(event, 'declined'));
+        notifySuccess('Booking declined');
     }
 
     public async rejectSeries(event: CalendarEvent) {
         const mod = this._org.module('approvals', 'RoomBookingApproval');
         if (!mod) return;
-        this.loading.set(true);
-        await mod
-            .execute(
+        const events = this._seriesEvents(event);
+        this._setInProgress(events, 'decline');
+        try {
+            await mod.execute(
                 'decline_recurring_event',
                 [event.mailbox, event.recurring_event_id || event.id],
                 30 * 1000,
-            )
-            .catch();
-        this.loading.set(false);
+            );
+        } catch (e) {
+            this._clearInProgress(events);
+            return notifyError(`Failed to decline series: ${e}`);
+        }
+        this._clearInProgress(events);
         this._setSeriesStatus(event, 'decline');
         this._replaceSeriesEvents(event, 'declined');
+        notifySuccess('Booking series declined');
+    }
+
+    private _seriesEvents(event: CalendarEvent) {
+        const recurring_event_id = event.recurring_event_id || event.id;
+        const events = this.pending().filter(
+            (_) => (_.recurring_event_id || _.id) === recurring_event_id,
+        );
+        return events.length ? events : [event];
+    }
+
+    private _setInProgress(
+        events: CalendarEvent[],
+        action: 'accept' | 'decline',
+    ) {
+        const pending = this.pending();
+        this.in_progress.update((s) => ({
+            ...s,
+            ...Object.fromEntries(events.map((event) => [event.id, action])),
+        }));
+        this._in_progress_events.update((s) => ({
+            ...s,
+            ...Object.fromEntries(
+                events.map((event) => [
+                    event.id,
+                    {
+                        event,
+                        index: pending.findIndex((_) => _.id === event.id),
+                    },
+                ]),
+            ),
+        }));
+    }
+
+    private _clearInProgress(events: CalendarEvent[]) {
+        this.in_progress.update((s) => {
+            const next = { ...s };
+            for (const event of events) delete next[event.id];
+            return next;
+        });
+        this._in_progress_events.update((s) => {
+            const next = { ...s };
+            for (const event of events) delete next[event.id];
+            return next;
+        });
     }
 
     private _setSeriesStatus(
