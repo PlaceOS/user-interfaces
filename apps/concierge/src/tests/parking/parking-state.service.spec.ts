@@ -40,6 +40,7 @@ describe('ParkingStateService', () => {
     const organisation_service: any = {
         organisation: { id: 'org-1' },
         region: { id: 'region-1' },
+        initialised: signal(true),
         levels: [],
         buildingsForRegion: jest.fn(() => []),
         levelsForBuilding: jest.fn((bld) =>
@@ -58,6 +59,9 @@ describe('ParkingStateService', () => {
             MockProvider(MatDialog, { open: jest.fn() }),
             MockProvider(SettingsService, {
                 get: jest.fn((name: string) => settings_map[name]) as any,
+                signal: jest.fn((name: string, default_value: any) =>
+                    signal(settings_map[`app.${name}`] ?? default_value),
+                ) as any,
             } as any),
             MockProvider(OrganisationService, organisation_service),
         ],

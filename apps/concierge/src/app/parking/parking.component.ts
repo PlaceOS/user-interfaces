@@ -99,7 +99,7 @@ import { ParkingTopbarComponent } from './parking-topbar.component';
                         <router-outlet></router-outlet>
                     </div>
                 </div>
-                @if (!levels().length) {
+                @if (org_initialised() && !levels().length) {
                     <div
                         class="absolute inset-0 z-50 flex flex-col items-center justify-center"
                     >
@@ -156,6 +156,8 @@ export class ParkingComponent extends AsyncHandler implements OnInit {
 
     /** List of levels for the active building */
     public readonly levels = this._state.levels;
+    /** Whether the organisation data has finished loading */
+    public readonly org_initialised = this._state.org_initialised;
 
     public readonly section = signal<'events' | 'manage'>('events');
     public readonly view = signal<

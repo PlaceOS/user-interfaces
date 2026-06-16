@@ -126,20 +126,30 @@ export class ParkingStateService extends AsyncHandler {
         return !tz ? 0 : getTimezoneDifferenceInHours(current_tz, tz);
     }
 
+    /** Whether the organisation data has finished loading */
+    public readonly org_initialised = this._org.initialised;
+
     /** Currently applied filter/view options for the parking section */
     public readonly options = this._options.asReadonly();
     /** Selected view period for the parking section */
     public readonly period = computed(() => this._options().period);
 
+    /** Reactive `app.use_region` setting, kept in sync on building/region overrides */
+    private readonly _use_region = this._settings.signal('use_region', false);
+
     /** List of available parking levels for the current building */
     public readonly levels = computed(() => {
+        // Read `use_region` as a signal so the computed re-runs when building/region
+        // overrides change it. Reading it non-reactively let this singleton computed
+        // get stuck on the wrong branch and report no parking levels after load.
+        const use_region = this._use_region();
         this._org.active_region();
         const bld = this._org.active_building();
         if (!bld) return [];
         const levels = this._org.levels.filter((_) =>
             _.tags.includes('parking'),
         );
-        if (this._settings.get('app.use_region')) {
+        if (use_region) {
             const blds = this._org.buildingsForRegion();
             const bld_ids = blds.map((building) => building.id);
             return levels.filter((lvl) => bld_ids.includes(lvl.parent_id));

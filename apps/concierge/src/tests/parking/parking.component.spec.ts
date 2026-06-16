@@ -27,6 +27,7 @@ describe('ParkingComponent', () => {
         providers: [
             MockProvider(ParkingStateService, {
                 levels: signal([]),
+                org_initialised: signal(true),
                 startPolling: jest.fn(),
                 setOptions: jest.fn(),
             } as any),
