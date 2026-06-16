@@ -5,15 +5,12 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTabsModule } from '@angular/material/tabs';
-import { NavigationEnd, Router, RouterModule } from '@angular/router';
-import { i18n, settingSignal } from '@placeos/common';
+import { Router, RouterModule } from '@angular/router';
+import { AsyncHandler, i18n, settingSignal } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
-import { filter, map, startWith } from 'rxjs';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { SignageStateService } from './signage-state.service';
@@ -98,7 +95,7 @@ import { SignageStateService } from './signage-state.service';
         RouterModule,
     ],
 })
-export class SignageComponent {
+export class SignageComponent extends AsyncHandler {
     private _state = inject(SignageStateService);
     private _router = inject(Router);
 
@@ -108,14 +105,18 @@ export class SignageComponent {
         { id: 'Displays', name: i18n('APP.CONCIERGE.SIGNAGE_DISPLAYS') },
         { id: 'Zones', name: i18n('APP.CONCIERGE.SIGNAGE_ZONES') },
     ]);
-    private readonly _current_url = toSignal(
-        this._router.events.pipe(
-            filter((event) => event instanceof NavigationEnd),
-            map((event) => event.urlAfterRedirects),
-            startWith(this._router.url),
-        ),
-        { initialValue: this._router.url },
-    );
+    private readonly _current_url = signal(this._router.url);
+
+    constructor() {
+        super();
+        this.subscription(
+            'router.events',
+            this._router.events.subscribe(() =>
+                this._current_url.set(this._router.url),
+            ),
+        );
+    }
+
     public readonly active_link = computed(() => {
         const current_url = this._current_url();
         return (

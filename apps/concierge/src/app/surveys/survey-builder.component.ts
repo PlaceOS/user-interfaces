@@ -3,6 +3,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
+    effect,
     inject,
     OnInit,
     signal,
@@ -23,7 +24,6 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
     AsyncHandler,
     Building,
-    nextValueFrom,
     notifyError,
     notifySuccess,
     OrganisationService,
@@ -44,7 +44,6 @@ import {
     SurveyQuestion,
     updateSurvey,
 } from '@placeos/ts-client';
-import { first } from 'rxjs';
 
 import {
     IconComponent,
@@ -91,7 +90,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                         [placeholder]="'COMMON.BUILDING_SELECT' | translate"
                         formControlName="building_id"
                     >
-                        @for (b of buildings$(); track b) {
+                        @for (b of buildings(); track b) {
                             <mat-option [value]="b.id">{{
                                 b.display_name || b.name
                             }}</mat-option>
@@ -109,7 +108,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                         <mat-option [value]="form.value.building_id">
                             {{ 'COMMON.LEVEL_ALL' | translate }}
                         </mat-option>
-                        @for (b of levels$(); track b) {
+                        @for (b of levels(); track b) {
                             <mat-option [value]="b.id">{{
                                 b.display_name || b.name
                             }}</mat-option>
@@ -396,13 +395,10 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                     <div
                         class="space-y-2 px-2"
                         cdkDropList
-                        [cdkDropListData]="questions$ | async"
+                        [cdkDropListData]="questions()"
                         [cdkDropListConnectedTo]="[page_list]"
                     >
-                        @for (
-                            question of questions$ | async;
-                            track question.id
-                        ) {
+                        @for (question of questions(); track question.id) {
                             <div
                                 class="border-base-200 bg-base-200 relative flex w-full items-center rounded-sm border"
                                 cdkDrag
@@ -552,11 +548,10 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
     public readonly loading = signal(false);
     public readonly selected_type = signal('');
     public readonly search_text = signal('');
-    public readonly questions = signal([]);
 
-    public readonly buildings$ = this._org.building_list;
-    public readonly levels$ = this._org.active_levels;
-    public readonly questions$ = this._service.filtered_questions$;
+    public readonly buildings = this._org.building_list;
+    public readonly levels = this._org.active_levels;
+    public readonly questions = this._service.filtered_questions;
     public readonly trigger_types = TriggerOptions;
     public readonly question_types = QuestionTypeMap;
     public readonly question_options = QuestionTypeOptions;
@@ -580,30 +575,28 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
         }),
     ];
 
+    /** Sync the form with the active survey whenever it loads */
+    private readonly _sync_survey = effect(() => {
+        const survey = this._service.survey();
+        if (!survey) return;
+        this.form.patchValue(survey);
+        while (survey.pages.length > this.page_forms.length) {
+            this.page_forms.push(
+                new FormGroup({
+                    title: new FormControl('', []),
+                    description: new FormControl(''),
+                    question_order: new FormControl([]),
+                }),
+            );
+        }
+    });
+
     public ngOnInit(): void {
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((params) => {
                 if (params.has('id')) {
                     this._service.setSurvey(params.get('id'));
-                }
-            }),
-        );
-        this.subscription(
-            'survey',
-            this._service.survey$.subscribe((s) => {
-                if (s) {
-                    this.form.patchValue(s);
-                    console.log('Survey loaded', s);
-                    while (s.pages.length > this.page_forms.length) {
-                        this.page_forms.push(
-                            new FormGroup({
-                                title: new FormControl('', []),
-                                description: new FormControl(''),
-                                question_order: new FormControl([]),
-                            }),
-                        );
-                    }
                 }
             }),
         );
@@ -625,11 +618,6 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
                 }
             }),
         );
-        this.questions$
-            .pipe(first((_) => _.length > 0))
-            .subscribe((l) =>
-                this.timeout('questions', () => this.questions.set(l)),
-            );
     }
 
     public onPageChange(event: MatTabChangeEvent) {
@@ -701,7 +689,7 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
                 question_order: order,
             });
         } else {
-            const questions = await nextValueFrom(this.questions$);
+            const questions = this.questions();
             const q_id = questions[event.previousIndex].id;
             const order =
                 this.page_forms[this.active_page()].get('question_order').value;
