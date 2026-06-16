@@ -1,11 +1,9 @@
 import {
     ChangeDetectionStrategy,
     Component,
-    Injector,
     OnInit,
     inject,
 } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
 import {
     MatBottomSheet,
     MatBottomSheetRef,
@@ -17,12 +15,10 @@ import {
     OrganisationService,
     getInvalidSignalFields,
     i18n,
-    nextValueFrom,
     notifyError,
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { isBefore, startOfMinute } from 'date-fns';
-import { first } from 'rxjs/operators';
 import { BookLockerFlowConfirmComponent } from './locker-flow-confirm.component';
 import { LockerFormDetailsComponent } from './locker-form-details.component';
 
@@ -68,7 +64,6 @@ export class BookLockerFlowFormComponent implements OnInit {
     private _router = inject(Router);
     private _org = inject(OrganisationService);
     private _bottom_sheet = inject(MatBottomSheet);
-    private _injector = inject(Injector);
 
     public sheet_ref: MatBottomSheetRef<BookLockerFlowConfirmComponent>;
     public level = '';
@@ -111,11 +106,7 @@ export class BookLockerFlowFormComponent implements OnInit {
 
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
-        await nextValueFrom(
-            toObservable(this._org.active_levels, {
-                injector: this._injector,
-            }).pipe(first((_) => _?.length > 0)),
-        );
+        await this._waitForActiveLevels();
         this._state.setOptions({ type: 'locker' });
         this.level = this._org.building?.id;
         this.levels = [
@@ -127,6 +118,12 @@ export class BookLockerFlowFormComponent implements OnInit {
                 ...m,
                 date: startOfMinute(Date.now()).valueOf(),
             }));
+        }
+    }
+
+    private async _waitForActiveLevels() {
+        while (!this._org.active_levels()?.length) {
+            await new Promise((resolve) => setTimeout(resolve, 50));
         }
     }
 }

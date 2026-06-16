@@ -8,11 +8,11 @@ import {
     Injector,
     input,
     OnInit,
+    runInInjectionContext,
     signal,
     untracked,
     WritableSignal,
 } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -40,6 +40,7 @@ import {
     DateFieldComponent,
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
+import { isMock } from '@placeos/ts-client';
 import {
     addDays,
     addMinutes,
@@ -48,8 +49,6 @@ import {
     startOfDay,
     startOfWeek,
 } from 'date-fns';
-import { combineLatest, defer, from, Observable, of } from 'rxjs';
-import { catchError, filter, map, switchMap } from 'rxjs/operators';
 import { SettingsToggleComponent } from '../../../../../../libs/components/src/lib/settings-toggle.component';
 
 interface ParkingRequestShiftOption {
@@ -386,7 +385,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                         {{ 'BOOKINGS.PARKING_REQUEST_TYPE' | translate }}
                     </h3>
                     <div class="space-y-2">
-                        @for (type of request_types(); track type.id) {
+                        @for (type of request_types(); track trackById(type)) {
                             <div
                                 class="flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors"
                                 [class.border-info]="
@@ -406,9 +405,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                         model().request_type !== type.id
                                     "
                                 >
-                                    @if (
-                                        model().request_type === type.id
-                                    ) {
+                                    @if (model().request_type === type.id) {
                                         <div
                                             class="bg-info h-2.5 w-2.5 rounded-full"
                                         ></div>
@@ -583,7 +580,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                             </mat-select-trigger>
                                             @for (
                                                 option of shift_options();
-                                                track option.id
+                                                track trackById(option)
                                             ) {
                                                 <mat-option [value]="option.id">
                                                     {{
@@ -732,7 +729,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                 </div>
 
                 <!-- LOCATION PREFERENCE -->
-                @if (hasMultipleBuildings(building_list | async)) {
+                @if (hasMultipleBuildings(building_list())) {
                     <div
                         class="border-base-300 space-y-3 rounded-lg border p-4"
                     >
@@ -751,29 +748,30 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                             </div>
                         }
                         <div class="space-y-2">
-                            @for (bld of building_list | async; track bld.id) {
+                            @for (
+                                bld of building_list();
+                                track trackById(bld)
+                            ) {
                                 <div
                                     class="flex min-h-15 cursor-pointer items-center gap-3 rounded-lg border px-4 py-2 transition-colors"
                                     [class.border-info]="
-                                        (building | async)?.id === bld.id
+                                        building()?.id === bld.id
                                     "
                                     [class.border-base-300]="
-                                        (building | async)?.id !== bld.id
+                                        building()?.id !== bld.id
                                     "
                                     (click)="setBuilding(bld)"
                                 >
                                     <div
                                         class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2"
                                         [class.border-info]="
-                                            (building | async)?.id === bld.id
+                                            building()?.id === bld.id
                                         "
                                         [class.border-base-300]="
-                                            (building | async)?.id !== bld.id
+                                            building()?.id !== bld.id
                                         "
                                     >
-                                        @if (
-                                            (building | async)?.id === bld.id
-                                        ) {
+                                        @if (building()?.id === bld.id) {
                                             <div
                                                 class="bg-info h-2.5 w-2.5 rounded-full"
                                             ></div>
@@ -805,7 +803,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                             }
                                         </div>
                                         @if (
-                                            (building | async)?.id === bld.id &&
+                                            building()?.id === bld.id &&
                                             !hide_availability_counter()
                                         ) {
                                             <div
@@ -876,7 +874,9 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                         </div>
                         @if (!hide_prefer_toggle()) {
                             <settings-toggle
-                                [formField]="form().prefer_booked_location_first"
+                                [formField]="
+                                    form().prefer_booked_location_first
+                                "
                             >
                                 {{
                                     'BOOKINGS.PARKING_PREFER_BOOKED_LOCATION_FIRST'
@@ -902,13 +902,13 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                             <div>
                                 <div class="font-medium">
                                     {{
-                                        (building | async)?.display_name ||
-                                            (building | async)?.name
+                                        building()?.display_name ||
+                                            building()?.name
                                     }}
                                 </div>
-                                @if (getBayInfo(building | async)) {
+                                @if (getBayInfo(building())) {
                                     <div class="text-sm opacity-60">
-                                        {{ getBayInfo(building | async) }}
+                                        {{ getBayInfo(building()) }}
                                     </div>
                                 }
                             </div>
@@ -977,7 +977,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                 <mat-select [formField]="form().vehicle_type">
                                     @for (
                                         vtype of vehicle_type_options();
-                                        track vtype.id
+                                        track trackById(vtype)
                                     ) {
                                         <mat-option [value]="vtype.id">{{
                                             vtype.name | translate
@@ -998,18 +998,22 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
-                                    [formField]="form().plate_number"
+                                    [ngModel]="model().plate_number"
+                                    [ngModelOptions]="{ standalone: true }"
+                                    (ngModelChange)="setPlateNumber($event)"
                                     [placeholder]="
                                         'BOOKINGS.PARKING_REGISTRATION_PLACEHOLDER'
                                             | translate
                                     "
                                 />
-                                <mat-error>
-                                    {{
-                                        'BOOKINGS.PARKING_PLATE_NUMBER_REQUIRED'
-                                            | translate
-                                    }}
-                                </mat-error>
+                                @if (showPlateNumberError()) {
+                                    <mat-error>
+                                        {{
+                                            'BOOKINGS.PARKING_PLATE_NUMBER_REQUIRED'
+                                                | translate
+                                        }}
+                                    </mat-error>
+                                }
                             </mat-form-field>
                         </div>
                     </div>
@@ -1042,7 +1046,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                             >
                                 @for (
                                     option of filtered_approver_group_options();
-                                    track option.id
+                                    track trackById(option)
                                 ) {
                                     <mat-option [value]="option.id">{{
                                         option.name | translate
@@ -1086,7 +1090,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                 >
                                     @for (
                                         option of space_restriction_options();
-                                        track option.id
+                                        track trackById(option)
                                     ) {
                                         <mat-option [value]="option.id">{{
                                             option.name | translate
@@ -1099,7 +1103,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                             <div class="flex flex-col gap-2">
                                 @for (
                                     option of extra_space_restriction_options();
-                                    track option.id
+                                    track trackById(option)
                                 ) {
                                     <settings-toggle
                                         [name]="option.name | translate"
@@ -1147,9 +1151,9 @@ export class ParkingRequestFormDetailsComponent
 {
     private _prefilled_plate_number = '';
     private _parking = inject(ParkingService);
+    private _injector = inject(Injector);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
-    private _injector = inject(Injector);
     private _saved_shift_state: ParkingRequestShiftState | null = null;
     /**
      * Set to `true` once the user has explicitly chosen a shift via the
@@ -1203,41 +1207,32 @@ export class ParkingRequestFormDetailsComponent
     }
     public readonly force_show_host_select = input<boolean>(false);
     public readonly force_allow_any_host = input<boolean>(false);
-    public readonly building = toObservable(this._org.active_building);
+    public readonly building = this._org.active_building;
     public readonly hidden_buildings = settingSignal<string[]>(
         'parking.hidden_buildings',
         [],
     );
-    private readonly _hidden_buildings$ = toObservable(this.hidden_buildings);
     /**
      * Buildings available as parking locations. Excludes buildings without
      * any parking levels and buildings listed in `parking.hidden_buildings`.
      *
      * `active_buildings`/`level_list` are read synchronously from the
-     * organisation signals at subscribe time (via `defer` + `of`) so the
-     * list emits immediately for each subscriber, matching the eager
-     * behaviour the booking flow relies on.
+     * organisation signals so the list is available immediately, matching the
+     * eager behaviour the booking flow relies on.
      */
-    public readonly building_list = defer(() =>
-        combineLatest([
-            of(this._org.active_buildings()),
-            of(this._org.level_list()),
-            this._hidden_buildings$,
-        ]),
-    ).pipe(
-        map(([buildings, levels, hidden]) => {
-            const hidden_ids = new Set(hidden || []);
-            return (buildings || []).filter(
-                (bld) =>
-                    !hidden_ids.has(bld.id) &&
-                    (levels || []).some(
-                        (lvl) =>
-                            lvl.parent_id === bld.id &&
-                            lvl.tags.includes('parking'),
-                    ),
-            );
-        }),
-    );
+    public readonly building_list = computed(() => {
+        const hidden_ids = new Set(this.hidden_buildings() || []);
+        const levels = this._org.level_list();
+        return (this._org.active_buildings() || []).filter(
+            (bld) =>
+                !hidden_ids.has(bld.id) &&
+                (levels || []).some(
+                    (lvl) =>
+                        lvl.parent_id === bld.id &&
+                        lvl.tags.includes('parking'),
+                ),
+        );
+    });
     public readonly desk_booking_building_id = signal('');
     public readonly available_space_count = signal<number>(0);
     public readonly total_space_count = signal<number>(0);
@@ -1541,125 +1536,118 @@ export class ParkingRequestFormDetailsComponent
         const form = this.form();
         const model = this.model;
         if (!form || !model) return;
-        const value$ = toObservable(model, { injector: this._injector });
-        this.subscription(
-            'ensure_valid_building',
-            combineLatest([this.building_list, this.building])
-                .pipe(
-                    filter(
-                        ([buildings, bld]) =>
-                            buildings.length > 0 &&
-                            !buildings.some((_) => _.id === bld?.id),
-                    ),
-                )
-                .subscribe(([buildings]) => {
-                    this._org.building = buildings[0];
-                }),
+        runInInjectionContext(this._injector, () =>
+            effect((onCleanup) => {
+                const buildings = this.building_list();
+                const bld = this.building();
+                let active = true;
+                let timeout: ReturnType<typeof setTimeout> | null = null;
+                onCleanup(() => {
+                    active = false;
+                    if (timeout) clearTimeout(timeout);
+                });
+                if (
+                    buildings.length > 0 &&
+                    !buildings.some((_) => _.id === bld?.id)
+                ) {
+                    timeout = setTimeout(() => {
+                        if (active) this._org.building = buildings[0];
+                    });
+                }
+            }),
         );
-        this.subscription(
-            'space_availability',
-            combineLatest([
-                this.building,
-                toObservable(this._parking.spaces, {
-                    injector: this._injector,
-                }),
-                value$,
-            ])
-                .pipe(
-                    filter(([bld]) => !!bld?.id),
-                    switchMap(([bld, spaces, value]) => {
-                        const space_ids = new Set(
-                            spaces
-                                .filter((space) => space.bookable !== false)
-                                .map((space) => space.id),
-                        );
-                        this.total_space_count.set(space_ids.size);
-                        if (!space_ids.size) return of(0);
-                        const start_date = value.date || Date.now();
-                        const duration = value.duration || 540;
-                        this.availability_loading.set(true);
-                        return from(
-                            bookedResourceList({
-                                period_start: getUnixTime(start_date),
-                                period_end: getUnixTime(
-                                    addMinutes(start_date, duration),
-                                ),
-                                type: 'parking',
-                                zones: bld.id,
-                                rejected: false,
-                            }),
-                        ).pipe(
-                            map((booked_assets) => {
-                                const booked_ids = new Set(
-                                    booked_assets.filter((id) =>
-                                        space_ids.has(id),
-                                    ),
-                                );
-                                return [...space_ids].filter(
-                                    (id) => !booked_ids.has(id),
-                                ).length;
-                            }),
-                            catchError(() => of(0)),
-                        );
-                    }),
-                )
-                .subscribe((count) => {
-                    this.available_space_count.set(count);
-                    this.availability_loading.set(false);
-                }),
-        );
-        this.subscription(
-            'default_building_from_desk_booking',
-            combineLatest([
-                this.building_list,
-                value$.pipe(map((v) => v.date)),
-                value$.pipe(map((v) => v.user)),
-            ])
-                .pipe(
-                    switchMap(([buildings, date, user]) => {
-                        if (
-                            !this.default_location_from_desk_booking() ||
-                            model().id ||
-                            !date ||
-                            buildings?.length <= 1
-                        ) {
-                            return of(null);
-                        }
-                        const email = user?.email || currentUser()?.email || '';
-                        if (!email) return of(null);
-                        const period_start = getUnixTime(startOfDay(date));
-                        const period_end = getUnixTime(endOfDay(date));
-                        return from(
-                            queryBookings({
-                                type: 'desk',
-                                period_start,
-                                period_end,
-                                email,
-                                rejected: false,
-                            }),
-                        ).pipe(
-                            map((bookings) => {
-                                const booking = bookings.find(
-                                    (_) =>
-                                        _.user_email?.toLowerCase() ===
-                                        email.toLowerCase(),
-                                );
-                                if (!booking) return null;
-                                return this._buildingForBookingZones(
-                                    booking.zones,
-                                    buildings,
-                                );
-                            }),
-                            catchError(() => of(null)),
-                        );
-                    }),
-                )
-                .subscribe((building) => {
-                    this.desk_booking_building_id.set(building?.id || '');
-                    if (building && building.id !== this._org.building?.id) {
-                        this._org.building = building;
+        runInInjectionContext(this._injector, () =>
+            effect((onCleanup) => {
+                const bld = this.building();
+                const spaces = this._parking.spaces();
+                const value = model();
+                let active = true;
+                const timeout = setTimeout(async () => {
+                    if (!active) return;
+                    if (!bld?.id) {
+                        this.availability_loading.set(false);
+                        return;
                     }
-                }),
+                    const space_ids = new Set(
+                        spaces
+                            .filter((space) => space.bookable !== false)
+                            .map((space) => space.id),
+                    );
+                    this.total_space_count.set(space_ids.size);
+                    if (!space_ids.size) {
+                        this.available_space_count.set(0);
+                        this.availability_loading.set(false);
+                        return;
+                    }
+                    if (isMock()) {
+                        this.available_space_count.set(space_ids.size);
+                        this.availability_loading.set(false);
+                        return;
+                    }
+                    const start_date = value.date || Date.now();
+                    const duration = value.duration || 540;
+                    this.availability_loading.set(true);
+                    const booked_assets = await bookedResourceList({
+                        period_start: getUnixTime(start_date),
+                        period_end: getUnixTime(
+                            addMinutes(start_date, duration),
+                        ),
+                        type: 'parking',
+                        zones: bld.id,
+                        rejected: false,
+                    }).catch(() => []);
+                    if (!active) return;
+                    const booked_ids = new Set(
+                        booked_assets.filter((id) => space_ids.has(id)),
+                    );
+                    this.available_space_count.set(
+                        [...space_ids].filter((id) => !booked_ids.has(id))
+                            .length,
+                    );
+                    this.availability_loading.set(false);
+                });
+                onCleanup(() => {
+                    active = false;
+                    clearTimeout(timeout);
+                });
+            }),
+        );
+        runInInjectionContext(this._injector, () =>
+            effect(async () => {
+                const buildings = this.building_list();
+                const { date, user, id } = model();
+                if (
+                    !this.default_location_from_desk_booking() ||
+                    isMock() ||
+                    id ||
+                    !date ||
+                    buildings?.length <= 1
+                ) {
+                    this.desk_booking_building_id.set('');
+                    return;
+                }
+                const email = user?.email || currentUser()?.email || '';
+                if (!email) return;
+                const period_start = getUnixTime(startOfDay(date));
+                const period_end = getUnixTime(endOfDay(date));
+                const bookings = await queryBookings({
+                    type: 'desk',
+                    period_start,
+                    period_end,
+                    email,
+                    rejected: false,
+                }).catch(() => []);
+                const booking = bookings.find(
+                    (_) => _.user_email?.toLowerCase() === email.toLowerCase(),
+                );
+                const building = booking
+                    ? this._buildingForBookingZones(booking.zones, buildings)
+                    : null;
+                this.desk_booking_building_id.set(building?.id || '');
+                if (building && building.id !== this._org.building?.id) {
+                    this._org.building = building;
+                }
+            }),
         );
         this._initShiftStateFromForm(model);
         if (model().request_type) {
@@ -1667,8 +1655,8 @@ export class ParkingRequestFormDetailsComponent
         }
         this._syncRequestTypeTime();
         this._syncRequestTypeUser(model);
-        this._syncPrefilledPlateNumber(model, value$);
-        this._syncPlateNumberUser(model, value$);
+        this._syncPrefilledPlateNumber(model);
+        this._syncPlateNumberUser(model);
         if (
             this.filtered_approver_group_options().length &&
             !this.is_auto_approved()
@@ -1934,6 +1922,22 @@ export class ParkingRequestFormDetailsComponent
         return ids.size > 1;
     }
 
+    public trackById(item: { id?: string; value?: string; name?: string }) {
+        return item?.id || item?.value || item?.name || item;
+    }
+
+    public setPlateNumber(plate_number: string) {
+        const model = this.model;
+        if (!model || model().plate_number === plate_number) return;
+        model.update((m) => ({ ...m, plate_number }));
+    }
+
+    public showPlateNumberError() {
+        const field = this.form()?.plate_number;
+        const state = field?.();
+        return !!state?.touched?.() && !!state?.invalid?.();
+    }
+
     private _buildingForBookingZones(zones: string[], buildings: any[]) {
         const zone_ids = new Set((zones || []).filter((_) => !!_));
         return (buildings || []).find(
@@ -2138,9 +2142,7 @@ export class ParkingRequestFormDetailsComponent
      * pick the preferred shift for the active configuration. Called once
      * on initialisation.
      */
-    private _initShiftStateFromForm(
-        model: WritableSignal<BookingFormValue>,
-    ) {
+    private _initShiftStateFromForm(model: WritableSignal<BookingFormValue>) {
         const default_custom_shift = this._defaultCustomShift();
         this.custom_start_time_mins.set(default_custom_shift.start_time);
         this.custom_end_time_mins.set(default_custom_shift.end_time);
@@ -2283,36 +2285,28 @@ export class ParkingRequestFormDetailsComponent
         }
     }
 
-    private _syncPrefilledPlateNumber(
-        model: WritableSignal<BookingFormValue>,
-        value$: Observable<BookingFormValue>,
-    ) {
-        this.subscription(
-            'prefilled_plate_number',
-            value$
-                .pipe(map((v) => v.plate_number))
-                .subscribe((plate_number) => {
-                    if (this._prefilled_plate_number) return;
-                    if (
-                        this._userEmail(model().user) !==
-                        this._userEmail(currentUser())
-                    ) {
-                        return;
-                    }
-                    if (!plate_number) return;
-                    this._prefilled_plate_number = plate_number;
-                }),
+    private _syncPrefilledPlateNumber(model: WritableSignal<BookingFormValue>) {
+        runInInjectionContext(this._injector, () =>
+            effect(() => {
+                const plate_number = model().plate_number;
+                if (this._prefilled_plate_number) return;
+                if (
+                    this._userEmail(model().user) !==
+                    this._userEmail(currentUser())
+                ) {
+                    return;
+                }
+                if (!plate_number) return;
+                this._prefilled_plate_number = plate_number;
+            }),
         );
     }
 
-    private _syncPlateNumberUser(
-        model: WritableSignal<BookingFormValue>,
-        value$: Observable<BookingFormValue>,
-    ) {
+    private _syncPlateNumberUser(model: WritableSignal<BookingFormValue>) {
         let previous_email = this._userEmail(model().user);
-        this.subscription(
-            'plate_number_user',
-            value$.pipe(map((v) => v.user)).subscribe((selected_user) => {
+        runInInjectionContext(this._injector, () =>
+            effect(() => {
+                const selected_user = model().user;
                 const current_email = this._userEmail(currentUser());
                 const selected_email = this._userEmail(selected_user);
                 const user_changed = selected_email !== previous_email;

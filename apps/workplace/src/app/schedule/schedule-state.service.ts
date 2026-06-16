@@ -1,12 +1,8 @@
-import { effect, inject, Injectable } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     checkinBooking,
-    loadLockerBanks,
-    loadLockers,
-    Locker,
-    LockerBank,
+    loadLockerResources,
     ParkingService,
     queryBookings,
 } from '@placeos/bookings';
@@ -15,10 +11,8 @@ import {
     Booking,
     BookingType,
     CalendarEvent,
-    current_user,
     currentUser,
     flatten,
-    observableFromSignal,
     OrganisationService,
     SettingsService,
     unique,
@@ -47,26 +41,6 @@ import {
     startOfMinute,
     startOfWeek,
 } from 'date-fns';
-import {
-    BehaviorSubject,
-    combineLatest,
-    from,
-    interval,
-    Observable,
-    of,
-} from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    distinctUntilChanged,
-    distinctUntilKeyChanged,
-    filter,
-    map,
-    shareReplay,
-    startWith,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
 
 export type EventSource = 'api' | 'driver' | 'ws';
 
@@ -74,12 +48,6 @@ export interface ScheduleOptions {
     period: 'day' | 'week' | 'month';
 }
 
-/**
- * De-duplicates events from multiple sources based on ical_uid.
- * Events from sources earlier in the list take priority.
- * @param events_by_source - Array of event arrays, ordered by priority (first = highest priority)
- * @returns De-duplicated array of events
- */
 function deduplicateEventsByIcalUid(
     events_by_source: CalendarEvent[][],
 ): CalendarEvent[] {
@@ -89,8 +57,6 @@ function deduplicateEventsByIcalUid(
     for (const events of events_by_source) {
         for (const event of events) {
             const uid = event.ical_uid;
-            // If no ical_uid, include the event (can't dedupe without it)
-            // If ical_uid exists and hasn't been seen, include and mark as seen
             if (!uid || !seen_ical_uids.has(uid)) {
                 if (uid) seen_ical_uids.add(uid);
                 result.push(event);
@@ -110,11 +76,11 @@ export class ScheduleStateService extends AsyncHandler {
     private _dialog = inject(MatDialog);
     private _parking = inject(ParkingService);
 
-    private _poll = new BehaviorSubject(0);
-    private _event_sources = new BehaviorSubject<EventSource[]>(['api']);
-    private _loading = new BehaviorSubject(false);
-    private _options = new BehaviorSubject<ScheduleOptions>({ period: 'day' });
-    private _filters = new BehaviorSubject({
+    private _poll = signal(0);
+    private _event_sources = signal<EventSource[]>(['api']);
+    private _loading = signal(false);
+    private _options = signal<ScheduleOptions>({ period: 'day' });
+    private _filters = signal({
         shown_types: [
             'event',
             'desk',
@@ -124,605 +90,205 @@ export class ScheduleStateService extends AsyncHandler {
             'group-event',
         ],
     });
-    private _date = new BehaviorSubject(Date.now());
-    private _update = combineLatest([this._date, this._poll]).pipe(
-        debounceTime(500),
-        tap((_) => this._loading.next(true)),
-    );
-
+    private _date = signal(Date.now());
     private _deleted: string[] = [];
+    private _ignore_cancel: string[] = [];
 
-    private _space_bookings: Observable<CalendarEvent[]> = toObservable(
-        this._org.active_building,
-    ).pipe(
-        filter((_) => !!_),
-        distinctUntilKeyChanged('id'),
-        debounceTime(300),
-        tap((_) => this.unsubWith('bind:')),
-        switchMap(({ id }) => {
-            this._loading.next(true);
-            return requestSpacesForZone(id);
-        }), // Get list of spaces for building
-        distinctUntilChanged(([s1], [s2]) => s1 !== s2),
-        switchMap((list) => {
-            this._loading.next(false);
-            return combineLatest(
-                (list || []).map((space) => {
-                    const binding = getModule(space.id, 'Bookings').variable(
-                        'bookings',
-                    );
-                    const obs = observableFromSignal(binding.listen()).pipe(
-                        map((event_list) =>
-                            (event_list || []).map(
-                                (i) =>
-                                    new CalendarEvent({
-                                        ...i,
-                                        resources: i.attendees.filter(
-                                            (_) =>
-                                                _.email === space.email ||
-                                                _.resource,
-                                        ),
-                                        system: space,
-                                    }),
-                            ),
-                        ),
-                        catchError((_) => of([])),
-                    );
-                    if (!this.hasSubscription(`bind:${space.id}`)) {
-                        this.subscription(`bind:${space.id}`, binding.bind());
-                    }
-                    return obs;
-                }),
-            );
-        }),
-        map((_) => flatten<CalendarEvent>(_)),
-        shareReplay(1),
+    private _space_bookings = signal<CalendarEvent[]>([]);
+    private _user_bookings = signal<CalendarEvent[]>([]);
+    private _api_events = signal<CalendarEvent[]>([]);
+    private _visitors = signal<Booking[]>([]);
+    private _desks = signal<Booking[]>([]);
+    private _parking_bookings = signal<Booking[]>([]);
+    private _locker_bookings = signal<Booking[]>([]);
+    private _lockers = signal<Booking[]>([]);
+
+    public readonly options = this._options.asReadonly();
+    public readonly filters = this._filters.asReadonly();
+    public readonly date = this._date.asReadonly();
+    public readonly loading = this._loading.asReadonly();
+    public readonly event_sources = this._event_sources.asReadonly();
+
+    public readonly week_date = computed(() =>
+        startOfWeek(this._date(), {
+            weekStartsOn: this.offset_weekday as any,
+        }).valueOf(),
     );
 
-    private _user_bookings: Observable<CalendarEvent[]> = combineLatest([
-        toObservable(this._org.active_building),
-        this._poll,
-    ]).pipe(
-        filter(([bld]) => !!bld),
-        debounceTime(300),
-        switchMap(() => {
-            this._loading.next(true);
-            const mod = this._org.module(
-                'location_services',
-                'LocationServices',
-            );
-            if (!mod?.system) return of([]);
-            return mod.execute('my_bookings').catch((_) => []);
-        }),
-        map((_) => (_ || []).map((_) => new CalendarEvent(_))),
-        shareReplay(1),
-    );
-
-    public readonly options = this._options.asObservable();
-    /** Currently selected date */
-    public readonly filters = this._filters.asObservable();
-    /** Currently selected date */
-    public readonly date = this._date.asObservable();
-    /** Whether events and bookings are loading */
-    public readonly loading = this._loading.asObservable();
-
-    public setOptions(options: ScheduleOptions) {
-        this._options.next(options);
-    }
-
-    public getOptions() {
-        return this._options.getValue();
-    }
-
-    /** Observable of current event sources */
-    public readonly event_sources = this._event_sources.asObservable();
-
-    /**
-     * Set the event sources to use for fetching events.
-     * The order determines priority for de-duplication (first = highest priority).
-     * @param sources - Array of event sources in priority order
-     */
-    public setEventSources(sources: EventSource[]) {
-        if (sources?.length) {
-            this._event_sources.next(sources);
+    public readonly week_options = computed(() => {
+        if (!this._org.active_building()) return [];
+        const options = [];
+        const date = startOfDay(Date.now());
+        for (let i = -4; i < 48; i++) {
+            const day = addWeeks(date, i);
+            const week_s_date = startOfWeek(day, {
+                weekStartsOn: this.offset_weekday,
+            });
+            const week_e_date = endOfWeek(day, {
+                weekStartsOn: this.offset_weekday,
+            });
+            const this_week =
+                isAfter(Date.now(), week_s_date) &&
+                isBefore(Date.now(), week_e_date);
+            options.push({
+                id: week_s_date.valueOf(),
+                name: `${format(week_s_date, 'dd MMM')} - ${format(
+                    week_e_date,
+                    'dd MMM',
+                )}`,
+                this_week,
+            });
         }
-    }
+        return options;
+    });
 
-    /**
-     * Get the current event sources
-     * @returns Array of event sources in priority order
-     */
-    public getEventSources(): EventSource[] {
-        return this._event_sources.getValue();
-    }
-
-    public readonly week_date = combineLatest([
-        toObservable(this._org.active_building),
-        this.date,
-    ]).pipe(
-        map(([_, date]) =>
-            startOfWeek(date, {
-                weekStartsOn: this.offset_weekday as any,
-            }).valueOf(),
-        ),
+    public readonly driver_events = computed(() =>
+        this._filterUserEvents(this._user_bookings()),
     );
+    public readonly ws_events = computed(() =>
+        this._filterUserEvents(this._space_bookings()),
+    );
+    public readonly api_events = this._api_events.asReadonly();
 
-    public readonly week_options = combineLatest([
-        toObservable(this._org.active_building),
-        this.date,
-    ]).pipe(
-        filter(([bld]) => !!bld),
-        map(() => {
-            const options = [];
-            const date = startOfDay(Date.now());
-            for (let i = -4; i < 48; i++) {
-                const day = addWeeks(date, i);
-                const week_s_date = startOfWeek(day, {
-                    weekStartsOn: this.offset_weekday,
-                });
-                const week_e_date = endOfWeek(day, {
-                    weekStartsOn: this.offset_weekday,
-                });
-                const this_week =
-                    isAfter(Date.now(), week_s_date) &&
-                    isBefore(Date.now(), week_e_date);
-                const week_start = format(week_s_date, 'dd MMM');
-                const week_end = format(week_e_date, 'dd MMM');
-                options.push({
-                    id: week_s_date.valueOf(),
-                    name: `${week_start} - ${week_end}`,
-                    this_week,
-                });
+    public readonly raw_events = computed(() => {
+        const sources = this._event_sources();
+        if (!sources?.length) return [];
+        const events_by_source = sources.map((source) => {
+            switch (source) {
+                case 'driver':
+                    return this.driver_events();
+                case 'ws':
+                    return this.ws_events();
+                case 'api':
+                default:
+                    return this.api_events();
             }
-            return options;
-        }),
+        });
+        return deduplicateEventsByIcalUid(events_by_source);
+    });
+    public readonly events = computed(() =>
+        this.raw_events().filter((_) => !_.extension_data?.shared_event),
     );
+    public readonly visitors = this._visitors.asReadonly();
+    public readonly desks = this._desks.asReadonly();
+    public readonly parking = this._parking_bookings.asReadonly();
+    public readonly group_events = computed(() =>
+        this.raw_events().filter((_) => _.extension_data?.shared_event),
+    );
+    public readonly locker_bookings = this._locker_bookings.asReadonly();
+    public readonly lockers = this._lockers.asReadonly();
 
-    public readonly driver_events = combineLatest([
-        this._user_bookings,
-        this._update,
-    ]).pipe(
-        map(([_, [date]]) => {
-            const user = currentUser();
-            return _.filter(
-                (_) =>
-                    isSameDay(_.date, date) &&
-                    (_.host.toLowerCase() === user.email.toLowerCase() ||
-                        _.attendees.find(
-                            (a) =>
-                                a.email.toLowerCase() ===
-                                user.email.toLowerCase(),
-                        )) &&
-                    !_.linked_bookings?.find(
-                        (b) => b.booking_type === 'group-event',
-                    ),
-            );
-        }),
-    );
+    public readonly bookings = computed(() => {
+        const events = this.events();
+        const visitors = this.visitors();
+        const desks = this.desks();
+        const parking = this.parking();
+        const lockers = this.lockers();
+        const locker_bookings = this.locker_bookings();
+        const group_events = this.group_events();
+        const filtered_events = events.filter(
+            (ev) =>
+                !desks.find((bkn) => `${ev.meeting_id}` === `${bkn.id}`) &&
+                ev.linked_bookings[0]?.booking_type !== 'group-event',
+        );
+        return [
+            ...filtered_events,
+            ...visitors,
+            ...desks,
+            ...parking,
+            ...lockers,
+            ...locker_bookings,
+            ...group_events,
+        ].sort((a, b) => a.date - b.date);
+    });
 
-    public readonly ws_events = combineLatest([
-        this._space_bookings,
-        this._update,
-    ]).pipe(
-        map(([_, [date]]) => {
-            const user = currentUser();
-            return _.filter(
-                (_) =>
-                    isSameDay(_.date, date) &&
-                    (_.host.toLowerCase() === user.email.toLowerCase() ||
-                        _.attendees.find(
-                            (a) =>
-                                a.email.toLowerCase() ===
-                                user.email.toLowerCase(),
-                        )) &&
-                    !_.linked_bookings?.find(
-                        (b) => b.booking_type === 'group-event',
-                    ),
-            );
-        }),
-    );
-    /** List of calendar events for the selected date */
-    public readonly api_events: Observable<CalendarEvent[]> = combineLatest([
-        this._update,
-        this._options,
-    ]).pipe(
-        switchMap(([[date], { period }]) => {
-            const query = {
-                period_start: getUnixTime(
-                    period === 'day'
-                        ? startOfDay(date)
-                        : startOfWeek(date, {
-                              weekStartsOn: this.offset_weekday as any,
-                          }),
-                ),
-                period_end: getUnixTime(
-                    period === 'day'
-                        ? endOfDay(date)
-                        : endOfWeek(date, {
-                              weekStartsOn: this.offset_weekday as any,
-                          }),
-                ),
-            };
-            return this._settings.get('app.events.use_bookings')
-                ? from(queryBookings({ ...query, type: 'room' })).pipe(
-                      map((_) => _.map((i) => newCalendarEventFromBooking(i))),
-                      catchError((_) => of([])),
-                  )
-                : from(queryEvents({ ...query })).pipe(
-                      catchError((_) => of([])),
-                  );
-        }),
-        shareReplay(1),
-    );
-    /** Map of source type to observable */
-    private _getEventsObservable(
-        source: EventSource,
-    ): Observable<CalendarEvent[]> {
-        switch (source) {
-            case 'driver':
-                return this.driver_events;
-            case 'ws':
-                return this.ws_events;
-            case 'api':
-            default:
-                return this.api_events;
-        }
-    }
-
-    /** List of calendar events for the selected date, combined from multiple sources */
-    public readonly raw_events = combineLatest([
-        this._event_sources,
-        this._options,
-    ]).pipe(
-        switchMap(([sources]) => {
-            if (!sources?.length) {
-                return of([]);
-            }
-            // Create observables for each source in priority order
-            const source_observables = sources.map((source) =>
-                this._getEventsObservable(source).pipe(
-                    catchError(() => of([] as CalendarEvent[])),
-                ),
-            );
-            // Combine all sources and deduplicate by ical_uid
-            return combineLatest(source_observables).pipe(
-                map((events_by_source) =>
-                    deduplicateEventsByIcalUid(events_by_source),
-                ),
-            );
-        }),
-        tap(() => this.timeout('end_loading', () => this._loading.next(false))),
-        shareReplay(1),
-    );
-    /** List of calendar events for the selected date */
-    public readonly events = this.raw_events.pipe(
-        map((_) => _.filter((_) => !_.extension_data?.shared_event)),
-    );
-    /** List of desk bookings for the selected date */
-    public readonly visitors: Observable<Booking[]> = combineLatest([
-        this._update,
-        this.options,
-    ]).pipe(
-        switchMap(([[date], { period }]) =>
-            this._bookingQuery('visitor', period, date),
-        ),
-        map((_) => _.filter((_) => !_.linked_event)),
-        tap(() => this.timeout('end_loading', () => this._loading.next(false))),
-        shareReplay(1),
-    );
-    /** List of desk bookings for the selected date */
-    public readonly desks: Observable<Booking[]> = combineLatest([
-        this._update,
-        this.options,
-    ]).pipe(
-        switchMap(([[date], { period }]) =>
-            this._bookingQuery('desk', period, date),
-        ),
-        tap(() => this.timeout('end_loading', () => this._loading.next(false))),
-        shareReplay(1),
-    );
-    /** List of parking bookings for the selected date */
-    public readonly parking: Observable<Booking[]> = combineLatest([
-        this._update,
-        this.options,
-    ]).pipe(
-        switchMap(([[date], { period }]) =>
-            this._bookingQuery('parking', period, date),
-        ),
-        tap(() => this.timeout('end_loading', () => this._loading.next(false))),
-        shareReplay(1),
-    );
-    /** List of calendar events for the selected date */
-    public readonly group_events = this.raw_events.pipe(
-        map((_) => _.filter((_) => _.extension_data?.shared_event)),
-    );
-    public readonly locker_bookings: Observable<Booking[]> = combineLatest([
-        this._update,
-        this.options,
-    ]).pipe(
-        switchMap(([[date], { period }]) =>
-            this._bookingQuery('locker', period, date),
-        ),
-        tap(() => this.timeout('end_loading', () => this._loading.next(false))),
-        shareReplay(1),
-    );
-    private _lockers_banks: Observable<LockerBank[]> = loadLockerBanks(
-        this._org,
-        combineLatest([
-            toObservable(this._org.active_building),
-            toObservable(this._org.active_region),
-        ]),
-        () => this._settings.get('app.use_region'),
-    );
-    private _lockers: Observable<Locker[]> = loadLockers(
-        this._org,
-        combineLatest([
-            toObservable(this._org.active_building),
-            toObservable(this._org.active_region),
-        ]),
-        this._lockers_banks,
-        () => this._settings.get('app.use_region'),
-    );
-    /** List of parking bookings for the selected date */
-    public readonly lockers: Observable<Booking[]> = combineLatest([
-        this._lockers,
-        toObservable(this._org.active_building).pipe(
-            filter((_) => !!_),
-            distinctUntilKeyChanged('id'),
-        ),
-    ]).pipe(
-        debounceTime(300),
-        switchMap(async ([lockers]) => {
-            const mod = this._org.module('lockers', 'LockerLocations');
-            if (!mod) return [[], lockers];
-            const my_lockers = await mod
-                .execute('lockers_allocated_to_me')
-                .catch(() => []);
-            return [my_lockers, lockers];
-        }),
-        map(([my_lockers, lockers]) => {
-            return my_lockers
-                .map((i) => {
-                    const locker = (lockers as Locker[]).find(
-                        (lkr) => lkr.id === i.locker_id,
-                    );
-                    if (!locker && (!i.level || !i.building)) return null;
-                    return new Booking({
-                        date: startOfDay(Date.now()).valueOf(),
-                        duration: 24 * 60 - 1,
-                        title: 'Locker Booking',
-                        description: i.locker_name,
-                        booking_type: 'locker',
-                        all_day: true,
-                        asset_id: locker.map_id,
-                        asset_name: i.locker_name,
-                        zones: [...(locker.bank?.zones || [])],
-                        extension_data: {
-                            // map_id: i.locker_id || locker.map_id,
-                        },
-                    });
-                })
-                .filter((item) => item);
-        }),
-        catchError((e) => {
-            console.error(e);
-            return of([]);
-        }),
-        tap(() => this.timeout('end_loading', () => this._loading.next(false))),
-        shareReplay(1),
-    );
-
-    /** List of events and bookings for the selected date */
-    public readonly bookings = combineLatest([
-        this.events,
-        this.visitors,
-        this.desks,
-        this.parking,
-        this.lockers,
-        this.locker_bookings,
-        this.group_events,
-    ]).pipe(
-        map(
-            ([
-                events,
-                visitors,
-                desks,
-                parking,
-                lockers,
-                locker_bookings,
-                group_events,
-            ]: any) => {
-                const filtered_events = events.filter(
-                    (ev) =>
-                        !desks.find(
-                            (bkn) => `${ev.meeting_id}` === `${bkn.id}`,
-                        ) &&
-                        ev.linked_bookings[0]?.booking_type !== 'group-event',
-                );
-                return [
-                    ...filtered_events,
-                    ...visitors,
-                    ...desks,
-                    ...parking,
-                    ...lockers,
-                    ...locker_bookings,
-                    ...group_events,
-                ].sort((a, b) => a.date - b.date);
-            },
-        ),
-    );
-    /** Filtered list of events and bookings for the selected date */
-    public readonly filtered_bookings = combineLatest([
-        this.bookings,
-        this._filters,
-    ]).pipe(
-        map(([bkns, filters]) =>
-            bkns.filter((_) => {
-                if (
-                    this._deleted.includes(
-                        _.instance ? `${_.id}|${_.instance}` : _.id,
-                    )
+    public readonly filtered_bookings = computed(() =>
+        this.bookings().filter((_) => {
+            const filters = this._filters();
+            if (
+                this._deleted.includes(
+                    (_ as any).instance
+                        ? `${_.id}|${(_ as any).instance}`
+                        : _.id,
                 )
-                    return false;
-                if (
-                    _.extension_data?.shared_event &&
-                    !filters?.shown_types?.includes('group-event')
-                ) {
-                    return false;
-                }
-                if (
-                    _ instanceof CalendarEvent &&
-                    !_.extension_data?.shared_event &&
-                    !filters?.shown_types?.includes('event')
-                ) {
-                    return false;
-                } else if (_ instanceof CalendarEvent) return true;
-                return filters?.shown_types?.includes((_ as any).booking_type);
-            }),
-        ),
+            ) {
+                return false;
+            }
+            if (
+                _.extension_data?.shared_event &&
+                !filters?.shown_types?.includes('group-event')
+            ) {
+                return false;
+            }
+            if (
+                _ instanceof CalendarEvent &&
+                !_.extension_data?.shared_event &&
+                !filters?.shown_types?.includes('event')
+            ) {
+                return false;
+            }
+            if (_ instanceof CalendarEvent) return true;
+            return filters?.shown_types?.includes((_ as any).booking_type);
+        }),
     );
 
     public get offset_weekday(): 0 | 1 | 2 | 3 | 4 | 5 | 6 {
         return this._settings.get('app.week_start') || 0;
     }
 
-    private _ignore_cancel: string[] = [];
-    private _checkCancel = combineLatest([
-        current_user,
-        interval(60 * 1000).pipe(startWith(0)),
-    ]).pipe(
-        filter(([u]) => !!u),
-        map(async ([user]) => {
-            const is_home = user.location !== 'wfo';
-            const auto_release = this._settings.get('app.auto_release');
-            if (
-                auto_release &&
-                is_home &&
-                (auto_release.time_after || auto_release.time_before) &&
-                auto_release.resources?.length
-            ) {
-                for (const type of auto_release.resources) {
-                    const time_after =
-                        auto_release[`${type}_time_after`] ||
-                        auto_release.time_after;
-                    const time_before = Math.min(
-                        60,
-                        auto_release[`${type}_time_before`] ||
-                            auto_release.time_before ||
-                            0,
-                    );
-                    const bookings = await queryBookings({
-                        period_start: getUnixTime(startOfMinute(Date.now())),
-                        period_end: getUnixTime(
-                            addMinutes(
-                                Date.now(),
-                                (time_after || 5) + time_before,
-                            ),
-                        ),
-                        type,
-                    });
-                    const check_block = (time_after || 0) + time_before;
-                    for (const booking of bookings) {
-                        if (
-                            this._ignore_cancel.includes(booking.id) ||
-                            booking.checked_in ||
-                            booking.rejected
-                        ) {
-                            continue;
-                        }
-                        const start_time = booking.is_all_day
-                            ? setHours(booking.date, auto_release.all_day_start)
-                            : booking.date;
-                        this._dialog.closeAll();
-                        const diff = differenceInMinutes(
-                            addMinutes(start_time, time_after || 0),
-                            Date.now(),
-                        );
-                        if (diff > check_block || diff < 0) continue;
-                        const time = addMinutes(start_time, time_after || 0);
-                        const close_after = differenceInMilliseconds(
-                            time.getTime() + 60 * 1000,
-                            Date.now(),
-                        );
-                        const wording =
-                            type === 'parking' ? 'reservation' : 'booking';
-                        const result = await openConfirmModal(
-                            {
-                                title: `Keep ${type} ${wording}`,
-                                content: `You have indicated you are not in the office.
-                                Your  ${wording} for "<i>${
-                                    booking.asset_name || booking.title
-                                }</i>" at ${format(
-                                    booking.date,
-                                    this._settings.time_format,
-                                )} will be cancelled at ${format(
-                                    time,
-                                    this._settings.time_format,
-                                )}.<br/><br/>
-                                Do you wish to keep this ${wording}?`,
-                                icon: { content: 'event_busy' },
-                                confirm_text: 'Keep',
-                                close_delay: close_after,
-                            },
-                            this._dialog,
-                        );
-                        if (result.reason !== 'done') {
-                            this._ignore_cancel.push(booking.id);
-                            continue;
-                        }
-                        result.loading('Checking in booking...');
-                        await checkinBooking(booking.id, true);
-                        result.close();
-                    }
-                }
-            }
-        }),
-    );
-
     public get dateValue() {
-        return this._date.getValue();
+        return this._date();
     }
 
     constructor() {
         super();
-        this.subscription(
-            'event_sources',
-            toObservable(this._org.active_building).subscribe(() => {
-                // Check for new array-based setting first
-                const sources_setting = this._settings.get(
-                    'app.schedule.event_sources',
-                ) as EventSource[] | undefined;
-                if (sources_setting?.length) {
-                    this._event_sources.next(sources_setting);
-                } else {
-                    // Fall back to legacy boolean settings for backward compatibility
-                    const legacy_source: EventSource = this._settings.get(
-                        'app.schedule.use_driver',
-                    )
-                        ? 'driver'
-                        : this._settings.get('app.schedule.use_websocket')
-                          ? 'ws'
-                          : 'api';
-                    this._event_sources.next([legacy_source]);
-                }
-            }),
-        );
-        const chat_complete = this._settings.listen('CHAT:task_complete');
-        effect(() => {
-            if (chat_complete()) this.triggerPoll();
-        });
-        this.subscription('wfh_checks', this._checkCancel.subscribe());
         this._deleted = JSON.parse(
             sessionStorage.getItem('PLACEOS.events.deleted') || '[]',
         );
+        effect(() => {
+            this._org.active_building();
+            this._setConfiguredEventSources();
+        });
+        effect(() => {
+            this._settings.listen('CHAT:task_complete')();
+            this.triggerPoll();
+        });
+        this._loadSpaceBookings();
+        this._loadUserBookings();
+        this._loadApiEvents();
+        this._loadBookingType('visitor', this._visitors, (list) =>
+            list.filter((_) => !_.linked_event),
+        );
+        this._loadBookingType('desk', this._desks);
+        this._loadBookingType('parking', this._parking_bookings);
+        this._loadBookingType('locker', this._locker_bookings);
+        this._loadLockers();
+        this.interval('wfh_checks', () => this._checkCancel(), 60 * 1000);
+        this._checkCancel();
+    }
+
+    public setOptions(options: ScheduleOptions) {
+        this._options.set(options);
+    }
+
+    public getOptions() {
+        return this._options();
+    }
+
+    public setEventSources(sources: EventSource[]) {
+        if (sources?.length) this._event_sources.set(sources);
+    }
+
+    public getEventSources(): EventSource[] {
+        return this._event_sources();
     }
 
     public triggerPoll() {
-        this._poll.next(Date.now());
+        this._poll.set(Date.now());
     }
 
     public startPolling(delay = 60 * 1000) {
-        this.interval('poll', () => this._poll.next(Date.now()), delay);
+        this.interval('poll', () => this._poll.set(Date.now()), delay);
         return () => this.stopPolling();
     }
 
@@ -731,14 +297,14 @@ export class ScheduleStateService extends AsyncHandler {
     }
 
     public setDate(date: number) {
-        this._date.next(date);
+        this._date.set(date);
     }
 
     public removeItem(item) {
         this.setAsDeleted(
             item.instance ? `${item.id}|${item.instance}` : item.id,
         );
-        this._poll.next(Date.now());
+        this._poll.set(Date.now());
     }
 
     public setAsDeleted(id: string) {
@@ -750,32 +316,229 @@ export class ScheduleStateService extends AsyncHandler {
     }
 
     public setType(name: string, state: boolean) {
-        const filters = this._filters.getValue() || { shown_types: [] };
+        const filters = this._filters() || { shown_types: [] };
         const { shown_types } = filters;
         if (shown_types.includes(name) === state) return;
         const new_types = state
             ? unique([...shown_types, name])
             : shown_types.filter((_) => _ !== name);
-        this._filters.next({
-            ...filters,
-            shown_types: new_types,
-        });
+        this._filters.set({ ...filters, shown_types: new_types });
     }
 
     public async toggleType(name: string, clear = false) {
-        const filters = this._filters.getValue() || { shown_types: [] };
+        const filters = this._filters() || { shown_types: [] };
         const { shown_types } = filters;
         if (shown_types && (shown_types.includes(name) || clear)) {
-            this._filters.next({
+            this._filters.set({
                 ...filters,
                 shown_types: shown_types.filter((_) => _ !== name),
             });
         } else {
-            this._filters.next({
+            this._filters.set({
                 ...filters,
                 shown_types: [...shown_types, name],
             });
         }
+    }
+
+    private _loadSpaceBookings() {
+        effect(async (onCleanup) => {
+            const bld = this._org.active_building();
+            if (!bld?.id) {
+                this._space_bookings.set([]);
+                return;
+            }
+            let active = true;
+            const cleanups: (() => void)[] = [];
+            onCleanup(() => {
+                active = false;
+                for (const cleanup of cleanups) cleanup();
+            });
+            this._loading.set(true);
+            const spaces = await requestSpacesForZone(bld.id)
+                .toPromise()
+                .catch(() => []);
+            const events_by_space: CalendarEvent[][] = [];
+            for (const [idx, space] of (spaces || []).entries()) {
+                const binding = getModule(space.id, 'Bookings').variable(
+                    'bookings',
+                );
+                cleanups.push(
+                    binding.bindThenSubscribe((event_list) => {
+                        events_by_space[idx] = (event_list || []).map(
+                            (i) =>
+                                new CalendarEvent({
+                                    ...i,
+                                    resources: i.attendees.filter(
+                                        (_) =>
+                                            _.email === space.email ||
+                                            _.resource,
+                                    ),
+                                    system: space,
+                                }),
+                        );
+                        if (active) {
+                            this._space_bookings.set(
+                                flatten<CalendarEvent>(events_by_space),
+                            );
+                        }
+                    }),
+                );
+            }
+            this._loading.set(false);
+        });
+    }
+
+    private _loadUserBookings() {
+        effect(async () => {
+            const bld = this._org.active_building();
+            this._poll();
+            if (!bld) {
+                this._user_bookings.set([]);
+                return;
+            }
+            this._loading.set(true);
+            const mod = this._org.module(
+                'location_services',
+                'LocationServices',
+            );
+            const list = mod?.system
+                ? await mod.execute('my_bookings').catch(() => [])
+                : [];
+            this._user_bookings.set(
+                (list || []).map((_) => new CalendarEvent(_)),
+            );
+            this._loading.set(false);
+        });
+    }
+
+    private _loadApiEvents() {
+        effect(async () => {
+            const date = this._date();
+            const { period } = this._options();
+            this._poll();
+            this._loading.set(true);
+            const query = this._periodQuery(period, date);
+            const list = this._settings.get('app.events.use_bookings')
+                ? await queryBookings({ ...query, type: 'room' })
+                      .then((_) => _.map((i) => newCalendarEventFromBooking(i)))
+                      .catch(() => [])
+                : await queryEvents({ ...query }).catch(() => []);
+            this._api_events.set(list);
+            this.timeout('end_loading', () => this._loading.set(false));
+        });
+    }
+
+    private _loadBookingType(
+        type: BookingType,
+        target,
+        map_list: (list: Booking[]) => Booking[] = (list) => list,
+    ) {
+        effect(async () => {
+            const date = this._date();
+            const { period } = this._options();
+            this._poll();
+            this._loading.set(true);
+            const list = await this._bookingQuery(type, period, date);
+            target.set(map_list(list));
+            this.timeout('end_loading', () => this._loading.set(false));
+        });
+    }
+
+    private _loadLockers() {
+        effect(async () => {
+            const bld = this._org.active_building();
+            const region = this._org.active_region();
+            const scope_id = this._settings.get('app.use_region')
+                ? region?.id || this._org.region?.id
+                : bld?.id;
+            if (!scope_id) {
+                this._lockers.set([]);
+                return;
+            }
+            const lockers = await loadLockerResources(this._org, scope_id);
+            const mod = this._org.module('lockers', 'LockerLocations');
+            const my_lockers = mod
+                ? await mod.execute('lockers_allocated_to_me').catch(() => [])
+                : [];
+            this._lockers.set(
+                my_lockers
+                    .map((i) => {
+                        const locker = lockers.find(
+                            (lkr) => lkr.id === i.locker_id,
+                        );
+                        if (!locker && (!i.level || !i.building)) return null;
+                        return new Booking({
+                            date: startOfDay(Date.now()).valueOf(),
+                            duration: 24 * 60 - 1,
+                            title: 'Locker Booking',
+                            description: i.locker_name,
+                            booking_type: 'locker',
+                            all_day: true,
+                            asset_id: locker.map_id,
+                            asset_name: i.locker_name,
+                            zones: [...(locker.bank?.zones || [])],
+                            extension_data: {},
+                        });
+                    })
+                    .filter((item) => item),
+            );
+            this.timeout('end_loading', () => this._loading.set(false));
+        });
+    }
+
+    private _filterUserEvents(list: CalendarEvent[]) {
+        const user = currentUser();
+        const date = this._date();
+        return list.filter(
+            (_) =>
+                isSameDay(_.date, date) &&
+                (_.host.toLowerCase() === user.email.toLowerCase() ||
+                    _.attendees.find(
+                        (a) =>
+                            a.email.toLowerCase() === user.email.toLowerCase(),
+                    )) &&
+                !_.linked_bookings?.find(
+                    (b) => b.booking_type === 'group-event',
+                ),
+        );
+    }
+
+    private _setConfiguredEventSources() {
+        const sources_setting = this._settings.get(
+            'app.schedule.event_sources',
+        ) as EventSource[] | undefined;
+        if (sources_setting?.length) {
+            this._event_sources.set(sources_setting);
+        } else {
+            const legacy_source: EventSource = this._settings.get(
+                'app.schedule.use_driver',
+            )
+                ? 'driver'
+                : this._settings.get('app.schedule.use_websocket')
+                  ? 'ws'
+                  : 'api';
+            this._event_sources.set([legacy_source]);
+        }
+    }
+
+    private _periodQuery(period: 'day' | 'week' | 'month', date: number) {
+        return {
+            period_start: getUnixTime(
+                period === 'day'
+                    ? startOfDay(date)
+                    : startOfWeek(date, {
+                          weekStartsOn: this.offset_weekday as any,
+                      }),
+            ),
+            period_end: getUnixTime(
+                period === 'day'
+                    ? endOfDay(date)
+                    : endOfWeek(date, {
+                          weekStartsOn: this.offset_weekday as any,
+                      }),
+            ),
+        };
     }
 
     private _bookingQuery(
@@ -783,26 +546,95 @@ export class ScheduleStateService extends AsyncHandler {
         period: 'day' | 'week' | 'month',
         date: number,
     ) {
-        return from(
-            queryBookings({
-                period_start: getUnixTime(
-                    period === 'day'
-                        ? startOfDay(date)
-                        : startOfWeek(date, {
-                              weekStartsOn: this.offset_weekday,
-                          }),
-                ),
+        return queryBookings({
+            ...this._periodQuery(period, date),
+            type,
+            include_checked_out: true,
+            include_booked_by: true,
+        }).catch(() => []);
+    }
+
+    private async _checkCancel() {
+        const user = currentUser();
+        if (!user?.id) return;
+        const is_home = user.location !== 'wfo';
+        const auto_release = this._settings.get('app.auto_release');
+        if (
+            !auto_release ||
+            !is_home ||
+            !(auto_release.time_after || auto_release.time_before) ||
+            !auto_release.resources?.length
+        ) {
+            return;
+        }
+        for (const type of auto_release.resources) {
+            const time_after =
+                auto_release[`${type}_time_after`] || auto_release.time_after;
+            const time_before = Math.min(
+                60,
+                auto_release[`${type}_time_before`] ||
+                    auto_release.time_before ||
+                    0,
+            );
+            const bookings = await queryBookings({
+                period_start: getUnixTime(startOfMinute(Date.now())),
                 period_end: getUnixTime(
-                    period === 'day'
-                        ? endOfDay(date)
-                        : endOfWeek(date, {
-                              weekStartsOn: this.offset_weekday,
-                          }),
+                    addMinutes(Date.now(), (time_after || 5) + time_before),
                 ),
                 type,
-                include_checked_out: true,
-                include_booked_by: true,
-            }),
-        ).pipe(catchError(() => of([])));
+            });
+            const check_block = (time_after || 0) + time_before;
+            for (const booking of bookings) {
+                if (
+                    this._ignore_cancel.includes(booking.id) ||
+                    booking.checked_in ||
+                    booking.rejected
+                ) {
+                    continue;
+                }
+                const start_time = booking.is_all_day
+                    ? setHours(booking.date, auto_release.all_day_start)
+                    : booking.date;
+                this._dialog.closeAll();
+                const diff = differenceInMinutes(
+                    addMinutes(start_time, time_after || 0),
+                    Date.now(),
+                );
+                if (diff > check_block || diff < 0) continue;
+                const time = addMinutes(start_time, time_after || 0);
+                const close_after = differenceInMilliseconds(
+                    time.getTime() + 60 * 1000,
+                    Date.now(),
+                );
+                const wording = type === 'parking' ? 'reservation' : 'booking';
+                const result = await openConfirmModal(
+                    {
+                        title: `Keep ${type} ${wording}`,
+                        content: `You have indicated you are not in the office.
+                                Your  ${wording} for "<i>${
+                                    booking.asset_name || booking.title
+                                }</i>" at ${format(
+                                    booking.date,
+                                    this._settings.time_format,
+                                )} will be cancelled at ${format(
+                                    time,
+                                    this._settings.time_format,
+                                )}.<br/><br/>
+                                Do you wish to keep this ${wording}?`,
+                        icon: { content: 'event_busy' },
+                        confirm_text: 'Keep',
+                        close_delay: close_after,
+                    },
+                    this._dialog,
+                );
+                if (result.reason !== 'done') {
+                    this._ignore_cancel.push(booking.id);
+                    continue;
+                }
+                result.loading('Checking in booking...');
+                await checkinBooking(booking.id, true);
+                result.close();
+            }
+        }
     }
 }

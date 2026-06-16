@@ -2,11 +2,11 @@ import { CommonModule } from '@angular/common';
 import {
     ChangeDetectionStrategy,
     Component,
-    Injector,
-    OnInit,
+    computed,
+    effect,
     inject,
+    OnInit,
 } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -21,7 +21,6 @@ import {
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { DateCalendarComponent } from '@placeos/form-fields';
 import { isSameDay, startOfDay } from 'date-fns';
-import { debounceTime, filter, map } from 'rxjs/operators';
 import {
     ScheduleOptions,
     ScheduleStateService,
@@ -68,7 +67,7 @@ import {
             @if (period === 'day') {
                 <date-calendar
                     class="border-base-200 border-b"
-                    [ngModel]="date | async"
+                    [ngModel]="date()"
                     (ngModelChange)="setDate($event)"
                     [offset_weekday]="offset_weekday"
                 ></date-calendar>
@@ -80,14 +79,11 @@ import {
                         class="no-subscript w-full"
                     >
                         <mat-select
-                            [ngModel]="week_date | async"
+                            [ngModel]="week_date()"
                             (ngModelChange)="setDate($event)"
                             placeholder="Select Week..."
                         >
-                            @for (
-                                option of week_options | async;
-                                track option
-                            ) {
+                            @for (option of week_options(); track option) {
                                 <mat-option
                                     [value]="option.id"
                                     class="leading-tight"
@@ -136,11 +132,7 @@ import {
                             </div>
                         </div>
                         <mat-checkbox
-                            [ngModel]="
-                                (filters | async)?.shown_types?.includes(
-                                    'event'
-                                )
-                            "
+                            [ngModel]="filters().shown_types?.includes('event')"
                         ></mat-checkbox>
                     </button>
                 }
@@ -171,9 +163,7 @@ import {
                             </div>
                         </div>
                         <mat-checkbox
-                            [ngModel]="
-                                (filters | async)?.shown_types?.includes('desk')
-                            "
+                            [ngModel]="filters().shown_types?.includes('desk')"
                         ></mat-checkbox>
                     </button>
                 }
@@ -202,9 +192,7 @@ import {
                         </div>
                         <mat-checkbox
                             [ngModel]="
-                                (filters | async)?.shown_types?.includes(
-                                    'parking'
-                                )
+                                filters().shown_types?.includes('parking')
                             "
                         ></mat-checkbox>
                     </button>
@@ -234,9 +222,7 @@ import {
                         </div>
                         <mat-checkbox
                             [ngModel]="
-                                (filters | async)?.shown_types?.includes(
-                                    'visitor'
-                                )
+                                filters().shown_types?.includes('visitor')
                             "
                         ></mat-checkbox>
                     </button>
@@ -266,9 +252,7 @@ import {
                         </div>
                         <mat-checkbox
                             [ngModel]="
-                                (filters | async)?.shown_types?.includes(
-                                    'locker'
-                                )
+                                filters().shown_types?.includes('locker')
                             "
                         ></mat-checkbox>
                     </button>
@@ -298,9 +282,7 @@ import {
                         </div>
                         <mat-checkbox
                             [ngModel]="
-                                (filters | async)?.shown_types?.includes(
-                                    'group-event'
-                                )
+                                filters().shown_types?.includes('group-event')
                             "
                         ></mat-checkbox>
                     </button>
@@ -333,10 +315,9 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _state = inject(ScheduleStateService);
     private _settings = inject(SettingsService);
-    private _injector = inject(Injector);
 
     public readonly filters = this._state.filters;
-    public readonly date = this._state.date.pipe(map((_) => startOfDay(_)));
+    public readonly date = computed(() => startOfDay(this._state.date()));
     public readonly toggleType = (t) => this._state.toggleType(t);
     public readonly setDate = (d) => this._state.setDate(d);
 
@@ -367,32 +348,32 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
         return this._settings.get('app.week_start') || 0;
     }
 
-    public ngOnInit() {
-        this.subscription(
-            'building',
-            toObservable(this._org.active_building, { injector: this._injector })
-                .pipe(
-                    filter((_) => !!_),
-                    debounceTime(1000),
-                )
-                .subscribe((_) => {
-                    this._state.setType('event', this.hasFeature('spaces'));
-                    this._state.setType('desk', this.hasFeature('desks'));
-                    this._state.setType(
-                        'parking',
-                        this.hasFeature('parking') ||
-                            this.hasFeature('parking-requests'),
-                    );
-                    this._state.setType(
-                        'visitor',
-                        this.hasFeature('visitor-invite'),
-                    );
-                    this._state.setType('locker', this.hasFeature('lockers'));
-                    this._state.setType(
-                        'group-event',
-                        this.hasFeature('group-events'),
-                    );
-                }),
-        );
+    constructor() {
+        super();
+        effect((onCleanup) => {
+            const bld = this._org.active_building();
+            if (!bld) return;
+            const timeout = setTimeout(() => {
+                this._state.setType('event', this.hasFeature('spaces'));
+                this._state.setType('desk', this.hasFeature('desks'));
+                this._state.setType(
+                    'parking',
+                    this.hasFeature('parking') ||
+                        this.hasFeature('parking-requests'),
+                );
+                this._state.setType(
+                    'visitor',
+                    this.hasFeature('visitor-invite'),
+                );
+                this._state.setType('locker', this.hasFeature('lockers'));
+                this._state.setType(
+                    'group-event',
+                    this.hasFeature('group-events'),
+                );
+            }, 1000);
+            onCleanup(() => clearTimeout(timeout));
+        });
     }
+
+    public ngOnInit() {}
 }

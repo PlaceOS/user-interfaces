@@ -3,13 +3,12 @@ import {
     Component,
     computed,
     inject,
+    signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { settingSignal } from '@placeos/common';
 import { SafePipe } from '@placeos/components';
-import { map } from 'rxjs/operators';
 import { FooterMenuComponent } from './footer-menu.component';
 import type { TopMenuEmbedItem } from './top-menu.component';
 import { TopbarComponent } from './topbar.component';
@@ -73,9 +72,8 @@ import { TopbarComponent } from './topbar.component';
 })
 export class EmbeddedUrlComponent {
     private readonly _route = inject(ActivatedRoute);
-    private readonly _id = toSignal(
-        this._route.paramMap.pipe(map((params) => params.get('id') || '')),
-        { initialValue: this._route.snapshot.paramMap.get('id') || '' },
+    private readonly _id = signal(
+        this._route.snapshot.paramMap.get('id') || '',
     );
 
     public readonly items = settingSignal<TopMenuEmbedItem[]>(

@@ -10,7 +10,6 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BookingFormService, ParkingService } from '@placeos/bookings';
 import { AsyncHandler, OrganisationService } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
-import { lastValueFrom, timer } from 'rxjs';
 import { NewParkingFlowConfirmComponent } from './parking-flow/parking-flow-confirm.component';
 import { ParkingFlowFormComponent } from './parking-flow/parking-flow-form.component';
 import { ParkingFlowSuccessComponent } from './parking-flow/parking-flow-success.component';
@@ -131,7 +130,7 @@ export class NewParkingFlowComponent extends AsyncHandler implements OnInit {
 
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
-        await lastValueFrom(timer(300));
+        await new Promise((resolve) => setTimeout(resolve, 300));
         const active_form = this._state.model();
         const has_edit_state =
             !!active_form?.id && active_form?.booking_type === 'parking';
@@ -141,18 +140,9 @@ export class NewParkingFlowComponent extends AsyncHandler implements OnInit {
         if (!id || booking_type !== 'parking') this._state.newForm('parking');
         this._state.model.update((m) => ({ ...m, booking_type: 'parking' }));
         this.ready.set(true);
-        this.subscription(
-            'route.params',
-            this._route.paramMap.subscribe((param) => {
-                if (param.has('step'))
-                    this._state.setView(param.get('step') as any);
-            }),
-        );
-        this.subscription(
-            'route.query',
-            this._route.queryParamMap.subscribe((param) => {
-                if (param.has('success')) this._state.setView('success');
-            }),
-        );
+        const param = this._route.snapshot.paramMap;
+        if (param.has('step')) this._state.setView(param.get('step') as any);
+        const query = this._route.snapshot.queryParamMap;
+        if (query.has('success')) this._state.setView('success');
     }
 }

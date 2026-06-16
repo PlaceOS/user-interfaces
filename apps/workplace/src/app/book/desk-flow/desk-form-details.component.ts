@@ -212,7 +212,9 @@ const MINUTES_IN_DAY = 24 * 60;
                                 [available_days]="available_days()"
                             ></recurrence-field>
                             @if (model().id) {
-                                <mat-checkbox [formField]="form().update_master">
+                                <mat-checkbox
+                                    [formField]="form().update_master"
+                                >
                                     {{ 'FORM.UPDATE_FUTURE' | translate }}
                                 </mat-checkbox>
                             }

@@ -5,7 +5,6 @@ import {
     inject,
     input,
 } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -39,11 +38,11 @@ import { addDays, endOfDay } from 'date-fns';
                         </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
-                                [ngModel]="building | async"
+                                [ngModel]="building()"
                                 (ngModelChange)="setBuilding($event)"
                                 [ngModelOptions]="{ standalone: true }"
                             >
-                                @for (bld of building_list | async; track bld) {
+                                @for (bld of building_list(); track bld) {
                                     <mat-option [value]="bld">
                                         {{ bld.display_name || bld.name }}
                                     </mat-option>
@@ -191,8 +190,8 @@ export class ParkingFormDetailsComponent extends AsyncHandler {
     /** Writable signal holding the raw booking form value */
     public readonly model = this._state.model;
 
-    public readonly building = toObservable(this._org.active_building);
-    public readonly building_list = toObservable(this._org.building_list);
+    public readonly building = this._org.active_building;
+    public readonly building_list = this._org.building_list;
 
     public get end_date() {
         return endOfDay(

@@ -4,7 +4,6 @@ import { OrganisationService, SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { ExploreSpacesService } from '@placeos/explore';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
 import { LandingAvailabilityComponent } from '../../app/landing/landing-availability.component';
 import { LandingStateService } from '../../app/landing/landing-state.service';
 
@@ -18,9 +17,9 @@ describe('LandingAvailabilityComponent', () => {
         ],
         providers: [
             MockProvider(LandingStateService, {
-                free_space_list: new BehaviorSubject([]),
-                loading_spaces: new BehaviorSubject(false),
-                level_occupancy: new BehaviorSubject([]),
+                free_space_list: signal([]),
+                loading_spaces: signal(false),
+                level_occupancy: signal([]),
             }),
             MockProvider(SettingsService, { get: jest.fn() }),
             MockProvider(OrganisationService, {

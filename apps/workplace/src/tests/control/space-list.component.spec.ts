@@ -7,7 +7,6 @@ import { IconComponent } from '@placeos/components';
 import { SpacesService } from '@placeos/events';
 import { signal } from '@angular/core';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
 import { ControlSpaceListItemComponent } from '../../app/control/list-item.component';
 import { ControlSpaceListComponent } from '../../app/control/space-list.component';
 
@@ -22,8 +21,8 @@ describe('ControlSpaceListComponent', () => {
                 active_building: signal({}),
             } as any),
             MockProvider(SpacesService, {
-                initialised: of(true),
-                all_spaces: of([
+                initialised: signal(true),
+                all_spaces: signal([
                     {
                         id: '1',
                         name: '1',

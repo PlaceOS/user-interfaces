@@ -3,10 +3,8 @@ import {
     Component,
     computed,
     inject,
-    Injector,
     OnInit,
 } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
 import {
     MatBottomSheet,
     MatBottomSheetRef,
@@ -22,8 +20,6 @@ import {
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { isBefore, startOfMinute } from 'date-fns';
-import { lastValueFrom } from 'rxjs';
-import { first } from 'rxjs/operators';
 import { NewDeskFlowConfirmComponent } from './desk-flow-confirm.component';
 import { NewDeskFormDetailsComponent } from './desk-form-details.component';
 
@@ -96,7 +92,6 @@ export class NewDeskFlowFormComponent implements OnInit {
     private _org = inject(OrganisationService);
     private _bottom_sheet = inject(MatBottomSheet);
     private _settings = inject(SettingsService);
-    private _injector = inject(Injector);
 
     public sheet_ref: MatBottomSheetRef<NewDeskFlowConfirmComponent>;
     public level = '';
@@ -160,11 +155,7 @@ export class NewDeskFlowFormComponent implements OnInit {
 
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
-        await lastValueFrom(
-            toObservable(this._org.active_levels, {
-                injector: this._injector,
-            }).pipe(first((_) => _?.length > 0)),
-        );
+        await this._waitForActiveLevels();
         this._state.setOptions({ type: 'desk' });
         this.level = this._org.building?.id;
         this.levels = [
@@ -183,6 +174,12 @@ export class NewDeskFlowFormComponent implements OnInit {
                 duration:
                     this._settings.get('app.desks.default_duration') || 60,
             }));
+        }
+    }
+
+    private async _waitForActiveLevels() {
+        while (!this._org.active_levels()?.length) {
+            await new Promise((resolve) => setTimeout(resolve, 50));
         }
     }
 }

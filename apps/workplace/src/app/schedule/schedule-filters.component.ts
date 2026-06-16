@@ -20,7 +20,7 @@ import { ScheduleStateService } from './schedule-state.service';
             </h3>
             <div class="flex flex-wrap">
                 @if (
-                    (filters | async)?.shown_types?.includes('event') &&
+                    filters().shown_types?.includes('event') &&
                     hasFeature('spaces')
                 ) {
                     <div
@@ -40,7 +40,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     </div>
                 }
                 @if (
-                    (filters | async)?.shown_types?.includes('desk') &&
+                    filters().shown_types?.includes('desk') &&
                     hasFeature('desks')
                 ) {
                     <div
@@ -60,7 +60,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     </div>
                 }
                 @if (
-                    (filters | async)?.shown_types?.includes('parking') &&
+                    filters().shown_types?.includes('parking') &&
                     (hasFeature('parking') || hasFeature('parking-requests'))
                 ) {
                     <div
@@ -80,7 +80,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     </div>
                 }
                 @if (
-                    (filters | async)?.shown_types?.includes('visitor') &&
+                    filters().shown_types?.includes('visitor') &&
                     hasFeature('visitor-invite')
                 ) {
                     <div
@@ -100,7 +100,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     </div>
                 }
                 @if (
-                    (filters | async)?.shown_types?.includes('locker') &&
+                    filters().shown_types?.includes('locker') &&
                     hasFeature('lockers')
                 ) {
                     <div
@@ -120,7 +120,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     </div>
                 }
                 @if (
-                    (filters | async)?.shown_types?.includes('group-event') &&
+                    filters().shown_types?.includes('group-event') &&
                     hasFeature('group-events')
                 ) {
                     <div
@@ -155,8 +155,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 </div>
             </button>
             @if (
-                (filters | async)?.shown_types?.includes('event') &&
-                hasFeature('spaces')
+                filters().shown_types?.includes('event') && hasFeature('spaces')
             ) {
                 <div
                     class="border-base-200 bg-base-100 flex items-center rounded-3xl border pl-2 text-sm"
@@ -173,8 +172,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 </div>
             }
             @if (
-                (filters | async)?.shown_types?.includes('desk') &&
-                hasFeature('desks')
+                filters().shown_types?.includes('desk') && hasFeature('desks')
             ) {
                 <div
                     class="border-base-200 bg-base-100 flex items-center rounded-3xl border pl-2 text-sm"
@@ -191,7 +189,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 </div>
             }
             @if (
-                (filters | async)?.shown_types?.includes('parking') &&
+                filters().shown_types?.includes('parking') &&
                 (hasFeature('parking') || hasFeature('parking-requests'))
             ) {
                 <div
@@ -209,7 +207,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 </div>
             }
             @if (
-                (filters | async)?.shown_types?.includes('visitor') &&
+                filters().shown_types?.includes('visitor') &&
                 hasFeature('visitor-invite')
             ) {
                 <div
@@ -227,7 +225,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 </div>
             }
             @if (
-                (filters | async)?.shown_types?.includes('locker') &&
+                filters().shown_types?.includes('locker') &&
                 hasFeature('lockers')
             ) {
                 <div
@@ -245,7 +243,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 </div>
             }
             @if (
-                (filters | async)?.shown_types?.includes('group-event') &&
+                filters().shown_types?.includes('group-event') &&
                 hasFeature('group-events')
             ) {
                 <div

@@ -1,16 +1,14 @@
 import {
     Component,
     computed,
+    effect,
     inject,
-    Injector,
     OnInit,
     output,
     signal,
 } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { endOfDay, getUnixTime, isBefore, set, startOfDay } from 'date-fns';
-import { debounceTime, skip } from 'rxjs/operators';
 
 import { AsyncHandler, DialogEvent, StaffUser } from '@placeos/common';
 import {
@@ -143,7 +141,7 @@ export class UserAvailabilityModalComponent
     implements OnInit
 {
     private _data = inject(MAT_DIALOG_DATA);
-    private _injector = inject(Injector);
+    private _loaded = false;
 
     /** Emitter for user action on the modal */
     public readonly event = output<DialogEvent>();
@@ -165,10 +163,17 @@ export class UserAvailabilityModalComponent
         this.date.set(this._data.date);
         this.duration.set(this._data.duration);
         this.loadAvailability();
+        this._loaded = true;
+    }
 
-        toObservable(this.date, { injector: this._injector })
-            .pipe(skip(1), debounceTime(500))
-            .subscribe(() => this.loadAvailability());
+    constructor() {
+        super();
+        effect((onCleanup) => {
+            this.date();
+            if (!this._loaded) return;
+            const timeout = setTimeout(() => this.loadAvailability(), 500);
+            onCleanup(() => clearTimeout(timeout));
+        });
     }
 
     /** Load events for all attendees */

@@ -15,7 +15,6 @@ import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { toObservable } from '@angular/core/rxjs-interop';
 import {
     BookingForm,
     BookingFormService,
@@ -66,7 +65,7 @@ import {
                                     [ngModelOptions]="{ standalone: true }"
                                     placeholder="Select Building"
                                 >
-                                    @for (b of buildings | async; track b) {
+                                    @for (b of buildings(); track b) {
                                         <mat-option [value]="b">
                                             {{ b.display_name || b.name }}
                                         </mat-option>
@@ -191,9 +190,9 @@ export class LockerFormDetailsComponent
     /** Writable signal holding the raw booking form value */
     public readonly model = this._state.model;
     /** List of available buildings to select */
-    public readonly buildings = toObservable(this._org.building_list);
+    public readonly buildings = this._org.building_list;
     /** List of available levels for the selected building */
-    public readonly levels = toObservable(this._org.active_levels);
+    public readonly levels = this._org.active_levels;
     /** List of set options for locker booking */
     public readonly options = this._state.options;
     /** List of set options for locker booking */

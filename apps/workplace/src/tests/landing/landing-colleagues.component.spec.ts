@@ -1,7 +1,7 @@
+import { signal } from '@angular/core';
 import { FormGroup, FormsModule } from '@angular/forms';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
@@ -20,8 +20,10 @@ describe('LandingColleaguesComponent', () => {
         ],
         providers: [
             MockProvider(LandingStateService, {
-                contacts: new BehaviorSubject([]),
-                search_results: new BehaviorSubject([]),
+                contacts: signal([]),
+                search_results: signal([]),
+                options: signal({ search: '' }),
+                loading: signal(false),
                 addContact: jest.fn(),
                 removeContact: jest.fn(),
                 setOptions: jest.fn(),

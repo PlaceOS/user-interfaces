@@ -231,23 +231,24 @@ export class ParkingRequestFormComponent
         }));
         const building = this._org.building;
         const location =
-            building?.display_name ||
-            building?.name ||
-            this.model().location;
+            building?.display_name || building?.name || this.model().location;
         const extension_data = {
             ...((this.model() as any).extension_data || {}),
             location,
         };
-        this.model.update((m) => ({
-            ...m,
-            zones: [
-                this._org.organisation.id,
-                this._org.region?.id,
-                building?.id,
-            ].filter(Boolean),
-            location,
-            extension_data,
-        } as any));
+        this.model.update(
+            (m) =>
+                ({
+                    ...m,
+                    zones: [
+                        this._org.organisation.id,
+                        this._org.region?.id,
+                        building?.id,
+                    ].filter(Boolean),
+                    location,
+                    extension_data,
+                }) as any,
+        );
         if (!this.form().valid())
             return notifyError(
                 `Some fields are invalid. [${getInvalidSignalFields(

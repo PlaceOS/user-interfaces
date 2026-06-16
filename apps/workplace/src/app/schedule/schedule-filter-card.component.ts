@@ -45,9 +45,7 @@ import { ScheduleStateService } from './schedule-state.service';
                         </div>
                     </div>
                     <mat-checkbox
-                        [ngModel]="
-                            (filters | async)?.shown_types?.includes('event')
-                        "
+                        [ngModel]="filters().shown_types?.includes('event')"
                     ></mat-checkbox>
                 </button>
             }
@@ -73,9 +71,7 @@ import { ScheduleStateService } from './schedule-state.service';
                         </div>
                     </div>
                     <mat-checkbox
-                        [ngModel]="
-                            (filters | async)?.shown_types?.includes('desk')
-                        "
+                        [ngModel]="filters().shown_types?.includes('desk')"
                     ></mat-checkbox>
                 </button>
             }
@@ -101,9 +97,7 @@ import { ScheduleStateService } from './schedule-state.service';
                         </div>
                     </div>
                     <mat-checkbox
-                        [ngModel]="
-                            (filters | async)?.shown_types?.includes('parking')
-                        "
+                        [ngModel]="filters().shown_types?.includes('parking')"
                     ></mat-checkbox>
                 </button>
             }
@@ -131,9 +125,7 @@ import { ScheduleStateService } from './schedule-state.service';
                         </div>
                     </div>
                     <mat-checkbox
-                        [ngModel]="
-                            (filters | async)?.shown_types?.includes('visitor')
-                        "
+                        [ngModel]="filters().shown_types?.includes('visitor')"
                     ></mat-checkbox>
                 </button>
             }
@@ -161,9 +153,7 @@ import { ScheduleStateService } from './schedule-state.service';
                         </div>
                     </div>
                     <mat-checkbox
-                        [ngModel]="
-                            (filters | async)?.shown_types?.includes('locker')
-                        "
+                        [ngModel]="filters().shown_types?.includes('locker')"
                     ></mat-checkbox>
                 </button>
             }
@@ -192,9 +182,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     </div>
                     <mat-checkbox
                         [ngModel]="
-                            (filters | async)?.shown_types?.includes(
-                                'group-event'
-                            )
+                            filters().shown_types?.includes('group-event')
                         "
                     ></mat-checkbox>
                 </button>

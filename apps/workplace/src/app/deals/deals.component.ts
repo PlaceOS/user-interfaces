@@ -2,8 +2,10 @@ import { CommonModule } from '@angular/common';
 import {
     ChangeDetectionStrategy,
     Component,
+    computed,
     inject,
     OnInit,
+    signal,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
@@ -19,7 +21,6 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { BehaviorSubject, combineLatest, map } from 'rxjs';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { TopbarComponent } from '../components/topbar.component';
 import { DealsService } from './deals.service';
@@ -32,17 +33,17 @@ import { DealsService } from './deals.service';
             <main
                 class="bg-base-200 flex h-1/2 min-h-1/2 flex-1 flex-col overflow-auto px-4"
             >
-                @let deal_list = filtered_deals$ | async;
+                @let deal_list = filtered_deals();
                 <div
                     class="bg-base-200 sticky top-0 z-20 mx-auto mb-2 w-160 max-w-full px-2 pt-2"
                 >
                     <div class="-mx-2 flex flex-wrap py-2">
-                        @let type_list = types | async;
+                        @let type_list = types();
                         <button
                             matRipple
                             class="border-base-300 m-1 rounded-full border px-4 py-1"
-                            [class.bg-base-100]="type.value === ''"
-                            (click)="type.next('')"
+                            [class.bg-base-100]="type() === ''"
+                            (click)="type.set('')"
                         >
                             {{ 'COMMON.ALL' | translate }}
                         </button>
@@ -50,8 +51,8 @@ import { DealsService } from './deals.service';
                             <button
                                 matRipple
                                 class="border-base-300 m-1 rounded-full border px-4 py-1"
-                                [class.bg-base-100]="type.value === t"
-                                (click)="type.next(t)"
+                                [class.bg-base-100]="type() === t"
+                                (click)="type.set(t)"
                             >
                                 {{ t }}
                             </button>
@@ -72,7 +73,7 @@ import { DealsService } from './deals.service';
                             [matMenuTriggerFor]="sortMenu"
                         >
                             <div>
-                                @let sort_t = sort_type.getValue();
+                                @let sort_t = sort_type();
                                 {{
                                     (sort_t === 'date_desc'
                                         ? 'APP.WORKPLACE.SORT_BY_DATE_DESC'
@@ -212,35 +213,31 @@ export class DealsComponent implements OnInit {
     private _settings = inject(SettingsService);
     private _router = inject(Router);
 
-    public readonly deals$ = this._service.deals$;
-    public readonly types = this._service.deals$.pipe(
-        map((deals) =>
-            unique(deals.map((_) => _.type).sort((a, b) => a.localeCompare(b))),
+    public readonly deals = this._service.deals;
+    public readonly types = computed(() =>
+        unique(
+            this.deals()
+                .map((_) => _.type)
+                .sort((a, b) => a.localeCompare(b)),
         ),
     );
-    public readonly type = new BehaviorSubject('');
-    public readonly sort_type = new BehaviorSubject('');
-    public readonly filtered_deals$ = combineLatest([
-        this.deals$,
-        this.type,
-        this.sort_type,
-    ]).pipe(
-        map(([deals, type, sort_type]) =>
-            deals
-                .filter((deal) => !type || deal.type === type)
-                .sort((a, b) =>
-                    sort_type === 'date_asc'
-                        ? a.expires_at - b.expires_at
-                        : sort_type === 'date_desc'
-                          ? b.expires_at - a.expires_at
-                          : 0,
-                ),
-        ),
+    public readonly type = signal('');
+    public readonly sort_type = signal('');
+    public readonly filtered_deals = computed(() =>
+        this.deals()
+            .filter((deal) => !this.type() || deal.type === this.type())
+            .sort((a, b) =>
+                this.sort_type() === 'date_asc'
+                    ? a.expires_at - b.expires_at
+                    : this.sort_type() === 'date_desc'
+                      ? b.expires_at - a.expires_at
+                      : 0,
+            ),
     );
     public readonly view = (d) => this._service.viewDeal(d);
 
     public sort(type: string) {
-        this.sort_type.next(type);
+        this.sort_type.set(type);
     }
 
     public async ngOnInit() {

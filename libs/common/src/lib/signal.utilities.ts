@@ -21,14 +21,17 @@ export function firstValueWhere<T>(
     const current = untracked(value);
     if (predicate(current)) return Promise.resolve(current);
     return new Promise<T>((resolve) => {
-        const ref = effect(
-            () => {
-                const current = value();
-                if (!predicate(current)) return;
-                ref.destroy();
-                resolve(current);
-            },
-            { injector },
+        let ref: ReturnType<typeof effect>;
+        ref = untracked(() =>
+            effect(
+                () => {
+                    const current = value();
+                    if (!predicate(current)) return;
+                    ref.destroy();
+                    resolve(current);
+                },
+                { injector },
+            ),
         );
     });
 }

@@ -32,7 +32,6 @@ import {
     removeEvent,
 } from '@placeos/events';
 import { format } from 'date-fns';
-import { lastValueFrom } from 'rxjs';
 import { LandingStateService } from './landing-state.service';
 
 @Component({
@@ -60,7 +59,7 @@ import { LandingStateService } from './landing-state.service';
                 </a>
             </div>
             <div class="space-y-4 px-4">
-                @let events = upcoming_events | async;
+                @let events = upcoming_events();
                 @if (events?.length) {
                     @for (
                         event of events | slice: 0 : 5;
@@ -214,7 +213,7 @@ export class LandingUpcomingComponent
         await (
             remove_result?.then instanceof Function
                 ? remove_result
-                : lastValueFrom(remove_result)
+                : remove_result.toPromise()
         ).catch((e) => {
             notifyError(
                 i18n('APP.WORKPLACE.SCHEDULE_REMOVE_ERROR', { error: e }),

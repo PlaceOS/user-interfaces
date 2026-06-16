@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
     ChangeDetectionStrategy,
     Component,
+    computed,
     inject,
     OnInit,
 } from '@angular/core';
@@ -38,8 +39,6 @@ import {
     removeEvent,
 } from '@placeos/events';
 import { format, isSameDay, parse } from 'date-fns';
-import { combineLatest, lastValueFrom } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { TopbarComponent } from '../components/topbar.component';
 import { ScheduleFiltersComponent } from './schedule-filters.component';
@@ -85,7 +84,7 @@ import {
                 </div>
                 @if (period === 'day') {
                     <schedule-mobile-calendar
-                        [ngModel]="date | async"
+                        [ngModel]="date()"
                         (ngModelChange)="setDate($event)"
                     ></schedule-mobile-calendar>
                 }
@@ -96,14 +95,11 @@ import {
                             class="no-subscript w-full"
                         >
                             <mat-select
-                                [ngModel]="week_date | async"
+                                [ngModel]="week_date()"
                                 (ngModelChange)="setDate($event)"
                                 [placeholder]="'COMMON.WEEK_SELECT' | translate"
                             >
-                                @for (
-                                    option of week_options | async;
-                                    track option
-                                ) {
+                                @for (option of week_options(); track option) {
                                     <mat-option
                                         [value]="option.id"
                                         class="leading-tight"
@@ -128,9 +124,9 @@ import {
             </div>
             <div class="h-full flex-1 space-y-2 overflow-auto p-4">
                 <schedule-filters></schedule-filters>
-                @if ((booking_dates | async)?.length) {
+                @if (booking_dates().length) {
                     @for (
-                        date_block of booking_dates | async;
+                        date_block of booking_dates();
                         track date_block.date
                     ) {
                         <h3 class="my-2 font-medium">
@@ -165,12 +161,12 @@ import {
                         <img src="assets/img/no-events.svg" class="mr-4" />
                         <p class="opacity-30">
                             {{ 'APP.WORKPLACE.SCHEDULE_EMPTY' | translate }}
-                            {{ date | async | date: 'EEEE, dd LLL yyyy' }}
+                            {{ date() | date: 'EEEE, dd LLL yyyy' }}
                         </p>
                     </div>
                 }
             </div>
-            @if (loading | async) {
+            @if (loading()) {
                 <mat-progress-bar
                     class="absolute inset-x-0 bottom-0"
                     mode="indeterminate"
@@ -218,33 +214,30 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
 
-    public readonly booking_dates = combineLatest([
-        this._state.filtered_bookings,
-        this._state.loading,
-    ]).pipe(
-        map(([bookings, loading]) => (loading ? [] : bookings)),
-        map((bookings) => {
-            const sorted = bookings.sort((a, b) => a.date - b.date);
-            const dates = new Set<string>();
-            for (const booking of sorted) {
-                const date = format(booking.date, 'yyyy-MM-dd');
-                if (!dates.has(date)) dates.add(date);
-            }
-            const list = [];
-            for (const date of dates) {
-                const day = parse(date, 'yyyy-MM-dd', 0);
-                list.push({
-                    id: date,
-                    date: day.valueOf(),
-                    bookings: sorted.filter((booking) =>
-                        isSameDay(booking.date, day),
-                    ),
-                    is_today: isSameDay(day, Date.now()),
-                });
-            }
-            return list;
-        }),
-    );
+    public readonly booking_dates = computed(() => {
+        const bookings = this._state.loading()
+            ? []
+            : [...this._state.filtered_bookings()];
+        const sorted = bookings.sort((a, b) => a.date - b.date);
+        const dates = new Set<string>();
+        for (const booking of sorted) {
+            const date = format(booking.date, 'yyyy-MM-dd');
+            if (!dates.has(date)) dates.add(date);
+        }
+        const list = [];
+        for (const date of dates) {
+            const day = parse(date, 'yyyy-MM-dd', 0);
+            list.push({
+                id: date,
+                date: day.valueOf(),
+                bookings: sorted.filter((booking) =>
+                    isSameDay(booking.date, day),
+                ),
+                is_today: isSameDay(day, Date.now()),
+            });
+        }
+        return list;
+    });
     public readonly date = this._state.date;
     public readonly loading = this._state.loading;
     public readonly setDate = (d) => this._state.setDate(d);
@@ -381,7 +374,7 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
         await (
             remove_result?.then instanceof Function
                 ? remove_result
-                : lastValueFrom(remove_result)
+                : remove_result.toPromise()
         ).catch((e) => {
             notifyError(
                 i18n(

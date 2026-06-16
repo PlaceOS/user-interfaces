@@ -150,16 +150,6 @@ import { SpacePipe } from '@placeos/events';
             >
                 {{ 'COMMON.CONFIRM' | translate }}
             </button>
-            <!-- <button
-          btn
-          matRipple
-          class="inverse w-full"
-          *ngIf="loading | async"
-          (click)="cancelPost()"
-
-          >
-          Undo
-        </button> -->
         </footer>
     `,
     styles: [

@@ -25,7 +25,6 @@ import {
     flatten,
     getAllDayTimeRange,
     getInvalidSignalFields,
-    onFieldChange,
     i18n,
     isWithinBookableHours,
     notifyError,
@@ -38,6 +37,7 @@ import {
 } from '@placeos/common';
 import {
     cleanObject,
+    isMock,
     listChildMetadata,
     PlaceZone,
     showMetadata,
@@ -117,7 +117,9 @@ function assetDurationValue(duration: unknown) {
 function assetWindowKey(date: unknown, duration: unknown) {
     const date_value = assetDateValue(date);
     const duration_value = assetDurationValue(duration);
-    return date_value && duration_value ? `${date_value}:${duration_value}` : '';
+    return date_value && duration_value
+        ? `${date_value}:${duration_value}`
+        : '';
 }
 
 export interface BookingAsset {
@@ -441,17 +443,20 @@ export class BookingFormService extends AsyncHandler {
                 ? this._org.region?.id
                 : this._org.building?.id) ||
             this._org.organisation.id;
-        const booked_ids =
-            options.type === 'desk' &&
-            raw.recurrence_type &&
-            raw.recurrence_type !== 'none'
-                ? await this._recurringBookedResourceList(resources, zones)
-                : await bookedResourceList({
-                      period_start: getUnixTime(date),
-                      period_end: getUnixTime(addMinutes(date, duration)),
-                      type: options.type,
-                      zones,
-                  });
+        let booked_ids: string[] = [];
+        if (!isMock()) {
+            booked_ids =
+                options.type === 'desk' &&
+                raw.recurrence_type &&
+                raw.recurrence_type !== 'none'
+                    ? await this._recurringBookedResourceList(resources, zones)
+                    : await bookedResourceList({
+                          period_start: getUnixTime(date),
+                          period_end: getUnixTime(addMinutes(date, duration)),
+                          type: options.type,
+                          zones,
+                      });
+        }
         this._resource_use = {};
         for (const id of booked_ids) {
             this._resource_use[id] = ' ';
@@ -692,11 +697,7 @@ export class BookingFormService extends AsyncHandler {
             'PLACEOS.booking_form',
             JSON.stringify({
                 ...this._booking(),
-                ...cleanObject(this.model() || {}, [
-                    null,
-                    undefined,
-                    '',
-                ]),
+                ...cleanObject(this.model() || {}, [null, undefined, '']),
             }),
         );
         sessionStorage.setItem(
@@ -835,8 +836,7 @@ export class BookingFormService extends AsyncHandler {
             });
         }
         this._patch({
-            booking_type:
-                this.model().booking_type || this._options().type,
+            booking_type: this.model().booking_type || this._options().type,
         });
         const value = this.model() as any;
         const booking = this._booking() || new Booking();

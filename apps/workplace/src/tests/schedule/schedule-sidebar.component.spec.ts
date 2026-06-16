@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
@@ -5,7 +6,6 @@ import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { DateCalendarComponent } from '@placeos/form-fields';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 import { ScheduleSidebarComponent } from '../../app/schedule/schedule-sidebar.component';
 import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
 
@@ -19,11 +19,13 @@ describe('ScheduleSidebarComponent', () => {
         ],
         providers: [
             MockProvider(ScheduleStateService, {
-                filters: new BehaviorSubject({}),
-                date: new BehaviorSubject(0),
+                filters: signal({}),
+                date: signal(0),
+                week_date: signal(0),
+                week_options: signal([]),
                 toggleType: jest.fn(),
                 setDate: jest.fn(),
-                options: new BehaviorSubject({ period: 'day' }),
+                options: signal({ period: 'day' }),
                 getOptions: jest.fn(() => ({ period: 'day' })),
             } as any),
             MockProvider(SettingsService, { get: jest.fn() }),

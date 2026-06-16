@@ -2,16 +2,17 @@ import { CommonModule } from '@angular/common';
 import {
     ChangeDetectionStrategy,
     Component,
+    effect,
     ElementRef,
-    OnInit,
     inject,
+    OnInit,
     signal,
     viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
-import { AsyncHandler, Booking, CalendarEvent } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 
 import { ExploreSearchService } from '@placeos/explore';
@@ -165,21 +166,18 @@ export class GlobalSearchComponent extends AsyncHandler implements OnInit {
     public readonly _input_el =
         viewChild<ElementRef<HTMLInputElement>>('input');
 
-    public ngOnInit() {
-        // Subscribe to bookings and filter for in-progress ones
-        this.subscription(
-            'in_progress_bookings',
-            this._schedule.bookings.subscribe(
-                (bookings: (Booking | CalendarEvent)[]) => {
-                    const in_progress = bookings.filter((b) => {
-                        const state = b.state;
-                        return state === 'in_progress' || state === 'started';
-                    });
-                    this._service.setInProgressBookings(in_progress);
-                },
-            ),
-        );
+    constructor() {
+        super();
+        effect(() => {
+            const in_progress = this._schedule.bookings().filter((b) => {
+                const state = b.state;
+                return state === 'in_progress' || state === 'started';
+            });
+            this._service.setInProgressBookings(in_progress);
+        });
     }
+
+    public ngOnInit() {}
 
     public showInput() {
         this.show.set(true);

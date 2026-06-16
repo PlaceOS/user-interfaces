@@ -14,7 +14,6 @@ import {
 } from '@placeos/common';
 import { endOfDay, startOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
-import { firstValueFrom } from 'rxjs';
 import { ParkingRequestFormDetailsComponent } from '../../app/book/parking-request-flow/parking-request-form-details.component';
 
 import * as ts_client from '@placeos/ts-client';
@@ -43,14 +42,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
         now_spy = jest.spyOn(Date, 'now').mockReturnValue(time);
     };
 
-    /**
-     * Drain the reactive graph: flush pending effects (so `toObservable`
-     * model emissions propagate) and wait for any resulting async work
-     * (RxJS `from(promise)` chains) to settle. The old reactive form drove
-     * these subscriptions synchronously via `valueChanges`; the signal-forms
-     * model emits via `toObservable`, which needs an effect flush + a stable
-     * fixture before the derived values are observable.
-     */
+    /** Drain signal effects and any async work they schedule. */
     const flush = async () => {
         for (let i = 0; i < 5; i++) {
             spectator.detectChanges();
@@ -326,23 +318,23 @@ describe('ParkingRequestFormDetailsComponent', () => {
         ]);
         org.building = { id: 'bld-1', timezone: 'UTC' };
         (ts_client.get as jest.Mock).mockResolvedValue([
-                {
-                    id: 'desk-booking-1',
-                    booking_type: 'desk',
-                    user_email: 'me@test.com',
-                    booking_start: 1,
-                    booking_end: 2,
-                    zones: ['lvl-2', 'bld-2'],
-                },
-                {
-                    id: 'desk-booking-2',
-                    booking_type: 'desk',
-                    user_email: 'me@test.com',
-                    booking_start: 1,
-                    booking_end: 2,
-                    zones: ['lvl-1', 'bld-1'],
-                },
-            ] as any);
+            {
+                id: 'desk-booking-1',
+                booking_type: 'desk',
+                user_email: 'me@test.com',
+                booking_start: 1,
+                booking_end: 2,
+                zones: ['lvl-2', 'bld-2'],
+            },
+            {
+                id: 'desk-booking-2',
+                booking_type: 'desk',
+                user_email: 'me@test.com',
+                booking_start: 1,
+                booking_end: 2,
+                zones: ['lvl-1', 'bld-1'],
+            },
+        ] as any);
 
         await spectator.component.ngOnInit();
         await flush();
@@ -400,23 +392,23 @@ describe('ParkingRequestFormDetailsComponent', () => {
         expect(org.building.id).toBe('bld-1');
 
         (ts_client.get as jest.Mock).mockResolvedValue([
-                {
-                    id: 'current-user-desk',
-                    booking_type: 'desk',
-                    user_email: 'me@test.com',
-                    booking_start: 1,
-                    booking_end: 2,
-                    zones: ['lvl-2', 'bld-2'],
-                },
-                {
-                    id: 'selected-user-desk',
-                    booking_type: 'desk',
-                    user_email: 'other@test.com',
-                    booking_start: 1,
-                    booking_end: 2,
-                    zones: ['lvl-1', 'bld-1'],
-                },
-            ] as any);
+            {
+                id: 'current-user-desk',
+                booking_type: 'desk',
+                user_email: 'me@test.com',
+                booking_start: 1,
+                booking_end: 2,
+                zones: ['lvl-2', 'bld-2'],
+            },
+            {
+                id: 'selected-user-desk',
+                booking_type: 'desk',
+                user_email: 'other@test.com',
+                booking_start: 1,
+                booking_end: 2,
+                zones: ['lvl-1', 'bld-1'],
+            },
+        ] as any);
 
         spectator.component.model.update((m) => ({
             ...m,
@@ -448,15 +440,15 @@ describe('ParkingRequestFormDetailsComponent', () => {
         ]);
         org.building = bld_1;
         (ts_client.get as jest.Mock).mockResolvedValue([
-                {
-                    id: 'desk-booking-1',
-                    booking_type: 'desk',
-                    user_email: 'me@test.com',
-                    booking_start: 1,
-                    booking_end: 2,
-                    zones: ['lvl-2', 'bld-2'],
-                },
-            ] as any);
+            {
+                id: 'desk-booking-1',
+                booking_type: 'desk',
+                user_email: 'me@test.com',
+                booking_start: 1,
+                booking_end: 2,
+                zones: ['lvl-2', 'bld-2'],
+            },
+        ] as any);
         await spectator.component.ngOnInit();
         await flush();
         expect(spectator.component.desk_booking_building_id()).toBe('bld-2');
@@ -478,9 +470,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
             { id: 'lvl-2', parent_id: 'bld-2', tags: ['level'] },
         ]);
 
-        const buildings = await firstValueFrom(
-            spectator.component.building_list,
-        );
+        const buildings = spectator.component.building_list();
 
         expect(buildings.map((_) => _.id)).toEqual(['bld-1']);
     });
@@ -498,9 +488,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
         spectator.component.hidden_buildings.set(['bld-1']);
         spectator.detectChanges();
 
-        const buildings = await firstValueFrom(
-            spectator.component.building_list,
-        );
+        const buildings = spectator.component.building_list();
 
         expect(buildings.map((_) => _.id)).toEqual(['bld-2']);
         spectator.component.hidden_buildings.set([]);
@@ -520,7 +508,8 @@ describe('ParkingRequestFormDetailsComponent', () => {
         ]);
 
         await spectator.component.ngOnInit();
-        spectator.detectChanges();
+        await flush();
+        await new Promise((resolve) => setTimeout(resolve));
 
         expect(org.building.id).toBe('bld-2');
     });
@@ -849,9 +838,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
 
         await spectator.component.ngOnInit();
 
-        expect(spectator.component.model().plate_number).toBe(
-            'ABC123',
-        );
+        expect(spectator.component.model().plate_number).toBe('ABC123');
     });
 
     it('should restore the selected shift after clearing a forced request time', () => {

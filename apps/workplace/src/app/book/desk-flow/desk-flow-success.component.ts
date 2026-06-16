@@ -39,8 +39,6 @@ import {
     generateGoogleCalendarLink,
     generateMicrosoftCalendarLink,
 } from '@placeos/events';
-import { UserPipe } from '@placeos/users';
-import { forkJoin, lastValueFrom } from 'rxjs';
 
 interface GroupBookingListItem {
     id: string;
@@ -156,7 +154,6 @@ interface GroupBookingListItem {
                                 >
                                     <a-user-avatar
                                         [user]="
-                                            (item.email | user | async) ||
                                             $any({
                                                 name: item.name,
                                                 email: item.email,
@@ -279,7 +276,6 @@ interface GroupBookingListItem {
         RouterModule,
         SanitizePipe,
         SafePipe,
-        UserPipe,
         UserAvatarComponent,
     ],
 })
@@ -407,8 +403,8 @@ export class NewDeskFlowSuccessComponent implements OnInit {
         if (booking_ids.length <= 1) return;
 
         try {
-            const bookings = await lastValueFrom(
-                forkJoin(booking_ids.map((id) => showBooking(id))),
+            const bookings = await Promise.all(
+                booking_ids.map((id) => showBooking(id)),
             );
             this.group_bookings.set(
                 bookings.filter((_) => _.booking_type !== 'group'),
