@@ -2,12 +2,12 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
+    effect,
     inject,
-    Injector,
     OnInit,
     signal,
+    untracked,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { FormsModule } from '@angular/forms';
@@ -161,17 +161,11 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _dialog = inject(MatDialog);
-    private _injector = inject(Injector);
 
     /** List of levels for the active building */
     public readonly all_levels = this._org.active_levels;
     /** List of levels with bookable desk resources */
-    public readonly bookable_levels = toSignal(
-        this._desks.levels || toObservable(this._org.active_levels),
-        {
-            initialValue: [],
-        },
-    );
+    public readonly bookable_levels = this._desks.levels;
     /** List of levels to show for the current view */
     public readonly levels = computed(() =>
         this.manage() ? this.all_levels() : this.bookable_levels(),
@@ -193,6 +187,27 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
         });
         this._desks.setFilters({ zones });
     };
+
+    constructor() {
+        super();
+        // Snap the active zone selection to the available levels once the
+        // organisation data has initialised.
+        effect(() => {
+            if (!this._org.initialised()) return;
+            const levels = this._org.active_levels();
+            untracked(() => {
+                const filters = this.filters();
+                const zones =
+                    filters?.zones?.filter(
+                        (zone) =>
+                            levels.find((lvl) => lvl.id === zone) ||
+                            zone === 'All',
+                    ) || [];
+                if (!zones.length && levels.length) zones.push(levels[0].id);
+                this.updateZones(zones);
+            });
+        });
+    }
 
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
@@ -227,24 +242,6 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
             this._router.events.subscribe(() => {
                 this.manage.set(this._router.url?.includes('manage'));
                 this.is_map.set(this._router.url?.includes('map'));
-            }),
-        );
-        this.subscription(
-            'levels',
-            toObservable(this._org.active_levels, {
-                injector: this._injector,
-            }).subscribe(async (levels) => {
-                const filters = this.filters();
-                const zones =
-                    filters?.zones?.filter(
-                        (zone) =>
-                            levels.find((lvl) => lvl.id === zone) ||
-                            zone === 'All',
-                    ) || [];
-                if (!zones.length && levels.length) {
-                    zones.push(levels[0].id);
-                }
-                this.updateZones(zones);
             }),
         );
         this.manage.set(this._router.url?.includes('manage'));

@@ -97,9 +97,11 @@ import { DesksStateService } from '../desks/desks-state.service';
                     <mat-autocomplete #auto="matAutocomplete">
                         @for (option of asset_options(); track option) {
                             <mat-option
-                                [value]="option?.display_name || option?.name"
+                                [value]="
+                                    $any(option)?.display_name || option?.name
+                                "
                             >
-                                {{ option?.display_name || option?.name }}
+                                {{ $any(option)?.display_name || option?.name }}
                             </mat-option>
                         }
                         @if (!asset_options().length) {
