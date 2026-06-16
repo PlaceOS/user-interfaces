@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 test.describe('Locker Management Page', () => {
     test('creates a locker bank and child locker with mocks', async ({ page }) => {
