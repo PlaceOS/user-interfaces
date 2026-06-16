@@ -1,6 +1,7 @@
 import {
     ChangeDetectionStrategy,
     Component,
+    computed,
     effect,
     ElementRef,
     inject,
@@ -8,7 +9,6 @@ import {
     OnDestroy,
     viewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { ReportsStateService } from '../reports-state.service';
 
 import {
@@ -30,7 +30,6 @@ import {
     Tooltip,
 } from 'chart.js';
 import { format } from 'date-fns';
-import { combineLatest } from 'rxjs';
 
 Chart.register(
     LineController,
@@ -97,14 +96,13 @@ export class ReportDesksChartsComponent
     private _settings = inject(SettingsService);
 
     public readonly print = input(false);
-    public readonly day_list = toSignal(this._state.day_list, {
-        initialValue: [],
-    });
-    public readonly stats = toSignal(
-        combineLatest([this._state.options, this._state.counts]),
-        {
-            initialValue: [{ zones: [] }, {}] as [any, Record<string, number>],
-        },
+    public readonly day_list = this._state.day_list;
+    public readonly stats = computed(
+        () =>
+            [this._state.options(), this._state.counts()] as [
+                any,
+                Record<string, number>,
+            ],
     );
 
     private _daily_chart_el =

@@ -47,7 +47,11 @@ const children: Route[] = [
         component: ContactTracingReportComponent,
         title: 'Contact Tracing Reports',
     },
-    { path: 'assets', component: AssetsReportComponent, title: 'Asset Reports' },
+    {
+        path: 'assets',
+        component: AssetsReportComponent,
+        title: 'Asset Reports',
+    },
     {
         path: 'visitors',
         component: VisitorsReportComponent,

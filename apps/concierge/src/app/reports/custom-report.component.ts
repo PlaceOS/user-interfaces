@@ -3,10 +3,10 @@ import {
     Component,
     computed,
     inject,
+    signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
-import { SettingsService } from '@placeos/common';
+import { ActivatedRoute, ParamMap } from '@angular/router';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { SafePipe } from '@placeos/components';
 
 const EMPTY = {};
@@ -32,15 +32,23 @@ const EMPTY = {};
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [SafePipe],
 })
-export class CustomReportComponent {
+export class CustomReportComponent extends AsyncHandler {
     private _settings = inject(SettingsService);
     private _route = inject(ActivatedRoute);
 
-    private readonly _params = toSignal(this._route.paramMap, {
-        initialValue: this._route.snapshot.paramMap,
-    });
+    private readonly _params = signal<ParamMap>(this._route.snapshot.paramMap);
 
     public readonly id = computed(() => this._params().get('id') || '');
+
+    constructor() {
+        super();
+        this.subscription(
+            'route.params',
+            this._route.paramMap.subscribe((params) =>
+                this._params.set(params),
+            ),
+        );
+    }
 
     public readonly report_url = computed(() => {
         const report =

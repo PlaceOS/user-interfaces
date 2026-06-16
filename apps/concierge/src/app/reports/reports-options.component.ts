@@ -5,11 +5,10 @@ import {
     input,
     OnInit,
     output,
+    resource,
     signal,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
 
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -26,6 +25,7 @@ import {
     AsyncHandler,
     BuildingLevel,
     Identity,
+    nextValueFrom,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
@@ -38,13 +38,12 @@ import { requestSpacesForZone } from '@placeos/events';
 import { DateRangeFieldComponent } from '@placeos/form-fields';
 import { listChildMetadata } from '@placeos/ts-client';
 import { endOfDay, startOfDay } from 'date-fns';
-import { combineLatest, forkJoin, from, Observable, of } from 'rxjs';
 import { ReportOptions } from './reports-state.service';
 
 type ReportResourceType = ReportOptions['type'];
 
 const RESOURCE_LEVEL_CACHE_PREFIX = 'concierge:reports:resource-level:';
-const resource_level_cache = new Map<string, Observable<Set<string>>>();
+const resource_level_cache = new Map<string, Promise<Set<string>>>();
 
 @Component({
     selector: 'reports-options',
@@ -189,28 +188,24 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
     ];
     /** List of selected types */
     public type_list: string[] = this.types.map((i) => `${i.id}`);
-    public readonly levels = toSignal(
-        combineLatest([
-            toObservable(this._org.active_building),
-            toObservable(this._org.active_region),
-            toObservable(this.resource_type),
-        ]).pipe(
-            map(([bld, region, resource_type]) => {
-                const use_region = this._settings.get('app.use_region');
-                return {
-                    resource_type,
-                    scope_id: use_region ? region?.id : bld?.id,
-                    levels: use_region
-                        ? this._org.levelsForRegion(region)
-                        : this._org.levelsForBuilding(bld),
-                };
-            }),
-            switchMap(({ levels, resource_type, scope_id }) =>
-                this._levelsWithResources(levels, resource_type, scope_id),
-            ),
-        ),
-        { initialValue: [] },
-    );
+    private readonly _levels = resource({
+        params: () => ({
+            bld: this._org.active_building(),
+            region: this._org.active_region(),
+            resource_type: this.resource_type(),
+        }),
+        defaultValue: [] as BuildingLevel[],
+        loader: async ({ params }) => {
+            const { bld, region, resource_type } = params;
+            const use_region = this._settings.get('app.use_region');
+            const scope_id = use_region ? region?.id : bld?.id;
+            const levels = use_region
+                ? this._org.levelsForRegion(region)
+                : this._org.levelsForBuilding(bld);
+            return this._levelsWithResources(levels, resource_type, scope_id);
+        },
+    });
+    public readonly levels = this._levels.value;
 
     public readonly setStartDate = (date) => {
         if (date instanceof Date) date = date.valueOf();
@@ -255,105 +250,98 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
         return this._settings.get('app.week_start');
     }
 
-    private _levelsWithResources(
+    private async _levelsWithResources(
         levels: BuildingLevel[],
         resource_type: ReportResourceType,
         scope_id: string,
-    ) {
-        if (!resource_type) return of(levels);
-        if (!levels.length || !scope_id) return of([] as BuildingLevel[]);
-        return this._levelResourceZones(levels, resource_type, scope_id).pipe(
-            map((resource_zones) =>
-                levels.filter((level) => resource_zones.has(level.id)),
-            ),
+    ): Promise<BuildingLevel[]> {
+        if (!resource_type) return levels;
+        if (!levels.length || !scope_id) return [];
+        const resource_zones = await this._levelResourceZones(
+            levels,
+            resource_type,
+            scope_id,
         );
+        return levels.filter((level) => resource_zones.has(level.id));
     }
 
     private _levelResourceZones(
         levels: BuildingLevel[],
         resource_type: ReportResourceType,
         scope_id: string,
-    ): Observable<Set<string>> {
+    ): Promise<Set<string>> {
         const key = `${RESOURCE_LEVEL_CACHE_PREFIX}${resource_type}:${scope_id}`;
         const cached = sessionStorage.getItem(key);
-        if (cached !== null) return of(new Set<string>(JSON.parse(cached)));
+        if (cached !== null) {
+            return Promise.resolve(new Set<string>(JSON.parse(cached)));
+        }
         if (!resource_level_cache.has(key)) {
             resource_level_cache.set(
                 key,
-                this._requestResourceZones(
-                    levels,
-                    resource_type,
-                    scope_id,
-                ).pipe(
-                    map((zones) => {
+                this._requestResourceZones(levels, resource_type, scope_id)
+                    .then((zones) => {
                         sessionStorage.setItem(key, JSON.stringify([...zones]));
                         return zones;
-                    }),
-                    catchError(() => of(new Set<string>())),
-                    shareReplay(1),
-                ),
+                    })
+                    .catch(() => new Set<string>()),
             );
         }
         return resource_level_cache.get(key);
     }
 
-    private _requestResourceZones(
+    private async _requestResourceZones(
         levels: BuildingLevel[],
         resource_type: ReportResourceType,
         scope_id: string,
-    ): Observable<Set<string>> {
+    ): Promise<Set<string>> {
         switch (resource_type) {
-            case 'desks':
-                return from(
-                    listChildMetadata(scope_id, { name: 'desks' }),
-                ).pipe(
-                    map((list) => {
-                        const zones = new Set<string>();
-                        for (const meta of list) {
-                            const details = meta.metadata?.desks?.details;
-                            if (
-                                details instanceof Array &&
-                                details.some((desk) => desk.bookable)
-                            ) {
-                                if (meta.zone?.id) zones.add(meta.zone.id);
-                            }
-                        }
-                        return zones;
-                    }),
-                );
+            case 'desks': {
+                const list = await listChildMetadata(scope_id, {
+                    name: 'desks',
+                });
+                const zones = new Set<string>();
+                for (const meta of list) {
+                    const details = meta.metadata?.desks?.details;
+                    if (
+                        details instanceof Array &&
+                        details.some((desk) => desk.bookable)
+                    ) {
+                        if (meta.zone?.id) zones.add(meta.zone.id);
+                    }
+                }
+                return zones;
+            }
             case 'events':
-            case 'catering':
-                return requestSpacesForZone(scope_id).pipe(
-                    map((spaces) => this._zonesForResources(spaces)),
+            case 'catering': {
+                const spaces = await nextValueFrom(
+                    requestSpacesForZone(scope_id),
                 );
-            case 'parking':
-                return from(queryParkingSpacesForZones([scope_id])).pipe(
-                    map((spaces) => this._zonesForResources(spaces)),
-                );
-            case 'lockers':
-                return forkJoin([
+                return this._zonesForResources(spaces);
+            }
+            case 'parking': {
+                const spaces = await queryParkingSpacesForZones([scope_id]);
+                return this._zonesForResources(spaces);
+            }
+            case 'lockers': {
+                const [banks, lockers] = await Promise.all([
                     queryLockerBankAssetsForZones([scope_id]),
                     queryLockerAssetsForZones([scope_id]),
-                ]).pipe(
-                    map(([banks, lockers]) => {
-                        const zones = new Set<string>();
-                        const bookable_bank_ids = new Set(
-                            lockers
-                                .filter((locker) => locker.bookable !== false)
-                                .map((locker) => (locker as any).parent_id),
-                        );
-                        banks
-                            .filter((bank) => bookable_bank_ids.has(bank.id))
-                            .forEach((bank) =>
-                                (bank.zones || []).forEach((zone) =>
-                                    zones.add(zone),
-                                ),
-                            );
-                        return zones;
-                    }),
+                ]);
+                const zones = new Set<string>();
+                const bookable_bank_ids = new Set(
+                    lockers
+                        .filter((locker) => locker.bookable !== false)
+                        .map((locker) => (locker as any).parent_id),
                 );
+                banks
+                    .filter((bank) => bookable_bank_ids.has(bank.id))
+                    .forEach((bank) =>
+                        (bank.zones || []).forEach((zone) => zones.add(zone)),
+                    );
+                return zones;
+            }
             default:
-                return of(new Set(levels.map((level) => level.id)));
+                return new Set(levels.map((level) => level.id));
         }
     }
 

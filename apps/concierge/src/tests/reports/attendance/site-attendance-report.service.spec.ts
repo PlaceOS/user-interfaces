@@ -2,7 +2,6 @@ import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { firstValueFrom, of } from 'rxjs';
-import { skip, take } from 'rxjs/operators';
 
 import * as asset_mod from '@placeos/assets';
 import * as booking_mod from '@placeos/bookings';
@@ -60,7 +59,7 @@ describe('SiteAttendanceReportService', () => {
         (booking_mod.queryAllBookings as jest.Mock).mockImplementation(
             ({ type }) => {
                 if (type === 'desk') {
-                    return of([
+                    return Promise.resolve([
                         {
                             asset_id: 'desk-1',
                             user_email: 'desk.user@example.com',
@@ -71,7 +70,7 @@ describe('SiteAttendanceReportService', () => {
                     ]);
                 }
                 if (type === 'parking') {
-                    return of([
+                    return Promise.resolve([
                         {
                             asset_id: 'parking-1',
                             user_email: 'parking.user@example.com',
@@ -82,7 +81,7 @@ describe('SiteAttendanceReportService', () => {
                     ]);
                 }
                 if (type === 'locker') {
-                    return of([
+                    return Promise.resolve([
                         {
                             asset_id: 'locker-1',
                             user_email: 'locker.user@example.com',
@@ -93,7 +92,7 @@ describe('SiteAttendanceReportService', () => {
                     ]);
                 }
                 if (type === 'visitor') {
-                    return of([
+                    return Promise.resolve([
                         {
                             asset_id: 'visitor-1@example.com',
                             user_email: 'visitor.host@example.com',
@@ -104,11 +103,11 @@ describe('SiteAttendanceReportService', () => {
                         },
                     ]);
                 }
-                return of([]);
+                return Promise.resolve([]);
             },
         );
         (event_mod.queryAllEvents as jest.Mock).mockReturnValue(
-            of([
+            Promise.resolve([
                 {
                     host: 'host-1@example.com',
                     date: day_1,
@@ -150,19 +149,22 @@ describe('SiteAttendanceReportService', () => {
             of([{ id: 'room-1' }, { id: 'room-2' }, { id: 'room-3' }]),
         );
         (asset_mod.queryParkingSpaces as jest.Mock).mockReturnValue(
-            of([{ id: 'park-1' }, { id: 'park-2' }]),
+            Promise.resolve([{ id: 'park-1' }, { id: 'park-2' }]),
         );
         (asset_mod.queryLockerAssets as jest.Mock).mockReturnValue(
-            of([{ id: 'locker-a' }]),
+            Promise.resolve([{ id: 'locker-a' }]),
         );
         (ts_client_mod.showMetadata as jest.Mock).mockImplementation(
             (_zone: string, key: string) =>
-                of({
+                Promise.resolve({
                     details:
                         key === 'desks'
                             ? [{ id: 'desk-a' }, { id: 'desk-b' }]
                             : [{ id: 'locker-a' }],
                 }),
+        );
+        (common_mod.nextValueFrom as jest.Mock).mockImplementation((source) =>
+            firstValueFrom(source),
         );
         (common_mod.formatDuration as jest.Mock).mockImplementation(
             ({ minutes }) => `${minutes}m`,
@@ -184,11 +186,8 @@ describe('SiteAttendanceReportService', () => {
             end: new Date('2026-04-06T12:00:00').valueOf(),
         });
 
-        const report_promise = firstValueFrom(
-            spectator.service.report$.pipe(skip(1), take(1)),
-        );
-        spectator.service.generateReport();
-        const report = await report_promise;
+        await spectator.service.generateReport();
+        const report = spectator.service.report();
 
         expect(event_mod.queryAllEvents).toHaveBeenCalledWith(
             expect.objectContaining({ zone_ids: 'building-1', limit: 1000 }),
@@ -281,20 +280,25 @@ describe('SiteAttendanceReportService', () => {
     });
 
     it('should notify when no bookings are found', async () => {
-        (booking_mod.queryAllBookings as jest.Mock).mockReturnValue(of([]));
-        (event_mod.queryAllEvents as jest.Mock).mockReturnValue(of([]));
+        (booking_mod.queryAllBookings as jest.Mock).mockReturnValue(
+            Promise.resolve([]),
+        );
+        (event_mod.queryAllEvents as jest.Mock).mockReturnValue(
+            Promise.resolve([]),
+        );
         (event_mod.requestSpacesForZone as jest.Mock).mockReturnValue(of([]));
-        (asset_mod.queryParkingSpaces as jest.Mock).mockReturnValue(of([]));
-        (asset_mod.queryLockerAssets as jest.Mock).mockReturnValue(of([]));
+        (asset_mod.queryParkingSpaces as jest.Mock).mockReturnValue(
+            Promise.resolve([]),
+        );
+        (asset_mod.queryLockerAssets as jest.Mock).mockReturnValue(
+            Promise.resolve([]),
+        );
         (ts_client_mod.showMetadata as jest.Mock).mockReturnValue(
-            of({ details: [] }),
+            Promise.resolve({ details: [] }),
         );
 
-        const report_promise = firstValueFrom(
-            spectator.service.report$.pipe(skip(1), take(1)),
-        );
-        spectator.service.generateReport();
-        const report = await report_promise;
+        await spectator.service.generateReport();
+        const report = spectator.service.report();
 
         expect(report.total_bookings).toBe(0);
         expect(common_mod.notifyError).toHaveBeenCalledWith(
@@ -308,7 +312,7 @@ describe('SiteAttendanceReportService', () => {
         const start = new Date('2026-04-06T08:00:00').valueOf();
         const end = new Date('2026-04-06T18:00:00').valueOf();
         (booking_mod.queryAllBookings as jest.Mock).mockReturnValue(
-            of([
+            Promise.resolve([
                 {
                     all_day: true,
                     asset_id: 'desk-1',
@@ -322,11 +326,8 @@ describe('SiteAttendanceReportService', () => {
         );
         spectator.service.setOptions({ start, end });
 
-        const report_promise = firstValueFrom(
-            spectator.service.report$.pipe(skip(1), take(1)),
-        );
-        spectator.service.generateReport();
-        const report = await report_promise;
+        await spectator.service.generateReport();
+        const report = spectator.service.report();
 
         expect(report.cards.find((card) => card.id === 'desks')).toEqual(
             expect.objectContaining({
@@ -340,7 +341,7 @@ describe('SiteAttendanceReportService', () => {
         features = ['spaces'];
         spectator = createService();
         (event_mod.queryAllEvents as jest.Mock).mockReturnValue(
-            of([
+            Promise.resolve([
                 {
                     host: 'host@example.com',
                     date: day_1,
@@ -362,11 +363,8 @@ describe('SiteAttendanceReportService', () => {
             ]),
         );
 
-        const report_promise = firstValueFrom(
-            spectator.service.report$.pipe(skip(1), take(1)),
-        );
-        spectator.service.generateReport();
-        const report = await report_promise;
+        await spectator.service.generateReport();
+        const report = spectator.service.report();
 
         expect(report.total_attendance).toBe(2);
         expect(report.total_bookings).toBe(1);
@@ -386,7 +384,7 @@ describe('SiteAttendanceReportService', () => {
         features = ['spaces', 'desks'];
         spectator = createService();
         (booking_mod.queryAllBookings as jest.Mock).mockReturnValue(
-            of([
+            Promise.resolve([
                 {
                     asset_id: 'desk-1',
                     user_email: 'desk.user@example.com',
@@ -410,7 +408,7 @@ describe('SiteAttendanceReportService', () => {
             ]),
         );
         (event_mod.queryAllEvents as jest.Mock).mockReturnValue(
-            of([
+            Promise.resolve([
                 {
                     host: 'host@example.com',
                     date: day_1,
@@ -440,11 +438,8 @@ describe('SiteAttendanceReportService', () => {
             ]),
         );
 
-        const report_promise = firstValueFrom(
-            spectator.service.report$.pipe(skip(1), take(1)),
-        );
-        spectator.service.generateReport();
-        const report = await report_promise;
+        await spectator.service.generateReport();
+        const report = spectator.service.report();
 
         expect(report.total_attendance).toBe(3);
         expect(report.total_bookings).toBe(2);
@@ -469,11 +464,8 @@ describe('SiteAttendanceReportService', () => {
         spectator = createService();
         jest.clearAllMocks();
 
-        const report_promise = firstValueFrom(
-            spectator.service.report$.pipe(skip(1), take(1)),
-        );
-        spectator.service.generateReport();
-        const report = await report_promise;
+        await spectator.service.generateReport();
+        const report = spectator.service.report();
 
         expect(event_mod.queryAllEvents).not.toHaveBeenCalled();
         expect(booking_mod.queryAllBookings).not.toHaveBeenCalledWith(
@@ -506,7 +498,7 @@ describe('SiteAttendanceReportService', () => {
         features = ['spaces', 'desks'];
         spectator = createService();
         (booking_mod.queryAllBookings as jest.Mock).mockReturnValue(
-            of([
+            Promise.resolve([
                 {
                     asset_id: 'desk-1',
                     user_email: 'same.user@example.com',
@@ -529,7 +521,7 @@ describe('SiteAttendanceReportService', () => {
             ]),
         );
         (event_mod.queryAllEvents as jest.Mock).mockReturnValue(
-            of([
+            Promise.resolve([
                 {
                     host: 'same.user@example.com',
                     date: day_1,
@@ -558,11 +550,8 @@ describe('SiteAttendanceReportService', () => {
         );
         spectator.service.setOptions({ start: day_1, end: day_2 });
 
-        const report_promise = firstValueFrom(
-            spectator.service.report$.pipe(skip(1), take(1)),
-        );
-        spectator.service.generateReport();
-        const report = await report_promise;
+        await spectator.service.generateReport();
+        const report = spectator.service.report();
 
         expect(report.unique_people).toBe(3);
         expect(report.total_attendance).toBe(5);
@@ -577,7 +566,7 @@ describe('SiteAttendanceReportService', () => {
         const saturday = new Date('2026-04-11T12:00:00').valueOf();
         const sunday = new Date('2026-04-12T12:00:00').valueOf();
         (booking_mod.queryAllBookings as jest.Mock).mockReturnValue(
-            of([
+            Promise.resolve([
                 {
                     asset_id: 'desk-1',
                     user_email: 'saturday.user@example.com',
@@ -594,11 +583,8 @@ describe('SiteAttendanceReportService', () => {
         );
         spectator.service.setOptions({ start: saturday, end: sunday });
 
-        const report_promise = firstValueFrom(
-            spectator.service.report$.pipe(skip(1), take(1)),
-        );
-        spectator.service.generateReport();
-        const report = await report_promise;
+        await spectator.service.generateReport();
+        const report = spectator.service.report();
 
         expect(report.business_days).toBe(1);
         expect(report.cards.find((card) => card.id === 'desks')).toEqual(
@@ -613,7 +599,7 @@ describe('SiteAttendanceReportService', () => {
         const saturday = new Date('2026-04-11T12:00:00').valueOf();
         const sunday = new Date('2026-04-12T12:00:00').valueOf();
         (booking_mod.queryAllBookings as jest.Mock).mockReturnValue(
-            of([
+            Promise.resolve([
                 {
                     asset_id: 'desk-1',
                     user_email: 'saturday.user@example.com',
@@ -630,11 +616,8 @@ describe('SiteAttendanceReportService', () => {
         );
         spectator.service.setOptions({ start: saturday, end: sunday });
 
-        const report_promise = firstValueFrom(
-            spectator.service.report$.pipe(skip(1), take(1)),
-        );
-        spectator.service.generateReport();
-        const report = await report_promise;
+        await spectator.service.generateReport();
+        const report = spectator.service.report();
 
         expect(report.business_days).toBe(2);
         expect(report.cards.find((card) => card.id === 'desks')).toEqual(
@@ -647,7 +630,7 @@ describe('SiteAttendanceReportService', () => {
             start: new Date('2026-04-06T00:00:00Z').valueOf(),
             end: new Date('2026-04-06T23:59:59Z').valueOf(),
         });
-        (spectator.service as any)._report.next({
+        (spectator.service as any)._report.set({
             business_days: 1,
             total_attendance: 8,
             total_bookings: 6,

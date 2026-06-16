@@ -2,11 +2,9 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
-    effect,
     inject,
     signal,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -18,7 +16,6 @@ import {
     AuthenticatedImageDirective,
     TranslatePipe,
 } from '@placeos/components';
-import { debounceTime } from 'rxjs/operators';
 
 import {
     ReportMetricGuideComponent,
@@ -141,18 +138,8 @@ export class ParkingReportComponent extends AsyncHandler {
     private _settings = inject(SettingsService);
     private _route = inject(ActivatedRoute);
     private _org = inject(OrganisationService);
-    private readonly _bookings = toSignal(this._state.bookings$, {
-        initialValue: [],
-    });
-    private readonly _loading = toSignal(this._state.loading$, {
-        initialValue: '',
-    });
-    private readonly _active_building = toSignal(
-        toObservable(this._org.active_building).pipe(debounceTime(500)),
-    );
-    private readonly _query_params = toSignal(this._route.queryParamMap, {
-        initialValue: this._route.snapshot.queryParamMap,
-    });
+    private readonly _bookings = this._state.bookings;
+    private readonly _loading = this._state.loading;
 
     public readonly printing = signal(false);
     public readonly metric_guide = METRIC_GUIDE;
@@ -163,7 +150,7 @@ export class ParkingReportComponent extends AsyncHandler {
     public readonly generateReport = () => this._state.generateReport();
 
     public readonly logo = computed(() => {
-        this._active_building();
+        this._org.active_building();
         return (
             (this._settings.theme === 'dark'
                 ? this._settings.get('app.logo_dark')
@@ -173,22 +160,24 @@ export class ParkingReportComponent extends AsyncHandler {
 
     constructor() {
         super();
-        effect(() => {
-            const params = this._query_params();
-            if (params.has('start')) {
-                this._state.setOptions({ start: +params.get('start') });
-            }
-            if (params.has('end')) {
-                this._state.setOptions({ end: +params.get('end') });
-            }
-            if (params.has('zones') || params.has('zone_ids')) {
-                const zones = (
-                    params.get('zones') || params.get('zone_ids')
-                ).split(',');
-                if (zones.length) this._state.setOptions({ zones });
-            } else {
-                this._state.setOptions({ zones: [] });
-            }
-        });
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((params) => {
+                if (params.has('start')) {
+                    this._state.setOptions({ start: +params.get('start') });
+                }
+                if (params.has('end')) {
+                    this._state.setOptions({ end: +params.get('end') });
+                }
+                if (params.has('zones') || params.has('zone_ids')) {
+                    const zones = (
+                        params.get('zones') || params.get('zone_ids')
+                    ).split(',');
+                    if (zones.length) this._state.setOptions({ zones });
+                } else {
+                    this._state.setOptions({ zones: [] });
+                }
+            }),
+        );
     }
 }

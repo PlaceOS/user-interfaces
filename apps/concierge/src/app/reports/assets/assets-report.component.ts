@@ -6,7 +6,6 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -18,7 +17,6 @@ import {
     AuthenticatedImageDirective,
     TranslatePipe,
 } from '@placeos/components';
-import { debounceTime, map } from 'rxjs/operators';
 
 import {
     ReportMetricGuideComponent,
@@ -155,32 +153,24 @@ export class AssetsReportComponent extends AsyncHandler implements OnInit {
 
     public readonly printing = signal(false);
     public readonly metric_guide = METRIC_GUIDE;
-    private readonly _stats = toSignal(this._state.stats$, {
-        initialValue: {} as any,
-    });
+    private readonly _stats = this._state.stats;
     public readonly total_count = computed(
         () => this._stats()?.total_booked_items || 0,
     );
-    public readonly loading = toSignal(this._state.loading$, {
-        initialValue: false,
-    });
+    public readonly loading = this._state.loading;
     public readonly has_data = computed(() => !!this.total_count());
 
     public readonly downloadReport = () => this._state.downloadReport();
     public readonly generateReport = () => this._state.generateReport();
 
-    public readonly logo = toSignal(
-        toObservable(this._org.active_building).pipe(
-            debounceTime(500),
-            map(
-                () =>
-                    (this._settings.theme === 'dark'
-                        ? this._settings.get('app.logo_dark')
-                        : this._settings.get('app.logo_light')) || {},
-            ),
-        ),
-        { initialValue: {} },
-    );
+    public readonly logo = computed(() => {
+        this._org.active_building();
+        return (
+            (this._settings.theme === 'dark'
+                ? this._settings.get('app.logo_dark')
+                : this._settings.get('app.logo_light')) || {}
+        );
+    });
 
     public ngOnInit() {
         this.subscription(

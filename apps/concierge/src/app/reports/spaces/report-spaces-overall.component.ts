@@ -4,7 +4,6 @@ import {
     computed,
     inject,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { formatDuration } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { differenceInBusinessDays, endOfDay, startOfDay } from 'date-fns';
@@ -86,19 +85,8 @@ import { ReportsStateService } from '../reports-state.service';
 })
 export class ReportSpacesOverallComponent {
     private _state = inject(ReportsStateService);
-    private readonly _options = toSignal(this._state.options, {
-        initialValue: { start: Date.now(), end: Date.now() },
-    });
-    private readonly _stats = toSignal(this._state.stats, {
-        initialValue: {
-            count: 0,
-            avg_length: 0,
-            events: [],
-            total_count: 0,
-            cancelled_count: 0,
-            deleted_count: 0,
-        },
-    });
+    private readonly _options = this._state.options;
+    private readonly _stats = this._state.stats;
 
     public readonly business_days = computed(() => {
         const { start, end } = this._options();
