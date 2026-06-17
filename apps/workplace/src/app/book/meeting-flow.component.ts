@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    OnInit,
-    inject,
-} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
@@ -36,7 +31,6 @@ import { MeetingFlowSuccessComponent } from './meeting-flow/meeting-flow-success
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MeetingFlowSuccessComponent,
         MeetingFlowConfirmComponent,

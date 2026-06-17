@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import { settingSignal } from '@placeos/common';
@@ -92,7 +92,6 @@ import { TranslatePipe } from '@placeos/components';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, MatRippleModule, RouterModule],
 })
 export class LandingQuickLinksComponent {

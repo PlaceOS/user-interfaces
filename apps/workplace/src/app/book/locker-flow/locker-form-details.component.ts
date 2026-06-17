@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     Injector,
     OnChanges,
@@ -9,6 +8,7 @@ import {
     inject,
     input,
     output,
+    signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
@@ -131,7 +131,7 @@ import {
                                         [max]="max_duration"
                                         [min]="60"
                                         [step]="60"
-                                        [custom_options]="custom_durations"
+                                        [custom_options]="custom_durations()"
                                         [use_24hr]="use_24hr"
                                         [timezone]="timezone"
                                     >
@@ -161,7 +161,6 @@ import {
             </div>
         }
     `,
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,
@@ -201,7 +200,7 @@ export class LockerFormDetailsComponent
     /** Selected locker for booking */
     public selected_locker: Locker;
     public from_id = false;
-    public custom_durations = [];
+    public custom_durations = signal<number[]>([]);
 
     public readonly recurrence_options = ['daily', 'weekly', 'monthly'];
 
@@ -292,10 +291,11 @@ export class LockerFormDetailsComponent
         const today = new Date();
         const hours = 22 - today.getHours();
         const days = 5 - today.getDay();
-        this.custom_durations = [];
+        const durations: number[] = [];
         for (let i = 1; i <= days; i++) {
-            this.custom_durations.push((24 * i + hours) * 60);
+            durations.push((24 * i + hours) * 60);
         }
+        this.custom_durations.set(durations);
     }
 
     private setBookingAsset(locker: Locker) {

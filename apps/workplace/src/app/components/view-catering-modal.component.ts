@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
@@ -19,7 +19,7 @@ import { IconComponent } from '@placeos/components';
         <div class="body">
             <strong>Item</strong>
             <strong class="qty">Quantity</strong>
-            @for (item of catering; track item) {
+            @for (item of catering(); track item) {
                 <label>
                     {{ item.item }}
                 </label>
@@ -28,10 +28,10 @@ import { IconComponent } from '@placeos/components';
                 </label>
             }
             <strong class="total">Total Items</strong>
-            <strong class="qty">{{ catering_items_total }}</strong>
+            <strong class="qty">{{ catering_items_total() }}</strong>
             <strong class="note-label"> Note: </strong>
             <div class="note-box">
-                {{ catering_note }}
+                {{ catering_note() }}
             </div>
         </div>
         <footer>
@@ -72,19 +72,21 @@ export class ViewCateringModalComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _dialog = inject(MatDialog);
 
-    public catering: CateringItem[];
-    public catering_note: string;
-    public catering_items_total = 0;
+    public catering = signal<CateringItem[]>([]);
+    public catering_note = signal('');
+    public catering_items_total = signal(0);
 
     public ngOnInit() {
         const data = this._data;
 
         if (data) {
-            this.catering = this._data.catering;
-            this.catering_note = this._data.catering_note;
-            this.catering_items_total = this.catering.reduce(
-                (total, item) => item.quantity + total,
-                0,
+            this.catering.set(this._data.catering);
+            this.catering_note.set(this._data.catering_note);
+            this.catering_items_total.set(
+                this.catering().reduce(
+                    (total, item) => item.quantity + total,
+                    0,
+                ),
             );
         }
     }

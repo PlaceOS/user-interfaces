@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -58,7 +52,7 @@ import { GroupEventsStateService } from './group-events-state.service';
                         (ngModelChange)="setPeriod($event)"
                         placeholder="Select Period"
                     >
-                        @for (range of period_list; track range) {
+                        @for (range of period_list(); track range) {
                             <mat-option [value]="range.id">
                                 {{ range.display }}
                             </mat-option>
@@ -104,7 +98,6 @@ import { GroupEventsStateService } from './group-events-state.service';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         FormsModule,
@@ -124,17 +117,17 @@ export class GroupEventsSidebarComponent
     private _state = inject(GroupEventsStateService);
 
     public period = signal<'week' | 'month'>('week');
-    public period_list = [];
-    public selected_range: number;
+    public period_list = signal<any[]>([]);
+    public selected_range = signal<number>(undefined);
     public readonly options = this._state.options;
     public readonly filters = this._state.filters;
     public readonly tags = this._state.tags;
 
     public ngOnInit(): void {
         this._generatePeriods();
-        if (this.period_list.length) {
-            this.setPeriod(this.period_list[0].id);
-            this.selected_range = this.period_list[0].id;
+        if (this.period_list().length) {
+            this.setPeriod(this.period_list()[0].id);
+            this.selected_range.set(this.period_list()[0].id);
         }
     }
 
@@ -150,16 +143,16 @@ export class GroupEventsSidebarComponent
     public setPeriodType(period: 'week' | 'month') {
         this.period.set(period);
         this._generatePeriods();
-        if (this.period_list.length) {
-            this.setPeriod(this.period_list[0].id);
-            this.selected_range = this.period_list[0].id;
+        if (this.period_list().length) {
+            this.setPeriod(this.period_list()[0].id);
+            this.selected_range.set(this.period_list()[0].id);
         }
     }
 
     public setPeriodFromDate(date: number) {
-        for (const period of this.period_list) {
+        for (const period of this.period_list()) {
             if (date >= period.start && date <= period.end) {
-                this.selected_range = period.id;
+                this.selected_range.set(period.id);
                 this.setPeriod(period.id);
                 return;
             }
@@ -167,7 +160,7 @@ export class GroupEventsSidebarComponent
     }
 
     public setPeriod(id: string) {
-        const { start, end } = this.period_list.find((_) => _.id === id);
+        const { start, end } = this.period_list().find((_) => _.id === id);
         this._state.setOptions({ date: start, end });
     }
 
@@ -206,6 +199,6 @@ export class GroupEventsSidebarComponent
                 date = addMonths(date, 1).valueOf();
             } else break;
         }
-        this.period_list = periods;
+        this.period_list.set(periods);
     }
 }

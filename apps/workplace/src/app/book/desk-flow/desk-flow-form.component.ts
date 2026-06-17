@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    OnInit,
-} from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import {
     MatBottomSheet,
     MatBottomSheetRef,
@@ -83,7 +77,6 @@ import { NewDeskFormDetailsComponent } from './desk-form-details.component';
             }
         </div>
     `,
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, NewDeskFormDetailsComponent, IconComponent],
 })
 export class NewDeskFlowFormComponent implements OnInit {

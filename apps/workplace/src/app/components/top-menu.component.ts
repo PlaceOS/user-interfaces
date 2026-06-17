@@ -1,7 +1,6 @@
 import { NgTemplateOutlet } from '@angular/common';
 import {
     afterNextRender,
-    ChangeDetectionStrategy,
     Component,
     computed,
     DestroyRef,
@@ -223,7 +222,6 @@ export function hasLoadedTopMenuSettings(state: TopMenuSettingsState) {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatMenuModule,
         IconComponent,

@@ -1,10 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-} from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { differenceInDays, endOfDay, startOfDay } from 'date-fns';
@@ -52,7 +47,6 @@ import { GroupEventsStateService } from './group-events-state.service';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, MatRippleModule, TranslatePipe, IconComponent],
 })
 export class GroupEventsFiltersListComponent {

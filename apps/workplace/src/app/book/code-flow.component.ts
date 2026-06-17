@@ -1,6 +1,5 @@
 import {
     AfterViewInit,
-    ChangeDetectionStrategy,
     Component,
     ElementRef,
     inject,
@@ -180,7 +179,6 @@ import { OrganisationService } from '@placeos/common';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatInputModule,
         MatRippleModule,
@@ -202,7 +200,7 @@ export class BookCodeFlowComponent
     public readonly is_scanning = signal(false);
     public readonly loading = signal(false);
 
-    public room_code: string;
+    public readonly room_code = signal<string>('');
     /** Canvas for QR code processing */
     private _canvas: HTMLCanvasElement;
     /** Canvas context */

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
 import { SettingsService } from '@placeos/common';
@@ -263,7 +263,6 @@ import { ScheduleStateService } from './schedule-state.service';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, TranslatePipe, IconComponent, MatRippleModule],
 })
 export class ScheduleFiltersComponent {

@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
@@ -53,7 +48,7 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
                         matRipple
                         class="w-full max-w-lg"
                         [routerLink]="['/book', 'code']"
-                        [queryParams]="{ asset_id: asset_id }"
+                        [queryParams]="{ asset_id: asset_id() }"
                     >
                         {{ 'APP.WORKPLACE.TRY_AGAIN' | translate }}
                     </a>
@@ -89,7 +84,6 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, TranslatePipe, RouterModule],
 })
 export class CodeFlowErrorComponent extends AsyncHandler {

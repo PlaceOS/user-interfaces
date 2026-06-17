@@ -1,6 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     OnInit,
     computed,
@@ -471,7 +470,6 @@ import { SpacePipe } from '@placeos/events';
     `,
     styles: [``],
     providers: [SpacePipe],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,

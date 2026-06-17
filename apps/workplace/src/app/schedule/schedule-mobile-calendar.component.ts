@@ -1,10 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    forwardRef,
-    OnInit,
-} from '@angular/core';
+import { Component, forwardRef, OnInit, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatRipple } from '@angular/material/core';
 import { IconComponent } from '@placeos/components';
@@ -30,7 +25,7 @@ import {
                     class="clear font-medium"
                     (click)="resetMonth()"
                 >
-                    {{ date_list[6]?.id || active_date | date: 'LLLL yyyy' }}
+                    {{ date_list()[6]?.id || active_date() | date: 'LLLL yyyy' }}
                 </button>
                 <div class="flex items-center">
                     <button icon matRipple (click)="changeMonth(-1)">
@@ -42,14 +37,14 @@ import {
                     <button
                         icon
                         matRipple
-                        (click)="show_shortlist = !show_shortlist"
+                        (click)="show_shortlist.set(!show_shortlist())"
                     >
                         <icon>arrow_drop_down</icon>
                     </button>
                 </div>
             </div>
             <div class="mb-2 grid grid-cols-7 gap-2">
-                @for (day of date_list | slice: 0 : 7; track day.id) {
+                @for (day of date_list() | slice: 0 : 7; track day.id) {
                     <div class="mx-2 w-10 text-center opacity-60">
                         {{ day.id | date: 'EE' }}
                     </div>
@@ -60,10 +55,10 @@ import {
                         matRipple
                         class="mx-2 h-9 min-w-[calc(14%-1rem)] flex-1 overflow-visible"
                         [class.text-opacity-30]="!day.is_month"
-                        [class.text-white]="day.id === active_date"
-                        [class.text-black]="day.id !== active_date"
-                        [class.bg-primary]="day.id === active_date"
-                        [class.font-normal]="day.id !== active_date"
+                        [class.text-white]="day.id === active_date()"
+                        [class.text-black]="day.id !== active_date()"
+                        [class.bg-primary]="day.id === active_date()"
+                        [class.font-normal]="day.id !== active_date()"
                         (click)="setValue(day.id)"
                     >
                         @if (day.is_today) {
@@ -85,17 +80,16 @@ import {
             multi: true,
         },
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, MatRipple, IconComponent],
 })
 export class ScheduleMobileCalendarComponent
     implements OnInit, ControlValueAccessor
 {
-    public active_date = startOfDay(Date.now()).valueOf();
+    public active_date = signal(startOfDay(Date.now()).valueOf());
     public offset = 0;
-    public date_list = [];
+    public date_list = signal([]);
     public short_list = [];
-    public show_shortlist = true;
+    public show_shortlist = signal(true);
 
     /** Form control on change handler */
     private _onChange: (_: number) => void;
@@ -107,7 +101,7 @@ export class ScheduleMobileCalendarComponent
     }
 
     public get list() {
-        return this.show_shortlist ? this.short_list : this.date_list;
+        return this.show_shortlist() ? this.short_list : this.date_list();
     }
 
     /**
@@ -115,7 +109,7 @@ export class ScheduleMobileCalendarComponent
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: number) {
-        this.active_date = startOfDay(new_value).valueOf();
+        this.active_date.set(startOfDay(new_value).valueOf());
         this.offset = 0;
         if (this._onChange) {
             this._onChange(new_value);
@@ -126,7 +120,7 @@ export class ScheduleMobileCalendarComponent
      * @param value The new value for the component
      */
     public writeValue(value: number) {
-        this.active_date = startOfDay(value).valueOf();
+        this.active_date.set(startOfDay(value).valueOf());
         this.offset = 0;
         this.generateDates();
     }
@@ -146,7 +140,7 @@ export class ScheduleMobileCalendarComponent
     public readonly registerOnTouched = (fn) => (this._onTouch = fn);
 
     public generateDates() {
-        const date = addMonths(this.active_date, this.offset);
+        const date = addMonths(this.active_date(), this.offset);
         let start = startOfWeek(startOfMonth(date));
         const now = startOfDay(Date.now());
         let list = [];
@@ -159,7 +153,7 @@ export class ScheduleMobileCalendarComponent
             });
             start = addDays(start, 1);
         }
-        this.date_list = list;
+        this.date_list.set(list);
         start =
             this.offset === 0
                 ? startOfWeek(date)

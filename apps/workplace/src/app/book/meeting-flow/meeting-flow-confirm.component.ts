@@ -1,11 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    OnInit,
-    inject,
-    model,
-} from '@angular/core';
+import { Component, OnInit, inject, model } from '@angular/core';
 import {
     MatBottomSheetModule,
     MatBottomSheetRef,
@@ -172,7 +166,6 @@ import { SpacePipe } from '@placeos/events';
         `,
     ],
     providers: [SpacePipe],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatProgressSpinnerModule,

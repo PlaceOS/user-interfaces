@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -402,7 +401,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                                 : '',
                                             resources: model()?.resources || [],
                                         }"
-                                        [rejected_ids]="invalid_assets"
+                                        [rejected_ids]="invalid_assets()"
                                         [formField]="form.assets"
                                     ></asset-list-field>
                                 </div>
@@ -482,7 +481,6 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
     `,
     styles: [],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,
@@ -518,7 +516,7 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
     public dialog_ref: MatDialogRef<any>;
     public hide_block: Record<string, boolean> = {};
     public code_filter = signal('');
-    public invalid_assets: string[] = [];
+    public invalid_assets = signal<string[]>([]);
 
     public readonly has_catering = computed(
         () => this._catering.available_menu().length > 0,
@@ -690,19 +688,23 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
         viewChild<ElementRef<HTMLInputElement>>('input');
 
     private _updateValidAssets() {
-        this.invalid_assets = [];
-        if (!this.event?.id) return;
+        if (!this.event?.id) {
+            this.invalid_assets.set([]);
+            return;
+        }
         const requested_assets = this.model().assets || [];
         const linked_bookings = this.event?.linked_bookings || [];
-        this.invalid_assets = requested_assets
-            .filter(
-                (_) =>
-                    !_._changed &&
-                    !linked_bookings.find(
-                        (bkn) => bkn.extension_data?.request_id === _.id,
-                    ),
-            )
-            .map((_) => _.id);
+        this.invalid_assets.set(
+            requested_assets
+                .filter(
+                    (_) =>
+                        !_._changed &&
+                        !linked_bookings.find(
+                            (bkn) => bkn.extension_data?.request_id === _.id,
+                        ),
+                )
+                .map((_) => _.id),
+        );
     }
 
     private _checkAssets(space_list: Space[]) {

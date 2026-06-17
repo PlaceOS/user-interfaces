@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import {
     AsyncHandler,
@@ -351,7 +345,6 @@ import type { TopMenuEmbedItem } from './top-menu.component';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, IconComponent, RouterModule],
 })
 export class FooterMenuComponent extends AsyncHandler {
