@@ -1,7 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router, UrlTree } from '@angular/router';
-import { firstValueFrom, Observable } from 'rxjs';
 import { SignageService } from './signage.service';
 import { canAccessSignageApp, signageAccessGuard } from './signage-access.guard';
 
@@ -25,10 +24,9 @@ describe('signageAccessGuard', () => {
     const signage_groups = signal<any[]>([]);
 
     function runGuard() {
-        const result = TestBed.runInInjectionContext(() =>
-            signageAccessGuard({} as any, {} as any),
+        return TestBed.runInInjectionContext(
+            () => signageAccessGuard({} as any, {} as any) as Promise<boolean | UrlTree>,
         );
-        return firstValueFrom(result as Observable<boolean | UrlTree>);
     }
 
     beforeEach(() => {

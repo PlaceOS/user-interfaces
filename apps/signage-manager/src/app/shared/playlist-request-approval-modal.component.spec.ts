@@ -6,7 +6,6 @@ import {
     listSignagePlaylistMediaRevisions,
     updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
-import { of } from 'rxjs';
 import { SignageService } from '../signage.service';
 import { PlaylistRequestApprovalModalComponent } from './playlist-request-approval-modal.component';
 
@@ -39,8 +38,8 @@ describe('PlaylistRequestApprovalModalComponent', () => {
         jest.clearAllMocks();
         dialog_ref.disableClose = false;
         service.can_update.set(true);
-        (listSignagePlaylistMediaRevisions as jest.Mock).mockReturnValue(
-            of([
+        (listSignagePlaylistMediaRevisions as jest.Mock).mockResolvedValue(
+            [
                 {
                     id: 'current-version',
                     items: ['media-1', 'media-3'],
@@ -63,9 +62,9 @@ describe('PlaylistRequestApprovalModalComponent', () => {
                     media: [{ id: 'media-2', name: 'Media 2' }],
                     updated_at: 2,
                 },
-            ]),
+            ],
         );
-        (updateSignagePlaylistMedia as jest.Mock).mockReturnValue(of({}));
+        (updateSignagePlaylistMedia as jest.Mock).mockResolvedValue({});
         await TestBed.configureTestingModule({
             imports: [PlaylistRequestApprovalModalComponent],
             providers: [
@@ -126,7 +125,7 @@ describe('PlaylistRequestApprovalModalComponent', () => {
             'Version to approve',
         );
 
-        component.show_preview.set(true);
+        component.togglePreview();
         fixture.detectChanges();
         await fixture.whenStable();
         fixture.detectChanges();
@@ -151,7 +150,7 @@ describe('PlaylistRequestApprovalModalComponent', () => {
         expect(fixture.nativeElement.textContent).toContain('Request Approval');
         expect(fixture.nativeElement.querySelector('textarea')).toBeTruthy();
 
-        component.show_preview.set(true);
+        component.togglePreview();
         fixture.detectChanges();
         await fixture.whenStable();
         fixture.detectChanges();
@@ -174,7 +173,7 @@ describe('PlaylistRequestApprovalModalComponent', () => {
             PlaylistRequestApprovalModalComponent,
         );
         const component = fixture.componentInstance;
-        component.show_preview.set(true);
+        component.togglePreview();
         fixture.detectChanges();
         await fixture.whenStable();
         fixture.detectChanges();
@@ -187,7 +186,7 @@ describe('PlaylistRequestApprovalModalComponent', () => {
             PlaylistRequestApprovalModalComponent,
         );
         const component = fixture.componentInstance;
-        component.show_preview.set(true);
+        component.togglePreview();
         fixture.detectChanges();
         await fixture.whenStable();
         fixture.detectChanges();
@@ -201,7 +200,7 @@ describe('PlaylistRequestApprovalModalComponent', () => {
             PlaylistRequestApprovalModalComponent,
         );
         const component = fixture.componentInstance;
-        component.show_preview.set(true);
+        component.togglePreview();
         fixture.detectChanges();
         await fixture.whenStable();
         fixture.detectChanges();

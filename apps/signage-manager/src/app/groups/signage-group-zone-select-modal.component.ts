@@ -11,7 +11,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceZone } from '@placeos/ts-client';
-import { lastValueFrom } from 'rxjs';
 import { SignageService } from '../signage.service';
 
 @Component({
@@ -120,9 +119,7 @@ export class SignageGroupZoneSelectModalComponent {
 
     private async searchZones() {
         const exclude_ids = new Set(this._data.exclude_ids || []);
-        const zones = await lastValueFrom(
-            this._service.searchGroupZones(this.search()),
-        );
+        const zones = await this._service.searchGroupZones(this.search());
         this.zones.set(zones.filter((zone) => !exclude_ids.has(zone.id)));
     }
 }

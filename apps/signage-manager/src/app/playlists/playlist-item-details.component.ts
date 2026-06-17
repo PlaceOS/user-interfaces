@@ -7,7 +7,6 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -885,15 +884,9 @@ export class PlaylistItemDetailsComponent {
     public readonly playlist = this._service.selected_playlist;
     public readonly active_tab = signal(0);
 
-    private readonly _items = toSignal(this._service.playlist_media_items$, {
-        initialValue: [],
-    });
-    private readonly _displays = toSignal(this._service.displays, {
-        initialValue: [],
-    });
-    private readonly _zones = toSignal(this._service.zones, {
-        initialValue: [],
-    });
+    private readonly _items = this._service.playlist_media_items;
+    private readonly _displays = this._service.displays;
+    private readonly _zones = this._service.zones;
 
     public readonly item_count = computed(() => this._items().length);
     public readonly can_update = this._service.can_update;

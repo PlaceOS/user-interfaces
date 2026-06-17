@@ -7,7 +7,6 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -241,9 +240,7 @@ type PlaylistStatus =
 export class PlaylistSidebarComponent {
     private readonly _service = inject(SignageService);
 
-    private readonly _playlists = toSignal(this._service.playlists, {
-        initialValue: [] as SignagePlaylist[],
-    });
+    private readonly _playlists = this._service.playlists;
 
     public readonly search = signal('');
     public readonly playlist_thumbnail_media =

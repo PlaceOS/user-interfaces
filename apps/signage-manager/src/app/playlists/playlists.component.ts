@@ -3,16 +3,14 @@ import {
     Component,
     effect,
     inject,
+    input,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { SignageMedia } from '@placeos/ts-client';
-import { map } from 'rxjs/operators';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
 import { SignageService } from '../signage.service';
@@ -306,6 +304,9 @@ export class PlaylistsSectionComponent {
     private readonly _route = inject(ActivatedRoute);
     private readonly _router = inject(Router);
 
+    public readonly id = input('');
+    public readonly tab = input<string | null>(null);
+    public readonly item = input<string | null>(null);
     public readonly view_tab = signal<'items' | 'details'>('items');
     public readonly selected_playlist = this._service.selected_playlist;
     public readonly requires_approval =
@@ -317,33 +318,14 @@ export class PlaylistsSectionComponent {
     public readonly approval_request_loading =
         this._service.playlist_approval_request_loading;
 
-    private readonly _playlists = toSignal(this._service.playlists, {
-        initialValue: [],
-    });
-    private readonly _route_id = toSignal(
-        this._route.paramMap.pipe(map((p) => p.get('id') || '')),
-        { initialValue: '' },
-    );
-    private readonly _route_tab = toSignal(
-        this._route.queryParamMap.pipe(map((p) => p.get(TAB_QUERY_PARAM))),
-        { initialValue: null as string | null },
-    );
-    private readonly _route_item_id = toSignal(
-        this._route.queryParamMap.pipe(map((p) => p.get(ITEM_QUERY_PARAM))),
-        { initialValue: null as string | null },
-    );
-    private readonly _playlist_items = toSignal(
-        this._service.playlist_media_items$,
-        {
-            initialValue: [] as SignageMedia[],
-        },
-    );
+    private readonly _playlists = this._service.playlists;
+    private readonly _playlist_items = this._service.playlist_media_items;
 
     private _route_resolved = false;
 
     constructor() {
         effect(() => {
-            const route_tab = parsePlaylistTab(this._route_tab());
+            const route_tab = parsePlaylistTab(this.tab());
             if (route_tab !== this.view_tab()) {
                 this.view_tab.set(route_tab);
             }
@@ -351,7 +333,7 @@ export class PlaylistsSectionComponent {
 
         // Sync selected playlist from route param
         effect(() => {
-            const id = this._route_id();
+            const id = this.id();
             const list = this._playlists();
             if (!list.length) return;
             if (id) {
@@ -372,7 +354,7 @@ export class PlaylistsSectionComponent {
 
         // Sync selected media item from query param
         effect(() => {
-            const item_id = this._route_item_id();
+            const item_id = this.item();
             if (!item_id) return;
             const items = this._playlist_items();
             if (!items.length) return;

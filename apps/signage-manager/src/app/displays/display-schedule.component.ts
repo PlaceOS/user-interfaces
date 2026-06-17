@@ -6,7 +6,6 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
@@ -275,9 +274,7 @@ export class DisplayScheduleComponent {
     private readonly _service = inject(SignageService);
 
     public readonly selected_display = this._service.selected_display;
-    private readonly _playlists = toSignal(this._service.playlists, {
-        initialValue: [],
-    });
+    private readonly _playlists = this._service.playlists;
 
     public readonly week_offset = signal(0);
 

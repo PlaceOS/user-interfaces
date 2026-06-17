@@ -1,13 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceGroupZone } from '@placeos/ts-client';
-import { lastValueFrom } from 'rxjs';
-import { SignageService } from '../signage.service';
+import { dialogClosed, SignageService } from '../signage.service';
 import {
     groupPermissionLabels,
     SignageGroupPermissionsModalComponent,
@@ -159,37 +157,31 @@ export class SignageGroupZonesComponent {
     private readonly _service = inject(SignageService);
     private readonly _dialog = inject(MatDialog);
 
-    public readonly zones = toSignal(this._service.managed_group_zones, {
-        initialValue: [] as PlaceGroupZone[],
-    });
+    public readonly zones = this._service.managed_group_zones;
     public readonly permissionLabels = groupPermissionLabels;
 
     public async addZone() {
-        const zone = await lastValueFrom(
-            this._dialog
-                .open(SignageGroupZoneSelectModalComponent, {
-                    data: {
-                        exclude_ids: this.zones().map((item) => item.zone_id),
-                    },
-                    panelClass: 'mobile-fullscreen',
-                })
-                .afterClosed(),
+        const zone = await dialogClosed(
+            this._dialog.open(SignageGroupZoneSelectModalComponent, {
+                data: {
+                    exclude_ids: this.zones().map((item) => item.zone_id),
+                },
+                panelClass: 'mobile-fullscreen',
+            }),
         );
         if (zone) await this._service.addManagedGroupZone(zone);
     }
 
     public async editZonePermissions(row: PlaceGroupZone) {
-        const result = await lastValueFrom(
-            this._dialog
-                .open(SignageGroupPermissionsModalComponent, {
-                    data: {
-                        title: i18n('SIGNAGE_MANAGER.ZONE_PERMISSIONS'),
-                        permissions: row.permissions,
-                        deny: row.deny,
-                        show_deny: true,
-                    },
-                })
-                .afterClosed(),
+        const result = await dialogClosed(
+            this._dialog.open(SignageGroupPermissionsModalComponent, {
+                data: {
+                    title: i18n('SIGNAGE_MANAGER.ZONE_PERMISSIONS'),
+                    permissions: row.permissions,
+                    deny: row.deny,
+                    show_deny: true,
+                },
+            }),
         );
         if (result) {
             await this._service.updateManagedGroupZone(

@@ -6,9 +6,9 @@ import {
     computed,
     effect,
     inject,
+    input,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -17,7 +17,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { addDays, isSameDay, startOfDay } from 'date-fns';
-import { map } from 'rxjs/operators';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
 import { SignageService } from '../signage.service';
@@ -278,26 +277,15 @@ export class SchedulesSectionComponent {
     private readonly _router = inject(Router);
     private readonly _destroy_ref = inject(DestroyRef);
 
+    public readonly tab = input<string | null>(null);
     public readonly view_tab = signal<'displays' | 'zones'>('displays');
     public readonly search_term = signal('');
     public readonly selected_date = signal(startOfDay(new Date()));
     public readonly current_time = signal(new Date());
 
-    private readonly _playlists = toSignal(this._service.playlists, {
-        initialValue: [],
-    });
-    private readonly _displays = toSignal(this._service.displays, {
-        initialValue: [],
-    });
-    private readonly _zones = toSignal(this._service.zones, {
-        initialValue: [],
-    });
-    private readonly _route_tab = toSignal(
-        this._route.queryParamMap.pipe(
-            map((params) => params.get(TAB_QUERY_PARAM)),
-        ),
-        { initialValue: null as string | null },
-    );
+    private readonly _playlists = this._service.playlists;
+    private readonly _displays = this._service.displays;
+    private readonly _zones = this._service.zones;
 
     public readonly playlist_approval_status =
         this._service.playlist_approval_status;
@@ -433,7 +421,7 @@ export class SchedulesSectionComponent {
 
     constructor() {
         effect(() => {
-            const route_tab = parseScheduleTab(this._route_tab());
+            const route_tab = parseScheduleTab(this.tab());
             if (route_tab !== this.view_tab()) {
                 this.view_tab.set(route_tab);
             }

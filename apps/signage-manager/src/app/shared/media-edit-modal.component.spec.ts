@@ -137,7 +137,7 @@ describe('MediaEditModalComponent', () => {
         const fixture = TestBed.createComponent(MediaEditModalComponent);
         fixture.detectChanges();
 
-        expect(fixture.componentInstance.form.value.plugin_params).toEqual({
+        expect(fixture.componentInstance.model().plugin_params).toEqual({
             size: 'large',
             units: 'metric',
         });
@@ -164,7 +164,7 @@ describe('MediaEditModalComponent', () => {
         const fixture = TestBed.createComponent(MediaEditModalComponent);
         fixture.detectChanges();
 
-        expect(fixture.componentInstance.form.value.plugin_params).toEqual({
+        expect(fixture.componentInstance.model().plugin_params).toEqual({
             units: 'imperial',
             theme: 'light',
         });
@@ -192,10 +192,11 @@ describe('MediaEditModalComponent', () => {
                 theme: { type: 'string', default: 'light' },
             },
         });
-        component.form.patchValue({
+        component.model.update((model) => ({
+            ...model,
             name: 'Weather',
             plugin_params: { theme: 'dark' },
-        });
+        }));
 
         await component.saveMedia();
 

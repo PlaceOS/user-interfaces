@@ -27,7 +27,6 @@ import {
     SignagePlaylist,
     SignagePlugin,
 } from '@placeos/ts-client';
-import { firstValueFrom } from 'rxjs';
 import { playlistMediaThumbnailUrl } from '../signage-playlist.util';
 import { SignageService } from '../signage.service';
 
@@ -427,7 +426,7 @@ export class MediaPreviewModalComponent implements OnInit {
     });
 
     public async ngOnInit() {
-        const all_playlists = await firstValueFrom(this._service.playlists);
+        const all_playlists = this._service.playlists();
         const matching: SignagePlaylist[] = [];
         for (const playlist of all_playlists) {
             try {

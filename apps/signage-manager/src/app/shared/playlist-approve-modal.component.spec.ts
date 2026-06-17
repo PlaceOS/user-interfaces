@@ -7,7 +7,6 @@ import {
     listSignagePlaylistMediaRevisions,
     updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
-import { of } from 'rxjs';
 import { SignageService } from '../signage.service';
 import { PlaylistApproveModalComponent } from './playlist-approve-modal.component';
 
@@ -33,7 +32,7 @@ describe('PlaylistApproveModalComponent', () => {
     const service = {
         changed: jest.fn(),
         can_update: signal(true),
-        media: of([]),
+        media: signal([]),
         previewMedia: jest.fn(),
         setPlaylistApprovalStatus: jest.fn(),
     };
@@ -42,8 +41,8 @@ describe('PlaylistApproveModalComponent', () => {
         jest.clearAllMocks();
         dialog_ref.disableClose = false;
         service.can_update.set(true);
-        (listSignagePlaylistMediaRevisions as jest.Mock).mockReturnValue(
-            of([
+        (listSignagePlaylistMediaRevisions as jest.Mock).mockResolvedValue(
+            [
                 {
                     id: 'current-version',
                     items: ['media-1', 'media-3'],
@@ -66,7 +65,7 @@ describe('PlaylistApproveModalComponent', () => {
                     media: [{ id: 'media-2', name: 'Media 2' }],
                     updated_at: 2,
                 },
-            ]),
+            ],
         );
         await TestBed.configureTestingModule({
             imports: [PlaylistApproveModalComponent],

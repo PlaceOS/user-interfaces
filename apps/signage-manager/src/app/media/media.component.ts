@@ -4,7 +4,6 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { IconComponent } from '@placeos/components';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
@@ -80,9 +79,7 @@ export class MediaSectionComponent {
     private readonly _service = inject(SignageService);
     private _drag_counter = 0;
 
-    public readonly playlists = toSignal(this._service.playlists, {
-        initialValue: [],
-    });
+    public readonly playlists = this._service.playlists;
     public readonly show_dropzone = signal(false);
 
     public handleDragEnter(event: DragEvent) {

@@ -11,7 +11,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceUser } from '@placeos/ts-client';
-import { lastValueFrom } from 'rxjs';
 import { SignageService } from '../signage.service';
 
 @Component({
@@ -118,9 +117,7 @@ export class SignageGroupUserSelectModalComponent {
 
     private async searchUsers() {
         const exclude_ids = new Set(this._data.exclude_ids || []);
-        const users = await lastValueFrom(
-            this._service.searchGroupUsers(this.search()),
-        );
+        const users = await this._service.searchGroupUsers(this.search());
         this.users.set(
             users.filter(
                 (user) =>

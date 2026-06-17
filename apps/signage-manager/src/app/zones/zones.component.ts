@@ -4,13 +4,12 @@ import {
     computed,
     effect,
     inject,
+    input,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { map } from 'rxjs/operators';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
 import { SignageService } from '../signage.service';
@@ -188,26 +187,14 @@ export class ZonesSectionComponent {
     private readonly _route = inject(ActivatedRoute);
     private readonly _router = inject(Router);
 
+    public readonly id = input('');
+    public readonly tab = input<string | null>(null);
     public readonly view_tab = signal<'playlists' | 'displays'>('playlists');
     public readonly selected_zone = this._service.selected_zone;
 
-    private readonly _zones = toSignal(this._service.all_zones, {
-        initialValue: [],
-    });
-    private readonly _playlists = toSignal(this._service.playlists, {
-        initialValue: [],
-    });
-    private readonly _displays = toSignal(this._service.displays, {
-        initialValue: [],
-    });
-    private readonly _route_id = toSignal(
-        this._route.paramMap.pipe(map((p) => p.get('id') || '')),
-        { initialValue: '' },
-    );
-    private readonly _route_tab = toSignal(
-        this._route.queryParamMap.pipe(map((p) => p.get(TAB_QUERY_PARAM))),
-        { initialValue: null as string | null },
-    );
+    private readonly _zones = this._service.all_zones;
+    private readonly _playlists = this._service.playlists;
+    private readonly _displays = this._service.displays;
 
     public readonly playlist_count = computed(() => {
         const zone = this.selected_zone();
@@ -227,14 +214,14 @@ export class ZonesSectionComponent {
 
     constructor() {
         effect(() => {
-            const route_tab = parseZoneTab(this._route_tab());
+            const route_tab = parseZoneTab(this.tab());
             if (route_tab !== this.view_tab()) {
                 this.view_tab.set(route_tab);
             }
         });
 
         effect(() => {
-            const id = this._route_id();
+            const id = this.id();
             const list = this._zones();
             if (!list.length) return;
             if (id) {

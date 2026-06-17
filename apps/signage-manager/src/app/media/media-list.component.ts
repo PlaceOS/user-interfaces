@@ -12,7 +12,6 @@ import {
     signal,
     SimpleChanges,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
@@ -482,9 +481,7 @@ export class MediaListComponent implements OnChanges, OnInit {
         );
     }
 
-    public readonly media = toSignal(this._service.filtered_media, {
-        initialValue: [] as SignageMedia[],
-    });
+    public readonly media = this._service.filtered_media;
     public readonly groups = this._service.signage_groups;
     public readonly selected_group_id = this._service.selected_group_id;
     public readonly is_sys_admin = this._service.is_sys_admin;
