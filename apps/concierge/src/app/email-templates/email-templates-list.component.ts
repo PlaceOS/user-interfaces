@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterModule } from '@angular/router';
@@ -196,12 +195,8 @@ export class EmailTemplatesListComponent {
     private _dialog = inject(MatDialog);
 
     public sending_email: string;
-    public readonly filters = toSignal(this._state.filters, {
-        initialValue: {} as EmailTemplatesFilters,
-    });
-    public readonly templates = toSignal(this._state.filtered_templates, {
-        initialValue: [],
-    });
+    public readonly filters = this._state.filters;
+    public readonly templates = this._state.filtered_templates;
 
     public readonly removeTemplate = (t) => this._state.removeTemplate(t);
     public readonly openBroadcastModal = () =>

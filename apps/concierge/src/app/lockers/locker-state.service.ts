@@ -1,5 +1,12 @@
-import { inject, Injectable } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import {
+    computed,
+    effect,
+    inject,
+    Injectable,
+    resource,
+    signal,
+    Signal,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     deleteLockerAsset,
@@ -47,24 +54,6 @@ import {
     startOfDay,
     subDays,
 } from 'date-fns';
-import {
-    BehaviorSubject,
-    combineLatest,
-    from,
-    Observable,
-    of,
-    Subject,
-} from 'rxjs';
-import {
-    debounceTime,
-    distinctUntilChanged,
-    first,
-    map,
-    scan,
-    shareReplay,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
 
 import { openConfirmModal } from '@placeos/components';
 import { SelectUserModalComponent } from '@placeos/users';
@@ -180,31 +169,22 @@ export class LockerStateService extends AsyncHandler {
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
 
-    private _search = new BehaviorSubject('');
-    private _filters = new BehaviorSubject<LockerFilters>({});
-    // private _new_lockers = new BehaviorSubject<Locker[]>([]);
+    private _search = signal('');
+    private _filters = signal<LockerFilters>({});
     private _locker_bookings: Booking[] = [];
-    private _loading = new BehaviorSubject<string>('');
-    private _change = new BehaviorSubject(0);
+    private _loading = signal<string>('');
+    private _change = signal(0);
     /** List of available locker levels for the current building */
-    public levels = toObservable(this._org.level_list).pipe(
-        map((_) => {
-            if (!this._settings.get('app.use_region')) {
-                const blds = this._org.buildingsForRegion();
-                const bld_ids = blds.map((bld) => bld.id);
-                const list = _.filter((lvl) => bld_ids.includes(lvl.parent_id));
-                list.map((lvl) => ({
-                    ...lvl,
-                    display_name: `${
-                        blds.find((_) => _.id === lvl.parent_id)?.display_name
-                    } - ${lvl.display_name}`,
-                }));
-                return list;
-            }
-            return _.filter((lvl) => lvl.parent_id === this._org.building.id);
-        }),
-    );
-    public readonly loading = this._loading.asObservable();
+    public readonly levels = computed(() => {
+        const all = this._org.level_list();
+        if (!this._settings.get('app.use_region')) {
+            const blds = this._org.buildingsForRegion();
+            const bld_ids = blds.map((bld) => bld.id);
+            return all.filter((lvl) => bld_ids.includes(lvl.parent_id));
+        }
+        return all.filter((lvl) => lvl.parent_id === this._org.building?.id);
+    });
+    public readonly loading = this._loading.asReadonly();
 
     public get tz_offset() {
         const tz = this._settings.get('app.bookings.use_building_timezone')
@@ -214,255 +194,243 @@ export class LockerStateService extends AsyncHandler {
         return !tz ? 0 : getTimezoneDifferenceInHours(current_tz, tz);
     }
 
-    public readonly filters = this._filters.asObservable();
+    public readonly filters = this._filters.asReadonly();
 
-    public readonly search = this._search.asObservable();
+    public readonly search = this._search.asReadonly();
 
-    public readonly lockers_banks$: Observable<LockerBank[]> = combineLatest([
-        toObservable(this._org.active_building),
-        toObservable(this._org.active_region),
-        this._change,
-    ]).pipe(
-        debounceTime(300),
-        switchMap(([building, region]) => {
+    /** List of locker banks for the active building/region */
+    private readonly _lockers_banks = resource({
+        params: () => ({
+            building: this._org.active_building()?.id,
+            region: this._org.active_region()?.id,
+            change: this._change(),
+        }),
+        defaultValue: [] as LockerBank[],
+        loader: async ({ params }) => {
             const scope_id = this._settings.get('app.use_region')
-                ? region?.id
-                : building?.id;
-            if (!scope_id) return of([] as LockerBank[]);
-            return from(queryLockerBankAssetsForZones([scope_id])).pipe(
-                map((assets) => assets.map(lockerBankFromAsset)),
-            );
+                ? params.region
+                : params.building;
+            if (!scope_id) return [] as LockerBank[];
+            const assets = await queryLockerBankAssetsForZones([scope_id]);
+            return assets.map(lockerBankFromAsset);
+        },
+    });
+    public readonly lockers_banks: Signal<LockerBank[]> =
+        this._lockers_banks.value;
+
+    /** List of lockers for the active building/region */
+    private readonly _lockers = resource({
+        params: () => ({
+            building: this._org.active_building()?.id,
+            region: this._org.active_region()?.id,
+            change: this._change(),
+            banks: this.lockers_banks(),
         }),
-        shareReplay(1),
-    );
-    public readonly lockers$: Observable<Locker[]> = combineLatest([
-        toObservable(this._org.active_building),
-        toObservable(this._org.active_region),
-        this._change,
-        this.lockers_banks$,
-    ]).pipe(
-        debounceTime(300),
-        switchMap(([building, region, _change, banks]) => {
+        defaultValue: [] as Locker[],
+        loader: async ({ params }) => {
             const scope_id = this._settings.get('app.use_region')
-                ? region?.id
-                : building?.id;
-            if (!scope_id) return of([] as Locker[]);
-            return from(queryLockerAssetsForZones([scope_id])).pipe(
-                map((assets) => {
-                    const lockers = assets.map((_) =>
-                        lockerFromAsset(_, banks),
-                    );
-                    for (const bank of banks) {
-                        bank.lockers = lockers
-                            .filter((_) => _.bank_id === bank.id)
-                            .map((_) => ({ ..._ }));
-                    }
-                    return lockers;
-                }),
-            );
-        }),
-        map((lockers) => lockers.filter((_) => _.bank)),
-        shareReplay(1),
-    );
-    /** List of levels with bookable locker resources */
-    public bookable_levels = combineLatest([this.levels, this.lockers$]).pipe(
-        map(([levels, lockers]) =>
-            levels.filter((level) =>
-                lockers.some(
-                    (locker) =>
-                        locker.bookable &&
-                        (
-                            (locker as any).zones ||
-                            locker.bank?.zones ||
-                            []
-                        ).includes(level.id),
-                ),
-            ),
-        ),
-        shareReplay(1),
-    );
-
-    public filtered_lockers = combineLatest([
-        this.filters,
-        this._search,
-        this.lockers$,
-    ]).pipe(
-        map(([{ zones }, search, list]) => {
-            search = (search || '').toLowerCase();
-            if (!zones?.length && !search) return list;
-            return list.filter((item) => {
-                let match = true;
-                if (search) {
-                    match =
-                        item.name.toLowerCase().includes(search) ||
-                        item.bank.name.toLowerCase().includes(search);
-                }
-                if (zones?.length) {
-                    match = !!zones.find((zone) =>
-                        ((item as any).zones || item.bank.zones || []).includes(
-                            zone,
-                        ),
-                    );
-                }
-                return match;
-            });
-        }),
-    );
-
-    public filtered_banks = combineLatest([
-        this.filters,
-        this._search,
-        this.lockers_banks$,
-        this.lockers$,
-    ]).pipe(
-        map(([{ zones }, search, list, lockers]) => {
-            search = (search || '').toLowerCase();
-            list = list.map((bank) => ({
-                ...bank,
-                lockers: lockers.filter((locker) => locker.bank_id === bank.id),
-            }));
-            if (!zones?.length && !search) return list;
-            return list.filter((item) => {
-                let match = true;
-                if (search) {
-                    match = item.name.toLowerCase().includes(search);
-                }
-                if (zones?.length) {
-                    match = !!zones.find((zone) =>
-                        (item.zones || []).includes(zone),
-                    );
-                }
-                return match;
-            });
-        }),
-    );
-
-    private _next_page = new Subject<
-        () => Observable<any> | QueryResponse<Booking>
-    >();
-    private _call_next_page = new Subject<string>();
-    private _all_zones_keys = ['All', -1, '-1'];
-    public readonly setup_paging = combineLatest([
-        this._filters,
-        toObservable(this._org.initialised),
-    ]).pipe(
-        debounceTime(500),
-        tap(([filters, loaded]) => {
-            if (!loaded) return;
-            const date = filters.date || Date.now();
-            const period_start = addMinutes(
-                startOfDay(date),
-                this.tz_offset * 60,
-            );
-            const period_end = addMinutes(endOfDay(date), this.tz_offset * 60);
-            const zones =
-                !filters.zones ||
-                filters.zones.some((z) => this._all_zones_keys.includes(z))
-                    ? this._settings.get('app.use_region')
-                        ? [this._org.region.id]
-                        : [this._org.building.id]
-                    : filters.zones;
-            this._next_page.next(() =>
-                queryPagedBookings({
-                    period_start: getUnixTime(period_start),
-                    period_end: getUnixTime(period_end),
-                    type: 'locker',
-                    zones: zones.join(','),
-                    include_checked_out: true,
-                    limit: 1000,
-                }),
-            );
-            this._call_next_page.next(`RESET_${Date.now()}`);
-        }),
-    );
-
-    public readonly paged_bookings = combineLatest([
-        this._next_page,
-        this._call_next_page,
-    ]).pipe(
-        distinctUntilChanged((a, b) => a[1] === b[1]),
-        switchMap(([next_page, action]) => {
-            this._loading.next(
-                addToken(this._loading.getValue(), '[BOOKINGS]'),
-            );
-            if (!next_page) {
-                return of({
-                    data: [],
-                    total: 0,
-                    next: null,
-                    reset: action.includes('RESET'),
-                });
+                ? params.region
+                : params.building;
+            if (!scope_id) return [] as Locker[];
+            const banks = params.banks;
+            const assets = await queryLockerAssetsForZones([scope_id]);
+            const lockers = assets.map((_) => lockerFromAsset(_, banks));
+            for (const bank of banks) {
+                bank.lockers = lockers
+                    .filter((_) => _.bank_id === bank.id)
+                    .map((_) => ({ ..._ }));
             }
-            // If reset is true, start over
-            if (action.includes('RESET')) {
-                return from(next_page() as any).pipe(
-                    map((data: any) => ({ ...data, reset: true })),
+            return lockers.filter((_) => _.bank);
+        },
+    });
+    public readonly lockers: Signal<Locker[]> = this._lockers.value;
+
+    /** List of levels with bookable locker resources */
+    public readonly bookable_levels = computed(() => {
+        const levels = this.levels();
+        const lockers = this.lockers();
+        return levels.filter((level) =>
+            lockers.some(
+                (locker) =>
+                    locker.bookable &&
+                    (
+                        (locker as any).zones ||
+                        locker.bank?.zones ||
+                        []
+                    ).includes(level.id),
+            ),
+        );
+    });
+
+    public readonly filtered_lockers = computed(() => {
+        const { zones } = this._filters();
+        const search = (this._search() || '').toLowerCase();
+        const list = this.lockers();
+        if (!zones?.length && !search) return list;
+        return list.filter((item) => {
+            let match = true;
+            if (search) {
+                match =
+                    item.name.toLowerCase().includes(search) ||
+                    item.bank.name.toLowerCase().includes(search);
+            }
+            if (zones?.length) {
+                match = !!zones.find((zone) =>
+                    ((item as any).zones || item.bank.zones || []).includes(
+                        zone,
+                    ),
                 );
             }
-            return from(next_page() as any).pipe(
-                map((data: any) => ({ ...data, reset: false })),
-            );
-        }),
-        scan(
-            (acc, { data, total, next, reset }) => {
-                const list = data;
-                this._next_page.next(next); // Set the next page function
-                if (reset) return { list, total, has_next: !!next }; // Reset the items array
-                return {
-                    list: [...acc.list, ...list],
-                    has_next: !!next,
-                    total,
-                };
-            },
-            { list: [], total: 0, has_next: false },
-        ),
-        tap(() =>
-            this.timeout(
-                'stop-loading',
-                () =>
-                    this._loading.next(
-                        removeToken(this._loading.getValue(), '[BOOKINGS]'),
-                    ),
-                1000,
-            ),
-        ),
-        shareReplay(1),
-    );
+            return match;
+        });
+    });
 
-    public readonly has_more_pages = this.paged_bookings.pipe(
-        map((_) => _.has_next),
-    );
-    public readonly bookings = this.paged_bookings.pipe(map((i) => i.list));
+    public readonly filtered_banks = computed(() => {
+        const { zones } = this._filters();
+        const search = (this._search() || '').toLowerCase();
+        const lockers = this.lockers();
+        const list = this.lockers_banks().map((bank) => ({
+            ...bank,
+            lockers: lockers.filter((locker) => locker.bank_id === bank.id),
+        }));
+        if (!zones?.length && !search) return list;
+        return list.filter((item) => {
+            let match = true;
+            if (search) {
+                match = item.name.toLowerCase().includes(search);
+            }
+            if (zones?.length) {
+                match = !!zones.find((zone) =>
+                    (item.zones || []).includes(zone),
+                );
+            }
+            return match;
+        });
+    });
 
-    public readonly filtered_bookings = combineLatest([
-        this.bookings,
-        this._search,
-    ]).pipe(
-        map(([l, search]) =>
-            l.filter(
-                (_) =>
-                    _.title.toLowerCase().includes(search.toLowerCase()) ||
-                    _.user_name.toLowerCase().includes(search.toLowerCase()) ||
-                    _.user_email.toLowerCase().includes(search.toLowerCase()) ||
-                    _.description
-                        .toLowerCase()
-                        .includes(search.toLowerCase()) ||
-                    _.asset_name.toLowerCase().includes(search.toLowerCase()),
-            ),
-        ),
+    /** Accumulated paged locker bookings */
+    private readonly _bookings_state = signal<{
+        list: Booking[];
+        total: number;
+        has_next: boolean;
+    }>({ list: [], total: 0, has_next: false });
+    public readonly paged_bookings = this._bookings_state.asReadonly();
+
+    public readonly has_more_pages = computed(
+        () => this.paged_bookings().has_next,
     );
+    public readonly bookings = computed(() => this.paged_bookings().list);
+
+    public readonly filtered_bookings = computed(() => {
+        const search = (this._search() || '').toLowerCase();
+        return this.bookings().filter(
+            (_) =>
+                _.title.toLowerCase().includes(search) ||
+                _.user_name.toLowerCase().includes(search) ||
+                _.user_email.toLowerCase().includes(search) ||
+                _.description.toLowerCase().includes(search) ||
+                _.asset_name.toLowerCase().includes(search),
+        );
+    });
+
+    private _all_zones_keys = ['All', -1, '-1'];
+    /** Query for the first page of bookings for the active filters */
+    private _first_page: (() => QueryResponse<Booking>) | null = null;
+    /** Query for the next page of bookings */
+    private _next_page_fn: (() => QueryResponse<Booking> | null) | null = null;
+    /** Token used to discard responses from superseded page loads */
+    private _load_token = 0;
 
     public nextPage() {
-        this._call_next_page.next(`NEXT_${Date.now()}`);
+        this._loadPage(false);
     }
 
     constructor() {
         super();
-        this.setup_paging.subscribe();
+        // Rebuild the paging query whenever the filters or initialised state
+        // change. Debounced to collapse rapid updates.
+        effect(() => {
+            const filters = this._filters();
+            const loaded = this._org.initialised();
+            this.timeout(
+                'setup-paging',
+                () => {
+                    if (!loaded) return;
+                    this._first_page = this._buildFirstPage(filters);
+                    this._next_page_fn = this._first_page;
+                    this._loadPage(true);
+                },
+                500,
+            );
+        });
+    }
+
+    /** Build the first page query function for the given filters */
+    private _buildFirstPage(
+        filters: LockerFilters,
+    ): () => QueryResponse<Booking> {
+        const date = filters.date || Date.now();
+        const period_start = addMinutes(startOfDay(date), this.tz_offset * 60);
+        const period_end = addMinutes(endOfDay(date), this.tz_offset * 60);
+        const zones =
+            !filters.zones ||
+            filters.zones.some((z) => this._all_zones_keys.includes(z))
+                ? this._settings.get('app.use_region')
+                    ? [this._org.region.id]
+                    : [this._org.building.id]
+                : filters.zones;
+        return () =>
+            queryPagedBookings({
+                period_start: getUnixTime(period_start),
+                period_end: getUnixTime(period_end),
+                type: 'locker',
+                zones: zones.join(','),
+                include_checked_out: true,
+                limit: 1000,
+            });
+    }
+
+    /**
+     * Load a page of locker bookings, either resetting the list or appending
+     * the next page. Stale responses are discarded if a newer load started.
+     */
+    private async _loadPage(reset: boolean) {
+        const fetch = reset ? this._first_page : this._next_page_fn;
+        if (!fetch) {
+            if (reset) {
+                this._bookings_state.set({
+                    list: [],
+                    total: 0,
+                    has_next: false,
+                });
+            }
+            return;
+        }
+        const token = ++this._load_token;
+        this._loading.set(addToken(this._loading(), '[BOOKINGS]'));
+        const resp: any = await Promise.resolve(fetch()).catch(() => ({
+            data: [],
+            total: 0,
+            next: null,
+        }));
+        if (token !== this._load_token) return;
+        const { data = [], total = 0, next = null } = resp || {};
+        this._next_page_fn = next;
+        this._bookings_state.update((acc) =>
+            reset
+                ? { list: data, total, has_next: !!next }
+                : { list: [...acc.list, ...data], total, has_next: !!next },
+        );
+        this.timeout(
+            'stop-loading',
+            () =>
+                this._loading.set(removeToken(this._loading(), '[BOOKINGS]')),
+            1000,
+        );
     }
 
     public setSearch(value: string) {
-        this._search.next(value);
+        this._search.set(value);
     }
 
     public setFilters(filters: LockerFilters) {
@@ -473,18 +441,15 @@ export class LockerStateService extends AsyncHandler {
                     .levelsForBuilding(this._org.building)
                     .map((lvl) => lvl.id),
             ];
-        } else if (
-            filters.zones &&
-            this._filters.getValue()?.zones?.includes('All')
-        ) {
+        } else if (filters.zones && this._filters()?.zones?.includes('All')) {
             filters.zones = [];
         }
-        this._filters.next({ ...this._filters.getValue(), ...filters });
+        this._filters.set({ ...this._filters(), ...filters });
     }
 
     public refresh() {
-        this._loading.next(addToken(this._loading.getValue(), '[BOOKINGS]'));
-        this.timeout('poll', () => this.setFilters(this._filters.getValue()));
+        this._loading.set(addToken(this._loading(), '[BOOKINGS]'));
+        this.timeout('poll', () => this.setFilters(this._filters()));
     }
 
     public viewLockerBank(bank: LockerBank) {
@@ -516,7 +481,7 @@ export class LockerStateService extends AsyncHandler {
         if (!user) {
             // TODO: Ask to select user
             const ref = this._dialog.open(SelectUserModalComponent, {});
-            const value = await ref.afterClosed().toPromise();
+            const value = await nextValueFrom(ref.afterClosed());
             if (!value) return;
             user = value;
         }
@@ -544,7 +509,7 @@ export class LockerStateService extends AsyncHandler {
         const mod = this._org.module('lockers', 'Lockers');
         if (!mod) return notifyError(i18n('APP.CONCIERGE.LOCKERS_NO_DRIVER'));
         let close: () => void;
-        const lockers = await nextValueFrom(this.lockers$);
+        const lockers = this.lockers();
         if (!lockers.length) return;
         if (confirm) {
             const result = await openConfirmModal(
@@ -641,10 +606,14 @@ export class LockerStateService extends AsyncHandler {
             data: bank,
         });
         const state = await Promise.race([
-            ref.afterClosed().toPromise(),
-            ref.componentInstance.event
-                .pipe(first((_) => _.reason === 'done'))
-                .toPromise(),
+            nextValueFrom(ref.afterClosed()),
+            new Promise<any>((resolve) => {
+                const sub = ref.componentInstance.event.subscribe((event) => {
+                    if (event?.reason !== 'done') return;
+                    sub.unsubscribe();
+                    resolve(event);
+                });
+            }),
         ]);
         if (state?.reason !== 'done') return;
         const zone_id = state.metadata.level_id || this._org.building.id;
@@ -653,7 +622,7 @@ export class LockerStateService extends AsyncHandler {
             id: bank.id,
         };
         await saveLockerBankAsset(lockerBankToAsset(new_bank, zone_id));
-        this._change.next(Date.now());
+        this._change.set(Date.now());
         ref.close();
     }
 
@@ -663,10 +632,14 @@ export class LockerStateService extends AsyncHandler {
             data: { locker, bank },
         });
         const state = await Promise.race([
-            ref.afterClosed().toPromise(),
-            ref.componentInstance.event
-                .pipe(first((_) => _.reason === 'done'))
-                .toPromise(),
+            nextValueFrom(ref.afterClosed()),
+            new Promise<any>((resolve) => {
+                const sub = ref.componentInstance.event.subscribe((event) => {
+                    if (event?.reason !== 'done') return;
+                    sub.unsubscribe();
+                    resolve(event);
+                });
+            }),
         ]);
         if (state?.reason !== 'done') return;
         const zone_id = bank.zones?.[0] || this._org.building.id;
@@ -727,7 +700,7 @@ export class LockerStateService extends AsyncHandler {
                 }),
             );
         }
-        this._change.next(Date.now());
+        this._change.set(Date.now());
         ref.close();
     }
 
@@ -754,7 +727,7 @@ export class LockerStateService extends AsyncHandler {
         });
         state.close();
         notifySuccess(i18n('APP.CONCIERGE.LOCKERS_BANK_REMOVE_SUCCESS'));
-        this._change.next(Date.now());
+        this._change.set(Date.now());
     }
 
     public async removeLocker(locker: Locker) {
@@ -779,7 +752,7 @@ export class LockerStateService extends AsyncHandler {
         });
         state.close();
         notifySuccess(i18n('APP.CONCIERGE.LOCKERS_REMOVE_SUCCESS'));
-        this._change.next(Date.now());
+        this._change.set(Date.now());
     }
 
     public async editBooking(
@@ -802,8 +775,8 @@ export class LockerStateService extends AsyncHandler {
             external_user?: boolean;
         } = {},
     ) {
-        const levels = await nextValueFrom(this.levels);
-        const spaces = await nextValueFrom(this.lockers$);
+        const levels = this.levels();
+        const spaces = this.lockers();
         if (!space && booking?.asset_id) {
             space = spaces.find((_) => _.id === booking.asset_id);
         }
@@ -820,8 +793,8 @@ export class LockerStateService extends AsyncHandler {
                 external_user,
             },
         });
-        const id = await ref.afterClosed().toPromise();
-        if (id) this._change.next(Date.now());
+        const id = await nextValueFrom(ref.afterClosed());
+        if (id) this._change.set(Date.now());
         return id;
     }
 

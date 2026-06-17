@@ -6,7 +6,6 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -344,7 +343,7 @@ export class DealsListComponent {
     public readonly display = signal<'list' | 'grid'>('list');
     public readonly expires = signal(0);
     public readonly type = signal('');
-    public readonly deals = toSignal(this._deals.deals$, { initialValue: [] });
+    public readonly deals = this._deals.deals;
     public readonly types = computed(() =>
         unique(this.deals().map((d) => d.type)).filter((type) => !!type),
     );

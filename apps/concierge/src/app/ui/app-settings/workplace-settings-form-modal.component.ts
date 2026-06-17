@@ -19,7 +19,6 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
-import { map } from 'rxjs/operators';
 
 import {
     buildCurrencyOptions,
@@ -44,7 +43,6 @@ import {
     IconComponent,
     SettingsToggleComponent,
 } from '@placeos/components';
-import { firstValueFrom, from } from 'rxjs';
 import {
     AVAILABLE_PERIOD_EXTENDED_OPTIONS,
     BANNER_TYPE_OPTIONS,
@@ -2335,12 +2333,9 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
         );
     }
 
-    private _getMetadata(id: string) {
-        return firstValueFrom(
-            from(showMetadata(id, this.settings_key) as any).pipe(
-                map((m: any) => m.details as Record<string, any>),
-            ),
-        );
+    private async _getMetadata(id: string) {
+        const metadata: any = await showMetadata(id, this.settings_key);
+        return metadata.details as Record<string, any>;
     }
 
     public addLegend() {

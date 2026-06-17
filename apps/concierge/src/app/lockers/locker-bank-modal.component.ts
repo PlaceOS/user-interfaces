@@ -3,12 +3,13 @@ import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 import {
     ChangeDetectionStrategy,
     Component,
+    computed,
+    effect,
     EventEmitter,
     inject,
     Output,
     signal,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import {
     FormControl,
     FormGroup,
@@ -44,7 +45,6 @@ import {
     CounterComponent,
     removeChipItem,
 } from '@placeos/form-fields';
-import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'locker-bank-modal',
@@ -251,44 +251,15 @@ export class LockerBankModalComponent {
     });
 
     /** List of available locker levels for the current building */
-    public readonly levels = toSignal(
-        toObservable(this._org.level_list).pipe(
-            map((_) => {
-                if (!this._settings.get('app.use_region')) {
-                    const blds = this._org.buildingsForRegion();
-                    const bld_ids = blds.map((bld) => bld.id);
-                    const list = _.filter((lvl) =>
-                        bld_ids.includes(lvl.parent_id),
-                    );
-                    list.map((lvl) => ({
-                        ...lvl,
-                        display_name: `${
-                            blds.find((_) => _.id === lvl.parent_id)
-                                ?.display_name
-                        } - ${lvl.display_name}`,
-                    }));
-                    if (!this.form.value.level_id && list.length) {
-                        this.form.patchValue({
-                            level_id: list[0].id,
-                            zones: [list[0].id],
-                        });
-                    }
-                    return list;
-                }
-                const list = _.filter(
-                    (lvl) => lvl.parent_id === this._org.building.id,
-                );
-                if (!this.form.value.level_id && list.length) {
-                    this.form.patchValue({
-                        level_id: list[0].id,
-                        zones: [list[0].id],
-                    });
-                }
-                return list;
-            }),
-        ),
-        { initialValue: [] },
-    );
+    public readonly levels = computed(() => {
+        const all = this._org.level_list();
+        if (!this._settings.get('app.use_region')) {
+            const blds = this._org.buildingsForRegion();
+            const bld_ids = blds.map((bld) => bld.id);
+            return all.filter((lvl) => bld_ids.includes(lvl.parent_id));
+        }
+        return all.filter((lvl) => lvl.parent_id === this._org.building.id);
+    });
 
     public readonly addTag = (e) =>
         addChipItem(this.form.controls.tags as any, e);
@@ -304,6 +275,15 @@ export class LockerBankModalComponent {
     }
 
     constructor() {
+        effect(() => {
+            const list = this.levels();
+            if (!this.form.value.level_id && list.length) {
+                this.form.patchValue({
+                    level_id: list[0].id,
+                    zones: [list[0].id],
+                });
+            }
+        });
         const _data = this._data;
 
         if (_data) {

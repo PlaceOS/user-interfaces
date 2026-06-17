@@ -32,7 +32,6 @@ import {
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { RichTextInputComponent } from '@placeos/form-fields';
-import { startWith } from 'rxjs/operators';
 import {
     EmailTemplate,
     EmailTemplatesStateService,
@@ -328,9 +327,7 @@ export class EmailTemplateManageComponent extends AsyncHandler {
 
     public readonly loading = signal('');
     public readonly template = signal<EmailTemplate | null>(null);
-    public readonly definitions = toSignal(this._state.template_groups, {
-        initialValue: [],
-    });
+    public readonly definitions = this._state.template_groups;
     public readonly buildings = this._org.building_list;
     public readonly form = new FormGroup({
         id: new FormControl(''),
@@ -342,12 +339,9 @@ export class EmailTemplateManageComponent extends AsyncHandler {
         html: new FormControl('', [Validators.required]),
         zone_id: new FormControl(''),
     });
-    private readonly _trigger = toSignal(
-        this.form.controls.trigger.valueChanges.pipe(
-            startWith(this.form.controls.trigger.value || ''),
-        ),
-        { initialValue: this.form.controls.trigger.value || '' },
-    );
+    private readonly _trigger = toSignal(this.form.controls.trigger.valueChanges, {
+        initialValue: this.form.controls.trigger.value || '',
+    });
     public readonly active_trigger = computed(() => {
         const trigger_id = this._trigger();
         return this.definitions()

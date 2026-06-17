@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { EventEmitter, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
 import { OrganisationService, SettingsService } from '@placeos/common';
@@ -82,28 +82,19 @@ describe('LockerStateService', () => {
 
     afterEach(() => jest.restoreAllMocks());
 
-    it('should apply building timezone to locker booking listing requests', async () => {
-        jest.useFakeTimers();
+    it('should apply building timezone to locker booking listing requests', () => {
         const date = new Date('2026-06-15T12:00:00').valueOf();
         spectator = createService();
-        let next_page: any;
-        const subscription = (spectator.service as any)._next_page.subscribe(
-            (fn) => (next_page = fn),
-        );
+        const first_page = (spectator.service as any)._buildFirstPage({ date });
+        first_page();
 
-        spectator.service.setFilters({ date });
-        await jest.advanceTimersByTimeAsync(1100);
-        next_page()?.subscribe();
-
+        expect(spectator.service.tz_offset).toBe(2);
         expect(booking_mod.queryPagedBookings).toHaveBeenLastCalledWith(
             expect.objectContaining({
                 period_start: getUnixTime(addMinutes(startOfDay(date), 120)),
                 period_end: getUnixTime(addMinutes(endOfDay(date), 120)),
             }),
         );
-
-        subscription.unsubscribe();
-        jest.useRealTimers();
     });
 
     it('should use the building timezone for assigned locker bookings', async () => {
@@ -127,7 +118,7 @@ describe('LockerStateService', () => {
                     },
                 }),
             componentInstance: {
-                event: of({ reason: 'done' }),
+                event: new EventEmitter<any>(),
             },
             close: jest.fn(),
         };

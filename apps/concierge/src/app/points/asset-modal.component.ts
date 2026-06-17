@@ -3,10 +3,11 @@ import {
     Component,
     EventEmitter,
     Output,
+    computed,
     inject,
     signal,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
     FormControl,
     FormGroup,
@@ -28,8 +29,6 @@ import {
 import { SpacesService } from '@placeos/events';
 import { CounterComponent, TimeFieldComponent } from '@placeos/form-fields';
 import { addHours, startOfHour } from 'date-fns';
-import { combineLatest } from 'rxjs';
-import { map, shareReplay, startWith, tap } from 'rxjs/operators';
 import { DesksStateService } from '../desks/desks-state.service';
 
 @Component({
@@ -302,30 +301,21 @@ export class PointsAssetModalComponent extends AsyncHandler {
 
     public readonly loading = signal(false);
 
-    public readonly asset_options = toSignal(
-        combineLatest([
-            this.form.valueChanges.pipe(startWith(this.form.getRawValue())),
-            toObservable(this._spaces.list),
-            toObservable(this._desks.desks),
-        ]).pipe(
-            map(([{ type, name }, spaces, desks]) => {
-                this.loading.set(true);
-                const search = (name || '').toLowerCase();
-                return !type
-                    ? []
-                    : type === 'space'
-                      ? spaces.filter((_) =>
-                            _.name.toLowerCase().includes(search),
-                        )
-                      : desks.filter((_) =>
-                            _.name.toLowerCase().includes(search),
-                        );
-            }),
-            tap(() => this.loading.set(false)),
-            shareReplay(1),
-        ),
-        { initialValue: [] },
-    );
+    private readonly _form_value = toSignal(this.form.valueChanges, {
+        initialValue: this.form.getRawValue(),
+    });
+
+    public readonly asset_options = computed(() => {
+        const { type, name } = this._form_value() || {};
+        const spaces = this._spaces.list();
+        const desks = this._desks.desks();
+        const search = (name || '').toLowerCase();
+        return !type
+            ? []
+            : type === 'space'
+              ? spaces.filter((_) => _.name.toLowerCase().includes(search))
+              : desks.filter((_) => _.name.toLowerCase().includes(search));
+    });
 
     constructor() {
         super();

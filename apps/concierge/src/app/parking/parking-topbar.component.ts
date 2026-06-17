@@ -8,13 +8,7 @@ import {
     signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import {
-    ActivatedRoute,
-    NavigationEnd,
-    Router,
-    RouterModule,
-} from '@angular/router';
-import { filter, map, startWith } from 'rxjs/operators';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 import {
     AsyncHandler,
@@ -392,14 +386,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     private readonly _query_params = toSignal(this._route.queryParamMap, {
         initialValue: this._route.snapshot.queryParamMap,
     });
-    private readonly _route_change = toSignal(
-        this._router.events.pipe(
-            filter((event) => event instanceof NavigationEnd),
-            map(() => this._router.url),
-            startWith(this._router.url),
-        ),
-        { initialValue: this._router.url },
-    );
+    private readonly _route_change = signal<unknown>(null);
     private _previous_route_key = '';
 
     public readonly section = signal<'events' | 'manage'>('events');
@@ -591,6 +578,12 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
 
     constructor() {
         super();
+        this.subscription(
+            'router',
+            this._router.events.subscribe((event) =>
+                this._route_change.set(event),
+            ),
+        );
         effect(() => {
             this._route_change();
             this._updatePath();

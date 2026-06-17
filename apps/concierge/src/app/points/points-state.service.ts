@@ -1,8 +1,6 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, effect, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { DialogEvent, randomInt } from '@placeos/common';
-import { BehaviorSubject } from 'rxjs';
-import { first } from 'rxjs/operators';
+import { DialogEvent, nextValueFrom, randomInt } from '@placeos/common';
 import { PointsAssetModalComponent } from './asset-modal.component';
 import { PointAsset } from './points-assets.component';
 
@@ -12,15 +10,15 @@ import { PointAsset } from './points-assets.component';
 export class PointsStateService {
     private _dialog = inject(MatDialog);
 
-    private _assets = new BehaviorSubject<PointAsset[]>([]);
+    private _assets = signal<PointAsset[]>(
+        JSON.parse(localStorage.getItem('PLACEOS.point_assets') || '[]'),
+    );
 
-    public readonly assets = this._assets.asObservable();
+    public readonly assets = this._assets.asReadonly();
 
     constructor() {
-        this._assets.next(
-            JSON.parse(localStorage.getItem('PLACEOS.point_assets') || '[]'),
-        );
-        this.assets.subscribe((list) => {
+        effect(() => {
+            const list = this._assets();
             localStorage.setItem('PLACEOS.point_assets', JSON.stringify(list));
         });
     }
@@ -30,14 +28,18 @@ export class PointsStateService {
             data: { asset },
         });
         const details: DialogEvent = await Promise.race([
-            ref.componentInstance.event
-                .pipe(first((_) => _.reason === 'done'))
-                .toPromise(),
-            ref.afterClosed().toPromise(),
+            new Promise<DialogEvent>((resolve) => {
+                const sub = ref.componentInstance.event.subscribe((event) => {
+                    if (event?.reason !== 'done') return;
+                    sub.unsubscribe();
+                    resolve(event);
+                });
+            }),
+            nextValueFrom(ref.afterClosed()),
         ]);
         if (details.reason !== 'done') return ref.close();
-        this._assets.next([
-            ...this._assets.getValue().filter((_) => _.id !== asset?.id),
+        this._assets.set([
+            ...this._assets().filter((_) => _.id !== asset?.id),
             {
                 ...details.metadata,
                 id: details.metadata.id || `PA-${randomInt(999_999_999)}`,
@@ -47,8 +49,6 @@ export class PointsStateService {
     }
 
     public removeAsset(asset_id: string) {
-        this._assets.next(
-            this._assets.getValue().filter((_) => _.id !== asset_id),
-        );
+        this._assets.set(this._assets().filter((_) => _.id !== asset_id));
     }
 }

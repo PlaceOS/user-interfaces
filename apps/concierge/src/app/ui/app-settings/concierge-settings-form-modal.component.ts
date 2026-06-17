@@ -26,7 +26,6 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
-import { map } from 'rxjs/operators';
 
 import { DEFAULT_SETTINGS } from 'apps/concierge/src/environments/settings';
 import { format } from 'date-fns';
@@ -42,7 +41,6 @@ import {
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { firstValueFrom, from } from 'rxjs';
 import {
     AVAILABLE_PERIOD_EXTENDED_OPTIONS,
     AVAILABLE_PERIOD_SHORT_OPTIONS,
@@ -2038,11 +2036,8 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
         );
     }
 
-    private _getMetadata(id) {
-        return firstValueFrom(
-            from(showMetadata(id, this.settings_key) as any).pipe(
-                map((m: any) => m.details as Record<string, any>),
-            ),
-        );
+    private async _getMetadata(id) {
+        const metadata: any = await showMetadata(id, this.settings_key);
+        return metadata.details as Record<string, any>;
     }
 }

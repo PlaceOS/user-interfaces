@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
@@ -14,6 +15,7 @@ describe('PointsAssetsComponent', () => {
             {
                 provide: PointsStateService,
                 useValue: {
+                    assets: signal([]),
                     newAsset: jest.fn(),
                     removeAsset: jest.fn(),
                 },

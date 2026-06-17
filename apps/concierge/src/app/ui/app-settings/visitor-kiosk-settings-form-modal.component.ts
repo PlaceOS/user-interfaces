@@ -25,7 +25,6 @@ import {
     VERSION,
 } from '@placeos/common';
 import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
-import { map } from 'rxjs/operators';
 
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -38,7 +37,6 @@ import {
     SettingsToggleComponent,
 } from '@placeos/components';
 import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
-import { firstValueFrom, from } from 'rxjs';
 import {
     EXPLORE_FEATURE_OPTIONS,
     MAX_DURATION_MINI_OPTIONS,
@@ -728,11 +726,8 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
         );
     }
 
-    private _getMetadata(id) {
-        return firstValueFrom(
-            from(showMetadata(id, this.settings_key) as any).pipe(
-                map((m: any) => m.details as Record<string, any>),
-            ),
-        );
+    private async _getMetadata(id) {
+        const metadata: any = await showMetadata(id, this.settings_key);
+        return metadata.details as Record<string, any>;
     }
 }

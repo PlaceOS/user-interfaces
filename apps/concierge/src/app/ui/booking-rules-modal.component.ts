@@ -8,9 +8,9 @@ import {
     ChangeDetectionStrategy,
     Component,
     inject,
+    resource,
     signal,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -23,7 +23,6 @@ import {
     BookingRuleset,
     OrganisationService,
     i18n,
-    nextValueFrom,
     notifyError,
     notifySuccess,
     randomString,
@@ -37,14 +36,6 @@ import {
 } from '@placeos/components';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { BookingRulesFormComponent } from 'libs/form-fields/src/lib/booking-rules-form.component';
-import { combineLatest, from, of } from 'rxjs';
-import {
-    catchError,
-    filter,
-    map,
-    shareReplay,
-    switchMap,
-} from 'rxjs/operators';
 
 @Component({
     selector: 'app-booking-rules-modal',
@@ -435,22 +426,22 @@ export class BookingRulesModalComponent {
     public readonly selected = signal<BookingRuleset | null>(null);
     public readonly change = signal(0);
     public readonly show_children = signal<Record<string, boolean>>({});
-    private readonly _booking_rules = combineLatest([
-        toObservable(this._org.active_building),
-        toObservable(this.change),
-    ]).pipe(
-        filter(([_]) => !!_),
-        switchMap(([bld]) => {
-            return from(
-                showMetadata(bld.id, `${this._data.type}_booking_rules`),
-            ).pipe(catchError(() => of({ details: [] })));
+    private readonly _booking_rules = resource({
+        params: () => ({
+            building: this._org.active_building()?.id,
+            change: this.change(),
         }),
-        map(({ details }) => (details instanceof Array ? details : [])),
-        shareReplay(1),
-    );
-    public readonly booking_rules = toSignal(this._booking_rules, {
-        initialValue: [] as BookingRuleset[],
+        defaultValue: [] as BookingRuleset[],
+        loader: async ({ params }) => {
+            if (!params.building) return [];
+            const { details } = await showMetadata(
+                params.building,
+                `${this._data.type}_booking_rules`,
+            ).catch(() => ({ details: [] }) as any);
+            return details instanceof Array ? details : [];
+        },
     });
+    public readonly booking_rules = this._booking_rules.value;
 
     public readonly type = this._data.type;
     public readonly TABLE_COLUMNS = '3.5rem 1fr 1fr 5.5rem 5.5rem 1fr 5.5rem';
@@ -528,7 +519,7 @@ export class BookingRulesModalComponent {
         );
         if (result.reason !== 'done') return;
         result.loading('Removing Ruleset...');
-        const rules = await nextValueFrom(this._booking_rules);
+        const rules = [...this.booking_rules()];
         const index = rules.findIndex((_) => _.id === ruleset.id);
         if (index >= 0) {
             rules.splice(index, 1);
@@ -548,7 +539,7 @@ export class BookingRulesModalComponent {
 
     public async drop(event: CdkDragDrop<BookingRuleset[]>) {
         if (event.previousIndex === event.currentIndex) return;
-        const rules = await nextValueFrom(this._booking_rules);
+        const rules = [...this.booking_rules()];
         moveItemInArray(rules, event.previousIndex, event.currentIndex);
         await updateMetadata(this._org.building.id, {
             name: `${this.type}_booking_rules`,
@@ -564,7 +555,7 @@ export class BookingRulesModalComponent {
 
     public async save(new_ruleset?: BookingRuleset) {
         this.loading.set(true);
-        const rules = await nextValueFrom(this._booking_rules);
+        const rules = [...this.booking_rules()];
         if (new_ruleset) {
             const index = rules.findIndex((_) => _.id === new_ruleset?.id);
             if (index >= 0) {

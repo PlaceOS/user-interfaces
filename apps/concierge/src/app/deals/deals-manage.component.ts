@@ -24,7 +24,6 @@ import {
     AsyncHandler,
     getInvalidFields,
     i18n,
-    nextValueFrom,
     notifyError,
     notifySuccess,
     OrganisationService,
@@ -256,7 +255,7 @@ export class DealsManageComponent extends AsyncHandler implements OnInit {
 
     private async _loadDeal(id: string) {
         this.loading.set('APP.CONCIERGE.DEALS_LOAD_EXISTING');
-        const deal_list = await nextValueFrom(this._service.deals$);
+        const deal_list = await this._service.getDeals();
         const deal = deal_list.find((deal) => deal.id === id);
         if (deal) this.form.patchValue(deal);
         else {
