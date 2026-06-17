@@ -241,18 +241,20 @@ export class DashboardsService extends AsyncHandler {
             // Check for region/building in URL query params immediately
             this._initFromQueryParams();
 
-            // If not set from params, sync with org service region/building
+            // If not set from params, sync with the org service region and
+            // default to all buildings.
             if (!this._region_set_from_params) {
                 this.region_id.set(this._org.region?.id || '');
-                this.building_id.set(this._org.building?.id || '');
+                this.building_id.set('');
             }
         });
         effect(() => {
             const region = this._org.active_region();
-            const building = this._org.active_building();
             if (this._region_set_from_params) return;
-            this.region_id.set(region?.id || '');
-            this.building_id.set(building?.id || '');
+            const region_id = region?.id || '';
+            if (this.region_id() === region_id) return;
+            this.region_id.set(region_id);
+            this.building_id.set('');
         });
     }
 
