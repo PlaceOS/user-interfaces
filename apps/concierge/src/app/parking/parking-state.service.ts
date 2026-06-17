@@ -1,10 +1,20 @@
-import { computed, inject, Injectable, resource, signal } from '@angular/core';
+import {
+    computed,
+    effect,
+    inject,
+    Injectable,
+    linkedSignal,
+    resource,
+    signal,
+    untracked,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import type { ParkingFleetVehicle, ParkingUser } from '@placeos/assets';
 import {
     deleteParkingFleetVehicle,
     deleteParkingSpace,
     deleteParkingUser,
+    ParkingSpacePipe,
     queryParkingFleetVehicles,
     queryParkingSpaces,
     queryParkingSpacesForZones,
@@ -89,6 +99,7 @@ export type ParkingSpace = PlaceAsset;
 export type { ParkingFleetVehicle, ParkingUser } from '@placeos/assets';
 
 const USER_PIPE = new UserPipe();
+const PARKING_SPACE_PIPE = new ParkingSpacePipe();
 
 function csvList(value: unknown): string[] {
     const list = Array.isArray(value)
@@ -180,17 +191,29 @@ export class ParkingStateService extends AsyncHandler {
         () => this._bookable_levels_resource.value() ?? [],
     );
 
-    /** Params driving the parking space resource, debounced to coalesce changes */
-    private readonly _spaces_params = computed(() => {
-        const levels = this.levels();
-        const options = this._options();
-        const zone_ids = options.zones.length
-            ? options.zones
-            : levels[0]?.id
-              ? [levels[0].id]
-              : [];
-        return zone_ids.length ? { zone_ids } : undefined;
-    });
+    /**
+     * Params driving the parking space resource, debounced to coalesce changes.
+     *
+     * Only the resolved `zone_ids` are compared for equality so unrelated
+     * option changes (e.g. `search` on each keystroke) don't trigger a reload.
+     */
+    private readonly _spaces_params = computed(
+        () => {
+            const levels = this.levels();
+            const options = this._options();
+            const zone_ids = options.zones.length
+                ? options.zones
+                : levels[0]?.id
+                  ? [levels[0].id]
+                  : [];
+            return zone_ids.length ? { zone_ids } : undefined;
+        },
+        {
+            equal: (a, b) =>
+                a === b ||
+                (!!a && !!b && a.zone_ids.join() === b.zone_ids.join()),
+        },
+    );
     private readonly _spaces_params_debounced = debouncedSignal(
         this._spaces_params,
         300,
@@ -209,6 +232,51 @@ export class ParkingStateService extends AsyncHandler {
     public readonly spaces = computed<ParkingSpace[]>(
         () => this._spaces_resource.value() ?? [],
     );
+
+    /**
+     * Map of parking space `asset_id` -> bay identifier, resolved via the same
+     * `ParkingSpacePipe` asset list the bay column renders from. Bookings can
+     * reference spaces on any level (outside the currently selected zone), so
+     * resolving through the shared asset cache keeps search consistent with
+     * what is displayed.
+     */
+    private readonly _bay_identifiers = signal<Record<string, string>>({});
+
+    constructor() {
+        super();
+        // Resolve bay identifiers for the loaded bookings so they can be
+        // searched by bay number/name. Uses the ParkingSpacePipe (shared asset
+        // cache, with a per-id fetch fallback) so resolution matches the
+        // displayed bay column regardless of the selected zone.
+        effect(() => {
+            const ids = unique(
+                this.bookings()
+                    .map((booking) => booking.asset_id)
+                    .filter((id) => id && !id.startsWith('unallocated')),
+            );
+            const known = untracked(this._bay_identifiers);
+            const missing = ids.filter((id) => !(id in known));
+            if (!missing.length) return;
+            Promise.all(
+                missing.map(
+                    async (id) =>
+                        [
+                            id,
+                            (await PARKING_SPACE_PIPE.transform(id))
+                                ?.identifier || '',
+                        ] as const,
+                ),
+            ).then((entries) => {
+                this._bay_identifiers.update((current) => {
+                    const next = { ...current };
+                    for (const [id, identifier] of entries) {
+                        next[id] = identifier;
+                    }
+                    return next;
+                });
+            });
+        });
+    }
 
     /** Resource resolving the parking users for the current building */
     private readonly _users_resource = resource({
@@ -237,11 +305,27 @@ export class ParkingStateService extends AsyncHandler {
         () => this._fleet_resource.value() ?? [],
     );
 
-    /** Params driving the bookings resource, debounced to coalesce changes */
-    private readonly _bookings_params = computed(() => {
-        const bld = this._org.active_building();
-        return { bld, options: this._options(), users: this.users() };
-    });
+    /**
+     * Params driving the bookings resource, debounced to coalesce changes.
+     *
+     * Only the fields the loader actually queries on are compared for
+     * equality, so client-side concerns like `search` don't trigger a server
+     * reload (and the table flicker that comes with it).
+     */
+    private readonly _bookings_params = computed(
+        () => {
+            const bld = this._org.active_building();
+            return { bld, options: this._options(), users: this.users() };
+        },
+        {
+            equal: (a, b) =>
+                a.bld === b.bld &&
+                a.users === b.users &&
+                a.options.date === b.options.date &&
+                a.options.period === b.options.period &&
+                a.options.zones.join() === b.options.zones.join(),
+        },
+    );
     private readonly _bookings_params_debounced = debouncedSignal(
         this._bookings_params,
         500,
@@ -287,10 +371,17 @@ export class ParkingStateService extends AsyncHandler {
             return list;
         },
     });
-    /** List of parking bookings for the current building/level */
-    public readonly bookings = computed<Booking[]>(
-        () => this._bookings_resource.value() ?? [],
-    );
+    /**
+     * List of parking bookings for the current building/level.
+     *
+     * Backed by a linkedSignal so the previously loaded list stays visible
+     * while the resource is reloading (polling, filter/date change, etc.)
+     * instead of momentarily collapsing to `[]` and flickering the table.
+     */
+    public readonly bookings = linkedSignal<Booking[] | undefined, Booking[]>({
+        source: () => this._bookings_resource.value(),
+        computation: (value, previous) => value ?? previous?.value ?? [],
+    });
 
     /** List of loading state tokens for the active parking resources */
     public readonly loading = computed(() => {
@@ -456,9 +547,11 @@ export class ParkingStateService extends AsyncHandler {
     }
 
     /** Resolve the bay number (parking space identifier) for a booking */
-    private bayNumber(booking: Booking, spaces = this.spaces()) {
+    public bayNumber(booking: Booking, spaces = this.spaces()) {
         const asset_id = booking?.asset_id;
         if (!asset_id || asset_id.startsWith('unallocated')) return '';
+        const resolved = this._bay_identifiers()[asset_id];
+        if (resolved) return resolved;
         const space = spaces.find((_) => _.id === asset_id);
         return space?.identifier || '';
     }

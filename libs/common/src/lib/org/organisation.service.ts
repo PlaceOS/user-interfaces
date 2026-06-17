@@ -36,7 +36,7 @@ const log = scoped_log('ORG');
 const ORG_CACHE_PREFIX = 'PLACEOS.org';
 const ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
 const METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
-const DEFAULT_CACHE_DURATION = 10 * 60 * 1000;
+const DEFAULT_CACHE_DURATION = 5 * 60 * 1000;
 type ZoneQueryParams = Parameters<typeof queryZones>[0];
 type MetadataMap = Record<string, Record<string, any>>;
 interface SessionCacheItem<T> {
@@ -712,25 +712,27 @@ export class OrganisationService {
               )
             : this._setRegionFromTimezone());
         if (!this.buildings.length) return;
-        if (building_id) {
-            log('Defaulting building to previously set.');
-            const building = this.buildings.find((_) => _.id === building_id);
-            if (building) {
-                this.building = building;
-                return;
-            }
+        // 1. Restore the building the user previously selected
+        const previous = this.buildings.find((_) => _.id === building_id);
+        if (previous) {
+            log('Defaulting building to previously selected building.');
+            this.building = previous;
+            return;
         }
+        // 2. Use the building explicitly configured in app settings
+        const default_id = this._service.get('app.default_building');
+        const configured = this.buildings.find(({ id }) => id === default_id);
+        if (configured) {
+            log('Applied default building from app settings.');
+            this.building = configured;
+            return;
+        }
+        // 3. Guess a building based on the user's timezone
         this._setBuildingFromTimezone();
         if (this.building?.id) return;
-        const bld_id = this._service.get('app.default_building');
-        if (bld_id) {
-            log('Applied default building from app settings.');
-            this.building = this.buildings.find(({ id }) => id === bld_id);
-        }
-        if (!this.building?.id) {
-            log('No default building found initialising to first building.');
-            this.building = this.buildings[0];
-        }
+        // 4. Fall back to the first available building
+        log('No default building matched, initialising to first building.');
+        this.building = this.buildings[0];
     }
 
     private async _setRegionFromTimezone() {
