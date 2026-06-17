@@ -520,6 +520,10 @@ export class ParkingBookingsListComponent
             ...booking,
             vehicle_type: this.vehicleType(booking),
             notes: booking.extension_data?.notes || '',
+            // Resolve the human-readable bay identifier onto the row so the
+            // table's built-in search matches it (the `asset_id` field only
+            // holds the space id, not the bay number/name).
+            bay_number: this._state.bayNumber(booking),
             ...this.customExtensionColumnValues(booking),
         }));
     });
