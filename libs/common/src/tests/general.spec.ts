@@ -549,6 +549,24 @@ describe('General Methods', () => {
             expect(form().date_end).toBe(WINDOW_END);
         });
 
+        it('should not collapse duration to zero when no bookable window remains', () => {
+            const after_window = new Date(2028, 5, 15, 22, 0, 0, 0).valueOf();
+            const form = createForm({ date: after_window, duration: 30 });
+            setupFormTimeSync(
+                form,
+                {
+                    min_duration: 30,
+                    bookable_hours: BOOKABLE,
+                },
+                injector,
+            );
+
+            setField(form, { duration: 60 });
+
+            expect(form().duration).toBe(60);
+            expect(form().date_end).toBe(addMinutes(after_window, 60).valueOf());
+        });
+
         it('should preserve a custom duration below min_duration when it fits the window', () => {
             const form = createForm({ date: BASE, duration: 30 });
             setupFormTimeSync(

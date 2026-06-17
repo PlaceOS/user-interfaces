@@ -1292,11 +1292,13 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
         start = normaliseTimeValue(start);
         if (is_custom_duration(dur)) {
             const window = bookableWindowRemaining(start);
+            if (window <= 0) return dur;
             return Math.min(dur, window);
         }
         let clamped = Math.max(dur, min_duration);
         if (max_duration > 0) clamped = Math.min(clamped, max_duration);
-        clamped = Math.min(clamped, bookableWindowRemaining(start));
+        const window = bookableWindowRemaining(start);
+        if (window > 0) clamped = Math.min(clamped, window);
         return clamped;
     };
 
@@ -1618,6 +1620,12 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
                 );
             } else {
                 const date = normaliseTimeValue(snap().date);
+                const duration = normaliseTimeValue(snap().duration);
+                const date_end = normaliseTimeValue(snap().date_end);
+                const explicit_window =
+                    !sameValue(duration, normaliseTimeValue(prev.duration)) ||
+                    !sameValue(date_end, normaliseTimeValue(prev.date_end));
+                if (explicit_window) return;
                 const dur = clampDuration(default_duration, date);
                 applyPatch({
                     duration: dur,

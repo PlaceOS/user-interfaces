@@ -29,6 +29,7 @@ import {
 import {
     AsyncHandler,
     currentUser,
+    getFormTimeSyncHandle,
     getTimeInTimezone,
     OrganisationService,
     settingSignal,
@@ -1155,6 +1156,7 @@ export class ParkingRequestFormDetailsComponent
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
     private _saved_shift_state: ParkingRequestShiftState | null = null;
+    private readonly _selected_shift_duration = signal(0);
     /**
      * Set to `true` once the user has explicitly chosen a shift via the
      * dropdown / custom inputs / request type. While this is `false` the
@@ -1193,6 +1195,27 @@ export class ParkingRequestFormDetailsComponent
             if (model().requires_manual_approval === requires_manual_approval)
                 return;
             model.update((m) => ({ ...m, requires_manual_approval }));
+        });
+        effect(() => {
+            const form = this.form();
+            const model = this.model;
+            const duration = this._selected_shift_duration();
+            if (!form || !model || !duration) return;
+            const value = model();
+            const date = value.date || Date.now();
+            const date_end = date + duration * 60 * 1000;
+            if (value.duration === duration && value.date_end === date_end)
+                return;
+            this._timeSync(model)?.updateOptions({
+                bookable_hours: null,
+                default_duration: duration,
+                timezone: this.timezone,
+            });
+            model.update((m) => ({
+                ...m,
+                duration,
+                date_end,
+            }));
         });
     }
 
@@ -1932,6 +1955,14 @@ export class ParkingRequestFormDetailsComponent
         model.update((m) => ({ ...m, plate_number }));
     }
 
+    private _timeSync(model = this.model) {
+        return (
+            ((model as any)?._time_sync as
+                | ReturnType<typeof getFormTimeSyncHandle>
+                | undefined) || getFormTimeSyncHandle(this.form())
+        );
+    }
+
     public showPlateNumberError() {
         const field = this.form()?.plate_number;
         const state = field?.();
@@ -1964,6 +1995,7 @@ export class ParkingRequestFormDetailsComponent
                 ? end_mins - start_mins
                 : end_mins + 1440 - start_mins;
         const duration = Math.max(raw_duration, 30);
+        this._selected_shift_duration.set(duration);
         // If the chosen shift would end in the past on this day, roll
         // forward by whole days until the window ends in the future, so the
         // `endInFuture` validator on `duration` passes. Only applied to new
@@ -1988,13 +2020,37 @@ export class ParkingRequestFormDetailsComponent
         // `all_day`, set the date window and duration in one update so the
         // booking-form time sync doesn't substitute the building's all-day
         // period for the shift window we're writing.
+        this._timeSync(model)?.updateOptions({
+            bookable_hours: null,
+            default_duration: duration,
+            timezone: this.timezone,
+        });
         model.update((m) => ({
             ...m,
-            all_day: false,
+            ...(m.all_day ? { all_day: false } : {}),
             date: new_date,
             date_end: new_date_end,
             duration,
         }));
+        this.timeout(
+            'parking-request-shift-duration',
+            () => {
+                const value = untracked(model);
+                if (
+                    value.date !== new_date ||
+                    (value.duration === duration &&
+                        value.date_end === new_date_end)
+                ) {
+                    return;
+                }
+                model.update((m) => ({
+                    ...m,
+                    duration,
+                    date_end: new_date_end,
+                }));
+            },
+            0,
+        );
     }
 
     private _computeDaysBitmask(): number {
