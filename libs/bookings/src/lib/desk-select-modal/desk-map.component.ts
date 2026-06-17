@@ -9,7 +9,6 @@ import {
     signal,
     WritableSignal,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -18,8 +17,6 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
@@ -123,32 +120,28 @@ export class DeskMapComponent {
 
     private readonly _change = signal(0);
 
-    public readonly levels = toSignal(
-        combineLatest([
-            toObservable(this._org.active_region),
-            toObservable(this._org.active_building),
-        ]).pipe(
-            map(([region, bld]) => {
-                const level_list = this._use_region()
-                    ? this._org.levelsForRegion(region)
-                    : this._org.levelsForBuilding(bld);
-                const viewable_levels = level_list.filter(
-                    (lvl) => !lvl.tags.includes('parking'),
-                );
-                if (!this.level() && viewable_levels.length) {
-                    this.level.set(viewable_levels[0]);
-                }
-                return viewable_levels.sort(
-                    (a, b) =>
-                        a.parent_id.localeCompare(b.parent_id) ||
-                        (a.display_name || '').localeCompare(
-                            b.display_name || '',
-                        ),
-                );
-            }),
-        ),
-        { initialValue: [] },
-    );
+    public readonly levels = computed(() => {
+        const region = this._org.active_region();
+        const bld = this._org.active_building();
+        const level_list = this._use_region()
+            ? this._org.levelsForRegion(region)
+            : this._org.levelsForBuilding(bld);
+        const viewable_levels = level_list.filter(
+            (lvl) => !lvl.tags.includes('parking'),
+        );
+        return viewable_levels.sort(
+            (a, b) =>
+                a.parent_id.localeCompare(b.parent_id) ||
+                (a.display_name || '').localeCompare(b.display_name || ''),
+        );
+    });
+
+    private readonly _select_default_level = effect(() => {
+        const levels = this.levels();
+        if (!this.level() && levels.length) {
+            this.level.set(levels[0]);
+        }
+    });
 
     public readonly setOptions = (o) => this._state.setOptions(o);
 

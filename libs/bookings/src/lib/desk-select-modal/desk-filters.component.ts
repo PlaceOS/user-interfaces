@@ -6,7 +6,6 @@ import {
     input,
     signal,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { SettingsService } from '@placeos/common';
 import { addDays, endOfDay } from 'date-fns';
 
@@ -23,8 +22,6 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { BookingFormService } from '../booking-form.service';
 
 @Component({
@@ -258,36 +255,25 @@ export class DeskFiltersComponent {
     public readonly regions = this._org.region_list;
     public readonly region = this._org.active_region;
 
-    public readonly levels = toSignal(
-        combineLatest([
-            toObservable(this._org.active_region),
-            toObservable(this._org.active_building),
-            toObservable(this._state.resources),
-        ]).pipe(
-            map(([region, bld, resources]) => {
-                const level_list = this._use_region()
-                    ? this._org.levelsForRegion(region)
-                    : this._org.levelsForBuilding(bld);
-                const level_ids = new Set(
-                    resources
-                        .map((resource) => resource.zone?.id)
-                        .filter((_) => _),
-                );
-                const viewable_levels = level_list.filter(
-                    (lvl) =>
-                        !lvl.tags.includes('parking') && level_ids.has(lvl.id),
-                );
-                return viewable_levels.sort(
-                    (a, b) =>
-                        a.parent_id.localeCompare(b.parent_id) ||
-                        (a.display_name || '').localeCompare(
-                            b.display_name || '',
-                        ),
-                );
-            }),
-        ),
-        { initialValue: [] },
-    );
+    public readonly levels = computed(() => {
+        const region = this._org.active_region();
+        const bld = this._org.active_building();
+        const resources = this._state.resources();
+        const level_list = this._use_region()
+            ? this._org.levelsForRegion(region)
+            : this._org.levelsForBuilding(bld);
+        const level_ids = new Set(
+            resources.map((resource) => resource.zone?.id).filter((_) => _),
+        );
+        const viewable_levels = level_list.filter(
+            (lvl) => !lvl.tags.includes('parking') && level_ids.has(lvl.id),
+        );
+        return viewable_levels.sort(
+            (a, b) =>
+                a.parent_id.localeCompare(b.parent_id) ||
+                (a.display_name || '').localeCompare(b.display_name || ''),
+        );
+    });
 
     public readonly show_level_select = computed(
         () => !this.hide_levels() && this.levels().length > 1,

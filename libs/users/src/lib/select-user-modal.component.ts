@@ -1,23 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, inject, resource, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { StaffUser } from '@placeos/common';
+import { debouncedSignal, StaffUser } from '@placeos/common';
 import { queryUsers } from '@placeos/ts-client';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { from, of } from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    map,
-    startWith,
-    switchMap,
-} from 'rxjs/operators';
 
 @Component({
     selector: `select-user-modal`,
@@ -88,17 +79,15 @@ export class SelectUserModalComponent {
 
     public readonly search = signal('');
 
-    private readonly _users$ = toObservable(this.search).pipe(
-        debounceTime(300),
-        switchMap((s) =>
-            from(queryUsers({ q: s })).pipe(
-                map((o) => o.data),
-                catchError(() => of([])),
-            ),
-        ),
-        startWith([]),
-    );
-    public readonly users = toSignal(this._users$, { initialValue: [] });
+    private readonly _debounced_search = debouncedSignal(this.search, 300);
+    private readonly _users = resource({
+        params: () => ({ q: this._debounced_search() }),
+        loader: ({ params: { q } }) =>
+            queryUsers({ q })
+                .then((o) => o.data.map((u) => new StaffUser(u)))
+                .catch(() => [] as StaffUser[]),
+    });
+    public readonly users = computed(() => this._users.value() ?? []);
 
     public select(user: StaffUser) {
         this._dialog_ref.close(user);

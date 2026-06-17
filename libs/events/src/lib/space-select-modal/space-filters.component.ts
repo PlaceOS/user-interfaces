@@ -6,7 +6,6 @@ import {
     input,
     signal,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -30,8 +29,6 @@ import { EventFormService } from 'libs/events/src/lib/event-form.service';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { SpacesService } from '../spaces.service';
 
 @Component({
@@ -361,34 +358,25 @@ export class SpaceFiltersComponent {
     public readonly building = this._org.active_building;
     public readonly buildings = this._org.active_buildings;
 
-    public readonly levels = toSignal(
-        combineLatest([
-            toObservable(this._org.active_region),
-            toObservable(this._org.active_building),
-            toObservable(this._event_form.spaces),
-        ]).pipe(
-            map(([region, bld, spaces]) => {
-                const level_list = this.use_region()
-                    ? this._org.levelsForRegion(region)
-                    : this._org.levelsForBuilding(bld);
-                const level_ids = new Set(
-                    flatten(spaces.map((space) => space.zones || [])),
-                );
-                const viewable_levels = level_list.filter(
-                    (lvl) =>
-                        !lvl.tags.includes('parking') && level_ids.has(lvl.id),
-                );
-                return viewable_levels.sort(
-                    (a, b) =>
-                        a.parent_id.localeCompare(b.parent_id) ||
-                        (a.display_name || '').localeCompare(
-                            b.display_name || '',
-                        ),
-                );
-            }),
-        ),
-        { initialValue: [] },
-    );
+    public readonly levels = computed(() => {
+        const region = this._org.active_region();
+        const bld = this._org.active_building();
+        const spaces = this._event_form.spaces();
+        const level_list = this.use_region()
+            ? this._org.levelsForRegion(region)
+            : this._org.levelsForBuilding(bld);
+        const level_ids = new Set(
+            flatten(spaces.map((space) => space.zones || [])),
+        );
+        const viewable_levels = level_list.filter(
+            (lvl) => !lvl.tags.includes('parking') && level_ids.has(lvl.id),
+        );
+        return viewable_levels.sort(
+            (a, b) =>
+                a.parent_id.localeCompare(b.parent_id) ||
+                (a.display_name || '').localeCompare(b.display_name || ''),
+        );
+    });
 
     public readonly show_level_select = computed(
         () => !this.hide_levels() && this.levels().length > 1,
@@ -410,17 +398,11 @@ export class SpaceFiltersComponent {
 
     public readonly using_mapspeople = this._mapspeople.available;
 
-    public readonly features = toSignal(
-        combineLatest([
-            toObservable(this._spaces.features),
-            toObservable(this._event_form.available_spaces),
-        ]).pipe(
-            map(([features, spaces]) =>
-                unique(features.concat(flatten(spaces.map((_) => _.features)))),
-            ),
-        ),
-        { initialValue: [] },
-    );
+    public readonly features = computed(() => {
+        const features = this._spaces.features();
+        const spaces = this._event_form.available_spaces();
+        return unique(features.concat(flatten(spaces.map((_) => _.features))));
+    });
 
     public readonly allow_all_day = settingSignal<boolean>(
         'events.allow_all_day',

@@ -36,14 +36,6 @@ import {
 import { getMapDetails } from '@placeos/components';
 import { PlaceAsset } from '@placeos/ts-client';
 import { addMinutes, isAfter } from 'date-fns';
-import { combineLatest, from, Observable, of } from 'rxjs';
-import {
-    catchError,
-    filter,
-    map,
-    shareReplay,
-    switchMap,
-} from 'rxjs/operators';
 import { Locker, LockerBank } from './locker.class';
 
 function parseJson<T>(value: string, fallback: T): T {
@@ -471,32 +463,6 @@ export function newBookingFromCalendarEvent(event: CalendarEvent) {
     });
 }
 
-export function loadLockerBanks(
-    org: OrganisationService,
-    obs: Observable<any>,
-    useRegion: () => boolean,
-): Observable<LockerBank[]> {
-    return obs.pipe(
-        filter(([bld, region]) => !!(useRegion() ? region || org.region : bld)),
-        switchMap(([bld, region]) => {
-            const scope_id = useRegion()
-                ? region?.id || org.region?.id
-                : bld?.id;
-            return from(queryLockerBankAssetsForZones([scope_id])).pipe(
-                catchError(() => of([])),
-            );
-        }),
-        map((assets) => assets.map(lockerBankFromAsset)),
-        map((banks) => {
-            for (const bank of banks) {
-                bank.zone = org.levelWithID(bank.zones || []) as any;
-            }
-            return banks;
-        }),
-        shareReplay(1),
-    );
-}
-
 /** Load locker banks for a single zone scope (signal/promise based) */
 export async function loadLockerBanksForScope(
     org: OrganisationService,
@@ -537,36 +503,4 @@ export async function loadLockerResources(
 ): Promise<Locker[]> {
     const banks = await loadLockerBanksForScope(org, scope_id);
     return loadLockersForScope(org, scope_id, banks);
-}
-
-export function loadLockers(
-    org: OrganisationService,
-    obs: Observable<any>,
-    banks$: Observable<LockerBank[]>,
-    useRegion: () => boolean,
-): Observable<Locker[]> {
-    return obs.pipe(
-        filter(([bld, region]) => !!(useRegion() ? region || org.region : bld)),
-        switchMap(([bld, region]) => {
-            const scope_id = useRegion()
-                ? region?.id || org.region?.id
-                : bld?.id;
-            return combineLatest([
-                from(queryLockerAssetsForZones([scope_id])).pipe(
-                    catchError(() => of([])),
-                ),
-                banks$,
-            ]);
-        }),
-        map(([assets, banks]) => {
-            const lockers = assets.map((_) => lockerFromAsset(_, banks));
-            for (const bank of banks) {
-                bank.lockers = lockers
-                    .filter((_) => _.bank_id === bank.id)
-                    .map((_) => ({ ..._ }));
-            }
-            return lockers.filter((_) => _.bank);
-        }),
-        shareReplay(1),
-    );
 }

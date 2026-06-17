@@ -7,10 +7,10 @@ import {
     inject,
     Injector,
     Renderer2,
+    resource,
     signal,
     viewChild,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -18,7 +18,7 @@ import {
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { AsyncHandler, User } from '@placeos/common';
+import { AsyncHandler, debouncedSignal, User } from '@placeos/common';
 import {
     addMinutes,
     differenceInMinutes,
@@ -36,15 +36,6 @@ import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.compone
 import { queryUserFreeBusy } from 'libs/events/src/lib/calendar.fn';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
-import { from, of } from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    defaultIfEmpty,
-    map,
-    shareReplay,
-    switchMap,
-} from 'rxjs/operators';
 import {
     AvailabilityBlock,
     UserAvailabilityComponent,
@@ -311,23 +302,31 @@ export class FindAvailabilityModalComponent
         .fill(0)
         .map((_, idx) => setHours(startOfDay(Date.now()), idx).valueOf());
 
-    private readonly _availability$ = toObservable(this.users, {
+    private readonly _debounced_users = debouncedSignal(
+        this.users,
+        300,
+        this._injector,
+    );
+    private readonly _debounced_date = debouncedSignal(
+        this.date,
+        300,
+        this._injector,
+    );
+    private readonly _availability_resource = resource({
         injector: this._injector,
-    }).pipe(
-        debounceTime(300),
-        switchMap((users) => {
-            return from(
-                queryUserFreeBusy({
-                    calendars: [
-                        this.host.email,
-                        ...users.map((_) => _.email.toLowerCase()),
-                    ].join(','),
-                    period_start: getUnixTime(startOfDay(this.date())),
-                    period_end: getUnixTime(endOfDay(this.date())),
-                }),
-            ).pipe(catchError(() => of([])));
+        params: () => ({
+            users: this._debounced_users(),
+            date: this._debounced_date(),
         }),
-        map((availability_list) => {
+        loader: async ({ params: { users, date } }) => {
+            const availability_list = await queryUserFreeBusy({
+                calendars: [
+                    this.host.email,
+                    ...users.map((_) => _.email.toLowerCase()),
+                ].join(','),
+                period_start: getUnixTime(startOfDay(date)),
+                period_end: getUnixTime(endOfDay(date)),
+            }).catch(() => []);
             const availability_map: Record<string, AvailabilityBlock[]> = {};
             for (const item of availability_list) {
                 availability_map[item.id.toLowerCase()] = item.availability
@@ -350,15 +349,12 @@ export class FindAvailabilityModalComponent
                     });
             }
             return availability_map;
-        }),
-        defaultIfEmpty({}),
-        shareReplay(1),
-    );
-
-    public readonly availability = toSignal(this._availability$, {
-        initialValue: {} as Record<string, AvailabilityBlock[]>,
-        injector: this._injector,
+        },
     });
+
+    public readonly availability = computed<
+        Record<string, AvailabilityBlock[]>
+    >(() => this._availability_resource.value() ?? {});
 
     private readonly _container_el =
         viewChild.required<ElementRef<HTMLDivElement>>('container');
@@ -382,12 +378,6 @@ export class FindAvailabilityModalComponent
 
     constructor() {
         super();
-        toObservable(this.date, { injector: this._injector })
-            .pipe(debounceTime(300))
-            .subscribe(() => {
-                // Re-trigger availability fetch when date changes
-                this.users.update((u) => [...u]);
-            });
     }
 
     public onDateChange(new_date: number) {
