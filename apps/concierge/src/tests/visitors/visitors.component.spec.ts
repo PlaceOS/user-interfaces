@@ -1,7 +1,6 @@
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 
 import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -26,8 +25,8 @@ describe('VisitorsComponent', () => {
         component: VisitorsComponent,
         providers: [
             MockProvider(VisitorsStateService, {
-                loading: new BehaviorSubject(false),
-                filters: new BehaviorSubject({}),
+                loading: signal(false),
+                filters: signal({}),
                 poll: jest.fn(),
                 setFilters: jest.fn(),
                 setSearchString: jest.fn(),

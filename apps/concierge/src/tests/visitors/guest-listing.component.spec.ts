@@ -2,7 +2,6 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { signal } from '@angular/core';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 import { ParkingStateService } from '../../app/parking/parking-state.service';
 import { GuestListingComponent } from '../../app/visitors/guest-listing.component';
 import { VisitorsStateService } from '../../app/visitors/visitors-state.service';
@@ -14,8 +13,8 @@ describe('GuestListingComponent', () => {
         time_format: 'h:mm a',
         theme: 'light',
     };
-    const filtered_bookings = new BehaviorSubject([]);
-    const filters = new BehaviorSubject({});
+    const filtered_bookings = signal([]);
+    const filters = signal({});
     const createComponent = createComponentFactory({
         component: GuestListingComponent,
         shallow: true,
@@ -48,8 +47,8 @@ describe('GuestListingComponent', () => {
 
     beforeEach(() => {
         settings.get.mockReset();
-        filtered_bookings.next([]);
-        filters.next({});
+        filtered_bookings.set([]);
+        filters.set({});
         spectator = createComponent();
     });
 

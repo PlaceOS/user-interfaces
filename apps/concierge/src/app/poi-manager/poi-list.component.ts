@@ -6,7 +6,6 @@ import {
     signal,
     untracked,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -200,9 +199,7 @@ export class POIListComponent extends AsyncHandler {
     private _manager = inject(POIManagementService);
     private _settings = inject(SettingsService);
 
-    public readonly features = toSignal(this._manager.filtered_features, {
-        initialValue: [],
-    });
+    public readonly features = this._manager.filtered_features;
     public readonly qr_codes = signal<Record<string, QR_Codes>>({});
 
     public readonly edit = (region) =>

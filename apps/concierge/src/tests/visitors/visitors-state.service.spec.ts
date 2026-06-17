@@ -1,10 +1,10 @@
 import { signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { addDays, addMinutes, getUnixTime, startOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
-import { lastValueFrom, of } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
 
@@ -18,6 +18,8 @@ import * as booking_mod from '@placeos/bookings';
 import * as common_mod from '@placeos/common';
 import { OrganisationService } from '@placeos/common';
 import * as event_mod from '@placeos/events';
+
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe('VisitorStateService', () => {
     let spectator: SpectatorService<VisitorsStateService>;
@@ -54,22 +56,21 @@ describe('VisitorStateService', () => {
 
     it('should list visitor events', async () => {
         (event_mod as any).queryEvents = jest.fn(() =>
-            of([{ guests: [{}], attendees: [{}, {}] }]),
+            Promise.resolve([{ guests: [{}], attendees: [{}, {}] }]),
         );
         (booking_mod as any).queryBookings = jest.fn(() =>
-            of([{ extension_data: {} }]),
+            Promise.resolve([{ extension_data: {} }]),
         );
         expect(booking_mod.queryBookings).not.toHaveBeenCalled();
-        const events = await spectator.service.bookings
-            .pipe(take(1))
-            .toPromise();
-        expect(events).toHaveLength(1);
+        TestBed.flushEffects();
+        await wait(10);
+        expect(spectator.service.bookings()).toHaveLength(1);
         expect(booking_mod.queryBookings).toHaveBeenCalled();
     });
 
     it('should apply building timezone to visitor listing requests', async () => {
         (booking_mod as any).queryBookings = jest.fn(() =>
-            of([{ extension_data: {} }]),
+            Promise.resolve([{ extension_data: {} }]),
         );
         (common_mod.getTimezoneDifferenceInHours as jest.Mock).mockReturnValue(
             2,
@@ -77,7 +78,8 @@ describe('VisitorStateService', () => {
         const date = new Date('2026-06-15T12:00:00').valueOf();
 
         spectator.service.setFilters({ date, period: 1 });
-        await spectator.service.bookings.pipe(take(1)).toPromise();
+        TestBed.flushEffects();
+        await wait(10);
 
         const start = addMinutes(startOfDay(new Date(date)), 120);
         const end = addDays(start, 1);
@@ -91,18 +93,14 @@ describe('VisitorStateService', () => {
 
     it('should allow filtering of visitor events', async () => {
         (booking_mod as any).queryBookings = jest.fn(() =>
-            of([{ asset_name: 'true', extension_data: {} }]),
+            Promise.resolve([{ asset_name: 'true', extension_data: {} }]),
         );
         expect(booking_mod.queryBookings).not.toHaveBeenCalled();
-        let events = await spectator.service.filtered_bookings
-            .pipe(take(1))
-            .toPromise();
-        expect(events).toHaveLength(1);
+        TestBed.flushEffects();
+        await wait(10);
+        expect(spectator.service.filtered_bookings()).toHaveLength(1);
         spectator.service.setSearchString('test');
-        events = await spectator.service.filtered_bookings
-            .pipe(take(1))
-            .toPromise();
-        expect(events).toHaveLength(0);
+        expect(spectator.service.filtered_bookings()).toHaveLength(0);
     });
 
     it('should allow polling of visitor events', async () => {
@@ -151,16 +149,15 @@ describe('VisitorStateService', () => {
 
     it('should allow checking in all visitors', async () => {
         (booking_mod as any).queryBookings = jest.fn(() =>
-            of([{ parent_id: '1', extension_data: {} }]),
+            Promise.resolve([{ parent_id: '1', extension_data: {} }]),
         );
         (booking_mod as any).checkinBooking = jest.fn(() =>
             Promise.resolve({}),
         );
         (common_mod as any).notifySuccess = jest.fn(() => null);
         (common_mod as any).unique = jest.fn(() => []);
-        (common_mod as any).nextValueFrom = jest.fn((obs) =>
-            lastValueFrom(obs.pipe(take(1))),
-        );
+        TestBed.flushEffects();
+        await wait(10);
         expect(booking_mod.checkinBooking).not.toHaveBeenCalled();
         await spectator.service.setCheckinStateForEvent('1');
         expect(booking_mod.checkinBooking).toHaveBeenCalled();
@@ -168,16 +165,15 @@ describe('VisitorStateService', () => {
 
     it('should allow checking out all visitors', async () => {
         (booking_mod as any).queryBookings = jest.fn(() =>
-            of([{ parent_id: '1', extension_data: {} }]),
+            Promise.resolve([{ parent_id: '1', extension_data: {} }]),
         );
         (booking_mod as any).checkinBooking = jest.fn(() =>
             Promise.resolve({}),
         );
         (common_mod as any).notifySuccess = jest.fn(() => null);
         (common_mod as any).unique = jest.fn(() => []);
-        (common_mod as any).nextValueFrom = jest.fn((obs) =>
-            lastValueFrom(obs.pipe(take(1))),
-        );
+        TestBed.flushEffects();
+        await wait(10);
         expect(booking_mod.checkinBooking).not.toHaveBeenCalled();
         await spectator.service.setCheckinStateForEvent('1');
         expect(booking_mod.checkinBooking).toHaveBeenCalled();

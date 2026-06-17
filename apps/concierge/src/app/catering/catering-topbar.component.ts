@@ -1,14 +1,12 @@
 import {
     ChangeDetectionStrategy,
     Component,
+    effect,
     inject,
-    Injector,
     OnInit,
     signal,
 } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { map } from 'rxjs/operators';
 
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -33,7 +31,6 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { combineLatest } from 'rxjs';
 import { DateOptionsComponent } from '../ui/date-options.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
 
@@ -208,7 +205,6 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
-    private _injector = inject(Injector);
 
     /** List of selected levels */
     public readonly zones = signal<string[]>([]);
@@ -258,6 +254,14 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
 
     constructor() {
         super();
+        effect(() => {
+            const bld = this._org.active_building();
+            const region = this._org.active_region();
+            const levels = this._settings.get('app.use_region')
+                ? this._org.levelsForRegion?.(region)
+                : this._org.levelsForBuilding?.(bld);
+            this.levels.set(levels || []);
+        });
     }
 
     public async ngOnInit() {
@@ -286,27 +290,6 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
         );
         this.filters.set(this._orders.order_filters() || {});
         this.caterers.set(this._catering.caterers() || []);
-        this.subscription(
-            'levels',
-            combineLatest([
-                toObservable(this._org.active_building, {
-                    injector: this._injector,
-                }),
-                toObservable(this._org.active_region, {
-                    injector: this._injector,
-                }),
-            ])
-                .pipe(
-                    map(([bld, region]) =>
-                        this._settings.get('app.use_region')
-                            ? this._org.levelsForRegion?.(region)
-                            : this._org.levelsForBuilding?.(bld),
-                    ),
-                )
-                .subscribe((levels) => {
-                    this.levels.set(levels || []);
-                }),
-        );
         this._catering.zone =
             (this.filters()?.zones || [])[0] || this._org.building?.id;
     }

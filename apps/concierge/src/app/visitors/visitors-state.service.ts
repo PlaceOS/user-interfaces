@@ -1,16 +1,5 @@
-import { Injectable, inject } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { addDays, addMinutes, format, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, from, of } from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    filter,
-    map,
-    shareReplay,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
 
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -24,13 +13,13 @@ import {
 import {
     AsyncHandler,
     Booking,
+    Building,
     OrganisationService,
     SettingsService,
     downloadFile,
     getTimezoneDifferenceInHours,
     i18n,
     jsonToCsv,
-    nextValueFrom,
     notifyError,
     notifySuccess,
 } from '@placeos/common';
@@ -53,17 +42,30 @@ export class VisitorsStateService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    private _poll = new BehaviorSubject<number>(0);
+    private readonly _poll = signal(0);
 
-    private _filters = new BehaviorSubject<VisitorFilters>({});
+    private readonly _search = signal<string>('');
 
-    private _search = new BehaviorSubject<string>('');
+    public readonly loading = signal<boolean>(false);
 
-    private _loading = new BehaviorSubject<boolean>(false);
+    public readonly filters = signal<VisitorFilters>({});
 
-    public readonly loading = this._loading.asObservable();
+    /** List of visitor bookings for the active building and filters */
+    public readonly bookings = signal<Booking[]>([]);
 
-    public readonly filters = this._filters.asObservable();
+    /** Visitor bookings filtered by the current search string */
+    public readonly filtered_bookings = computed(() => {
+        const search = this._search().toLowerCase();
+        return this.bookings()
+            .filter(
+                (_) =>
+                    _.asset_name?.toLowerCase().includes(search) ||
+                    _.user_name?.toLowerCase().includes(search) ||
+                    _.user_email?.toLowerCase().includes(search) ||
+                    _.asset_id?.toLowerCase().includes(search),
+            )
+            .sort((a, b) => a.date - b.date);
+    });
 
     public get tz_offset() {
         const tz = this._settings.get('app.bookings.use_building_timezone')
@@ -73,54 +75,36 @@ export class VisitorsStateService extends AsyncHandler {
         return !tz ? 0 : getTimezoneDifferenceInHours(current_tz, tz);
     }
 
-    public readonly bookings = combineLatest([
-        toObservable(this._org.active_building),
-        this._filters,
-        this._poll,
-    ]).pipe(
-        filter(([building]) => !!building),
-        debounceTime(150),
-        switchMap(([bld, filters]) => {
-            this._loading.next(true);
-            const date = filters.date ? new Date(filters.date) : new Date();
-            const start = addMinutes(startOfDay(date), this.tz_offset * 60);
-            const end = addDays(start, filters.period || 1);
-            return from(
-                queryBookings({
-                    type: 'visitor',
-                    period_start: getUnixTime(start),
-                    period_end: getUnixTime(end),
-                    zones: (filters.zones || []).join(',') || bld.id,
-                    include_checked_out: true,
-                    limit: 1000,
-                }),
-            ).pipe(catchError((_) => of([] as Booking[])));
-        }),
-        tap(() => this._loading.next(false)),
-        shareReplay(1),
-    );
+    constructor() {
+        super();
+        effect(() => {
+            const building = this._org.active_building();
+            const filters = this.filters();
+            this._poll();
+            if (!building) return;
+            this._load(building, filters);
+        });
+    }
 
-    public readonly filtered_bookings = combineLatest([
-        this._search,
-        this.bookings,
-    ]).pipe(
-        map(([search, guest_list]) => {
-            const filter = search.toLowerCase();
-            const out = guest_list
-                .filter(
-                    (_) =>
-                        _.asset_name?.toLowerCase().includes(filter) ||
-                        _.user_name?.toLowerCase().includes(filter) ||
-                        _.user_email?.toLowerCase().includes(filter) ||
-                        _.asset_id?.toLowerCase().includes(filter),
-                )
-                .sort((a, b) => a.date - b.date);
-            return out;
-        }),
-    );
+    private async _load(building: Building, filters: VisitorFilters) {
+        this.loading.set(true);
+        const date = filters.date ? new Date(filters.date) : new Date();
+        const start = addMinutes(startOfDay(date), this.tz_offset * 60);
+        const end = addDays(start, filters.period || 1);
+        const list = await queryBookings({
+            type: 'visitor',
+            period_start: getUnixTime(start),
+            period_end: getUnixTime(end),
+            zones: (filters.zones || []).join(',') || building.id,
+            include_checked_out: true,
+            limit: 1000,
+        }).catch((_) => [] as Booking[]);
+        this.bookings.set(list);
+        this.loading.set(false);
+    }
 
     public get search() {
-        return this._search.getValue();
+        return this._search();
     }
 
     public get time_format() {
@@ -135,19 +119,19 @@ export class VisitorsStateService extends AsyncHandler {
     }
 
     public setFilters(filters: VisitorFilters) {
-        this._filters.next({ ...this._filters.getValue(), ...filters });
+        this.filters.update((current) => ({ ...current, ...filters }));
     }
 
     public setSearchString(search: string) {
-        this._search.next(search);
+        this._search.set(search);
     }
 
     public poll() {
-        this._poll.next(Date.now());
+        this._poll.update((value) => value + 1);
     }
 
     public startPolling(delay: number = 30 * 1000) {
-        this.interval('poll', () => this._poll.next(Date.now()), delay);
+        this.interval('poll', () => this.poll(), delay);
     }
 
     public stopPolling() {
@@ -161,7 +145,7 @@ export class VisitorsStateService extends AsyncHandler {
             ...guest.toJSON(),
             extension_data,
         });
-        this._poll.next(Date.now());
+        this.poll();
     }
 
     public async approveVisitor(item: Booking) {
@@ -185,7 +169,7 @@ export class VisitorsStateService extends AsyncHandler {
             throw e;
         });
         notifySuccess(`Successfully approved visitor`);
-        this._poll.next(Date.now());
+        this.poll();
         details.close();
     }
 
@@ -210,7 +194,7 @@ export class VisitorsStateService extends AsyncHandler {
             throw e;
         });
         notifySuccess(`Successfully declining visitor`);
-        this._poll.next(Date.now());
+        this.poll();
         details.close();
     }
 
@@ -251,7 +235,7 @@ export class VisitorsStateService extends AsyncHandler {
 
     public async setCheckinStateForEvent(event_id: string, state = true) {
         if (!event_id) return;
-        const bookings = (await nextValueFrom(this.bookings)) || [];
+        const bookings = this.bookings() || [];
         const event_bookings = bookings.filter(
             (_) =>
                 _.parent_id === event_id ||
@@ -277,13 +261,13 @@ export class VisitorsStateService extends AsyncHandler {
                 event_bookings[0].user_name
             }'s meeting`,
         );
-        this._poll.next(Date.now());
+        this.poll();
     }
 
     public async downloadVisitorsList() {
-        const bookings = await nextValueFrom(this.filtered_bookings);
+        const bookings = this.filtered_bookings();
         if (!bookings.length) return;
-        const { date } = this._filters.getValue();
+        const { date } = this.filters();
         const list = bookings.map((_) => ({
             Name: _.asset_name,
             Email: _.asset_id,
