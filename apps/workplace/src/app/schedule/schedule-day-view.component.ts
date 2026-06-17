@@ -559,7 +559,9 @@ export class ScheduleDayViewComponent extends AsyncHandler implements OnInit {
     }
 
     public visitorName(booking: Booking | CalendarEvent): string {
-        if (booking instanceof Booking) {
+        // Only visitor bookings have a visitor name; for other types this
+        // would fall back to the raw `asset_id` (e.g. unallocated parking).
+        if (booking instanceof Booking && booking.booking_type === 'visitor') {
             return visitorDisplayNameFor(booking);
         }
         return '';
@@ -574,6 +576,9 @@ export class ScheduleDayViewComponent extends AsyncHandler implements OnInit {
                 booking.booking_type === 'visitor'
                     ? booking.extension_data?.location || ''
                     : booking.location || booking.asset_name || '';
+            // Unallocated parking has no space yet; hide the raw `unallocated-*`
+            // asset id that the location/asset name can fall back to.
+            if (location.startsWith('unallocated')) location = '';
             const level = this._org.levelWithID(booking.zones);
             level_name = level?.display_name || level?.name || '';
         } else {

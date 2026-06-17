@@ -278,7 +278,9 @@ export class ScheduleStateService extends AsyncHandler {
             list.filter((_) => !_.linked_event),
         );
         this._loadBookingType('desk', this._desks);
-        this._loadBookingType('parking', this._parking_bookings);
+        this._loadBookingType('parking', this._parking_bookings, (list) =>
+            this._resolveParkingNames(list),
+        );
         this._loadBookingType('locker', this._locker_bookings);
         this._loadLockers();
         this.interval('wfh_checks', () => this._checkCancel(), 60 * 1000);
@@ -471,6 +473,25 @@ export class ScheduleStateService extends AsyncHandler {
             const list = await this._bookingQuery(type, period, date, end_date);
             target.set(map_list(list));
             this.timeout('end_loading', () => this._loading.set(false));
+        });
+    }
+
+    /**
+     * Replace the asset name of parking bookings with the human readable
+     * parking space name/identifier. Without this the booking falls back to
+     * showing the raw `asset_id` of the space.
+     */
+    private _resolveParkingNames(list: Booking[]): Booking[] {
+        const spaces = this._parking.spaces();
+        return list.map((booking) => {
+            // Already has a proper name, nothing to resolve
+            if (booking.asset_name && booking.asset_name !== booking.asset_id) {
+                return booking;
+            }
+            const space = spaces.find((_) => _.id === booking.asset_id);
+            const name = space?.name || space?.identifier;
+            if (!name) return booking;
+            return new Booking({ ...booking.toJSON(), asset_name: name });
         });
     }
 

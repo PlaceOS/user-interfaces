@@ -382,9 +382,19 @@ export class BookingCardComponent {
             return i18n('RESOURCE.PARKING');
         }
         if (booking.booking_type !== 'visitor') {
-            return (
-                this.raw_description() || booking.asset_name || booking.asset_id
-            );
+            const label =
+                this.raw_description() ||
+                booking.asset_name ||
+                booking.asset_id ||
+                '';
+            // Unallocated parking has no space yet; hide the raw `unallocated-*`
+            // asset id that the label can fall back to.
+            if (label.startsWith('unallocated')) {
+                return booking.booking_type === 'parking'
+                    ? i18n('RESOURCE.PARKING')
+                    : '';
+            }
+            return label;
         }
         return this._visitorDisplayNameFor(booking);
     });

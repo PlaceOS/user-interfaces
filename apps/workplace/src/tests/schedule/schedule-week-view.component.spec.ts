@@ -1,6 +1,6 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MatDialog } from '@angular/material/dialog';
-import { OrganisationService } from '@placeos/common';
+import { Booking, OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
 import { ScheduleWeekViewComponent } from '../../app/schedule/schedule-week-view.component';
@@ -31,6 +31,37 @@ describe('ScheduleWeekViewComponent', () => {
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
+    });
+
+    it('should hide the asset id of unallocated parking bookings', () => {
+        // asset_name falls back to the raw asset_id
+        const via_asset_name = new Booking({
+            booking_type: 'parking',
+            asset_id: 'unallocated-123',
+        });
+        // location getter falls back to the description holding the raw id
+        const via_description = new Booking({
+            booking_type: 'parking',
+            asset_id: 'unallocated-456',
+            description: 'unallocated-456',
+        });
+        const allocated = new Booking({
+            booking_type: 'parking',
+            asset_id: 'space-1',
+            asset_name: 'Bay 1',
+        });
+        expect(spectator.component.location(via_asset_name)).toBe('');
+        expect(spectator.component.location(via_description)).toBe('');
+        expect(spectator.component.location(allocated)).toBe('Bay 1');
+    });
+
+    it('should not show a visitor name for non-visitor bookings', () => {
+        const parking = new Booking({
+            booking_type: 'parking',
+            asset_id: 'unallocated-5gIZsCGa',
+            title: 'Parking Request',
+        });
+        expect(spectator.component.visitorName(parking)).toBe('');
     });
 
     it('should align displayed weekdays to the configured week start', () => {

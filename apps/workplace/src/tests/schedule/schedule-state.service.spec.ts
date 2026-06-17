@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { BookingFormService, ParkingService } from '@placeos/bookings';
 import {
+    Booking,
     CalendarEvent,
     OrganisationService,
     SettingsService,
@@ -39,7 +40,11 @@ describe('ScheduleStateService', () => {
             MockProvider(Router, router),
             MockProvider(EventFormService, event_form),
             MockProvider(BookingFormService, { newForm: jest.fn() }),
-            MockProvider(ParkingService, {}),
+            MockProvider(ParkingService, {
+                spaces: signal([
+                    { id: 'space-1', name: 'Bay 1', identifier: 'B1' },
+                ]) as any,
+            }),
             MockProvider(SpacesService, spaces),
         ],
     });
@@ -59,6 +64,21 @@ describe('ScheduleStateService', () => {
 
     it('should create service', () => {
         expect(spectator.service).toBeTruthy();
+    });
+
+    it('should resolve the space name of allocated parking bookings', () => {
+        const list = [
+            new Booking({
+                id: 'bk-1',
+                booking_type: 'parking',
+                asset_id: 'space-1',
+                asset_name: 'space-1',
+            }),
+        ];
+        const [allocated] = (
+            spectator.service as any
+        )._resolveParkingNames(list);
+        expect(allocated.asset_name).toBe('Bay 1');
     });
 
     it('should use the event system as selected room when resources are missing', async () => {
