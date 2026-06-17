@@ -351,8 +351,12 @@ export function generateBookingForm(
                 when: ({ valueOf }) => valueOf(p.booking_type) === 'visitor',
             });
             // Parking requests can require a vehicle plate number via settings.
+            // Scope to parking bookings so the required state never bleeds into
+            // desk/visitor forms sharing this FieldTree.
             required(p.plate_number, {
-                when: () => require_plate_number(),
+                when: ({ valueOf }) =>
+                    valueOf(p.booking_type) === 'parking' &&
+                    require_plate_number(),
             });
             validate(p.duration, ({ value, valueOf }) => {
                 const date = valueOf(p.date);
