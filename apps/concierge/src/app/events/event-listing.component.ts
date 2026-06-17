@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -326,12 +325,8 @@ export class EventListingComponent {
     private _settings = inject(SettingsService);
     private _state = inject(EventStateService);
 
-    public readonly loading = toSignal(this._state.loading, {
-        initialValue: '',
-    });
-    public readonly event_list = toSignal(this._state.event_list, {
-        initialValue: [],
-    });
+    public readonly loading = this._state.loading;
+    public readonly event_list = this._state.event_list;
     public readonly time_format = this._settings.time_format;
 
     public readonly viewEvent = (event: any) => this._state.viewEvent(event);

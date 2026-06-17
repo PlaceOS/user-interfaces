@@ -8,12 +8,10 @@ import {
     signal,
     viewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { AsyncHandler } from '@placeos/common';
 
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TranslatePipe } from '@placeos/components';
-import { of } from 'rxjs';
 import { StaffDetailsComponent } from './staff-details.component';
 import { StaffStateService } from './staff-state.service';
 
@@ -121,18 +119,9 @@ export class StaffListingComponent extends AsyncHandler {
     public readonly active_group = signal('#');
 
     public readonly groups = CHARS;
-    public readonly events = toSignal(this._state.user_events || of({}), {
-        initialValue: {},
-    });
-    public readonly loading = toSignal(this._state.loading || of(false), {
-        initialValue: false,
-    });
-    public readonly filtered_users = toSignal(
-        this._state.filtered_users || of([]),
-        {
-            initialValue: [],
-        },
-    );
+    public readonly events = this._state.user_events;
+    public readonly loading = this._state.loading;
+    public readonly filtered_users = this._state.filtered_users;
 
     public readonly user_count = computed(() => this.filtered_users().length);
 

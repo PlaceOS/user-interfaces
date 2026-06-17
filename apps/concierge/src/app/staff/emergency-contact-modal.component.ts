@@ -5,7 +5,6 @@ import {
     signal,
     viewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import {
     FormControl,
     FormGroup,
@@ -233,9 +232,7 @@ export class EmergencyContactModalComponent {
     public loading = signal(false);
     public readonly role_name = signal('');
     public readonly contact?: EmergencyContact = this._data;
-    public readonly roles = toSignal(this._contacts_service.roles$, {
-        initialValue: [],
-    });
+    public readonly roles = this._contacts_service.roles;
     public readonly form = new FormGroup({
         id: new FormControl(
             this._data?.id || this._contacts_service.generateContactId(),

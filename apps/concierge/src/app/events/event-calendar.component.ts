@@ -5,7 +5,6 @@ import {
     computed,
     inject,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -94,13 +93,11 @@ export class EventCalendarComponent {
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
 
-    public readonly options = toSignal(this._state.options, {
-        initialValue: {
-            period: this._state.period,
-            date: Date.now(),
-            end: Date.now(),
-        },
-    });
+    public readonly options = computed(() => ({
+        date: Date.now(),
+        end: Date.now(),
+        ...this._state.options(),
+    }));
     public readonly period = computed(() => this.options().period);
     public readonly is_today = computed(
         () =>

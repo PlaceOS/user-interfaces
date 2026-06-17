@@ -1,7 +1,7 @@
+import { signal } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { mockComponent } from '@placeos/common/tests';
-import { BehaviorSubject } from 'rxjs';
 import { StaffListingComponent } from '../../app/staff/staff-listing.component';
 import { StaffStateService } from '../../app/staff/staff-state.service';
 import { StaffTopbarComponent } from '../../app/staff/staff-topbar.component';
@@ -17,7 +17,7 @@ describe('StaffComponent', () => {
             {
                 provide: StaffStateService,
                 useValue: {
-                    loading: new BehaviorSubject(false),
+                    loading: signal(false),
                     startPolling: jest.fn(),
                     stopPolling: jest.fn(),
                 },

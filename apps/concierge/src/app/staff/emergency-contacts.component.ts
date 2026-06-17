@@ -8,7 +8,6 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -250,13 +249,8 @@ export class EmergencyContactsComponent implements OnInit {
 
     public search = '';
     public readonly role_filter = signal('');
-    public readonly data$ = this._contacts_service.data$;
-    public readonly roles = toSignal(this._contacts_service.roles$, {
-        initialValue: [],
-    });
-    public readonly contacts = toSignal(this._contacts_service.contacts$, {
-        initialValue: [],
-    });
+    public readonly roles = this._contacts_service.roles;
+    public readonly contacts = this._contacts_service.contacts;
     public readonly filtered_contacts = computed(() => {
         const role = this.role_filter();
         return this.contacts().filter((_) => !role || _.roles.includes(role));
