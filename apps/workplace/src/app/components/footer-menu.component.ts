@@ -1,11 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    model,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, model, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import {
@@ -258,7 +251,6 @@ const FEATURE_MENU_ITEMS: FooterMenuItem[] = [
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, IconComponent, RouterModule, MatRippleModule],
 })
 export class FooterMenuComponent extends AsyncHandler {

@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    viewChild,
-} from '@angular/core';
+import { Component, computed, inject, viewChild } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import {
     OrganisationService,
@@ -75,7 +69,6 @@ const EMPTY = [];
         UserAvatarComponent,
         UserControlsSidebarComponent,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class TopbarComponent {
     private _settings = inject(SettingsService);

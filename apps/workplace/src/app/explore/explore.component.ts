@@ -1,11 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    OnInit,
-    computed,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DesksService } from '@placeos/bookings';
 import { AsyncHandler, OrganisationService } from '@placeos/common';
@@ -93,7 +86,6 @@ import { EventPinComponent } from './event-pin.component';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TopbarComponent,
         FooterMenuComponent,

@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -118,7 +112,6 @@ import { ScheduleWeekViewComponent } from './schedule-week-view.component';
         ScheduleWeekViewComponent,
         ScheduleDayViewComponent,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class ScheduleComponent extends AsyncHandler implements OnInit {
     private _state = inject(ScheduleStateService);

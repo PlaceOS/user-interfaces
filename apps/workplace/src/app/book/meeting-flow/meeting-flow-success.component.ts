@@ -1,12 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import {
     BuildingLevel,
@@ -119,7 +112,6 @@ import { EventFormService, SpacePipe } from '@placeos/events';
     `,
     styles: [``],
     imports: [CommonModule, RouterModule, TranslatePipe, IconComponent],
-    changeDetection: ChangeDetectionStrategy.Eager,
     providers: [SpacePipe],
 })
 export class MeetingFlowSuccessComponent implements OnInit {

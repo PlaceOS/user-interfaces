@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -158,7 +157,6 @@ import {
         DateRangeCalendarComponent,
         SettingsToggleComponent,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);

@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    input,
-} from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -101,7 +95,6 @@ import { ScheduleStateService } from './schedule-state.service';
     `,
     styles: [``],
     imports: [CommonModule, TranslatePipe, IconComponent, MatRippleModule],
-    changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class ScheduleFiltersComponent {
     private _sheet = inject(MatBottomSheet);
