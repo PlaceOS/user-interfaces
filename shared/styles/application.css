@@ -353,6 +353,24 @@ code {
     }
 }
 
+.fullscreen-dialog {
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+
+    .mdc-dialog__surface,
+    .mat-mdc-dialog-surface {
+        border-radius: 0 !important;
+        height: 100%;
+        width: 100%;
+    }
+
+    mat-dialog-container,
+    .mat-mdc-dialog-container {
+        height: 100%;
+        width: 100%;
+    }
+}
+
 .mdc-dialog__container {
     padding: 0;
 

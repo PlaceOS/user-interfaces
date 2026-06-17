@@ -33,20 +33,24 @@ export interface Locatable {
 @Component({
     selector: 'map-locate-modal',
     template: `
-        <div class="h-[calc(100vh-4rem)] w-screen sm:h-auto sm:w-auto">
-            <header class="p-4">
-                <icon class="text-2xl">place</icon>
-                <h1 class="ml-2 text-xl font-medium">
-                    {{ item().display_name || item().name }}
-                </h1>
+        <div class="flex h-screen w-screen flex-col">
+            <header
+                class="bg-base-200 sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] rounded-sm border-none p-2"
+            >
+                <h2 class="px-2 text-xl font-medium">
+                    Location of {{ item().display_name || item().name }}
+                </h2>
+                <button icon default matRipple mat-dialog-close>
+                    <icon>close</icon>
+                </button>
             </header>
-            @if (level()) {
-                <div
-                    body
-                    class="relative h-[65vh] w-full overflow-hidden sm:max-h-[65vh]"
-                >
+            <div
+                body
+                class="border-base-300 bg-base-200 relative mx-2 mb-2 w-[calc(100%-1rem)] flex-1 overflow-hidden rounded-xl border"
+            >
+                @if (level()) {
                     <interactive-map
-                        class="pointer-events-none"
+                        class="pointer-events-none absolute inset-0 block h-full w-full"
                         [src]="level()?.map_id"
                         [focus]="item()?.map_id"
                         [features]="features()"
@@ -55,28 +59,25 @@ export interface Locatable {
                             disable_zoom: true,
                         }"
                     >
-                        <mat-spinner diameter="64"></mat-spinner
-                    ></interactive-map>
+                    </interactive-map>
                     <div
-                        class="border-base-200 bg-base-100 absolute top-2 right-2 rounded-3xl border px-4 py-2 shadow-sm"
+                        class="border-base-300 bg-base-100 absolute top-2 right-2 rounded-3xl border px-4 py-2 shadow-lg"
                     >
                         {{ level()?.display_name || level()?.name }}
                     </div>
-                </div>
-            }
-            <footer
-                class="border-base-200 flex w-full items-center justify-center border-t p-2"
-            >
-                <button btn matRipple class="inverse w-32" mat-dialog-close>
-                    {{ 'COMMON.BACK' | translate }}
-                </button>
-            </footer>
+                }
+            </div>
         </div>
     `,
     styles: [
         `
             [body] {
                 min-width: 80vw !important;
+            }
+            :host {
+                display: block;
+                width: 100%;
+                height: 100%;
             }
         `,
     ],
@@ -111,6 +112,7 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
 
     constructor() {
         super();
+        console.log('Date:', this._data);
         if (!this.item().level?.id) {
             this.item.update((item) => {
                 delete item.level;

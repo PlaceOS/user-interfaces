@@ -627,8 +627,11 @@ export class GroupEventDetailsModalComponent implements OnInit {
         }
         this.showing_map.set(true);
         const ref = this._dialog.open(MapLocateModalComponent, {
-            maxWidth: '95vw',
-            maxHeight: '95vh',
+            width: '100vw',
+            height: '100vh',
+            maxWidth: '100vw',
+            maxHeight: '100vh',
+            panelClass: 'fullscreen-dialog',
             data: { item: this.space },
         });
         ref.afterClosed().subscribe(() => this.showing_map.set(false));
