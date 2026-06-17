@@ -260,7 +260,12 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
     public src = input('');
     public zoom = model(1);
     public center = model<Point>({ x: 0.5, y: 0.5 });
-    public highResolution = input(false);
+    /**
+     * Override the texture budget for fixed (zoom-disabled) maps, in
+     * megapixels. Defaults to twice the container's pixel count when 0. Use a
+     * smaller value for maps rendered at a small fixed size.
+     */
+    public fixedResolution = input(0);
     /** Show debugging info over the map. Also toggled with Ctrl+Alt+Shift+G */
     public debug = model(false);
     public reset = model(0);
@@ -289,6 +294,7 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
     /** Viewer state polled for the debug panel while debug mode is active */
     private _debug_state = signal<{
         texture: string;
+        texture_mode: string;
         aspect: string;
         view: string;
         pointer: string;
@@ -313,7 +319,7 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
             'MAP DEBUG (Ctrl+Alt+Shift+G)',
             `src:      ${this._middleTruncate(this.src().split('/').pop() || '—', 36)}`,
             `status:   ${status}`,
-            `texture:  ${state.texture}${this.highResolution() ? ' (high-res)' : ''}`,
+            `texture:  ${state.texture} (${state.texture_mode})`,
             `aspect:   ${state.aspect}`,
             `view:     ${state.view}`,
             `zoom:     ${this.zoom().toFixed(2)}`,
@@ -481,10 +487,10 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
             this._map_viewer?.setCenter({ ...center_val });
         });
 
-        // Effect to sync high resolution to MapViewer
+        // Effect to sync fixed-map resolution override to MapViewer
         effect(() => {
-            const high_res = this.highResolution() ?? false;
-            this._map_viewer?.setHighResolution(high_res);
+            const megapixels = this.fixedResolution() ?? 0;
+            this._map_viewer?.setFixedResolution(megapixels);
         });
 
         // Effect to sync interaction options to MapViewer
@@ -525,6 +531,7 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
                 const info = viewer.debug_info;
                 this._debug_state.set({
                     texture: image ? `${image.width}×${image.height}` : 'none',
+                    texture_mode: viewer.texture_mode,
                     aspect: (viewer.map?.aspect_ratio || 1).toFixed(3),
                     view: `${viewer.container.clientWidth}×${viewer.container.clientHeight}`,
                     pointer: info.pointer
