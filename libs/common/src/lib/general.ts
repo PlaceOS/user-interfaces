@@ -1198,6 +1198,19 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
         prev.date_end = finiteNumber(s.date_end);
         prev.all_day = s.all_day;
     };
+    // Re-entrancy guard. The duration↔date_end effects both read and write the
+    // model, so a configuration where they can't reach a mutual fixed point
+    // (e.g. a bookable window whose remaining minutes aren't a multiple of
+    // `round_to`, so the ceil-rounded end and the clamped duration never agree)
+    // makes them rewrite each other forever — an unbounded `model.update`
+    // storm that hangs change detection and exhausts memory. Cap the number of
+    // model-mutating patches per synchronous burst; once exceeded, accept the
+    // current value as settled so the form degrades gracefully instead of
+    // freezing the tab. The counter resets on the next event-loop turn, so
+    // genuine user edits always start fresh.
+    const MAX_SYNC_PATCHES = 12;
+    let sync_patches = 0;
+    let reset_scheduled = false;
     /** Apply a patch to the model and refresh the change-tracking snapshot. */
     const applyPatch = (patch: Partial<T>) => {
         const current = snap();
@@ -1211,6 +1224,22 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
         if (keys.every((key) => sameValue(current[key], safe_patch[key]))) {
             refreshPrev();
             return false;
+        }
+        if (sync_patches >= MAX_SYNC_PATCHES) {
+            console.warn(
+                'setupFormTimeSync: aborting runaway time-sync corrections',
+                safe_patch,
+            );
+            refreshPrev();
+            return false;
+        }
+        sync_patches++;
+        if (!reset_scheduled) {
+            reset_scheduled = true;
+            setTimeout(() => {
+                sync_patches = 0;
+                reset_scheduled = false;
+            });
         }
         model.update((value) => ({ ...value, ...(safe_patch as Partial<T>) }));
         refreshPrev();
@@ -1245,7 +1274,11 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
         const time = timezone ? toZonedTime(start, timezone) : new Date(start);
         const start_minutes = time.getHours() * 60 + time.getMinutes();
         const end_minutes = bookable_hours.end * 60;
-        return Math.max(0, end_minutes - start_minutes);
+        const remaining = Math.max(0, end_minutes - start_minutes);
+        // Floor to the rounding grid so a window-capped duration and the
+        // ceil-rounded `date_end` share a fixed point (otherwise the two time
+        // effects rewrite each other indefinitely — see the applyPatch guard).
+        return Math.floor(remaining / round_to) * round_to;
     };
 
     /**
