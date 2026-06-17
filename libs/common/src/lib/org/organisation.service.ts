@@ -18,18 +18,20 @@ import {
     waitForSignal,
 } from '@placeos/ts-client';
 
-import { log, unique } from '../general';
-import { firstValueWhere } from '../signal.utilities';
+import { scoped_log, unique } from '../general';
 import { notifyError } from '../notifications';
 import { setLoadingMessage } from '../placeos.service';
 import { isPublicMode } from '../public-mode';
 import { SettingsService } from '../settings.service';
+import { firstValueWhere } from '../signal.utilities';
 import {
     Building,
     BuildingLevel,
     Organisation,
     Region,
 } from '../types/org.classes';
+
+const log = scoped_log('ORG');
 
 const ORG_CACHE_PREFIX = 'PLACEOS.org';
 const ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
@@ -472,7 +474,7 @@ export class OrganisationService {
         setLoadingMessage('Loading zone settings...');
         await this.loadSettings();
         if (!this._building_list()?.length) {
-            log('ORG', 'Unable to find any building zones');
+            log('Unable to find any building zones');
         }
         setLoadingMessage('Loading active building levels...');
         await this.loadLevels();
@@ -487,7 +489,6 @@ export class OrganisationService {
             tags: 'org',
             include_children_count: true,
         });
-        console.log('Orgs:', org_list);
         if (org_list.length) {
             const auth = authority();
             const org =
@@ -503,7 +504,7 @@ export class OrganisationService {
                 : {};
             this._organisation = new Organisation({ ...org, bindings });
         } else {
-            log('ORG', 'Unable to find organisation');
+            log('Unable to find organisation');
             this._router.navigate(['/misconfigured']);
         }
     }
@@ -699,17 +700,20 @@ export class OrganisationService {
     }
 
     private async _setDefaultBuilding() {
+        log('No building set yet, applying defaults...');
         const region_id = localStorage.getItem(`PLACEOS.region`);
         const building_id =
             sessionStorage.getItem(`PLACEOS.building`) ||
             localStorage.getItem(`PLACEOS.building`);
         if (!this.buildings.length && !region_id) return;
-
         await (region_id
-            ? this.setRegion(this._region_list().find((_) => _.id === region_id))
+            ? this.setRegion(
+                  this._region_list().find((_) => _.id === region_id),
+              )
             : this._setRegionFromTimezone());
         if (!this.buildings.length) return;
         if (building_id) {
+            log('Defaulting building to previously set.');
             const building = this.buildings.find((_) => _.id === building_id);
             if (building) {
                 this.building = building;
@@ -720,9 +724,13 @@ export class OrganisationService {
         if (this.building?.id) return;
         const bld_id = this._service.get('app.default_building');
         if (bld_id) {
+            log('Applied default building from app settings.');
             this.building = this.buildings.find(({ id }) => id === bld_id);
         }
-        if (!this.building?.id) this.building = this.buildings[0];
+        if (!this.building?.id) {
+            log('No default building found initialising to first building.');
+            this.building = this.buildings[0];
+        }
     }
 
     private async _setRegionFromTimezone() {
@@ -750,6 +758,7 @@ export class OrganisationService {
         for (const bld of bld_list) {
             if (bld.timezone === timezone) {
                 this.building = bld;
+                log("Applied default building from user's timezone.");
                 return;
             }
         }
@@ -757,6 +766,7 @@ export class OrganisationService {
         for (const bld of bld_list) {
             if (bld.timezone.startsWith(tz_start)) {
                 this.building = bld;
+                log("Applied default building from user's timezone.");
                 return;
             }
         }
