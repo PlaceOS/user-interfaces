@@ -222,10 +222,43 @@ describe('OrganisationService', () => {
             },
         );
 
-        await (spectator.service as any)._initialiseActiveBuilding();
+        await (spectator.service as any)._setDefaultBuilding();
 
         expect(spectator.service.region.id).toBe(region.id);
         expect(spectator.service.building.id).toBe(saved_building.id);
+    });
+
+    it('should apply the configured default building from another region', async () => {
+        const region_1 = new Region({ id: 'region-1', tags: ['region'] });
+        const region_2 = new Region({ id: 'region-2', tags: ['region'] });
+        const first_building = new Building({
+            id: 'bld-1',
+            parent_id: region_1.id,
+            tags: ['building'],
+        });
+        const default_building = new Building({
+            id: 'bld-2',
+            parent_id: region_2.id,
+            tags: ['building'],
+        });
+        const settings = spectator.inject(SettingsService);
+        jest.mocked(settings.get).mockImplementation((key: string) =>
+            key === 'app.default_building' ? default_building.id : undefined,
+        );
+        (spectator.service as any)._region_list.set([region_1, region_2]);
+        (spectator.service as any)._building_list.set([first_building]);
+        jest.spyOn(spectator.service, 'loadBuildings').mockImplementation(
+            async (parent_id?: string) =>
+                parent_id === region_2.id ? [default_building] : [first_building],
+        );
+        jest.spyOn(spectator.service, 'loadRegionData').mockResolvedValue(
+            undefined,
+        );
+
+        await (spectator.service as any)._setDefaultBuilding();
+
+        expect(spectator.service.region.id).toBe(region_2.id);
+        expect(spectator.service.building.id).toBe(default_building.id);
     });
 
     it('should fall back to the first building when no stored or timezone building matches', async () => {

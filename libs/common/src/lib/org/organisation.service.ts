@@ -639,73 +639,81 @@ export class OrganisationService {
             await this._bulkMetadataDetails('settings', [org_id])
         )[org_id];
         this._settings = [global_settings, app_settings];
+        // Cancel any pending debounced override so the org settings below are
+        // the authoritative layer while the default building is selected.
+        if (this._override_timer) {
+            clearTimeout(this._override_timer);
+            this._override_timer = null;
+        }
         this._service.setOverrides([...this._settings]);
-        await this._initialiseActiveBuilding();
+        await this._setDefaultBuilding();
         this._updateSettingOverrides();
     }
 
-    private async _initialiseActiveBuilding() {
-        const id =
-            sessionStorage.getItem(`PLACEOS.building`) ||
-            localStorage.getItem(`PLACEOS.building`);
-        const building = this.buildings.find((bld) => bld.id === id);
-        if (building) {
-            this.building = building;
-            return;
+    /** Select the building physically closest to the user's current location */
+    private async _setBuildingFromGeolocation(): Promise<Building | null> {
+        return new Promise<Building | null>((resolve) => {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    const closest = this._closestBuilding(latitude, longitude);
+                    if (closest) this.building = closest;
+                    resolve(closest);
+                },
+                () => resolve(null),
+            );
+        });
+    }
+
+    /** Find the building nearest to the given coordinates */
+    private _closestBuilding(
+        latitude: number,
+        longitude: number,
+    ): Building | null {
+        let closest: Building | null = null;
+        let closest_distance = Infinity;
+        for (const bld of this.buildings) {
+            if (!bld.location || bld.location === '0,0') continue;
+            const [lat, long] = bld.location.split(',').map(Number);
+            const distance = Math.hypot(latitude - lat, longitude - long);
+            if (distance < closest_distance) {
+                closest = bld;
+                closest_distance = distance;
+            }
         }
-        const use_location = !!this._service.get('app.use_geolocation');
-        if (use_location && 'geolocation' in navigator) {
-            await new Promise<void>((resolve) => {
-                navigator.geolocation.getCurrentPosition(
-                    async (position) => {
-                        const { latitude, longitude } = position.coords;
-                        let closest_bld = null;
-                        for (const bld of this.buildings) {
-                            if (!bld.location || bld.location === '0,0')
-                                continue;
-                            if (!closest_bld) closest_bld = bld;
-                            else {
-                                const [c_lat, c_long] = (
-                                    closest_bld.location || '0,0'
-                                ).split(',');
-                                const [b_lat, b_long] = (
-                                    bld.location || '0,0'
-                                ).split(',');
-                                const b_dist = Math.sqrt(
-                                    Math.pow(latitude - +b_lat, 2) +
-                                        Math.pow(longitude - +b_long, 2),
-                                );
-                                const c_dist = Math.sqrt(
-                                    Math.pow(latitude - +c_lat, 2) +
-                                        Math.pow(longitude - +c_long, 2),
-                                );
-                                if (b_dist < c_dist) closest_bld = bld;
-                            }
-                        }
-                        if (closest_bld) this.building = closest_bld;
-                        if (!this.building?.id)
-                            await this._setDefaultBuilding();
-                        resolve();
-                    },
-                    async () => {
-                        if (!this.building?.id)
-                            await this._setDefaultBuilding();
-                        resolve();
-                    },
-                );
-            });
-        } else {
-            if (!this.building?.id) await this._setDefaultBuilding();
-        }
+        return closest;
+    }
+
+    /** Find a building by id, loading every region's buildings if not already present */
+    private async _findBuilding(id: string): Promise<Building | null> {
+        const loaded = this.buildings.find((bld) => bld.id === id);
+        if (loaded) return loaded;
+        await this._loadAllBuildings();
+        return this.buildings.find((bld) => bld.id === id) || null;
+    }
+
+    /** Load the buildings for every region into the building list */
+    private async _loadAllBuildings(): Promise<void> {
+        const lists = await Promise.all(
+            this.regions.map((region) => this.loadBuildings(region.id)),
+        );
+        this._building_list.set(
+            unique([...this._building_list(), ...lists.flat()], 'id'),
+        );
     }
 
     private async _setDefaultBuilding() {
         log('No building set yet, applying defaults...');
+        // Read settings up-front, before any region/building change can
+        // reshuffle the active overrides via the debounced override update and
+        // shadow the org-level `app.default_building` value.
         const region_id = localStorage.getItem(`PLACEOS.region`);
         const building_id =
             sessionStorage.getItem(`PLACEOS.building`) ||
             localStorage.getItem(`PLACEOS.building`);
+        const default_id = this._service.get('app.default_building');
         if (!this.buildings.length && !region_id) return;
+        // Load the saved/timezone region so its buildings are available
         await (region_id
             ? this.setRegion(
                   this._region_list().find((_) => _.id === region_id),
@@ -719,36 +727,42 @@ export class OrganisationService {
             this.building = previous;
             return;
         }
-        // 2. Use the building explicitly configured in app settings
-        const default_id = this._service.get('app.default_building');
-        const configured = this.buildings.find(({ id }) => id === default_id);
-        if (configured) {
-            log('Applied default building from app settings.');
-            this.building = configured;
-            return;
+        // 2. Use the building explicitly configured in app settings. This may
+        //    live in a region other than the one loaded above, so search every
+        //    region and activate the matching one before selecting it.
+        if (default_id) {
+            const configured = await this._findBuilding(default_id);
+            if (configured) {
+                log('Applied default building from app settings.');
+                const region = this.regions.find(
+                    (_) => _.id === configured.parent_id,
+                );
+                if (region) await this.setRegion(region);
+                this.building = configured;
+                return;
+            }
+            log(`Configured default building "${default_id}" was not found.`);
         }
-        // 3. Guess a building based on the user's timezone
+        // 3. Use the building closest to the user's current location
+        const use_location = !!this._service.get('app.use_geolocation');
+        if (use_location && 'geolocation' in navigator) {
+            const closest = await this._setBuildingFromGeolocation();
+            if (closest) {
+                log('Applied default building from user location.');
+                return;
+            }
+        }
+        // 4. Guess a building based on the user's timezone
         this._setBuildingFromTimezone();
         if (this.building?.id) return;
-        // 4. Fall back to the first available building
+        // 5. Fall back to the first available building
         log('No default building matched, initialising to first building.');
         this.building = this.buildings[0];
     }
 
     private async _setRegionFromTimezone() {
-        const region_list = this.regions;
-        const timezone = this.timezone;
-        for (const region of region_list) {
-            if (region.timezone === timezone) {
-                return await this.setRegion(region);
-            }
-        }
-        const tz_start = timezone.split('/')[0];
-        for (const region of region_list) {
-            if (region.timezone.startsWith(tz_start)) {
-                return await this.setRegion(region);
-            }
-        }
+        const region = this._matchByTimezone(this.regions);
+        if (region) await this.setRegion(region);
     }
 
     private _setBuildingFromTimezone() {
@@ -756,22 +770,22 @@ export class OrganisationService {
         const bld_list = this.buildings.filter(
             (bld) => !this.region || bld.parent_id === this.region?.id,
         );
+        const building = this._matchByTimezone(bld_list);
+        if (building) {
+            this.building = building;
+            log("Applied default building from user's timezone.");
+        }
+    }
+
+    /** Match the item whose timezone equals the user's, else one in the same region */
+    private _matchByTimezone<T extends { timezone: string }>(
+        list: T[],
+    ): T | undefined {
         const timezone = this.timezone;
-        for (const bld of bld_list) {
-            if (bld.timezone === timezone) {
-                this.building = bld;
-                log("Applied default building from user's timezone.");
-                return;
-            }
-        }
+        const exact = list.find((_) => _.timezone === timezone);
+        if (exact) return exact;
         const tz_start = timezone.split('/')[0];
-        for (const bld of bld_list) {
-            if (bld.timezone.startsWith(tz_start)) {
-                this.building = bld;
-                log("Applied default building from user's timezone.");
-                return;
-            }
-        }
+        return list.find((_) => _.timezone?.startsWith(tz_start));
     }
 
     private _override_timer: ReturnType<typeof setTimeout> | null = null;
