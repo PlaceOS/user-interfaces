@@ -1,14 +1,14 @@
 import {
     ChangeDetectionStrategy,
     Component,
+    computed,
+    effect,
     inject,
     OnInit,
     signal,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { startOfMinute } from 'date-fns';
-import { debounceTime, map } from 'rxjs/operators';
 
 import {
     AsyncHandler,
@@ -176,23 +176,22 @@ export class EventPanelComponent extends AsyncHandler implements OnInit {
     public hide_qr = signal<boolean>(false);
     public readonly time = signal(Date.now());
 
-    public current = toSignal(this._state.current);
-    public next = toSignal(this._state.next);
+    public current = this._state.current;
+    public next = this._state.next;
 
-    public readonly space_name = toSignal(
-        this._state.space.pipe(map((_) => _?.display_name || _?.name || '')),
-        { initialValue: '' },
+    public readonly space_name = computed(
+        () =>
+            this._state.space()?.display_name ||
+            this._state.space()?.name ||
+            '',
     );
 
-    public readonly logo = toSignal(
-        toObservable(this._org.active_building).pipe(
-            debounceTime(500),
-            map(
-                () =>
-                    (this._settings.theme
-                        ? this._settings.get('app.logo_light')
-                        : this._settings.get('app.logo_dark')) || {},
-            ),
+    public readonly logo = computed(
+        () => (
+            this._org.active_building(),
+            (this._settings.theme
+                ? this._settings.get('app.logo_light')
+                : this._settings.get('app.logo_dark')) || {}
         ),
     );
 
@@ -220,21 +219,34 @@ export class EventPanelComponent extends AsyncHandler implements OnInit {
         return !!this._state.setting('custom_qr_url');
     }
 
+    constructor() {
+        super();
+        effect(() => {
+            const { custom_qr_url, custom_qr_color } = this._state.settings();
+            if (custom_qr_url) {
+                this.qr_code.set(
+                    generateQRCode(
+                        custom_qr_url,
+                        '#0000',
+                        custom_qr_color || '#000',
+                    ),
+                );
+            } else if (!this.qr_code()) {
+                const url = `${location.origin}${location.pathname}#/checkin/${this._state.system}?user=true`;
+                this.qr_code.set(
+                    generateQRCode(url, '#0000', custom_qr_color || '#000'),
+                );
+            }
+        });
+    }
+
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
-        this.subscription(
-            'route.params',
-            this._route.paramMap.subscribe((params) => {
-                this.system_id.set(params.get('system_id') || '');
-                this._state.system = this.system_id();
-            }),
-        );
-        this.subscription(
-            'route.query',
-            this._route.queryParamMap.subscribe((params) => {
-                this.hide_qr.set(!!params.get('hide_qr_code'));
-            }),
-        );
+        const params = this._route.snapshot.paramMap;
+        this.system_id.set(params.get('system_id') || '');
+        this._state.system = this.system_id();
+        const query = this._route.snapshot.queryParamMap;
+        this.hide_qr.set(!!query.get('hide_qr_code'));
         this.timeout(
             'size',
             () =>
@@ -249,32 +261,6 @@ export class EventPanelComponent extends AsyncHandler implements OnInit {
             'time',
             () => this.time.set(startOfMinute(Date.now()).valueOf()),
             5 * 1000,
-        );
-        this.subscription('current', this._state.current.subscribe());
-        this.subscription(
-            'settings',
-            this._state.settings.subscribe(
-                ({ custom_qr_url, custom_qr_color }) => {
-                    if (custom_qr_url) {
-                        this.qr_code.set(
-                            generateQRCode(
-                                custom_qr_url,
-                                '#0000',
-                                custom_qr_color || '#000',
-                            ),
-                        );
-                    } else if (!this.qr_code()) {
-                        const url = `${location.origin}${location.pathname}#/checkin/${this._state.system}?user=true`;
-                        this.qr_code.set(
-                            generateQRCode(
-                                url,
-                                '#0000',
-                                custom_qr_color || '#000',
-                            ),
-                        );
-                    }
-                },
-            ),
         );
     }
 

@@ -1,11 +1,11 @@
 import {
     ChangeDetectionStrategy,
     Component,
+    effect,
     inject,
     OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { startOfMinute } from 'date-fns';
 
 import { AsyncHandler, generateQRCode } from '@placeos/common';
@@ -87,8 +87,8 @@ import { PanelStateService } from '../panel-state.service';
 export class PanelViewDetailsComponent extends AsyncHandler implements OnInit {
     private _state = inject(PanelStateService);
 
-    public readonly system = toSignal(this._state.space);
-    public readonly current = toSignal(this._state.current);
+    public readonly system = this._state.space;
+    public readonly current = this._state.current;
     public readonly qr_code = signal('');
 
     public readonly time = signal(Date.now());
@@ -117,39 +117,35 @@ export class PanelViewDetailsComponent extends AsyncHandler implements OnInit {
         return this._state.setting('hide_qr_text');
     }
 
+    constructor() {
+        super();
+        effect(() => {
+            const { custom_qr_url, custom_qr_color } = this._state.settings();
+            if (custom_qr_url) {
+                this.qr_code.set(
+                    generateQRCode(
+                        custom_qr_url.replace(
+                            '{system_id}',
+                            this._state.system,
+                        ),
+                        '#fff0',
+                        custom_qr_color || '#fff',
+                    ),
+                );
+            } else if (!this.qr_code()) {
+                const url = `${location.origin}${location.pathname}#/checkin/${this._state.system}`;
+                this.qr_code.set(
+                    generateQRCode(url, '#fff0', custom_qr_color || '#fff'),
+                );
+            }
+        });
+    }
+
     public async ngOnInit() {
         this.interval(
             'time',
             () => this.time.set(startOfMinute(Date.now()).valueOf()),
             5 * 1000,
-        );
-        this.subscription(
-            'settings',
-            this._state.settings.subscribe(
-                ({ custom_qr_url, custom_qr_color, disable_book_now_host }) => {
-                    if (custom_qr_url) {
-                        this.qr_code.set(
-                            generateQRCode(
-                                custom_qr_url.replace(
-                                    '{system_id}',
-                                    this._state.system,
-                                ),
-                                '#fff0',
-                                custom_qr_color || '#fff',
-                            ),
-                        );
-                    } else if (!this.qr_code()) {
-                        const url = `${location.origin}${location.pathname}#/checkin/${this._state.system}`;
-                        this.qr_code.set(
-                            generateQRCode(
-                                url,
-                                '#fff0',
-                                custom_qr_color || '#fff',
-                            ),
-                        );
-                    }
-                },
-            ),
         );
     }
 }
