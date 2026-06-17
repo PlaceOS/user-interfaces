@@ -441,14 +441,26 @@ export class ParkingStateService extends AsyncHandler {
     public filterEventSearch(list: Booking[], search = '') {
         const search_term = search.toLowerCase();
         if (!search_term) return list;
+        const spaces = this.spaces();
         return list.filter(
             (booking) =>
                 booking.user_name?.toLowerCase().includes(search_term) ||
                 booking.user_email?.toLowerCase().includes(search_term) ||
                 booking.booked_by_name?.toLowerCase().includes(search_term) ||
                 booking.booked_by_email?.toLowerCase().includes(search_term) ||
-                booking.asset_name?.toLowerCase().includes(search_term),
+                booking.asset_name?.toLowerCase().includes(search_term) ||
+                this.bayNumber(booking, spaces)
+                    ?.toLowerCase()
+                    .includes(search_term),
         );
+    }
+
+    /** Resolve the bay number (parking space identifier) for a booking */
+    private bayNumber(booking: Booking, spaces = this.spaces()) {
+        const asset_id = booking?.asset_id;
+        if (!asset_id || asset_id.startsWith('unallocated')) return '';
+        const space = spaces.find((_) => _.id === asset_id);
+        return space?.identifier || '';
     }
 
     public activeBookings(list: Booking[]) {
