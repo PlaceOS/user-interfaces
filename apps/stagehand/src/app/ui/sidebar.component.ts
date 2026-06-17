@@ -1,4 +1,3 @@
-import { AsyncPipe } from '@angular/common';
 import {
     ChangeDetectionStrategy,
     Component,
@@ -6,7 +5,6 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -71,8 +69,8 @@ const COMPACT_SIGNAL = signal(false);
                 </button>
             </div>
             @if (!is_compact()) {
-                @let r_list = region_list | async;
-                @let bld_list = building_list | async;
+                @let r_list = region_list();
+                @let bld_list = building_list();
                 @if (r_list.length || bld_list.length) {
                     <div class="space-y-2 p-2">
                         @if (r_list.length > 0) {
@@ -346,7 +344,6 @@ const COMPACT_SIGNAL = signal(false);
     ],
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
-        AsyncPipe,
         MatRippleModule,
         MatTooltipModule,
         IconComponent,
@@ -392,8 +389,8 @@ export class SidebarComponent {
     public readonly region = this._dash.region_id;
     public readonly building = this._dash.building_id;
 
-    public readonly region_list = toObservable(this._org.region_list);
-    public readonly building_list = toObservable(this._org.active_buildings);
+    public readonly region_list = this._org.region_list;
+    public readonly building_list = this._org.active_buildings;
 
     public readonly setRegion = (r) => {
         this._org.region = r;

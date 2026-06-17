@@ -1,5 +1,4 @@
-import { inject, Injectable, Injector, signal } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { effect, inject, Injectable, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
@@ -202,7 +201,6 @@ export class DashboardsService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
     private _push = inject(AlertNotificationService);
-    private _injector = inject(Injector);
 
     private _mqtt_broker: mqtt.MqttClient;
     private _connected = false;
@@ -247,28 +245,14 @@ export class DashboardsService extends AsyncHandler {
             if (!this._region_set_from_params) {
                 this.region_id.set(this._org.region?.id || '');
                 this.building_id.set(this._org.building?.id || '');
-                // Subscribe to catch late region restoration (e.g., from localStorage)
-                this.subscription(
-                    'org_region',
-                    toObservable(this._org.active_region, {
-                        injector: this._injector,
-                    }).subscribe((region) => {
-                        if (!this._region_set_from_params) {
-                            this.region_id.set(region?.id || '');
-                        }
-                    }),
-                );
-                this.subscription(
-                    'org_building',
-                    toObservable(this._org.active_building, {
-                        injector: this._injector,
-                    }).subscribe((building) => {
-                        if (!this._region_set_from_params) {
-                            this.building_id.set(building?.id || '');
-                        }
-                    }),
-                );
             }
+        });
+        effect(() => {
+            const region = this._org.active_region();
+            const building = this._org.active_building();
+            if (this._region_set_from_params) return;
+            this.region_id.set(region?.id || '');
+            this.building_id.set(building?.id || '');
         });
     }
 

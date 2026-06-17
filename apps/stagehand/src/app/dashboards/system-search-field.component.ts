@@ -2,6 +2,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     ElementRef,
+    effect,
     forwardRef,
     input,
     model,
@@ -16,22 +17,6 @@ import {
     FormsModule,
     NG_VALUE_ACCESSOR,
 } from '@angular/forms';
-import {
-    BehaviorSubject,
-    combineLatest,
-    from,
-    Observable,
-    of,
-    Subject,
-} from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    distinctUntilChanged,
-    map,
-    switchMap,
-} from 'rxjs/operators';
-
 import {
     PlaceDriverRole,
     PlaceModule,
@@ -62,7 +47,6 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
                     name="item-search"
                     #input
                     [(ngModel)]="search_str"
-                    (ngModelChange)="search$.next($event)"
                     [disabled]="disabled()"
                     [attr.aria-label]="
                         placeholder()
@@ -78,7 +62,7 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
                     "
                     [matAutocomplete]="auto"
                     [matAutocompleteDisabled]="display_list()"
-                    (focus)="search_str.set(''); search$.next(' ')"
+                    (focus)="search_str.set(' ')"
                     (blur)="resetSearchString()"
                 />
                 <div class="prefix" matPrefix>
@@ -97,7 +81,8 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
                             <button
                                 matRipple
                                 (click)="
-                                    search$.next(option.name); setValue(option)
+                                    search_str.set(option.name);
+                                    setValue(option)
                                 "
                                 class="hover:bg-base-200 w-full rounded-sm px-4 py-2 text-left"
                             >
@@ -134,7 +119,7 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
                 @for (option of item_list(); track option.id) {
                     <mat-option
                         [value]="option.name || option.id"
-                        (click)="search$.next(option.name); setValue(option)"
+                        (click)="search_str.set(option.name); setValue(option)"
                         class="leading-tight"
                     >
                         <ng-container
@@ -213,7 +198,8 @@ export class SystemSearchFieldComponent
     extends AsyncHandler
     implements OnInit, OnChanges, ControlValueAccessor
 {
-    private _changed = new BehaviorSubject(0);
+    private _changed = signal(0);
+    private _last_query = '';
     /** Name of the items being query'd */
     public readonly name = input<string>(undefined);
     /** Placeholder to display on the form input */
@@ -238,8 +224,8 @@ export class SystemSearchFieldComponent
     /** Whether item list is loading */
     public readonly loading = model<boolean>(false);
     /** Service used for searching items */
-    public readonly query_fn = input<(_: string) => Observable<PlaceSystem[]>>(
-        (_) => from(querySystems({ q: _ })).pipe(map((resp) => resp.data)),
+    public readonly query_fn = input<(_: string) => Promise<PlaceSystem[]>>(
+        (_) => querySystems({ q: _ }).then((resp) => resp.data),
     );
     /** Currently selected item */
     public active_item = signal(null);
@@ -247,10 +233,6 @@ export class SystemSearchFieldComponent
     public item_list = signal<PlaceSystem[]>([]);
     /** Current display value of the search input field  */
     public search_str = signal('');
-    /** List of items from an API search */
-    public search_results$: Observable<PlaceSystem[]>;
-    /** Subject holding the value of the search */
-    public readonly search$ = new Subject<string>();
     /** Form control on change handler */
     private _onChange: (_: PlaceSystem) => void;
     /** Form control on touch handler */
@@ -267,49 +249,44 @@ export class SystemSearchFieldComponent
     /** Map of item names to their IDs */
     public item_name: Record<string, string> = {};
 
+    private readonly _search_query = effect(() => {
+        const query = this.search_str();
+        this.options();
+        this._changed();
+        this.timeout('search', () => this._loadSearchResults(query), 400);
+    });
+
     public ngOnInit(): void {
-        // Listen for input changes
-        this.search_results$ = combineLatest([
-            this.search$.pipe(distinctUntilChanged()),
-            this._changed,
-        ]).pipe(
-            debounceTime(400),
-            switchMap(([query]) => {
-                this.loading.set(true);
-                const options = this.options();
-                const min_length = this.min_length();
-                return options && options.length > 0
-                    ? of(options)
-                    : !min_length || query.length >= min_length
-                      ? this.query_fn()(query)
-                      : of([]);
-            }),
-            catchError((_) => of([])),
-            map((list: PlaceSystem[]) => {
-                this.loading.set(false);
-                return list.filter((item: any) =>
-                    this.exclude()
-                        ? !this.exclude()(item, this.search_str().toLowerCase())
-                        : true,
-                );
-            }),
-        );
-        // Process API results
-        this.subscription(
-            'search_results',
-            this.search_results$.subscribe((list) => {
-                this.item_list.set(list);
-                this._updateNameMap();
-            }),
-        );
         this.timeout('init', () => {
-            this.search$.next('');
+            this.search_str.set('');
         });
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
-        if (changes.service) this.search$.next('');
-        if (changes.options) this._changed.next(Date.now());
+        if (changes.options) this._changed.set(Date.now());
+    }
+
+    private async _loadSearchResults(query: string) {
+        if (query === this._last_query && !this.options()?.length) return;
+        this._last_query = query;
+        this.loading.set(true);
+        const options = this.options();
+        const min_length = this.min_length();
+        const raw_list =
+            options && options.length > 0
+                ? options
+                : !min_length || query.length >= min_length
+                  ? await this.query_fn()(query).catch(() => [])
+                  : [];
+        if (query !== this.search_str()) return;
+        const search = this.search_str().toLowerCase();
+        const exclude = this.exclude();
+        const list = raw_list.filter((item: any) =>
+            exclude ? !exclude(item, search) : true,
+        );
+        this.loading.set(false);
+        this.item_list.set(list);
+        this._updateNameMap();
     }
 
     /**
@@ -341,6 +318,7 @@ export class SystemSearchFieldComponent
      */
     public setValue(new_value: PlaceSystem): void {
         this.active_item.set(new_value);
+        this.search_str.set(new_value?.name || '');
         if (this._onChange) {
             this._onChange(new_value);
         }

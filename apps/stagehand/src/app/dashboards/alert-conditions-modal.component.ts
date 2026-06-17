@@ -8,11 +8,10 @@ import {
     signal,
 } from '@angular/core';
 import {
-    AbstractControl,
-    FormControl,
-    FormGroup,
-    ReactiveFormsModule,
-} from '@angular/forms';
+    disabled,
+    form,
+    FormField,
+} from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -42,42 +41,42 @@ export interface AlertConditionData {
     condition?: TriggerComparison | TriggerTimeCondition;
 }
 
-export function validateJSONString(control: AbstractControl) {
-    if (!control || !control.value) {
-        return null;
-    }
+function validateJSONValue(value: any) {
+    if (!value) return undefined;
+    if (value instanceof Object) return undefined;
     try {
-        const json = JSON.parse(control.value);
+        JSON.parse(value);
     } catch (e) {
-        return { json: true };
+        return { kind: 'json' };
     }
-    return null;
+    return undefined;
 }
 
 /**
  * Validate a side of the comparison pair
  * @param control Control holding the comparison
  */
-export function validateCompare(control: AbstractControl) {
-    const form = control.parent;
-    if (
-        form &&
-        form instanceof FormGroup &&
-        form.controls.condition_type &&
-        form.controls.condition_type.value === 'compare'
-    ) {
-        if (control.value instanceof Object) {
-            const value: TriggerStatusVariable = control.value;
-            return !value.mod
-                ? { module: true }
-                : !value.status
-                  ? { status: true }
-                  : null;
-        } else {
-            return validateJSONString(control);
-        }
+export function validateCompareValue(value: any) {
+    if (value instanceof Object) {
+        const status_var: TriggerStatusVariable = value;
+        return !status_var.mod
+            ? { kind: 'module' }
+            : !status_var.status
+              ? { kind: 'status' }
+              : undefined;
     }
-    return null;
+    return validateJSONValue(value);
+}
+
+export interface AlertConditionFormValue {
+    condition_type: 'compare' | 'time';
+    left: any;
+    operator: TriggerConditionOperator;
+    right: any;
+    time_type: TriggerTimeConditionType;
+    time: number;
+    cron: string;
+    timezone: string;
 }
 
 /**
@@ -95,29 +94,22 @@ export function generateTriggerConditionForm(
         typeof (condition as TriggerComparison).right === 'object'
             ? { ...((condition as TriggerComparison).right as any) }
             : (condition as TriggerComparison).right;
-    const fields = {
-        condition_type: new FormControl(type),
-        left: new FormControl({ ...(left || {}) }, [validateCompare]),
-        operator: new FormControl(
+    return {
+        condition_type: type as 'compare' | 'time',
+        left: left || { mod: '', status: '', keys: [] },
+        operator:
             (condition as TriggerComparison).operator ||
-                TriggerConditionOperator.EQ,
-        ),
-        right: new FormControl(right || undefined, [validateCompare]),
-        time_type: new FormControl(
-            (condition as TriggerTimeCondition).type || 'at',
-        ),
-        time: new FormControl(
+            TriggerConditionOperator.EQ,
+        right: right || '',
+        time_type:
+            (condition as TriggerTimeCondition).type ||
+            TriggerTimeConditionType.AT,
+        time:
             (+(condition as TriggerAtTimeCondition).time || 0) * 1000 ||
-                Date.now(),
-        ),
-        cron: new FormControl(
-            (condition as TriggerCronTimeCondition).cron || undefined,
-        ),
-        timezone: new FormControl(
-            (condition as TriggerCronTimeCondition).timezone || '',
-        ),
-    };
-    return new FormGroup(fields);
+            Date.now(),
+        cron: (condition as TriggerCronTimeCondition).cron || '',
+        timezone: (condition as TriggerCronTimeCondition).timezone || '',
+    } satisfies AlertConditionFormValue;
 }
 
 @Component({
@@ -132,8 +124,8 @@ export function generateTriggerConditionForm(
             (confirm)="save()"
         >
             @if (form) {
-                <form alert-condition class="flex flex-col" [formGroup]="form">
-                    @if (form.controls.condition_type) {
+                <form alert-condition class="flex flex-col">
+                    @if (form.condition_type) {
                         <div class="flex flex-col">
                             <label for="type">
                                 {{
@@ -142,8 +134,7 @@ export function generateTriggerConditionForm(
                             </label>
                             <mat-form-field appearance="outline">
                                 <mat-select
-                                    name="type"
-                                    formControlName="condition_type"
+                                    [formField]="form.condition_type"
                                 >
                                     @for (type of condition_types; track type) {
                                         <mat-option [value]="type.id">
@@ -159,7 +150,7 @@ export function generateTriggerConditionForm(
                             </mat-form-field>
                         </div>
                     }
-                    @if (form.controls.condition_type.value === 'compare') {
+                    @if (model().condition_type === 'compare') {
                         <alert-condition-comparison-form
                             [form]="form"
                             [system]="system"
@@ -181,7 +172,7 @@ export function generateTriggerConditionForm(
         AlertConditionTimeFormComponent,
         MatFormFieldModule,
         MatSelectModule,
-        ReactiveFormsModule,
+        FormField,
         TranslatePipe,
     ],
 })
@@ -198,7 +189,12 @@ export class AlertConditionModalComponent
     /** Whether actions are loading */
     public readonly loading = signal(false);
     /** Form fields for trigger condition */
-    public readonly form = generateTriggerConditionForm(this._data.condition);
+    public readonly model = signal(
+        generateTriggerConditionForm(this._data.condition),
+    );
+    public readonly form = form(this.model, (p) => {
+        disabled(p.condition_type);
+    });
     /** Store for updated conditions */
     public conditions: any;
 
@@ -223,17 +219,22 @@ export class AlertConditionModalComponent
         return this._data.alert;
     }
 
-    public ngOnInit() {
-        this.form.controls.condition_type.disable();
-    }
+    public ngOnInit() {}
 
     public async save() {
         if (this.loading()) return;
         console.log('Save Conditions');
-        this.form.markAllAsTouched();
-        if (!this.form.valid) return;
+        this.form().markAsTouched();
+        if (
+            this.model().condition_type === 'compare' &&
+            (validateCompareValue(this.model().left) ||
+                validateCompareValue(this.model().right))
+        ) {
+            return;
+        }
+        if (!this.form().valid()) return;
         this.loading.set(true);
-        this.form.controls.condition_type.value === 'compare'
+        this.model().condition_type === 'compare'
             ? this.updateComparisons()
             : this.updateTimeDependents();
         console.log('Saving Conditions:', this.conditions);
@@ -245,16 +246,17 @@ export class AlertConditionModalComponent
      */
     private updateComparisons() {
         const old_values = [...this.alert.conditions.comparisons];
+        const model = this.model();
         const new_value: TriggerComparison = {
             left:
-                typeof this.form.controls.left.value === 'string'
-                    ? JSON.parse(this.form.controls.left.value)
-                    : this.form.controls.left.value,
-            operator: this.form.controls.operator.value,
+                typeof model.left === 'string'
+                    ? JSON.parse(model.left)
+                    : model.left,
+            operator: model.operator,
             right:
-                typeof this.form.controls.right.value === 'string'
-                    ? JSON.parse(this.form.controls.right.value)
-                    : this.form.controls.right.value,
+                typeof model.right === 'string'
+                    ? JSON.parse(model.right)
+                    : model.right,
         };
         if (this._data.condition) {
             const old_value = JSON.stringify(this._data.condition);
@@ -279,11 +281,12 @@ export class AlertConditionModalComponent
      */
     private updateTimeDependents() {
         const old_values = [...(this.alert.conditions.time_dependents || [])];
+        const model = this.model();
         const new_value = {
-            type: this.form.controls.time_type.value,
-            time: +(this.form.controls.time.value / 1000).toFixed(0),
-            cron: this.form.get('cron').value,
-            timezone: this.form.get('timezone')?.value,
+            type: model.time_type,
+            time: +(model.time / 1000).toFixed(0),
+            cron: model.cron,
+            timezone: model.timezone,
         };
         if (new_value.type === TriggerTimeConditionType.CRON) {
             delete new_value.time;

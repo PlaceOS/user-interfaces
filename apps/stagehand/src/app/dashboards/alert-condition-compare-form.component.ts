@@ -6,11 +6,8 @@ import {
     SimpleChanges,
     input,
 } from '@angular/core';
-import {
-    FormsModule,
-    ReactiveFormsModule,
-    UntypedFormGroup,
-} from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import {
     PlaceModule,
     PlaceSystem,
@@ -53,26 +50,23 @@ export function calculateModuleIndex(
 @Component({
     selector: 'alert-condition-comparison-form',
     template: `@if (form()) {
-            <div class="alert-condition form comparison" [formGroup]="form()">
+            <div class="alert-condition form comparison">
                 <ng-container
                     *ngTemplateOutlet="
                         status_variable_form;
                         context: { side: 'left' }
                     "
                 ></ng-container>
-                @if (
-                    form().controls.left.touched && form().controls.left.errors
-                ) {
+                @if (form().left().touched() && form().left().errors().length) {
                     <div class="error">
                         {{ 'TRIGGERS.COMPARE_VARIABLE_ERROR' | translate }}
                     </div>
                 }
-                @if (form().controls.operator) {
+                @if (form().operator) {
                     <div class="flex flex-1 flex-col">
                         <mat-form-field appearance="outline">
                             <mat-select
-                                name="operator"
-                                formControlName="operator"
+                                [formField]="form().operator"
                                 [placeholder]="
                                     'TRIGGERS.COMPARE_OP_SELECT' | translate
                                 "
@@ -89,14 +83,14 @@ export function calculateModuleIndex(
                         </mat-form-field>
                     </div>
                 }
-                @if (form().controls.operator) {
+                @if (form().operator) {
                     <div class="flex flex-1 flex-col">
                         <mat-form-field appearance="outline">
                             <mat-select
                                 name="compared-to"
                                 [(ngModel)]="rhs_type"
                                 (ngModelChange)="
-                                    form().controls.right.setValue(null)
+                                    form().right().value.set('')
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                             >
@@ -109,13 +103,12 @@ export function calculateModuleIndex(
                         </mat-form-field>
                     </div>
                 }
-                @if (rhs_type === 'constant' && form().controls.right) {
+                @if (rhs_type === 'constant' && form().right) {
                     <div class="flex flex-1 flex-col">
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
-                                name="constant"
-                                formControlName="right"
+                                [formField]="form().right"
                                 placeholder="true/false, 'string', 123.456"
                             />
                             <mat-error>{{
@@ -226,14 +219,14 @@ export function calculateModuleIndex(
         FormsModule,
         MatSelectModule,
         MatInputModule,
-        ReactiveFormsModule,
+        FormField,
     ],
 })
 export class AlertConditionComparisonFormComponent
     implements OnChanges, OnInit
 {
     /** Group of form fields used for creating the system */
-    public readonly form = input<UntypedFormGroup>(undefined);
+    public readonly form = input<any>(undefined);
     /** Systems used for templating the status variables */
     public readonly system = input<PlaceSystem>(undefined);
     /** List of modules associated with the template system */
@@ -323,11 +316,11 @@ export class AlertConditionComparisonFormComponent
 
     public updateFormForSide(side: 'left' | 'right') {
         const form = this.form();
-        if (form.controls[side]) {
+        if (form?.[side]) {
             if (!this[side + '_side'].keys) {
                 this[side + '_side'].keys = [];
             }
-            form.controls[side].setValue(this[side + '_side']);
+            form[side]().value.set(this[side + '_side']);
         }
     }
 
@@ -401,8 +394,9 @@ export class AlertConditionComparisonFormComponent
      */
     private addExistingModules() {
         const form = this.form();
-        if (form.controls.left && form.controls.left.value) {
-            const module = form.controls.left.value.mod;
+        if (form.left && form.left().value()) {
+            const left_value = form.left().value();
+            const module = left_value.mod;
             if (!this.module_list.find((mod) => mod.name === module)) {
                 this.module_list.unshift({
                     id: 'old_left_value',
@@ -411,15 +405,16 @@ export class AlertConditionComparisonFormComponent
                 });
             }
             this.loadSystemStatusVariables(module, 'left');
-            this.left_side = form.controls.left.value;
+            this.left_side = left_value;
         }
         if (
-            form.controls.right &&
-            form.controls.right.value &&
-            form.controls.right.value.mod
+            form.right &&
+            form.right().value() &&
+            form.right().value().mod
         ) {
             this.rhs_type = 'status_var';
-            const module = form.controls.right.value.mod;
+            const right_value = form.right().value();
+            const module = right_value.mod;
             if (!this.module_list.find((mod) => mod.name === module)) {
                 this.module_list.unshift({
                     id: 'old_right_value',
@@ -428,7 +423,7 @@ export class AlertConditionComparisonFormComponent
                 });
             }
             this.loadSystemStatusVariables(module, 'right');
-            this.right_side = form.controls.right_side.value;
+            this.right_side = right_value;
         }
     }
 
