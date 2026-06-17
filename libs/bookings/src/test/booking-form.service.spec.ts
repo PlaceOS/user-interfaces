@@ -587,6 +587,97 @@ describe('BookingFormService', () => {
         ).toEqual(['PlaceOS P1 Parking', 'After Hours Parking']);
     });
 
+    it('should recompute parking request start and end when stale booking fields are present', async () => {
+        const save_booking = booking_mod.saveBooking as jest.Mock;
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        save_booking.mockReset();
+        save_booking.mockImplementation((booking: Booking) =>
+            Promise.resolve(booking),
+        );
+
+        const date = new Date(2027, 2, 20, 22, 0, 0, 0).valueOf();
+        spectator.service.newForm('parking');
+        spectator.service.model.update(
+            (m) =>
+                ({
+                    ...m,
+                    booking_type: 'parking',
+                    asset_id: 'unallocated-parking',
+                    asset_name: 'Parking Request',
+                    title: 'Parking Request',
+                    date,
+                    date_end: date + 8 * 60 * 60 * 1000,
+                    duration: 8 * 60,
+                    booking_start: 2,
+                    booking_end: 1,
+                }) as any,
+        );
+
+        await spectator.service.postForm(true);
+
+        expect(save_booking).toHaveBeenCalledTimes(1);
+        expect(save_booking.mock.calls[0][0]).toMatchObject({
+            booking_start: Math.floor(date / 1000),
+            booking_end: Math.floor((date + 8 * 60 * 60 * 1000) / 1000),
+        });
+    });
+
+    it('should not post parking requests with a non-positive duration', async () => {
+        const save_booking = booking_mod.saveBooking as jest.Mock;
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        save_booking.mockReset();
+
+        spectator.service.newForm('parking');
+        spectator.service.model.update((m) => ({
+            ...m,
+            booking_type: 'parking',
+            asset_id: 'unallocated-parking',
+            asset_name: 'Parking Request',
+            title: 'Parking Request',
+            date: new Date(2027, 2, 20, 22, 0, 0, 0).valueOf(),
+            duration: 0,
+        }));
+
+        await expect(spectator.service.postForm(true)).rejects.toBe(
+            'FORM.INVALID_FIELDS',
+        );
+        expect(save_booking).not.toHaveBeenCalled();
+    });
+
+    it('should not collapse overnight parking request duration to zero against parking bookable hours', () => {
+        const get = spectator.inject(SettingsService).get as jest.Mock;
+        get.mockImplementation((key: string) => {
+            if (
+                key === 'app.parkings.bookable_hours' ||
+                key === 'app.parking.bookable_hours'
+            ) {
+                return { start: 7, end: 17 };
+            }
+            return undefined;
+        });
+
+        const date = new Date(2027, 2, 20, 22, 0, 0, 0).valueOf();
+        spectator.service.newForm('parking');
+        spectator.service.applyDurationSettings();
+        spectator.service.model.update((m) => ({
+            ...m,
+            booking_type: 'parking',
+            asset_id: 'unallocated-parking',
+            asset_name: 'Parking Request',
+            title: 'Parking Request',
+            date,
+            date_end: date + 8 * 60 * 60 * 1000,
+            duration: 8 * 60,
+        }));
+        TestBed.flushEffects();
+
+        expect(spectator.service.model().duration).toBeGreaterThan(0);
+        expect(spectator.service.model().date_end).toBeGreaterThan(
+            spectator.service.model().date,
+        );
+        expect(spectator.service.form.duration().valid()).toBe(true);
+    });
+
     it('should block self desk bookings when the user has an assigned desk', async () => {
         const get = spectator.inject(SettingsService).get as jest.Mock;
         const save_booking = booking_mod.saveBooking as jest.Mock;

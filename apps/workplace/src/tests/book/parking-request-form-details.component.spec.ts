@@ -59,6 +59,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
      */
     const attachForm = (
         values: Partial<BookingFormValue>,
+        time_sync_options: Record<string, any> = {},
     ): { form: BookingForm; model: WritableSignal<BookingFormValue> } => {
         const injector = spectator.inject(Injector);
         const { model, form, time_sync } = TestBed.runInInjectionContext(() =>
@@ -66,7 +67,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
         );
         // The default time sync uses the local timezone; reconfigure to UTC so
         // the date/duration snapping matches the production parking flow tests.
-        time_sync.updateOptions({ timezone: 'UTC' });
+        time_sync.updateOptions({ timezone: 'UTC', ...time_sync_options });
         model.update((m) => ({
             ...m,
             request_type: 'standard',
@@ -620,6 +621,43 @@ describe('ParkingRequestFormDetailsComponent', () => {
             base_day + 1021 * 60 * 1000,
         );
         expect(spectator.component.model().duration).toBe(838);
+    });
+
+    it('should not let booking bookable hours collapse an overnight parking request shift', async () => {
+        const base_day = new Date('2026-04-08T00:00:00.000Z').valueOf();
+        attachForm(
+            {
+                date: base_day + 480 * 60 * 1000,
+                date_end: base_day + 720 * 60 * 1000,
+                duration: 240,
+                all_day: false,
+            },
+            {
+                bookable_hours: { start: 7, end: 17 },
+            },
+        );
+        spectator.detectChanges();
+        spectator.component.shift_options_setting.set([
+            {
+                id: 'overnight',
+                name: 'Overnight',
+                start_time: 1320,
+                end_time: 360,
+            },
+        ]);
+
+        spectator.component.setShiftType('overnight');
+        await new Promise((resolve) => setTimeout(resolve));
+        await flush();
+
+        expect(spectator.component.model().date).toBe(
+            base_day + 1320 * 60 * 1000,
+        );
+        expect(spectator.component.model().duration).toBe(480);
+        expect(spectator.component.model().date_end).toBe(
+            base_day + (1320 + 480) * 60 * 1000,
+        );
+        expect(spectator.component.form().duration().valid()).toBe(true);
     });
 
     it('should apply custom shift times that cross midnight', () => {

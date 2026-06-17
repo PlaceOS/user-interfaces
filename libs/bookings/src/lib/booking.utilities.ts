@@ -364,6 +364,7 @@ export function generateBookingForm(
             });
             validate(p.duration, ({ value, valueOf }) => {
                 const date = valueOf(p.date);
+                if (value() <= 0) return { kind: 'duration' };
                 return date && isAfter(Date.now(), addMinutes(date, value()))
                     ? { kind: 'duration' }
                     : undefined;
@@ -418,6 +419,8 @@ export function generateBookingForm(
     });
 
     const time_sync = setupFormTimeSync(model, {}, injector);
+    (booking_form as BookingForm)._time_sync = time_sync;
+    (model as any)._time_sync = time_sync;
     return { model, form: booking_form, time_sync };
 }
 
