@@ -8,13 +8,8 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import {
-    FormControl,
-    FormGroup,
-    FormsModule,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { form, FormField, required } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -63,14 +58,14 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                 <a
                     icon
                     matRipple
-                    [routerLink]="['/surveys', 'list', form.value.building_id]"
+                    [routerLink]="['/surveys', 'list', model().building_id]"
                 >
                     <icon>arrow_back</icon>
                 </a>
                 <div class="font flex flex-1 flex-col text-2xl">
                     <h2>
                         {{
-                            (form.value.id
+                            (model().id
                                 ? 'APP.CONCIERGE.SURVEY_EDIT'
                                 : 'APP.CONCIERGE.SURVEY_NEW'
                             ) | translate
@@ -81,14 +76,14 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                     {{ 'COMMON.SAVE' | translate }}
                 </button>
             </div>
-            <div settings class="mb-2 flex space-x-2" [formGroup]="form">
+            <div settings class="mb-2 flex space-x-2">
                 <mat-form-field
                     appearance="outline"
                     class="no-subscript flex-1"
                 >
                     <mat-select
                         [placeholder]="'COMMON.BUILDING_SELECT' | translate"
-                        formControlName="building_id"
+                        [formField]="form.building_id"
                     >
                         @for (b of buildings(); track b) {
                             <mat-option [value]="b.id">{{
@@ -103,9 +98,9 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                 >
                     <mat-select
                         [placeholder]="'COMMON.LEVEL_ALL' | translate"
-                        formControlName="zone_id"
+                        [formField]="form.zone_id"
                     >
-                        <mat-option [value]="form.value.building_id">
+                        <mat-option [value]="model().building_id">
                             {{ 'COMMON.LEVEL_ALL' | translate }}
                         </mat-option>
                         @for (b of levels(); track b) {
@@ -121,7 +116,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                 >
                     <mat-select
                         [placeholder]="'COMMON.NONE' | translate"
-                        formControlName="trigger"
+                        [formField]="form.trigger"
                     >
                         @for (op of trigger_types; track op) {
                             <mat-option [value]="op.id">
@@ -131,16 +126,15 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                     </mat-select>
                 </mat-form-field>
             </div>
-            <div details class="mb-2 flex space-x-2" [formGroup]="form">
+            <div details class="mb-2 flex space-x-2">
                 <mat-form-field
                     appearance="outline"
                     class="no-subscript flex-1"
                 >
                     <input
                         matInput
-                        required
                         [placeholder]="'FORM.TITLE' | translate"
-                        formControlName="title"
+                        [formField]="form.title"
                     />
                 </mat-form-field>
                 <mat-form-field
@@ -150,7 +144,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                     <input
                         matInput
                         [placeholder]="'COMMON.DESCRIPTION' | translate"
-                        formControlName="description"
+                        [formField]="form.description"
                     />
                 </mat-form-field>
             </div>
@@ -186,7 +180,6 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                 <div
                     pages
                     class="sticky top-0 h-full w-1/2 flex-1 space-y-2 overflow-auto"
-                    [formGroup]="active_page_form()"
                 >
                     <div class="flex items-center space-x-2">
                         <div
@@ -197,7 +190,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                 (selectedTabChange)="onPageChange($event)"
                             >
                                 @for (
-                                    page of form.value.pages;
+                                    page of model().pages;
                                     track idx;
                                     let idx = $index
                                 ) {
@@ -227,11 +220,15 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                         >
                             <input
                                 matInput
-                                formControlName="title"
+                                [ngModel]="active_page_value().title"
+                                (ngModelChange)="
+                                    updateActivePage({ title: $event })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
                                 placeholder="Page Title"
                             />
                         </mat-form-field>
-                        @if (form.value.pages.length > 1) {
+                        @if (model().pages.length > 1) {
                             <button
                                 icon
                                 matRipple
@@ -250,14 +247,14 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                         (cdkDropListDropped)="drop($event)"
                         class="space-y-2"
                     >
-                        @let page = active_page_form()?.value;
+                        @let page = active_page_value();
                         @if (page?.question_order.length > 0) {
                             @for (
                                 q_id of page.question_order;
                                 track q_id;
                                 let idx = $index
                             ) {
-                                @let quest = q_id | question;
+                                @let quest = $any(q_id) | question;
                                 @if (quest) {
                                     <div cdkDrag class="relative -ml-px flex">
                                         <div
@@ -487,7 +484,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
         } @else {
             <div preview class="h-px w-full flex-1">
                 <survey-outlet
-                    [survey]="$any(form.value)"
+                    [survey]="$any(model())"
                     [preview]="true"
                 ></survey-outlet>
             </div>
@@ -518,7 +515,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
         CommonModule,
         RouterModule,
         FormsModule,
-        ReactiveFormsModule,
+        FormField,
         MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
@@ -542,9 +539,6 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
 
     public readonly view = signal<'builder' | 'preview'>('builder');
     public readonly active_page = signal(0);
-    public readonly active_page_form = computed(
-        () => this.page_forms[this.active_page()],
-    );
     public readonly loading = signal(false);
     public readonly selected_type = signal('');
     public readonly search_text = signal('');
@@ -555,40 +549,45 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
     public readonly trigger_types = TriggerOptions;
     public readonly question_types = QuestionTypeMap;
     public readonly question_options = QuestionTypeOptions;
-    public readonly form = new FormGroup({
-        id: new FormControl<string | number>(''),
-        title: new FormControl('', [Validators.required]),
-        description: new FormControl(''),
-        trigger: new FormControl(''),
-        building_id: new FormControl(''),
-        zone_id: new FormControl(''),
-        pages: new FormControl<SurveyPage[]>([
+    public readonly model = signal({
+        id: '' as string | number,
+        title: '',
+        description: '',
+        trigger: '',
+        building_id: '',
+        zone_id: '',
+        pages: [
             { title: '', description: '', question_order: [] },
-        ]),
+        ] as SurveyPage[],
+    });
+    public readonly form = form(this.model, (p) => {
+        required(p.title);
     });
 
-    public readonly page_forms: FormGroup[] = [
-        new FormGroup({
-            title: new FormControl('', []),
-            description: new FormControl(''),
-            question_order: new FormControl([]),
-        }),
-    ];
+    /** The page currently being edited. */
+    public readonly active_page_value = computed(
+        () =>
+            this.model().pages[this.active_page()] || {
+                title: '',
+                description: '',
+                question_order: [],
+            },
+    );
 
     /** Sync the form with the active survey whenever it loads */
     private readonly _sync_survey = effect(() => {
-        const survey = this._service.survey();
+        const survey = this._service.survey() as any;
         if (!survey) return;
-        this.form.patchValue(survey);
-        while (survey.pages.length > this.page_forms.length) {
-            this.page_forms.push(
-                new FormGroup({
-                    title: new FormControl('', []),
-                    description: new FormControl(''),
-                    question_order: new FormControl([]),
-                }),
-            );
-        }
+        this.model.update((m) => ({
+            ...m,
+            id: survey.id ?? m.id,
+            title: survey.title ?? m.title,
+            description: survey.description ?? m.description,
+            trigger: survey.trigger ?? m.trigger,
+            building_id: survey.building_id ?? m.building_id,
+            zone_id: survey.zone_id ?? m.zone_id,
+            pages: survey.pages?.length ? survey.pages : m.pages,
+        }));
     });
 
     public ngOnInit(): void {
@@ -600,24 +599,17 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
                 }
             }),
         );
-        this.subscription(
-            'form_pages',
-            this.form.valueChanges.subscribe(({ pages }) => {
-                while (pages.length > this.page_forms.length) {
-                    this.page_forms.push(
-                        new FormGroup({
-                            title: new FormControl('', []),
-                            description: new FormControl(''),
-                            question_order: new FormControl([]),
-                        }),
-                    );
-                }
-                for (let i = 0; i < pages.length; i++) {
-                    const page = pages[i];
-                    this.page_forms[i].patchValue(page);
-                }
-            }),
-        );
+    }
+
+    /** Apply a patch to the page currently being edited. */
+    public updateActivePage(patch: Partial<SurveyPage>) {
+        const idx = this.active_page();
+        this.model.update((m) => ({
+            ...m,
+            pages: m.pages.map((page, i) =>
+                i === idx ? { ...page, ...patch } : page,
+            ),
+        }));
     }
 
     public onPageChange(event: MatTabChangeEvent) {
@@ -626,20 +618,13 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
     }
 
     public addPage() {
-        const pages = this.form.value.pages;
-        this.page_forms.push(
-            new FormGroup({
-                title: new FormControl('', []),
-                description: new FormControl(''),
-                question_order: new FormControl([]),
-            }),
-        );
-        this.form.patchValue({
+        this.model.update((m) => ({
+            ...m,
             pages: [
-                ...pages,
+                ...m.pages,
                 { title: '', description: '', question_order: [] },
             ],
-        });
+        }));
     }
 
     public setBuilding(bld: Building) {
@@ -659,45 +644,30 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
     }
 
     public removePage() {
-        const pages = this.form.value.pages;
-        const page_form = this.page_forms[this.active_page()];
-        pages.splice(this.active_page(), 1);
-        if (this.active_page() >= pages.length) {
-            page_form.patchValue({
-                title: '',
-                description: '',
-                question_order: [],
-            });
-            this.active_page.set(pages.length - 1);
+        const remove_index = this.active_page();
+        const pages = this.model().pages.filter((_, i) => i !== remove_index);
+        if (remove_index >= pages.length) {
+            this.active_page.set(Math.max(0, pages.length - 1));
         }
-        this.form.patchValue({ pages });
+        this.model.update((m) => ({ ...m, pages }));
     }
 
     public removePageQuestion(idx: number) {
-        const page_form = this.page_forms[this.active_page()];
-        const order = page_form.get('question_order').value;
+        const order = [...this.active_page_value().question_order];
         order.splice(idx, 1);
-        page_form.patchValue({ question_order: order });
+        this.updateActivePage({ question_order: order });
     }
 
     public async drop(event: CdkDragDrop<SurveyQuestion[]>) {
+        const order = [...this.active_page_value().question_order];
         if (event.previousContainer === event.container) {
-            const order =
-                this.page_forms[this.active_page()].get('question_order').value;
             moveItemInArray(order, event.previousIndex, event.currentIndex);
-            this.page_forms[this.active_page()].patchValue({
-                question_order: order,
-            });
         } else {
             const questions = this.questions();
             const q_id = questions[event.previousIndex].id;
-            const order =
-                this.page_forms[this.active_page()].get('question_order').value;
             order.splice(event.currentIndex, 0, q_id);
-            this.page_forms[this.active_page()].patchValue({
-                question_order: order,
-            });
         }
+        this.updateActivePage({ question_order: order });
     }
 
     public onSearchChange(search_text: string) {
@@ -717,18 +687,11 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
     }
 
     public async saveSurvey() {
-        this.form.markAllAsTouched();
-        if (!this.form.valid) return;
+        this.form().markAsTouched();
+        if (!this.form().valid()) return;
         this.loading.set(true);
-        const page_count = this.form.value.pages?.length || 0;
-        const pages = [];
-        for (let i = 0; i < page_count; i++) {
-            const page_form = this.page_forms[i];
-            pages.push(page_form.value);
-        }
-        this.form.patchValue({ pages });
-        const survey = this.form.value;
-        const call = this.form.value.id
+        const survey = this.model();
+        const call = survey.id
             ? addSurvey(survey as any)
             : updateSurvey(`${survey.id}`, survey as any);
         await call.catch((error) => {

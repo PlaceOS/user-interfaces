@@ -89,56 +89,56 @@ describe('BookingPanelSettingsModalComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should have a form with booking controls', () => {
-        const form = spectator.component.form;
-        expect(form.get('disable_book_now')).toBeTruthy();
-        expect(form.get('disable_book_now_host')).toBeTruthy();
-        expect(form.get('min_duration')).toBeTruthy();
-        expect(form.get('max_duration')).toBeTruthy();
+    it('should have a model with booking values', () => {
+        const model = spectator.component.model();
+        expect('disable_book_now' in model).toBe(true);
+        expect('disable_book_now_host' in model).toBe(true);
+        expect('min_duration' in model).toBe(true);
+        expect('max_duration' in model).toBe(true);
     });
 
-    it('should have check-in timing controls', () => {
-        const form = spectator.component.form;
-        expect(form.get('pending_before')).toBeTruthy();
-        expect(form.get('pending_period')).toBeTruthy();
+    it('should have check-in timing values', () => {
+        const model = spectator.component.model();
+        expect('pending_before' in model).toBe(true);
+        expect('pending_period' in model).toBe(true);
     });
 
-    it('should have meeting display controls', () => {
-        const form = spectator.component.form;
-        expect(form.get('disable_end_meeting')).toBeTruthy();
-        expect(form.get('enable_end_meeting_button')).toBeTruthy();
-        expect(form.get('hide_meeting_details')).toBeTruthy();
-        expect(form.get('hide_meeting_title')).toBeTruthy();
+    it('should have meeting display values', () => {
+        const model = spectator.component.model();
+        expect('disable_end_meeting' in model).toBe(true);
+        expect('enable_end_meeting_button' in model).toBe(true);
+        expect('hide_meeting_details' in model).toBe(true);
+        expect('hide_meeting_title' in model).toBe(true);
     });
 
-    it('should have QR code controls', () => {
-        const form = spectator.component.form;
-        expect(form.get('show_qr_code')).toBeTruthy();
-        expect(form.get('hide_qr_text')).toBeTruthy();
-        expect(form.get('custom_qr_url')).toBeTruthy();
-        expect(form.get('custom_qr_color')).toBeTruthy();
+    it('should have QR code values', () => {
+        const model = spectator.component.model();
+        expect('show_qr_code' in model).toBe(true);
+        expect('hide_qr_text' in model).toBe(true);
+        expect('custom_qr_url' in model).toBe(true);
+        expect('custom_qr_color' in model).toBe(true);
     });
 
-    it('should have URL controls', () => {
-        const form = spectator.component.form;
-        expect(form.get('control_ui')).toBeTruthy();
-        expect(form.get('catering_ui')).toBeTruthy();
-        expect(form.get('room_image')).toBeTruthy();
-        expect(form.get('offline_image')).toBeTruthy();
+    it('should have URL values', () => {
+        const model = spectator.component.model();
+        expect('control_ui' in model).toBe(true);
+        expect('catering_ui' in model).toBe(true);
+        expect('room_image' in model).toBe(true);
+        expect('offline_image' in model).toBe(true);
     });
 
     it('should expose the zone from dialog data', () => {
         expect(spectator.component.zone).toEqual(mock_zone);
     });
 
-    it('should have correct default form values', () => {
-        const form = spectator.component.form;
-        expect(form.value.min_duration).toBe(15);
-        expect(form.value.max_duration).toBe(60);
-        expect(form.value.pending_before).toBe(5);
-        expect(form.value.pending_period).toBe(15);
-        expect(form.value.show_qr_code).toBe(true);
-        expect(form.value.disable_book_now_host).toBe(true);
+    it('should have correct default model values', () => {
+        const model = spectator.component.model();
+        expect(model.min_duration).toBe(15);
+        expect(model.max_duration).toBe(60);
+        expect(model.pending_before).toBe(5);
+        expect(model.pending_period).toBe(15);
+        expect(model.show_qr_code).toBe(true);
+        expect(model.disable_book_now_host).toBe(true);
     });
 
     it('should load settings on init', async () => {

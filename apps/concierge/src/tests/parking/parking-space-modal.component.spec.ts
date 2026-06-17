@@ -25,13 +25,13 @@ describe('ParkingSpaceModalComponent', () => {
     beforeEach(() => (spectator = createComponent()));
 
     it('should not reuse the source features array', () => {
-        spectator.component.form.controls.features.setValue([
-            ...(spectator.component.form.controls.features.value || []),
-            'Covered',
-        ]);
+        spectator.component.model.update((m) => ({
+            ...m,
+            features: [...(m.features || []), 'Covered'],
+        }));
 
         expect(data.features).toEqual(['EV Charger']);
-        expect(spectator.component.form.controls.features.value).toEqual([
+        expect(spectator.component.model().features).toEqual([
             'EV Charger',
             'Covered',
         ]);

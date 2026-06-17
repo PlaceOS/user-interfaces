@@ -5,19 +5,14 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import {
-    FormControl,
-    FormGroup,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { form, FormField, required } from '@angular/forms/signals';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import {
     AsyncHandler,
-    getInvalidFields,
+    getInvalidSignalFields,
     notifyError,
     OrganisationService,
     Region,
@@ -35,7 +30,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
     template: `
         <fullscreen-modal-shell
             [heading]="
-                (form.value.id
+                (model().id
                     ? 'APP.CONCIERGE.REGIONS_EDIT'
                     : 'APP.CONCIERGE.REGIONS_NEW'
                 ) | translate
@@ -45,22 +40,19 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
             "
             (confirm)="save()"
         >
-            <form [formGroup]="form">
-                @if (form.controls.display_name) {
-                    <div class="flex flex-col">
-                        <label for="display-name">
-                            {{ 'FORM.DISPLAY_NAME' | translate }}
-                        </label>
-                        <mat-form-field appearance="outline">
-                            <input
-                                matInput
-                                name="display-name"
-                                [placeholder]="'FORM.DISPLAY_NAME' | translate"
-                                formControlName="display_name"
-                            />
-                        </mat-form-field>
-                    </div>
-                }
+            <form>
+                <div class="flex flex-col">
+                    <label for="display-name">
+                        {{ 'FORM.DISPLAY_NAME' | translate }}
+                    </label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            [placeholder]="'FORM.DISPLAY_NAME' | translate"
+                            [formField]="form.display_name"
+                        />
+                    </mat-form-field>
+                </div>
                 <div class="flex flex-col">
                     <label for="display-name">
                         {{ 'COMMON.TIMEZONE' | translate }}
@@ -69,7 +61,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                         <icon matPrefix class="text-2xl">search</icon>
                         <input
                             matInput
-                            formControlName="timezone"
+                            [formField]="form.timezone"
                             [placeholder]="'COMMON.TIMEZONE' | translate"
                             [matAutocomplete]="auto"
                         />
@@ -97,7 +89,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
         MatInputModule,
         TranslatePipe,
         IconComponent,
-        ReactiveFormsModule,
+        FormField,
     ],
 })
 export class RegionModalComponent extends AsyncHandler {
@@ -109,43 +101,33 @@ export class RegionModalComponent extends AsyncHandler {
     public readonly loading = signal(false);
     public readonly timezones = TIMEZONES_IANA;
 
-    public readonly form = new FormGroup({
-        id: new FormControl(this._data?.id || ''),
-        display_name: new FormControl(this._data?.display_name || '', [
-            Validators.required,
-        ]),
-        timezone: new FormControl(
-            Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone || '',
-        ),
-        parent_id: new FormControl(this._org.organisation.id),
+    public readonly model = signal({
+        id: this._data?.id || '',
+        display_name: this._data?.display_name || '',
+        timezone: Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone || '',
+        parent_id: this._org.organisation.id,
     });
-    private readonly _timezone = signal(
-        this.form.controls.timezone.value || '',
-    );
+
+    public readonly form = form(this.model, (p) => {
+        required(p.display_name);
+    });
+
     public readonly filtered_timezones = computed(() => {
-        const timezone = (this._timezone() || '').toLowerCase();
+        const timezone = (this.model().timezone || '').toLowerCase();
         return this.timezones.filter((_) => _.toLowerCase().includes(timezone));
     });
 
-    constructor() {
-        super();
-        this.subscription(
-            'timezone',
-            this.form.controls.timezone.valueChanges.subscribe((value) =>
-                this._timezone.set(value || ''),
-            ),
-        );
-    }
-
     public async save() {
-        if (!this.form.valid) {
+        this.form().markAsTouched();
+        if (!this.form().valid()) {
             return notifyError(
-                `Some form fields are invalid. [${getInvalidFields(
+                `Some form fields are invalid. [${getInvalidSignalFields(
                     this.form,
+                    this.model,
                 ).join(', ')}]`,
             );
         }
-        const data: any = this.form.getRawValue();
+        const data: any = this.model();
         data.tags = ['region'];
         this.loading.set(true);
         const resp = await (

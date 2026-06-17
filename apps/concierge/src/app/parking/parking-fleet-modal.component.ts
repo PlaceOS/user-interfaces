@@ -7,12 +7,7 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import {
-    FormControl,
-    FormGroup,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { form, FormField, required } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -48,18 +43,14 @@ import { ParkingFleetVehicle } from './parking-state.service';
                 }
             </header>
             @if (!loading()) {
-                <main
-                    class="flex max-h-[65vh] flex-col overflow-auto p-4"
-                    [formGroup]="form"
-                >
+                <main class="flex max-h-[65vh] flex-col overflow-auto p-4">
                     <label for="name">{{
                         'APP.CONCIERGE.PARKING_FLEET' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
-                            name="name"
-                            formControlName="name"
+                            [formField]="form.name"
                             [placeholder]="
                                 'APP.CONCIERGE.PARKING_FLEET' | translate
                             "
@@ -76,8 +67,7 @@ import { ParkingFleetVehicle } from './parking-state.service';
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
-                                    name="plate-number"
-                                    formControlName="plate_number"
+                                    [formField]="form.plate_number"
                                     [placeholder]="
                                         'EXPLORE.PARKING_PLATE_NUMBER'
                                             | translate
@@ -96,8 +86,7 @@ import { ParkingFleetVehicle } from './parking-state.service';
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
-                                    name="car-model"
-                                    formControlName="car_model"
+                                    [formField]="form.car_model"
                                     [placeholder]="
                                         'APP.CONCIERGE.PARKING_FLEET_MODEL'
                                             | translate
@@ -112,8 +101,7 @@ import { ParkingFleetVehicle } from './parking-state.service';
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
-                            name="car-colour"
-                            formControlName="car_colour"
+                            [formField]="form.car_colour"
                             [placeholder]="
                                 'APP.CONCIERGE.PARKING_CAR_COLOUR' | translate
                             "
@@ -123,8 +111,7 @@ import { ParkingFleetVehicle } from './parking-state.service';
                     <mat-form-field appearance="outline">
                         <textarea
                             matInput
-                            name="notes"
-                            formControlName="notes"
+                            [formField]="form.notes"
                             [placeholder]="'FORM.NOTES' | translate"
                         ></textarea>
                     </mat-form-field>
@@ -157,7 +144,7 @@ import { ParkingFleetVehicle } from './parking-state.service';
         MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
-        ReactiveFormsModule,
+        FormField,
         MatDialogModule,
     ],
 })
@@ -171,24 +158,40 @@ export class ParkingFleetModalComponent extends AsyncHandler {
 
     public readonly id = computed(() => this._data?.id || '');
 
-    public readonly form = new FormGroup({
-        id: new FormControl(''),
-        name: new FormControl('', [Validators.required]),
-        plate_number: new FormControl('', [Validators.required]),
-        car_model: new FormControl(''),
-        car_colour: new FormControl(''),
-        notes: new FormControl(''),
+    public readonly model = signal({
+        id: '',
+        name: '',
+        plate_number: '',
+        car_model: '',
+        car_colour: '',
+        notes: '',
+    });
+    public readonly form = form(this.model, (p) => {
+        required(p.name);
+        required(p.plate_number);
     });
 
     constructor() {
         super();
-        if (this._data) this.form.patchValue(this._data);
+        const data = this._data as any;
+        if (data) {
+            this.model.update((m) => ({
+                ...m,
+                id: data.id ?? m.id,
+                name: data.name ?? m.name,
+                plate_number: data.plate_number ?? m.plate_number,
+                car_model: data.car_model ?? m.car_model,
+                car_colour: data.car_colour ?? m.car_colour,
+                notes: data.notes ?? m.notes,
+            }));
+        }
     }
 
     public postForm() {
-        if (!this.form.valid) return;
+        this.form().markAsTouched();
+        if (!this.form().valid()) return;
         this.loading.set(true);
         this._dialog_ref.disableClose = true;
-        this.event.emit({ reason: 'done', metadata: this.form.getRawValue() });
+        this.event.emit({ reason: 'done', metadata: this.model() });
     }
 }

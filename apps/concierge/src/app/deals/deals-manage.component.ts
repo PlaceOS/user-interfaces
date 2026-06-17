@@ -7,13 +7,8 @@ import {
     signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import {
-    FormControl,
-    FormGroup,
-    FormsModule,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { form, FormField, required } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -22,7 +17,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
     AsyncHandler,
-    getInvalidFields,
+    getInvalidSignalFields,
     i18n,
     notifyError,
     notifySuccess,
@@ -46,7 +41,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                 >
                     <h2 class="text-xl font-medium">
                         {{
-                            (form.value.id
+                            (model().id
                                 ? 'APP.CONCIERGE.DEALS_EDIT'
                                 : 'APP.CONCIERGE.DEALS_NEW'
                             ) | translate
@@ -60,7 +55,6 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                 </header>
                 <form
                     class="mx-auto my-2 flex w-160 max-w-full flex-col px-4 pb-16"
-                    [formGroup]="form"
                 >
                     <label for="name"
                         >{{ 'FORM.NAME' | translate }}
@@ -69,10 +63,8 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
-                            name="name"
-                            formControlName="name"
+                            [formField]="form.name"
                             placeholder="Name of the deal or offer"
-                            required
                         />
                         <mat-error>Name is required</mat-error>
                     </mat-form-field>
@@ -83,10 +75,8 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
-                            name="type"
-                            formControlName="type"
+                            [formField]="form.type"
                             placeholder="Type of the deal or offer"
-                            required
                         />
                         <mat-error>Type is required</mat-error>
                     </mat-form-field>
@@ -96,10 +86,8 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
-                            name="details"
-                            formControlName="details"
+                            [formField]="form.details"
                             placeholder="Summary of the deal or offer"
-                            required
                         />
                     </mat-form-field>
                     <label for="description">{{
@@ -108,8 +96,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                     <mat-form-field appearance="outline" class="w-full">
                         <textarea
                             matInput
-                            name="description"
-                            formControlName="description"
+                            [formField]="form.description"
                             placeholder="Description of the deal or offer"
                         ></textarea>
                     </mat-form-field>
@@ -117,8 +104,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                     <mat-form-field appearance="outline" class="w-full">
                         <textarea
                             matInput
-                            name="terms"
-                            formControlName="terms"
+                            [formField]="form.terms"
                             placeholder="Terms and conditions of the deal or offer"
                         ></textarea>
                     </mat-form-field>
@@ -126,8 +112,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
-                            name="code"
-                            formControlName="code"
+                            [formField]="form.code"
                             placeholder="Deal/Offer Code"
                         />
                     </mat-form-field>
@@ -139,14 +124,15 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                         >
                             <input
                                 matInput
-                                name="image"
-                                formControlName="image"
+                                [formField]="form.image"
                                 placeholder="Image URL"
                             />
                         </mat-form-field>
                         <upload-button
                             ngModel
-                            (ngModelChange)="form.patchValue({ image: $event })"
+                            (ngModelChange)="
+                                model.update((m) => ({ ...m, image: $event }))
+                            "
                             [ngModelOptions]="{ standalone: true }"
                             [matTooltip]="'Upload Image'"
                         />
@@ -155,10 +141,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                     <label for="expires_at">{{
                         'FORM.EXPIRES_AT' | translate
                     }}</label>
-                    <a-date-field
-                        name="expires_at"
-                        formControlName="expires_at"
-                    />
+                    <a-date-field [formField]="form.expires_at" />
                 </form>
                 @if (!loading()) {
                     <footer
@@ -182,7 +165,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
     styles: [``],
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
-        ReactiveFormsModule,
+        FormField,
         FormsModule,
         TranslatePipe,
         MatProgressSpinnerModule,
@@ -207,16 +190,20 @@ export class DealsManageComponent extends AsyncHandler implements OnInit {
 
     private readonly _ready = signal(false);
     public readonly loading = signal('');
-    public readonly form = new FormGroup({
-        id: new FormControl(''),
-        name: new FormControl('', [Validators.required]),
-        type: new FormControl('', [Validators.required]),
-        details: new FormControl(''),
-        description: new FormControl(''),
-        terms: new FormControl(''),
-        code: new FormControl(''),
-        image: new FormControl(''),
-        expires_at: new FormControl(addMonths(Date.now(), 1).valueOf()),
+    public readonly model = signal({
+        id: '',
+        name: '',
+        type: '',
+        details: '',
+        description: '',
+        terms: '',
+        code: '',
+        image: '',
+        expires_at: addMonths(Date.now(), 1).valueOf(),
+    });
+    public readonly form = form(this.model, (p) => {
+        required(p.name);
+        required(p.type);
     });
 
     constructor() {
@@ -234,16 +221,16 @@ export class DealsManageComponent extends AsyncHandler implements OnInit {
     }
 
     public async save() {
-        this.form.markAllAsTouched();
-        if (this.form.invalid) {
+        this.form().markAsTouched();
+        if (!this.form().valid()) {
             return notifyError(
                 i18n('FORM.INVALID_FIELDS', {
-                    field_list: getInvalidFields(this.form),
+                    field_list: getInvalidSignalFields(this.form, this.model),
                 }),
             );
         }
         this.loading.set('APP.CONCIERGE.DEALS_SAVING');
-        await this._service.saveDeal(this.form.value).catch((e) => {
+        await this._service.saveDeal(this.model()).catch((e) => {
             this.loading.set('');
             notifyError(i18n('APP.CONCIERGE.DEALS_SAVE_ERROR', { error: e }));
             throw e;
@@ -256,9 +243,21 @@ export class DealsManageComponent extends AsyncHandler implements OnInit {
     private async _loadDeal(id: string) {
         this.loading.set('APP.CONCIERGE.DEALS_LOAD_EXISTING');
         const deal_list = await this._service.getDeals();
-        const deal = deal_list.find((deal) => deal.id === id);
-        if (deal) this.form.patchValue(deal);
-        else {
+        const deal = deal_list.find((deal) => deal.id === id) as any;
+        if (deal) {
+            this.model.update((m) => ({
+                ...m,
+                id: deal.id ?? m.id,
+                name: deal.name ?? m.name,
+                type: deal.type ?? m.type,
+                details: deal.details ?? m.details,
+                description: deal.description ?? m.description,
+                terms: deal.terms ?? m.terms,
+                code: deal.code ?? m.code,
+                image: deal.image ?? m.image,
+                expires_at: deal.expires_at ?? m.expires_at,
+            }));
+        } else {
             notifyError(i18n('APP.CONCIERGE.DEALS_NOT_FOUND', { id }));
             this._router.navigate(['/deals-n-offers']);
         }

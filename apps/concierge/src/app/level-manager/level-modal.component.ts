@@ -4,19 +4,14 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import {
-    FormControl,
-    FormGroup,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { form, FormField, required } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import {
     BuildingLevel,
-    getInvalidFields,
+    getInvalidSignalFields,
     i18n,
     notifyError,
     OrganisationService,
@@ -33,7 +28,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
     template: `
         <fullscreen-modal-shell
             [heading]="
-                (form.value.id
+                (model().id
                     ? 'APP.CONCIERGE.LEVELS_EDIT'
                     : 'APP.CONCIERGE.LEVELS_NEW'
                 ) | translate
@@ -43,90 +38,76 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
             "
             (confirm)="save()"
         >
-            <form system [formGroup]="form">
-                @if (form.controls.parent_id) {
-                    <div class="flex flex-col">
-                        <label
-                            for="zone"
-                            [class.error]="
-                                form.controls.parent_id.invalid &&
-                                form.controls.parent_id.touched
+            <form system>
+                <div class="flex flex-col">
+                    <label
+                        for="zone"
+                        [class.error]="
+                            form.parent_id().invalid() &&
+                            form.parent_id().touched()
+                        "
+                    >
+                        {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
+                    </label>
+                    <mat-form-field appearance="outline">
+                        <mat-select
+                            [formField]="form.parent_id"
+                            [placeholder]="
+                                'COMMON.BUILDING_SELECT' | translate
                             "
                         >
-                            {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
-                        </label>
-                        <mat-form-field appearance="outline">
-                            <mat-select
-                                formControlName="parent_id"
-                                [placeholder]="
-                                    'COMMON.BUILDING_SELECT' | translate
-                                "
-                            >
-                                @for (
-                                    building of building_list();
-                                    track building.id
-                                ) {
-                                    <mat-option [value]="building.id">
-                                        {{
-                                            building.display_name ||
-                                                building.name
-                                        }}
-                                    </mat-option>
-                                }
-                            </mat-select>
-                            <mat-error>{{
-                                'APP.CONCIERGE.LEVELS_BUILDING_REQUIRED'
+                            @for (
+                                building of building_list();
+                                track building.id
+                            ) {
+                                <mat-option [value]="building.id">
+                                    {{
+                                        building.display_name || building.name
+                                    }}
+                                </mat-option>
+                            }
+                        </mat-select>
+                        <mat-error>{{
+                            'APP.CONCIERGE.LEVELS_BUILDING_REQUIRED' | translate
+                        }}</mat-error>
+                    </mat-form-field>
+                </div>
+                <div class="flex flex-col">
+                    <label for="display-name">{{
+                        'FORM.DISPLAY_NAME' | translate
+                    }}</label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            [placeholder]="'FORM.DISPLAY_NAME' | translate"
+                            [formField]="form.display_name"
+                        />
+                    </mat-form-field>
+                </div>
+                <div class="flex space-x-4 pb-4">
+                    <settings-toggle
+                        class="flex-1"
+                        [label]="'APP.CONCIERGE.LEVELS_HAS_PARKING' | translate"
+                        [formField]="form.parking"
+                    >
+                    </settings-toggle>
+                    <div class="flex-1"></div>
+                </div>
+                <div class="flex flex-col">
+                    <label for="map-id">{{
+                        'APP.CONCIERGE.LEVELS_MAP_URL' | translate
+                    }}</label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            [placeholder]="
+                                'APP.CONCIERGE.LEVELS_MAP_URL_PLACEHOLDER'
                                     | translate
-                            }}</mat-error>
-                        </mat-form-field>
-                    </div>
-                }
-                @if (form.controls.display_name) {
-                    <div class="flex flex-col">
-                        <label for="display-name">{{
-                            'FORM.DISPLAY_NAME' | translate
-                        }}</label>
-                        <mat-form-field appearance="outline">
-                            <input
-                                matInput
-                                name="display-name"
-                                [placeholder]="'FORM.DISPLAY_NAME' | translate"
-                                formControlName="display_name"
-                            />
-                        </mat-form-field>
-                    </div>
-                }
-                @if (form.controls.parking) {
-                    <div class="flex space-x-4 pb-4">
-                        <settings-toggle
-                            class="flex-1"
-                            [label]="
-                                'APP.CONCIERGE.LEVELS_HAS_PARKING' | translate
                             "
-                            formControlName="parking"
-                        >
-                        </settings-toggle>
-                        <div class="flex-1"></div>
-                    </div>
-                }
-                @if (form.controls.map_id) {
-                    <div class="flex flex-col">
-                        <label for="map-id">{{
-                            'APP.CONCIERGE.LEVELS_MAP_URL' | translate
-                        }}</label>
-                        <mat-form-field appearance="outline">
-                            <input
-                                matInput
-                                name="map-id"
-                                [placeholder]="
-                                    'APP.CONCIERGE.LEVELS_MAP_URL_PLACEHOLDER'
-                                        | translate
-                                "
-                                formControlName="map_id"
-                            />
-                        </mat-form-field>
-                    </div>
-                }
+                            [formField]="form.map_id"
+                        />
+                    </mat-form-field>
+                </div>
             </form>
         </fullscreen-modal-shell>
     `,
@@ -136,7 +117,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
         FullscreenModalShellComponent,
         MatFormFieldModule,
         MatInputModule,
-        ReactiveFormsModule,
+        FormField,
         SettingsToggleComponent,
         MatSelectModule,
         TranslatePipe,
@@ -151,32 +132,34 @@ export class LevelModalComponent {
     public readonly loading = signal(false);
     public readonly building_list = this._org.building_list;
 
-    public readonly form = new FormGroup({
-        id: new FormControl(this._data?.id || ''),
-        display_name: new FormControl(this._data?.display_name || '', [
-            Validators.required,
-        ]),
-        parent_id: new FormControl(this._data?.parent_id || '', [
-            Validators.required,
-        ]),
-        map_id: new FormControl(this._data?.map_id || '', [
-            Validators.required,
-        ]),
-        parking: new FormControl(
-            this._data?.tags?.includes('parking') || false,
-        ),
+    public readonly model = signal({
+        id: this._data?.id || '',
+        display_name: this._data?.display_name || '',
+        parent_id: this._data?.parent_id || '',
+        map_id: this._data?.map_id || '',
+        parking: this._data?.tags?.includes('parking') || false,
+    });
+
+    public readonly form = form(this.model, (p) => {
+        required(p.display_name);
+        required(p.parent_id);
+        required(p.map_id);
     });
 
     public async save() {
-        if (!this.form.valid) {
+        this.form().markAsTouched();
+        if (!this.form().valid()) {
             return notifyError(
                 i18n('FORM.INVALID_FIELDS', {
-                    field_list: getInvalidFields(this.form).join(', '),
+                    field_list: getInvalidSignalFields(
+                        this.form,
+                        this.model,
+                    ).join(', '),
                 }),
             );
         }
         this.loading.set(true);
-        const data: any = this.form.getRawValue();
+        const data: any = this.model();
         data.tags = data.parking ? ['level', 'parking'] : ['level'];
         const resp = await (
             data.id

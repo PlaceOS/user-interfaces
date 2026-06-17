@@ -4,7 +4,7 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -45,11 +45,10 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
         @if (!loading()) {
             <main
                 class="flex max-h-[65vh] min-w-md flex-col overflow-x-hidden overflow-y-auto p-4"
-                [formGroup]="form"
             >
                 <label for="status">{{ 'COMMON.STATUS' | translate }}</label>
                 <mat-form-field appearance="outline">
-                    <mat-select name="status" formControlName="status">
+                    <mat-select [formField]="form.status">
                         <mat-option value="">{{
                             'APP.CONCIERGE.ROOMS_ALERT_TYPE_NONE' | translate
                         }}</mat-option>
@@ -70,8 +69,7 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
                 <mat-form-field appearance="outline">
                     <textarea
                         matInput
-                        name="message"
-                        formControlName="message"
+                        [formField]="form.message"
                     ></textarea>
                 </mat-form-field>
             </main>
@@ -100,7 +98,7 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
         MatFormFieldModule,
         MatInputModule,
         MatSelectModule,
-        ReactiveFormsModule,
+        FormField,
         TranslatePipe,
         IconComponent,
     ],
@@ -115,13 +113,19 @@ export class RoomAlertModalComponent {
 
     public readonly loading = signal(false);
     public readonly room: PlaceSystem = this._data.room;
-    public readonly form = new FormGroup({
-        status: new FormControl(''),
-        message: new FormControl(''),
+    public readonly model = signal({
+        status: '',
+        message: '',
     });
+    public readonly form = form(this.model);
 
     constructor() {
-        this.form.patchValue((this.room as any).alert || {});
+        const alert = (this.room as any).alert || {};
+        this.model.update((m) => ({
+            ...m,
+            status: alert.status ?? m.status,
+            message: alert.message ?? m.message,
+        }));
     }
 
     public async save() {
@@ -138,7 +142,7 @@ export class RoomAlertModalComponent {
             this.loading.set(false);
             throw e;
         });
-        const alert = this.form.getRawValue();
+        const alert = this.model();
         if (alert.status === '') {
             delete metadata.details[this.room.id];
         } else {

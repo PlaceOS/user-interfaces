@@ -9,12 +9,7 @@ import {
     signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import {
-    FormControl,
-    FormGroup,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { form, FormField, required } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
@@ -63,7 +58,6 @@ import {
                 </header>
                 <form
                     class="relative z-10 mx-auto min-h-[calc(100vh-8.5rem)] w-full max-w-160 overflow-visible p-2"
-                    [formGroup]="form"
                 >
                     <div class="mb-2 flex items-center gap-2">
                         <div class="w-1/4 flex-1 gap-2">
@@ -75,11 +69,10 @@ import {
                                 class="no-subscript w-full"
                             >
                                 <mat-select
-                                    name="zone"
                                     [placeholder]="
                                         'COMMON.BUILDING_SELECT' | translate
                                     "
-                                    formControlName="zone_id"
+                                    [formField]="form.zone_id"
                                 >
                                     @for (bld of buildings(); track bld.id) {
                                         <mat-option [value]="bld.id">
@@ -101,7 +94,7 @@ import {
                                 btn
                                 matRipple
                                 [matMenuTriggerFor]="trigger_menu"
-                                (click)="form.controls.trigger.markAsTouched()"
+                                (click)="form.trigger().markAsTouched()"
                             >
                                 <div
                                     class="flex w-1/2 flex-1 flex-col px-2 text-left leading-tight"
@@ -126,7 +119,12 @@ import {
                             <mat-menu #trigger_menu="matMenu" class="max-h-96">
                                 <button
                                     mat-menu-item
-                                    (click)="form.patchValue({ trigger: '' })"
+                                    (click)="
+                                        model.update((m) => ({
+                                            ...m,
+                                            trigger: '',
+                                        }))
+                                    "
                                 >
                                     {{ 'COMMON.NONE' | translate }}
                                 </button>
@@ -139,9 +137,10 @@ import {
                                         <button
                                             mat-menu-item
                                             (click)="
-                                                form.patchValue({
+                                                model.update((m) => ({
+                                                    ...m,
                                                     trigger: tmpl.id,
-                                                })
+                                                }))
                                             "
                                         >
                                             <div
@@ -166,8 +165,7 @@ import {
                                                     </div>
                                                 </div>
                                                 @if (
-                                                    form.value.trigger ===
-                                                    tmpl.id
+                                                    model().trigger === tmpl.id
                                                 ) {
                                                     <icon class="text-2xl"
                                                         >done</icon
@@ -184,7 +182,7 @@ import {
                             matRipple
                             class="mt-5.5 flex-1"
                             matTooltip="Values that get replaced in the email template when sent"
-                            [disabled]="!form.value.trigger"
+                            [disabled]="!model().trigger"
                             [matMenuTriggerFor]="tracking_menu"
                         >
                             {{
@@ -229,7 +227,7 @@ import {
                                     'APP.CONCIERGE.EMAIL_TEMPLATES_REPLY_TO'
                                         | translate
                                 "
-                                formControlName="reply_to"
+                                [formField]="form.reply_to"
                             />
                             <mat-error>{{
                                 'APP.CONCIERGE.EMAIL_TEMPLATES_REPLY_TO_REQUIRED'
@@ -243,7 +241,7 @@ import {
                                     'APP.CONCIERGE.EMAIL_TEMPLATES_FROM'
                                         | translate
                                 "
-                                formControlName="from"
+                                [formField]="form.from"
                             />
                             <mat-error>{{
                                 'APP.CONCIERGE.EMAIL_TEMPLATES_FROM_REQUIRED'
@@ -258,7 +256,7 @@ import {
                         <input
                             matInput
                             placeholder="Template Subject"
-                            formControlName="subject"
+                            [formField]="form.subject"
                         />
                         <mat-error>{{
                             'APP.CONCIERGE.EMAIL_TEMPLATES_SUBJECT_REQUIRED'
@@ -266,7 +264,7 @@ import {
                         }}</mat-error>
                     </mat-form-field>
                     <rich-text-input
-                        formControlName="html"
+                        [formField]="form.html"
                         [placeholder]="
                             'APP.CONCIERGE.EMAIL_TEMPLATES_BODY' | translate
                         "
@@ -304,7 +302,7 @@ import {
         RouterModule,
         MatProgressSpinnerModule,
         TranslatePipe,
-        ReactiveFormsModule,
+        FormField,
         RichTextInputComponent,
         MatFormFieldModule,
         MatInputModule,
@@ -329,21 +327,22 @@ export class EmailTemplateManageComponent extends AsyncHandler {
     public readonly template = signal<EmailTemplate | null>(null);
     public readonly definitions = this._state.template_groups;
     public readonly buildings = this._org.building_list;
-    public readonly form = new FormGroup({
-        id: new FormControl(''),
-        reply_to: new FormControl(''),
-        from: new FormControl(''),
-        subject: new FormControl('', [Validators.required]),
-        category: new FormControl('internal'),
-        trigger: new FormControl(''),
-        html: new FormControl('', [Validators.required]),
-        zone_id: new FormControl(''),
+    public readonly model = signal({
+        id: '',
+        reply_to: '',
+        from: '',
+        subject: '',
+        category: 'internal',
+        trigger: '',
+        html: '',
+        zone_id: '',
     });
-    private readonly _trigger = toSignal(this.form.controls.trigger.valueChanges, {
-        initialValue: this.form.controls.trigger.value || '',
+    public readonly form = form(this.model, (p) => {
+        required(p.subject);
+        required(p.html);
     });
     public readonly active_trigger = computed(() => {
-        const trigger_id = this._trigger();
+        const trigger_id = this.model().trigger;
         return this.definitions()
             .flatMap((group) => group.items)
             .find((_) => _.id === trigger_id);
@@ -366,18 +365,17 @@ export class EmailTemplateManageComponent extends AsyncHandler {
 
     public async save() {
         this.loading.set(i18n('APP.CONCIERGE.EMAIL_TEMPLATES_SAVING'));
+        const value = this.model();
         const zone =
-            this.template()?.zone_id !== this.form.value.zone_id
+            this.template()?.zone_id !== value.zone_id
                 ? this.template()?.zone_id
                 : '';
         await this._state
             .saveTemplate(
                 {
                     ...(this.template() || {}),
-                    ...this.form.getRawValue(),
-                    text: extractTextFromHTML(
-                        this.form.getRawValue().html || '',
-                    ),
+                    ...value,
+                    text: extractTextFromHTML(value.html || ''),
                 } as any,
                 zone,
             )
@@ -399,6 +397,17 @@ export class EmailTemplateManageComponent extends AsyncHandler {
             this._router.navigate(['/email-templates', 'manage']);
             return;
         }
-        this.form.patchValue(template);
+        const tmpl = template as any;
+        this.model.update((m) => ({
+            ...m,
+            id: tmpl.id ?? m.id,
+            reply_to: tmpl.reply_to ?? m.reply_to,
+            from: tmpl.from ?? m.from,
+            subject: tmpl.subject ?? m.subject,
+            category: tmpl.category ?? m.category,
+            trigger: tmpl.trigger ?? m.trigger,
+            html: tmpl.html ?? m.html,
+            zone_id: tmpl.zone_id ?? m.zone_id,
+        }));
     }
 }

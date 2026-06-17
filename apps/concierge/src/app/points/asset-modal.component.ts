@@ -7,13 +7,8 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import {
-    FormControl,
-    FormGroup,
-    FormsModule,
-    ReactiveFormsModule,
-} from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { disabled, form, FormField } from '@angular/forms/signals';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -39,7 +34,7 @@ import { DesksStateService } from '../desks/desks-state.service';
         >
             <h2 class="px-2 text-xl font-medium">
                 {{
-                    (form?.value?.id
+                    (model().id
                         ? 'APP.CONCIERGE.POINTS_ASSETS_EDIT'
                         : 'APP.CONCIERGE.POINTS_ASSETS_NEW'
                     ) | translate
@@ -52,12 +47,12 @@ import { DesksStateService } from '../desks/desks-state.service';
             }
         </header>
         @if (form) {
-            <main class="min-w-md overflow-hidden px-4 py-2" [formGroup]="form">
+            <main class="min-w-md overflow-hidden px-4 py-2">
                 <div class="flex flex-col">
                     <label>{{ 'APP.CONCIERGE.POINTS_TYPE' | translate }}</label>
                     <mat-form-field appearance="outline" class="h-13 flex-1">
                         <mat-select
-                            formControlName="type"
+                            [formField]="form.type"
                             placeholder="Select asset type"
                         >
                             <mat-option value="space">{{
@@ -75,12 +70,12 @@ import { DesksStateService } from '../desks/desks-state.service';
                         <icon
                             matPrefix
                             class="text-2xl"
-                            [class.opacity-30]="!form.get('type').value"
+                            [class.opacity-30]="!model().type"
                             >search</icon
                         >
                         <input
                             matInput
-                            formControlName="name"
+                            [formField]="form.name"
                             [placeholder]="
                                 'APP.CONCIERGE.POINTS_ASSETS_SEARCH' | translate
                             "
@@ -116,7 +111,7 @@ import { DesksStateService } from '../desks/desks-state.service';
                 <div class="mb-4 flex items-center">
                     <settings-toggle
                         [label]="'APP.CONCIERGE.POINTS_ACCEPT' | translate"
-                        formControlName="accept_points"
+                        [formField]="form.accept_points"
                         class="w-full"
                     ></settings-toggle>
                 </div>
@@ -127,7 +122,7 @@ import { DesksStateService } from '../desks/desks-state.service';
                         }}</label>
                         <a-counter
                             class="w-full"
-                            formControlName="unit_price"
+                            [formField]="form.unit_price"
                             [min]="500"
                             [max]="80000"
                             [step]="500"
@@ -140,7 +135,7 @@ import { DesksStateService } from '../desks/desks-state.service';
                         }}</label>
                         <a-counter
                             class="w-full"
-                            formControlName="discount_cap"
+                            [formField]="form.discount_cap"
                             [min]="0"
                             [max]="100"
                             [step]="5"
@@ -153,10 +148,7 @@ import { DesksStateService } from '../desks/desks-state.service';
                         'APP.CONCIERGE.POINTS_RATE_RULES' | translate
                     }}</label>
                     <div>
-                        @for (
-                            rule of form.get('custom_rates')?.value || [];
-                            track rule
-                        ) {
+                        @for (rule of model().custom_rates; track rule) {
                             <div rule class="flex items-center">
                                 <div
                                     class="flex w-1/2 flex-1 items-center space-x-2"
@@ -244,7 +236,7 @@ import { DesksStateService } from '../desks/desks-state.service';
                 btn
                 matRipple
                 class="w-32"
-                [disabled]="!form.value.name"
+                [disabled]="!model().name"
                 (click)="save()"
             >
                 {{ 'COMMON.SAVE' | translate }}
@@ -274,7 +266,7 @@ import { DesksStateService } from '../desks/desks-state.service';
         SettingsToggleComponent,
         MatAutocompleteModule,
         MatProgressSpinnerModule,
-        ReactiveFormsModule,
+        FormField,
     ],
 })
 export class PointsAssetModalComponent extends AsyncHandler {
@@ -286,27 +278,25 @@ export class PointsAssetModalComponent extends AsyncHandler {
 
     @Output() public event = new EventEmitter<DialogEvent>();
 
-    public form = new FormGroup({
-        id: new FormControl(this._data.asset?.id || ''),
-        asset_id: new FormControl(this._data.asset?.asset_id || ''),
-        name: new FormControl(this._data.asset?.name || ''),
-        type: new FormControl(this._data.asset?.type || ''),
-        accept_points: new FormControl(
-            this._data.asset?.accept_points ?? false,
-        ),
-        discount_cap: new FormControl(this._data.asset?.discount_cap || 50),
-        unit_price: new FormControl(this._data.asset?.unit_price || 1000),
-        custom_rates: new FormControl(this._data.asset?.custom_rates || []),
+    public readonly model = signal({
+        id: (this._data.asset?.id || '') as string,
+        asset_id: (this._data.asset?.asset_id || '') as string,
+        name: (this._data.asset?.name || '') as string,
+        type: (this._data.asset?.type || '') as string,
+        accept_points: (this._data.asset?.accept_points ?? false) as boolean,
+        discount_cap: (this._data.asset?.discount_cap || 50) as number,
+        unit_price: (this._data.asset?.unit_price || 1000) as number,
+        custom_rates: (this._data.asset?.custom_rates || []) as any[],
+    });
+    public readonly form = form(this.model, (p) => {
+        // The asset name search is only usable once an asset type is chosen.
+        disabled(p.name, ({ valueOf }) => !valueOf(p.type));
     });
 
     public readonly loading = signal(false);
 
-    private readonly _form_value = toSignal(this.form.valueChanges, {
-        initialValue: this.form.getRawValue(),
-    });
-
     public readonly asset_options = computed(() => {
-        const { type, name } = this._form_value() || {};
+        const { type, name } = this.model();
         const spaces = this._spaces.list();
         const desks = this._desks.desks();
         const search = (name || '').toLowerCase();
@@ -320,13 +310,6 @@ export class PointsAssetModalComponent extends AsyncHandler {
     constructor() {
         super();
         this._desks.setFilters({ zones: ['All'] });
-        this.subscription(
-            'type_change',
-            this.form.get('type').valueChanges.subscribe((v) => {
-                const field = this.form.get('name');
-                v ? field.enable() : field.disable();
-            }),
-        );
     }
 
     public renderPrice(value = 0) {
@@ -338,18 +321,21 @@ export class PointsAssetModalComponent extends AsyncHandler {
     }
 
     public newRule() {
-        this.form.get('custom_rates').setValue([
-            ...this.form.get('custom_rates').value,
-            {
-                type: 'before',
-                first: startOfHour(new Date()),
-                second: addHours(startOfHour(new Date()), 1),
-                rate: 100,
-            },
-        ]);
+        this.model.update((m) => ({
+            ...m,
+            custom_rates: [
+                ...m.custom_rates,
+                {
+                    type: 'before',
+                    first: startOfHour(new Date()),
+                    second: addHours(startOfHour(new Date()), 1),
+                    rate: 100,
+                },
+            ],
+        }));
     }
 
     public save() {
-        this.event.emit({ reason: 'done', metadata: { ...this.form.value } });
+        this.event.emit({ reason: 'done', metadata: { ...this.model() } });
     }
 }
