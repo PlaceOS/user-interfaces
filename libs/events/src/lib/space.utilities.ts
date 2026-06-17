@@ -1,10 +1,12 @@
+import { Injector, signal } from '@angular/core';
+import { email, form, required, validate } from '@angular/forms/signals';
 import {
-    AbstractControl,
-    FormControl,
-    FormGroup,
-    Validators,
-} from '@angular/forms';
-import { HashMap, predictableRandomInt, Space } from '@placeos/common';
+    HashMap,
+    onFieldChange,
+    predictableRandomInt,
+    SignalFormRef,
+    Space,
+} from '@placeos/common';
 import { PlaceSystem, PlaceZone, querySystems } from '@placeos/ts-client';
 import { from, Observable, of } from 'rxjs';
 import { map, shareReplay, tap } from 'rxjs/operators';
@@ -23,62 +25,121 @@ export const isValidUrl = (url) => {
     return true;
 };
 
-export const validateURL = (ctrl: AbstractControl) =>
-    isValidUrl(ctrl?.value) ? null : { url: 'invalid' };
+export interface SystemFormValue {
+    id: string;
+    name: string;
+    display_name: string;
+    email: string;
+    code: string;
+    support_url: string;
+    timetable_url: string;
+    camera_url: string;
+    camera_snapshot_url: string;
+    camera_snapshot_urls: string[];
+    room_booking_url: string;
+    installed_ui_devices: number;
+    features: string[];
+    capacity: number;
+    bookable: boolean;
+    public: boolean;
+    description: string;
+    images: string[];
+    map_id: string;
+    timezone: string;
+    zone: PlaceZone | null;
+    zones: string[];
+    version: number;
+    approval: boolean;
+}
 
-export function generateSystemsFormFields(system?: PlaceSystem) {
-    const fields = {
-        id: new FormControl(system?.id || ''),
-        name: new FormControl(system.name || '', [Validators.required]),
-        display_name: new FormControl(system.display_name || ''),
-        email: new FormControl(system.email || '', [Validators.email]),
-        code: new FormControl(system.code || ''),
-        support_url: new FormControl(system.support_url || '', [validateURL]),
-        timetable_url: new FormControl(system.timetable_url || '', [
-            validateURL,
-        ]),
-        camera_url: new FormControl(system.camera_url || '', [validateURL]),
-        camera_snapshot_url: new FormControl(
+const isDigits = (value: unknown) => /^[0-9]*$/.test(`${value ?? ''}`);
+
+export function generateSystemsFormFields(
+    system?: PlaceSystem,
+    injector?: Injector,
+): SignalFormRef<SystemFormValue> {
+    const has_id = !!system?.id;
+    const model = signal<SystemFormValue>({
+        id: system?.id || '',
+        name: system.name || '',
+        display_name: system.display_name || '',
+        email: system.email || '',
+        code: system.code || '',
+        support_url: system.support_url || '',
+        timetable_url: system.timetable_url || '',
+        camera_url: system.camera_url || '',
+        camera_snapshot_url:
             system.camera_snapshot_urls?.find((url) => !!url) ||
-                system.camera_snapshot_url ||
-                '',
-            [validateURL],
-        ),
-        camera_snapshot_urls: new FormControl(
-            system.camera_snapshot_urls || [system.camera_snapshot_url],
-        ),
-        room_booking_url: new FormControl(system.room_booking_url || '', [
-            validateURL,
-        ]),
-        installed_ui_devices: new FormControl(
-            system.installed_ui_devices || 0,
-            [Validators.pattern('[0-9]*')],
-        ),
-        features: new FormControl(
+            system.camera_snapshot_url ||
+            '',
+        camera_snapshot_urls: [
+            ...(system.camera_snapshot_urls || [system.camera_snapshot_url]),
+        ],
+        room_booking_url: system.room_booking_url || '',
+        installed_ui_devices: system.installed_ui_devices || 0,
+        features:
             typeof system.features === 'string'
                 ? (system.features as any).split(' ')
                 : [...(system.features || [])],
-        ),
-        capacity: new FormControl(system.capacity || 0, [
-            Validators.pattern('[0-9]*'),
-        ]),
-        bookable: new FormControl(system.bookable || false),
-        public: new FormControl(system.public || false),
-        description: new FormControl(system.description || ''),
-        images: new FormControl(system.images || []),
-        map_id: new FormControl(system.map_id || ''),
-        timezone: new FormControl(system.timezone || ''),
-        zone: new FormControl<PlaceZone | null>(null, [Validators.required]),
-        zones: new FormControl(system.zones, [Validators.required]),
-        version: new FormControl(system.version),
-        approval: new FormControl((system as any).approval || false),
-    };
-    if (!system.id) {
-        fields.zone.valueChanges.subscribe((value: PlaceZone) =>
-            fields.zones.setValue([value.id]),
+        capacity: system.capacity || 0,
+        bookable: system.bookable || false,
+        public: system.public || false,
+        description: system.description || '',
+        images: [...(system.images || [])],
+        map_id: system.map_id || '',
+        timezone: system.timezone || '',
+        zone: null,
+        zones: [...(system.zones || [])],
+        version: system.version,
+        approval: (system as any).approval || false,
+    });
+
+    const ref_form = form(
+        model,
+        (p) => {
+            required(p.name);
+            required(p.zones);
+            email(p.email);
+            required(p.zone, { when: () => !has_id });
+            validate(p.support_url, ({ value }) =>
+                isValidUrl(value()) ? undefined : { kind: 'url' },
+            );
+            validate(p.timetable_url, ({ value }) =>
+                isValidUrl(value()) ? undefined : { kind: 'url' },
+            );
+            validate(p.camera_url, ({ value }) =>
+                isValidUrl(value()) ? undefined : { kind: 'url' },
+            );
+            validate(p.camera_snapshot_url, ({ value }) =>
+                isValidUrl(value()) ? undefined : { kind: 'url' },
+            );
+            validate(p.room_booking_url, ({ value }) =>
+                isValidUrl(value()) ? undefined : { kind: 'url' },
+            );
+            validate(p.installed_ui_devices, ({ value }) =>
+                isDigits(value()) ? undefined : { kind: 'pattern' },
+            );
+            validate(p.capacity, ({ value }) =>
+                isDigits(value()) ? undefined : { kind: 'pattern' },
+            );
+        },
+        { injector },
+    );
+
+    // For new systems, syncing the selected zone to the `zones` list mirrors
+    // the old `zone.valueChanges` subscription.
+    if (!has_id) {
+        onFieldChange(
+            model,
+            (value) => value.zone,
+            (zone) =>
+                zone &&
+                model.update((m) => ({ ...m, zones: [(zone as any).id] })),
+            injector,
         );
-    } else delete fields.zone;
-    return new FormGroup(fields);
+    }
+
+    return { model, form: ref_form };
 }
 
 export function requestSpacesForZone(id: string): Observable<Space[]> {

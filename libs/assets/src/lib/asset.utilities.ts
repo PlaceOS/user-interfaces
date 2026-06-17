@@ -1,10 +1,12 @@
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Injector, signal } from '@angular/core';
+import { form, required } from '@angular/forms/signals';
 import {
     AssetGroup,
     CalendarEvent,
     PlaceAsset,
     PlaceAssetCategory,
     PlaceAssetPurchaseOrder,
+    SignalFormRef,
     stringToMinutes,
 } from '@placeos/common';
 import { AttachedResourceRuleset } from '@placeos/components';
@@ -13,67 +15,111 @@ import { isAfter, isBefore, setHours, subHours } from 'date-fns';
 
 export function generateAssetCategoryForm(
     category: Partial<PlaceAssetCategory> = {},
-) {
-    return new FormGroup({
-        id: new FormControl(category.id),
-        name: new FormControl(category.name || '', [Validators.required]),
-        parent_category_id: new FormControl(category.parent_category_id),
+    injector?: Injector,
+): SignalFormRef<{
+    id: string;
+    name: string;
+    parent_category_id: string;
+}> {
+    const model = signal({
+        id: category.id || '',
+        name: category.name || '',
+        parent_category_id: category.parent_category_id || '',
     });
+    const ref_form = form(model, (p) => required(p.name), {
+        injector,
+    });
+    return { model, form: ref_form };
 }
 
 export function generateAssetPurchaseOrderForm(
     order: Partial<PlaceAssetPurchaseOrder> = {},
-) {
-    return new FormGroup({
-        id: new FormControl(order.id),
-        purchase_order_number: new FormControl(
-            order.purchase_order_number || '',
-            [Validators.required],
-        ),
-        invoice_number: new FormControl(order.invoice_number || ''),
-        unit_price: new FormControl(order.unit_price || 0),
-        purchase_date: new FormControl(
-            order.purchase_date ? order.purchase_date * 1000 : null,
-        ),
-        expected_service_start_date: new FormControl(
-            order.expected_service_start_date
-                ? order.expected_service_start_date * 1000
-                : null,
-        ),
-        expected_service_end_date: new FormControl(
-            order.expected_service_end_date
-                ? order.expected_service_end_date * 1000
-                : null,
-        ),
+    injector?: Injector,
+): SignalFormRef<{
+    id: string;
+    purchase_order_number: string;
+    invoice_number: string;
+    unit_price: number;
+    purchase_date: number | null;
+    expected_service_start_date: number | null;
+    expected_service_end_date: number | null;
+}> {
+    const model = signal({
+        id: order.id || '',
+        purchase_order_number: order.purchase_order_number || '',
+        invoice_number: order.invoice_number || '',
+        unit_price: order.unit_price || 0,
+        purchase_date: order.purchase_date ? order.purchase_date * 1000 : null,
+        expected_service_start_date: order.expected_service_start_date
+            ? order.expected_service_start_date * 1000
+            : null,
+        expected_service_end_date: order.expected_service_end_date
+            ? order.expected_service_end_date * 1000
+            : null,
     });
+    const ref_form = form(model, (p) => required(p.purchase_order_number), {
+        injector,
+    });
+    return { model, form: ref_form };
 }
 
-export function generateAssetGroupForm(group: Partial<AssetGroup> = {}) {
-    return new FormGroup({
-        id: new FormControl(group.id),
-        category_id: new FormControl(group.category_id || '', [
-            Validators.required,
-        ]),
-        images: new FormControl(group.images || []),
-        brand: new FormControl(group.brand || ''),
-        name: new FormControl(group.name || '', [Validators.required]),
-        description: new FormControl(group.description || ''),
+export function generateAssetGroupForm(
+    group: Partial<AssetGroup> = {},
+    injector?: Injector,
+): SignalFormRef<{
+    id: string;
+    category_id: string;
+    images: string[];
+    brand: string;
+    name: string;
+    description: string;
+}> {
+    const model = signal({
+        id: group.id || '',
+        category_id: group.category_id || '',
+        images: [...(group.images || [])],
+        brand: group.brand || '',
+        name: group.name || '',
+        description: group.description || '',
     });
+    const ref_form = form(
+        model,
+        (p) => {
+            required(p.category_id);
+            required(p.name);
+        },
+        { injector },
+    );
+    return { model, form: ref_form };
 }
 
-export function generateAssetForm(asset: Partial<PlaceAsset> = {}) {
-    return new FormGroup({
-        id: new FormControl(asset.id),
-        asset_type_id: new FormControl(asset.asset_type_id || '', [
-            Validators.required,
-        ]),
-        name: new FormControl(asset.name || ''),
-        serial_number: new FormControl(asset.serial_number || ''),
-        barcode: new FormControl(asset.barcode || ''),
-        identifier: new FormControl(asset.identifier || ''),
-        other_data: new FormControl(asset.other_data || {}),
-        purchase_order_id: new FormControl(asset.purchase_order_id),
+export function generateAssetForm(
+    asset: Partial<PlaceAsset> = {},
+    injector?: Injector,
+): SignalFormRef<{
+    id: string;
+    asset_type_id: string;
+    name: string;
+    serial_number: string;
+    barcode: string;
+    identifier: string;
+    other_data: Record<string, any>;
+    purchase_order_id: string;
+}> {
+    const model = signal({
+        id: asset.id || '',
+        asset_type_id: asset.asset_type_id || '',
+        name: asset.name || '',
+        serial_number: asset.serial_number || '',
+        barcode: asset.barcode || '',
+        identifier: asset.identifier || '',
+        other_data: asset.other_data || {},
+        purchase_order_id: asset.purchase_order_id || '',
     });
+    const ref_form = form(model, (p) => required(p.asset_type_id), {
+        injector,
+    });
+    return { model, form: ref_form };
 }
 
 const RULE_REQUESTS: Record<string, Promise<AttachedResourceRuleset[]>> = {};

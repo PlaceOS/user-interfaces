@@ -93,10 +93,10 @@ export class NewUserModalComponent extends AsyncHandler {
     public saveChanges() {
         const form = this.form();
         if (!form) return;
-        form.markAllAsTouched();
-        if (form.valid) {
+        form().markAsTouched();
+        if (form().valid()) {
             const new_user = new User({
-                ...form.value,
+                ...form().value(),
                 is_external: true,
             });
             this.event.emit({ reason: 'done', metadata: new_user });

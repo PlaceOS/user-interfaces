@@ -1,5 +1,6 @@
 import {
     Injectable,
+    Injector,
     Signal,
     computed,
     inject,
@@ -72,9 +73,10 @@ export class AssetManagerStateService extends AsyncHandler {
 
     private _options = signal<AssetOptions>({ view: 'grid' });
     private _change = signal(0);
+    private _injector = inject(Injector);
     private _poll = signal(0);
     private _extra_assets = signal<Asset[]>([]);
-    private _form = generateAssetForm();
+    private _form_ref = generateAssetForm(undefined, this._injector);
     private _loading = signal(false);
     /** Whether asset list is loading */
     public readonly loading = this._loading.asReadonly();
@@ -266,9 +268,7 @@ export class AssetManagerStateService extends AsyncHandler {
         const item = this.active_product();
         if (!item) return [];
         return this.requests()
-            .filter((i) =>
-                item.assets.find((asset) => asset.id === i.asset_id),
-            )
+            .filter((i) => item.assets.find((asset) => asset.id === i.asset_id))
             .filter((i) => i.status !== 'declined');
     });
 
@@ -327,7 +327,11 @@ export class AssetManagerStateService extends AsyncHandler {
     );
 
     public get form() {
-        return this._form;
+        return this._form_ref.form;
+    }
+
+    public get model() {
+        return this._form_ref.model;
     }
 
     public get is_new_ui() {
@@ -348,7 +352,7 @@ export class AssetManagerStateService extends AsyncHandler {
     }
 
     public resetForm() {
-        this._form = generateAssetForm();
+        this._form_ref = generateAssetForm(undefined, this._injector);
     }
 
     public manageCategories() {
@@ -418,8 +422,8 @@ export class AssetManagerStateService extends AsyncHandler {
     }
 
     public async postForm() {
-        if (!this.form?.valid) return;
-        const data: any = this.form.value;
+        if (!this.form().valid()) return;
+        const data: any = { ...this.model() };
         const other_data = { ...data };
         const drop_keys = [
             'other_data',

@@ -102,18 +102,17 @@ describe('utilities', () => {
     describe('generateSystemsFormFields', () => {
         it('should not reuse the source features array', () => {
             const system = { id: 'room-1', features: ['Display'] } as any;
-            const form = generateSystemsFormFields(system);
+            const { model, form } = TestBed.runInInjectionContext(() =>
+                generateSystemsFormFields(system, injector),
+            );
 
-            form.controls.features.setValue([
-                ...(form.controls.features.value || []),
-                'Whiteboard',
-            ]);
+            model.update((m) => ({
+                ...m,
+                features: [...(m.features || []), 'Whiteboard'],
+            }));
 
             expect(system.features).toEqual(['Display']);
-            expect(form.controls.features.value).toEqual([
-                'Display',
-                'Whiteboard',
-            ]);
+            expect(form.features().value()).toEqual(['Display', 'Whiteboard']);
         });
     });
 });

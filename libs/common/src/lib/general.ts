@@ -1115,6 +1115,25 @@ export function getInvalidSignalFields<T extends object>(
     return invalid.map((field) => mappings[field] || field);
 }
 
+/**
+ * Signal-forms equivalent of `FormGroup.patchValue`: writes the keys of
+ * `partial` that already exist in the model and leaves every other field
+ * untouched. Unknown keys are ignored, matching reactive `patchValue`.
+ */
+export function patchSignalModel<T extends object>(
+    model: WritableSignal<T>,
+    partial: Partial<T> | Record<string, unknown> | null | undefined,
+): void {
+    if (!partial) return;
+    model.update((current) => {
+        const next = { ...current } as Record<string, unknown>;
+        for (const key of Object.keys(partial)) {
+            if (key in current) next[key] = (partial as any)[key];
+        }
+        return next as T;
+    });
+}
+
 /** Subset of a form model that the time sync reads and writes. */
 export interface TimeSyncModel {
     id?: string;

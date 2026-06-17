@@ -6,7 +6,7 @@ import {
     resource,
     signal,
 } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -23,6 +23,7 @@ import {
     i18n,
     notifyError,
     notifySuccess,
+    patchSignalModel,
 } from '@placeos/common';
 import {
     FullscreenModalShellComponent,
@@ -39,7 +40,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     template: `
         <fullscreen-modal-shell
             [heading]="
-                (form.value.id
+                (model().id
                     ? 'APP.CONCIERGE.ASSETS_PURCHASE_EDIT'
                     : 'APP.CONCIERGE.ASSETS_PURCHASE_NEW'
                 ) | translate
@@ -52,7 +53,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             [loading]="loading()"
             (confirm)="save()"
         >
-            <form [formGroup]="form">
+            <form>
                 <div class="flex flex-col space-y-2">
                     <label for="order-number">
                         {{ 'APP.CONCIERGE.ASSETS_PURCHASE_NUMBER' | translate
@@ -61,12 +62,11 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     <mat-form-field appearance="outline">
                         <input
                             matInput
-                            name="order-number"
                             [placeholder]="
                                 'APP.CONCIERGE.ASSETS_PURCHASE_NUMBER'
                                     | translate
                             "
-                            formControlName="purchase_order_number"
+                            [formField]="form.purchase_order_number"
                         />
                         <mat-error>{{
                             'APP.CONCIERGE.ASSETS_PURCHASE_NUMBER_REQUIRED'
@@ -81,12 +81,11 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     <mat-form-field appearance="outline">
                         <input
                             matInput
-                            name="invoice-number"
                             [placeholder]="
                                 'APP.CONCIERGE.ASSETS_PURCHASE_INVOICE'
                                     | translate
                             "
-                            formControlName="invoice_number"
+                            [formField]="form.invoice_number"
                         />
                         <mat-error>{{
                             'APP.CONCIERGE.ASSETS_PURCHASE_INVOICE_REQUIRED'
@@ -100,9 +99,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             'APP.CONCIERGE.ASSETS_PURCHASE_DATE' | translate
                         }}</label>
                         <a-date-field
-                            name="purchase-date"
                             [from]="from.valueOf()"
-                            formControlName="purchase_date"
+                            [formField]="form.purchase_date"
                         ></a-date-field>
                     </div>
                     <div class="flex flex-1 flex-col space-y-2">
@@ -111,11 +109,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         }}</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <div matPrefix>$</div>
-                            <input
-                                matInput
-                                name="unit-price"
-                                formControlName="unit_price"
-                            />
+                            <input matInput [formField]="form.unit_price" />
                         </mat-form-field>
                     </div>
                 </div>
@@ -128,9 +122,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             }}
                         </label>
                         <a-date-field
-                            name="depreciation-start-date"
                             [from]="from.valueOf()"
-                            formControlName="expected_service_start_date"
+                            [formField]="form.expected_service_start_date"
                         ></a-date-field>
                     </div>
                     <div class="flex flex-1 flex-col space-y-2">
@@ -140,8 +133,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             }}
                         </label>
                         <a-date-field
-                            name="depreciation-end-date"
-                            formControlName="expected_service_end_date"
+                            [formField]="form.expected_service_end_date"
                         ></a-date-field>
                     </div>
                 </div>
@@ -193,7 +185,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         DateFieldComponent,
         MatFormFieldModule,
         MatInputModule,
-        ReactiveFormsModule,
+        FormField,
     ],
 })
 export class AssetPurchaseOrderFormComponent
@@ -205,7 +197,9 @@ export class AssetPurchaseOrderFormComponent
     private _router = inject(Router);
     private _org = inject(OrganisationService);
 
-    public readonly form = generateAssetPurchaseOrderForm();
+    private readonly _form_ref = generateAssetPurchaseOrderForm();
+    public readonly form = this._form_ref.form;
+    public readonly model = this._form_ref.model;
     public readonly loading = signal('');
     public readonly product_id = signal('');
     public readonly _id = signal('');
@@ -258,7 +252,7 @@ export class AssetPurchaseOrderFormComponent
                         );
                         this._router.navigate([this.base_route]);
                     }
-                    this.form.patchValue({
+                    patchSignalModel(this.model, {
                         ...asset,
                         purchase_date: asset.purchase_date * 1000,
                         expected_service_end_date:
@@ -279,9 +273,9 @@ export class AssetPurchaseOrderFormComponent
     }
 
     public async save() {
-        if (!this.form.valid) return;
+        if (!this.form().valid()) return;
         this.loading.set(i18n('APP.CONCIERGE.ASSETS_PURCHASE_SAVING'));
-        const data = this.form.value;
+        const data = { ...this.model() };
         data.purchase_date = getUnixTime(data.purchase_date) || null;
         data.expected_service_start_date =
             getUnixTime(data.expected_service_start_date) ||
@@ -301,7 +295,7 @@ export class AssetPurchaseOrderFormComponent
             );
             throw e;
         });
-        this.form.reset();
+        this.form().reset();
         notifySuccess(i18n('APP.CONCIERGE.ASSETS_PURCHASE_SAVE_SUCCESS'));
         this._state.postChange();
         if (this.product_id()) {

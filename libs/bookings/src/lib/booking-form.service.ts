@@ -1804,7 +1804,7 @@ export class BookingFormService extends AsyncHandler {
             subs.push(ref.afterClosed().subscribe((event) => finish(event)));
         });
         if (result?.reason !== 'done') throw 'User cancelled';
-        const form = ref.componentInstance.form.getRawValue();
+        const form = ref.componentInstance.model();
         for (const key in form) {
             if (form[key]) throw 'User failed questionaire';
         }
