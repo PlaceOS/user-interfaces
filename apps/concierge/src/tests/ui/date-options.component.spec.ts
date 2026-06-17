@@ -1,13 +1,14 @@
 import { convertToParamMap } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
+import { defer, of } from 'rxjs';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { DateOptionsComponent } from '../../app/ui/date-options.component';
 
 describe('DateOptionsComponent', () => {
     let spectator: Spectator<DateOptionsComponent>;
+    let query_params: Record<string, string>;
     const createComponent = createComponentFactory({
         component: DateOptionsComponent,
         providers: [
@@ -15,14 +16,19 @@ describe('DateOptionsComponent', () => {
                 navigate: jest.fn(),
             }),
             MockProvider(ActivatedRoute, {
-                queryParamMap: of(convertToParamMap({})),
+                queryParamMap: defer(() => of(convertToParamMap(query_params))),
             }),
         ],
     });
 
     beforeEach(() => {
+        jest.useFakeTimers();
+        jest.setSystemTime(new Date(2026, 3, 22, 12));
+        query_params = {};
         spectator = createComponent();
     });
+
+    afterEach(() => jest.useRealTimers());
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
@@ -46,5 +52,14 @@ describe('DateOptionsComponent', () => {
         spectator.detectChanges();
 
         expect(spectator.query('.display')).toHaveText('Apr 20 - 26, 2026');
+    });
+
+    it('should ignore invalid date query params', () => {
+        query_params = { date: 'invalid' };
+        spectator = createComponent();
+        jest.runOnlyPendingTimers();
+        spectator.detectChanges();
+
+        expect(spectator.query('.display')).toHaveText('Apr 22, 2026');
     });
 });

@@ -28,6 +28,7 @@ import {
     isSameDay,
     isSameMonth,
     isSameYear,
+    isValid,
     parse,
     startOfMinute,
     startOfWeek,
@@ -183,13 +184,14 @@ export class DateOptionsComponent
             !this.hide_today(),
     );
     public readonly display_date = computed(() => {
+        const date = this._validDate(this.date());
         if (this.display_mode() === 'day') {
-            return format(this.date(), 'MMM d, yyyy');
+            return format(date, 'MMM d, yyyy');
         }
-        const start = startOfWeek(this.date(), {
+        const start = startOfWeek(date, {
             weekStartsOn: this._week_start,
         });
-        const end = endOfWeek(this.date(), {
+        const end = endOfWeek(date, {
             weekStartsOn: this._week_start,
         });
         if (isSameYear(start, end)) {
@@ -207,13 +209,12 @@ export class DateOptionsComponent
             this._route.queryParamMap.subscribe((params) => {
                 if (params.has('date')) {
                     this.timeout('set-date', () => {
-                        this.date.set(
-                            parse(
-                                params.get('date'),
-                                'yyyy-MM-dd',
-                                0,
-                            ).valueOf(),
-                        );
+                        const date = parse(
+                            params.get('date') || '',
+                            'yyyy-MM-dd',
+                            new Date(),
+                        ).valueOf();
+                        this.date.set(this._validDate(date, this.date()));
                         this.dateChange.emit(this.date());
                     });
                 }
@@ -223,12 +224,12 @@ export class DateOptionsComponent
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.date) {
-            this.setDate(this.date() || Date.now(), false);
+            this.setDate(this._validDate(this.date()), false);
         }
     }
 
     public setDate(date: number = Date.now(), emit = true) {
-        date = startOfMinute(date).valueOf();
+        date = startOfMinute(this._validDate(date)).valueOf();
         this.date.set(date);
         this._router.navigate([], {
             relativeTo: this._route,
@@ -245,5 +246,11 @@ export class DateOptionsComponent
 
     private get _week_start() {
         return (this.week_start() || 0) as DayOfWeek;
+    }
+
+    private _validDate(date: number, fallback = Date.now()) {
+        if (isValid(date)) return date;
+        if (isValid(fallback)) return fallback;
+        return Date.now();
     }
 }
