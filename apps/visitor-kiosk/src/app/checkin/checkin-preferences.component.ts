@@ -7,20 +7,9 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { queryCateringItems } from '@placeos/assets';
 import { setToken } from '@placeos/ts-client';
-import { from, of } from 'rxjs';
-import {
-    catchError,
-    filter,
-    first,
-    map,
-    shareReplay,
-    startWith,
-    switchMap,
-} from 'rxjs/operators';
 
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -32,7 +21,6 @@ import {
     CateringItem,
     i18n,
     log,
-    nextValueFrom,
     notifyError,
     notifySuccess,
     OrganisationService,
@@ -154,19 +142,29 @@ export class CheckinPreferencesComponent
     public has_beverage = computed(() => !!this.existing_beverage());
     public readonly event = this._checkin.event;
     public readonly bld_id = signal('');
+    public readonly menu = signal<CateringItem[]>([]);
     public readonly allow_standalone = settingSignal(
         'standalone_visitor_location',
         '',
     );
+    private _menu_load_id = 0;
 
-    private readonly _menu = toObservable(this.bld_id).pipe(
-        filter((_) => !!_),
-        switchMap((bld) =>
-            from(queryCateringItems(bld)).pipe(
-                catchError(() => of([] as CateringItem[])),
-            ),
-        ),
-        map((menu) =>
+    private readonly _update_bld_id = effect(() => {
+        this.bld_id.set(this._org.active_building()?.id || '');
+    });
+
+    private readonly _load_menu = effect(async () => {
+        const bld = this.bld_id();
+        const load_id = ++this._menu_load_id;
+        if (!bld) {
+            this.menu.set([]);
+            return;
+        }
+        const menu = await queryCateringItems(bld).catch(
+            () => [] as CateringItem[],
+        );
+        if (load_id !== this._menu_load_id) return;
+        this.menu.set(
             menu.filter((_) =>
                 (_.tags || []).find(
                     (_) =>
@@ -175,91 +173,34 @@ export class CheckinPreferencesComponent
                         _.toLowerCase() === 'beverage',
                 ),
             ),
-        ),
-        startWith([]),
-        shareReplay(1),
-    );
-    public readonly menu = toSignal(this._menu, { initialValue: [] });
+        );
+    });
 
-    private readonly _update_bld_id = effect(() => {
-        this.bld_id.set(this._org.active_building()?.id || '');
+    private readonly _handle_menu = effect(() => {
+        const menu = this.menu();
+        if (menu.length) {
+            this.loading.set(false);
+            this.clearTimeout('no_menu');
+        } else if (this.bld_id()) {
+            this.timeout(
+                'no_menu',
+                () => {
+                    notifyError('No menu available');
+                    this.next();
+                },
+                1000,
+            );
+        }
     });
 
     public ngOnInit(): void {
         this.loading.set(true);
-        this.subscription(
-            'route.query',
-            this._route.queryParamMap.subscribe(async (params) => {
-                const jwt =
-                    params.get('jwt') ||
-                    params.get('token') ||
-                    parseTokenFromUrl(window.location.href);
-                if (!jwt || jwt === this._last_jwt) return;
-                this._last_jwt = jwt;
-                if (jwt) {
-                    setToken(jwt);
-                    const data = parseJWT(jwt);
-                    const user = data.u;
-                    if (user) {
-                        const email = user.e;
-                        const [event_id, , bld_zone] = user.r || [];
-                        this.bld_id.set(bld_zone);
-
-                        await this._checkin
-                            .loadGuestAndEvent(email, event_id)
-                            .catch((err) => {
-                                this.handleError(
-                                    'Unable to find visitor or a meeting associated with the given email address.',
-                                );
-                                throw err;
-                            });
-                    }
-                }
-            }),
-        );
+        this.loadJwtFromRoute();
         this.type.set('menu');
         this.timeout(
             'event',
-            () => {
-                this.event.pipe(first()).subscribe(async (event) => {
-                    if (!event) return this.next();
-                    if (!event.linked_event && !this.allow_standalone()) {
-                        log(
-                            'CHECKIN',
-                            'Visitor booking does not support catering.',
-                            undefined,
-                            'info',
-                        );
-                    }
-                    const existing = await getGuestCateringItem(
-                        event.asset_id,
-                        event.id,
-                    ).catch(() => null);
-                    if (existing) {
-                        this.existing_beverage.set(existing);
-                        this.beverage.set(existing);
-                    }
-                });
-            },
+            () => this.loadExistingBeverage(),
             1000,
-        );
-        this.subscription(
-            'menu',
-            this._menu.subscribe((l) => {
-                if (l.length) {
-                    this.loading.set(false);
-                    this.clearTimeout('no_menu');
-                } else {
-                    this.timeout(
-                        'no_menu',
-                        () => {
-                            notifyError('No menu available');
-                            this.next();
-                        },
-                        1000,
-                    );
-                }
-            }),
         );
     }
 
@@ -267,7 +208,7 @@ export class CheckinPreferencesComponent
         this.type.set('save');
         if (!this.beverage()) return this.next();
         this.loading.set(true);
-        const booking = await nextValueFrom(this._checkin.event);
+        const booking = this._checkin.event();
         if (!booking) return notifyError(i18n('APP.VISITOR_KIOSK.LOAD_ERROR'));
         const email = booking.asset_id;
         const catering_item = new CateringItem({
@@ -287,5 +228,50 @@ export class CheckinPreferencesComponent
     private handleError(message: any) {
         this._checkin.setError(message?.statusText || message);
         this._router.navigate(['/checkin', 'error']);
+    }
+
+    private async loadJwtFromRoute() {
+        const params = this._route.snapshot.queryParamMap;
+        const jwt =
+            params.get('jwt') ||
+            params.get('token') ||
+            parseTokenFromUrl(window.location.href);
+        if (!jwt || jwt === this._last_jwt) return;
+        this._last_jwt = jwt;
+        setToken(jwt);
+        const data = parseJWT(jwt);
+        const user = data.u;
+        if (!user) return;
+        const email = user.e;
+        const [event_id, , bld_zone] = user.r || [];
+        this.bld_id.set(bld_zone);
+
+        await this._checkin.loadGuestAndEvent(email, event_id).catch((err) => {
+            this.handleError(
+                'Unable to find visitor or a meeting associated with the given email address.',
+            );
+            throw err;
+        });
+    }
+
+    private async loadExistingBeverage() {
+        const event = this.event();
+        if (!event) return this.next();
+        if (!event.linked_event && !this.allow_standalone()) {
+            log(
+                'CHECKIN',
+                'Visitor booking does not support catering.',
+                undefined,
+                'info',
+            );
+        }
+        const existing = await getGuestCateringItem(
+            event.asset_id,
+            event.id,
+        ).catch(() => null);
+        if (existing) {
+            this.existing_beverage.set(existing);
+            this.beverage.set(existing);
+        }
     }
 }

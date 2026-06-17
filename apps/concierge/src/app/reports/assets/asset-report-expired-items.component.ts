@@ -5,7 +5,6 @@ import {
     inject,
     input,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { downloadFile, jsonToCsv } from '@placeos/common';
@@ -134,9 +133,7 @@ export class AssetReportExpiredItemsComponent {
 
     public readonly print = input(false);
     public readonly table_metric_guide = TABLE_METRIC_GUIDE;
-    public readonly expired_items = toSignal(this._state.expired_items$, {
-        initialValue: [],
-    });
+    public readonly expired_items = this._state.expired_items;
 
     public readonly download = async () => {
         downloadFile(

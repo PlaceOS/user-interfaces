@@ -1,12 +1,12 @@
 import {
     ChangeDetectionStrategy,
     Component,
-    Injector,
     OnInit,
+    effect,
     inject,
     signal,
+    untracked,
 } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { FormsModule } from '@angular/forms';
@@ -80,7 +80,6 @@ export class VisitorsTopbarComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
-    private _injector = inject(Injector);
 
     /** List of selected levels */
     public readonly zones = signal<string[]>([]);
@@ -104,6 +103,27 @@ export class VisitorsTopbarComponent extends AsyncHandler implements OnInit {
         this._state.setFilters({ zones });
     };
 
+    constructor() {
+        super();
+        effect(() => {
+            this.filters.set(this._state.filters() || {});
+        });
+        effect(() => {
+            const current_levels = this._org.active_levels() || [];
+            untracked(() => {
+                this.levels.set(current_levels);
+                const zones = this.zones().filter((zone) =>
+                    current_levels.find((lvl) => lvl.id === zone),
+                );
+                if (!zones.length && current_levels.length) {
+                    zones.push(current_levels[0].id);
+                }
+                this.zones.set(zones);
+                this.updateZones(zones);
+            });
+        });
+    }
+
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
         this.subscription(
@@ -122,31 +142,6 @@ export class VisitorsTopbarComponent extends AsyncHandler implements OnInit {
                 }
             }),
         );
-        this.subscription(
-            'levels',
-            toObservable(this._org.active_levels, {
-                injector: this._injector,
-            }).subscribe((levels) => {
-                const current_levels = levels || [];
-                this.levels.set(current_levels);
-                const zones = this.zones().filter((zone) =>
-                    current_levels.find((lvl) => lvl.id === zone),
-                );
-                if (!zones.length && current_levels.length) {
-                    zones.push(current_levels[0].id);
-                }
-                this.zones.set(zones);
-                this.updateZones(zones);
-            }),
-        );
-        if (this._state.filters?.subscribe) {
-            this.subscription(
-                'filters',
-                this._state.filters.subscribe((filters) => {
-                    this.filters.set(filters || {});
-                }),
-            );
-        }
         this.setSearch('');
     }
 }

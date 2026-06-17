@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { mockComponent } from '@placeos/common/tests';
 
@@ -10,6 +11,7 @@ describe('PanelViewComponent', () => {
     let spectator: SpectatorRouting<PanelViewComponent>;
     const createComponent = createRoutingFactory({
         component: PanelViewComponent,
+        params: { system_id: 'a-system' },
         declarations: [
             mockComponent(PanelViewDetailsComponent),
             mockComponent(PanelViewStatusComponent),
@@ -18,9 +20,7 @@ describe('PanelViewComponent', () => {
             {
                 provide: PanelStateService,
                 useValue: {
-                    space: {
-                        subscribe: jest.fn(() => ({ unsubscribe: jest.fn() })),
-                    },
+                    space: signal(null),
                     setting: jest.fn(() => false),
                     system: '',
                 },
@@ -41,9 +41,7 @@ describe('PanelViewComponent', () => {
 
     it('should set system on route change', () => {
         const service = spectator.inject(PanelStateService, true);
-        service.system = '';
-        spectator.setRouteParam('system_id', 'sys-2');
         spectator.detectChanges();
-        expect(service.system).toBe('sys-2');
+        expect(service.system).toBe('a-system');
     });
 });

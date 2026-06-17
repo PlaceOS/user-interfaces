@@ -9,8 +9,6 @@ import {
     OnDestroy,
     viewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-
 import {
     AsyncHandler,
     OrganisationService,
@@ -96,15 +94,9 @@ export class ParkingReportChartsComponent
     private _state = inject(ParkingReportService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
-    private readonly _daily_stats = toSignal(this._state.daily_stats$, {
-        initialValue: {},
-    });
-    private readonly _counts = toSignal(this._state.counts$, {
-        initialValue: {},
-    });
-    private readonly _options = toSignal(this._state.options$, {
-        initialValue: { zones: [] },
-    });
+    private readonly _daily_stats = this._state.daily_stats;
+    private readonly _counts = this._state.counts;
+    private readonly _options = this._state.options;
 
     public readonly print = input<boolean>(false);
     public readonly day_list = computed(() => {

@@ -4,11 +4,10 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
-    effect,
     inject,
+    resource,
     signal,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -16,7 +15,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
+    AsyncHandler,
     i18n,
+    nextValueFrom,
     notifyError,
     notifySuccess,
     SettingsService,
@@ -29,7 +30,6 @@ import {
     updateSystem,
     updateTrigger,
 } from '@placeos/ts-client';
-import { from, lastValueFrom, map, of, switchMap, tap } from 'rxjs';
 import { SearchOverlayComponent } from './search-overlay.component';
 import { SignageItemPlaylistsComponent } from './signage-item-playlists.component';
 import { SignageStateService } from './signage-state.service';
@@ -349,7 +349,7 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
         ZonePipe,
     ],
 })
-export class SignageDisplaysComponent {
+export class SignageDisplaysComponent extends AsyncHandler {
     private _state = inject(SignageStateService);
     private _route = inject(ActivatedRoute);
     private _settings = inject(SettingsService);
@@ -360,12 +360,9 @@ export class SignageDisplaysComponent {
     public readonly search = signal('');
     public readonly loading = this._state.loading;
 
-    private readonly _state_displays = toSignal(this._state.displays, {
-        initialValue: [],
-    });
     public readonly displays = computed(() => {
         const search_value = this.search().toLowerCase();
-        const list = this._state_displays();
+        const list = this._state.displays();
         return list.filter((_) => _.name.toLowerCase().includes(search_value));
     });
 
@@ -378,18 +375,17 @@ export class SignageDisplaysComponent {
         return displays.find((item) => item.id === id);
     });
 
-    public readonly triggers = toSignal(
-        toObservable(this.selected).pipe(
-            switchMap((id) => {
-                if (!id) return of([]);
-                return from(listSystemTriggers(id)).pipe(
-                    map((_) => _.data),
-                    tap(() => setTimeout(() => this.switching.set(false), 200)),
-                );
-            }),
-        ),
-        { initialValue: [] },
-    );
+    private readonly _triggers = resource({
+        params: () => this.selected(),
+        defaultValue: [] as any[],
+        loader: async ({ params: id }) => {
+            if (!id) return [];
+            const resp = await listSystemTriggers(id);
+            setTimeout(() => this.switching.set(false), 200);
+            return resp.data as any[];
+        },
+    });
+    public readonly triggers = this._triggers.value;
 
     public readonly active_trigger = computed(() => {
         const list = this.triggers();
@@ -400,18 +396,11 @@ export class SignageDisplaysComponent {
         );
     });
 
-    private readonly _state_playlists = toSignal(this._state.playlists, {
-        initialValue: [],
-    });
-    private readonly _state_has_changed = toSignal(this._state.has_changed, {
-        initialValue: 0,
-    });
-
     public readonly playlists = computed(() => {
         const display = this.active_display();
         const trigger = this.active_trigger();
-        const playlists = this._state_playlists();
-        this._state_has_changed(); // Track changes
+        const playlists = this._state.playlists();
+        this._state.has_changed(); // Track changes
         return playlists.filter(
             (_) => !(trigger || display)?.playlists.find((id) => _.id === id),
         );
@@ -425,14 +414,16 @@ export class SignageDisplaysComponent {
     }
 
     constructor() {
-        const queryParams = toSignal(this._route.queryParamMap);
-        effect(() => {
-            const params = queryParams();
-            if (!params) return;
-            this.switching.set(params.get('display') !== this.selected());
-            this.selected.set(params.get('display') || '');
-            this.selected_trigger.set(params.get('trigger') || '');
-        });
+        super();
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((params) => {
+                if (!params) return;
+                this.switching.set(params.get('display') !== this.selected());
+                this.selected.set(params.get('display') || '');
+                this.selected_trigger.set(params.get('trigger') || '');
+            }),
+        );
     }
 
     public async addPlaylist(playlist: Partial<SignagePlaylist>) {
@@ -441,11 +432,7 @@ export class SignageDisplaysComponent {
         const item = trigger || display;
         const playlists = [...item.playlists, playlist.id];
         const method: any = trigger ? updateTrigger : updateSystem;
-        await method(
-            item.id,
-            { playlists, version: display.version },
-            'patch',
-        ).toPromise();
+        await method(item.id, { playlists, version: display.version }, 'patch');
         notifySuccess(
             i18n(
                 trigger
@@ -463,11 +450,7 @@ export class SignageDisplaysComponent {
         const item = trigger || display;
         const playlists = item.playlists.filter((id) => playlist.id !== id);
         const method: any = trigger ? updateTrigger : updateSystem;
-        await method(
-            item.id,
-            { playlists, version: display.version },
-            'patch',
-        ).toPromise();
+        await method(item.id, { playlists, version: display.version }, 'patch');
         notifySuccess(
             i18n(
                 trigger
@@ -489,13 +472,15 @@ export class SignageDisplaysComponent {
         (item as any).playlists = playlists;
         this._state.changed();
         const method: any = trigger ? updateTrigger : updateSystem;
-        await method(item.id, { playlists, version: display.version }, 'patch')
-            .toPromise()
-            .catch((e) => {
-                (item as any).playlists = old_playlist;
-                this._state.changed();
-                throw e;
-            });
+        await method(
+            item.id,
+            { playlists, version: display.version },
+            'patch',
+        ).catch((e) => {
+            (item as any).playlists = old_playlist;
+            this._state.changed();
+            throw e;
+        });
         notifySuccess(
             i18n(
                 trigger
@@ -531,7 +516,7 @@ export class SignageDisplaysComponent {
         const ref = this._dialog.open(ZoneSelectModalComponent, {
             data: { ignore: display.zones },
         });
-        const result = await lastValueFrom(ref.afterClosed());
+        const result = await nextValueFrom(ref.afterClosed());
         if (!result) return;
         await updateSystem(
             display.id,

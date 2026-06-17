@@ -8,7 +8,6 @@ import {
     UploadsService,
 } from '@placeos/common';
 import { addSignageMedia, SignageMedia } from '@placeos/ts-client';
-import { BehaviorSubject } from 'rxjs';
 import { SignageService } from './signage.service';
 
 type SignageServiceTestAccess = SignageService & Record<string, jest.Mock>;

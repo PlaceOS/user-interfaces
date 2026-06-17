@@ -1,8 +1,9 @@
-import { inject, Injectable } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { effect, inject, Injectable, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
+    AsyncHandler,
     deleteShortURL,
+    getShortUrlQRCode,
     i18n,
     notifyError,
     notifySuccess,
@@ -11,8 +12,6 @@ import {
     ShortURL,
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { debounceTime, shareReplay, switchMap } from 'rxjs/operators';
 import { ShortUrlModalComponent } from './url-modal.component';
 
 export interface UrlListOptions {
@@ -22,40 +21,40 @@ export interface UrlListOptions {
 @Injectable({
     providedIn: 'root',
 })
-export class UrlManagementService {
+export class UrlManagementService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
 
-    private _options = new BehaviorSubject<UrlListOptions>({});
-    private _change = new BehaviorSubject(0);
+    private readonly _change = signal(0);
 
-    public options = this._options.asObservable();
+    public readonly options = signal<UrlListOptions>({});
+    public readonly url_list = signal<ShortURL[]>([]);
+    /** Cache of loaded QR code object URLs, keyed by short URL id */
+    public readonly qr_codes = signal<Record<string, string>>({});
 
-    public url_list = combineLatest([
-        toObservable(this._org.active_building),
-        this._options,
-        this._change,
-    ]).pipe(
-        debounceTime(300),
-        switchMap(([bld, { search }]) =>
-            queryShortURLs({ q: search, limit: 1000 }),
-        ),
-        shareReplay(1),
-    );
+    constructor() {
+        super();
+        effect(() => {
+            this._org.active_building();
+            const { search } = this.options();
+            this._change();
+            this.timeout('load', () => this._load(search), 300);
+        });
+    }
 
     public setFilters(options: Partial<UrlListOptions>) {
-        this._options.next({ ...this._options.getValue(), ...options });
+        this.options.set({ ...this.options(), ...options });
     }
 
     public setSearchString(search: string) {
-        this._options.next({ ...this._options.getValue(), search });
+        this.options.set({ ...this.options(), search });
     }
 
     public editURL(url?: ShortURL) {
         const ref = this._dialog.open(ShortUrlModalComponent, {
             data: url,
         });
-        ref.afterClosed().subscribe(() => this._change.next(Date.now()));
+        ref.afterClosed().subscribe(() => this._change.set(Date.now()));
     }
 
     public async removeURL(url: ShortURL) {
@@ -83,6 +82,23 @@ export class UrlManagementService {
         });
         notifySuccess(i18n('APP.CONCIERGE.URLS_REMOVE_SUCCESS'));
         ref.close();
-        this._change.next(Date.now());
+        this._change.set(Date.now());
+    }
+
+    public async loadQrCode(item: ShortURL) {
+        if (this.qr_codes()[item.id]) return;
+        const code = await getShortUrlQRCode(item.id);
+        this.qr_codes.update((codes) => ({
+            ...codes,
+            [item.id]: code,
+        }));
+    }
+
+    private async _load(search?: string) {
+        const list = await queryShortURLs({ q: search, limit: 1000 });
+        this.url_list.set(list);
+        for (const item of list) {
+            this.loadQrCode(item);
+        }
     }
 }

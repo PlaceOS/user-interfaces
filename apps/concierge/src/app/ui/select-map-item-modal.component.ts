@@ -4,10 +4,11 @@ import {
     Component,
     OnInit,
     computed,
+    effect,
     inject,
+    resource,
     signal,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -27,8 +28,6 @@ import {
     InteractiveMapComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { combineLatest, of } from 'rxjs';
-import { debounceTime, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { MapShowElementComponent } from '../poi-manager/map-show-element.component';
 import { PointOfInterest } from '../poi-manager/poi-management.service';
 
@@ -285,6 +284,8 @@ export class SelectMapItemModalComponent
     public readonly hovered = signal('');
     public readonly search = signal('');
     public readonly changed = signal(0);
+    /** Debounced copy of the search string to throttle map queries */
+    private readonly _search_debounced = signal('');
     public readonly level_list = this._org.active_levels;
     public readonly actions = [
         { id: '*', action: 'click', callback: (e, p) => this.selectID(p || e) },
@@ -323,64 +324,62 @@ export class SelectMapItemModalComponent
         };
     }
 
-    public readonly search_results = toSignal(
-        combineLatest([
-            toObservable(this.search),
-            toObservable(this._maps_people.available),
-            toObservable(this.changed),
-        ]).pipe(
-            debounceTime(300),
-            switchMap(([q, available]) => {
-                return available
-                    ? q.length > 2
-                        ? mapsindoors?.services.LocationsService.getLocations({
-                              q,
-                          }).then((l) => {
-                              const list = l.map((i) =>
-                                  this.itemFromMapsIndoorsItem(i),
-                              );
-                              if (this.selected_item) {
-                                  list.unshift(
-                                      this.itemFromMapsIndoorsItem(
-                                          this.selected_item,
-                                      ),
-                                  );
-                              }
-                              return list;
-                          })
-                        : of(
-                              this.selected_item
-                                  ? [
-                                        this.itemFromMapsIndoorsItem(
-                                            this.selected_item,
-                                        ),
-                                    ]
-                                  : [],
-                          )
-                    : of(
-                          Object.entries(this.map_info())
-                              .map(([id, bbox]) => ({
-                                  id,
-                                  area: bbox.w * bbox.h,
-                              }))
-                              .filter(
-                                  ({ id, area }) =>
-                                      id
-                                          .toLowerCase()
-                                          .includes(q.toLowerCase()) &&
-                                      area < 0.5,
-                              )
-                              .sort((a, b) => b.area - a.area),
-                      );
-            }),
-            tap((l: any[]) => {
-                this.page.set(0);
-                this.last_page.set(Math.floor(l.length / 100));
-            }),
-            shareReplay(1),
-        ),
-        { initialValue: [] as any[] },
-    );
+    private readonly _search_results = resource({
+        params: () => ({
+            q: this._search_debounced(),
+            available: this._maps_people.available(),
+            changed: this.changed(),
+            map_info: this.map_info(),
+        }),
+        defaultValue: [] as any[],
+        loader: async ({ params }) => {
+            const { q, available } = params;
+            let list: any[] = [];
+            if (available) {
+                if (q.length > 2) {
+                    const l =
+                        (await mapsindoors?.services.LocationsService.getLocations(
+                            { q },
+                        )) || [];
+                    list = l.map((i) => this.itemFromMapsIndoorsItem(i));
+                    if (this.selected_item) {
+                        list.unshift(
+                            this.itemFromMapsIndoorsItem(this.selected_item),
+                        );
+                    }
+                } else {
+                    list = this.selected_item
+                        ? [this.itemFromMapsIndoorsItem(this.selected_item)]
+                        : [];
+                }
+            } else {
+                list = Object.entries(params.map_info)
+                    .map(([id, bbox]) => ({
+                        id,
+                        area: bbox.w * bbox.h,
+                    }))
+                    .filter(
+                        ({ id, area }) =>
+                            id.toLowerCase().includes(q.toLowerCase()) &&
+                            area < 0.5,
+                    )
+                    .sort((a, b) => b.area - a.area);
+            }
+            this.page.set(0);
+            this.last_page.set(Math.floor(list.length / 100));
+            return list;
+        },
+    });
+    public readonly search_results = this._search_results.value;
+
+    constructor() {
+        super();
+        // Debounce the free-text search before it drives map queries.
+        effect(() => {
+            const q = this.search();
+            this.timeout('search', () => this._search_debounced.set(q), 300);
+        });
+    }
 
     public readonly setMapInfo = (info: BoundsMap) => this.map_info.set(info);
 

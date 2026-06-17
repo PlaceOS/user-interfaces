@@ -6,7 +6,6 @@ import {
     inject,
     input,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { downloadFile, jsonToCsv, unique } from '@placeos/common';
@@ -152,9 +151,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
 })
 export class ParkingReportDailyUsageComponent {
     private _state = inject(ParkingReportService);
-    private readonly _daily_stats = toSignal(this._state.daily_stats$, {
-        initialValue: {},
-    });
+    private readonly _daily_stats = this._state.daily_stats;
 
     public readonly print = input<boolean>(false);
     public readonly table_metric_guide = TABLE_METRIC_GUIDE;

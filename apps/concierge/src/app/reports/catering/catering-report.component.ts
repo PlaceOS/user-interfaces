@@ -6,15 +6,17 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     TranslatePipe,
 } from '@placeos/components';
-import { debounceTime, map } from 'rxjs/operators';
 import {
     ReportMetricGuideComponent,
     ReportMetricGuideItem,
@@ -133,7 +135,7 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
         AuthenticatedImageDirective,
     ],
 })
-export class CateringReportComponent {
+export class CateringReportComponent extends AsyncHandler {
     private _state = inject(ReportsStateService);
     private _settings = inject(SettingsService);
     private _route = inject(ActivatedRoute);
@@ -141,41 +143,31 @@ export class CateringReportComponent {
 
     public readonly printing = signal(false);
     public readonly metric_guide = METRIC_GUIDE;
-    private readonly _query_params = toSignal(this._route.queryParamMap, {
-        initialValue: this._route.snapshot.queryParamMap,
-    });
     private readonly _building = this._org.active_building;
-    private readonly _stats = toSignal(this._state.stats, {
-        initialValue: {} as any,
-    });
+    private readonly _stats = this._state.stats;
 
     public readonly total_count = computed(() => this._stats()?.count || 0);
-    public readonly loading = toSignal(this._state.loading, {
-        initialValue: '',
-    });
+    public readonly loading = this._state.loading;
     public readonly has_data = computed(() => !!this.total_count());
 
     public readonly downloadReport = () => this._state.downloadReport();
     public readonly generateReport = () => this._state.generateReport();
 
-    public readonly logo = toSignal(
-        toObservable(this._org.active_building).pipe(
-            debounceTime(500),
-            map(
-                () =>
-                    (this._settings.theme === 'dark'
-                        ? this._settings.get('app.logo_dark')
-                        : this._settings.get('app.logo_light')) || {},
-            ),
-        ),
-        { initialValue: {} },
-    );
+    public readonly logo = computed(() => {
+        this._org.active_building();
+        return (
+            (this._settings.theme === 'dark'
+                ? this._settings.get('app.logo_dark')
+                : this._settings.get('app.logo_light')) || {}
+        );
+    });
 
     public get using_bookings() {
         return this._settings.get('app.catering.use_bookings') == true;
     }
 
     constructor() {
+        super();
         effect(() => {
             this._building();
             this._state.setOptions({
@@ -183,21 +175,24 @@ export class CateringReportComponent {
             });
         });
 
-        effect(() => {
-            const params = this._query_params();
-            if (params.has('start')) {
-                this._state.setOptions({ start: +params.get('start') });
-            }
-            if (params.has('end')) {
-                this._state.setOptions({ end: +params.get('end') });
-            }
-            if (params.has('zones') || params.has('zone_ids')) {
-                const id_list = params.get('zones') || params.get('zone_ids');
-                const zones = id_list.split(',');
-                if (zones.length) this._state.setOptions({ zones });
-            } else {
-                this._state.setOptions({ zones: [] });
-            }
-        });
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((params) => {
+                if (params.has('start')) {
+                    this._state.setOptions({ start: +params.get('start') });
+                }
+                if (params.has('end')) {
+                    this._state.setOptions({ end: +params.get('end') });
+                }
+                if (params.has('zones') || params.has('zone_ids')) {
+                    const id_list =
+                        params.get('zones') || params.get('zone_ids');
+                    const zones = id_list.split(',');
+                    if (zones.length) this._state.setOptions({ zones });
+                } else {
+                    this._state.setOptions({ zones: [] });
+                }
+            }),
+        );
     }
 }

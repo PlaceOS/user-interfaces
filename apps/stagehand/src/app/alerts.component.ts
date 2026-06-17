@@ -1,4 +1,4 @@
-import { AsyncPipe, CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import {
     ChangeDetectionStrategy,
     Component,
@@ -23,7 +23,7 @@ import {
     settingSignal,
 } from '@placeos/common';
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
-import { SpacePipe } from 'libs/events/src/lib/space.pipe';
+import { showSystem } from '@placeos/ts-client';
 import { DashboardsService } from './dashboards/dashboards.service';
 import { SidebarComponent } from './ui/sidebar.component';
 
@@ -351,8 +351,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                         </ng-template>
                         <ng-template #location_template let-data="data">
                             <div class="px-4 py-2">
-                                @let space = data | space | async;
-                                @let name = space?.display_name || space?.name;
+                                @let name = locationName(data);
                                 <div>{{ name || data }}</div>
                                 @if (name) {
                                     <div class="stagehand-subtle text-xs">
@@ -438,7 +437,6 @@ import { SidebarComponent } from './ui/sidebar.component';
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
-        AsyncPipe,
         MatMenuModule,
         MatRippleModule,
         SimpleTableComponent,
@@ -448,7 +446,6 @@ import { SidebarComponent } from './ui/sidebar.component';
         MatInputModule,
         SidebarComponent,
         FormsModule,
-        SpacePipe,
         MatTooltipModule,
         MatProgressSpinnerModule,
         RouterLink,
@@ -461,9 +458,18 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _initialized = signal(false);
     private _waiting_for_first_alert = signal(true);
+    private _location_names = signal<Record<string, string>>({});
     private _first_alert_watch = effect(() => {
         if (this.alert_list().length > 0) {
             this._waiting_for_first_alert.set(false);
+        }
+    });
+    private _location_name_sync = effect(() => {
+        const locations = this.alert_list()
+            .map((alert) => alert.location)
+            .filter((location) => location && !this._location_names()[location]);
+        for (const location of new Set(locations)) {
+            this._loadLocationName(location);
         }
     });
 
@@ -609,16 +615,8 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
 
         this._dashboards.loadDashboards();
         this.timeout('apply_dash', () => this._applyDashboard(''));
-        this.subscription(
-            'route.params',
-            this._route.paramMap.subscribe(async (params) => {
-                if (params.has('id')) {
-                    this.timeout('apply_dash', () =>
-                        this._applyDashboard(params.get('id')),
-                    );
-                }
-            }),
-        );
+        const id = this._route.snapshot.paramMap.get('id');
+        if (id) this.timeout('apply_dash', () => this._applyDashboard(id));
         console.log('Backoffice Link:', this.backoffice_link());
     }
 
@@ -638,6 +636,18 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
         await this._dashboards.setDashboard(id);
         this.dashboard.set(id);
         this._dashboards.listenForDashboardAlerts(true);
+    }
+
+    public locationName(location: string) {
+        return this._location_names()[location] || '';
+    }
+
+    private async _loadLocationName(location: string) {
+        const system = await showSystem(location).catch(() => null);
+        this._location_names.update((names) => ({
+            ...names,
+            [location]: system?.display_name || system?.name || '',
+        }));
     }
 
     private _startAlertListLoadingWindow() {

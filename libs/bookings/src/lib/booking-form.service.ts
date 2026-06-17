@@ -545,7 +545,9 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public newForm(type: BookingType, booking: Booking = new Booking({})) {
-        if (type !== this._options().type) this.clearForm();
+        if (type !== this._options().type) {
+            this._clearStoredForm();
+        }
         this.setOptions({ type });
         this._asset_window = untracked(() => {
             const { date, duration } = this._assets.getOptions();
@@ -738,9 +740,14 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public clearForm() {
+        this._clearStoredForm();
+        this.newForm(this._options().type);
+    }
+
+    private _clearStoredForm() {
         sessionStorage.removeItem('PLACEOS.booking_form');
         sessionStorage.removeItem('PLACEOS.booking_form_options');
-        this.newForm(this._options().type);
+        sessionStorage.removeItem('PLACEOS.booking_form_filters');
     }
 
     public storeForm() {
@@ -748,7 +755,12 @@ export class BookingFormService extends AsyncHandler {
             'PLACEOS.booking_form',
             JSON.stringify({
                 ...this._booking(),
-                ...cleanObject(this.model() || {}, [null, undefined, '']),
+                // `cleanObject` mutates its argument in place, so clone the
+                // live form value first. Passing `this.model()` directly would
+                // strip every empty/`null` key (e.g. `asset_id: ''`) out of the
+                // signal-forms model, orphaning the matching `[formField]`
+                // bindings (`field() is not a function` / NG01902).
+                ...cleanObject({ ...this.model() }, [null, undefined, '']),
             }),
         );
         sessionStorage.setItem(
@@ -1904,7 +1916,7 @@ export class BookingFormService extends AsyncHandler {
             subs.push(ref.afterClosed().subscribe((event) => finish(event)));
         });
         if (result?.reason !== 'done') throw 'User cancelled';
-        const form = ref.componentInstance.form.getRawValue();
+        const form = ref.componentInstance.model();
         for (const key in form) {
             if (form[key]) throw 'User failed questionaire';
         }

@@ -3,19 +3,14 @@ import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 import {
     ChangeDetectionStrategy,
     Component,
+    computed,
+    effect,
     EventEmitter,
     inject,
     Output,
     signal,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import {
-    FormControl,
-    FormGroup,
-    FormsModule,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { form, FormField, required } from '@angular/forms/signals';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -44,7 +39,6 @@ import {
     CounterComponent,
     removeChipItem,
 } from '@placeos/form-fields';
-import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'locker-bank-modal',
@@ -68,16 +62,16 @@ import { map } from 'rxjs/operators';
                 }
             </header>
             @if (!loading()) {
-                <main
-                    class="flex max-h-[65vh] flex-col overflow-auto p-4"
-                    [formGroup]="form"
-                >
+                <main class="flex max-h-[65vh] flex-col overflow-auto p-4">
                     <label for="name">{{ 'RESOURCE.LEVEL' | translate }}</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <mat-select
-                            formControlName="level_id"
+                            [formField]="form.level_id"
                             (selectionChange)="
-                                form.patchValue({ zones: [$event.value] })
+                                model.update((m) => ({
+                                    ...m,
+                                    zones: [$event.value],
+                                }))
                             "
                         >
                             @for (level of levels(); track level) {
@@ -112,8 +106,7 @@ import { map } from 'rxjs/operators';
                             <mat-form-field appearance="outline">
                                 <input
                                     matInput
-                                    name="name"
-                                    formControlName="name"
+                                    [formField]="form.name"
                                     [placeholder]="'FORM.NAME' | translate"
                                 />
                                 <mat-error>{{
@@ -128,8 +121,7 @@ import { map } from 'rxjs/operators';
                             <mat-form-field appearance="outline">
                                 <input
                                     matInput
-                                    name="map-id"
-                                    formControlName="map_id"
+                                    [formField]="form.map_id"
                                     [placeholder]="'EXPLORE.MAP_ID' | translate"
                                 />
                                 <mat-error>
@@ -140,7 +132,7 @@ import { map } from 'rxjs/operators';
                     </div>
                     <label for="row">{{ 'COMMON.HEIGHT' | translate }}</label>
                     <a-counter
-                        formControlName="height"
+                        [formField]="form.height"
                         class="mb-4"
                         [min]="1"
                         [max]="16"
@@ -150,9 +142,8 @@ import { map } from 'rxjs/operators';
                     <mat-form-field appearance="outline">
                         <textarea
                             matInput
-                            name="notes"
                             [placeholder]="'FORM.NOTES' | translate"
-                            formControlName="notes"
+                            [formField]="form.notes"
                         ></textarea>
                     </mat-form-field>
                     <label for="tags"> {{ 'COMMON.TAGS' | translate }} </label>
@@ -217,8 +208,7 @@ import { map } from 'rxjs/operators';
         MatInputModule,
         MatChipsModule,
         CounterComponent,
-        FormsModule,
-        ReactiveFormsModule,
+        FormField,
         BuildingPipe,
     ],
 })
@@ -239,64 +229,47 @@ export class LockerBankModalComponent {
     /** List of separator characters for tags */
     public readonly separators: number[] = [ENTER, COMMA, SPACE];
 
-    public readonly form = new FormGroup({
-        id: new FormControl(''),
-        level_id: new FormControl('', [Validators.required]),
-        name: new FormControl('', [Validators.required]),
-        map_id: new FormControl('', [Validators.required]),
-        notes: new FormControl(''),
-        height: new FormControl(3),
-        zones: new FormControl([]),
-        tags: new FormControl([]),
+    public readonly model = signal({
+        id: '',
+        level_id: '',
+        name: '',
+        map_id: '',
+        notes: '',
+        height: 3,
+        zones: [] as string[],
+        tags: [] as string[],
+    });
+    public readonly form = form(this.model, (p) => {
+        required(p.level_id);
+        required(p.name);
+        required(p.map_id);
     });
 
-    /** List of available locker levels for the current building */
-    public readonly levels = toSignal(
-        toObservable(this._org.level_list).pipe(
-            map((_) => {
-                if (!this._settings.get('app.use_region')) {
-                    const blds = this._org.buildingsForRegion();
-                    const bld_ids = blds.map((bld) => bld.id);
-                    const list = _.filter((lvl) =>
-                        bld_ids.includes(lvl.parent_id),
-                    );
-                    list.map((lvl) => ({
-                        ...lvl,
-                        display_name: `${
-                            blds.find((_) => _.id === lvl.parent_id)
-                                ?.display_name
-                        } - ${lvl.display_name}`,
-                    }));
-                    if (!this.form.value.level_id && list.length) {
-                        this.form.patchValue({
-                            level_id: list[0].id,
-                            zones: [list[0].id],
-                        });
-                    }
-                    return list;
-                }
-                const list = _.filter(
-                    (lvl) => lvl.parent_id === this._org.building.id,
-                );
-                if (!this.form.value.level_id && list.length) {
-                    this.form.patchValue({
-                        level_id: list[0].id,
-                        zones: [list[0].id],
-                    });
-                }
-                return list;
-            }),
-        ),
-        { initialValue: [] },
-    );
+    private get _tags_control() {
+        return {
+            value: this.model().tags,
+            setValue: (value: string[]) =>
+                this.model.update((m) => ({ ...m, tags: value })),
+        };
+    }
 
-    public readonly addTag = (e) =>
-        addChipItem(this.form.controls.tags as any, e);
+    /** List of available locker levels for the current building */
+    public readonly levels = computed(() => {
+        const all = this._org.level_list();
+        if (!this._settings.get('app.use_region')) {
+            const blds = this._org.buildingsForRegion();
+            const bld_ids = blds.map((bld) => bld.id);
+            return all.filter((lvl) => bld_ids.includes(lvl.parent_id));
+        }
+        return all.filter((lvl) => lvl.parent_id === this._org.building.id);
+    });
+
+    public readonly addTag = (e) => addChipItem(this._tags_control as any, e);
     public readonly removeTag = (i) =>
-        removeChipItem(this.form.controls.tags as any, i);
+        removeChipItem(this._tags_control as any, i);
 
     public get tag_list(): string[] {
-        return this.form.controls.tags.value;
+        return this.model().tags;
     }
 
     public get id() {
@@ -304,20 +277,38 @@ export class LockerBankModalComponent {
     }
 
     constructor() {
-        const _data = this._data;
-
-        if (_data) {
-            this.form.patchValue({
-                ..._data,
-                level_id: _data.level_id || this._levelFromZones(_data.zones),
-            });
+        effect(() => {
+            const list = this.levels();
+            if (!this.model().level_id && list.length) {
+                this.model.update((m) => ({
+                    ...m,
+                    level_id: list[0].id,
+                    zones: [list[0].id],
+                }));
+            }
+        });
+        const data = this._data as any;
+        if (data) {
+            this.model.update((m) => ({
+                ...m,
+                id: data.id ?? m.id,
+                level_id:
+                    data.level_id || this._levelFromZones(data.zones) || m.level_id,
+                name: data.name ?? m.name,
+                map_id: data.map_id ?? m.map_id,
+                notes: data.notes ?? m.notes,
+                height: data.height ?? m.height,
+                zones: data.zones ?? m.zones,
+                tags: data.tags ?? m.tags,
+            }));
         }
     }
 
     public postForm() {
-        if (!this.form.valid) return;
+        this.form().markAsTouched();
+        if (!this.form().valid()) return;
         this.loading.set(true);
-        const value = { ...this.form.getRawValue() };
+        const value: any = { ...this.model() };
         const level = this._org.levelWithID([value.level_id]);
         value.zones = unique(
             [

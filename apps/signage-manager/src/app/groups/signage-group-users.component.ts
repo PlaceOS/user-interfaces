@@ -1,13 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceGroupUser } from '@placeos/ts-client';
-import { lastValueFrom } from 'rxjs';
-import { SignageService } from '../signage.service';
+import { dialogClosed, SignageService } from '../signage.service';
 import {
     groupPermissionLabels,
     SignageGroupPermissionsModalComponent,
@@ -154,35 +152,29 @@ export class SignageGroupUsersComponent {
     private readonly _service = inject(SignageService);
     private readonly _dialog = inject(MatDialog);
 
-    public readonly users = toSignal(this._service.managed_group_users, {
-        initialValue: [] as PlaceGroupUser[],
-    });
+    public readonly users = this._service.managed_group_users;
     public readonly permissionLabels = groupPermissionLabels;
 
     public async addUser() {
-        const user = await lastValueFrom(
-            this._dialog
-                .open(SignageGroupUserSelectModalComponent, {
-                    data: {
-                        exclude_ids: this.users().map((item) => item.user_id),
-                    },
-                    panelClass: 'mobile-fullscreen',
-                })
-                .afterClosed(),
+        const user = await dialogClosed(
+            this._dialog.open(SignageGroupUserSelectModalComponent, {
+                data: {
+                    exclude_ids: this.users().map((item) => item.user_id),
+                },
+                panelClass: 'mobile-fullscreen',
+            }),
         );
         if (user) await this._service.addManagedGroupUser(user);
     }
 
     public async editUserPermissions(row: PlaceGroupUser) {
-        const result = await lastValueFrom(
-            this._dialog
-                .open(SignageGroupPermissionsModalComponent, {
-                    data: {
-                        title: i18n('SIGNAGE_MANAGER.USER_PERMISSIONS'),
-                        permissions: row.permissions,
-                    },
-                })
-                .afterClosed(),
+        const result = await dialogClosed(
+            this._dialog.open(SignageGroupPermissionsModalComponent, {
+                data: {
+                    title: i18n('SIGNAGE_MANAGER.USER_PERMISSIONS'),
+                    permissions: row.permissions,
+                },
+            }),
         );
         if (result) {
             await this._service.updateManagedGroupUser(row, result.permissions);

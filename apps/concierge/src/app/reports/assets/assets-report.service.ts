@@ -1,5 +1,5 @@
 import { formatDate } from '@angular/common';
-import { inject, Injectable } from '@angular/core';
+import { computed, inject, Injectable, resource, signal } from '@angular/core';
 import {
     queryAssetGroupsExtended,
     queryAssetPurchaseOrders,
@@ -12,7 +12,6 @@ import {
     downloadFile,
     i18n,
     jsonToCsv,
-    nextValueFrom,
     notifyError,
     OrganisationService,
     SettingsService,
@@ -27,18 +26,6 @@ import {
     isSameDay,
     startOfDay,
 } from 'date-fns';
-import { BehaviorSubject, combineLatest, from } from 'rxjs';
-import {
-    debounceTime,
-    filter,
-    finalize,
-    map,
-    shareReplay,
-    skip,
-    switchMap,
-    takeUntil,
-    tap,
-} from 'rxjs/operators';
 import { REMOVE_KEYS } from '../reports-state.service';
 import {
     activeReportBookings,
@@ -61,45 +48,46 @@ export class AssetsReportService {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
-    private _loading = new BehaviorSubject<boolean>(false);
-    private _options = new BehaviorSubject<AssetsReportOptions>({});
-    private _generate = new BehaviorSubject<number>(0);
+    private _loading = signal<boolean>(false);
+    private _options = signal<AssetsReportOptions>({});
+    private _generate = signal<number>(0);
 
-    public readonly loading$ = this._loading.asObservable();
-    public readonly options$ = this._options.asObservable();
+    public readonly loading = this._loading.asReadonly();
+    public readonly options = this._options.asReadonly();
 
-    public readonly products$ = this._generate.pipe(
-        filter((gen) => gen > 0),
-        debounceTime(300),
-        switchMap(() => {
-            const options = this._options.getValue();
-            this._loading.next(true);
-            return from(
-                queryAssetGroupsExtended({
+    private readonly _products = resource({
+        params: () => this._generate(),
+        defaultValue: [] as AssetGroup[],
+        loader: async ({ params: gen }) => {
+            if (gen <= 0) return [];
+            const options = this._options();
+            this._loading.set(true);
+            try {
+                return await queryAssetGroupsExtended({
                     zones:
                         (options.zones || [])?.join(',') ||
                         (this._settings.get('app.use_region')
                             ? this._org.region?.id
                             : '') ||
                         this._org.building?.id,
-                }),
-            ).pipe(
-                takeUntil(this._options.pipe(skip(1))),
-                finalize(() => this._loading.next(false)),
-            );
-        }),
-        shareReplay(1),
-    );
+                });
+            } finally {
+                this._loading.set(false);
+            }
+        },
+    });
+    public readonly products = this._products.value;
 
-    public readonly bookings$ = this._generate.pipe(
-        filter((gen) => gen > 0),
-        debounceTime(300),
-        switchMap(() => {
-            const options = this._options.getValue();
-            this._loading.next(true);
+    private readonly _bookings = resource({
+        params: () => this._generate(),
+        defaultValue: [] as Booking[],
+        loader: async ({ params: gen }) => {
+            if (gen <= 0) return [];
+            const options = this._options();
+            this._loading.set(true);
             const { start, end, zones } = options;
-            return from(
-                queryBookings({
+            try {
+                const list = await queryBookings({
                     period_start: getUnixTime(startOfDay(start || Date.now())),
                     period_end: getUnixTime(
                         endOfDay(end || start || Date.now()),
@@ -113,69 +101,61 @@ export class AssetsReportService {
                             ? this._org.region?.id
                             : '') ||
                         this._org.building?.id,
-                }),
-            ).pipe(
-                takeUntil(this._options.pipe(skip(1))),
-                finalize(() => this._loading.next(false)),
+                });
+                if (!list.length) {
+                    notifyError(i18n('APP.CONCIERGE.REPORTS_LOAD_ERROR'));
+                }
+                return list;
+            } finally {
+                this._loading.set(false);
+            }
+        },
+    });
+    public readonly bookings = this._bookings.value;
+
+    public readonly stats = computed(() =>
+        this._processBookingStats(this.bookings(), this.products()),
+    );
+
+    public readonly daily_stats = computed(() => {
+        const options = this._options();
+        const products = this.products();
+        const bookings = this.bookings();
+        const stats = {};
+        let count = 0;
+        let start = startOfDay(options.start);
+        const end = endOfDay(options.end);
+        while (isBefore(start, end) && count < 365) {
+            const date = format(start, 'yyyy-MM-dd');
+            stats[date] = this._processBookingStats(
+                bookings.filter((_) => isSameDay(_.date, start)),
+                products,
             );
-        }),
-        tap((_) => {
-            if (!_.length) {
-                notifyError(i18n('APP.CONCIERGE.REPORTS_LOAD_ERROR'));
+            start = addDays(start, 1);
+            count++;
+        }
+        return stats;
+    });
+
+    private readonly _expired_items = resource({
+        params: () => this._generate(),
+        defaultValue: [] as any[],
+        loader: async ({ params: gen }) => {
+            if (gen <= 0) return [];
+            const options = this._options();
+            this._loading.set(true);
+            try {
+                const purchase_orders = await queryAssetPurchaseOrders({});
+                return purchase_orders.data.filter((order) => {
+                    order.expected_service_end_date <
+                        getUnixTime(options.start || Date.now());
+                });
+            } finally {
+                this._loading.set(false);
             }
-        }),
-        shareReplay(1),
-    );
-
-    public readonly stats$ = combineLatest([
-        this.products$,
-        this.bookings$,
-    ]).pipe(
-        map(([products, bookings]) => {
-            const data = this._processBookingStats(bookings, products);
-            return data;
-        }),
-        shareReplay(1),
-    );
-
-    public readonly daily_stats$ = combineLatest([
-        this._options,
-        this.products$,
-        this.bookings$,
-    ]).pipe(
-        map(([options, products, bookings]) => {
-            const stats = {};
-            let count = 0;
-            let start = startOfDay(options.start);
-            const end = endOfDay(options.end);
-            while (isBefore(start, end) && count < 365) {
-                const date = format(start, 'yyyy-MM-dd');
-                stats[date] = this._processBookingStats(
-                    bookings.filter((_) => isSameDay(_.date, start)),
-                    products,
-                );
-                start = addDays(start, 1);
-                count++;
-            }
-            return stats;
-        }),
-        shareReplay(1),
-    );
-
-    public readonly expired_items$ = this._generate.pipe(
-        switchMap(() => {
-            this._loading.next(true);
-            return combineLatest([queryAssetPurchaseOrders({}), this._options]);
-        }),
-        map(([purchase_orders, options]) => {
-            return purchase_orders.data.filter((order) => {
-                order.expected_service_end_date <
-                    getUnixTime(options.start || Date.now());
-            });
-        }),
-        tap(() => this._loading.next(false)),
-        shareReplay(1),
-    );
+        },
+    });
+    public readonly expired_items = this._expired_items.value;
 
     private _processBookingStats(
         booking_list: Booking[],
@@ -219,12 +199,12 @@ export class AssetsReportService {
     }
 
     public generateReport() {
-        this._generate.next(Date.now());
+        this._generate.set(Date.now());
     }
 
     public async downloadReport() {
-        const options = this._options.getValue();
-        const bookings = await nextValueFrom(this.bookings$);
+        const options = this._options();
+        const bookings = this.bookings();
         if (!bookings?.length) return;
         const is_same = isSameDay(options.start, options.end);
         const date = is_same
@@ -250,6 +230,6 @@ export class AssetsReportService {
     }
 
     public setOptions(options: Partial<AssetsReportOptions>) {
-        this._options.next({ ...this._options.getValue(), ...options });
+        this._options.set({ ...this._options(), ...options });
     }
 }

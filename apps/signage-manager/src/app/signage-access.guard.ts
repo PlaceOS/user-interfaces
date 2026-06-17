@@ -1,7 +1,5 @@
 import { inject } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
 import { CanActivateChildFn, Router } from '@angular/router';
-import { filter, map, take } from 'rxjs/operators';
 import { SignageService } from './signage.service';
 
 export function canAccessSignageApp(
@@ -11,20 +9,28 @@ export function canAccessSignageApp(
     return can_manage_all_groups || group_count > 0;
 }
 
-export const signageAccessGuard: CanActivateChildFn = () => {
+function waitForSignageGroups(service: SignageService) {
+    return new Promise<void>((resolve) => {
+        const check = () => {
+            if (service.signage_groups_loaded()) {
+                resolve();
+            } else {
+                setTimeout(check, 50);
+            }
+        };
+        check();
+    });
+}
+
+export const signageAccessGuard: CanActivateChildFn = async () => {
     const service = inject(SignageService);
     const router = inject(Router);
 
-    return toObservable(service.signage_groups_loaded).pipe(
-        filter(Boolean),
-        take(1),
-        map(() =>
-            canAccessSignageApp(
-                service.can_manage_all_groups(),
-                service.signage_groups().length,
-            )
-                ? true
-                : router.parseUrl('/unauthorised'),
-        ),
-    );
+    await waitForSignageGroups(service);
+    return canAccessSignageApp(
+        service.can_manage_all_groups(),
+        service.signage_groups().length,
+    )
+        ? true
+        : router.parseUrl('/unauthorised');
 };

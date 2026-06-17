@@ -4,20 +4,14 @@ import {
     OnInit,
     computed,
     inject,
+    signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
-import {
-    ActivatedRoute,
-    NavigationEnd,
-    Router,
-    RouterModule,
-} from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { LockerStateService } from './locker-state.service';
 
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { filter, map, startWith } from 'rxjs/operators';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
@@ -72,23 +66,12 @@ export class LockersComponent extends AsyncHandler implements OnInit {
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
 
-    private readonly _current_url = toSignal(
-        this._router.events.pipe(
-            filter(
-                (event): event is NavigationEnd =>
-                    event instanceof NavigationEnd,
-            ),
-            map((event) => event.urlAfterRedirects),
-            startWith(this._router.url),
-        ),
-        { initialValue: this._router.url },
-    );
+    private readonly _url = signal<unknown>(null);
 
-    public readonly loading = toSignal(this._state.loading, {
-        initialValue: '',
-    });
+    public readonly loading = this._state.loading;
     public readonly path = computed(() => {
-        const parts = this._current_url()?.split('/') || [''];
+        this._url();
+        const parts = this._router.url.split('/');
         return parts[parts.length - 1].split('?')[0];
     });
     /** List of levels for the active building */
@@ -111,6 +94,14 @@ export class LockersComponent extends AsyncHandler implements OnInit {
 
     public get use_region() {
         return !!this._settings.get('app.use_region');
+    }
+
+    constructor() {
+        super();
+        this.subscription(
+            'router',
+            this._router.events.subscribe((event) => this._url.set(event)),
+        );
     }
 
     public ngOnInit() {

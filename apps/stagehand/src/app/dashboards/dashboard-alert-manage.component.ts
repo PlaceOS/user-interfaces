@@ -6,13 +6,8 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import {
-    FormControl,
-    FormGroup,
-    FormsModule,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { form, FormField, required } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -22,7 +17,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
     AsyncHandler,
-    getInvalidFields,
+    getInvalidSignalFields,
     i18n,
     notifyError,
 } from '@placeos/common';
@@ -37,7 +32,6 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { lastValueFrom } from 'rxjs';
 import { AlertConditionModalComponent } from './alert-conditions-modal.component';
 import { DashboardsService } from './dashboards.service';
 import { SystemSearchFieldComponent } from './system-search-field.component';
@@ -77,7 +71,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                     </a>
                 </header>
                 <main class="p-2">
-                    <form [formGroup]="form" class="flex flex-col">
+                    <form class="flex flex-col">
                         <label for="name"
                             >{{ 'FORM.NAME' | translate
                             }}<span required>*</span></label
@@ -86,9 +80,8 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                             <input
                                 id="name"
                                 matInput
-                                name="name"
-                                formControlName="name"
                                 placeholder="Alert Name"
+                                [formField]="form.name"
                             />
                             <mat-error>Name is required</mat-error>
                         </mat-form-field>
@@ -99,22 +92,21 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                             <textarea
                                 id="description"
                                 matInput
-                                name="description"
-                                formControlName="description"
                                 placeholder="Description of the alert"
+                                [formField]="form.description"
                             ></textarea>
                         </mat-form-field>
                         <div class="mb-4 flex flex-col gap-2 sm:flex-row">
                             <settings-toggle
                                 class="flex-1"
-                                formControlName="enabled"
+                                [formField]="form.enabled"
                                 >{{
                                     'COMMON.ENABLED' | translate
                                 }}</settings-toggle
                             >
                             <settings-toggle
                                 class="flex-1"
-                                formControlName="any_match"
+                                [formField]="form.any_match"
                                 >{{
                                     'APP.STAGEHAND.ALERT_MATCH_ANY' | translate
                                 }}</settings-toggle
@@ -128,8 +120,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                                 }}</label>
                                 <mat-form-field appearance="outline">
                                     <mat-select
-                                        name="severity"
-                                        formControlName="severity"
+                                        [formField]="form.severity"
                                         [placeholder]="
                                             'APP.STAGEHAND.ALERT_FIELD_SEVERITY'
                                                 | translate
@@ -155,8 +146,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                                 }}</label>
                                 <mat-form-field appearance="outline">
                                     <mat-select
-                                        name="type"
-                                        formControlName="alert_type"
+                                        [formField]="form.alert_type"
                                         [placeholder]="
                                             'APP.STAGEHAND.ALERT_FIELD_TYPE'
                                                 | translate
@@ -205,7 +195,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                             <simple-table
                                 class="mb-4 block w-full min-w-lg text-sm"
                                 [data]="
-                                    form.value.conditions?.comparisons || []
+                                    model().conditions?.comparisons || []
                                 "
                                 [columns]="[
                                     {
@@ -232,7 +222,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                             <!-- <simple-table
                                 class="block w-full min-w-lg text-sm"
                                 [data]="
-                                    form.value.conditions?.time_dependents || []
+                                    model().conditions?.time_dependents || []
                                 "
                                 [columns]="[
                                     {
@@ -337,7 +327,6 @@ export type AlertType = 'threshold' | 'status' | 'custom';
         IconComponent,
         MatRippleModule,
         RouterModule,
-        ReactiveFormsModule,
         FormsModule,
         MatFormFieldModule,
         MatInputModule,
@@ -346,6 +335,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
         SimpleTableComponent,
         SystemSearchFieldComponent,
         MatTooltipModule,
+        FormField,
     ],
 })
 export class DashboardAlertManageComponent
@@ -364,38 +354,34 @@ export class DashboardAlertManageComponent
     public readonly template_system = signal(null);
     public readonly alert = this._service.alert;
     public readonly dashboard = this._service.dashboard;
-    public readonly form = new FormGroup({
-        id: new FormControl(''),
-        alert_dashboard_id: new FormControl(''),
-        authority_id: new FormControl(''),
-        name: new FormControl('', [Validators.required]),
-        description: new FormControl(''),
-        enabled: new FormControl(true),
-        conditions: new FormControl<TriggerConditions>({
+    public readonly model = signal({
+        id: '',
+        alert_dashboard_id: '',
+        authority_id: '',
+        name: '',
+        description: '',
+        enabled: true,
+        conditions: {
             comparisons: [],
             time_dependents: [],
-        }),
-        any_match: new FormControl(false),
-        severity: new FormControl<AlertSeverity>('medium'),
-        alert_type: new FormControl<AlertType>('threshold'),
-        debounce_period: new FormControl(0),
+        } as TriggerConditions,
+        any_match: false,
+        severity: 'medium' as AlertSeverity,
+        alert_type: 'threshold' as AlertType,
+        debounce_period: 0,
+    });
+    public readonly form = form(this.model, (p) => {
+        required(p.name);
     });
 
     public ngOnInit() {
-        this.subscription(
-            'route.parms',
-            this._route.paramMap.subscribe((params) => {
-                if (params.has('id')) {
-                    this._service.setDashboard(params.get('id'));
-                    this.form.patchValue({
-                        alert_dashboard_id: params.get('id'),
-                    });
-                }
-                if (params.has('alert_id')) {
-                    this.setAlert(params.get('alert_id'));
-                }
-            }),
-        );
+        const id = this._route.snapshot.paramMap.get('id');
+        const alert_id = this._route.snapshot.paramMap.get('alert_id');
+        if (id) {
+            this._service.setDashboard(id);
+            this.model.update((m) => ({ ...m, alert_dashboard_id: id }));
+        }
+        if (alert_id) this.setAlert(alert_id);
         this.timeout('redirect', () => {
             if (!this.dashboard()) this._router.navigate(['/dashboards']);
         });
@@ -404,13 +390,13 @@ export class DashboardAlertManageComponent
     public async setAlert(id: string) {
         await this._service.setAlert(id);
         const dash = this._service.alert();
-        if (dash) this.form.patchValue(dash);
+        if (dash) this.model.update((m) => ({ ...m, ...dash }));
     }
 
     public removeCondition(
         condition: TriggerComparison | TriggerTimeCondition = null,
     ) {
-        const old_conditions = this.form.getRawValue().conditions;
+        const old_conditions = this.model().conditions;
         const new_conditions: TriggerConditions = {
             comparisons: old_conditions.comparisons.filter(
                 (_) => _ !== condition,
@@ -419,7 +405,7 @@ export class DashboardAlertManageComponent
                 (_) => _ !== condition,
             ),
         };
-        this.form.patchValue({ conditions: new_conditions });
+        this.model.update((m) => ({ ...m, conditions: new_conditions }));
     }
 
     public async editCondition(
@@ -429,18 +415,21 @@ export class DashboardAlertManageComponent
         if (!system) return;
         const ref = this._dialog.open(AlertConditionModalComponent, {
             data: {
-                alert: this.form.getRawValue(),
+                alert: this.model(),
                 condition: condition
                     ? JSON.parse(JSON.stringify(condition))
                     : undefined,
                 system: system,
             },
         });
-        const result: TriggerConditions | null = (await Promise.race([
-            lastValueFrom(ref.afterClosed()),
-        ])) as any;
+        const result: TriggerConditions | null = await new Promise((resolve) => {
+            const sub = ref.afterClosed().subscribe((value) => {
+                sub.unsubscribe();
+                resolve(value);
+            });
+        });
         if (!result) return;
-        const old_conditions = this.form.getRawValue().conditions;
+        const old_conditions = this.model().conditions;
         const new_conditions: TriggerConditions = {
             comparisons: [
                 ...old_conditions.comparisons.filter((_) => _ !== condition),
@@ -453,15 +442,18 @@ export class DashboardAlertManageComponent
                 ...result.time_dependents,
             ],
         };
-        this.form.patchValue({ conditions: new_conditions });
+        this.model.update((m) => ({ ...m, conditions: new_conditions }));
     }
 
     public async save() {
-        this.form.markAllAsTouched();
-        if (!this.form.valid) {
+        this.form().markAsTouched();
+        if (!this.form().valid()) {
             return notifyError(
                 i18n('FORM.INVALID_FIELDS', {
-                    field_list: getInvalidFields(this.form),
+                    field_list: getInvalidSignalFields(
+                        this.form,
+                        this.model,
+                    ),
                 }),
             );
         }
@@ -469,7 +461,7 @@ export class DashboardAlertManageComponent
         if (!dashboard) return;
         this.loading.set(i18n('STAGEHAND.DASHBOARD_ALERTS_LOADING'));
         const alert = this._service.alert() || {};
-        const value = this.form.getRawValue();
+        const value = this.model();
         const new_alert = {
             ...alert,
             ...value,

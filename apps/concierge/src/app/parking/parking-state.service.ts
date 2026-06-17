@@ -270,6 +270,7 @@ export class ParkingStateService extends AsyncHandler {
                 type: 'parking',
                 zones: this._bookingQueryZone(options, bld),
                 include_checked_out: true,
+                limit: 1000,
             });
             for (const booking of list) {
                 const user = users.find(

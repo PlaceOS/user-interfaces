@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
@@ -8,10 +7,7 @@ import {
     AuthenticatedImageDirective,
     TranslatePipe,
 } from '@placeos/components';
-import {
-    AssetManagerStateService,
-    AssetOptions,
-} from './asset-manager-state.service';
+import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
     selector: 'app-asset-item-list',
@@ -199,18 +195,10 @@ import {
 export class AssetItemListComponent {
     private _state = inject(AssetManagerStateService);
 
-    public readonly loading = toSignal(this._state.loading, {
-        initialValue: false,
-    });
-    public readonly options = toSignal(this._state.options, {
-        initialValue: { view: 'grid' } as AssetOptions,
-    });
-    public readonly categories = toSignal(this._state.categories, {
-        initialValue: [],
-    });
-    public readonly products = toSignal(this._state.product_mapping, {
-        initialValue: { _count: 0 },
-    });
+    public readonly loading = this._state.loading;
+    public readonly options = this._state.options;
+    public readonly categories = this._state.categories;
+    public readonly products = this._state.product_mapping;
 
     public get base_route() {
         return this._state.base_route;

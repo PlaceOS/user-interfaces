@@ -1,6 +1,10 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    Input,
+    signal,
+} from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
 import { SignageService } from '../signage.service';
 import { MediaSectionComponent } from './media.component';
 
@@ -57,7 +61,7 @@ class IconStubComponent {}
 describe('MediaSectionComponent', () => {
     const preview_files = jest.fn();
     const service_stub = {
-        playlists: of([]),
+        playlists: signal([]),
         previewFiles: preview_files,
     };
 

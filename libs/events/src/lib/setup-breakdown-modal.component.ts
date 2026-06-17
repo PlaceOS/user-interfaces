@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormField, form } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -8,7 +8,6 @@ import {
 } from '@angular/material/dialog';
 import { CalendarEvent, notifyError, notifySuccess } from '@placeos/common';
 
-import { ReactiveFormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -27,14 +26,13 @@ import { saveEvent, updateEventMetadata } from './events.fn';
             }
         </header>
         @if (!loading()) {
-            <main class="w-full min-w-[20rem] p-4" [formGroup]="form">
+            <main class="w-full min-w-[20rem] p-4">
                 <div class="flex flex-col space-y-2">
                     <label for="setup">{{
                         'CALENDAR_EVENT.SETUP_DURATION' | translate
                     }}</label>
                     <a-duration-field
-                        name="setup"
-                        formControlName="setup"
+                        [formField]="form.setup"
                         [min]="0"
                         [custom_options]="[5, 10]"
                     ></a-duration-field>
@@ -46,9 +44,8 @@ import { saveEvent, updateEventMetadata } from './events.fn';
                         }}Breakdown Duration</label
                     >
                     <a-duration-field
-                        name="breakdown"
                         [min]="0"
-                        formControlName="breakdown"
+                        [formField]="form.breakdown"
                         [custom_options]="[5, 10]"
                     ></a-duration-field>
                 </div>
@@ -77,7 +74,7 @@ import { saveEvent, updateEventMetadata } from './events.fn';
         MatDialogModule,
         DurationFieldComponent,
         MatProgressSpinnerModule,
-        ReactiveFormsModule,
+        FormField,
     ],
 })
 export class SetupBreakdownModalComponent {
@@ -86,10 +83,11 @@ export class SetupBreakdownModalComponent {
         inject<MatDialogRef<SetupBreakdownModalComponent>>(MatDialogRef);
 
     public loading = signal(false);
-    public readonly form = new FormGroup({
-        setup: new FormControl(this._event.setup_time || 0),
-        breakdown: new FormControl(this._event.breakdown_time || 0),
+    public readonly model = signal({
+        setup: this._event.setup_time || 0,
+        breakdown: this._event.breakdown_time || 0,
     });
+    public readonly form = form(this.model);
 
     public async save() {
         this.loading.set(true);
@@ -102,18 +100,18 @@ export class SetupBreakdownModalComponent {
         let event = await saveEvent(
             new CalendarEvent({
                 ...this._event,
-                setup_time: this.form.value.setup,
-                breakdown_time: this.form.value.breakdown,
+                setup_time: this.model().setup,
+                breakdown_time: this.model().breakdown,
             }).toJSON(),
             query,
         ).catch((_) => null);
         if (!event) {
             event = await updateEventMetadata(this._event.id, query.system_id, {
                 ...this._event.extension_data,
-                setup_time: this.form.value.setup,
-                breakdown_time: this.form.value.breakdown,
-                setup: this.form.value.setup,
-                breakdown: this.form.value.breakdown,
+                setup_time: this.model().setup,
+                breakdown_time: this.model().breakdown,
+                setup: this.model().setup,
+                breakdown: this.model().breakdown,
             } as any).catch((_) => null);
         }
         if (!event) {

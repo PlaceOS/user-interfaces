@@ -6,12 +6,7 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import {
-    FormControl,
-    FormGroup,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { FormField, form, required } from '@angular/forms/signals';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -51,18 +46,14 @@ export interface CateringItemOptionModalData {
                 </button>
             }
         </header>
-        @if (form && !loading()) {
-            <form
-                class="max-h-[65vh] w-md overflow-auto px-4"
-                [formGroup]="form"
-            >
-                @if (form.controls.name) {
+        @if (!loading()) {
+            <form class="max-h-[65vh] w-md overflow-auto px-4">
+                @if (form.name) {
                     <div class="flex flex-col">
                         <label
                             for="title"
                             [class.error]="
-                                form.controls.name.invalid &&
-                                form.controls.name.touched
+                                form.name().invalid() && form.name().touched()
                             "
                         >
                             {{ 'FORM.NAME' | translate }}<span>*</span>:
@@ -70,9 +61,8 @@ export interface CateringItemOptionModalData {
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
-                                name="name"
                                 [placeholder]="'FORM.NAME' | translate"
-                                formControlName="name"
+                                [formField]="form.name"
                             />
                             <mat-error>{{
                                 'FORM.NAME_REQUIRED' | translate
@@ -80,13 +70,12 @@ export interface CateringItemOptionModalData {
                         </mat-form-field>
                     </div>
                 }
-                @if (form.controls.group) {
+                @if (form.group) {
                     <div class="flex flex-col">
                         <label
                             for="group"
                             [class.error]="
-                                form.controls.group.invalid &&
-                                form.controls.group.touched
+                                form.group().invalid() && form.group().touched()
                             "
                         >
                             {{ 'COMMON.TYPE' | translate }}<span>*</span>:
@@ -94,12 +83,11 @@ export interface CateringItemOptionModalData {
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
-                                name="group"
                                 [placeholder]="
                                     'CATERING.ITEM_OPTION_TYPE_PLACEHOLDER'
                                         | translate
                                 "
-                                formControlName="group"
+                                [formField]="form.group"
                                 [matAutocomplete]="auto"
                             />
                             <mat-error>{{
@@ -108,19 +96,19 @@ export interface CateringItemOptionModalData {
                         </mat-form-field>
                     </div>
                 }
-                @if (form.controls.multiple) {
+                @if (form.multiple) {
                     <div class="mb-4 flex flex-col">
                         <settings-toggle
                             [label]="
                                 'CATERING.ITEM_OPTION_SELECT_MULTIPLE'
                                     | translate
                             "
-                            formControlName="multiple"
+                            [formField]="form.multiple"
                         >
                         </settings-toggle>
                     </div>
                 }
-                @if (form.controls.unit_price) {
+                @if (form.unit_price) {
                     <div class="flex flex-col">
                         <label for="title">{{
                             'CATERING.ITEM_PRICE' | translate
@@ -128,12 +116,11 @@ export interface CateringItemOptionModalData {
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
-                                name="unit-price"
                                 type="number"
                                 [placeholder]="
                                     'CATERING.ITEM_PRICE' | translate
                                 "
-                                formControlName="unit_price"
+                                [formField]="form.unit_price"
                             />
                         </mat-form-field>
                     </div>
@@ -153,7 +140,7 @@ export interface CateringItemOptionModalData {
                     btn
                     matRipple
                     class="w-32"
-                    [disabled]="!form.dirty"
+                    [disabled]="!form().dirty()"
                     (click)="saveChanges()"
                 >
                     {{ 'COMMON.SAVE' | translate }}
@@ -179,7 +166,7 @@ export interface CateringItemOptionModalData {
         SettingsToggleComponent,
         MatDialogModule,
         IconComponent,
-        ReactiveFormsModule,
+        FormField,
     ],
 })
 export class CateringItemOptionModalComponent {
@@ -192,13 +179,15 @@ export class CateringItemOptionModalComponent {
     /** List of available categories */
     public readonly types = computed(() => this._data.types || []);
     /** Form fields for item */
-    public form = new FormGroup({
-        name: new FormControl(this.option().name || '', [Validators.required]),
-        group: new FormControl(this.option().group || '', [
-            Validators.required,
-        ]),
-        unit_price: new FormControl(this.option().unit_price),
-        multiple: new FormControl(!!this.option().multiple, []),
+    public readonly model = signal({
+        name: this.option().name || '',
+        group: this.option().group || '',
+        unit_price: this.option().unit_price,
+        multiple: !!this.option().multiple,
+    });
+    public readonly form = form(this.model, (p) => {
+        required(p.name);
+        required(p.group);
     });
     /** Whether changes are being saved */
     public readonly loading = signal(false);
@@ -208,7 +197,7 @@ export class CateringItemOptionModalComponent {
         const new_option = {
             ...this.option(),
             id: this.option().id || `option-${randomInt(9999_9999)}`,
-            ...this.form.value,
+            ...this.model(),
         } as CateringOption;
         this.event.emit({
             reason: 'done',

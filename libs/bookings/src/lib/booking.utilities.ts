@@ -1,4 +1,9 @@
-import { Injector, signal, untracked, type WritableSignal } from '@angular/core';
+import {
+    Injector,
+    signal,
+    untracked,
+    type WritableSignal,
+} from '@angular/core';
 import {
     disabled,
     email,
@@ -24,9 +29,9 @@ import {
     settingSignal,
     setupFormTimeSync,
     toBookingRecurrence,
+    User,
     type FormTimeSyncHandle,
     type SignalFormRef,
-    User,
 } from '@placeos/common';
 import { getMapDetails } from '@placeos/components';
 import { PlaceAsset } from '@placeos/ts-client';
@@ -201,7 +206,7 @@ export interface BookingFormValue {
     secondary_resource: any;
     location: string;
     attendance_type: string;
-    phone: string;
+    phone?: string;
     permission: string;
     images: any[];
     tags: string[];
@@ -255,7 +260,7 @@ export function bookingFormValue(
         zones: booking.zones || [],
         title: booking.title || '',
         description: booking.description || '',
-        booking_asset: null,
+        booking_asset: {},
         resources: [],
         company: booking.extension_data?.company || '',
         asset_id: booking.asset_id || '',
@@ -266,7 +271,7 @@ export function bookingFormValue(
         featured: booking.extension_data?.featured || false,
         user: currentUser(),
         user_id: booking.user_id || '',
-        group: booking.group ?? null,
+        group: booking.group ?? {},
         user_email: booking.user_email || '',
         user_name: booking.user_name || '',
         timezone: booking.timezone || '',
@@ -276,7 +281,7 @@ export function bookingFormValue(
         secondary_resource:
             booking.extension_data?.other_asset_type ||
             booking.extension_data?.secondary_resource ||
-            null,
+            {},
         location: booking.extension_data.location || '',
         attendance_type: booking.extension_data.attendance_type || 'ANY',
         phone: booking.extension_data.phone || '',
@@ -298,11 +303,11 @@ export function bookingFormValue(
         international: booking.extension_data.international ?? false,
         recurrence_custom: booking.extension_data.recurrence_custom ?? false,
         recurrence_type: booking.recurrence_type || 'none',
-        recurrence_days: booking.recurrence_days ?? null,
-        recurrence_nth_of_month: booking.recurrence_nth_of_month ?? null,
-        recurrence_interval: booking.recurrence_interval ?? null,
-        recurrence_end: booking.recurrence_end ?? null,
-        recurrence_instances: booking.extension_data.recurrence_instances ?? null,
+        recurrence_days: booking.recurrence_days ?? 0,
+        recurrence_nth_of_month: booking.recurrence_nth_of_month ?? 0,
+        recurrence_interval: booking.recurrence_interval ?? 0,
+        recurrence_end: booking.recurrence_end ?? 0,
+        recurrence_instances: booking.extension_data.recurrence_instances ?? [],
         notes: booking.extension_data.notes || '',
         p2_document_names: booking.extension_data.p2_document_names || [],
         attachments: booking.extension_data.attachments || [],
@@ -340,33 +345,37 @@ export function generateBookingForm(
         'parking.require_plate_number',
         false,
     );
-    const booking_form = form<BookingFormValue>(model, (p) => {
-        required(p.date);
-        required(p.asset_id);
-        // Visitor bookings use asset_id to hold the visitor's email address.
-        email(p.asset_id, {
-            when: ({ valueOf }) => valueOf(p.booking_type) === 'visitor',
-        });
-        // Parking requests can require a vehicle plate number via settings.
-        required(p.plate_number, {
-            when: () => require_plate_number(),
-        });
-        validate(p.duration, ({ value, valueOf }) => {
-            const date = valueOf(p.date);
-            return date && isAfter(Date.now(), addMinutes(date, value()))
-                ? { kind: 'duration' }
-                : undefined;
-        });
-        // Depend only on the date field's own value (`ctx.value()`) and read
-        // `id` untracked. `valueOf(p.id)` here threw NG01901 (the resolver
-        // can't navigate `.id` from the `date` field), and reading the whole
-        // `model()` made this recompute on every model change — extra reactive
-        // surface that could feed loops on the explore page.
-        disabled(p.date, ({ value }) => {
-            if (started) return true;
-            return value() < Date.now() && !!untracked(model).id;
-        });
-    }, { injector }) as BookingForm;
+    const booking_form = form<BookingFormValue>(
+        model,
+        (p) => {
+            required(p.date);
+            required(p.asset_id);
+            // Visitor bookings use asset_id to hold the visitor's email address.
+            email(p.asset_id, {
+                when: ({ valueOf }) => valueOf(p.booking_type) === 'visitor',
+            });
+            // Parking requests can require a vehicle plate number via settings.
+            required(p.plate_number, {
+                when: () => require_plate_number(),
+            });
+            validate(p.duration, ({ value, valueOf }) => {
+                const date = valueOf(p.date);
+                return date && isAfter(Date.now(), addMinutes(date, value()))
+                    ? { kind: 'duration' }
+                    : undefined;
+            });
+            // Depend only on the date field's own value (`ctx.value()`) and read
+            // `id` untracked. `valueOf(p.id)` here threw NG01901 (the resolver
+            // can't navigate `.id` from the `date` field), and reading the whole
+            // `model()` made this recompute on every model change — extra reactive
+            // surface that could feed loops on the explore page.
+            disabled(p.date, ({ value }) => {
+                if (started) return true;
+                return value() < Date.now() && !!untracked(model).id;
+            });
+        },
+        { injector },
+    ) as BookingForm;
 
     // user → user_id/email/name
     onFieldChange(

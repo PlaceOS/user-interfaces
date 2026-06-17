@@ -42,9 +42,9 @@ describe('NewUserModalComponent', () => {
     it('should emit user details on save', (done) => {
         expect('footer button:not([mat-dialog-close])').toExist();
         const form = spectator.component.form();
-        form.controls.name.setValue('support');
-        form.controls.organisation.setValue('placeOS');
-        form.controls.email.setValue('support@aca.im');
+        form.name().value.set('support');
+        form.organisation().value.set('placeOS');
+        form.email().value.set('support@aca.im');
         spectator.component.event.subscribe((event) => {
             if (event.reason === 'done') {
                 expect(event.metadata.name).toBe('support');

@@ -5,13 +5,8 @@ import {
     signal,
     viewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import {
-    FormControl,
-    FormGroup,
-    FormsModule,
-    ReactiveFormsModule,
-} from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -22,6 +17,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { OrganisationService } from '@placeos/common';
 import {
     CustomTooltipComponent,
@@ -56,7 +52,7 @@ import {
         </header>
         @if (!loading()) {
             <main class="w-xl p-4">
-                <form [formGroup]="form">
+                <form>
                     <a-user-search-field
                         ngModel
                         (ngModelChange)="setUser($event)"
@@ -68,7 +64,7 @@ import {
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
-                                formControlName="name"
+                                [formField]="form.name"
                                 placeholder="Full name"
                             />
                         </mat-form-field>
@@ -81,7 +77,7 @@ import {
                             <mat-form-field appearance="outline">
                                 <input
                                     matInput
-                                    formControlName="email"
+                                    [formField]="form.email"
                                     type="email"
                                     [placeholder]="'FORM.EMAIL' | translate"
                                 />
@@ -94,7 +90,7 @@ import {
                             <mat-form-field appearance="outline">
                                 <input
                                     matInput
-                                    formControlName="phone"
+                                    [formField]="form.phone"
                                     type="tel"
                                     [placeholder]="
                                         'APP.CONCIERGE.CONTACTS_PHONE_PLACEHOLDER'
@@ -110,7 +106,7 @@ import {
                         }}</label>
                         <mat-form-field appearance="outline">
                             <mat-select
-                                formControlName="zone"
+                                [formField]="form.zone"
                                 [placeholder]="
                                     'COMMON.LEVEL_SELECT' | translate
                                 "
@@ -137,7 +133,7 @@ import {
                             >
                                 <mat-select
                                     multiple
-                                    formControlName="roles"
+                                    [formField]="form.roles"
                                     [placeholder]="
                                         'APP.CONCIERGE.CONTACTS_ROLES_SELECT'
                                             | translate
@@ -152,21 +148,22 @@ import {
                                     }
                                 </mat-select>
                             </mat-form-field>
-                            <button
-                                btn
-                                matRipple
-                                class="space-x-2"
-                                customTooltip
-                                [content]="role_form"
+                            <div
+                                [matTooltip]="
+                                    'APP.CONCIERGE.CONTACTS_ROLES_ADD'
+                                        | translate
+                                "
                             >
-                                <icon>add</icon>
-                                <div class="pr-2">
-                                    {{
-                                        'APP.CONCIERGE.CONTACTS_ROLES_ADD'
-                                            | translate
-                                    }}
-                                </div>
-                            </button>
+                                <button
+                                    icon
+                                    default
+                                    matRipple
+                                    customTooltip
+                                    [content]="role_form"
+                                >
+                                    <icon>add</icon>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </form>
@@ -217,10 +214,11 @@ import {
         MatSelectModule,
         MatRippleModule,
         FormsModule,
-        ReactiveFormsModule,
+        FormField,
         MatProgressSpinnerModule,
         CustomTooltipComponent,
         UserSearchFieldComponent,
+        MatTooltipModule,
     ],
 })
 export class EmergencyContactModalComponent {
@@ -233,19 +231,16 @@ export class EmergencyContactModalComponent {
     public loading = signal(false);
     public readonly role_name = signal('');
     public readonly contact?: EmergencyContact = this._data;
-    public readonly roles = toSignal(this._contacts_service.roles$, {
-        initialValue: [],
+    public readonly roles = this._contacts_service.roles;
+    public readonly model = signal({
+        id: this._data?.id || this._contacts_service.generateContactId(),
+        name: this._data?.name || '',
+        email: this._data?.email || '',
+        phone: this._data?.phone || '',
+        zone: this._data?.zone || '',
+        roles: (this._data?.roles || []) as string[],
     });
-    public readonly form = new FormGroup({
-        id: new FormControl(
-            this._data?.id || this._contacts_service.generateContactId(),
-        ),
-        name: new FormControl(this._data?.name || ''),
-        email: new FormControl(this._data?.email || ''),
-        phone: new FormControl(this._data?.phone || ''),
-        zone: new FormControl(this._data?.zone || ''),
-        roles: new FormControl(this._data?.roles || []),
-    });
+    public readonly form = form(this.model);
     /** List of levels for the active building */
     public readonly levels = this._org.active_levels;
 
@@ -258,32 +253,35 @@ export class EmergencyContactModalComponent {
         this.loading.set(true);
         this._dialog_ref.disableClose = true;
         await this._contacts_service.addRole(role_name);
-        this.form.patchValue({
-            roles: [...(this.form.value.roles || []), role_name],
-        });
+        this.model.update((m) => ({
+            ...m,
+            roles: [...(m.roles || []), role_name],
+        }));
         this.role_name.set('');
         this.loading.set(false);
         this._dialog_ref.disableClose = false;
     }
 
     public setUser(user: any): void {
-        this.form.patchValue({
-            name: user?.name,
-            email: user?.email,
-            phone: user?.phone,
-        });
+        this.model.update((m) => ({
+            ...m,
+            name: user?.name || '',
+            email: user?.email || '',
+            phone: user?.phone || '',
+        }));
     }
 
     public async save(): Promise<void> {
         this.loading.set(true);
         this._dialog_ref.disableClose = true;
+        const value = this.model();
         const contact: EmergencyContact = {
-            id: this.form.value.id,
-            name: this.form.value.name,
-            email: this.form.value.email,
-            phone: this.form.value.phone,
-            zone: this.form.value.zone,
-            roles: this.form.value.roles || [],
+            id: value.id,
+            name: value.name,
+            email: value.email,
+            phone: value.phone,
+            zone: value.zone,
+            roles: value.roles || [],
         };
         const success = await this._contacts_service.saveContact(contact);
         this._dialog_ref.disableClose = false;

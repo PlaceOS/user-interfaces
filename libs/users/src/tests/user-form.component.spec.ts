@@ -1,4 +1,4 @@
-import { ReactiveFormsModule } from '@angular/forms';
+import { Injector } from '@angular/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -12,12 +12,7 @@ describe('', () => {
     let spectator: Spectator<UserFormComponent>;
     const createComponent = createComponentFactory({
         component: UserFormComponent,
-        imports: [
-            MatFormFieldModule,
-            MatInputModule,
-            MatCheckboxModule,
-            ReactiveFormsModule,
-        ],
+        imports: [MatFormFieldModule, MatInputModule, MatCheckboxModule],
     });
 
     beforeEach(() => (spectator = createComponent()));
@@ -29,15 +24,17 @@ describe('', () => {
     it('should show form fields', () => {
         expect('form').not.toExist();
         spectator.setInput({
-            form: generateUserForm(new User({})),
+            form: generateUserForm(new User({}), spectator.inject(Injector)),
         });
         spectator.detectChanges();
         expect('form').toExist();
-        expect('[name="name"]').toExist();
-        expect('[name="email"]').toExist();
-        expect('[name="org"]').toExist();
-        expect('[name="phone"]').toExist();
-        expect('[name="assistance-required"]').toExist();
-        expect('[name="visit-expected"]').toExist();
+        // Signal-forms' `[formField]` rewrites the native `name` attribute to
+        // the field path, so assert the rendered fields via stable selectors.
+        expect('label[for="name"]').toExist();
+        expect('label[for="email"]').toExist();
+        expect('label[for="org"]').toExist();
+        expect('label[for="phone"]').toExist();
+        expect(spectator.queryAll('input[matInput]').length).toBe(4);
+        expect(spectator.queryAll('mat-checkbox').length).toBe(2);
     });
 });

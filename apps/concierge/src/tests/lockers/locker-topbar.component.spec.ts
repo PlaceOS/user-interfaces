@@ -6,7 +6,6 @@ import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { signal } from '@angular/core';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
 
 import { LockersTopbarComponent } from '../../app/lockers/locker-topbar.component';
 import { LockerStateService } from '../../app/lockers/locker-state.service';
@@ -24,9 +23,10 @@ describe('LockersTopbarComponent', () => {
         ],
         providers: [
             MockProvider(LockerStateService, {
-                levels: of([]),
-                filters: of({}),
-                search: of(''),
+                levels: signal([]),
+                bookable_levels: signal([]),
+                filters: signal({}),
+                search: signal(''),
                 setFilters: jest.fn(),
                 setSearch: jest.fn(),
                 editLockerBank: jest.fn(),

@@ -7,7 +7,7 @@ import {
     signal,
     viewChild,
 } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { form, FormField, required, validate } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -46,7 +46,7 @@ import { AuthenticatedImageDirective } from './authenticated-image.directive';
                             <mat-form-field appearance="outline">
                                 <input
                                     #username
-                                    formControlName="username"
+                                    [formField]="form.username"
                                     (keyup.enter)="toPassword()"
                                 />
                             </mat-form-field>
@@ -56,7 +56,7 @@ import { AuthenticatedImageDirective } from './authenticated-image.directive';
                             <mat-form-field appearance="outline">
                                 <input
                                     #pass_field
-                                    formControlName="password"
+                                    [formField]="form.password"
                                     (keyup.enter)="login()"
                                 />
                                 <mat-error
@@ -107,6 +107,7 @@ import { AuthenticatedImageDirective } from './authenticated-image.directive';
         MatFormFieldModule,
         MatInputModule,
         AuthenticatedImageDirective,
+        FormField,
     ],
 })
 export class LoginComponent implements OnInit {
@@ -120,9 +121,18 @@ export class LoginComponent implements OnInit {
     /** Current focused field */
     public focus = signal('');
 
-    public readonly form = new FormGroup({
-        username: new FormControl('', [Validators.required]),
-        password: new FormControl('', [Validators.required]),
+    /** Whether the last login attempt failed credential validation */
+    private readonly _invalid_credentials = signal(false);
+
+    public readonly model = signal({ username: '', password: '' });
+    public readonly form = form(this.model, (p) => {
+        required(p.username);
+        required(p.password);
+        validate(p.password, () =>
+            this._invalid_credentials()
+                ? { kind: 'invalid_credentials' }
+                : undefined,
+        );
     });
 
     /** Password field element */
@@ -162,6 +172,7 @@ export class LoginComponent implements OnInit {
         //     this.loading = false;
         //     this.error = true;
         // });
-        this.form.setErrors({ password: 'Invalid username or password' });
+        this._invalid_credentials.set(true);
+        this.form().markAsTouched();
     }
 }

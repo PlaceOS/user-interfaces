@@ -5,13 +5,8 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import {
-    FormControl,
-    FormGroup,
-    FormsModule,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { form, FormField, required } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -51,16 +46,15 @@ import { SignageStateService } from './signage-state.service';
                     : ''
             "
         >
-            <form [formGroup]="form">
+            <form>
                 <label for="name"
                     >{{ 'FORM.NAME' | translate }}<span required>*</span></label
                 >
                 <mat-form-field appearance="outline" class="w-full">
                     <input
                         matInput
-                        name="name"
                         [placeholder]="'FORM.NAME' | translate"
-                        formControlName="name"
+                        [formField]="form.name"
                     />
                     <mat-error>{{
                         'FORM.NAME_REQUIRED' | translate
@@ -70,7 +64,7 @@ import { SignageStateService } from './signage-state.service';
                     <settings-toggle
                         class="flex-1"
                         [label]="'COMMON.ENABLED' | translate"
-                        formControlName="enabled"
+                        [formField]="form.enabled"
                     >
                     </settings-toggle>
                     <settings-toggle
@@ -79,7 +73,7 @@ import { SignageStateService } from './signage-state.service';
                             'APP.CONCIERGE.SIGNAGE_PLAYLISTS_SHUFFLE'
                                 | translate
                         "
-                        formControlName="random"
+                        [formField]="form.random"
                     >
                     </settings-toggle>
                 </div>
@@ -99,14 +93,13 @@ import { SignageStateService } from './signage-state.service';
                                 step="1000"
                             >
                                 <input
-                                    name="default-duration"
                                     matSliderThumb
-                                    formControlName="default_duration"
+                                    [formField]="form.default_duration"
                                 />
                             </mat-slider>
                             <div class="w-16 px-2 text-right font-mono text-xs">
                                 {{
-                                    form.value.default_duration / 1000
+                                    model().default_duration / 1000
                                         | mediaDuration
                                 }}
                             </div>
@@ -120,8 +113,7 @@ import { SignageStateService } from './signage-state.service';
                         }}</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
-                                name="orientation"
-                                formControlName="orientation"
+                                [formField]="form.orientation"
                                 [placeholder]="
                                     'APP.CONCIERGE.SIGNAGE_ORIENTATION_NONE'
                                         | translate
@@ -154,8 +146,7 @@ import { SignageStateService } from './signage-state.service';
                         }}</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
-                                name="animation"
-                                formControlName="default_animation"
+                                [formField]="form.default_animation"
                                 [placeholder]="
                                     'APP.CONCIERGE.SIGNAGE_ANIMATION_DEFAULT'
                                         | translate
@@ -199,9 +190,8 @@ import { SignageStateService } from './signage-state.service';
                 <mat-form-field appearance="outline" class="w-full">
                     <textarea
                         matInput
-                        name="description"
                         [placeholder]="'COMMON.DESCRIPTION' | translate"
-                        formControlName="description"
+                        [formField]="form.description"
                         class="min-h-32"
                     ></textarea>
                 </mat-form-field>
@@ -211,9 +201,8 @@ import { SignageStateService } from './signage-state.service';
                             'APP.CONCIERGE.VALID_FROM' | translate
                         }}</label>
                         <a-date-field
-                            name="valid-from"
                             class="w-full"
-                            formControlName="valid_from"
+                            [formField]="form.valid_from"
                         ></a-date-field>
                     </div>
                     <div class="flex-1">
@@ -221,10 +210,9 @@ import { SignageStateService } from './signage-state.service';
                             'APP.CONCIERGE.VALID_UNTIL' | translate
                         }}</label>
                         <a-date-field
-                            name="valid-until"
                             class="w-full"
-                            [from]="form.value.valid_from"
-                            formControlName="valid_until"
+                            [from]="model().valid_from"
+                            [formField]="form.valid_until"
                         ></a-date-field>
                     </div>
                 </div>
@@ -251,12 +239,22 @@ import { SignageStateService } from './signage-state.service';
                             >
                             <mat-option
                                 value="exact"
-                                (click)="form.patchValue({ play_duration: 30 })"
+                                (click)="
+                                    model.update((m) => ({
+                                        ...m,
+                                        play_duration: 30,
+                                    }))
+                                "
                                 >Set Date & Time</mat-option
                             >
                             <mat-option
                                 value="recurring"
-                                (click)="form.patchValue({ play_duration: 30 })"
+                                (click)="
+                                    model.update((m) => ({
+                                        ...m,
+                                        play_duration: 30,
+                                    }))
+                                "
                                 >Recurring Schedule</mat-option
                             >
                         </mat-select>
@@ -269,10 +267,9 @@ import { SignageStateService } from './signage-state.service';
                                         'APP.CONCIERGE.PLAY_FROM' | translate
                                     }}</label>
                                     <a-time-field
-                                        name="play-from"
                                         class="w-full"
                                         [no_past_times]="false"
-                                        formControlName="play_from"
+                                        [formField]="form.play_from"
                                     ></a-time-field>
                                 </div>
                                 <div class="flex-1">
@@ -280,11 +277,10 @@ import { SignageStateService } from './signage-state.service';
                                         'APP.CONCIERGE.PLAY_UNTIL' | translate
                                     }}</label>
                                     <a-time-field
-                                        name="play-until"
                                         class="w-full"
                                         [no_past_times]="false"
-                                        [from]="form.value.play_from"
-                                        formControlName="play_until"
+                                        [from]="model().play_from"
+                                        [formField]="form.play_until"
                                     ></a-time-field>
                                 </div>
                             </div>
@@ -295,9 +291,8 @@ import { SignageStateService } from './signage-state.service';
                                         'APP.CONCIERGE.PLAY_AT' | translate
                                     }}</label>
                                     <a-date-field
-                                        name="play-at"
                                         class="w-full"
-                                        formControlName="play_at"
+                                        [formField]="form.play_at"
                                     ></a-date-field>
                                 </div>
                                 <div class="flex-1">
@@ -305,9 +300,12 @@ import { SignageStateService } from './signage-state.service';
                                     <a-time-field
                                         name="play-at-time"
                                         class="w-full"
-                                        [ngModel]="form.value.play_at"
+                                        [ngModel]="model().play_at"
                                         (ngModelChange)="
-                                            form.patchValue({ play_at: $event })
+                                            model.update((m) => ({
+                                                ...m,
+                                                play_at: $event,
+                                            }))
                                         "
                                         [ngModelOptions]="{ standalone: true }"
                                     ></a-time-field>
@@ -317,12 +315,11 @@ import { SignageStateService } from './signage-state.service';
                                 'APP.CONCIERGE.PLAY_DURATION' | translate
                             }}</label>
                             <a-duration-field
-                                name="play-duration"
                                 class="w-full"
-                                formControlName="play_duration"
+                                [formField]="form.play_duration"
                             ></a-duration-field>
                             <settings-toggle
-                                formControlName="play_once"
+                                [formField]="form.play_once"
                                 class="mb-4"
                             >
                                 {{ 'APP.CONCIERGE.PLAY_ONCE' | translate }}
@@ -334,7 +331,7 @@ import { SignageStateService } from './signage-state.service';
                                         'APP.CONCIERGE.PLAY_CRON' | translate
                                     }}</label>
                                     <cron-input-field
-                                        formControlName="play_cron"
+                                        [formField]="form.play_cron"
                                     />
                                 </div>
                                 <div class="flex-1">
@@ -350,7 +347,7 @@ import { SignageStateService } from './signage-state.service';
                                 </div>
                             </div>
                             <settings-toggle
-                                formControlName="play_once"
+                                [formField]="form.play_once"
                                 class="mb-4"
                             >
                                 {{ 'APP.CONCIERGE.PLAY_ONCE' | translate }}
@@ -368,7 +365,7 @@ import { SignageStateService } from './signage-state.service';
         FullscreenModalShellComponent,
         SettingsToggleComponent,
         DurationFieldComponent,
-        ReactiveFormsModule,
+        FormField,
         CronInputFieldComponent,
         TimeFieldComponent,
         DateFieldComponent,
@@ -394,46 +391,60 @@ export class SignagePlaylistModalComponent implements OnInit {
         '',
     );
 
-    public readonly form = new FormGroup({
-        id: new FormControl(this.playlist.id || ''),
-        name: new FormControl(this.playlist.name || '', [Validators.required]),
-        description: new FormControl(this.playlist.description || ''),
-        default_animation: new FormControl<MediaAnimation>(MediaAnimation.Cut),
-        orientation: new FormControl('unspecified'),
-        enabled: new FormControl(true),
-        random: new FormControl(false),
-        default_duration: new FormControl(15 * 1000),
-        valid_from: new FormControl(0),
-        valid_until: new FormControl(0),
-        play_duration: new FormControl(0),
-        play_from: new FormControl(0),
-        play_until: new FormControl(0),
-        play_once: new FormControl(false),
-        play_at: new FormControl(Date.now()),
-        play_cron: new FormControl('* * * * *'),
+    public readonly model = signal({
+        id: this.playlist.id || '',
+        name: this.playlist.name || '',
+        description: this.playlist.description || '',
+        default_animation: MediaAnimation.Cut as MediaAnimation,
+        orientation: 'unspecified',
+        enabled: true,
+        random: false,
+        default_duration: 15 * 1000,
+        valid_from: 0,
+        valid_until: 0,
+        play_duration: 0,
+        play_from: 0,
+        play_until: 0,
+        play_once: false,
+        play_at: Date.now(),
+        play_cron: '* * * * *',
+    });
+    public readonly form = form(this.model, (p) => {
+        required(p.name);
     });
 
     public ngOnInit() {
-        this.form.patchValue({
-            ...this.playlist,
-            valid_from: this.playlist.valid_from * 1000,
-            valid_until: this.playlist.valid_until * 1000,
-        } as any);
-        const { play_at, play_cron, play_duration } = this.form.value;
-        this.form.patchValue({
-            play_duration,
-        });
+        const p = this.playlist as any;
+        this.model.update((m) => ({
+            ...m,
+            id: p.id ?? m.id,
+            name: p.name ?? m.name,
+            description: p.description ?? m.description,
+            default_animation: p.default_animation ?? m.default_animation,
+            orientation: p.orientation || m.orientation,
+            enabled: p.enabled ?? m.enabled,
+            random: p.random ?? m.random,
+            default_duration: p.default_duration ?? m.default_duration,
+            valid_from: (p.valid_from || 0) * 1000,
+            valid_until: (p.valid_until || 0) * 1000,
+            play_duration: p.play_duration ?? m.play_duration,
+            play_from: p.play_from ?? m.play_from,
+            play_until: p.play_until ?? m.play_until,
+            play_once: p.play_once ?? m.play_once,
+            play_at: p.play_at ?? m.play_at,
+            play_cron: p.play_cron ?? m.play_cron,
+        }));
+        const { play_at, play_cron } = this.model();
         this.schedule.set(play_cron ? 'recurring' : play_at ? 'exact' : '');
-        if (!this.form.value.orientation)
-            this.form.patchValue({ orientation: 'unspecified' });
+        if (!this.model().orientation)
+            this.model.update((m) => ({ ...m, orientation: 'unspecified' }));
     }
 
     public async savePlaylist() {
-        this.form.markAllAsTouched();
-        this.form.updateValueAndValidity();
-        if (this.form.invalid) return;
+        this.form().markAsTouched();
+        if (!this.form().valid()) return;
         this.loading.set(true);
-        const form_value = this.form.getRawValue();
+        const form_value: any = { ...this.model() };
         if (this.schedule() === 'between') {
             form_value.play_at = 0;
             form_value.play_cron = '';

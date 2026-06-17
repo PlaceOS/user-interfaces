@@ -14,7 +14,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceGroup } from '@placeos/ts-client';
-import { lastValueFrom } from 'rxjs';
 import { SignageService } from '../signage.service';
 
 interface GroupTreeNode {
@@ -389,9 +388,9 @@ export class SignageGroupListComponent {
     }
 
     private async loadChildren(group_id: string) {
-        const children = await lastValueFrom(
-            this._service.groupChildren(group_id),
-        ).catch(() => this.child_lookup()[group_id] || []);
+        const children = await this._service
+            .groupChildren(group_id)
+            .catch(() => this.child_lookup()[group_id] || []);
         this.applyLoadedChildren(group_id, children);
     }
 

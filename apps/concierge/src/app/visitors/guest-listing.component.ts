@@ -2,12 +2,10 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
-    Injector,
+    effect,
     inject,
-    OnInit,
     signal,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { showMetadata } from '@placeos/ts-client';
 
 import { saveBooking } from '@placeos/bookings';
@@ -742,21 +740,16 @@ import { VisitorsStateService } from './visitors-state.service';
         UserLabelComponent,
     ],
 })
-export class GuestListingComponent extends AsyncHandler implements OnInit {
+export class GuestListingComponent extends AsyncHandler {
     private _state = inject(VisitorsStateService);
     private _parking = inject(ParkingStateService);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
-    private _injector = inject(Injector);
 
     public readonly printing = signal('');
-    public readonly guests = toSignal(this._state.filtered_bookings, {
-        initialValue: [],
-    });
+    public readonly guests = this._state.filtered_bookings;
     public readonly search = this._state.search;
-    public readonly filters = toSignal<any>(this._state.filters, {
-        initialValue: {} as any,
-    });
+    public readonly filters = this._state.filters;
     public readonly inductions_enabled = signal(false);
     public readonly qr_code = signal('');
     public readonly pass_number = signal('');
@@ -894,38 +887,35 @@ export class GuestListingComponent extends AsyncHandler implements OnInit {
               : null;
     }
 
-    public ngOnInit() {
-        this.subscription(
-            'building',
-            toObservable(this._org.active_building, {
-                injector: this._injector,
-            }).subscribe(async (bld) => {
-                if (!bld) return;
-                const visitor_kiosk_app =
-                    this._settings.get('app.visitor_kiosk_app') ||
-                    'visitor-kiosk_app';
-                const metadata: any = await showMetadata(
-                    bld.id,
-                    visitor_kiosk_app,
-                );
-                const org_metadata: any = await showMetadata(
-                    this._org.organisation.id,
-                    visitor_kiosk_app,
-                );
-                const data = {
-                    ...(org_metadata.details || {}),
-                    ...(metadata.details || {}),
-                };
-                const label_size = data.visitor_label_size || {};
-                this.label_size.set({
-                    width: label_size.width || 25,
-                    height: label_size.height || 15,
-                    scale: label_size.scale || 4,
-                });
-                this.inductions_enabled.set(
-                    data?.induction_enabled && data?.induction_details,
-                );
-            }),
+    constructor() {
+        super();
+        effect(() => {
+            const bld = this._org.active_building();
+            if (!bld) return;
+            this._loadVisitorKioskConfig(bld);
+        });
+    }
+
+    private async _loadVisitorKioskConfig(bld: any) {
+        const visitor_kiosk_app =
+            this._settings.get('app.visitor_kiosk_app') || 'visitor-kiosk_app';
+        const metadata: any = await showMetadata(bld.id, visitor_kiosk_app);
+        const org_metadata: any = await showMetadata(
+            this._org.organisation.id,
+            visitor_kiosk_app,
+        );
+        const data = {
+            ...(org_metadata.details || {}),
+            ...(metadata.details || {}),
+        };
+        const label_size = data.visitor_label_size || {};
+        this.label_size.set({
+            width: label_size.width || 25,
+            height: label_size.height || 15,
+            scale: label_size.scale || 4,
+        });
+        this.inductions_enabled.set(
+            data?.induction_enabled && data?.induction_details,
         );
     }
 

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { Component, inject, Injector, OnInit, signal } from '@angular/core';
+import { disabled, form, FormField } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatRadioModule } from '@angular/material/radio';
@@ -9,6 +9,7 @@ import {
     AsyncHandler,
     DayIndex,
     MonthlyType,
+    onFieldChange,
     Recurrence,
     recurrenceEndDate,
     RecurrEndType,
@@ -29,34 +30,31 @@ import { DateFieldComponent } from './date-field.component';
                 {{ 'FORM.RECURRENCE_CUSTOM_HEADER' | translate }}
             </h3>
         </header>
-        <main
-            class="flex min-w-[24rem] flex-col space-y-2 px-4"
-            [formGroup]="form"
-        >
+        <main class="flex min-w-[24rem] flex-col space-y-2 px-4">
             <label class="w-auto">{{
                 'FORM.RECURRENCE_REPEAT_EVERY' | translate
             }}</label>
             <div class="mt-2 flex items-center space-x-4 pb-4">
                 <compact-counter
-                    formControlName="interval"
+                    [formField]="form.interval"
                     [min]="1"
-                    [max]="form.value.type === 'daily' ? 7 : 12"
+                    [max]="model().type === 'daily' ? 7 : 12"
                     [step]="1"
                 ></compact-counter>
                 <mat-form-field
                     appearance="outline"
                     class="no-subscript flex-1"
                 >
-                    <mat-select formControlName="type">
+                    <mat-select [formField]="form.type">
                         <mat-option value="daily">{{
-                            (form.value.interval === 1
+                            (model().interval === 1
                                 ? 'FORM.RECURRENCE_DAY'
                                 : 'FORM.RECURRENCE_DAYS'
                             ) | translate
                         }}</mat-option>
                         @if (available_days >= 14) {
                             <mat-option value="weekly">{{
-                                (form.value.interval === 1
+                                (model().interval === 1
                                     ? 'FORM.RECURRENCE_WEEK'
                                     : 'FORM.RECURRENCE_WEEKS'
                                 ) | translate
@@ -64,7 +62,7 @@ import { DateFieldComponent } from './date-field.component';
                         }
                         @if (available_days >= 28) {
                             <mat-option value="monthly">{{
-                                (form.value.interval === 1
+                                (model().interval === 1
                                     ? 'FORM.RECURRENCE_MONTH'
                                     : 'FORM.RECURRENCE_MONTHS'
                                 ) | translate
@@ -73,7 +71,7 @@ import { DateFieldComponent } from './date-field.component';
                     </mat-select>
                 </mat-form-field>
             </div>
-            @if (form.value.type === 'weekly') {
+            @if (model().type === 'weekly') {
                 <label class="w-auto">{{
                     'FORM.RECURRENCE_REPEAT_ON' | translate
                 }}</label>
@@ -94,9 +92,9 @@ import { DateFieldComponent } from './date-field.component';
                     }
                 </div>
             }
-            @if (form.value.type === 'monthly') {
+            @if (model().type === 'monthly') {
                 <mat-form-field appearance="outline">
-                    <mat-select formControlName="monthly_type">
+                    <mat-select [formField]="form.monthly_type">
                         <mat-option value="day_of_week"
                             >Monthly on {{ month_instance }}
                             {{ date | date: 'EEEE' }}</mat-option
@@ -108,7 +106,7 @@ import { DateFieldComponent } from './date-field.component';
                 'FORM.RECURRENCE_ENDS' | translate
             }}</label>
             <div class="pb-4">
-                <mat-radio-group formControlName="end_type">
+                <mat-radio-group [formField]="form.end_type">
                     <div class="flex items-center">
                         <mat-radio-button value="never">{{
                             'FORM.RECURRENCE_ENDS_NEVER' | translate
@@ -119,7 +117,7 @@ import { DateFieldComponent } from './date-field.component';
                             'FORM.RECURRENCE_ENDS_ON' | translate
                         }}</mat-radio-button>
                         <a-date-field
-                            formControlName="end_date"
+                            [formField]="form.end_date"
                             [from]="date"
                             [to]="end_date"
                         ></a-date-field>
@@ -130,7 +128,7 @@ import { DateFieldComponent } from './date-field.component';
                         }}</mat-radio-button>
                         <compact-counter
                             class="flex-1"
-                            formControlName="end_instances"
+                            [formField]="form.end_instances"
                             [render_fn]="instance_fn"
                             [min]="1"
                             [max]="maxInstances()"
@@ -169,7 +167,7 @@ import { DateFieldComponent } from './date-field.component';
     ],
     imports: [
         CommonModule,
-        ReactiveFormsModule,
+        FormField,
         MatFormFieldModule,
         MatRadioModule,
         MatSelectModule,
@@ -211,77 +209,89 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
             return [date.valueOf(), date.getDay() as DayIndex];
         });
 
-    public readonly form = new FormGroup({
-        _custom: new FormControl(true),
-        type: new FormControl<RecurrType>('daily'),
-        interval: new FormControl(1),
-        weekdays: new FormControl(
-            new Set<DayIndex>([new Date(this.date).getDay() as DayIndex]),
-        ),
-        week: new FormControl(0),
-        monthly_type: new FormControl<MonthlyType>('day_of_week'),
-        end_type: new FormControl<RecurrEndType>('never'),
-        end_date: new FormControl(this._defaultEndDate()),
-        end_instances: new FormControl(13),
+    private _injector = inject(Injector);
+
+    public readonly model = signal({
+        _custom: true,
+        type: 'daily' as RecurrType,
+        interval: 1,
+        weekdays: new Set<DayIndex>([new Date(this.date).getDay() as DayIndex]),
+        week: 0,
+        monthly_type: 'day_of_week' as MonthlyType,
+        end_type: 'never' as RecurrEndType,
+        end_date: this._defaultEndDate(),
+        end_instances: 13,
     });
 
+    public readonly form = form(this.model, (p) => {
+        disabled(p.end_date, {
+            when: () => this.model().end_type !== 'date',
+        });
+        disabled(p.end_instances, {
+            when: () => this.model().end_type !== 'instances',
+        });
+        disabled(p.type, { when: () => this.available_days < 14 });
+    });
+
+    constructor() {
+        super();
+        onFieldChange(
+            this.model,
+            (m) => m.type,
+            (type) => this._onTypeChange(type),
+            this._injector,
+        );
+        onFieldChange(
+            this.model,
+            (m) => m,
+            () => this._clampEndInstances(),
+            this._injector,
+        );
+    }
+
     public ngOnInit() {
-        this.subscription(
-            'end_type',
-            this.form.controls.end_type.valueChanges.subscribe((type) =>
-                this._onEndTypeChange(type),
-            ),
-        );
-        this.subscription(
-            'type',
-            this.form.controls.type.valueChanges.subscribe((type) =>
-                this._onTypeChange(type),
-            ),
-        );
-        this.subscription(
-            'instance_limit',
-            this.form.valueChanges.subscribe(() => this._clampEndInstances()),
-        );
-        this.form.patchValue({ ...this._data.value, _custom: true });
-        if (!this.form.value.type || this.form.value.type === 'none') {
-            this.form.patchValue({ type: 'daily' });
+        this.model.update((m) => ({
+            ...m,
+            ...(this._data.value as any),
+            _custom: true,
+        }));
+        if (!this.model().type || (this.model().type as string) === 'none') {
+            this.model.update((m) => ({ ...m, type: 'daily' }));
         }
         // Restore defaults when end_date / end_instances are missing
         const default_end_date = this._defaultEndDate();
-        if (!this.form.controls.end_date.value) {
-            this.form.patchValue({ end_date: default_end_date });
+        if (!this.model().end_date) {
+            this.model.update((m) => ({ ...m, end_date: default_end_date }));
         }
-        if (!this.form.controls.end_instances.value) {
-            this.form.patchValue({ end_instances: 13 });
+        if (!this.model().end_instances) {
+            this.model.update((m) => ({ ...m, end_instances: 13 }));
         }
         // Clamp end_date to valid range after loading the saved value
-        if (this.form.value.end_date < this.date) {
-            this.form.patchValue({ end_date: this.date });
-        } else if (this.form.value.end_date > this.end_date) {
-            this.form.patchValue({ end_date: this.end_date });
+        if (this.model().end_date < this.date) {
+            this.model.update((m) => ({ ...m, end_date: this.date }));
+        } else if (this.model().end_date > this.end_date) {
+            this.model.update((m) => ({ ...m, end_date: this.end_date }));
         }
-        this._onEndTypeChange(this.form.value.end_type);
-        if (this.form.value.type === 'monthly') {
+        if (this.model().type === 'monthly') {
             this._setMonthlyWeekday();
-        }
-        if (this.available_days < 14) {
-            this.form.controls.type.disable();
         }
         this._clampEndInstances();
     }
 
     public hasDate(idx: DayIndex) {
-        return this.form.value.weekdays.has(idx);
+        return this.model().weekdays.has(idx);
     }
 
     public toggleDate(idx: DayIndex) {
-        const set = this.form.value.weekdays;
-        set.has(idx) ? set.delete(idx) : set.add(idx);
-        this.form.patchValue({ weekdays: set });
+        this.model.update((m) => {
+            const set = new Set(m.weekdays);
+            set.has(idx) ? set.delete(idx) : set.add(idx);
+            return { ...m, weekdays: set };
+        });
     }
 
     public confirmValue(): Recurrence {
-        const value = this.form.getRawValue() as Recurrence;
+        const value = { ...this.model() } as any as Recurrence;
         value.end_date = value.end_date || this._defaultEndDate();
 
         if (value.end_type === 'instances' && value.end_instances) {
@@ -306,7 +316,7 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
     }
 
     public maxInstances(): number {
-        const value = this.form.getRawValue() as Recurrence;
+        const value = this.model() as any as Recurrence;
         let max_instances = 1;
         for (let count = 1; count <= 53; count++) {
             const end_date = recurrenceEndDate(
@@ -319,38 +329,26 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
         return max_instances;
     }
 
-    private _onEndTypeChange(type: RecurrEndType) {
-        type !== 'date'
-            ? this.form.controls.end_date.disable()
-            : this.form.controls.end_date.enable();
-        type !== 'instances'
-            ? this.form.controls.end_instances.disable()
-            : this.form.controls.end_instances.enable();
-    }
-
     private _onTypeChange(type: RecurrType) {
         if (type === 'monthly') this._setMonthlyWeekday();
     }
 
     private _setMonthlyWeekday() {
-        const set = this.form.value.weekdays || new Set<DayIndex>();
-        set.clear();
+        const set = new Set<DayIndex>();
         set.add(new Date(this.date).getDay() as DayIndex);
-        this.form.patchValue({
+        this.model.update((m) => ({
+            ...m,
             monthly_type: 'day_of_week',
             week: this.week,
             weekdays: set,
-        });
+        }));
     }
 
     private _clampEndInstances() {
-        if (this.form.getRawValue().end_type !== 'instances') return;
+        if (this.model().end_type !== 'instances') return;
         const max_instances = this.maxInstances();
-        if (this.form.controls.end_instances.value <= max_instances) return;
-        this.form.patchValue(
-            { end_instances: max_instances },
-            { emitEvent: false },
-        );
+        if (this.model().end_instances <= max_instances) return;
+        this.model.update((m) => ({ ...m, end_instances: max_instances }));
     }
 
     private _defaultEndDate() {

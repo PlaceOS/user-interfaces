@@ -5,7 +5,6 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -221,15 +220,9 @@ function isValidUrl(url: string): boolean {
 })
 export class MediaListHeaderComponent {
     private readonly _service = inject(SignageService);
-    private readonly _media = toSignal(this._service.filtered_media, {
-        initialValue: [],
-    });
-    private readonly _all_media = toSignal(this._service.media, {
-        initialValue: [],
-    });
-    private readonly _plugins = toSignal(this._service.plugins, {
-        initialValue: [],
-    });
+    private readonly _media = this._service.filtered_media;
+    private readonly _all_media = this._service.media;
+    private readonly _plugins = this._service.plugins;
     public readonly link = signal('');
     public readonly selected_plugin = signal<any>(null);
     public readonly available_plugins = computed(() => this._plugins());

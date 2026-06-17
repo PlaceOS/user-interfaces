@@ -1,5 +1,6 @@
+import { signal } from '@angular/core';
 import { fakeAsync } from '@angular/core/testing';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -7,9 +8,7 @@ import { Router } from '@angular/router';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { mockComponent } from '@placeos/common/tests';
 import { IconComponent } from '@placeos/components';
-import { generateGuestForm } from '@placeos/users';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
 import { CheckinDetailsComponent } from '../../app/checkin/checkin-details.component';
@@ -24,8 +23,15 @@ describe('CheckinDetailsComponent', () => {
             MockProvider(CheckinStateService, {
                 updateGuest: jest.fn(),
                 checkinGuest: jest.fn(async () => null),
-                form: of(generateGuestForm({ extension_data: {} } as any)),
-                event: of({}),
+                form: signal({
+                    host: '',
+                    name: '',
+                    email: '',
+                    phone: '',
+                    organisation: '',
+                    pass_number: '',
+                }),
+                event: signal({}),
             } as any),
             MockProvider(SettingsService, { get: jest.fn() }),
         ],
@@ -34,7 +40,6 @@ describe('CheckinDetailsComponent', () => {
             MatInputModule,
             MatProgressSpinnerModule,
             FormsModule,
-            ReactiveFormsModule,
         ],
     });
 

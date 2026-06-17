@@ -5,7 +5,6 @@ import {
     inject,
     input,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CateringOption, OrganisationService } from '@placeos/common';
 import { SimpleTableComponent, TranslatePipe } from '@placeos/components';
@@ -132,9 +131,7 @@ export class CateringReportItemsComponent {
 
     public readonly print = input(false);
     public readonly table_metric_guide = TABLE_METRIC_GUIDE;
-    public readonly items = toSignal(this._report.catering_items, {
-        initialValue: [],
-    });
+    public readonly items = this._report.catering_items;
 
     public get code() {
         return this._org.currency_code;

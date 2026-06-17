@@ -6,8 +6,7 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -18,6 +17,7 @@ import {
     AssetCategory,
     AsyncHandler,
     notifyError,
+    patchSignalModel,
     unique,
 } from '@placeos/common';
 import {
@@ -34,20 +34,20 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     template: `
         <fullscreen-modal-shell
             [heading]="
-                (form.value.id
+                (model().id
                     ? 'APP.CONCIERGE.ASSETS_ITEM_EDIT'
                     : 'APP.CONCIERGE.ASSETS_ITEM_NEW'
                 ) | translate
             "
             [close]="
-                form.value.id
-                    ? [base_route, 'view', form.value.id]
+                model().id
+                    ? [base_route, 'view', model().id]
                     : [base_route, 'list', 'items']
             "
             [loading]="loading()"
             (confirm)="save()"
         >
-            <form [formGroup]="form">
+            <form>
                 <div class="flex flex-col space-y-2">
                     <label for="name"
                         >{{ 'FORM.NAME' | translate }}<span>*</span></label
@@ -55,9 +55,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     <mat-form-field appearance="outline">
                         <input
                             matInput
-                            name="name"
                             [placeholder]="'FORM.NAME' | translate"
-                            formControlName="name"
+                            [formField]="form.name"
                         />
                         <mat-error>{{
                             'FORM.NAME_REQUIED' | translate
@@ -71,11 +70,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     >
                     <mat-form-field appearance="outline">
                         <mat-select
-                            formControlName="category_id"
+                            [formField]="form.category_id"
                             [placeholder]="'COMMON.CATEGORY' | translate"
-                            (click)="
-                                current_category.set(form.value.category_id)
-                            "
+                            (click)="current_category.set(model().category_id)"
                         >
                             @for (category of categories(); track category) {
                                 <mat-option [value]="category.id">
@@ -107,11 +104,10 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     <mat-form-field appearance="outline">
                         <input
                             matInput
-                            name="brand"
                             [placeholder]="
                                 'APP.CONCIERGE.ASSETS_ITEM_BRAND' | translate
                             "
-                            formControlName="brand"
+                            [formField]="form.brand"
                         />
                         <mat-error>{{
                             'APP.CONCIERGE.ASSETS_ITEM_BRAND_REQUIRED'
@@ -126,9 +122,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     <mat-form-field appearance="outline">
                         <textarea
                             matInput
-                            name="description"
                             placeholder="Description of the product"
-                            formControlName="description"
+                            [formField]="form.description"
                         ></textarea>
                         <mat-error>{{
                             'COMMON.DESCRIPTION_REQUIRED' | translate
@@ -140,8 +135,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         'COMMON.IMAGES' | translate
                     }}</label>
                     <image-list-field
-                        name="images"
-                        formControlName="images"
+                        [formField]="form.images"
                     ></image-list-field>
                 </div>
             </form>
@@ -153,7 +147,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         FullscreenModalShellComponent,
         ImageListFieldComponent,
         MatFormFieldModule,
-        ReactiveFormsModule,
+        FormField,
         MatInputModule,
         MatSelectModule,
         TranslatePipe,
@@ -166,10 +160,10 @@ export class AssetGroupFormComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _dialog = inject(MatDialog);
 
-    public readonly form = generateAssetGroupForm();
-    public readonly categories_list = toSignal(this._state.categories, {
-        initialValue: [],
-    });
+    private readonly _form_ref = generateAssetGroupForm();
+    public readonly form = this._form_ref.form;
+    public readonly model = this._form_ref.model;
+    public readonly categories_list = this._state.categories;
     public readonly new_category = signal<AssetCategory | null>(null);
     public readonly categories = computed(() => {
         const list = this.categories_list();
@@ -196,7 +190,7 @@ export class AssetGroupFormComponent extends AsyncHandler implements OnInit {
                         notifyError('Unable to load product details.');
                         this._router.navigate([this.base_route]);
                     }
-                    this.form.patchValue(product);
+                    patchSignalModel(this.model, product);
                     this.loading.set('');
                 }
             }),
@@ -204,23 +198,23 @@ export class AssetGroupFormComponent extends AsyncHandler implements OnInit {
     }
 
     public async newCategory() {
-        this.form.patchValue({ category_id: this.current_category() });
+        patchSignalModel(this.model, { category_id: this.current_category() });
         const category = await this._state.editCategory();
         if (!category) return;
         this.new_category.set(category);
-        this.form.patchValue({ category_id: category.id });
+        patchSignalModel(this.model, { category_id: category.id });
     }
 
     public async save() {
-        if (!this.form.valid) return;
+        if (!this.form().valid()) return;
         this.loading.set('Saving Product...');
-        const data = this.form.value;
+        const data = this.model();
         const item = await saveAssetType(data as any).catch((e) => {
             this.loading.set('');
             notifyError(`Error saving Product: ${e.message}`);
             throw e;
         });
-        this.form.reset();
+        this.form().reset();
         this.loading.set('');
         this._state.postChange();
         this._router.navigate([this.base_route, 'view', item.id]);

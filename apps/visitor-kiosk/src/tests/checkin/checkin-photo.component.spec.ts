@@ -1,7 +1,7 @@
+import { signal } from '@angular/core';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { mockComponent } from '@placeos/common/tests';
 import { IconComponent } from '@placeos/components';
-import { of } from 'rxjs';
 
 import { CheckinPhotoComponent } from '../../app/checkin/checkin-photo.component';
 import { CheckinStateService } from '../../app/checkin/checkin-state.service';
@@ -14,7 +14,7 @@ describe('CheckinPhotoComponent', () => {
         providers: [
             {
                 provide: CheckinStateService,
-                useValue: { event: of({}), guest: of({}) },
+                useValue: { event: signal({}), guest: signal({}) },
             },
         ],
         declarations: [

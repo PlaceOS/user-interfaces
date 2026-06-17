@@ -1,5 +1,4 @@
-import { Injectable, inject } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import {
@@ -17,16 +16,7 @@ import {
     queryEvents,
     removeEvent,
 } from '@placeos/events';
-import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, from } from 'rxjs';
-import {
-    debounceTime,
-    filter,
-    map,
-    shareReplay,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
+import { endOfDay, format, getUnixTime, startOfDay } from 'date-fns';
 
 export interface GroupEventOptions {
     period: 'week' | 'month';
@@ -44,63 +34,74 @@ export class EventStateService extends AsyncHandler {
     private _dialog = inject(MatDialog);
     private _router = inject(Router);
 
-    private _options = new BehaviorSubject<GroupEventOptions>({
-        period: 'week',
+    private readonly _poll = signal(0);
+    private readonly _changed = signal(0);
+
+    public readonly options = signal<GroupEventOptions>({ period: 'week' });
+    public readonly loading = signal<string>('');
+    public readonly event_list = signal<CalendarEvent[]>([]);
+
+    /** Events grouped by `yyyy-MM-dd`, each with calendar `offset`/`length` */
+    public readonly event_day_map = computed(() => {
+        const map: Record<string, any[]> = {};
+        for (const event of this.event_list()) {
+            const date = format(event.date, 'yyyy-MM-dd');
+            if (!map[date]) map[date] = [];
+            const start = new Date(event.date);
+            map[date].push({
+                ...event,
+                offset:
+                    (start.getHours() * 60 + start.getMinutes()) / (24 * 60),
+                length: event.duration / (24 * 60),
+            });
+        }
+        return map;
     });
-    private _loading = new BehaviorSubject<string>('');
-    private _poll = new BehaviorSubject(0);
-    private _changed = new BehaviorSubject(0);
 
-    public readonly event_list = combineLatest([
-        toObservable(this._org.active_building),
-        this._options,
-        this._changed,
-        this._poll,
-    ]).pipe(
-        filter(([bld]) => !!bld),
-        debounceTime(310),
-        switchMap(([_, options]) => {
-            this._loading.next(i18n('APP.CONCIERGE.EVENTS_LOADING'));
-            return from(
-                queryEvents({
-                    period_start: getUnixTime(startOfDay(options.date)),
-                    period_end: getUnixTime(
-                        endOfDay(options.end || options.date || Date.now()),
+    constructor() {
+        super();
+        effect(() => {
+            const bld = this._org.active_building();
+            const options = this.options();
+            this._changed();
+            this._poll();
+            if (!bld) return;
+            this.timeout('load', () => this._load(options), 310);
+        });
+    }
+
+    private async _load(options: GroupEventOptions) {
+        this.loading.set(i18n('APP.CONCIERGE.EVENTS_LOADING'));
+        let list = await queryEvents({
+            period_start: getUnixTime(startOfDay(options.date)),
+            period_end: getUnixTime(
+                endOfDay(options.end || options.date || Date.now()),
+            ),
+            calendars: this.calendar,
+        });
+        const zone_ids = options.zone_ids || [];
+        if (zone_ids.length) {
+            list = list.filter((event) =>
+                event.resources?.some((space) =>
+                    (space.zones || []).some((zone) =>
+                        zone_ids.includes(zone),
                     ),
-                    calendars: this.calendar,
-                }),
-            ).pipe(
-                map((list) => {
-                    const zone_ids = this._options.getValue().zone_ids || [];
-                    if (!zone_ids.length) return list;
-                    return list.filter((event) =>
-                        event.resources?.some((space) =>
-                            (space.zones || []).some((zone) =>
-                                zone_ids.includes(zone),
-                            ),
-                        ),
-                    );
-                }),
+                ),
             );
-        }),
-        map((list) =>
-            list
-                .filter((_) => _.extension_data?.shared_event)
-                .sort((a, b) => a.date - b.date),
-        ),
-        tap(() => this._loading.next('')),
-        shareReplay(1),
-    );
-
-    public readonly options = this._options.asObservable();
-    public readonly loading = this._loading.asObservable();
+        }
+        list = list
+            .filter((_) => _.extension_data?.shared_event)
+            .sort((a, b) => a.date - b.date);
+        this.event_list.set(list);
+        this.loading.set('');
+    }
 
     public changed() {
-        this.timeout('changed', () => this._changed.next(Date.now()), 100);
+        this.timeout('changed', () => this._changed.set(Date.now()), 100);
     }
 
     public get period() {
-        return this._options.getValue()?.period;
+        return this.options()?.period;
     }
 
     public get calendar() {
@@ -110,7 +111,7 @@ export class EventStateService extends AsyncHandler {
     public startPolling(delay = 60 * 1000) {
         this.interval(
             'poll',
-            () => (document.hasFocus() ? this._poll.next(Date.now()) : ''),
+            () => (document.hasFocus() ? this._poll.set(Date.now()) : ''),
             delay,
         );
         return () => this.stopPolling();
@@ -121,10 +122,10 @@ export class EventStateService extends AsyncHandler {
     }
 
     public setOptions(options: Partial<GroupEventOptions>) {
-        const current_options = this._options.value;
+        const current_options = this.options();
         const next_options = { ...current_options, ...options };
         if (this._sameOptions(current_options, next_options)) return;
-        this._options.next(next_options);
+        this.options.set(next_options);
     }
 
     private _sameOptions(
@@ -192,6 +193,6 @@ export class EventStateService extends AsyncHandler {
         });
         result.close();
         notifySuccess(i18n('APP.CONCIERGE.EVENTS_REMOVE_SUCCESS'));
-        this._changed.next(Date.now());
+        this._changed.set(Date.now());
     }
 }

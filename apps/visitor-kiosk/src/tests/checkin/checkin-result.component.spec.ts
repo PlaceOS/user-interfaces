@@ -1,5 +1,5 @@
+import { signal } from '@angular/core';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { of } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
 import {
@@ -18,8 +18,9 @@ describe('CheckinComponent', () => {
         component: CheckinResultsComponent,
         providers: [
             MockProvider(CheckinStateService, {
-                event: of({}),
-                guest: of({}),
+                event: signal({}),
+                guest: signal({}),
+                photo: signal(''),
             } as any),
             MockProvider(SettingsService, { get: jest.fn() }),
         ],

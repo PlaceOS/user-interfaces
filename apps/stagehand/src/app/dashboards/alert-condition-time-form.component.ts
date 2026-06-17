@@ -6,11 +6,8 @@ import {
     OnInit,
     SimpleChanges,
 } from '@angular/core';
-import {
-    FormsModule,
-    ReactiveFormsModule,
-    UntypedFormGroup,
-} from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -47,7 +44,7 @@ export function numberToPosition(num: number): string {
     selector: 'alert-condition-time-form',
     template: `
         @if (form()) {
-            <div class="alert-condition form time" [formGroup]="form()">
+            <div class="alert-condition form time">
                 <div class="mb-4 flex flex-col">
                     <settings-toggle
                         [label]="'TRIGGERS.TIME_SCHEDULE' | translate"
@@ -65,9 +62,14 @@ export function numberToPosition(num: number): string {
                             <icon matPrefix class="text-2xl">search</icon>
                             <input
                                 matInput
-                                formControlName="timezone"
+                                [formField]="form().timezone"
                                 [placeholder]="'COMMON.TIMEZONE' | translate"
                                 [matAutocomplete]="auto"
+                                (input)="
+                                    updateTimezoneList(
+                                        $any($event.target).value
+                                    )
+                                "
                             />
                         </mat-form-field>
                         <mat-autocomplete #auto="matAutocomplete">
@@ -84,7 +86,7 @@ export function numberToPosition(num: number): string {
                 }
                 @if (!is_cron) {
                     <div class="flex space-x-4">
-                        @if (form().controls.time) {
+                        @if (form().time) {
                             <div class="flex flex-1 flex-col">
                                 <label for="type"
                                     >{{
@@ -93,11 +95,11 @@ export function numberToPosition(num: number): string {
                                 </label>
                                 <a-date-field
                                     name="date"
-                                    formControlName="time"
+                                    [formField]="form().time"
                                 ></a-date-field>
                             </div>
                         }
-                        @if (form().controls.time) {
+                        @if (form().time) {
                             <div class="flex flex-1 flex-col">
                                 <label for="type"
                                     >{{
@@ -106,7 +108,7 @@ export function numberToPosition(num: number): string {
                                 </label>
                                 <a-time-field
                                     name="date"
-                                    formControlName="time"
+                                    [formField]="form().time"
                                 ></a-time-field>
                             </div>
                         }
@@ -326,7 +328,7 @@ export function numberToPosition(num: number): string {
         MatAutocompleteModule,
         SettingsToggleComponent,
         MatInputModule,
-        ReactiveFormsModule,
+        FormField,
         TranslatePipe,
         IconComponent,
     ],
@@ -336,7 +338,7 @@ export class AlertConditionTimeFormComponent
     implements OnChanges, OnInit
 {
     /** Group of form fields used for creating the system */
-    public readonly form = input<UntypedFormGroup>(undefined);
+    public readonly form = input<any>(undefined);
     /** List of available periods for scheduled repetition */
     public repeat_period: Identity[] = [];
     /** Whether condition is a cron(recurring) job */
@@ -416,19 +418,12 @@ export class AlertConditionTimeFormComponent
     public ngOnChanges(changes: SimpleChanges): void {
         const form = this.form();
         if (changes.form && form) {
-            this.is_cron = form.controls.time_type.value === 'cron';
+            this.is_cron =
+                form.time_type().value() === TriggerTimeConditionType.CRON;
             if (this.is_cron) {
-                this.loadCronTab(form.controls.cron.value);
+                this.loadCronTab(form.cron().value());
             }
-            this.subscription(
-                'timezone',
-                form
-                    .get('timezone')
-                    .valueChanges.subscribe((tz) =>
-                        this.updateTimezoneList(tz),
-                    ),
-            );
-            this.updateTimezoneList(form.get('timezone').value);
+            this.updateTimezoneList(form.timezone().value());
         }
     }
 
@@ -440,8 +435,8 @@ export class AlertConditionTimeFormComponent
     }
 
     public toggleCRON(is_cron: boolean) {
-        this.form().controls.cron.setValue(null);
-        this.form().controls.time_type.setValue(
+        this.form().cron().value.set('');
+        this.form().time_type().value.set(
             is_cron
                 ? TriggerTimeConditionType.CRON
                 : TriggerTimeConditionType.AT,
@@ -452,7 +447,7 @@ export class AlertConditionTimeFormComponent
     public saveCRON(cron_str: string) {
         this.timeout(
             'save_cron',
-            () => this.form().controls.cron.setValue(cron_str),
+            () => this.form().cron().value.set(cron_str),
             1000,
         );
     }
@@ -462,7 +457,7 @@ export class AlertConditionTimeFormComponent
      */
     public updateCronString() {
         const form = this.form();
-        if (form && form.controls.cron) {
+        if (form && form.cron) {
             const hour = this.cron_hour;
             const minute = this.cron_minute % 60;
             const day_of_week = this.days_of_week.indexOf(this.cron_day);
@@ -491,7 +486,7 @@ export class AlertConditionTimeFormComponent
                     cron_str = `${minute} ${hour} ${day_of_month} ${month} *`;
                     break;
             }
-            form.controls.cron.setValue(cron_str);
+            form.cron().value.set(cron_str);
         }
     }
 
@@ -522,46 +517,5 @@ export class AlertConditionTimeFormComponent
             this.cron_period = 'hour';
         }
         this.cron_hour_period = this.cron_hour > 12 ? 'PM' : 'AM';
-        // const cron_str = new CronBuilder(cron_tab);
-        // this.cron_minute =
-        //     cron_str.get('minute') === '*'
-        //         ? this.cron_minute
-        //         : +cron_str.get('minute');
-        // this.cron_hour =
-        //     cron_str.get('hour') === '*'
-        //         ? this.cron_minute
-        //         : +cron_str.get('hour');
-        // if (this.cron_hour > 12) {
-        //     this.cron_hour = this.cron_hour % 12;
-        //     this.cron_hour_period = 'PM';
-        // } else {
-        //     this.cron_hour_period = 'AM';
-        // }
-        // this.cron_day =
-        //     cron_str.get('dayOfTheWeek') === '*'
-        //         ? this.cron_day
-        //         : this.days_of_week[+cron_str.get('dayOfTheWeek')];
-        // this.cron_date =
-        //     cron_str.get('dayOfTheMonth') === '*'
-        //         ? this.cron_date
-        //         : +cron_str.get('dayOfTheMonth');
-        // this.cron_month =
-        //     cron_str.get('month') === '*'
-        //         ? this.cron_month
-        //         : this.months_of_year[+cron_str.get('month') - 1];
-        // /** Set the cron period */
-        // if (cron_str.get('month') !== '*') {
-        //     this.cron_period = 'year';
-        // } else if (cron_str.get('dayOfTheMonth') !== '*') {
-        //     this.cron_period = 'month';
-        // } else if (cron_str.get('dayOfTheWeek') !== '*') {
-        //     this.cron_period = 'week';
-        // } else if (cron_str.get('hour') !== '*') {
-        //     this.cron_period = 'day';
-        // } else if (cron_str.get('minute') !== '*') {
-        //     this.cron_period = 'hour';
-        // } else {
-        //     this.cron_period = 'minute';
-        // }
     }
 }

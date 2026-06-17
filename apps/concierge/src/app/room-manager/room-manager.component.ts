@@ -1,12 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-} from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
-import { startWith } from 'rxjs/operators';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { RoomListComponent } from './room-list.component';
@@ -57,19 +49,4 @@ import { RoomManagerTopbarComponent } from './room-manager-topbar.component';
         RoomListComponent,
     ],
 })
-export class RoomManagerComponent {
-    private _router = inject(Router);
-
-    private readonly _url = toSignal(
-        this._router.events.pipe(startWith(null)),
-        {
-            initialValue: null,
-        },
-    );
-
-    public readonly path = computed(() => {
-        this._url();
-        const parts = this._router.url.split('/');
-        return parts[parts.length - 1].split('?')[0];
-    });
-}
+export class RoomManagerComponent {}

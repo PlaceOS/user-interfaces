@@ -10,8 +10,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { RouterModule } from '@angular/router';
 import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { lastValueFrom } from 'rxjs';
-import { SignageService } from '../signage.service';
+import { dialogClosed, SignageService } from '../signage.service';
 import { GroupSelectModalComponent } from './group-select-modal.component';
 import { filterManageNavItems } from './nav-items';
 
@@ -169,7 +168,7 @@ export class NavFooterComponent {
             },
             panelClass: 'mobile-fullscreen',
         });
-        const group_id = await lastValueFrom(ref.afterClosed());
+        const group_id = await dialogClosed(ref);
         if (group_id === undefined) return;
         this._service.setSelectedGroup(group_id);
     }

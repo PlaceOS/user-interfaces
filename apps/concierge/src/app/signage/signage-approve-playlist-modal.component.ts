@@ -4,9 +4,9 @@ import {
     Component,
     computed,
     inject,
+    resource,
     signal,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -25,7 +25,6 @@ import {
     listSignagePlaylistMediaRevisions,
     updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
-import { combineLatest, filter, map, switchMap, tap } from 'rxjs';
 import { SignageStateService } from './signage-state.service';
 
 @Component({
@@ -232,32 +231,28 @@ export class SignageApprovePlaylistModalComponent {
     public readonly loading = signal('');
     private readonly _playlist_id = signal(this._playlist?.id || '');
 
-    public readonly playlist_versions = toSignal(
-        toObservable(this._playlist_id).pipe(
-            filter((_) => !!_),
-            tap(() => this.loading.set('Loading versions...')),
-            switchMap((id) =>
-                listSignagePlaylistMediaRevisions(id, { limit: 2 }),
-            ),
-        ),
-        { initialValue: [] },
-    );
+    private readonly _playlist_versions = resource({
+        params: () => this._playlist_id(),
+        defaultValue: [] as any[],
+        loader: async ({ params: id }) => {
+            if (!id) return [];
+            this.loading.set('Loading versions...');
+            const result = await listSignagePlaylistMediaRevisions(id, {
+                limit: 2,
+            });
+            this.loading.set('');
+            return result;
+        },
+    });
+    public readonly playlist_versions = this._playlist_versions.value;
 
-    private readonly _playlist_media = toSignal(
-        combineLatest([
-            toObservable(this.playlist_versions),
-            this._service.media,
-        ]).pipe(
-            map(([playlists, media]) =>
-                playlists.map((playlist) =>
-                    playlist.items.map((id) => media.find((m) => m?.id === id)),
-                ),
-            ),
-            tap(() => this.loading.set('')),
-        ),
-        { initialValue: [] },
-    );
-    public readonly playlist_media = computed(() => this._playlist_media());
+    public readonly playlist_media = computed(() => {
+        const playlists = this.playlist_versions();
+        const media = this._service.media();
+        return playlists.map((playlist) =>
+            playlist.items.map((id) => media.find((m) => m?.id === id)),
+        );
+    });
     public readonly current_version = computed(
         () => this.playlist_versions()[0],
     );

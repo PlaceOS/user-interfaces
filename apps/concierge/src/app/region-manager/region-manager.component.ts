@@ -1,13 +1,10 @@
-import { Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router } from '@angular/router';
 import { OrganisationService } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { startWith } from 'rxjs/operators';
 import { BookingPanelSettingsModalComponent } from '../ui/app-settings/booking-panel-settings-modal.component';
 import { ConciergeSettingsFormModalComponent } from '../ui/app-settings/concierge-settings-form-modal.component';
 import { VisitorKioskSettingsFormModalComponent } from '../ui/app-settings/visitor-kiosk-settings-form-modal.component';
@@ -146,21 +143,8 @@ export class RegionManagerComponent {
     private readonly _state = inject(RegionManagementService);
     private _dialog = inject(MatDialog);
     private _org = inject(OrganisationService);
-    private _router = inject(Router);
-
-    private readonly _url = toSignal(
-        this._router.events.pipe(startWith(null)),
-        {
-            initialValue: null,
-        },
-    );
 
     public readonly newRegion = () => this._state.editRegion();
-    public readonly path = computed(() => {
-        this._url();
-        const parts = this._router.url.split('/');
-        return parts[parts.length - 1].split('?')[0];
-    });
 
     public get org() {
         return this._org.organisation;

@@ -8,11 +8,10 @@ import {
     signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import {
     AsyncHandler,
-    nextValueFrom,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
@@ -28,13 +27,11 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { lastValueFrom, timer } from 'rxjs';
-import { filter, map, startWith } from 'rxjs/operators';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { DateOptionsComponent } from '../ui/date-options.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
-import { LockerFilters, LockerStateService } from './locker-state.service';
+import { LockerStateService } from './locker-state.service';
 
 @Component({
     selector: 'lockers-topbar',
@@ -195,43 +192,27 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
 
     private readonly _ready = signal(false);
     private readonly _query_params = toSignal(this._route.queryParamMap);
-    private readonly _current_url = toSignal(
-        this._router.events.pipe(
-            filter(
-                (event): event is NavigationEnd =>
-                    event instanceof NavigationEnd,
-            ),
-            map((event) => event.urlAfterRedirects),
-            startWith(this._router.url),
-        ),
-        { initialValue: this._router.url },
-    );
+    private readonly _url = signal<unknown>(null);
 
     public readonly path = computed(() => {
-        const parts = this._current_url()?.split('/') || [''];
+        this._url();
+        const parts = (this._router.url || '').split('/');
         return parts[parts.length - 1].split('?')[0];
     });
     /** List of selected levels */
     public readonly zones = signal<string[]>([]);
     /** List of levels for the active building */
-    public readonly all_levels = toSignal(this._state.levels, {
-        initialValue: [],
-    });
+    public readonly all_levels = this._state.levels;
     /** List of levels with bookable locker resources */
-    public readonly bookable_levels = toSignal(
-        this._state.bookable_levels || this._state.levels,
-        { initialValue: [] },
-    );
+    public readonly bookable_levels = this._state.bookable_levels;
     /** List of levels to show for the current view */
     public readonly levels = computed(() =>
         this.path() === 'manage' ? this.all_levels() : this.bookable_levels(),
     );
     /** Options set for week view */
-    public readonly options = toSignal(this._state.filters, {
-        initialValue: {} as LockerFilters,
-    });
+    public readonly options = this._state.filters;
     /** Search string */
-    public readonly search = toSignal(this._state.search, { initialValue: '' });
+    public readonly search = this._state.search;
     /** Set filtered date */
     public readonly setDate = (d) => this._state.setFilters({ date: d });
     /** Set filter string */
@@ -275,8 +256,11 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
 
     constructor() {
         super();
+        this.subscription(
+            'router',
+            this._router.events.subscribe((event) => this._url.set(event)),
+        );
         effect(() => {
-            this._current_url();
             this._updatePath();
         });
         effect(() => {
@@ -336,13 +320,13 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
 
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
-        await lastValueFrom(timer(1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         this._state.setSearch('');
         this._ready.set(true);
     }
 
     public async newBooking() {
-        const { date } = await nextValueFrom(this._state.filters);
+        const { date } = this._state.filters();
         this._state.editBooking(undefined, {
             date: date || Date.now(),
             allow_time_changes: true,

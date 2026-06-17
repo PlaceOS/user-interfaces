@@ -5,8 +5,7 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import {
     MAT_DIALOG_DATA,
     MatDialogModule,
@@ -18,7 +17,12 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { Router } from '@angular/router';
 import { generateAssetCategoryForm, saveAssetCategory } from '@placeos/assets';
-import { AssetCategory, i18n, notifyError } from '@placeos/common';
+import {
+    AssetCategory,
+    i18n,
+    notifyError,
+    patchSignalModel,
+} from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
@@ -30,7 +34,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         >
             <h2 class="px-2 text-xl font-medium">
                 {{
-                    (form.value.id
+                    (model().id
                         ? 'APP.CONCIERGE.ASSETS_CATEGORY_EDIT'
                         : 'APP.CONCIERGE.ASSETS_CATEGORY_NEW'
                     ) | translate
@@ -43,10 +47,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             }
         </header>
         @if (!loading()) {
-            <main
-                class="h-1/2 w-[24rem] max-w-[80vw] flex-1 overflow-auto p-2"
-                [formGroup]="form"
-            >
+            <main class="h-1/2 w-[24rem] max-w-[80vw] flex-1 overflow-auto p-2">
                 <div class="flex flex-col space-y-2">
                     <label for="name"
                         >{{ 'FORM.NAME' | translate }}<span>*</span></label
@@ -54,9 +55,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     <mat-form-field appearance="outline">
                         <input
                             matInput
-                            name="name"
                             [placeholder]="'FORM.NAME' | translate"
-                            formControlName="name"
+                            [formField]="form.name"
                         />
                         <mat-error>{{
                             'FORM.NAME_REQUIRED' | translate
@@ -69,12 +69,11 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     }}</label>
                     <mat-form-field appearance="outline">
                         <mat-select
-                            formControlName="parent_category_id"
+                            [formField]="form.parent_category_id"
                             [placeholder]="
                                 'APP.CONCIERGE.ASSETS_CATEGORY_PARENT_EMPTY'
                                     | translate
                             "
-                            [disabled]="!categories().length"
                         >
                             @for (category of categories(); track category) {
                                 <mat-option [value]="category.id">
@@ -113,7 +112,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         MatProgressSpinnerModule,
         MatFormFieldModule,
         MatSelectModule,
-        ReactiveFormsModule,
+        FormField,
         MatInputModule,
     ],
 })
@@ -126,13 +125,13 @@ export class AssetCategoryFormComponent {
     private _router = inject(Router);
 
     public readonly loading = signal(false);
-    public readonly form = generateAssetCategoryForm();
-    public readonly categories_list = toSignal(this._state.categories, {
-        initialValue: [],
-    });
+    private readonly _form_ref = generateAssetCategoryForm();
+    public readonly form = this._form_ref.form;
+    public readonly model = this._form_ref.model;
+    public readonly categories_list = this._state.categories;
     public readonly categories = computed(() =>
         this.categories_list().filter(
-            (_) => _.parent_category_id !== this.form.value.id,
+            (_) => _.parent_category_id !== this.model().id,
         ),
     );
 
@@ -141,14 +140,14 @@ export class AssetCategoryFormComponent {
             category?: AssetCategory;
         }>(MAT_DIALOG_DATA, { optional: true });
 
-        if (_data?.category) this.form.patchValue(_data.category);
+        if (_data?.category) patchSignalModel(this.model, _data.category);
     }
 
     public async save() {
-        if (!this.form.valid) return;
+        if (!this.form().valid()) return;
         this.loading.set(true);
         if (this._dialog_ref) this._dialog_ref.disableClose = true;
-        const data = this.form.value;
+        const data = this.model();
         const item = await saveAssetCategory(data as any).catch((e) => {
             this.loading.set(false);
             if (this._dialog_ref) this._dialog_ref.disableClose = false;
@@ -159,7 +158,7 @@ export class AssetCategoryFormComponent {
             );
             throw e;
         });
-        this.form.reset();
+        this.form().reset();
         this.loading.set(false);
         if (this._dialog_ref) {
             this._dialog_ref.close(item);

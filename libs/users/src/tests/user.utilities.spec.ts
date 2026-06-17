@@ -1,4 +1,4 @@
-import { FormGroup } from '@angular/forms';
+import { TestBed } from '@angular/core/testing';
 import { GuestUser, User } from '@placeos/common';
 import {
     generateGuestForm,
@@ -7,79 +7,80 @@ import {
 } from '../lib/user.utilities';
 
 describe('[User Utilities]', () => {
+    const makeUserForm = (user: User) =>
+        TestBed.runInInjectionContext(() => generateUserForm(user));
+    const makeGuestForm = (user?: GuestUser, host?: string) =>
+        TestBed.runInInjectionContext(() => generateGuestForm(user, host));
+
     describe('generateUserForm', () => {
         it('should generate form', () => {
             const user = new User(generateMockUser());
-            const form = generateUserForm(user);
-            expect(form).toBeInstanceOf(FormGroup);
-            for (const key in form.value) {
-                expect(form.value[key]).toEqual(user[key]);
+            const form = makeUserForm(user);
+            expect(form).toBeTruthy();
+            const value = form().value();
+            for (const key in value) {
+                expect(value[key]).toEqual(user[key]);
             }
         });
 
         it('should validate emails', () => {
             const user = new User();
-            const form = generateUserForm(user);
-            expect(form).toBeInstanceOf(FormGroup);
-            expect(form.controls.email.invalid).toBeTruthy();
-            form.patchValue({ email: 'test@place.tech' });
-            expect(form.controls.email.invalid).toBeFalsy();
-            form.patchValue({ email: 'jim' });
-            expect(form.controls.email.invalid).toBeTruthy();
+            const form = makeUserForm(user);
+            expect(form.email().invalid()).toBeTruthy();
+            form.email().value.set('test@place.tech');
+            expect(form.email().invalid()).toBeFalsy();
+            form.email().value.set('jim');
+            expect(form.email().invalid()).toBeTruthy();
         });
 
         it('should validate organisation', () => {
             const user = new User();
-            const form = generateUserForm(user);
-            expect(form).toBeInstanceOf(FormGroup);
-            expect(form.controls.organisation.invalid).toBeTruthy();
-            form.patchValue({ organisation: 'PlaceOS' });
-            expect(form.controls.organisation.invalid).toBeFalsy();
+            const form = makeUserForm(user);
+            expect(form.organisation().invalid()).toBeTruthy();
+            form.organisation().value.set('PlaceOS');
+            expect(form.organisation().invalid()).toBeFalsy();
         });
 
         it('should error when user not passed', () => {
-            expect(() => generateUserForm(null)).toThrow();
+            expect(() => makeUserForm(null)).toThrow();
         });
     });
 
     describe('generateGuestorm', () => {
         it('should generate form', () => {
             const user = new GuestUser(generateMockUser());
-            const form = generateGuestForm(user, 'Testing');
-            expect(form).toBeInstanceOf(FormGroup);
+            const form = makeGuestForm(user, 'Testing');
+            const value = form().value();
             for (const key of ['name', 'email', 'organisation', 'phone']) {
-                expect(form.value[key]).toEqual(user[key]);
+                expect(value[key]).toEqual(user[key]);
             }
-            expect(form.value.host).toBe('Testing');
+            expect(value.host).toBe('Testing');
         });
 
         it('should validate emails', () => {
             const user = new GuestUser();
-            const form = generateGuestForm(user);
-            expect(form).toBeInstanceOf(FormGroup);
-            expect(form.controls.email.invalid).toBeTruthy();
-            form.patchValue({ email: 'test@place.tech' });
-            expect(form.controls.email.invalid).toBeFalsy();
-            form.patchValue({ email: 'jim' });
-            expect(form.controls.email.invalid).toBeTruthy();
+            const form = makeGuestForm(user);
+            expect(form.email().invalid()).toBeTruthy();
+            form.email().value.set('test@place.tech');
+            expect(form.email().invalid()).toBeFalsy();
+            form.email().value.set('jim');
+            expect(form.email().invalid()).toBeTruthy();
         });
 
         it('should validate organisation', () => {
             const user = new GuestUser();
-            const form = generateGuestForm(user);
-            expect(form).toBeInstanceOf(FormGroup);
-            expect(form.controls.organisation.invalid).toBeTruthy();
-            form.patchValue({ organisation: 'PlaceOS' });
-            expect(form.controls.organisation.invalid).toBeFalsy();
+            const form = makeGuestForm(user);
+            expect(form.organisation().invalid()).toBeTruthy();
+            form.organisation().value.set('PlaceOS');
+            expect(form.organisation().invalid()).toBeFalsy();
         });
 
         it('should validate host', () => {
             const user = new GuestUser();
-            const form = generateGuestForm(user);
-            expect(form).toBeInstanceOf(FormGroup);
-            expect(form.controls.host.invalid).toBeTruthy();
-            form.patchValue({ host: 'Will' });
-            expect(form.controls.host.invalid).toBeFalsy();
+            const form = makeGuestForm(user);
+            expect(form.host().invalid()).toBeTruthy();
+            form.host().value.set('Will');
+            expect(form.host().invalid()).toBeFalsy();
         });
     });
 });

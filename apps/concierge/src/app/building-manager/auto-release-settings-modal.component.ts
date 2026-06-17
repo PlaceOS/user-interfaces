@@ -16,6 +16,7 @@ import {
     SettingsService,
     WorktimePreference,
     i18n,
+    nextValueFrom,
     notifyError,
     notifySuccess,
 } from '@placeos/common';
@@ -36,7 +37,6 @@ import {
     startOfDay,
     startOfMinute,
 } from 'date-fns';
-import { lastValueFrom } from 'rxjs';
 
 import { WFHSettingsModalComponent } from '@placeos/users';
 
@@ -385,7 +385,7 @@ export class AutoReleaseSettingsModalComponent implements OnInit {
                 preferences: this.setting('default_work_preferences') || [],
             },
         });
-        const result = await lastValueFrom(ref.afterClosed());
+        const result = await nextValueFrom(ref.afterClosed());
         if (!result) return;
         this.setSetting('default_work_preferences', result);
     }

@@ -4,7 +4,6 @@ import {
     computed,
     inject,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { formatDuration } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { differenceInBusinessDays, endOfDay, startOfDay } from 'date-fns';
@@ -55,27 +54,8 @@ import { AssetsReportService } from './assets-report.service';
 export class AssetReportOverallComponent {
     private _state = inject(AssetsReportService);
 
-    private readonly _stats = toSignal(this._state.stats$, {
-        initialValue: {
-            events: [],
-            bookings: [],
-            all_bookings: [],
-            products: [],
-            booking_count: 0,
-            active_count: 0,
-            cancelled_count: 0,
-            deleted_count: 0,
-            inactive_count: 0,
-            total_count: 0,
-            event_count: 0,
-            total_booked_items: 0,
-            unique_items: 0,
-            products_booked: [],
-        },
-    });
-    private readonly _options = toSignal(this._state.options$, {
-        initialValue: { start: Date.now(), end: Date.now() },
-    });
+    private readonly _stats = this._state.stats;
+    private readonly _options = this._state.options;
 
     public readonly total_count = computed(
         () => this._stats().total_count || this._stats().booking_count || 0,

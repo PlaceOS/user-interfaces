@@ -8,7 +8,6 @@ import {
 } from '@placeos/common';
 import { EventFormService, SpacesService } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of } from 'rxjs';
 import { PanelStateService } from '../../app/panel-state.service';
 
 describe('PanelStateService', () => {
@@ -16,7 +15,10 @@ describe('PanelStateService', () => {
     const createService = createServiceFactory({
         service: PanelStateService,
         providers: [
-            MockProvider(SpacesService, { list: new BehaviorSubject([]) }),
+            MockProvider(SpacesService, {
+                list: signal([]),
+                loadSpace: jest.fn(),
+            }),
             MockProvider(MatDialog, { open: jest.fn() }),
             MockProvider(EventFormService, {}),
             MockProvider(OrganisationService, { initialised: signal(true) }),

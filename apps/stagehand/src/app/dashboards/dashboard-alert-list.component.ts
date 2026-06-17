@@ -22,7 +22,7 @@ import { DashboardsService } from './dashboards.service';
         <div class="p-4">
             <mat-progress-bar
                 class="w-full"
-                [class.opacity-0]="loading.length <= 0"
+                [class.opacity-0]="loading().length <= 0"
             />
             <simple-table
                 class="bg-base-100 block min-w-3xl"
@@ -175,14 +175,7 @@ export class DashboardAlertListComponent
     public readonly remove = (d) => this._service.removeDashboardAlert(d);
 
     public ngOnInit() {
-        this.subscription(
-            'route.params',
-            this._route.paramMap.subscribe((params) => {
-                if (params.has('id')) {
-                    console.log('Dashboard:', params.get('id'));
-                    this._service.setDashboard(params.get('id'));
-                }
-            }),
-        );
+        const id = this._route.snapshot.paramMap.get('id');
+        if (id) this._service.setDashboard(id);
     }
 }

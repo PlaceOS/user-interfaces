@@ -2,13 +2,14 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
+    effect,
     inject,
     OnInit,
     signal,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { NavigationEnd, Router, RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -103,13 +104,12 @@ export class DashboardsComponent extends AsyncHandler implements OnInit {
     );
     public readonly dashboard = this._service.dashboard;
 
+    private readonly _page_sync = effect(() => {
+        this._router.currentNavigation();
+        this._updatePage();
+    });
+
     public ngOnInit() {
-        this.subscription(
-            'router.events',
-            this._router.events.subscribe((e) => {
-                if (e instanceof NavigationEnd) this._updatePage();
-            }),
-        );
         this._updatePage();
     }
 

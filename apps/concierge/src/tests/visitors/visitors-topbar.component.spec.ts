@@ -23,6 +23,7 @@ describe('VisitorsTopbarComponent', () => {
             {
                 provide: VisitorsStateService,
                 useValue: {
+                    filters: signal({}),
                     setFilters: jest.fn(),
                     setSearchString: jest.fn(),
                 },

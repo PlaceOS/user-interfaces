@@ -8,7 +8,6 @@ import {
     OnDestroy,
     viewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { ReportsStateService } from '../reports-state.service';
 
 import {
@@ -96,15 +95,9 @@ export class ReportSpacesChartsComponent
     private _settings = inject(SettingsService);
 
     public readonly print = input(false);
-    public readonly day_list = toSignal(this._state.day_list, {
-        initialValue: [],
-    });
-    public readonly options = toSignal(this._state.options, {
-        initialValue: { start: new Date(), end: new Date(), zones: [] },
-    });
-    public readonly counts = toSignal(this._state.counts, {
-        initialValue: {},
-    });
+    public readonly day_list = this._state.day_list;
+    public readonly options = this._state.options;
+    public readonly counts = this._state.counts;
 
     private _daily_chart_el =
         viewChild<ElementRef<HTMLCanvasElement>>('dailyChart');

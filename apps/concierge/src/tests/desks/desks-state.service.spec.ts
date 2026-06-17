@@ -62,9 +62,11 @@ describe('DesksStateService', () => {
         organisation_service.active_region = active_region;
         organisation_service.region = { id: 'region-1' };
         (booking_mod as any).queryPagedBookings = jest.fn(() =>
-            of({ data: [], total: 0, next: null }),
+            Promise.resolve({ data: [], total: 0, next: null }),
         );
-        (booking_mod as any).queryBookings = jest.fn(() => of([]));
+        (booking_mod as any).queryBookings = jest.fn(() =>
+            Promise.resolve([]),
+        );
         (booking_mod as any).saveBooking = jest.fn(() => Promise.resolve({}));
         (booking_mod as any).removeBooking = jest.fn(() =>
             Promise.resolve(undefined),
@@ -407,17 +409,14 @@ describe('DesksStateService', () => {
 
     it('should reset desk bookings with the first page query on refresh', () => {
         const first_page = jest.fn(() =>
-            of({ data: [], total: 0, next: null }),
+            Promise.resolve({ data: [], total: 0, next: null }),
         );
-        const next_pages: any[] = [];
         (spectator.service as any)._first_page = first_page;
-        (spectator.service as any)._next_page.subscribe((next_page) =>
-            next_pages.push(next_page),
-        );
 
         spectator.service.refresh();
 
-        expect(next_pages).toContain(first_page);
+        expect((spectator.service as any)._next_page_fn).toBe(first_page);
+        expect(first_page).toHaveBeenCalled();
     });
 
     it('should reject all displayed desk bookings with the instance endpoint where needed', async () => {

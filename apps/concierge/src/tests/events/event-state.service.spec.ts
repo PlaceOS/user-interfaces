@@ -1,4 +1,6 @@
+import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import {
@@ -6,14 +8,14 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { signal } from '@angular/core';
 import { endOfDay, startOfDay } from 'date-fns';
-import { of, timer } from 'rxjs';
 import { MockProvider } from 'ng-mocks';
 import { EventStateService } from '../../app/events/event-state.service';
 
 jest.mock('@placeos/events');
 import * as events_mod from '@placeos/events';
+
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe('EventStateService', () => {
     let spectator: SpectatorService<EventStateService>;
@@ -36,7 +38,7 @@ describe('EventStateService', () => {
     });
 
     beforeEach(() => {
-        (events_mod as any).queryEvents = jest.fn(() => of([]));
+        (events_mod as any).queryEvents = jest.fn(() => Promise.resolve([]));
         spectator = createService();
     });
 
@@ -53,8 +55,8 @@ describe('EventStateService', () => {
             zone_ids: ['lvl-1'],
         });
 
-        const subscription = spectator.service.event_list.subscribe();
-        await timer(350).toPromise();
+        TestBed.flushEffects();
+        await wait(350);
         expect(events_mod.queryEvents).toHaveBeenCalledTimes(1);
 
         spectator.service.setOptions({
@@ -62,9 +64,9 @@ describe('EventStateService', () => {
             end,
             zone_ids: ['lvl-1'],
         });
-        await timer(350).toPromise();
+        TestBed.flushEffects();
+        await wait(350);
         expect(events_mod.queryEvents).toHaveBeenCalledTimes(1);
-        subscription.unsubscribe();
     });
 
     it('should re-request events when options change', async () => {
@@ -72,8 +74,8 @@ describe('EventStateService', () => {
         const end = endOfDay(Date.now()).valueOf();
         spectator.service.setOptions({ date, end, zone_ids: ['lvl-1'] });
 
-        const subscription = spectator.service.event_list.subscribe();
-        await timer(350).toPromise();
+        TestBed.flushEffects();
+        await wait(350);
         expect(events_mod.queryEvents).toHaveBeenCalledTimes(1);
 
         spectator.service.setOptions({
@@ -81,8 +83,8 @@ describe('EventStateService', () => {
             end,
             zone_ids: ['lvl-1', 'lvl-2'],
         });
-        await timer(350).toPromise();
+        TestBed.flushEffects();
+        await wait(350);
         expect(events_mod.queryEvents).toHaveBeenCalledTimes(2);
-        subscription.unsubscribe();
     });
 });

@@ -12,8 +12,7 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { lastValueFrom } from 'rxjs';
-import { SignageService } from '../signage.service';
+import { dialogClosed, SignageService } from '../signage.service';
 import { GroupSelectModalComponent } from './group-select-modal.component';
 
 @Component({
@@ -156,7 +155,7 @@ export class SignageGroupSelectorComponent {
             },
             panelClass: 'mobile-fullscreen',
         });
-        const group_id = await lastValueFrom(ref.afterClosed());
+        const group_id = await dialogClosed(ref);
         if (group_id === undefined) return;
         this._service.setSelectedGroup(group_id);
     }

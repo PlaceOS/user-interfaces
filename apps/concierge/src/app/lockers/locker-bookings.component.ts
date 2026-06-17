@@ -1,10 +1,10 @@
 import {
     ChangeDetectionStrategy,
     Component,
+    computed,
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
@@ -16,7 +16,6 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { map } from 'rxjs/operators';
 import { LockerStateService } from './locker-state.service';
 
 @Component({
@@ -296,20 +295,13 @@ export class LockerBookingsComponent {
 
     public readonly loading = signal('');
     public readonly filters = this._state.filters;
-    public readonly search = toSignal(this._state.search, { initialValue: '' });
-    public readonly has_more_pages = toSignal(this._state.has_more_pages, {
-        initialValue: false,
-    });
-    public readonly bookings = toSignal(
-        this._state.filtered_bookings.pipe(
-            map((i) =>
-                i.map((booking) => ({
-                    ...booking,
-                    end: booking.date + booking.duration * 60 * 1000,
-                })),
-            ),
-        ),
-        { initialValue: [] },
+    public readonly search = this._state.search;
+    public readonly has_more_pages = this._state.has_more_pages;
+    public readonly bookings = computed(() =>
+        this._state.filtered_bookings().map((booking) => ({
+            ...booking,
+            end: booking.date + booking.duration * 60 * 1000,
+        })),
     );
 
     public readonly loadMore = () => this._state.nextPage();

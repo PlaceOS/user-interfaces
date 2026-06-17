@@ -2,10 +2,10 @@ import { CommonModule } from '@angular/common';
 import {
     ChangeDetectionStrategy,
     Component,
+    computed,
     inject,
     input,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { downloadFile, jsonToCsv, unique } from '@placeos/common';
@@ -14,7 +14,6 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { map } from 'rxjs/operators';
 import {
     ReportMetricGuideComponent,
     ReportMetricGuideItem,
@@ -122,25 +121,19 @@ export class VisitorReportDailyUsageComponent {
     public readonly print = input<boolean>(false);
     public readonly table_metric_guide = TABLE_METRIC_GUIDE;
 
-    public readonly daily_stats = toSignal(
-        this._state.daily_stats$.pipe(
-            map((days) => {
-                const list = [];
-                for (const date in days) {
-                    list.push({
-                        date,
-                        booking_count: unique(days[date].bookings, 'asset_id')
-                            .length,
-                        host_count: unique(days[date].bookings, 'user_email')
-                            .length,
-                        booked_count: days[date].bookings.length,
-                    });
-                }
-                return list;
-            }),
-        ),
-        { initialValue: [] },
-    );
+    public readonly daily_stats = computed(() => {
+        const days = this._state.daily_stats();
+        const list = [];
+        for (const date in days) {
+            list.push({
+                date,
+                booking_count: unique(days[date].bookings, 'asset_id').length,
+                host_count: unique(days[date].bookings, 'user_email').length,
+                booked_count: days[date].bookings.length,
+            });
+        }
+        return list;
+    });
 
     public readonly download = async () => {
         const data = this.daily_stats();

@@ -5,12 +5,8 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import {
-    FormControl,
-    FormGroup,
-    FormsModule,
-    ReactiveFormsModule,
-} from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import {
     MAT_DIALOG_DATA,
     MatDialogModule,
@@ -25,7 +21,6 @@ import {
     VERSION,
 } from '@placeos/common';
 import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
-import { map } from 'rxjs/operators';
 
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -38,7 +33,6 @@ import {
     SettingsToggleComponent,
 } from '@placeos/components';
 import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
-import { firstValueFrom, from } from 'rxjs';
 import {
     EXPLORE_FEATURE_OPTIONS,
     MAX_DURATION_MINI_OPTIONS,
@@ -56,7 +50,7 @@ import { UploadButtonComponent } from './upload-button.component';
             [loading]="loading()"
             (confirm)="save()"
         >
-            <form [formGroup]="form" class="flex flex-col space-y-8">
+            <form class="flex flex-col space-y-8">
                 <section general class="bg-base-100 space-y-2 rounded-sm">
                     <div>
                         <label for="logo_light">Light Mode Logo</label>
@@ -65,18 +59,15 @@ import { UploadButtonComponent } from './upload-button.component';
                                 appearance="outline"
                                 class="no-subscript w-full"
                             >
-                                <input
-                                    matInput
-                                    name="logo_light"
-                                    formControlName="logo_light"
-                                />
+                                <input matInput [formField]="form.logo_light" />
                             </mat-form-field>
                             <upload-button
                                 ngModel
                                 (ngModelChange)="
-                                    form.patchValue({
+                                    model.update((m) => ({
+                                        ...m,
                                         logo_light: $event,
-                                    })
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                             ></upload-button>
@@ -89,18 +80,15 @@ import { UploadButtonComponent } from './upload-button.component';
                                 appearance="outline"
                                 class="no-subscript w-full"
                             >
-                                <input
-                                    matInput
-                                    name="logo_dark"
-                                    formControlName="logo_dark"
-                                />
+                                <input matInput [formField]="form.logo_dark" />
                             </mat-form-field>
                             <upload-button
                                 ngModel
                                 (ngModelChange)="
-                                    form.patchValue({
+                                    model.update((m) => ({
+                                        ...m,
                                         logo_dark: $event,
-                                    })
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                             ></upload-button>
@@ -117,16 +105,16 @@ import { UploadButtonComponent } from './upload-button.component';
                             >
                                 <input
                                     matInput
-                                    name="welcome-background"
-                                    formControlName="welcome_background"
+                                    [formField]="form.welcome_background"
                                 />
                             </mat-form-field>
                             <upload-button
                                 ngModel
                                 (ngModelChange)="
-                                    form.patchValue({
+                                    model.update((m) => ({
+                                        ...m,
                                         welcome_background: $event,
-                                    })
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                             ></upload-button>
@@ -137,8 +125,7 @@ import { UploadButtonComponent } from './upload-button.component';
                         <mat-form-field appearance="outline" class="w-full">
                             <textarea
                                 matInput
-                                name="welcome-message"
-                                formControlName="welcome_message"
+                                [formField]="form.welcome_message"
                                 placeholder="Welcome to PlaceOS Self Service Kiosk"
                             ></textarea>
                         </mat-form-field>
@@ -146,45 +133,45 @@ import { UploadButtonComponent } from './upload-button.component';
                     <div class="-mx-2 flex flex-wrap items-center">
                         <settings-toggle
                             label="Enable Induction"
-                            formControlName="induction_enabled"
+                            [formField]="form.induction_enabled"
                         ></settings-toggle>
-                        @if (form.value.induction_enabled) {
+                        @if (model().induction_enabled) {
                             <settings-toggle
                                 label="Induction after Confirm Details"
-                                formControlName="induction_after_details"
+                                [formField]="form.induction_after_details"
                             ></settings-toggle>
                         }
                         <settings-toggle
                             label="Allow Self Registration"
-                            formControlName="allow_self_registration"
+                            [formField]="form.allow_self_registration"
                         ></settings-toggle>
                         <settings-toggle
                             label="Allow setting visitor pass number"
-                            formControlName="allow_pass_number"
+                            [formField]="form.allow_pass_number"
                         ></settings-toggle>
                         <settings-toggle
                             label="Allow Printing Label"
-                            formControlName="allow_printing_label"
+                            [formField]="form.allow_printing_label"
                         ></settings-toggle>
                         <settings-toggle
                             label="Allow Visitor Photo"
-                            formControlName="allow_user_photo"
+                            [formField]="form.allow_user_photo"
                         ></settings-toggle>
                         <settings-toggle
                             label="Allow Registration Time Options"
-                            formControlName="allow_registration_time_options"
+                            [formField]="form.allow_registration_time_options"
                         ></settings-toggle>
                         <settings-toggle
                             label="Allow Beverages"
-                            formControlName="allow_beverages"
+                            [formField]="form.allow_beverages"
                         ></settings-toggle>
                         <settings-toggle
                             label="Hide Explore Map option"
-                            formControlName="hide_explore"
+                            [formField]="form.hide_explore"
                         ></settings-toggle>
                         <settings-toggle
                             label="Hide Building Image"
-                            formControlName="hide_building_image"
+                            [formField]="form.hide_building_image"
                         ></settings-toggle>
                     </div>
                     <div>
@@ -194,8 +181,7 @@ import { UploadButtonComponent } from './upload-button.component';
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 matInput
-                                name="standalone-visitor-location"
-                                formControlName="standalone_visitor_location"
+                                [formField]="form.standalone_visitor_location"
                                 placeholder="zone-system-id"
                             />
                         </mat-form-field>
@@ -207,15 +193,13 @@ import { UploadButtonComponent } from './upload-button.component';
                         <mat-form-field appearance="outline" class="w-full">
                             <textarea
                                 matInput
-                                name="checked-in-template"
-                                formControlName="checked_in_template"
+                                [formField]="form.checked_in_template"
                                 placeholder="Welcome &gt;visitor_name&lt;"
                             ></textarea>
                         </mat-form-field>
                     </div>
                     <div
                         class="border-base-300 relative rounded-sm border px-4 pt-4 pb-2"
-                        formGroupName="visitor_label_size"
                     >
                         <h3
                             class="bg-base-100 absolute top-0 left-4 -translate-y-1/2 rounded-sm px-2 py-1 font-medium"
@@ -232,8 +216,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                     <input
                                         matInput
                                         type="number"
-                                        name="label-width"
-                                        formControlName="width"
+                                        [formField]="
+                                            form.visitor_label_size.width
+                                        "
                                     />
                                 </mat-form-field>
                             </div>
@@ -246,8 +231,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                     <input
                                         matInput
                                         type="number"
-                                        name="label-height"
-                                        formControlName="height"
+                                        [formField]="
+                                            form.visitor_label_size.height
+                                        "
                                     />
                                 </mat-form-field>
                             </div>
@@ -260,8 +246,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                     <input
                                         matInput
                                         type="number"
-                                        name="label-scale"
-                                        formControlName="scale"
+                                        [formField]="
+                                            form.visitor_label_size.scale
+                                        "
                                     />
                                 </mat-form-field>
                             </div>
@@ -271,7 +258,6 @@ import { UploadButtonComponent } from './upload-button.component';
                 <section
                     explore
                     class="border-base-300 relative rounded-sm border px-4 pt-4 pb-2"
-                    formGroupName="explore"
                 >
                     <h3
                         class="bg-base-100 absolute top-0 left-4 -translate-y-1/2 rounded-sm px-2 py-1 font-medium"
@@ -282,8 +268,7 @@ import { UploadButtonComponent } from './upload-button.component';
                         <label for="disable"> Disabled Features </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
-                                name="disable"
-                                formControlName="disable"
+                                [formField]="form.explore.disable"
                                 placeholder="No disabled features"
                                 multiple
                             >
@@ -302,8 +287,7 @@ import { UploadButtonComponent } from './upload-button.component';
                             </label>
                             <mat-form-field appearance="outline" class="w-full">
                                 <mat-select
-                                    name="disable-actions"
-                                    formControlName="disable_actions"
+                                    [formField]="form.explore.disable_actions"
                                     placeholder="No disabled actions"
                                     multiple
                                 >
@@ -324,8 +308,7 @@ import { UploadButtonComponent } from './upload-button.component';
                             </label>
                             <mat-form-field appearance="outline" class="w-full">
                                 <mat-select
-                                    name="disable-labels"
-                                    formControlName="disable_labels"
+                                    [formField]="form.explore.disable_labels"
                                     placeholder="No disabled labels"
                                     multiple
                                 >
@@ -348,8 +331,7 @@ import { UploadButtonComponent } from './upload-button.component';
                             </label>
                             <mat-form-field appearance="outline" class="w-full">
                                 <mat-select
-                                    name="disable-features"
-                                    formControlName="disable_features"
+                                    [formField]="form.explore.disable_features"
                                     placeholder="No disabled displays"
                                     multiple
                                 >
@@ -370,8 +352,7 @@ import { UploadButtonComponent } from './upload-button.component';
                             </label>
                             <mat-form-field appearance="outline" class="w-full">
                                 <mat-select
-                                    name="disable-styles"
-                                    formControlName="disable_styles"
+                                    [formField]="form.explore.disable_styles"
                                     placeholder="No disabled styles"
                                     multiple
                                 >
@@ -387,7 +368,7 @@ import { UploadButtonComponent } from './upload-button.component';
                             </mat-form-field>
                         </div>
                     </div>
-                    @if (form.value.explore?.show_legend) {
+                    @if (model().explore.show_legend) {
                         <div
                             class="border-base-300 relative rounded-sm border p-4"
                         >
@@ -397,7 +378,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                 Legend
                             </h3>
                             @for (
-                                item of form.value.explore?.legend || [];
+                                item of model().explore.legend || [];
                                 track item;
                                 let i = $index
                             ) {
@@ -453,39 +434,38 @@ import { UploadButtonComponent } from './upload-button.component';
                     <div class="-mx-2 flex flex-wrap items-center">
                         <settings-toggle
                             label="Hide device fields"
-                            formControlName="hide_device_fields"
+                            [formField]="form.explore.hide_device_fields"
                             info="Hides the MAC address, manufacturer, OS and SSID fields from device info tooltips"
                         ></settings-toggle>
                         <settings-toggle
                             label="Show Legend"
-                            formControlName="show_legend"
+                            [formField]="form.explore.show_legend"
                         ></settings-toggle>
                         <settings-toggle
                             label="Hide Zones"
-                            formControlName="hide_zones"
+                            [formField]="form.explore.hide_zones"
                         ></settings-toggle>
                         <settings-toggle
                             label="Show Booking QR Code"
-                            formControlName="show_booking_qr"
+                            [formField]="form.explore.show_booking_qr"
                         ></settings-toggle>
                         <settings-toggle
                             label="Use defined polygons for zones"
-                            formControlName="use_zone_polygons"
+                            [formField]="form.explore.use_zone_polygons"
                         ></settings-toggle>
                         <settings-toggle
                             label="Show labels for zones"
-                            formControlName="show_zone_labels"
+                            [formField]="form.explore.show_zone_labels"
                         ></settings-toggle>
                         <settings-toggle
                             label="Show zone sensor info"
-                            formControlName="show_zone_sensor_info"
+                            [formField]="form.explore.show_zone_sensor_info"
                         ></settings-toggle>
                     </div>
                 </section>
                 <section
                     booking
                     class="border-base-300 relative rounded-sm border px-4 pt-4 pb-2"
-                    formGroupName="visitors"
                 >
                     <h3
                         class="bg-base-100 absolute top-0 left-4 -translate-y-1/2 rounded-sm px-2 py-1 font-medium"
@@ -496,8 +476,7 @@ import { UploadButtonComponent } from './upload-button.component';
                         <label for="max-duration">Max Duration</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
-                                name="max-duration"
-                                formControlName="max_duration"
+                                [formField]="form.visitors.max_duration"
                             >
                                 @for (
                                     opt of MAX_DURATION_MINI;
@@ -513,7 +492,7 @@ import { UploadButtonComponent } from './upload-button.component';
                     <div class="-mx-2 flex flex-wrap items-center">
                         <settings-toggle
                             label="Allow all day bookings"
-                            formControlName="allow_all_day"
+                            [formField]="form.visitors.allow_all_day"
                         ></settings-toggle>
                     </div>
                 </section>
@@ -540,7 +519,7 @@ import { UploadButtonComponent } from './upload-button.component';
         MatSelectModule,
         MatInputModule,
         UploadButtonComponent,
-        ReactiveFormsModule,
+        FormField,
         FormsModule,
     ],
 })
@@ -565,57 +544,59 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
         this._settings.get('app.visitor_kiosk_metadata_key') ||
         'visitor-kiosk_app';
 
-    public readonly form = new FormGroup({
-        logo_light: new FormControl(''),
-        logo_dark: new FormControl(''),
-        default_route: new FormControl(''),
-        welcome_background: new FormControl(''),
-        welcome_message: new FormControl(''),
-        induction_enabled: new FormControl(false),
-        induction_details: new FormControl(''),
-        induction_after_details: new FormControl(false),
-        allow_self_registration: new FormControl(false),
-        allow_registration_time_options: new FormControl(false),
-        allow_pass_number: new FormControl(false),
-        allow_printing_label: new FormControl(false),
-        allow_user_photo: new FormControl(false),
-        allow_beverages: new FormControl(false),
-        hide_explore: new FormControl(false),
-        hide_building_image: new FormControl(false),
-        checked_in_template: new FormControl(''),
-        standalone_visitor_location: new FormControl(''),
-        visitor_label_size: new FormGroup({
-            width: new FormControl(25),
-            height: new FormControl(15),
-            scale: new FormControl(4),
-        }),
-        visitors: new FormGroup({
-            allow_all_day: new FormControl(false),
-            max_duration: new FormControl(180),
-        }),
-        explore: new FormGroup({
-            hide_device_fields: new FormControl(false),
-            show_legend: new FormControl(false),
-            hide_zones: new FormControl(false),
-            legend: new FormControl<[string, string][]>([]),
-            colors: new FormControl<Record<string, string>>({}),
-            show_booking_qr: new FormControl(false),
-            disable: new FormControl<string[]>([]),
-            disable_actions: new FormControl<string[]>([]),
-            disable_labels: new FormControl<string[]>([]),
-            disable_features: new FormControl<string[]>([]),
-            disable_styles: new FormControl<string[]>([]),
-            use_zone_polygons: new FormControl(false),
-            area_count_key: new FormControl('count'),
-            show_zone_labels: new FormControl(false),
-            show_zone_sensor_info: new FormControl(false),
-        }),
+    public readonly model = signal({
+        logo_light: '',
+        logo_dark: '',
+        default_route: '',
+        welcome_background: '',
+        welcome_message: '',
+        induction_enabled: false,
+        induction_details: '',
+        induction_after_details: false,
+        allow_self_registration: false,
+        allow_registration_time_options: false,
+        allow_pass_number: false,
+        allow_printing_label: false,
+        allow_user_photo: false,
+        allow_beverages: false,
+        hide_explore: false,
+        hide_building_image: false,
+        checked_in_template: '',
+        standalone_visitor_location: '',
+        visitor_label_size: {
+            width: 25,
+            height: 15,
+            scale: 4,
+        },
+        visitors: {
+            allow_all_day: false,
+            max_duration: 180,
+        },
+        explore: {
+            hide_device_fields: false,
+            show_legend: false,
+            hide_zones: false,
+            legend: [] as [string, string][],
+            colors: {} as Record<string, string>,
+            show_booking_qr: false,
+            disable: [] as string[],
+            disable_actions: [] as string[],
+            disable_labels: [] as string[],
+            disable_features: [] as string[],
+            disable_styles: [] as string[],
+            use_zone_polygons: false,
+            area_count_key: 'count',
+            show_zone_labels: false,
+            show_zone_sensor_info: false,
+        },
     });
+
+    public readonly form = form(this.model);
 
     public async ngOnInit() {
         const zone = this._data.zone;
         this.loading.set('Loading existing settings...');
-        this.form.patchValue(DEFAULT_SETTINGS.app);
+        this._patchModel(DEFAULT_SETTINGS.app);
         const org_id = this._org.organisation.id;
         const org_metadata = await this._getMetadata(org_id);
         const parent_metadata =
@@ -628,31 +609,49 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
             ...org_metadata,
             ...parent_metadata,
         };
-        this.form.patchValue(org_metadata || {});
-        this.form.patchValue(parent_metadata || {});
-        this.form.patchValue(metadata || {});
+        this._patchModel(org_metadata || {});
+        this._patchModel(parent_metadata || {});
+        this._patchModel(metadata || {});
         this.old_settings = metadata;
         this.loading.set('');
     }
 
     public addLegend() {
-        const explore = this.form.value.explore;
-        const legend = explore.legend || [];
-        if (legend) legend.push(['', '']);
-        this.form.get('explore')?.get('legend')?.setValue(legend);
+        const legend = [...(this.model().explore.legend || [])];
+        legend.push(['', '']);
+        this.model.update((m) => ({
+            ...m,
+            explore: { ...m.explore, legend },
+        }));
     }
 
     public removeLegend(index: number) {
-        const explore = this.form.value.explore;
-        const legend = explore.legend || [];
+        const legend = [...(this.model().explore.legend || [])];
         if (legend.length > index) legend.splice(index, 1);
-        this.form.get('explore')?.get('legend')?.setValue(legend);
+        this.model.update((m) => ({
+            ...m,
+            explore: { ...m.explore, legend },
+        }));
+    }
+
+    private _patchModel(value: Record<string, any>) {
+        if (!value) return;
+        this.model.update((m) => ({
+            ...m,
+            ...value,
+            visitor_label_size: {
+                ...m.visitor_label_size,
+                ...(value.visitor_label_size || {}),
+            },
+            visitors: { ...m.visitors, ...(value.visitors || {}) },
+            explore: { ...m.explore, ...(value.explore || {}) },
+        }));
     }
 
     public async save() {
         this.loading.set('Saving settings...');
         const zone = this._data.zone;
-        const form_value = this.form.getRawValue();
+        const form_value: any = this.model();
         const new_settings = { ...this.old_settings };
         for (const key in form_value) {
             if (form_value[key] instanceof Array) {
@@ -728,11 +727,8 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
         );
     }
 
-    private _getMetadata(id) {
-        return firstValueFrom(
-            from(showMetadata(id, this.settings_key) as any).pipe(
-                map((m: any) => m.details as Record<string, any>),
-            ),
-        );
+    private async _getMetadata(id) {
+        const metadata: any = await showMetadata(id, this.settings_key);
+        return metadata.details as Record<string, any>;
     }
 }

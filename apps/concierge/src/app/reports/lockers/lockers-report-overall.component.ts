@@ -4,7 +4,6 @@ import {
     computed,
     inject,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { formatDuration } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { differenceInBusinessDays, endOfDay, startOfDay } from 'date-fns';
@@ -58,12 +57,8 @@ import { LockersReportService } from './lockers-report.service';
 })
 export class LockersReportOverallComponent {
     private _state = inject(LockersReportService);
-    private readonly _bookings = toSignal(this._state.bookings$, {
-        initialValue: [],
-    });
-    private readonly _options = toSignal(this._state.options$, {
-        initialValue: { start: Date.now(), end: Date.now() },
-    });
+    private readonly _bookings = this._state.bookings;
+    private readonly _options = this._state.options;
 
     private readonly _booking_stats = computed(() =>
         reportBookingStatusStats(this._bookings()),

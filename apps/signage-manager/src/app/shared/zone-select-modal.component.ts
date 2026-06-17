@@ -5,7 +5,6 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -101,9 +100,7 @@ import { SignageService } from '../signage.service';
 export class ZoneSelectModalComponent {
     private readonly _service = inject(SignageService);
 
-    private readonly _zones = toSignal(this._service.zones, {
-        initialValue: [],
-    });
+    private readonly _zones = this._service.zones;
 
     public readonly search = signal('');
 

@@ -1,13 +1,13 @@
 import {
     ChangeDetectionStrategy,
     Component,
-    effect,
     inject,
+    OnInit,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 
 import { MatMenuModule } from '@angular/material/menu';
+import { AsyncHandler } from '@placeos/common';
 import {
     BuildingPipe,
     IconComponent,
@@ -173,18 +173,21 @@ import { SurveyService } from './survey.service';
         BuildingPipe,
     ],
 })
-export class SurveyListingsComponent {
+export class SurveyListingsComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _survey = inject(SurveyService);
-    private readonly _params = toSignal(this._route.paramMap, {
-        initialValue: this._route.snapshot.paramMap,
-    });
-    private readonly _sync_building = effect(() => {
-        this._survey.setBuilding(this._params()?.get('id') || '');
-    });
 
     public readonly surveys = this._survey.building_surveys;
     public readonly building = this._survey.building;
+
+    public ngOnInit() {
+        this.subscription(
+            'params',
+            this._route.paramMap.subscribe((params) => {
+                this._survey.setBuilding(params.get('id') || '');
+            }),
+        );
+    }
 
     public async remove(survey: Survey) {
         await this._survey.removeSurvey(survey);

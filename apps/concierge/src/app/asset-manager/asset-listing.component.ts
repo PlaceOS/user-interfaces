@@ -3,13 +3,13 @@ import {
     Component,
     computed,
     inject,
+    OnInit,
+    signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatTabsModule } from '@angular/material/tabs';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
-import { filter, map, startWith } from 'rxjs/operators';
 import { AssetManagerStateService } from './asset-manager-state.service';
 import { AssetManagerTopbarComponent } from './asset-manager-topbar.component';
 
@@ -72,19 +72,12 @@ import { AssetManagerTopbarComponent } from './asset-manager-topbar.component';
         AssetManagerTopbarComponent,
     ],
 })
-export class AssetListingComponent extends AsyncHandler {
+export class AssetListingComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _state = inject(AssetManagerStateService);
 
     public is_new = true;
-    public readonly current_url = toSignal(
-        this._router.events.pipe(
-            filter((event) => event instanceof NavigationEnd),
-            startWith(null),
-            map(() => this._router.url),
-        ),
-        { initialValue: this._router.url },
-    );
+    public readonly current_url = signal(this._router.url);
     public readonly active = computed(() =>
         this.current_url().includes('requests')
             ? 'requests'
@@ -95,5 +88,16 @@ export class AssetListingComponent extends AsyncHandler {
 
     public get base_route() {
         return this._state.base_route;
+    }
+
+    public ngOnInit() {
+        this.subscription(
+            'router',
+            this._router.events.subscribe((event) => {
+                if (event instanceof NavigationEnd) {
+                    this.current_url.set(this._router.url);
+                }
+            }),
+        );
     }
 }

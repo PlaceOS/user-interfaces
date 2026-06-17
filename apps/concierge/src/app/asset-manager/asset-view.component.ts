@@ -3,12 +3,13 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
+    effect,
     inject,
+    Injector,
     OnInit,
     signal,
     viewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -33,8 +34,6 @@ import {
 } from '@placeos/components';
 import { removeAsset, removeAssetPurchaseOrder } from '@placeos/ts-client';
 import { addMinutes } from 'date-fns';
-import { lastValueFrom } from 'rxjs';
-import { first } from 'rxjs/operators';
 import { AssetLocationModalComponent } from './asset-location-modal.component';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
@@ -509,15 +508,12 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
     private _state = inject(AssetManagerStateService);
     private _dialog = inject(MatDialog);
     private _org = inject(OrganisationService);
+    private _injector = inject(Injector);
 
     public readonly loading = signal(false);
     public readonly deleting = signal(false);
-    public readonly item = toSignal(this._state.active_product, {
-        initialValue: null,
-    });
-    public readonly extra_assets = toSignal(this._state.extra_assets, {
-        initialValue: [],
-    });
+    public readonly item = this._state.active_product;
+    public readonly extra_assets = this._state.extra_assets;
     public readonly asset_list = computed(() => {
         const item = this.item();
         if (!item) return [];
@@ -531,10 +527,7 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
             'id',
         );
     });
-    public readonly requests_source = toSignal(
-        this._state.active_product_requests,
-        { initialValue: [] },
-    );
+    public readonly requests_source = this._state.active_product_requests;
     public readonly requests = computed(() =>
         this.requests_source().filter(
             (_) =>
@@ -587,10 +580,17 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
             () => this._router.navigate([this._state.base_route]),
             1000,
         );
-        this._state.active_product.pipe(first((_) => !!_)).subscribe(() => {
-            this.clearTimeout('no_asset');
-            this.loading.set(false);
-        });
+        // Clear the loading state and fallback navigation once the active
+        // product has resolved.
+        const ref = effect(
+            () => {
+                if (!this._state.active_product()) return;
+                this.clearTimeout('no_asset');
+                this.loading.set(false);
+                ref.destroy();
+            },
+            { injector: this._injector },
+        );
     }
 
     public async removeAsset(asset: Asset) {
@@ -607,9 +607,7 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
         resp.loading('Deleting asset...');
         await removeAsset(asset.id);
         await removeAssetRequests(asset.id);
-        const item = await lastValueFrom(
-            this._state.active_product.pipe(first()),
-        );
+        const item = this._state.active_product();
         this._state.setOptions({ active_item: '' });
         setTimeout(
             () => this._state.setOptions({ active_item: item.id }),
@@ -631,9 +629,7 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
         if (resp.reason !== 'done') return;
         resp.loading('Deleting purchase order...');
         await removeAssetPurchaseOrder(asset.id);
-        const item = await lastValueFrom(
-            this._state.active_product.pipe(first()),
-        );
+        const item = this._state.active_product();
         this._state.setOptions({ active_item: '' });
         setTimeout(
             () => this._state.setOptions({ active_item: item.id }),

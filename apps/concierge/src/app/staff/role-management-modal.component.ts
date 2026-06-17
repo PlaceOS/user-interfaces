@@ -5,7 +5,6 @@ import {
     signal,
     viewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -113,9 +112,7 @@ export class RoleManagementModalComponent {
     public readonly active = signal('');
     public readonly role_name = signal('');
     public readonly loading = signal(false);
-    public readonly roles = toSignal(this._contacts_service.roles$, {
-        initialValue: [],
-    });
+    public readonly roles = this._contacts_service.roles;
 
     private readonly _tooltip = viewChild(CustomTooltipComponent);
 

@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import { isPublicMode } from '@placeos/common';
@@ -38,6 +37,6 @@ import { CheckinStateService } from './checkin-state.service';
 export class CheckinErrorComponent {
     private _checkin = inject(CheckinStateService);
 
-    public readonly error = toSignal(this._checkin.error, { initialValue: '' });
+    public readonly error = this._checkin.error;
     public readonly is_public_mode = isPublicMode;
 }

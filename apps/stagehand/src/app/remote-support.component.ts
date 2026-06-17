@@ -706,15 +706,13 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
         // Enable effect after loading from query params
         this._initialized.set(true);
 
-        this.subscription(
-            'room_list',
-            this._support.space_list.subscribe((l) => {
-                this.room_list.set(l as any as Space[]);
-                this._dashboard.setDashboard('');
-                this._dashboard.listenForDashboardAlerts(true);
-            }),
-        );
+        this._dashboard.setDashboard('');
+        this._dashboard.listenForDashboardAlerts(true);
     }
+
+    private readonly _room_list_sync = effect(() => {
+        this.room_list.set(this._support.space_list() as any as Space[]);
+    });
 
     public setCurrentBooking(space: Space, event: CalendarEvent) {
         const current = this.current();

@@ -1,7 +1,7 @@
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
+import { signal } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { SettingsService } from '@placeos/common';
@@ -16,7 +16,7 @@ describe('CateringReportItemsComponent', () => {
         declarations: [MockComponent(SimpleTableComponent)],
         providers: [
             MockProvider(CateringReportStateService, {
-                catering_items: new BehaviorSubject({}),
+                catering_items: signal({}),
                 downloadOrders: jest.fn(),
             } as any),
             MockProvider(Router, {}),

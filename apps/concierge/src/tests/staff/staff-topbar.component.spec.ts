@@ -19,6 +19,7 @@ describe('StaffTopbarComponent', () => {
             {
                 provide: StaffStateService,
                 useValue: {
+                    filters: signal({}),
                     setFilters: jest.fn(),
                     setSearchString: jest.fn(),
                 },

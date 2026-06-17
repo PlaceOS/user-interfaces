@@ -1,19 +1,7 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
-import {
-    AsyncHandler,
-    getShortUrlQRCode,
-    SettingsService,
-    ShortURL,
-} from '@placeos/common';
+import { SettingsService, ShortURL } from '@placeos/common';
 import {
     CustomTooltipComponent,
     IconComponent,
@@ -168,41 +156,21 @@ import { UrlManagementService } from './url-management.service';
         PrintableComponent,
     ],
 })
-export class UrlListComponent extends AsyncHandler implements OnInit {
+export class UrlListComponent {
     private _manager = inject(UrlManagementService);
     private _settings = inject(SettingsService);
 
-    public readonly features = toSignal(this._manager.url_list, {
-        initialValue: [] as ShortURL[],
-    });
+    public readonly features = this._manager.url_list;
+    public readonly qr_codes = this._manager.qr_codes;
 
     public readonly edit = (region) => this._manager.editURL(region);
     public readonly remove = (region) => this._manager.removeURL(region);
-    public readonly qr_codes = signal<Record<string, string>>({});
+    public readonly loadQrCode = (item: ShortURL) =>
+        this._manager.loadQrCode(item);
 
     public get kiosk_url() {
         const path = this._settings.get('app.kiosk_url_path') || '/map-kiosk';
         return `${window.location.origin}${path}`;
-    }
-
-    public ngOnInit() {
-        this.subscription(
-            'url_list',
-            this._manager.url_list.subscribe(async (l) => {
-                for (const item of l) {
-                    await this.loadQrCode(item);
-                }
-            }),
-        );
-    }
-
-    public async loadQrCode(item: ShortURL) {
-        if (this.qr_codes()[item.id]) return;
-        const code = await getShortUrlQRCode(item.id);
-        this.qr_codes.update((codes) => ({
-            ...codes,
-            [item.id]: code,
-        }));
     }
 
     public print() {

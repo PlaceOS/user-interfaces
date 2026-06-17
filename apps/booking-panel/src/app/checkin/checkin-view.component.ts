@@ -1,15 +1,14 @@
 import {
     ChangeDetectionStrategy,
     Component,
-    OnInit,
+    computed,
+    effect,
     inject,
+    OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncHandler, CalendarEvent } from '@placeos/common';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { AsyncHandler } from '@placeos/common';
 
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -265,13 +264,9 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
     private _state = inject(PanelStateService);
     private _route = inject(ActivatedRoute);
 
-    public readonly state = toSignal(this._state.status, {
-        initialValue: 'free',
-    });
-    public readonly system = toSignal(this._state.space);
-    public readonly bookings = toSignal(this._state.bookings, {
-        initialValue: [] as CalendarEvent[],
-    });
+    public readonly state = this._state.status;
+    public readonly system = this._state.space;
+    public readonly bookings = this._state.bookings;
     public start = signal<number>(Date.now());
 
     public readonly checkInCurrent = () => this._state.startMeeting();
@@ -280,47 +275,33 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
 
     public has_user = signal<boolean>(true);
 
-    public readonly event_state = toSignal(
-        combineLatest([
-            this._state.current,
-            this._state.next,
-            this._state.bookings,
-        ]).pipe(
-            map(([c, n, l]) => ({
-                current: currentPeriod(l, c, n),
-                next: nextPeriod(n),
-            })),
+    public readonly event_state = computed(() => ({
+        current: currentPeriod(
+            this._state.bookings(),
+            this._state.current(),
+            this._state.next(),
         ),
-        { initialValue: { current: [] as any, next: '' } },
-    );
-
-    private readonly _next_available$ = this._state.bookings.pipe(
-        map((_) => getNextFreeTimeSlot(_).start),
-    );
+        next: nextPeriod(this._state.next()),
+    }));
 
     public get room_image() {
         return this._state.setting('room_image');
     }
 
+    constructor() {
+        super();
+        effect(() => {
+            this.start.set(getNextFreeTimeSlot(this._state.bookings()).start);
+        });
+    }
+
     public ngOnInit() {
         this._state.system = '';
-        this.subscription(
-            'next-available',
-            this._next_available$.subscribe((_) => this.start.set(_)),
-        );
-        this.subscription(
-            'route.params',
-            this._route.paramMap.subscribe((params) => {
-                if (params.has('system_id')) {
-                    this._state.system = params.get('system_id');
-                }
-            }),
-        );
-        this.subscription(
-            'route.query',
-            this._route.queryParamMap.subscribe((params) => {
-                this.has_user.set(params.get('user') !== 'false');
-            }),
-        );
+        const params = this._route.snapshot.paramMap;
+        if (params.has('system_id')) {
+            this._state.system = params.get('system_id');
+        }
+        const query = this._route.snapshot.queryParamMap;
+        this.has_user.set(query.get('user') !== 'false');
     }
 }

@@ -62,7 +62,9 @@ describe('CateringItemModalComponent', () => {
             expect(e.metadata.item.name).toBe('Test');
             done();
         });
-        spectator.typeInElement('Test', 'input[name="name"]');
+        const name_input =
+            spectator.queryAll<HTMLInputElement>('input[matInput]')[0];
+        spectator.typeInElement('Test', name_input);
         spectator.detectChanges();
         spectator.click('footer button');
     });

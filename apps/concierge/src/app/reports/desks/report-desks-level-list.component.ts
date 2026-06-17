@@ -5,7 +5,6 @@ import {
     inject,
     input,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import {
     downloadFile,
     jsonToCsv,
@@ -140,19 +139,9 @@ export class ReportDesksLevelListComponent {
     public readonly print = input(false);
     public readonly table_metric_guide = TABLE_METRIC_GUIDE;
 
-    private readonly _options = toSignal(this._state.options, {
-        initialValue: {
-            start: new Date(),
-            end: new Date(),
-            zones: [],
-        },
-    });
-    private readonly _stats = toSignal(this._state.stats, {
-        initialValue: { events: [] },
-    });
-    private readonly _counts = toSignal(this._state.counts, {
-        initialValue: {},
-    });
+    private readonly _options = this._state.options;
+    private readonly _stats = this._state.stats;
+    private readonly _counts = this._state.counts;
 
     public readonly level_list = computed(() => {
         const options = this._options();

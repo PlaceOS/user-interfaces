@@ -5,19 +5,14 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import {
-    FormControl,
-    FormGroup,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { form, FormField, required } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
     AsyncHandler,
-    getInvalidFields,
+    getInvalidSignalFields,
     i18n,
     notifyError,
 } from '@placeos/common';
@@ -59,7 +54,7 @@ import { DashboardsService } from './dashboards.service';
                     </a>
                 </header>
                 <main class="p-2">
-                    <form [formGroup]="form" class="flex flex-col">
+                    <form class="flex flex-col">
                         <label for="name"
                             >{{ 'FORM.NAME' | translate
                             }}<span required>*</span></label
@@ -68,9 +63,8 @@ import { DashboardsService } from './dashboards.service';
                             <input
                                 id="name"
                                 matInput
-                                name="name"
-                                formControlName="name"
                                 placeholder="Dashboard Name"
+                                [formField]="form.name"
                             />
                             <mat-error>Name is required</mat-error>
                         </mat-form-field>
@@ -81,12 +75,11 @@ import { DashboardsService } from './dashboards.service';
                             <textarea
                                 id="description"
                                 matInput
-                                name="description"
-                                formControlName="description"
                                 placeholder="Description of the dashboard"
+                                [formField]="form.description"
                             ></textarea>
                         </mat-form-field>
-                        <settings-toggle formControlName="enabled">{{
+                        <settings-toggle [formField]="form.enabled">{{
                             'COMMON.ENABLED' | translate
                         }}</settings-toggle>
                     </form>
@@ -117,7 +110,7 @@ import { DashboardsService } from './dashboards.service';
         MatFormFieldModule,
         MatInputModule,
         SettingsToggleComponent,
-        ReactiveFormsModule,
+        FormField,
     ],
 })
 export class DashboardManageComponent extends AsyncHandler implements OnInit {
@@ -127,42 +120,42 @@ export class DashboardManageComponent extends AsyncHandler implements OnInit {
 
     public readonly loading = signal('');
     public readonly dashboard = this._service.dashboard;
-    public readonly form = new FormGroup({
-        id: new FormControl(''),
-        name: new FormControl('', [Validators.required]),
-        description: new FormControl(''),
-        enabled: new FormControl(true),
+    public readonly model = signal({
+        id: '',
+        name: '',
+        description: '',
+        enabled: true,
+    });
+    public readonly form = form(this.model, (p) => {
+        required(p.name);
     });
 
     public ngOnInit() {
-        this.subscription(
-            'route.parms',
-            this._route.paramMap.subscribe((params) => {
-                if (params.has('id')) {
-                    this.setDashboard(params.get('id'));
-                }
-            }),
-        );
+        const id = this._route.snapshot.paramMap.get('id');
+        if (id) this.setDashboard(id);
     }
 
     public async setDashboard(id: string) {
         await this._service.setDashboard(id);
         const dash = this._service.dashboard();
-        if (dash) this.form.patchValue(dash);
+        if (dash) this.model.update((m) => ({ ...m, ...dash }));
     }
 
     public async save() {
-        this.form.markAllAsTouched();
-        if (!this.form.valid) {
+        this.form().markAsTouched();
+        if (!this.form().valid()) {
             return notifyError(
                 i18n('FORM.INVALID_FIELDS', {
-                    field_list: getInvalidFields(this.form),
+                    field_list: getInvalidSignalFields(
+                        this.form,
+                        this.model,
+                    ),
                 }),
             );
         }
         this.loading.set(i18n('STAGEHAND.DASHBOARD_LOADING'));
         const dash = this._service.dashboard() || {};
-        const value = this.form.getRawValue();
+        const value = this.model();
         const new_dash = { ...dash, ...value };
         const method = new_dash.id
             ? updateAlertDashboard(new_dash.id, new_dash)

@@ -5,7 +5,6 @@ import {
     computed,
     inject,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -21,7 +20,6 @@ import {
     startOfMonth,
     startOfWeek,
 } from 'date-fns';
-import { map, shareReplay, startWith } from 'rxjs/operators';
 import { EventStateService } from './event-state.service';
 
 @Component({
@@ -166,12 +164,7 @@ export class EventMonthViewComponent {
     private _state = inject(EventStateService);
     private _settings = inject(SettingsService);
 
-    private readonly _options = toSignal(this._state.options, {
-        initialValue: {
-            period: 'month',
-            date: startOfDay(Date.now()).valueOf(),
-        },
-    });
+    private readonly _options = this._state.options;
 
     public readonly month = computed(() =>
         startOfDay(this._options().date || Date.now()).valueOf(),
@@ -196,29 +189,7 @@ export class EventMonthViewComponent {
             };
         });
     });
-    public readonly event_day_map = toSignal(
-        this._state.event_list.pipe(
-            map((list) => {
-                const map = {};
-                for (const event of list) {
-                    const date = format(event.date, 'yyyy-MM-dd');
-                    if (!map[date]) map[date] = [];
-                    const start = new Date(event.date);
-                    map[date].push({
-                        ...event,
-                        offset:
-                            (start.getHours() * 60 + start.getMinutes()) /
-                            (24 * 60),
-                        length: event.duration / (24 * 60),
-                    });
-                }
-                return map;
-            }),
-            startWith({}),
-            shareReplay(1),
-        ),
-        { initialValue: {} },
-    );
+    public readonly event_day_map = this._state.event_day_map;
 
     public readonly viewEvent = (event: any) => this._state.viewEvent(event);
 

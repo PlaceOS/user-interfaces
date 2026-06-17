@@ -6,7 +6,6 @@ import {
     inject,
     input,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
@@ -416,12 +415,8 @@ export class DisplayContentComponent {
         this._service.playlist_approval_status;
     public readonly can_update = this._service.can_update;
 
-    private readonly _playlists = toSignal(this._service.playlists, {
-        initialValue: [],
-    });
-    private readonly _zones = toSignal(this._service.zones, {
-        initialValue: [],
-    });
+    private readonly _playlists = this._service.playlists;
+    private readonly _zones = this._service.zones;
 
     public readonly display_playlists = computed(() => {
         const display = this.selected_display();

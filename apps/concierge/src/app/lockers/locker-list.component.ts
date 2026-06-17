@@ -8,7 +8,6 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -358,20 +357,12 @@ export class LockerListComponent extends AsyncHandler implements OnInit {
     private _clipboard = inject(Clipboard);
 
     public readonly show_children = signal<Record<string, boolean>>({});
-    public readonly locker_banks = toSignal(this._state.filtered_banks, {
-        initialValue: [],
-    });
-    public readonly lockers = toSignal(this._state.filtered_lockers, {
-        initialValue: [],
-    });
+    public readonly locker_banks = this._state.filtered_banks;
+    public readonly lockers = this._state.filtered_lockers;
     public readonly options = this._state.filters;
-    public readonly loading = toSignal(this._state.loading, {
-        initialValue: '',
-    });
-    public readonly bookings = toSignal(this._state.bookings, {
-        initialValue: [],
-    });
-    public readonly search = toSignal(this._state.search, { initialValue: '' });
+    public readonly loading = this._state.loading;
+    public readonly bookings = this._state.bookings;
+    public readonly search = this._state.search;
 
     public readonly locker_status = computed(() =>
         this._status_list(this.lockers(), this.bookings()),

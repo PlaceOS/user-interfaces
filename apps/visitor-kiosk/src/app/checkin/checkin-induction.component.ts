@@ -17,7 +17,6 @@ import {
     settingSignal,
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
-import { first } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
 
 @Component({
@@ -96,7 +95,7 @@ export class CheckinInductionComponent {
 
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
-        const event = await this.event.pipe(first()).toPromise();
+        const event = this.event();
         if (!event) this._router.navigate(['/checkin']);
         if (!this.is_enabled() || event.induction === 'accepted') {
             if (this.induction_after_details()) {

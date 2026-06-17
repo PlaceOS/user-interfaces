@@ -4,7 +4,6 @@ import {
     moveItemInArray,
 } from '@angular/cdk/drag-drop';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -362,9 +361,7 @@ export class PlaylistItemsComponent {
     public readonly loading = this._service.playlist_media_loading;
     public readonly approval_request_loading =
         this._service.playlist_approval_request_loading;
-    public readonly items = toSignal(this._service.playlist_media_items$, {
-        initialValue: [] as SignageMedia[],
-    });
+    public readonly items = this._service.playlist_media_items;
     public selectItem(item: SignageMedia) {
         this._service.selected_playlist_item.set(item);
     }

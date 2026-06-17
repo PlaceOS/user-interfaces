@@ -1,10 +1,10 @@
+import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SettingsService } from '@placeos/common';
@@ -18,8 +18,8 @@ describe('CheckinQRScanComponent', () => {
         declarations: [MockComponent(IconComponent)],
         providers: [
             MockProvider(CheckinStateService, {
-                event: of({}),
-                guest: of({}),
+                event: signal({}),
+                guest: signal({}),
             } as any),
             MockProvider(SettingsService, { get: jest.fn() }),
         ],

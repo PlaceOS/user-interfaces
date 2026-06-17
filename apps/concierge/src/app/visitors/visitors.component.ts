@@ -1,11 +1,11 @@
 import {
     ChangeDetectionStrategy,
     Component,
+    computed,
     inject,
     OnDestroy,
     OnInit,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -16,8 +16,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { BuildingPipe, TranslatePipe } from '@placeos/components';
 import { parse } from 'date-fns';
-import { combineLatest, of } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { DateOptionsComponent } from '../ui/date-options.component';
@@ -136,26 +134,18 @@ export class VisitorsComponent implements OnInit, OnDestroy {
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
 
-    public readonly loading = toSignal(this._state.loading || of(false), {
-        initialValue: false,
-    });
-    public readonly filters = toSignal<any>(this._state.filters || of({}), {
-        initialValue: {} as any,
-    });
+    public readonly loading = this._state.loading;
+    public readonly filters = this._state.filters;
     /** List of levels for the active building */
-    public readonly levels = toSignal(
-        combineLatest([
-            toObservable(this._org.active_building) || of(null),
-            toObservable(this._org.active_region) || of(null),
-        ]).pipe(
-            map(([bld, region]) =>
-                this._settings.get('app.use_region')
-                    ? this._org.levelsForRegion(region)
-                    : this._org.levelsForBuilding(bld),
-            ),
-        ),
-        { initialValue: [] },
-    );
+    public readonly levels = computed(() => {
+        const bld = this._org.active_building();
+        const region = this._org.active_region();
+        return (
+            (this._settings.get('app.use_region')
+                ? this._org.levelsForRegion(region)
+                : this._org.levelsForBuilding(bld)) || []
+        );
+    });
     /** Set filtered date */
     public readonly setDate = (date) => this._state.setFilters({ date });
     /** Set filtered date */

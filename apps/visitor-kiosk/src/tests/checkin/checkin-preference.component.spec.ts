@@ -1,10 +1,10 @@
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CheckinPreferencesComponent } from '../../app/checkin/checkin-preferences.component';
@@ -18,15 +18,14 @@ describe('CheckinPreferencesComponent', () => {
         declarations: [MockComponent(IconComponent)],
         providers: [
             MockProvider(CheckinStateService, {
-                event: of({}),
-                guest: of({}),
+                event: signal({}),
+                guest: signal({}),
             } as any),
         ],
         imports: [
             MatFormFieldModule,
             MatSelectModule,
             FormsModule,
-            ReactiveFormsModule,
             MockModule(MatProgressSpinnerModule),
         ],
     });

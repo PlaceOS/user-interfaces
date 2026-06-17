@@ -9,7 +9,6 @@ import {
     OnDestroy,
     viewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 
 import {
     AsyncHandler,
@@ -97,15 +96,9 @@ export class LockersReportChartsComponent
     private _state = inject(LockersReportService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
-    private readonly _daily_stats = toSignal(this._state.daily_stats$, {
-        initialValue: {},
-    });
-    private readonly _counts = toSignal(this._state.counts$, {
-        initialValue: {},
-    });
-    private readonly _bookings = toSignal(this._state.bookings$, {
-        initialValue: [],
-    });
+    private readonly _daily_stats = this._state.daily_stats;
+    private readonly _counts = this._state.counts;
+    private readonly _bookings = this._state.bookings;
 
     public readonly print = input(false);
     public readonly day_list = computed(() => {

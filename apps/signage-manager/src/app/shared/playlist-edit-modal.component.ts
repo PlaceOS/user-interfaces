@@ -5,12 +5,12 @@ import {
     signal,
 } from '@angular/core';
 import {
-    FormArray,
-    FormControl,
-    FormGroup,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+    form,
+    FormField,
+    minLength,
+    required,
+    submit,
+} from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -32,7 +32,8 @@ import {
 } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import {
-    createPlaylistScheduleForm,
+    createPlaylistScheduleModel,
+    PlaylistScheduleFormModel,
     PlaylistScheduleFormComponent,
     playlistSchedulePayload,
     playlistSchedules,
@@ -45,6 +46,19 @@ export interface PlaylistEditModalData {
         id: string,
         data: Partial<SignagePlaylist>,
     ) => Promise<SignagePlaylist>;
+}
+
+export interface PlaylistEditFormModel {
+    name: string;
+    description: string;
+    enabled: boolean;
+    random: boolean;
+    default_animation: MediaAnimation;
+    orientation: string;
+    default_duration: number;
+    schedules: PlaylistScheduleFormModel[];
+    valid_from: number;
+    valid_until: number;
 }
 
 @Component({
@@ -62,16 +76,15 @@ export interface PlaylistEditModalData {
                 loading() ? ('SIGNAGE_MANAGER.PLAYLIST_SAVING' | translate) : ''
             "
         >
-            <form [formGroup]="form">
+            <form>
                 <label for="name"
                     >{{ 'FORM.NAME' | translate }}<span required>*</span></label
                 >
                 <mat-form-field appearance="outline" class="w-full">
                     <input
                         matInput
-                        name="name"
                         [placeholder]="'FORM.NAME' | translate"
-                        formControlName="name"
+                        [formField]="form.name"
                         [attr.aria-label]="
                             'SIGNAGE_MANAGER.PLAYLIST_NAME_ARIA' | translate
                         "
@@ -84,13 +97,13 @@ export interface PlaylistEditModalData {
                     <settings-toggle
                         class="flex-1"
                         [label]="'COMMON.ENABLED' | translate"
-                        formControlName="enabled"
+                        [formField]="form.enabled"
                     >
                     </settings-toggle>
                     <settings-toggle
                         class="flex-1"
                         [label]="'SIGNAGE_MANAGER.PLAYLIST_SHUFFLE' | translate"
-                        formControlName="random"
+                        [formField]="form.random"
                     >
                     </settings-toggle>
                 </div>
@@ -115,14 +128,13 @@ export interface PlaylistEditModalData {
                                 step="1000"
                             >
                                 <input
-                                    name="default-duration"
                                     matSliderThumb
-                                    formControlName="default_duration"
+                                    [formField]="form.default_duration"
                                 />
                             </mat-slider>
                             <div class="w-16 px-2 text-right font-mono text-xs">
                                 {{
-                                    form.value.default_duration / 1000
+                                    model().default_duration / 1000
                                         | mediaDuration
                                 }}
                             </div>
@@ -136,8 +148,7 @@ export interface PlaylistEditModalData {
                         }}</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
-                                name="orientation"
-                                formControlName="orientation"
+                                [formField]="form.orientation"
                                 [placeholder]="
                                     'COMMON.LOCATION_UNSPECIFIED' | translate
                                 "
@@ -173,8 +184,7 @@ export interface PlaylistEditModalData {
                         }}</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
-                                name="animation"
-                                formControlName="default_animation"
+                                [formField]="form.default_animation"
                                 [placeholder]="'COMMON.DEFAULT' | translate"
                                 [attr.aria-label]="
                                     'SIGNAGE_MANAGER.DEFAULT_ANIMATION'
@@ -216,9 +226,8 @@ export interface PlaylistEditModalData {
                 <mat-form-field appearance="outline" class="w-full">
                     <textarea
                         matInput
-                        name="description"
                         [placeholder]="'COMMON.DESCRIPTION' | translate"
-                        formControlName="description"
+                        [formField]="form.description"
                         class="min-h-32"
                         [attr.aria-label]="
                             'SIGNAGE_MANAGER.PLAYLIST_DESCRIPTION_ARIA'
@@ -233,7 +242,7 @@ export interface PlaylistEditModalData {
                         }}</label>
                         <a-date-field
                             name="valid-from"
-                            formControlName="valid_from"
+                            [formField]="form.valid_from"
                             [clear]="true"
                         ></a-date-field>
                     </div>
@@ -243,27 +252,27 @@ export interface PlaylistEditModalData {
                         }}</label>
                         <a-date-field
                             name="valid-until"
-                            [from]="form.value.valid_from"
-                            formControlName="valid_until"
+                            [from]="model().valid_from"
+                            [formField]="form.valid_until"
                             [clear]="true"
                         ></a-date-field>
                     </div>
                 </div>
-                <div class="pt-2 pb-4" formArrayName="schedules">
+                <div class="pt-2 pb-4">
                     <label>{{
                         'SIGNAGE_MANAGER.PLAYLIST_SCHEDULES' | translate
                     }}</label>
                     <div class="mt-2 flex flex-col gap-4">
                         @for (
-                            schedule of schedule_forms.controls;
-                            track schedule;
+                            schedule of form.schedules;
+                            track index;
                             let index = $index
                         ) {
                             <playlist-schedule-form
                                 [schedule]="schedule"
                                 [index]="index"
                                 [open]="isScheduleOpen(index)"
-                                [can_remove]="schedule_forms.length > 1"
+                                [can_remove]="model().schedules.length > 1"
                                 (toggle)="openSchedule(index)"
                                 (remove)="removeSchedule($event, index)"
                             />
@@ -285,7 +294,7 @@ export interface PlaylistEditModalData {
     imports: [
         FullscreenModalShellComponent,
         SettingsToggleComponent,
-        ReactiveFormsModule,
+        FormField,
         DateFieldComponent,
         TranslatePipe,
         MatFormFieldModule,
@@ -304,57 +313,56 @@ export class PlaylistEditModalComponent {
     public readonly loading = signal(false);
     public readonly active_schedule_index = signal<number | null>(0);
     public readonly playlist = this._data.playlist;
-
-    public readonly form = new FormGroup({
-        name: new FormControl('', [Validators.required]),
-        description: new FormControl(''),
-        enabled: new FormControl(true),
-        random: new FormControl(false),
-        default_animation: new FormControl<MediaAnimation>(
-            MediaAnimation.Default,
+    public readonly model = signal<PlaylistEditFormModel>({
+        name: this.playlist.name || '',
+        description: this.playlist.description || '',
+        enabled: this.playlist.enabled ?? true,
+        random: !!this.playlist.random,
+        default_animation:
+            this.playlist.default_animation ?? MediaAnimation.Default,
+        orientation: this.playlist.orientation || 'unspecified',
+        default_duration: this.playlist.default_duration || 15000,
+        schedules: playlistSchedules(this.playlist).map((schedule) =>
+            createPlaylistScheduleModel(schedule),
         ),
-        orientation: new FormControl('unspecified'),
-        default_duration: new FormControl(15000),
-        schedules: new FormArray<FormGroup>([], [Validators.minLength(1)]),
-        valid_from: new FormControl(0),
-        valid_until: new FormControl(0),
+        valid_from: this.playlist.valid_from
+            ? this.playlist.valid_from * 1000
+            : 0,
+        valid_until: this.playlist.valid_until
+            ? this.playlist.valid_until * 1000
+            : 0,
+    });
+    public readonly form = form(this.model, (path) => {
+        required(path.name);
+        minLength(path.schedules, 1);
     });
 
-    public readonly schedule_forms = this.form.controls.schedules;
-
     constructor() {
-        this.form.patchValue({
-            ...this.playlist,
-            valid_from: this.playlist.valid_from
-                ? this.playlist.valid_from * 1000
-                : 0,
-            valid_until: this.playlist.valid_until
-                ? this.playlist.valid_until * 1000
-                : 0,
-        } as any);
-        if (!this.form.value.orientation)
-            this.form.patchValue({ orientation: 'unspecified' });
-        for (const schedule of playlistSchedules(this.playlist)) {
-            this.schedule_forms.push(createPlaylistScheduleForm(schedule));
-        }
-        if (!this.schedule_forms.length) this.addSchedule();
+        if (!this.model().schedules.length) this.addSchedule();
     }
 
     public addSchedule() {
-        this.schedule_forms.push(createPlaylistScheduleForm());
-        this.active_schedule_index.set(this.schedule_forms.length - 1);
+        this.model.update((model) => ({
+            ...model,
+            schedules: [...model.schedules, createPlaylistScheduleModel()],
+        }));
+        this.active_schedule_index.set(this.model().schedules.length - 1);
     }
 
     public removeSchedule(event: Event, index: number) {
         event.preventDefault();
         event.stopPropagation();
-        if (this.schedule_forms.length <= 1) return;
-        this.schedule_forms.removeAt(index);
+        if (this.model().schedules.length <= 1) return;
+        this.model.update((model) => ({
+            ...model,
+            schedules: model.schedules.filter((_, item_index) => {
+                return item_index !== index;
+            }),
+        }));
         this.active_schedule_index.update((active_index) => {
             if (active_index === index) return null;
             return active_index > index ? active_index - 1 : active_index;
         });
-        this.schedule_forms.updateValueAndValidity();
     }
 
     public openSchedule(index: number) {
@@ -368,41 +376,40 @@ export class PlaylistEditModalComponent {
     }
 
     public async savePlaylist() {
-        this.form.markAllAsTouched();
-        this.form.updateValueAndValidity();
-        if (!this.form.valid) return;
-        this.loading.set(true);
-        this._dialog_ref.disableClose = true;
-        const form_value = this.form.getRawValue();
-        const data: any = { ...form_value };
-        data.schedules = (form_value.schedules || []).map((schedule) =>
-            playlistSchedulePayload(schedule),
-        );
-        if (data.valid_from) {
-            data.valid_from = getUnixTime(startOfDay(data.valid_from));
-        } else delete data.valid_from;
-        if (data.valid_until) {
-            data.valid_until = getUnixTime(endOfDay(data.valid_until));
-        } else delete data.valid_until;
-        try {
-            let result: SignagePlaylist;
-            if (this.playlist.id) {
-                result = this._data.onEdit
-                    ? await this._data.onEdit(this.playlist.id, data)
-                    : await updateSignagePlaylist(this.playlist.id, data);
-            } else {
-                result = this._data.onAdd
-                    ? await this._data.onAdd(data)
-                    : await addSignagePlaylist(data);
+        await submit(this.form, async () => {
+            this.loading.set(true);
+            this._dialog_ref.disableClose = true;
+            const form_value = this.model();
+            const data: any = { ...form_value };
+            data.schedules = form_value.schedules.map((schedule) =>
+                playlistSchedulePayload(schedule),
+            );
+            if (data.valid_from) {
+                data.valid_from = getUnixTime(startOfDay(data.valid_from));
+            } else delete data.valid_from;
+            if (data.valid_until) {
+                data.valid_until = getUnixTime(endOfDay(data.valid_until));
+            } else delete data.valid_until;
+            try {
+                let result: SignagePlaylist;
+                if (this.playlist.id) {
+                    result = this._data.onEdit
+                        ? await this._data.onEdit(this.playlist.id, data)
+                        : await updateSignagePlaylist(this.playlist.id, data);
+                } else {
+                    result = this._data.onAdd
+                        ? await this._data.onAdd(data)
+                        : await addSignagePlaylist(data);
+                }
+                this._dialog_ref.disableClose = false;
+                this._dialog_ref.close(result);
+                notifySuccess(i18n('SIGNAGE_MANAGER.PLAYLIST_SAVED'));
+            } catch (e) {
+                this._dialog_ref.disableClose = false;
+                this.loading.set(false);
+                notifyError(i18n('SIGNAGE_MANAGER.PLAYLIST_SAVE_ERROR'));
+                throw e;
             }
-            this._dialog_ref.disableClose = false;
-            this._dialog_ref.close(result);
-            notifySuccess(i18n('SIGNAGE_MANAGER.PLAYLIST_SAVED'));
-        } catch (e) {
-            this._dialog_ref.disableClose = false;
-            this.loading.set(false);
-            notifyError(i18n('SIGNAGE_MANAGER.PLAYLIST_SAVE_ERROR'));
-            throw e;
-        }
+        });
     }
 }

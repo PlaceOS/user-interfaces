@@ -1,5 +1,12 @@
-import { Injectable, inject } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import {
+    Injectable,
+    Injector,
+    Signal,
+    computed,
+    inject,
+    resource,
+    signal,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     generateAssetForm,
@@ -44,19 +51,6 @@ import {
     updateMetadata,
 } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, Observable, combineLatest, from, of } from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    distinctUntilChanged,
-    filter,
-    first,
-    map,
-    shareReplay,
-    startWith,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
 import { AssetCategoryFormComponent } from './asset-category-form.component';
 import { AssetCategoryManagementModalComponent } from './asset-category-management-modal.component';
 
@@ -77,243 +71,267 @@ export class AssetManagerStateService extends AsyncHandler {
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
 
-    private _options = new BehaviorSubject<AssetOptions>({ view: 'grid' });
-    private _change = new BehaviorSubject(0);
-    private _poll = new BehaviorSubject(0);
-    private _extra_assets = new BehaviorSubject<Asset[]>([]);
-    private _form = generateAssetForm();
-    private _loading = new BehaviorSubject(false);
+    private _options = signal<AssetOptions>({ view: 'grid' });
+    private _change = signal(0);
+    private _injector = inject(Injector);
+    private _poll = signal(0);
+    private _extra_assets = signal<Asset[]>([]);
+    private _form_ref = generateAssetForm(undefined, this._injector);
+    private _loading = signal(false);
     /** Whether asset list is loading */
-    public readonly loading = this._loading.asObservable();
+    public readonly loading = this._loading.asReadonly();
     /** List of options set for the view */
-    public readonly options = this._options.asObservable();
+    public readonly options = this._options.asReadonly();
     /** List of extra assets to display */
-    public readonly extra_assets = this._extra_assets.asObservable();
+    public readonly extra_assets = this._extra_assets.asReadonly();
+
     /** List of available assets */
-    public readonly products: Observable<AssetGroup[]> = combineLatest([
-        this._change,
-        toObservable(this._org.active_building),
-    ]).pipe(
-        switchMap(() => {
-            this._loading.next(true);
-            return from(
-                getGroupsWithAssets({
-                    zone_id: this._org.building?.id,
-                }),
-            ).pipe(
-                map((r) => r.data),
-                catchError(() => of([])),
-            );
+    private readonly _products = resource({
+        params: () => ({
+            change: this._change(),
+            building: this._org.active_building()?.id,
         }),
-        tap((_) => this._loading.next(false)),
-        shareReplay(1),
+        defaultValue: [] as AssetGroup[],
+        loader: async () => {
+            this._loading.set(true);
+            try {
+                const resp = await getGroupsWithAssets({
+                    zone_id: this._org.building?.id,
+                }).catch(() => ({ data: [] }) as any);
+                return resp.data;
+            } finally {
+                this._loading.set(false);
+            }
+        },
+    });
+    public readonly products: Signal<AssetGroup[]> = this._products.value;
+
+    /** List of available purchase orders */
+    private readonly _purchase_orders = resource({
+        params: () => this._change(),
+        defaultValue: [] as AssetPurchaseOrder[],
+        loader: async () => {
+            this._loading.set(true);
+            try {
+                const resp = await queryAssetPurchaseOrders();
+                return resp.data as AssetPurchaseOrder[];
+            } finally {
+                this._loading.set(false);
+            }
+        },
+    });
+    public readonly purchase_orders: Signal<AssetPurchaseOrder[]> =
+        this._purchase_orders.value;
+
+    /**
+     * Inputs that affect the asset request listing. Search is intentionally
+     * excluded — it is applied client side and must not trigger a reload.
+     */
+    private readonly _request_params = computed(
+        () => ({
+            date: this._options().date,
+            building: this._org.active_building()?.id,
+            region: this._org.active_region()?.id,
+            poll: this._poll(),
+            change: this._change(),
+            initialised: this._spaces.initialised(),
+        }),
+        {
+            equal: (a, b) =>
+                a.date === b.date &&
+                a.building === b.building &&
+                a.region === b.region &&
+                a.poll === b.poll &&
+                a.change === b.change &&
+                a.initialised === b.initialised,
+        },
     );
-    /** List of available assets */
-    public readonly purchase_orders: Observable<AssetPurchaseOrder[]> =
-        this._change.pipe(
-            switchMap(() => {
-                this._loading.next(true);
-                return from(queryAssetPurchaseOrders()).pipe(
-                    map((_) => _.data),
-                );
-            }),
-            tap(() => this._loading.next(false)),
-            shareReplay(1),
-        ) as any;
+
     /** List of requests made by users for assets */
-    public readonly requests = combineLatest([
-        this._options,
-        toObservable(this._org.active_building),
-        toObservable(this._org.active_region),
-        this._poll,
-        this._change,
-        toObservable(this._spaces.initialised),
-    ]).pipe(
-        debounceTime(200),
-        switchMap(([{ date }, bld, region]) => {
-            const start = startOfDay(date || Date.now()).valueOf();
-            const end = endOfDay(date || Date.now()).valueOf();
+    private readonly _requests = resource({
+        params: () => this._request_params(),
+        defaultValue: [] as Booking[],
+        loader: async ({ params }) => {
+            const start = startOfDay(params.date || Date.now()).valueOf();
+            const end = endOfDay(params.date || Date.now()).valueOf();
             const zones = this._settings.get('app.use_region')
                 ? this._org
                       .buildingsForRegion()
                       .map((_) => _.id)
                       .join(',')
-                : bld?.id;
-            return from(
-                queryBookings({
-                    zones,
-                    period_start: getUnixTime(start),
-                    period_end: getUnixTime(end),
-                    include_parent_bookings: true,
-                    type: 'asset-request',
-                } as any),
-            ).pipe(
-                map((_) =>
-                    _.map(
-                        (b) =>
-                            new Booking({
-                                ...b,
-                                extension_data: {
-                                    ...b.extension_data,
-                                    space: this._spaces.find(
-                                        b.extension_data.space_id,
-                                    ),
-                                },
-                            }),
-                    ).filter((b) => {
-                        const event: any =
-                            b.linked_event ||
-                            b.linked_bookings[0] ||
-                            b.linked_parent_booking;
-                        if (!event) return false;
-                        const request = new AssetRequest({
-                            ...b.extension_data?.request,
-                        });
-                        const event_start =
-                            event.date ||
-                            event.event_start * 1000 ||
-                            event.booking_start * 1000 ||
-                            start;
-                        (request as any)._time = event_start;
-                        const event_end =
-                            event.date_end ||
-                            event.event_end * 1000 ||
-                            event.booking_end * 1000 ||
-                            end;
-                        return (
-                            request?.deliver_at >= start &&
-                            request?.deliver_at < event_end
-                        );
-                    }),
-                ),
-            );
-        }),
-        shareReplay(1),
-    );
-    /** Filtered list of asset requests */
-    public readonly filtered_requests = combineLatest([
-        this.requests,
-        this._options,
-    ]).pipe(
-        map(([list, options]) => {
-            const search = (options.search || '').toLowerCase();
-            return search
-                ? list.filter(
-                      (i) =>
-                          i.user_name.toLowerCase().includes(search) ||
-                          i.title.toLowerCase().includes(search) ||
-                          i.extension_data.location_name
-                              ?.toLowerCase()
-                              .includes(search) ||
-                          i.extension_data.assets?.find((_) =>
-                              _.name.toLowerCase().includes(search),
-                          ) ||
-                          i.status.includes(search) ||
-                          i.extension_data.tracking?.includes(search),
-                  )
-                : list;
-        }),
-    );
-    public readonly categories = combineLatest([
-        this._options,
-        this._change,
-    ]).pipe(
-        switchMap(() => queryAssetCategories()),
-        map((list) => [
-            new AssetCategory({ id: '', name: 'Uncategorised' }),
-            ...list.data,
-        ]),
-        shareReplay(1),
-    );
-    /** Currently active asset */
-    public readonly active_product = combineLatest([
-        this._options,
-        toObservable(this._org.active_building),
-        this._change,
-    ]).pipe(
-        filter(([{ active_item }, bld]) => !!active_item && !!bld),
-        map(([options, t]) => [options.active_item, t] as any),
-        distinctUntilChanged(),
-        switchMap(([active_item, bld]) =>
-            showGroupFull(active_item, { zone_id: bld.id }),
-        ),
-        shareReplay(1),
-    );
-    /** List of requests for the currently active asset */
-    public readonly active_product_requests = this.active_product.pipe(
-        switchMap((item) => {
-            return this.requests.pipe(
-                map((_) =>
-                    _.filter((i) =>
-                        item.assets.find((asset) => asset.id === i.asset_id),
-                    ),
-                ),
-            );
-        }),
-        map((_) => _.filter((i) => i.status !== 'declined')),
-    );
-    /** list of filtered assets */
-    public readonly filtered_products = combineLatest([
-        this.products,
-        this._options,
-    ]).pipe(
-        map(([list, options]) =>
-            options.search
-                ? list.filter((i) =>
-                      i.name
-                          .toLowerCase()
-                          .includes(options.search.toLowerCase()),
-                  )
-                : list,
-        ),
-        startWith([]),
-    );
-    /** Mapping of available assets to categories */
-    public readonly product_mapping = combineLatest([
-        this.filtered_products,
-        this.categories,
-    ]).pipe(
-        map(([products, category_list]) => {
-            const map = { _count: products.length };
-            const mapped_products = products.map((item) => ({
-                ...item,
-                category_id: category_list.find(
-                    (_) => _.id === item.category_id,
+                : params.building;
+            const list = await queryBookings({
+                zones,
+                period_start: getUnixTime(start),
+                period_end: getUnixTime(end),
+                include_parent_bookings: true,
+                type: 'asset-request',
+            } as any).catch(() => [] as Booking[]);
+            return list
+                .map(
+                    (b) =>
+                        new Booking({
+                            ...b,
+                            extension_data: {
+                                ...b.extension_data,
+                                space: this._spaces.find(
+                                    b.extension_data.space_id,
+                                ),
+                            },
+                        }),
                 )
-                    ? item.category_id
-                    : '',
-            }));
-            const categories = unique(
-                mapped_products?.map((i) => i.category_id) || [],
-            );
-            for (const group of categories) {
-                map[group] = mapped_products.filter(
-                    (i) => i.category_id === group,
-                );
-            }
-            return map;
-        }),
-    );
+                .filter((b) => {
+                    const event: any =
+                        b.linked_event ||
+                        b.linked_bookings[0] ||
+                        b.linked_parent_booking;
+                    if (!event) return false;
+                    const request = new AssetRequest({
+                        ...b.extension_data?.request,
+                    });
+                    const event_start =
+                        event.date ||
+                        event.event_start * 1000 ||
+                        event.booking_start * 1000 ||
+                        start;
+                    (request as any)._time = event_start;
+                    const event_end =
+                        event.date_end ||
+                        event.event_end * 1000 ||
+                        event.booking_end * 1000 ||
+                        end;
+                    return (
+                        request?.deliver_at >= start &&
+                        request?.deliver_at < event_end
+                    );
+                });
+        },
+    });
+    public readonly requests: Signal<Booking[]> = this._requests.value;
 
-    public readonly settings = combineLatest([
-        toObservable(this._org.active_building),
-        this._change,
-    ]).pipe(
-        filter(([_]) => !!_),
-        switchMap(([_]) =>
-            showMetadata(_.id, 'assets-settings').catch(
-                () => ({}) as PlaceMetadata,
-            ),
-        ),
-        map((_) => (_.details as Record<string, any>) || {}),
-        shareReplay(1),
-    );
-    public readonly availability = this.settings.pipe(
-        map((_) => _.disabled_rooms || []),
+    /** Filtered list of asset requests */
+    public readonly filtered_requests = computed(() => {
+        const list = this.requests();
+        const search = (this._options().search || '').toLowerCase();
+        return search
+            ? list.filter(
+                  (i) =>
+                      i.user_name.toLowerCase().includes(search) ||
+                      i.title.toLowerCase().includes(search) ||
+                      i.extension_data.location_name
+                          ?.toLowerCase()
+                          .includes(search) ||
+                      i.extension_data.assets?.find((_) =>
+                          _.name.toLowerCase().includes(search),
+                      ) ||
+                      i.status.includes(search) ||
+                      i.extension_data.tracking?.includes(search),
+              )
+            : list;
+    });
+
+    /** List of asset categories */
+    private readonly _categories = resource({
+        params: () => this._change(),
+        defaultValue: [] as AssetCategory[],
+        loader: async () => {
+            const list = await queryAssetCategories();
+            return [
+                new AssetCategory({ id: '', name: 'Uncategorised' }),
+                ...list.data,
+            ];
+        },
+    });
+    public readonly categories: Signal<AssetCategory[]> =
+        this._categories.value;
+
+    /** Currently active asset */
+    private readonly _active_product = resource({
+        params: () => ({
+            active_item: this._options().active_item,
+            building: this._org.active_building()?.id,
+            change: this._change(),
+        }),
+        defaultValue: null as AssetGroup | null,
+        loader: async ({ params }) => {
+            if (!params.active_item || !params.building) return null;
+            return showGroupFull(params.active_item, {
+                zone_id: params.building,
+            });
+        },
+    });
+    public readonly active_product: Signal<AssetGroup | null> =
+        this._active_product.value;
+
+    /** List of requests for the currently active asset */
+    public readonly active_product_requests = computed(() => {
+        const item = this.active_product();
+        if (!item) return [];
+        return this.requests()
+            .filter((i) => item.assets.find((asset) => asset.id === i.asset_id))
+            .filter((i) => i.status !== 'declined');
+    });
+
+    /** list of filtered assets */
+    public readonly filtered_products = computed(() => {
+        const list = this.products();
+        const search = this._options().search;
+        return search
+            ? list.filter((i) =>
+                  i.name.toLowerCase().includes(search.toLowerCase()),
+              )
+            : list;
+    });
+
+    /** Mapping of available assets to categories */
+    public readonly product_mapping = computed(() => {
+        const products = this.filtered_products();
+        const category_list = this.categories();
+        const map: Record<string, any> = { _count: products.length };
+        const mapped_products = products.map((item) => ({
+            ...item,
+            category_id: category_list.find((_) => _.id === item.category_id)
+                ? item.category_id
+                : '',
+        }));
+        const categories = unique(
+            mapped_products?.map((i) => i.category_id) || [],
+        );
+        for (const group of categories) {
+            map[group] = mapped_products.filter((i) => i.category_id === group);
+        }
+        return map;
+    });
+
+    /** Asset settings metadata for the active building */
+    private readonly _settings_data = resource({
+        params: () => ({
+            building: this._org.active_building()?.id,
+            change: this._change(),
+        }),
+        defaultValue: {} as Record<string, any>,
+        loader: async ({ params }) => {
+            if (!params.building) return {};
+            const metadata = await showMetadata(
+                params.building,
+                'assets-settings',
+            ).catch(() => ({}) as PlaceMetadata);
+            return (metadata.details as Record<string, any>) || {};
+        },
+    });
+    public readonly settings: Signal<Record<string, any>> =
+        this._settings_data.value;
+
+    public readonly availability = computed(
+        () => this.settings().disabled_rooms || [],
     );
 
     public get form() {
-        return this._form;
+        return this._form_ref.form;
+    }
+
+    public get model() {
+        return this._form_ref.model;
     }
 
     public get is_new_ui() {
@@ -325,7 +343,7 @@ export class AssetManagerStateService extends AsyncHandler {
     }
 
     public startPolling(delay = 15 * 1000) {
-        this.interval('polling', () => this._poll.next(Date.now()), delay);
+        this.interval('polling', () => this._poll.set(Date.now()), delay);
         return () => this.stopPolling();
     }
 
@@ -334,7 +352,7 @@ export class AssetManagerStateService extends AsyncHandler {
     }
 
     public resetForm() {
-        this._form = generateAssetForm();
+        this._form_ref = generateAssetForm(undefined, this._injector);
     }
 
     public manageCategories() {
@@ -344,7 +362,7 @@ export class AssetManagerStateService extends AsyncHandler {
         this.subscription(
             'category_modal',
             ref.componentInstance.changed.subscribe(() =>
-                this._change.next(Date.now()),
+                this._change.set(Date.now()),
             ),
         );
         ref.afterClosed().subscribe(() => this.unsub('category_modal'));
@@ -356,23 +374,23 @@ export class AssetManagerStateService extends AsyncHandler {
         const ref = this._dialog.open(AssetCategoryFormComponent, {
             data: { category },
         });
-        const result = await ref.afterClosed().toPromise();
+        const result = await nextValueFrom(ref.afterClosed());
         if (!result) return null;
-        this._change.next(Date.now());
+        this._change.set(Date.now());
         return result;
     }
 
     public setExtraAssets(list: Asset[]) {
-        this._extra_assets.next(list);
+        this._extra_assets.set(list);
     }
 
     /** Update the set view options */
     public setOptions(options: Partial<AssetOptions>) {
-        this._options.next({ ...this._options.getValue(), ...options });
+        this._options.update((current) => ({ ...current, ...options }));
     }
 
     public postChange() {
-        this.timeout('change', () => this._change.next(Date.now()), 1000);
+        this.timeout('change', () => this._change.set(Date.now()), 1000);
     }
 
     public async setStatus(item: Booking, status: any) {
@@ -382,7 +400,7 @@ export class AssetManagerStateService extends AsyncHandler {
         } else if (status === 'approved') {
             result = await approveBooking(item.id);
         }
-        this._change.next(Date.now());
+        this._change.set(Date.now());
         return result;
     }
 
@@ -391,21 +409,21 @@ export class AssetManagerStateService extends AsyncHandler {
             ...item.toJSON(),
             extension_data: { ...item.extension_data, tracking },
         });
-        this._change.next(Date.now());
+        this._change.set(Date.now());
         return result;
     }
 
     public async deleteActiveProduct() {
-        const item = await nextValueFrom(this.active_product);
+        const item = this.active_product();
         if (!item?.id) return;
         await removeAssetType(item.id);
-        this._change.next(Date.now());
+        this._change.set(Date.now());
         notifySuccess('Successfully deleted asset');
     }
 
     public async postForm() {
-        if (!this.form?.valid) return;
-        const data: any = this.form.value;
+        if (!this.form().valid()) return;
+        const data: any = { ...this.model() };
         const other_data = { ...data };
         const drop_keys = [
             'other_data',
@@ -422,7 +440,7 @@ export class AssetManagerStateService extends AsyncHandler {
         }
         data.other_data = cleanObject(other_data, [undefined, null, '']);
         const asset = await saveAsset(data as any);
-        this._change.next(Date.now());
+        this._change.set(Date.now());
         notifySuccess(`Successfully ${data.id ? 'updated' : 'created'} asset`);
         this.resetForm();
         return asset.id;
@@ -430,7 +448,7 @@ export class AssetManagerStateService extends AsyncHandler {
 
     public async editConfig() {
         const config = await this.getConfig(this._org.building.id);
-        const items = await nextValueFrom(this.products);
+        const items = this.products();
         const types = unique(flatten(items.map((i) => [i.name])));
         const ref = this._dialog.open<
             AttachedResourceConfigModalComponent,
@@ -444,10 +462,14 @@ export class AssetManagerStateService extends AsyncHandler {
             },
         });
         const details = await Promise.race([
-            ref.componentInstance.event
-                .pipe(first((_) => _.reason === 'done'))
-                .toPromise(),
-            ref.afterClosed().toPromise(),
+            new Promise<any>((resolve) => {
+                const sub = ref.componentInstance.event.subscribe((event) => {
+                    if (event?.reason !== 'done') return;
+                    sub.unsubscribe();
+                    resolve(event);
+                });
+            }),
+            nextValueFrom(ref.afterClosed()),
         ]);
         if (details?.reason !== 'done') return;
         this.updateConfig(this._org.building.id, details.metadata).then(
@@ -473,14 +495,14 @@ export class AssetManagerStateService extends AsyncHandler {
     }
 
     public async saveSettings(settings: Record<string, any>) {
-        const old_settings = await nextValueFrom(this.settings);
+        const old_settings = this.settings();
         const result = await updateMetadata(this._org.building.id, {
             id: this._org.building.id,
             name: 'assets-settings',
             details: { ...old_settings, ...settings },
             description: `Assets settings for ${this._org.building.id}`,
         });
-        this._change.next(Date.now());
+        this._change.set(Date.now());
         return result;
     }
 }

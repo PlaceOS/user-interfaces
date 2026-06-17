@@ -5,12 +5,7 @@ import {
     OnDestroy,
     signal,
 } from '@angular/core';
-import {
-    FormControl,
-    FormGroup,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
+import { form, FormField, required } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -55,7 +50,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                     : ''
             "
         >
-            <form [formGroup]="form">
+            <form>
                 <div class="flex flex-col">
                     <button
                         matRipple
@@ -84,8 +79,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                     <mat-form-field appearance="outline">
                         <input
                             matInput
-                            name="name"
-                            formControlName="name"
+                            [formField]="form.name"
                             [placeholder]="'FORM.NAME' | translate"
                         />
                         <mat-error>{{
@@ -101,7 +95,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                             >
                             <div class="font-mono text-xs">
                                 {{
-                                    form.value.start_time / 1000
+                                    model().start_time / 1000
                                         | mediaDuration: true
                                 }}
                             </div>
@@ -112,9 +106,8 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                             step="100"
                         >
                             <input
-                                name="start-time"
                                 matSliderThumb
-                                formControlName="start_time"
+                                [formField]="form.start_time"
                             />
                         </mat-slider>
                     }
@@ -126,9 +119,9 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                             }}</label
                         >
                         <div class="font-mono text-xs">
-                            @if (form.value.play_time) {
+                            @if (model().play_time) {
                                 {{
-                                    form.value.play_time / 1000
+                                    model().play_time / 1000
                                         | mediaDuration: true
                                 }}
                             } @else {
@@ -144,23 +137,18 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                         </div>
                     </div>
                     <mat-slider
-                        [min]="form.value.start_time"
+                        [min]="model().start_time"
                         [max]="item.video_length || 300000"
                         step="100"
                     >
-                        <input
-                            name="play-time"
-                            matSliderThumb
-                            formControlName="play_time"
-                        />
+                        <input matSliderThumb [formField]="form.play_time" />
                     </mat-slider>
                     <label for="animation">{{
                         'APP.CONCIERGE.SIGNAGE_ANIMATION' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
                         <mat-select
-                            name="animation"
-                            formControlName="animation"
+                            [formField]="form.animation"
                             placeholder="Playlist Default"
                         >
                             <mat-option [value]="0">{{
@@ -199,9 +187,8 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                     <mat-form-field appearance="outline" class="w-full">
                         <textarea
                             matInput
-                            name="description"
                             [placeholder]="'COMMON.DESCRIPTION' | translate"
-                            formControlName="description"
+                            [formField]="form.description"
                             class="min-h-32"
                         ></textarea>
                     </mat-form-field>
@@ -211,8 +198,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                                 'APP.CONCIERGE.VALID_FROM' | translate
                             }}</label>
                             <a-date-field
-                                name="valid-from"
-                                formControlName="valid_from"
+                                [formField]="form.valid_from"
                                 [clear]="true"
                             ></a-date-field>
                         </div>
@@ -221,9 +207,8 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                                 'APP.CONCIERGE.VALID_UNTIL' | translate
                             }}</label>
                             <a-date-field
-                                name="valid-until"
-                                [from]="form.value.valid_from"
-                                formControlName="valid_until"
+                                [from]="model().valid_from"
+                                [formField]="form.valid_until"
                                 [clear]="true"
                             ></a-date-field>
                         </div>
@@ -242,7 +227,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FullscreenModalShellComponent,
-        ReactiveFormsModule,
+        FormField,
         DateFieldComponent,
         TranslatePipe,
         SafePipe,
@@ -272,16 +257,17 @@ export class SignageMediaModalComponent implements OnDestroy {
     public readonly thumbnail =
         this._data.file_thumbnail || this._data.media.thumbnail_url;
 
-    public readonly form = new FormGroup({
-        name: new FormControl('', [Validators.required]),
-        description: new FormControl(''),
-        animation: new FormControl<MediaAnimation>(MediaAnimation.Default),
-        start_time: new FormControl(0),
-        play_time: new FormControl<number | null>(null),
-        valid_from: new FormControl(startOfDay(Date.now()).valueOf()),
-        valid_until: new FormControl(
-            addYears(endOfDay(Date.now()), 10).valueOf(),
-        ),
+    public readonly model = signal({
+        name: '',
+        description: '',
+        animation: MediaAnimation.Default as MediaAnimation,
+        start_time: 0,
+        play_time: null as number | null,
+        valid_from: startOfDay(Date.now()).valueOf(),
+        valid_until: addYears(endOfDay(Date.now()), 10).valueOf(),
+    });
+    public readonly form = form(this.model, (p) => {
+        required(p.name);
     });
 
     private _file_url: string;
@@ -290,7 +276,7 @@ export class SignageMediaModalComponent implements OnDestroy {
         this._data.preview({
             media_url: this.url,
             media_type: this.media_type,
-            name: this.form.value.name,
+            name: this.model().name,
         });
 
     public get media_type() {
@@ -312,15 +298,19 @@ export class SignageMediaModalComponent implements OnDestroy {
     }
 
     constructor() {
-        this.form.patchValue({
-            ...this._data.media,
-            valid_from: this._data.media.valid_from * 1000,
-            valid_until: this._data.media.valid_until * 1000,
-        });
+        const media = this._data.media as any;
+        this.model.update((m) => ({
+            ...m,
+            name: media.name ?? m.name,
+            description: media.description ?? m.description,
+            animation: media.animation ?? m.animation,
+            start_time: media.start_time ?? m.start_time,
+            play_time: media.play_time ?? m.play_time,
+            valid_from: (media.valid_from || 0) * 1000,
+            valid_until: (media.valid_until || 0) * 1000,
+        }));
         if (this._data.file) {
-            this.form.patchValue({
-                name: this._data.file.name,
-            });
+            this.model.update((m) => ({ ...m, name: this._data.file.name }));
         }
         if (this._data.file_metadata) {
             (this.item as any).video_length = Math.floor(
@@ -334,12 +324,11 @@ export class SignageMediaModalComponent implements OnDestroy {
     }
 
     public async saveMedia() {
-        this.form.markAllAsTouched();
-        this.form.updateValueAndValidity();
-        if (!this.form.valid) return;
+        this.form().markAsTouched();
+        if (!this.form().valid()) return;
         this.loading.set(true);
         this._dialog_ref.disableClose = true;
-        const form_value = this.form.getRawValue();
+        const form_value: any = { ...this.model() };
         const new_media = {
             ...this.item,
             ...form_value,
