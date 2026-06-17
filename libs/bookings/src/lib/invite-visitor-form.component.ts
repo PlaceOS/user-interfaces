@@ -349,7 +349,7 @@ import { BookingFormService } from './booking-form.service';
                                             ) {
                                                 <mat-checkbox
                                                     [ngModel]="
-                                                        visitor_international[
+                                                        visitor_international()[
                                                             item.email ||
                                                                 item.id
                                                         ] || false
@@ -614,7 +614,9 @@ export class InviteVisitorFormComponent {
     public readonly last_count = signal(0);
     private visitors = [];
     public readonly filtered_visitors = signal<any[]>([]);
-    public visitor_international: Record<string, boolean> = {};
+    public readonly visitor_international = signal<Record<string, boolean>>(
+        {},
+    );
     private readonly _visitor_bookable_hours = this._settings.signal(
         'visitors.bookable_hours',
         null,
@@ -851,10 +853,10 @@ export class InviteVisitorFormComponent {
     public setVisitorInternational(item: User, international: boolean) {
         const key = item.email || item.id;
         if (!key) return;
-        this.visitor_international = {
-            ...this.visitor_international,
+        this.visitor_international.set({
+            ...this.visitor_international(),
             [key]: !!international,
-        };
+        });
         this.model.update((m) => ({
             ...m,
             assets: (m.assets || []).map((user) => {
@@ -1170,14 +1172,14 @@ export class InviteVisitorFormComponent {
             if (!key) continue;
             map_data[key] = this.getVisitorInternational(item);
         }
-        this.visitor_international = map_data;
+        this.visitor_international.set(map_data);
     }
 
     private getVisitorInternational(item: User): boolean {
         const key = item?.email || item?.id;
         if (!key) return false;
-        if (key in this.visitor_international) {
-            return !!this.visitor_international[key];
+        if (key in this.visitor_international()) {
+            return !!this.visitor_international()[key];
         }
         return (
             !!(item as any).international ||
