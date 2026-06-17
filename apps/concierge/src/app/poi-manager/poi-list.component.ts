@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     effect,
     inject,
@@ -181,7 +180,6 @@ interface QR_Codes {
         </ng-template>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         SimpleTableComponent,
         MatMenuModule,

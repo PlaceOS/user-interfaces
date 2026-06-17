@@ -1,7 +1,6 @@
 import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -237,7 +236,6 @@ const PLAYLIST_ITEM_COUNTS = signal<Record<string, PlaylistCount>>({});
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         IconComponent,

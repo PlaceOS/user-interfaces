@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -35,7 +34,6 @@ import { ParkingStateService } from './parking-state.service';
     `,
     styles: [``],
     providers: [ExploreParkingService],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [InteractiveMapComponent],
 })
 export class ParkingMapComponent extends AsyncHandler implements OnInit {

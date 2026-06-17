@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    input,
-} from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 
@@ -59,7 +54,6 @@ import { IconComponent, SafePipe } from '@placeos/components';
         }
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, RouterModule, IconComponent, SafePipe],
 })
 export class ControlSpaceListItemComponent {

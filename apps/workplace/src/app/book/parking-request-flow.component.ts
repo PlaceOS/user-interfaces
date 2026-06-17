@@ -1,10 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    OnInit,
-    inject,
-} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BookingFormService, ParkingService } from '@placeos/bookings';
 import { AsyncHandler } from '@placeos/common';
@@ -48,7 +43,6 @@ import { ParkingRequestSuccessComponent } from './parking-request-flow/parking-r
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,

@@ -1,6 +1,5 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 import {
-    ChangeDetectionStrategy,
     Component,
     Injector,
     OnInit,
@@ -68,7 +67,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                 ) | translate
             "
             [loading]="
-                loading ? ('APP.CONCIERGE.ROOMS_SAVING' | translate) : ''
+                loading() ? ('APP.CONCIERGE.ROOMS_SAVING' | translate) : ''
             "
             (confirm)="save()"
         >
@@ -455,7 +454,6 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,
@@ -485,7 +483,7 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
 
     private _injector = inject(Injector);
 
-    public loading = false;
+    public readonly loading = signal(false);
     /** Whether the modal is creating a new system (vs editing an existing one) */
     public readonly is_new = !this._data.room?.id;
     /** List of levels for the active building */
@@ -598,7 +596,7 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
                 ]).filter((_) => _),
             });
         }
-        this.loading = true;
+        this.loading.set(true);
         this._dialog_ref.disableClose = true;
         const data = { ...this.model() };
         const { details } = (await showMetadata(
@@ -620,7 +618,7 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
         await (data.id ? updateSystem(data.id, data) : addSystem(data));
         this._dialog_ref.disableClose = false;
         this._dialog_ref.close(true);
-        this.loading = false;
+        this.loading.set(false);
     }
 
     public selectItemfromMap() {

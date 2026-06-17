@@ -78,6 +78,11 @@ export interface Locatable {
             [body] {
                 min-width: 80vw !important;
             }
+            :host {
+                display: block;
+                width: 100%;
+                height: 100%;
+            }
         `,
     ],
     imports: [
@@ -110,6 +115,7 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
 
     constructor() {
         super();
+        console.log('Date:', this._data);
         if (!this.item().level?.id) {
             this.item.update((item) => {
                 delete item.level;

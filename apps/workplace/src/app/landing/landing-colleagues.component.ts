@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     ElementRef,
     inject,
+    signal,
     viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -139,7 +139,7 @@ import { LandingStateService } from './landing-state.service';
         </button>
         <div
             search
-            [class.hidden]="!show_search"
+            [class.hidden]="!show_search()"
             class="border-base-200 bg-base-100 absolute inset-x-2 top-2 bottom-16 flex flex-col overflow-hidden rounded-sm border"
         >
             <input
@@ -153,7 +153,7 @@ import { LandingStateService } from './landing-state.service';
                 icon
                 name="close-colleague-search"
                 class="absolute top-0 right-0"
-                (click)="show_search = false"
+                (click)="show_search.set(false)"
             >
                 <icon>close</icon>
             </button>
@@ -232,7 +232,6 @@ import { LandingStateService } from './landing-state.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,
@@ -251,7 +250,7 @@ export class LandingColleaguesComponent extends AsyncHandler {
     private _event_form = inject(EventFormService);
     private _router = inject(Router);
 
-    public show_search = false;
+    public show_search = signal(false);
     public readonly contacts = this._state.contacts;
 
     public readonly search_results = computed(() =>
@@ -275,7 +274,7 @@ export class LandingColleaguesComponent extends AsyncHandler {
     public readonly addUser = async (u) => {
         await this._state.addContact(u);
         notifySuccess(i18n('APP.WORKPLACE.COLLEAGUE_ADDED', { name: u.name }));
-        this.show_search = false;
+        this.show_search.set(false);
     };
 
     public readonly removeUser = async (u) => {
@@ -307,7 +306,7 @@ export class LandingColleaguesComponent extends AsyncHandler {
 
     public openSearch() {
         this.updateSearch('');
-        this.show_search = true;
+        this.show_search.set(true);
         this.timeout('open', () => this._input_el().nativeElement.focus(), 100);
     }
 }

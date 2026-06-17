@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    OnInit,
-    inject,
-} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {
     MatBottomSheet,
     MatBottomSheetRef,
@@ -56,7 +51,6 @@ import { LockerFormDetailsComponent } from './locker-form-details.component';
             </div>
         </div>
     `,
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, TranslatePipe, LockerFormDetailsComponent],
 })
 export class BookLockerFlowFormComponent implements OnInit {

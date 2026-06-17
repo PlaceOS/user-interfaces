@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    input,
-} from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import {
     downloadFile,
     jsonToCsv,
@@ -121,7 +115,6 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
             </div>
         </div>
     `,
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         SimpleTableComponent,
         TranslatePipe,

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import { TranslatePipe } from '@placeos/components';
@@ -30,7 +30,6 @@ import { TranslatePipe } from '@placeos/components';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, TranslatePipe, RouterModule],
 })
 export class CodeFlowSuccessComponent {}

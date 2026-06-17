@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MAP_FEATURE_DATA } from '@placeos/common';
 
 @Component({
@@ -22,7 +17,6 @@ import { MAP_FEATURE_DATA } from '@placeos/common';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [],
 })
 export class MapShowElementComponent {

@@ -1,10 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    input,
-} from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SurveyAnswer, SurveyQuestion } from '@placeos/ts-client';
 import { QuestionType } from './types';
@@ -163,7 +158,6 @@ import { QuestionType } from './types';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, MatTooltipModule],
 })
 export class NewSurveyWidgetComponent {

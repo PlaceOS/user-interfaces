@@ -6,7 +6,6 @@ import {
 } from '@angular/cdk/drag-drop';
 
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -352,7 +351,6 @@ import { SignageStateService } from './signage-state.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         IconComponent,

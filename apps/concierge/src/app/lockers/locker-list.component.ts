@@ -1,13 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 
-import {
-    ChangeDetectionStrategy,
-    Component,
-    OnInit,
-    computed,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -341,7 +334,6 @@ import { LockerStateService } from './locker-state.service';
         </ng-template>
     `,
     styles: [],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatMenuModule,
         IconComponent,

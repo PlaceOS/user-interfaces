@@ -3,6 +3,7 @@ import {
     Component,
     computed,
     inject,
+    viewChild,
 } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import {
@@ -66,7 +67,6 @@ const EMPTY = [];
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         GlobalSearchComponent,
         TopMenuComponent,
@@ -75,6 +75,7 @@ const EMPTY = [];
         UserAvatarComponent,
         UserControlsSidebarComponent,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class TopbarComponent {
     private _settings = inject(SettingsService);
@@ -82,6 +83,7 @@ export class TopbarComponent {
 
     public show_menu: boolean;
     public readonly user = userSignal();
+    public readonly user_controls = viewChild(UserControlsSidebarComponent);
 
     public readonly logo = computed(() => {
         return this._settings.theme_signal() === 'dark'

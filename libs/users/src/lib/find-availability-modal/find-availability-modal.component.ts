@@ -7,10 +7,10 @@ import {
     inject,
     Injector,
     Renderer2,
+    resource,
     signal,
     viewChild,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -18,7 +18,7 @@ import {
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { AsyncHandler, User } from '@placeos/common';
+import { AsyncHandler, debouncedSignal, User } from '@placeos/common';
 import {
     addMinutes,
     differenceInMinutes,
@@ -37,15 +37,6 @@ import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.compone
 import { queryUserFreeBusy } from 'libs/events/src/lib/calendar.fn';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
-import { forkJoin, from, Observable, of } from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    defaultIfEmpty,
-    map,
-    shareReplay,
-    switchMap,
-} from 'rxjs/operators';
 import {
     AvailabilityBlock,
     UserAvailabilityComponent,
@@ -312,52 +303,49 @@ export class FindAvailabilityModalComponent
         .fill(0)
         .map((_, idx) => setHours(startOfDay(Date.now()), idx).valueOf());
 
-    private readonly _availability$ = toObservable(this.users, {
+    private readonly _debounced_users = debouncedSignal(
+        this.users,
+        300,
+        this._injector,
+    );
+    private readonly _debounced_date = debouncedSignal(
+        this.date,
+        300,
+        this._injector,
+    );
+    private readonly _availability_resource = resource({
         injector: this._injector,
-    }).pipe(
-        debounceTime(300),
-        switchMap((users) => {
+        params: () => ({
+            users: this._debounced_users(),
+            date: this._debounced_date(),
+        }),
+        loader: async ({ params: { users, date } }) => {
             const all_emails = [
                 this.host.email,
                 ...users.map((_) => _.email.toLowerCase()),
             ];
-            const period_start = getUnixTime(startOfDay(this.date()));
-            const period_end = getUnixTime(endOfDay(this.date()));
-
-            // Query calendar free/busy and desk bookings per user
-            const desk_queries = all_emails.reduce(
-                (acc, email) => {
-                    acc[email] = from(
-                        queryBookings({
-                            type: 'desk',
-                            email,
-                            period_start,
-                            period_end,
-                        }),
-                    ).pipe(catchError(() => of([] as any[])));
-                    return acc;
-                },
-                {} as Record<string, Observable<any[]>>,
-            );
-
-            return forkJoin({
-                calendar: from(
-                    queryUserFreeBusy({
-                        calendars: all_emails.join(','),
+            const period_start = getUnixTime(startOfDay(date));
+            const period_end = getUnixTime(endOfDay(date));
+            const availability_list = await queryUserFreeBusy({
+                calendars: all_emails.join(','),
+                period_start,
+                period_end,
+            }).catch(() => []);
+            const desk_list = await Promise.all(
+                all_emails.map(async (email) => ({
+                    email,
+                    bookings: await queryBookings({
+                        type: 'desk',
+                        email,
                         period_start,
                         period_end,
-                    }),
-                ).pipe(catchError(() => of([]))),
-                desks: forkJoin(desk_queries).pipe(
-                    catchError(() => of({} as Record<string, any[]>)),
-                ),
-            });
-        }),
-        map(({ calendar, desks }) => {
+                    }).catch(() => []),
+                })),
+            );
             const availability_map: Record<string, AvailabilityBlock[]> = {};
 
             // Process calendar availability
-            for (const item of calendar) {
+            for (const item of availability_list) {
                 availability_map[item.id.toLowerCase()] = item.availability
                     .filter((_) => _.status === 'busy')
                     .map((block) => {
@@ -367,7 +355,7 @@ export class FindAvailabilityModalComponent
                             fromUnixTime(block.starts_at),
                         );
                         return {
-                            date,
+                            date: date.valueOf(),
                             duration,
                             start:
                                 ((date.getHours() + date.getMinutes() / 60) /
@@ -379,7 +367,7 @@ export class FindAvailabilityModalComponent
             }
 
             // Process desk bookings per user and merge into availability
-            for (const [email, bookings] of Object.entries(desks)) {
+            for (const { email, bookings } of desk_list) {
                 const email_lower = email.toLowerCase();
                 for (const booking of bookings) {
                     const date = new Date(booking.date);
@@ -401,15 +389,12 @@ export class FindAvailabilityModalComponent
             }
 
             return availability_map;
-        }),
-        defaultIfEmpty({}),
-        shareReplay(1),
-    );
-
-    public readonly availability = toSignal(this._availability$, {
-        initialValue: {} as Record<string, AvailabilityBlock[]>,
-        injector: this._injector,
+        },
     });
+
+    public readonly availability = computed<
+        Record<string, AvailabilityBlock[]>
+    >(() => this._availability_resource.value() ?? {});
 
     private readonly _container_el =
         viewChild.required<ElementRef<HTMLDivElement>>('container');
@@ -433,12 +418,6 @@ export class FindAvailabilityModalComponent
 
     constructor() {
         super();
-        toObservable(this.date, { injector: this._injector })
-            .pipe(debounceTime(300))
-            .subscribe(() => {
-                // Re-trigger availability fetch when date changes
-                this.users.update((u) => [...u]);
-            });
     }
 
     public onDateChange(new_date: number) {

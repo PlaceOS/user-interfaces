@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { i18n, notifySuccess } from '@placeos/common';
 import { BuildingManagementService } from './building-management.service';
@@ -243,7 +243,6 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
         </ng-template>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         SimpleTableComponent,
         AuthenticatedImageDirective,

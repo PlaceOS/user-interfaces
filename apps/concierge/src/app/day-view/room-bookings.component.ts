@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     effect,
     inject,
@@ -164,7 +163,7 @@ const EMPTY = [];
                         <div
                             class="flex w-px flex-1 items-center space-x-1 overflow-x-auto rounded-l-full px-1"
                         >
-                            @for (type of types; track type.id) {
+                            @for (type of types(); track type.id) {
                                 @if (!type_list.includes(type.id)) {
                                     <div
                                         class="border-base-300 flex items-center rounded-full border"
@@ -206,7 +205,7 @@ const EMPTY = [];
                         <div
                             class="flex w-48 flex-col space-y-2 overflow-hidden"
                         >
-                            @for (type of types; track type) {
+                            @for (type of types(); track type) {
                                 <mat-checkbox
                                     [ngModel]="!type_list.includes(type.id)"
                                     (ngModelChange)="
@@ -248,7 +247,6 @@ const EMPTY = [];
     `,
     styles: [``],
     providers: [UserPipe],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         MatFormFieldModule,
@@ -375,11 +373,11 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     /**  */
     public readonly newBooking = (d?) => this._state.newBooking(d);
 
-    public types: any[] = [
+    public readonly types = signal<any[]>([
         { id: 'internal', name: 'Internal', color: '#D81B60' },
         { id: 'external', name: 'External', color: '#1E88E5' },
         { id: 'cancelled', name: 'Cancelled', color: '#eeeeee' },
-    ];
+    ]);
 
     public get type_list() {
         return this._state.filters.hide_type || EMPTY;
@@ -398,7 +396,7 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit() {
-        this.types = [
+        this.types.set([
             {
                 id: 'internal',
                 name: i18n('COMMON.TYPE_INTERNAL'),
@@ -414,7 +412,7 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
                 name: i18n('COMMON.TYPE_CANCELLED'),
                 color: '#eeeeee',
             },
-        ];
+        ]);
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {

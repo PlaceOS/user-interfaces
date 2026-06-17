@@ -8,10 +8,11 @@ import {
     input,
     model,
     output,
+    resource,
     signal,
     viewChild,
 } from '@angular/core';
-import { outputToObservable, toObservable } from '@angular/core/rxjs-interop';
+import { outputToObservable } from '@angular/core/rxjs-interop';
 import {
     ControlValueAccessor,
     FormsModule,
@@ -22,20 +23,13 @@ import {
     AsyncHandler,
     csvToJson,
     currentUser,
+    debouncedSignal,
     downloadFile,
     notifyError,
     SettingsService,
     unique,
 } from '@placeos/common';
-import { combineLatest, from, of } from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    first,
-    map,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
+import { first } from 'rxjs/operators';
 
 import { CommonModule } from '@angular/common';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -130,7 +124,7 @@ const DENIED_FILE_TYPES = [
                             }}
                         </mat-option>
                     }
-                    @for (user of user_list$ | async; track user) {
+                    @for (user of user_list(); track user) {
                         <mat-option
                             (click)="addUser(user)"
                             class="leading-tight"
@@ -275,8 +269,6 @@ export class UserListFieldComponent
 
     readonly separatorKeysCodes = [ENTER, COMMA] as const;
 
-    /** Whether user list is loading */
-    public readonly loading = signal(false);
     public readonly search = signal('');
 
     private readonly _search_el =
@@ -286,61 +278,52 @@ export class UserListFieldComponent
         false,
     );
 
-    private searchStaff(q: string) {
+    private async searchStaff(q: string): Promise<User[]> {
         return this._use_basic_user_search()
-            ? from(queryUsers({ q, authority_id: authority()?.id })).pipe(
-                  map((_) => _.data.map((u) => new User(u))),
+            ? queryUsers({ q, authority_id: authority()?.id }).then((_) =>
+                  _.data.map((u) => new User(u)),
               )
             : searchStaff(q);
     }
 
+    private readonly _debounced_search = debouncedSignal(this.search, 300);
+    private readonly _user_search = resource({
+        params: () => ({ q: this._debounced_search() }),
+        loader: async ({ params: { q } }): Promise<User[]> => {
+            if (!q) return [];
+            try {
+                if (!this.guests()) return await this.searchStaff(q);
+                const [staff_results, guests] = await Promise.all([
+                    this.searchStaff(q),
+                    searchGuests(q),
+                ]);
+                const staff = this.guests_only() ? [] : staff_results;
+                const visitors_list = [];
+                const visitors = this._settings.get('visitor-invitees') || [];
+                for (const item of visitors) {
+                    if (typeof item !== 'string') continue;
+                    const [email, name, company, international] =
+                        item.split('|');
+                    visitors_list.push({
+                        email,
+                        name,
+                        company,
+                        international: international === '1',
+                    });
+                }
+                return unique(
+                    (staff as any).concat(guests).concat(visitors_list),
+                    'email',
+                );
+            } catch {
+                return [];
+            }
+        },
+    });
     /** User list to display */
-    public user_list$ = toObservable(this.search).pipe(
-        debounceTime(300),
-        switchMap((_) => {
-            this.loading.set(true);
-            return (
-                _
-                    ? this.guests()
-                        ? combineLatest([
-                              this.searchStaff(_),
-                              searchGuests(_),
-                          ]).pipe(
-                              map(([staff, guests]) => {
-                                  if (this.guests_only()) staff = [];
-                                  const visitors_list = [];
-                                  const visitors =
-                                      this._settings.get('visitor-invitees') ||
-                                      [];
-                                  for (const item of visitors) {
-                                      if (typeof item !== 'string') continue;
-                                      const [
-                                          email,
-                                          name,
-                                          company,
-                                          international,
-                                      ] = item.split('|');
-                                      visitors_list.push({
-                                          email,
-                                          name,
-                                          company,
-                                          international: international === '1',
-                                      });
-                                  }
-                                  return unique(
-                                      (staff as any)
-                                          .concat(guests)
-                                          .concat(visitors_list),
-                                      'email',
-                                  );
-                              }),
-                          )
-                        : from(this.searchStaff(_))
-                    : of([])
-            ).pipe(catchError((_) => of([])));
-        }),
-        tap(() => this.loading.set(false)),
-    );
+    public readonly user_list = computed(() => this._user_search.value() ?? []);
+    /** Whether user list is loading */
+    public readonly loading = computed(() => this._user_search.isLoading());
     /** List of active selected users on the list */
     public readonly active_list = signal<User[]>([]);
 

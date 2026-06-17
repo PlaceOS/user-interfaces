@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     ViewEncapsulation,
     computed,
@@ -98,7 +97,6 @@ import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
         `,
     ],
     encapsulation: ViewEncapsulation.None,
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatDialogModule,
         MatRippleModule,

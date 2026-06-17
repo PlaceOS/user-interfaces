@@ -82,7 +82,6 @@ import { ScheduleStateService } from './schedule-state.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,
@@ -92,6 +91,7 @@ import { ScheduleStateService } from './schedule-state.service';
         MatRippleModule,
         SettingsToggleComponent,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class ScheduleFilterCardComponent {
     private _state = inject(ScheduleStateService);

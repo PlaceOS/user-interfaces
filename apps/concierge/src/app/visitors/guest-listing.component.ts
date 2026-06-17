@@ -1,11 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    effect,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { showMetadata } from '@placeos/ts-client';
 
 import { saveBooking } from '@placeos/bookings';
@@ -724,7 +717,6 @@ import { VisitorsStateService } from './visitors-state.service';
         <div class="h-8 w-full"></div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatRippleModule,

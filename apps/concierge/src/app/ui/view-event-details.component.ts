@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    input,
-} from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { addMinutes, format } from 'date-fns';
 
 import { CommonModule } from '@angular/common';
@@ -154,7 +148,6 @@ import { EventsStateService } from '../day-view/events-state.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatRippleModule,

@@ -1,11 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    OnInit,
-    signal,
-    viewChild,
-} from '@angular/core';
+import { Component, inject, OnInit, signal, viewChild } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -30,7 +23,7 @@ import { QuestionComponent } from './question.component';
         >
             <h2 class="px-2 text-xl font-medium">
                 {{
-                    (is_edit
+                    (is_edit()
                         ? 'APP.CONCIERGE.SURVEY_QUESTION_EDIT'
                         : 'APP.CONCIERGE.SURVEY_QUESTION_NEW'
                     ) | translate
@@ -58,7 +51,6 @@ import { QuestionComponent } from './question.component';
             </button>
         </footer>
     `,
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         QuestionComponent,
         TranslatePipe,

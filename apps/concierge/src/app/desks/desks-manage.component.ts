@@ -1,7 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     ElementRef,
@@ -265,7 +264,6 @@ const QR_CODES = {};
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         SimpleTableComponent,
         TranslatePipe,

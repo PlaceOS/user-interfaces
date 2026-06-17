@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     OnInit,
     effect,
@@ -61,7 +60,6 @@ import { StaffStateService } from './staff-state.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatSlideToggleModule,
         SearchbarComponent,

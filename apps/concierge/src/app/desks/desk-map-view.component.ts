@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    effect,
-    inject,
-    OnInit,
-} from '@angular/core';
+import { Component, effect, inject, OnInit } from '@angular/core';
 import {
     ExploreDesksService,
     ExploreStateService,
@@ -65,7 +59,6 @@ import { DesksStateService } from './desks-state.service';
         `,
     ],
     providers: [ExploreDesksService],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         InteractiveMapComponent,
         ExploreZoomControlComponent,

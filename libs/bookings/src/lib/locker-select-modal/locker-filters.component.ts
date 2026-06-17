@@ -6,7 +6,6 @@ import {
     input,
     signal,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { addDays, endOfDay } from 'date-fns';
 
@@ -23,8 +22,6 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { BookingFormService } from '../booking-form.service';
 
 @Component({
@@ -291,26 +288,18 @@ export class LockerFiltersComponent extends AsyncHandler implements OnInit {
     public readonly regions = this._org.region_list;
     public readonly region = this._org.active_region;
 
-    public readonly levels = toSignal(
-        combineLatest([
-            toObservable(this._org.active_region),
-            toObservable(this._org.active_building),
-        ]).pipe(
-            map(([region, bld]) => {
-                const level_list = this._use_region()
-                    ? this._org.levelsForRegion(region)
-                    : this._org.levelsForBuilding(bld);
-                return level_list.sort(
-                    (a, b) =>
-                        a.parent_id.localeCompare(b.parent_id) ||
-                        (a.display_name || '').localeCompare(
-                            b.display_name || '',
-                        ),
-                );
-            }),
-        ),
-        { initialValue: [] },
-    );
+    public readonly levels = computed(() => {
+        const region = this._org.active_region();
+        const bld = this._org.active_building();
+        const level_list = this._use_region()
+            ? this._org.levelsForRegion(region)
+            : this._org.levelsForBuilding(bld);
+        return level_list.sort(
+            (a, b) =>
+                a.parent_id.localeCompare(b.parent_id) ||
+                (a.display_name || '').localeCompare(b.display_name || ''),
+        );
+    });
 
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);

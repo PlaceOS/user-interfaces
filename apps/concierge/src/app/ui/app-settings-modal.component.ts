@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -42,10 +36,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                             <button
                                 matRipple
                                 class="border-base-200 m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border p-2"
-                                (click)="
-                                    active_features['use_24_hour_time'] =
-                                        !active_features['use_24_hour_time']
-                                "
+                                (click)="toggleFeature('use_24_hour_time')"
                             >
                                 <div class="ml-2 flex-1 text-left">
                                     {{
@@ -54,7 +45,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                                 </div>
                                 <mat-checkbox
                                     [ngModel]="
-                                        active_features['use_24_hour_time']
+                                        active_features()['use_24_hour_time']
                                     "
                                     [ngModelOptions]="{ standalone: true }"
                                     class="pointer-events-none"
@@ -70,16 +61,13 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                                 <button
                                     matRipple
                                     class="border-base-200 m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border p-2"
-                                    (click)="
-                                        active_features[feature] =
-                                            !active_features[feature]
-                                    "
+                                    (click)="toggleFeature(feature)"
                                 >
                                     <div class="ml-2 flex-1 text-left">
                                         {{ feature_descriptions[feature] }}
                                     </div>
                                     <mat-checkbox
-                                        [ngModel]="active_features[feature]"
+                                        [ngModel]="active_features()[feature]"
                                         [ngModelOptions]="{ standalone: true }"
                                         class="pointer-events-none"
                                     ></mat-checkbox>
@@ -92,23 +80,20 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                                 <button
                                     matRipple
                                     class="border-base-200 m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border p-2"
-                                    (click)="
-                                        active_features[feature] =
-                                            !active_features[feature]
-                                    "
+                                    (click)="toggleFeature(feature)"
                                 >
                                     <div class="ml-2 flex-1 text-left">
                                         {{ feature_descriptions[feature] }}
                                     </div>
                                     <mat-checkbox
-                                        [ngModel]="active_features[feature]"
+                                        [ngModel]="active_features()[feature]"
                                         [ngModelOptions]="{ standalone: true }"
                                         class="pointer-events-none"
                                     ></mat-checkbox>
                                 </button>
                             }
                         </div>
-                        @if (active_features['spaces']) {
+                        @if (active_features()['spaces']) {
                             <ng-container>
                                 <h3 class="text-lg font-medium">
                                     Room Bookings
@@ -146,7 +131,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                                 </div>
                             </ng-container>
                         }
-                        @if (active_features['desks']) {
+                        @if (active_features()['desks']) {
                             <div>
                                 <h3 class="text-lg font-medium">
                                     Desk Bookings
@@ -219,7 +204,6 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FormsModule,
         MatRippleModule,
@@ -271,7 +255,7 @@ export class AppSettingsModalComponent implements OnInit {
     public readonly desk_features = ['allow_all_day'];
     public readonly loading = signal('');
     public combined_settings: Record<string, any> = {};
-    public active_features: Record<string, boolean> = {};
+    public readonly active_features = signal<Record<string, boolean>>({});
 
     public readonly feature_descriptions = {
         use_24_hour_time: 'Use 24 Hour Time',
@@ -331,6 +315,13 @@ export class AppSettingsModalComponent implements OnInit {
             allow_all_day: false,
         } as Record<string, boolean>,
     });
+
+    public toggleFeature(feature: string) {
+        this.active_features.update((f) => ({
+            ...f,
+            [feature]: !f[feature],
+        }));
+    }
 
     public toggleEventFeature(feature: string) {
         this.model.update((m) => ({
@@ -401,21 +392,23 @@ export class AppSettingsModalComponent implements OnInit {
             desks: { ...m.desks, ...(combined_settings.desks || {}) },
             bookings: { ...m.bookings, ...(combined_settings.bookings || {}) },
         }));
+        const active_features: Record<string, boolean> = {};
         for (const key in combined_settings) {
             if (typeof combined_settings[key] === 'object') {
                 for (const sub_key in combined_settings[key]) {
                     if (typeof combined_settings[key][sub_key] === 'boolean') {
-                        this.active_features[sub_key] =
+                        active_features[sub_key] =
                             combined_settings[key][sub_key];
                     }
                 }
             } else if (typeof combined_settings[key] === 'boolean') {
-                this.active_features[key] = combined_settings[key];
+                active_features[key] = combined_settings[key];
             }
         }
         for (const feature of combined_settings.features || []) {
-            this.active_features[feature] = true;
+            active_features[feature] = true;
         }
+        this.active_features.set(active_features);
         this.combined_settings = combined_settings;
         this.loading.set('');
         this._dialog_ref.disableClose = false;
@@ -458,16 +451,16 @@ export class AppSettingsModalComponent implements OnInit {
                 for (const sub_key in form_values[key]) {
                     if (typeof form_values[key][sub_key] === 'boolean') {
                         form_values[key][sub_key] =
-                            this.active_features[sub_key];
+                            this.active_features()[sub_key];
                     }
                 }
             } else if (typeof form_values[key] === 'boolean') {
-                form_values[key] = this.active_features[key];
+                form_values[key] = this.active_features()[key];
             }
         }
         form_values.bookings = form_values.desks;
-        form_values.features = Object.keys(this.active_features)
-            .filter((key) => this.active_features[key])
+        form_values.features = Object.keys(this.active_features())
+            .filter((key) => this.active_features()[key])
             .filter((key) => this.available_features.includes(key));
         return form_values;
     }

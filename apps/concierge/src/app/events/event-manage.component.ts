@@ -1,13 +1,6 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 
-import {
-    ChangeDetectionStrategy,
-    Component,
-    OnInit,
-    computed,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -488,7 +481,6 @@ const EMPTY = [];
         }
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         IconComponent,
         TranslatePipe,
@@ -519,7 +511,7 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
 
     public readonly loading = signal(false);
-    public resource: string;
+    public readonly resource = signal<string>('');
 
     public readonly form = this._form_state.form;
     public readonly model = this._form_state.model;
@@ -623,9 +615,11 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
                             'events',
                         ]);
                     this._form_state.newForm(booking);
-                    this.resource = booking.resources.find(
-                        (_) => _.email !== this._state.calendar,
-                    )?.email;
+                    this.resource.set(
+                        booking.resources.find(
+                            (_) => _.email !== this._state.calendar,
+                        )?.email,
+                    );
                     this.model.update((m) => ({
                         ...m,
                         tags: booking.extension_data?.tags || [],
@@ -714,8 +708,8 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
                     email: this._state.calendar,
                 }),
         );
-        if (this.resource) {
-            const resource = await new SpacePipe().transform(this.resource);
+        if (this.resource()) {
+            const resource = await new SpacePipe().transform(this.resource());
             resources.push(resource);
         }
         resources = unique(resources, 'email');

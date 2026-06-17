@@ -1,11 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    OnInit,
-    computed,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import {
     MAT_DIALOG_DATA,
     MatDialog,
@@ -278,7 +271,6 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
         }
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         DurationFieldComponent,

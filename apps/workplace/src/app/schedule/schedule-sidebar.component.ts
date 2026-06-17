@@ -143,7 +143,6 @@ import {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatCheckboxModule,
@@ -159,6 +158,7 @@ import {
         DateRangeCalendarComponent,
         SettingsToggleComponent,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);

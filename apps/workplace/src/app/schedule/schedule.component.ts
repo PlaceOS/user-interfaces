@@ -101,7 +101,6 @@ import { ScheduleWeekViewComponent } from './schedule-week-view.component';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         FormsModule,
@@ -119,6 +118,7 @@ import { ScheduleWeekViewComponent } from './schedule-week-view.component';
         ScheduleWeekViewComponent,
         ScheduleDayViewComponent,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class ScheduleComponent extends AsyncHandler implements OnInit {
     private _state = inject(ScheduleStateService);

@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     ElementRef,
     OnInit,
@@ -96,7 +95,6 @@ import { IconComponent } from '@placeos/components';
         `,
     ],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [RouterModule, MatRippleModule, IconComponent],
 })
 export class ApplicationSidebarComponent

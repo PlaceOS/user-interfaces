@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     ElementRef,
@@ -106,7 +105,7 @@ export function mapLocationFromClick(e: any, map_info: BoundsMap = {}) {
                     [features]="map_features()"
                     [actions]="map_actions"
                     [options]="{ controls: true }"
-                    [focus]="focus"
+                    [focus]="focus()"
                     (mapInfo)="setMapInfo($any($event))"
                 ></interactive-map>
             </div>
@@ -123,7 +122,7 @@ export function mapLocationFromClick(e: any, map_info: BoundsMap = {}) {
                             [ngModel]="selected_level()"
                             (ngModelChange)="selectLevel($event)"
                         >
-                            @for (lvl of levels; track lvl.id) {
+                            @for (lvl of levels(); track lvl.id) {
                                 <mat-option [value]="lvl">
                                     {{ lvl.display_name || lvl.name }}
                                 </mat-option>
@@ -208,7 +207,6 @@ export function mapLocationFromClick(e: any, map_info: BoundsMap = {}) {
         </main>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatDialogModule,
@@ -232,8 +230,8 @@ export class ParkingAssignSpaceModalComponent
     @ViewChildren('space_list_item')
     private _space_list_items: QueryList<ElementRef<HTMLElement>>;
 
-    public levels: BuildingLevel[] = [];
-    public focus = '';
+    public readonly levels = signal<BuildingLevel[]>([]);
+    public readonly focus = signal('');
     public readonly selected_space = signal<PlaceAsset | null>(null);
     public readonly loading = signal(false);
     public readonly selected_level = signal<BuildingLevel | null>(null);
@@ -366,15 +364,15 @@ export class ParkingAssignSpaceModalComponent
     });
 
     public ngOnInit() {
-        this.levels = this._org.levels.filter((_) =>
-            _.tags.includes('parking'),
+        this.levels.set(
+            this._org.levels.filter((_) => _.tags.includes('parking')),
         );
         const booking_zone = this._data.booking.zones?.find((z) =>
-            this.levels.some((l) => l.id === z),
+            this.levels().some((l) => l.id === z),
         );
         const initial_level = booking_zone
-            ? this.levels.find((l) => l.id === booking_zone)
-            : this.levels[0];
+            ? this.levels().find((l) => l.id === booking_zone)
+            : this.levels()[0];
         if (initial_level) {
             this.selected_level.set(initial_level);
         }
@@ -383,12 +381,12 @@ export class ParkingAssignSpaceModalComponent
     public selectLevel(level: BuildingLevel) {
         this.selected_level.set(level);
         this.selected_space.set(null);
-        this.focus = '';
+        this.focus.set('');
     }
 
     public selectSpace(space: PlaceAsset) {
         this.selected_space.set(space);
-        this.focus = space.map_id || space.id;
+        this.focus.set(space.map_id || space.id);
         this._refreshStyles();
     }
 

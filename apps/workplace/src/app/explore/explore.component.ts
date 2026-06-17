@@ -6,7 +6,6 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DesksService } from '@placeos/bookings';
 import { AsyncHandler, OrganisationService } from '@placeos/common';

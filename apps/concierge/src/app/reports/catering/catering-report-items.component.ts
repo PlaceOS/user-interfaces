@@ -1,10 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    input,
-} from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CateringOption, OrganisationService } from '@placeos/common';
 import { SimpleTableComponent, TranslatePipe } from '@placeos/components';
@@ -116,7 +111,6 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         SimpleTableComponent,

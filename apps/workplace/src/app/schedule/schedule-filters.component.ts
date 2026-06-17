@@ -100,8 +100,8 @@ import { ScheduleStateService } from './schedule-state.service';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, TranslatePipe, IconComponent, MatRippleModule],
+    changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class ScheduleFiltersComponent {
     private _sheet = inject(MatBottomSheet);

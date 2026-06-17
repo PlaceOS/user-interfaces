@@ -847,9 +847,13 @@ describe('ParkingRequestFormDetailsComponent', () => {
     });
 
     it('should require the plate number when configured', () => {
-        spectator.component.model.update((m) => ({ ...m, plate_number: '' }));
-
         spectator.component.require_plate_number.set(true);
+        attachForm({
+            date: new Date('2026-04-08T08:00:00.000Z').valueOf(),
+            duration: 240,
+            booking_type: 'parking',
+            plate_number: '',
+        });
         spectator.detectChanges();
 
         const errors = spectator.component.form().plate_number().errors();

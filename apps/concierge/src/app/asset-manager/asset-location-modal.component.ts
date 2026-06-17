@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Booking, OrganisationService } from '@placeos/common';
 import {
     IconComponent,
@@ -144,7 +139,6 @@ import { SplitJoinPipe } from './split-join.pipe';
         </ng-template>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatDialogModule,
         MatMenuModule,

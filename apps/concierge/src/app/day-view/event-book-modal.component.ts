@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     OnInit,
     computed,
@@ -74,10 +73,15 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                             icon
                             name="toggle-details-meeting"
                             matRipple
-                            (click)="hide_block.details = !hide_block.details"
+                            (click)="
+                                hide_block.update((b) => ({
+                                    ...b,
+                                    details: !b.details,
+                                }))
+                            "
                         >
                             <icon>{{
-                                hide_block.details
+                                hide_block().details
                                     ? 'expand_more'
                                     : 'expand_less'
                             }}</icon>
@@ -85,7 +89,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                     </h3>
                     <div
                         class="overflow-hidden"
-                        [@show]="hide_block.details ? 'hide' : 'show'"
+                        [@show]="hide_block().details ? 'hide' : 'show'"
                     >
                         <meeting-form-details
                             class="mt-4"
@@ -111,11 +115,14 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                                 name="toggle-attendees-meeting"
                                 matRipple
                                 (click)="
-                                    hide_block.attendees = !hide_block.attendees
+                                    hide_block.update((b) => ({
+                                        ...b,
+                                        attendees: !b.attendees,
+                                    }))
                                 "
                             >
                                 <icon>{{
-                                    hide_block.attendees
+                                    hide_block().attendees
                                         ? 'expand_more'
                                         : 'expand_less'
                                 }}</icon>
@@ -123,7 +130,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                         </h3>
                         <div
                             class="overflow-hidden"
-                            [@show]="hide_block.attendees ? 'hide' : 'show'"
+                            [@show]="hide_block().attendees ? 'hide' : 'show'"
                         >
                             <a-user-list-field
                                 class="mt-4"
@@ -150,11 +157,14 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                             name="toggle-spaces-meeting"
                             matRipple
                             (click)="
-                                hide_block.resources = !hide_block.resources
+                                hide_block.update((b) => ({
+                                    ...b,
+                                    resources: !b.resources,
+                                }))
                             "
                         >
                             <icon>{{
-                                hide_block.resources
+                                hide_block().resources
                                     ? 'expand_more'
                                     : 'expand_less'
                             }}</icon>
@@ -162,7 +172,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                     </h3>
                     <div
                         class="flex flex-col items-center overflow-hidden"
-                        [@show]="hide_block.resources ? 'hide' : 'show'"
+                        [@show]="hide_block().resources ? 'hide' : 'show'"
                     >
                         @if (
                             !strict_capacity_check &&
@@ -203,11 +213,14 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                                 name="toggle-catering-meeting"
                                 matRipple
                                 (click)="
-                                    hide_block.catering = !hide_block.catering
+                                    hide_block.update((b) => ({
+                                        ...b,
+                                        catering: !b.catering,
+                                    }))
                                 "
                             >
                                 <icon>{{
-                                    hide_block.catering
+                                    hide_block().catering
                                         ? 'expand_more'
                                         : 'expand_less'
                                 }}</icon>
@@ -215,7 +228,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                         </h3>
                         <div
                             class="overflow-hidden"
-                            [@show]="hide_block.catering ? 'hide' : 'show'"
+                            [@show]="hide_block().catering ? 'hide' : 'show'"
                         >
                             <catering-list-field
                                 [formField]="form.catering"
@@ -318,10 +331,15 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                                 icon
                                 name="toggle-assets-meeting"
                                 matRipple
-                                (click)="hide_block.assets = !hide_block.assets"
+                                (click)="
+                                    hide_block.update((b) => ({
+                                        ...b,
+                                        assets: !b.assets,
+                                    }))
+                                "
                             >
                                 <icon>{{
-                                    hide_block.assets
+                                    hide_block().assets
                                         ? 'expand_more'
                                         : 'expand_less'
                                 }}</icon>
@@ -329,7 +347,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                         </h3>
                         <div
                             class="overflow-hidden"
-                            [@show]="hide_block.assets ? 'hide' : 'show'"
+                            [@show]="hide_block().assets ? 'hide' : 'show'"
                         >
                             <asset-list-field
                                 [options]="{
@@ -382,7 +400,6 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
     `,
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FullscreenModalShellComponent,
         RichTextInputComponent,
@@ -413,7 +430,7 @@ export class EventBookModalComponent implements OnInit {
 
     public readonly event = output<DialogEvent>();
     public readonly loading = signal(false);
-    public hide_block: Record<string, boolean> = {};
+    public readonly hide_block = signal<Record<string, boolean>>({});
     public readonly code_filter = signal('');
 
     private readonly _charge_codes = this._catering.charge_codes;

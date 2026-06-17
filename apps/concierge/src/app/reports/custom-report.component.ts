@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { SafePipe } from '@placeos/components';
@@ -29,7 +23,6 @@ const EMPTY = {};
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [SafePipe],
 })
 export class CustomReportComponent extends AsyncHandler {

@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
@@ -46,7 +40,6 @@ import { ReportsMenuComponent } from './reports-menu.component';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         ApplicationTopbarComponent,
         ApplicationSidebarComponent,

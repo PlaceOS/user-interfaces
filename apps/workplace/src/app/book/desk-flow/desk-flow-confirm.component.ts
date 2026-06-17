@@ -1,10 +1,10 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
     model,
+    signal,
 } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
@@ -82,7 +82,7 @@ import { addMinutes, endOfDay } from 'date-fns';
                 </div>
             </div>
         </section>
-        @if (booking_asset?.id) {
+        @if (booking_asset()?.id) {
             <section
                 desk
                 class="border-neutral flex space-x-1 border-t px-2 py-4 text-base"
@@ -90,7 +90,7 @@ import { addMinutes, endOfDay } from 'date-fns';
                 <icon class="text-success text-2xl">done</icon>
                 <div details class="space-y-2">
                     <h3 class="text-xl">
-                        {{ booking_asset?.name || booking_asset?.id || '' }}
+                        {{ booking_asset()?.name || booking_asset()?.id || '' }}
                     </h3>
                     <div class="flex items-center space-x-2">
                         <icon>person</icon>
@@ -107,7 +107,7 @@ import { addMinutes, endOfDay } from 'date-fns';
                         <icon>place</icon>
                         <div>{{ location }}</div>
                     </div>
-                    @for (feat of booking_asset.features; track feat) {
+                    @for (feat of booking_asset().features; track feat) {
                         <div features class="flex items-center space-x-2">
                             <icon>arrow_upward</icon>
                             <div>{{ feat }}</div>
@@ -224,7 +224,6 @@ import { addMinutes, endOfDay } from 'date-fns';
         </footer>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,
@@ -244,7 +243,7 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
 
     private _date: DatePipe = new DatePipe('en');
 
-    public booking_asset: Desk;
+    public readonly booking_asset = signal<Desk>(null);
 
     public err_tooltip(request: AssetRequest) {
         return request.conflict
@@ -348,10 +347,10 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
 
     public get location() {
         const building = this._org.buildings.find(
-            (b) => b.id === this.booking_asset?.zone?.parent_id,
+            (b) => b.id === this.booking_asset()?.zone?.parent_id,
         );
         const level = this._org.levels.find(
-            (l) => l.id === this.booking_asset?.zone?.id,
+            (l) => l.id === this.booking_asset()?.zone?.id,
         );
         return `${level?.display_name || level?.name}${building ? ',' : ''} ${
             building?.address || building?.display_name || building?.name || ''
@@ -368,6 +367,8 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
     public async ngOnInit() {
         const resources = await this._state.listResources();
         const asset = this.booking.booking_asset;
-        this.booking_asset = resources.find((_) => _.id == asset.id) as Desk;
+        this.booking_asset.set(
+            resources.find((_) => _.id == asset.id) as Desk,
+        );
     }
 }

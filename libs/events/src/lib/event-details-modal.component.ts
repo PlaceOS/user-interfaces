@@ -1032,9 +1032,12 @@ export class EventDetailsModalComponent implements OnInit {
     public viewLocation() {
         this.hide_map.set(true);
         const ref = this._dialog.open(MapLocateModalComponent, {
-            maxWidth: '95vw',
-            maxHeight: '95vh',
-            data: { item: this.space },
+            width: '100vw',
+            height: '100vh',
+            maxWidth: '100vw',
+            maxHeight: '100vh',
+            panelClass: 'fullscreen-dialog',
+            data: { item: this.space() },
         });
         ref.afterClosed().subscribe(() => this.hide_map.set(false));
     }

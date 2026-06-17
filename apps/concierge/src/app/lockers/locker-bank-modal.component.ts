@@ -1,7 +1,6 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -196,7 +195,6 @@ import {
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         IconComponent,

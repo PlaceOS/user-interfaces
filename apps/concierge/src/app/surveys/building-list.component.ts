@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-} from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { AsyncHandler, flatten, OrganisationService } from '@placeos/common';
 import {
@@ -133,7 +128,6 @@ import { SurveyService } from './survey.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         AuthenticatedImageDirective,
         TranslatePipe,
