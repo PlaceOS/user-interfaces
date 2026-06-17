@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     OnDestroy,
     OnInit,
@@ -113,7 +112,6 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class DayviewTimelineComponent

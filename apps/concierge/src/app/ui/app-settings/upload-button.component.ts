@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     effect,
     forwardRef,
@@ -42,7 +41,6 @@ import { IconComponent } from '@placeos/components';
         </button>
     `,
     imports: [MatProgressSpinnerModule, IconComponent, MatRippleModule],
-    changeDetection: ChangeDetectionStrategy.Eager,
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,

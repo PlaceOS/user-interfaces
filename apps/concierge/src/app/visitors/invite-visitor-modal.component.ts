@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     FullscreenModalShellComponent,
@@ -39,7 +34,6 @@ import { VisitorInviteSuccessComponent } from 'libs/bookings/src/lib/visitor-inv
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         VisitorInviteFormComponent,

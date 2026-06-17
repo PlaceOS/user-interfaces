@@ -1,11 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    OnInit,
-    computed,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
@@ -50,7 +43,6 @@ import { LockersTopbarComponent } from './locker-topbar.component';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         ApplicationTopbarComponent,
         ApplicationSidebarComponent,

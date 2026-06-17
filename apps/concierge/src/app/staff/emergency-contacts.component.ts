@@ -1,13 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -119,9 +112,9 @@ export { EmergencyContact } from './emergency-contacts.service';
                     <simple-table
                         class="block min-w-208 text-sm"
                         [data]="filtered_contacts()"
-                        [filter]="search"
+                        [filter]="search()"
                         [empty_message]="
-                            (search
+                            (search()
                                 ? 'APP.CONCIERGE.CONTACTS_SEARCH_EMPTY'
                                 : 'APP.CONCIERGE.CONTACTS_EMPTY'
                             ) | translate
@@ -225,7 +218,6 @@ export { EmergencyContact } from './emergency-contacts.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         IconComponent,
@@ -247,7 +239,7 @@ export class EmergencyContactsComponent implements OnInit {
     private _clipboard = inject(Clipboard);
     private _contacts_service = inject(EmergencyContactsService);
 
-    public search = '';
+    public readonly search = signal('');
     public readonly role_filter = signal('');
     public readonly roles = this._contacts_service.roles;
     public readonly contacts = this._contacts_service.contacts;

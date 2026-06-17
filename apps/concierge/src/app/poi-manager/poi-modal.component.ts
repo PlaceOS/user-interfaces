@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { form, FormField, required } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
@@ -234,7 +228,7 @@ import { PointOfInterest } from './poi-management.service';
                         {{ 'APP.CONCIERGE.POI_DETAILS' | translate }}
                     </label>
                     <div class="space-y-2">
-                        @for (value of extra_details; track $index) {
+                        @for (value of extra_details(); track $index) {
                             <div class="flex items-center space-x-2">
                                 <mat-form-field
                                     appearance="outline"
@@ -265,7 +259,7 @@ import { PointOfInterest } from './poi-management.service';
                         btn
                         matRipple
                         class="mt-2 mb-4 w-full"
-                        (click)="extra_details.push(['', ''])"
+                        (click)="extra_details.update((d) => [...d, ['', '']])"
                     >
                         Add Details Item
                     </button>
@@ -274,7 +268,6 @@ import { PointOfInterest } from './poi-management.service';
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         IconComponent,
@@ -304,7 +297,9 @@ export class POIModalComponent extends AsyncHandler implements OnInit {
     );
     public readonly building_list = this._org.building_list;
     public readonly level_list = this._org.active_levels;
-    public readonly extra_details = this._data?.extra_details || [];
+    public readonly extra_details = signal<any[]>(
+        this._data?.extra_details || [],
+    );
 
     public get building() {
         return this._org.building;
@@ -368,7 +363,7 @@ export class POIModalComponent extends AsyncHandler implements OnInit {
         }
         this.model.update((m) => ({
             ...m,
-            extra_details: this.extra_details.filter(
+            extra_details: this.extra_details().filter(
                 ([key, value]) => key && value,
             ),
         }));

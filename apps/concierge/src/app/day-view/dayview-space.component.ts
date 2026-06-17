@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    input,
-} from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { Space } from '@placeos/common';
 
 import { EventsStateService } from './events-state.service';
@@ -25,7 +19,6 @@ import { EventsStateService } from './events-state.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class DayviewSpaceComponent {

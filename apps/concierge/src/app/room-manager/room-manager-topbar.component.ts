@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     OnInit,
     computed,
@@ -88,7 +87,6 @@ import { RoomManagementService } from './room-management.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         IconComponent,
         TranslatePipe,

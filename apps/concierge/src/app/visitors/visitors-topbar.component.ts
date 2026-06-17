@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     OnInit,
     effect,
@@ -65,7 +64,6 @@ import { VisitorsStateService } from './visitors-state.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         DateOptionsComponent,
         SearchbarComponent,

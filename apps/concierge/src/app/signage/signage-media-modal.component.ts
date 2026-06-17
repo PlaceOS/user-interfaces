@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    OnDestroy,
-    signal,
-} from '@angular/core';
+import { Component, inject, OnDestroy, signal } from '@angular/core';
 import { form, FormField, required } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -224,7 +218,6 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
             useValue: UploadPermissionsModalComponent,
         },
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FullscreenModalShellComponent,
         FormField,

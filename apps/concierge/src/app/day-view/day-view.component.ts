@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     DestroyRef,
     computed,
@@ -39,7 +38,6 @@ import { RoomBookingsComponent } from './room-bookings.component';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         ApplicationTopbarComponent,
         ApplicationSidebarComponent,

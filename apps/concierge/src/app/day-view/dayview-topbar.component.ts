@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import {
@@ -100,7 +94,6 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class DayviewTopbarComponent extends AsyncHandler implements OnInit {

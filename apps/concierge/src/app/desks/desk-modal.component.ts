@@ -1,11 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    OnInit,
-    output,
-    signal,
-} from '@angular/core';
+import { Component, inject, OnInit, output, signal } from '@angular/core';
 import { form, FormField, required } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -220,7 +213,6 @@ const CHARS = '0123456789ABCDEF';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatDialogModule,
         TranslatePipe,

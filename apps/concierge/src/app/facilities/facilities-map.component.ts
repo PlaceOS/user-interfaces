@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    effect,
-    inject,
-} from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 
 import { AsyncHandler } from '@placeos/common';
 import { InteractiveMapComponent } from '@placeos/components';
@@ -35,7 +30,6 @@ import { EventsStateService } from '../day-view/events-state.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [InteractiveMapComponent, ExploreZoomControlComponent],
 })
 export class FacilitiesMapComponent extends AsyncHandler {

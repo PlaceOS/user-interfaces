@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -166,7 +165,6 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         SimpleTableComponent,
         TranslatePipe,

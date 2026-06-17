@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -142,7 +141,6 @@ import { DesksStateService } from './desks-state.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         DateOptionsComponent,
         SearchbarComponent,

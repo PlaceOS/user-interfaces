@@ -1,7 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import {
     AfterViewInit,
-    ChangeDetectionStrategy,
     Component,
     ElementRef,
     OnInit,
@@ -269,7 +268,6 @@ import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         DateOptionsComponent,

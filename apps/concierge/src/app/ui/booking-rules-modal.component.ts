@@ -4,13 +4,7 @@ import {
     moveItemInArray,
 } from '@angular/cdk/drag-drop';
 
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    resource,
-    signal,
-} from '@angular/core';
+import { Component, inject, resource, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -400,7 +394,6 @@ import { BookingRulesFormComponent } from 'libs/form-fields/src/lib/booking-rule
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatDialogModule,
         MatRippleModule,

@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     OnChanges,
     OnInit,
@@ -139,7 +138,6 @@ type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         FormsModule,

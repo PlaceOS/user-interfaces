@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -332,7 +331,6 @@ import { DesksStateService } from './desks-state.service';
         `,
     ],
     providers: [UserPipe],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatProgressBarModule,
         MatProgressSpinnerModule,

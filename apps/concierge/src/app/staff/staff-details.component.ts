@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    input,
-    signal,
-} from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { i18n, notifyError, StaffUser } from '@placeos/common';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -74,7 +68,6 @@ import { StaffStateService } from './staff-state.service';
         }
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         UserAvatarComponent,
         ActionIconComponent,

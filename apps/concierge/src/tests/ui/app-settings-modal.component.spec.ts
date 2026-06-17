@@ -161,9 +161,9 @@ describe('AppSettingsModalComponent', () => {
             },
         } as never);
         await spectator.component.ngOnInit();
-        expect(spectator.component.active_features['spaces']).toBe(true);
-        expect(spectator.component.active_features['desks']).toBe(true);
-        expect(spectator.component.active_features['use_24_hour_time']).toBe(
+        expect(spectator.component.active_features()['spaces']).toBe(true);
+        expect(spectator.component.active_features()['desks']).toBe(true);
+        expect(spectator.component.active_features()['use_24_hour_time']).toBe(
             true,
         );
     });
@@ -205,7 +205,7 @@ describe('AppSettingsModalComponent', () => {
     });
 
     it('should build features list from active_features', () => {
-        spectator.component.active_features = {
+        spectator.component.active_features.set({
             spaces: true,
             desks: false,
             explore: true,
@@ -214,7 +214,7 @@ describe('AppSettingsModalComponent', () => {
             schedule: false,
             wfh: true,
             use_24_hour_time: true,
-        };
+        });
         const out = spectator.component.buildSettings();
         const features = out.features;
         expect(features).toContain('spaces');
@@ -225,11 +225,11 @@ describe('AppSettingsModalComponent', () => {
     });
 
     it('should filter features list to only available_features', () => {
-        spectator.component.active_features = {
+        spectator.component.active_features.set({
             spaces: true,
             use_24_hour_time: true, // not in available_features
             allow_all_day: true, // not in available_features
-        };
+        });
         const out = spectator.component.buildSettings();
         const features = out.features;
         expect(features).toContain('spaces');

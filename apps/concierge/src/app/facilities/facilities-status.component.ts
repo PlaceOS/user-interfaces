@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { IconComponent } from '@placeos/components';
 
 @Component({
@@ -62,7 +62,6 @@ import { IconComponent } from '@placeos/components';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [IconComponent],
 })
 export class FacilitiesStatusComponent {

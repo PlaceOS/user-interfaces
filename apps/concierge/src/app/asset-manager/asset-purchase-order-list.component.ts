@@ -1,10 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-} from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { SimpleTableComponent, TranslatePipe } from '@placeos/components';
 import { AssetManagerStateService } from './asset-manager-state.service';
@@ -86,7 +81,6 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, SimpleTableComponent, TranslatePipe],
 })
 export class AssetPurchaseOrderListComponent {

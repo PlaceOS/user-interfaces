@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     effect,
     ElementRef,
@@ -83,7 +82,6 @@ Chart.register(
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe],
 })
 export class ReportSpacesChartsComponent

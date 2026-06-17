@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     EventEmitter,
     inject,
@@ -155,7 +154,6 @@ import { ParkingSpace } from './parking-state.service';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatDialogModule,
         TranslatePipe,

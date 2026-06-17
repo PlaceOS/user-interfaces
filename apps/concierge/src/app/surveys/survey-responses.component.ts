@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -156,7 +155,6 @@ import { NewSurveyService } from './new-survey.service';
             </div>
         }
     `,
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatProgressSpinnerModule,
         CommonModule,

@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     ElementRef,
     computed,
@@ -110,7 +109,6 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatProgressBarModule, StaffDetailsComponent, TranslatePipe],
 })
 export class StaffListingComponent extends AsyncHandler {
