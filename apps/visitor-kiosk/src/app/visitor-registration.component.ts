@@ -14,6 +14,7 @@ import {
     AsyncHandler,
     getInvalidSignalFields,
     i18n,
+    isEmptyUser,
     notifyError,
     OrganisationService,
     settingSignal,
@@ -22,6 +23,7 @@ import {
 } from '@placeos/common';
 
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -103,8 +105,9 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                         </mat-form-field>
                         <label for="user">Host</label>
                         <a-user-search-field
-                            [formField]="form.user"
-                            [class.mb-4]="!form_value().user"
+                            [ngModel]="host()"
+                            (ngModelChange)="setHost($event)"
+                            [class.mb-4]="!host()"
                         ></a-user-search-field>
                         <label form="phone">
                             {{ 'APP.VISITOR_KIOSK.PHONE' | translate }}</label
@@ -187,7 +190,8 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             </label>
                             <a-duration-field
                                 class="text-base"
-                                [formField]="form.duration"
+                                [ngModel]="form_value().duration"
+                                (ngModelChange)="setDuration($event)"
                                 [time]="form_value().date"
                                 [max]="max_duration()"
                                 [disabled]="form_value().all_day"
@@ -220,6 +224,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
+        FormsModule,
         TranslatePipe,
         IconComponent,
         MatRippleModule,
@@ -295,6 +300,18 @@ export class VisitorRegistrationComponent
         () =>
             this._visitor_max_duration() || this._booking_max_duration() || 180,
     );
+    public readonly host = computed(() => {
+        const user = this.form_value().user;
+        return isEmptyUser(user) ? null : user;
+    });
+
+    public setHost(user: User | null) {
+        this._booking_form.model.update((m) => ({ ...m, user }));
+    }
+
+    public setDuration(duration: number) {
+        this._booking_form.model.update((m) => ({ ...m, duration }));
+    }
 
     public ngOnInit() {
         this.interval(

@@ -1,6 +1,4 @@
-import { FormGroup } from '@angular/forms';
 import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
-import { of } from 'rxjs';
 
 import { CheckinStateService } from '../../app/checkin/checkin-state.service';
 
@@ -31,7 +29,6 @@ jest.mock('@placeos/bookings', () => ({
 }));
 jest.mock('@placeos/users', () => ({
     listGuestMeetings: jest.fn(),
-    generateGuestForm: jest.fn(),
     showGuest: jest.fn(),
 }));
 
@@ -64,12 +61,6 @@ describe('CheckinStateService', () => {
         );
         (booking_mod.queryAllBookings as any).mockImplementation(() =>
             Promise.resolve([{ date: Date.now(), asset_id: 'a@b.com' }]),
-        );
-        (users_mod.listGuestMeetings as any).mockImplementation(() =>
-            of([{ date: Date.now() }]),
-        );
-        (users_mod.generateGuestForm as any).mockImplementation(
-            () => new FormGroup({}),
         );
         await spectator.service.loadGuestAndEvent('a@b.com');
         expect(users_mod.showGuest).toHaveBeenCalledWith('a@b.com');

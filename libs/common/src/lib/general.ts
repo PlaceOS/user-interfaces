@@ -1025,12 +1025,13 @@ export interface SignalFormRef<T, F = any> {
 }
 
 /**
- * Coerce `undefined` values written to a signal-forms model back to a defined
- * default. Signal-forms removes a sub-field the moment its value becomes
- * `undefined`, which permanently breaks any `[formField]` bound to it
- * (`this.field() is not a function`). Wrapping the model's `set`/`update` keeps
- * every key defined at the write boundary, adding no reactive surface (so it
- * can never feed a change-detection loop).
+ * Coerce invalid empty values written to a signal-forms model back to a typed
+ * default. Signal-forms removes or degrades a sub-field the moment a defined
+ * field becomes `undefined` or a non-nullable object field becomes `null`,
+ * which permanently breaks any `[formField]` bound to it (`this.field() is not
+ * a function`). Wrapping the model's `set`/`update` keeps every key defined at
+ * the write boundary, adding no reactive surface (so it can never feed a
+ * change-detection loop).
  */
 export function guardModelUndefinedWrites<T extends object>(
     model: WritableSignal<T>,
@@ -1038,8 +1039,13 @@ export function guardModelUndefinedWrites<T extends object>(
 ): void {
     const sanitize = (value: T): T => {
         for (const key of Object.keys(defaults)) {
-            if ((value as any)[key] === undefined) {
-                (value as any)[key] = (defaults as any)[key];
+            const default_value = (defaults as any)[key];
+            const current_value = (value as any)[key];
+            if (
+                current_value === undefined ||
+                (current_value === null && default_value !== null)
+            ) {
+                (value as any)[key] = default_value;
             }
         }
         return value;
@@ -1387,7 +1393,9 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
                 // time to bookable hours on the end day
                 const aligned_end = alignEndToBookableHours(new_end);
                 const actual_dur = differenceInMinutes(aligned_end, date);
-                const patch: Partial<T> = { date_end: aligned_end } as Partial<T>;
+                const patch: Partial<T> = {
+                    date_end: aligned_end,
+                } as Partial<T>;
                 if (actual_dur !== dur)
                     (patch as TimeSyncModel).duration = actual_dur;
                 applyPatch(patch);
@@ -1522,7 +1530,9 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
                     capped === duration
                         ? expected_end
                         : roundCeil(addMinutes(effective, capped));
-                const patch: Partial<T> = { date_end: capped_end } as Partial<T>;
+                const patch: Partial<T> = {
+                    date_end: capped_end,
+                } as Partial<T>;
                 if (capped !== duration)
                     (patch as TimeSyncModel).duration = capped;
                 applyPatch(patch);

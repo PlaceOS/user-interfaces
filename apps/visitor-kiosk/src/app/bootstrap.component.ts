@@ -2,6 +2,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
+    DoCheck,
     inject,
     OnInit,
     signal,
@@ -409,7 +410,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
         FormsModule,
     ],
 })
-export class BootstrapComponent extends AsyncHandler implements OnInit {
+export class BootstrapComponent extends AsyncHandler implements OnInit, DoCheck {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
     private _route = inject(ActivatedRoute);
@@ -434,6 +435,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     public readonly active_location = signal<Identity | null>(null);
 
     public readonly rotations = signal<Identity[]>([]);
+    private _last_query_params = '';
 
     public readonly regions = this._org.region_list;
     public readonly buildings = this._org.active_buildings;
@@ -469,33 +471,12 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
         this.active_region.set(this._org.region);
-        this._startup_action = this.getActionParamFromUrl();
-        this.subscription(
-            'route.query',
-            this._route.queryParamMap.subscribe((params) => {
-                if (params.has('action')) {
-                    this._startup_action =
-                        params.get('action')?.trim().toLowerCase() || '';
-                }
-                if (params.has('osk')) {
-                    const osk_enabled = params.get('osk') === 'true';
-                    localStorage.setItem('OSK.enabled', `${osk_enabled}`);
-                }
-                if (params.has('clear') && params.get('clear') === 'true') {
-                    localStorage.removeItem('KIOSK.building');
-                    localStorage.removeItem('KIOSK.level');
-                    localStorage.removeItem('KIOSK.orientation');
-                }
-                if (params.has('level')) {
-                    const level = this._org.levelWithID([params.get('level')]);
-                    if (level) {
-                        this.active_level.set(level);
-                        this.bootstrapKiosk();
-                    }
-                }
-            }),
-        );
+        this.handleQueryParams();
         this.checkBootstrap();
+    }
+
+    public ngDoCheck() {
+        this.handleQueryParams();
     }
 
     public updateRotations() {
@@ -605,6 +586,34 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
             this.getMergedQueryParamsFromUrl().action?.trim().toLowerCase() ||
             ''
         );
+    }
+
+    private handleQueryParams() {
+        const query_params = this.getMergedQueryParamsFromUrl();
+        const query_key = JSON.stringify(query_params);
+        if (query_key === this._last_query_params) return;
+        this._last_query_params = query_key;
+        if (query_params.action) {
+            this._startup_action = query_params.action.trim().toLowerCase();
+        } else {
+            this._startup_action = this.getActionParamFromUrl();
+        }
+        if (query_params.osk !== undefined) {
+            const osk_enabled = query_params.osk === 'true';
+            localStorage.setItem('OSK.enabled', `${osk_enabled}`);
+        }
+        if (query_params.clear === 'true') {
+            localStorage.removeItem('KIOSK.building');
+            localStorage.removeItem('KIOSK.level');
+            localStorage.removeItem('KIOSK.orientation');
+        }
+        if (query_params.level) {
+            const level = this._org.levelWithID([query_params.level]);
+            if (level) {
+                this.active_level.set(level);
+                this.bootstrapKiosk();
+            }
+        }
     }
 
     private getMergedQueryParamsFromUrl() {

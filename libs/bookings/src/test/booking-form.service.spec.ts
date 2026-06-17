@@ -7,8 +7,8 @@ import { PaymentsService } from '@placeos/payments';
 import { of, Subject } from 'rxjs';
 
 import { Booking, currentUser, OrganisationService } from '@placeos/common';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { BookingFormService } from '../lib/booking-form.service';
 import * as booking_utility_mod from '../lib/booking.utilities';
 import * as booking_mod from '../lib/bookings.fn';
@@ -102,6 +102,55 @@ describe('BookingFormService', () => {
 
     it('should create service', () => {
         expect(spectator.service).toBeTruthy();
+    });
+
+    it('should keep form fields bound after storeForm even when cleanObject mutates in place', () => {
+        // The real `cleanObject` mutates its argument in place. `storeForm`
+        // must clone the live model before cleaning it, otherwise empty keys
+        // (e.g. `asset_id: ''`) get deleted out of the signal-forms model,
+        // orphaning `[formField]` bindings (`field() is not a function`).
+        jest.mocked(ts_client.cleanObject).mockImplementation(
+            (value: any, exclude: any[] = []) => {
+                for (const key of Object.keys(value || {})) {
+                    if (exclude.includes(value[key])) delete value[key];
+                }
+                return value;
+            },
+        );
+
+        spectator.service.newForm('visitor');
+        spectator.service.storeForm();
+
+        const form: any = spectator.service.form;
+        expect(typeof form.asset_id).toBe('function');
+        expect(form.asset_id()).toBeDefined();
+        // touching/validating must not throw an orphan-field error
+        expect(() => form().markAsTouched()).not.toThrow();
+        expect(() => form.asset_id().valid()).not.toThrow();
+        expect('asset_id' in spectator.service.model()).toBe(true);
+    });
+
+    it('should not recursively clear the form when switching booking types', () => {
+        sessionStorage.setItem('PLACEOS.booking_form', '{}');
+        sessionStorage.setItem(
+            'PLACEOS.booking_form_filters',
+            JSON.stringify({ type: 'desk' }),
+        );
+        const clear_form = jest.spyOn(spectator.service, 'clearForm');
+
+        spectator.service.newForm('visitor');
+
+        expect(clear_form).not.toHaveBeenCalled();
+        const stored_form = JSON.parse(
+            sessionStorage.getItem('PLACEOS.booking_form') || '{}',
+        );
+        const stored_filters = JSON.parse(
+            sessionStorage.getItem('PLACEOS.booking_form_filters') || '{}',
+        );
+        expect(stored_form).toHaveProperty('asset_id');
+        expect(stored_filters.type).toBe('visitor');
+        expect(spectator.service.options().type).toBe('visitor');
+        expect(spectator.service.form.asset_id()).toBeDefined();
     });
 
     it('should use the current user as booking rule host when enabled', async () => {
@@ -256,7 +305,8 @@ describe('BookingFormService', () => {
         (booking_mod as any).findBookingClashes = jest.fn(() =>
             Promise.resolve(['desk-2']),
         );
-        spectator.service.model.update((m) => ({ ...m,
+        spectator.service.model.update((m) => ({
+            ...m,
             date: new Date(2028, 5, 15, 15, 0, 0).valueOf(),
             duration: 60,
             recurrence_type: 'daily',
@@ -385,7 +435,8 @@ describe('BookingFormService', () => {
         jest.setSystemTime(new Date(2026, 2, 20, 9, 0, 0));
 
         spectator.service.newForm('parking');
-        spectator.service.model.update((m) => ({ ...m,
+        spectator.service.model.update((m) => ({
+            ...m,
             date: new Date(2026, 2, 21, 8, 0, 0).valueOf(),
             duration: 240,
         }));
@@ -478,7 +529,8 @@ describe('BookingFormService', () => {
                 asset_id: 'visitor@example.com',
             }),
         );
-        spectator.service.model.update((m) => ({ ...m,
+        spectator.service.model.update((m) => ({
+            ...m,
             booking_type: 'visitor',
             asset_id: 'visitor@example.com',
             asset_name: 'Visitor One',
@@ -513,7 +565,8 @@ describe('BookingFormService', () => {
                 asset_id: 'unallocated-parking',
             }),
         );
-        spectator.service.model.update((m) => ({ ...m,
+        spectator.service.model.update((m) => ({
+            ...m,
             booking_type: 'parking',
             asset_id: 'unallocated-parking',
             asset_name: 'Parking Request',
@@ -572,7 +625,8 @@ describe('BookingFormService', () => {
                 asset_id: 'desk-1',
             }),
         );
-        spectator.service.model.update((m) => ({ ...m,
+        spectator.service.model.update((m) => ({
+            ...m,
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
             resources: [
@@ -629,7 +683,8 @@ describe('BookingFormService', () => {
                 asset_id: 'desk-1',
             }),
         );
-        spectator.service.model.update((m) => ({ ...m,
+        spectator.service.model.update((m) => ({
+            ...m,
             user: {
                 email: 'other.user@example.com',
                 name: 'Other User',
@@ -686,7 +741,8 @@ describe('BookingFormService', () => {
                 asset_id: 'desk-1',
             }),
         );
-        spectator.service.model.update((m) => ({ ...m,
+        spectator.service.model.update((m) => ({
+            ...m,
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
             resources: [
@@ -743,7 +799,8 @@ describe('BookingFormService', () => {
                 asset_id: 'desk-1',
             }),
         );
-        spectator.service.model.update((m) => ({ ...m,
+        spectator.service.model.update((m) => ({
+            ...m,
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
             resources: [
@@ -802,7 +859,8 @@ describe('BookingFormService', () => {
                 asset_id: 'desk-1',
             }),
         );
-        spectator.service.model.update((m) => ({ ...m,
+        spectator.service.model.update((m) => ({
+            ...m,
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
             resources: [
@@ -838,7 +896,8 @@ describe('BookingFormService', () => {
                 asset_id: 'desk-1',
             }),
         );
-        spectator.service.model.update((m) => ({ ...m,
+        spectator.service.model.update((m) => ({
+            ...m,
             user: {
                 email: 'unauthorised.user@example.com',
                 name: 'Unauthorised User',
@@ -858,9 +917,7 @@ describe('BookingFormService', () => {
         );
         expect(saved_form.user_email).toBe(current_user.email);
         expect(saved_form.user.email).toBe(current_user.email);
-        expect(spectator.service.model().user_email).toBe(
-            current_user.email,
-        );
+        expect(spectator.service.model().user_email).toBe(current_user.email);
     });
 
     it('should clamp current-day all-day bookings before posting', async () => {
@@ -882,7 +939,8 @@ describe('BookingFormService', () => {
             );
 
             spectator.service.newForm('desk');
-            spectator.service.model.update((m) => ({ ...m,
+            spectator.service.model.update((m) => ({
+                ...m,
                 asset_id: 'desk-1',
                 asset_name: 'Desk 1',
                 date: new Date(2026, 2, 20, 8, 0, 0, 0).valueOf(),
@@ -967,7 +1025,8 @@ describe('BookingFormService', () => {
                 extension_data: { map_id: 'map-1' },
             }),
         );
-        spectator.service.model.update((m) => ({ ...m,
+        spectator.service.model.update((m) => ({
+            ...m,
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
             map_id: 'map-1',
@@ -1053,7 +1112,8 @@ describe('BookingFormService', () => {
                 extension_data: { map_id: 'map-1' },
             }),
         );
-        spectator.service.model.update((m) => ({ ...m,
+        spectator.service.model.update((m) => ({
+            ...m,
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
             map_id: 'map-1',
@@ -1141,7 +1201,8 @@ describe('BookingFormService', () => {
                 extension_data: { map_id: 'map-1' },
             }),
         );
-        spectator.service.model.update((m) => ({ ...m,
+        spectator.service.model.update((m) => ({
+            ...m,
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
             map_id: 'map-1',
@@ -1255,7 +1316,8 @@ describe('BookingFormService', () => {
                 extension_data: { map_id: 'map-1' },
             }),
         );
-        spectator.service.model.update((m) => ({ ...m,
+        spectator.service.model.update((m) => ({
+            ...m,
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
             map_id: 'map-1',
@@ -1368,7 +1430,8 @@ describe('BookingFormService', () => {
                 extension_data: { map_id: 'map-1' },
             }),
         );
-        spectator.service.model.update((m) => ({ ...m,
+        spectator.service.model.update((m) => ({
+            ...m,
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
             map_id: 'map-1',
@@ -1460,7 +1523,8 @@ describe('BookingFormService', () => {
                 extension_data: { map_id: 'map-1' },
             }),
         );
-        spectator.service.model.update((m) => ({ ...m,
+        spectator.service.model.update((m) => ({
+            ...m,
             id: 'booking-parent',
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
@@ -1578,7 +1642,8 @@ describe('BookingFormService', () => {
                 },
             }),
         );
-        spectator.service.model.update((m) => ({ ...m,
+        spectator.service.model.update((m) => ({
+            ...m,
             id: 'booking-current-child',
             parent_id: 'booking-group',
             asset_id: 'desk-1',
@@ -1716,7 +1781,8 @@ describe('BookingFormService', () => {
                 extension_data: { map_id: 'map-1' },
             }),
         );
-        spectator.service.model.update((m) => ({ ...m,
+        spectator.service.model.update((m) => ({
+            ...m,
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
             map_id: 'map-1',
@@ -1787,7 +1853,8 @@ describe('BookingFormService', () => {
                 extension_data: { location: 'Main Lobby' },
             }),
         );
-        spectator.service.model.update((m) => ({ ...m,
+        spectator.service.model.update((m) => ({
+            ...m,
             id: 'booking-parent',
             booking_type: 'visitor',
             title: 'Vendor Visit',

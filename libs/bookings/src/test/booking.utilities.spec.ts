@@ -20,6 +20,11 @@ describe('Booking Utilities', () => {
             );
             expect(typeof model).toBe('function');
             expect(typeof form).toBe('function');
+            for (const key of Object.keys(model())) {
+                expect(typeof form[key]).toBe('function');
+                expect(form[key]()).toBeDefined();
+                expect(model()[key]).not.toBeNull();
+            }
         });
 
         it('should use visitor_name extension data instead of description for visitor forms', () => {
@@ -84,6 +89,40 @@ describe('Booking Utilities', () => {
             expect(typeof form.assets).toBe('function');
             expect(model().asset_id).toBe('');
             expect(model().assets).toEqual([]);
+            expect(model().user).toBeDefined();
+        });
+
+        it('should coerce null writes for non-nullable fields so [formField] bindings survive', () => {
+            const { model, form } = TestBed.runInInjectionContext(() =>
+                generateBookingForm(
+                    new Booking({ booking_type: 'visitor' }),
+                    injector,
+                ),
+            );
+
+            // UserSearchField clears via null. For a non-nullable object field
+            // that makes signal-forms degrade the field binding.
+            model.update((m) => ({
+                ...m,
+                user: null as any,
+                asset_id: null as any,
+                assets: null as any,
+                booking_asset: null as any,
+                group: null as any,
+                recurrence_instances: null as any,
+            }));
+
+            expect(typeof form.user).toBe('function');
+            expect(typeof form.asset_id).toBe('function');
+            expect(typeof form.assets).toBe('function');
+            expect(typeof form.booking_asset).toBe('function');
+            expect(typeof form.group).toBe('function');
+            expect(typeof form.recurrence_instances).toBe('function');
+            expect(model().asset_id).toBe('');
+            expect(model().assets).toEqual([]);
+            expect(model().booking_asset).toEqual({});
+            expect(model().group).toBe('');
+            expect(model().recurrence_instances).toEqual([]);
             expect(model().user).toBeDefined();
         });
 
