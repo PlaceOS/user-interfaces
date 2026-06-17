@@ -1,10 +1,4 @@
-import {
-    ChangeDetectorRef,
-    OnDestroy,
-    Pipe,
-    PipeTransform,
-    inject,
-} from '@angular/core';
+import { OnDestroy, Pipe, PipeTransform } from '@angular/core';
 import { apiKey, authority, token } from '@placeos/ts-client';
 
 /**
@@ -112,7 +106,6 @@ export async function loadAuthenticatedImage(
     pure: false, // Impure pipe to handle async loading
 })
 export class AuthenticatedImagePipe implements PipeTransform, OnDestroy {
-    private _cdr = inject(ChangeDetectorRef);
     private _subscriptions = new Set<string>();
 
     ngOnDestroy() {
@@ -134,10 +127,7 @@ export class AuthenticatedImagePipe implements PipeTransform, OnDestroy {
     private async _loadImage(source: string): Promise<void> {
         if (!authority()) {
             // Retry after a delay if authority is not available yet
-            setTimeout(() => {
-                LOADING_STORE.delete(source);
-                this._cdr.markForCheck();
-            }, 300);
+            setTimeout(() => LOADING_STORE.delete(source), 300);
             return;
         }
 
@@ -153,8 +143,6 @@ export class AuthenticatedImagePipe implements PipeTransform, OnDestroy {
         } finally {
             LOADING_STORE.delete(source);
             this._subscriptions.delete(source);
-            // Trigger change detection to update the view with the loaded image
-            this._cdr.markForCheck();
         }
     }
 

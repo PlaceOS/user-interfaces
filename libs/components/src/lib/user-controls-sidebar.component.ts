@@ -38,9 +38,10 @@ import { UserControlsComponent } from './user-controls.component';
                         <user-controls [sidebar]="true"></user-controls>
                         <button
                             icon
+                            default
                             matRipple
                             type="button"
-                            class="hover:bg-base-200 absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full"
+                            class="absolute top-2 right-2"
                             (click)="close()"
                         >
                             <icon class="text-2xl">close</icon>

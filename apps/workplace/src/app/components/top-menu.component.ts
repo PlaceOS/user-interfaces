@@ -123,9 +123,9 @@ export function hasLoadedTopMenuSettings(state: TopMenuSettingsState) {
         }
         @if (mobile_menu()) {
             <div
-                class="absolute inset-y-0 -right-16 left-0 flex items-center justify-end"
+                class="absolute inset-y-0 -right-20 left-0 flex items-center justify-end"
             >
-                <button icon matRipple [matMenuTriggerFor]="menu">
+                <button icon default matRipple [matMenuTriggerFor]="menu">
                     <icon>menu</icon>
                 </button>
             </div>
