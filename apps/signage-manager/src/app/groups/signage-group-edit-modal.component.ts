@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { form, FormField, required, submit } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -91,7 +86,6 @@ import { SignageService } from '../signage.service';
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FullscreenModalShellComponent,
         FormField,

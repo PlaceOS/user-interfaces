@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    resource,
-    signal,
-} from '@angular/core';
+import { Component, inject, resource, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -97,7 +91,6 @@ interface PlaylistApproveModalData {
             }
         </div>
     `,
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         IconComponent,

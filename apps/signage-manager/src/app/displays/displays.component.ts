@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -83,8 +82,8 @@ function parseDisplayTab(
                                 </div>
                                 <a
                                     icon
+                                    default
                                     matRipple
-                                    class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                     [matTooltip]="
                                         'SIGNAGE_MANAGER.OPEN_PANEL' | translate
                                     "
@@ -215,7 +214,6 @@ function parseDisplayTab(
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         NavSidebarComponent,
         NavFooterComponent,

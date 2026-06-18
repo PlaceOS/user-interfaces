@@ -1,6 +1,5 @@
 import { DatePipe } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     DestroyRef,
     computed,
@@ -257,7 +256,6 @@ function parseScheduleTab(value: string | null): 'displays' | 'zones' {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         DatePipe,
         MatRippleModule,

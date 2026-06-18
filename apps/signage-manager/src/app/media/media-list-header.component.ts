@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -205,7 +199,6 @@ function isValidUrl(url: string): boolean {
             }
         </div>
     `,
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FormsModule,
         MatRippleModule,

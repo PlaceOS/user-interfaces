@@ -19,7 +19,6 @@ import {
 import { IconComponent } from './icon.component';
 import { InteractiveMapComponent } from './interactive-map.component';
 import { MapPinComponent } from './map-pin.component';
-import { TranslatePipe } from './translate.pipe';
 
 export interface Locatable {
     id: string;
@@ -85,7 +84,6 @@ export interface Locatable {
         MatRippleModule,
         MatDialogModule,
         MatProgressSpinnerModule,
-        TranslatePipe,
         IconComponent,
         InteractiveMapComponent,
     ],

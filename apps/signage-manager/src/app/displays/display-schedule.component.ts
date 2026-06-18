@@ -1,11 +1,5 @@
 import { DatePipe } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
@@ -260,7 +254,6 @@ import { SignageService } from '../signage.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         DatePipe,
         MatRippleModule,

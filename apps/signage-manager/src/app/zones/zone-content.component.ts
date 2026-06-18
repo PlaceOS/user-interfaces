@@ -1,11 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    effect,
-    inject,
-    input,
-} from '@angular/core';
+import { Component, computed, effect, inject, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
@@ -74,7 +67,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                     track playlist.id
                                 ) {
                                     <div
-                                        class="border-base-300 bg-base-100 mb-2 flex items-center gap-3 rounded-lg border p-0.5 pl-1"
+                                        class="border-base-300 bg-base-100 mb-2 flex items-center gap-3 rounded-lg border p-0.5 pr-2 pl-1"
                                     >
                                         <a
                                             matRipple
@@ -210,6 +203,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                             <button
                                                 icon
                                                 default
+                                                error
                                                 type="button"
                                                 matRipple
                                                 [matTooltip]="
@@ -387,7 +381,6 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         MatTooltipModule,

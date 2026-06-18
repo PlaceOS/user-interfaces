@@ -1,12 +1,5 @@
 import { DatePipe } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -340,7 +333,6 @@ interface MediaPreviewModalData {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         MatDialogModule,

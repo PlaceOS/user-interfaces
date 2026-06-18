@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -86,7 +81,6 @@ import { SignageService } from '../signage.service';
             }
         </main>
     `,
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FormsModule,
         MatRippleModule,

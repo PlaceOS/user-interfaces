@@ -3,7 +3,7 @@ import {
     DragDropModule,
     moveItemInArray,
 } from '@angular/cdk/drag-drop';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -34,9 +34,9 @@ import { SignageService } from '../signage.service';
                     @if (can_approve()) {
                         <button
                             icon
+                            default
                             type="button"
                             matRipple
-                            class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                             [matTooltip]="
                                 'SIGNAGE_MANAGER.APPROVE_PLAYLIST_TOOLTIP'
                                     | translate
@@ -52,9 +52,9 @@ import { SignageService } from '../signage.service';
                     } @else {
                         <button
                             icon
+                            default
                             type="button"
                             matRipple
-                            class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                             [matTooltip]="
                                 'SIGNAGE_MANAGER.REQUEST_PLAYLIST_APPROVAL_TOOLTIP'
                                     | translate
@@ -77,12 +77,12 @@ import { SignageService } from '../signage.service';
                 @if (can_update()) {
                     <button
                         icon
+                        default
                         type="button"
                         matRipple
                         [matTooltip]="
                             'SIGNAGE_MANAGER.EDIT_PLAYLIST_TOOLTIP' | translate
                         "
-                        class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                         (click)="editPlaylist()"
                         [attr.aria-label]="
                             'SIGNAGE_MANAGER.EDIT_SELECTED_PLAYLIST' | translate
@@ -94,12 +94,12 @@ import { SignageService } from '../signage.service';
                 @if (can_share()) {
                     <button
                         icon
+                        default
                         type="button"
                         matRipple
                         [matTooltip]="
                             'SIGNAGE_MANAGER.SHARE_PLAYLIST_TOOLTIP' | translate
                         "
-                        class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                         (click)="sharePlaylist()"
                         [attr.aria-label]="
                             'SIGNAGE_MANAGER.SHARE_SELECTED_PLAYLIST'
@@ -112,20 +112,21 @@ import { SignageService } from '../signage.service';
                 @if (can_delete()) {
                     <button
                         icon
+                        default
+                        error
                         type="button"
                         matRipple
                         [matTooltip]="
                             'SIGNAGE_MANAGER.DELETE_PLAYLIST_TOOLTIP'
                                 | translate
                         "
-                        class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                         (click)="removePlaylist()"
                         [attr.aria-label]="
                             'SIGNAGE_MANAGER.DELETE_SELECTED_PLAYLIST'
                                 | translate
                         "
                     >
-                        <icon class="text-error">delete</icon>
+                        <icon>delete</icon>
                     </button>
                 }
             </div>
@@ -252,6 +253,7 @@ import { SignageService } from '../signage.service';
                             </div>
                             <button
                                 icon
+                                default
                                 type="button"
                                 matRipple
                                 [matMenuTriggerFor]="item_menu"
@@ -334,7 +336,6 @@ import { SignageService } from '../signage.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         DragDropModule,
         MatRippleModule,

@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -170,7 +169,6 @@ function parseZoneTab(value: string | null): 'playlists' | 'displays' {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         NavSidebarComponent,
         NavFooterComponent,

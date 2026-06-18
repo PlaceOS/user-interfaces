@@ -1,12 +1,5 @@
 import { DatePipe } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    effect,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -583,9 +576,9 @@ function nextSchedulePlaySessions(
                                 @if (can_update()) {
                                     <button
                                         icon
+                                        default
                                         type="button"
                                         matRipple
-                                        class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                         [matTooltip]="
                                             'SIGNAGE_MANAGER.ADD_DISPLAY_TOOLTIP'
                                                 | translate
@@ -653,9 +646,11 @@ function nextSchedulePlaySessions(
                                             @if (can_update()) {
                                                 <button
                                                     icon
+                                                    default
+                                                    error
+                                                    class="m-1 text-sm"
                                                     type="button"
                                                     matRipple
-                                                    class="border-base-200 hover:bg-base-200 hover:border-base-300 mr-1 rounded-lg border hover:shadow-md"
                                                     [matTooltip]="
                                                         'SIGNAGE_MANAGER.REMOVE_DISPLAY'
                                                             | translate
@@ -676,9 +671,7 @@ function nextSchedulePlaySessions(
                                                                   }
                                                     "
                                                 >
-                                                    <icon class="text-error">
-                                                        close
-                                                    </icon>
+                                                    <icon>close</icon>
                                                 </button>
                                             }
                                         </div>
@@ -729,9 +722,9 @@ function nextSchedulePlaySessions(
                                 @if (can_update()) {
                                     <button
                                         icon
+                                        default
                                         type="button"
                                         matRipple
-                                        class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                         [matTooltip]="
                                             'SIGNAGE_MANAGER.ADD_ZONE_TOOLTIP'
                                                 | translate
@@ -799,9 +792,11 @@ function nextSchedulePlaySessions(
                                             @if (can_update()) {
                                                 <button
                                                     icon
+                                                    default
+                                                    error
                                                     type="button"
+                                                    class="m-1 text-sm"
                                                     matRipple
-                                                    class="border-base-200 hover:bg-base-200 hover:border-base-300 mr-1 rounded-lg border hover:shadow-md"
                                                     [matTooltip]="
                                                         'SIGNAGE_MANAGER.REMOVE_ZONE'
                                                             | translate
@@ -819,9 +814,7 @@ function nextSchedulePlaySessions(
                                                                   }
                                                     "
                                                 >
-                                                    <icon class="text-error">
-                                                        close
-                                                    </icon>
+                                                    <icon>close</icon>
                                                 </button>
                                             }
                                         </div>
@@ -866,7 +859,6 @@ function nextSchedulePlaySessions(
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         MatTabsModule,

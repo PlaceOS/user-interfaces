@@ -1,16 +1,13 @@
 import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     DestroyRef,
     inject,
     input,
-    OnChanges,
     OnInit,
     signal,
-    SimpleChanges,
 } from '@angular/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -68,7 +65,7 @@ import { SignageService } from '../signage.service';
                 id="media-list"
                 role="list"
                 [cdkDropListData]="media()"
-                [cdkDropListConnectedTo]="playlist_ids"
+                [cdkDropListConnectedTo]="playlist_ids()"
                 (cdkDropListDropped)="drop($event)"
             >
                 @for (media_item of media(); track media_item.id) {
@@ -439,7 +436,6 @@ import { SignageService } from '../signage.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         DragDropModule,
         MatCheckboxModule,
@@ -453,13 +449,17 @@ import { SignageService } from '../signage.service';
         TranslatePipe,
     ],
 })
-export class MediaListComponent implements OnChanges, OnInit {
+export class MediaListComponent implements OnInit {
     private readonly _service = inject(SignageService);
     private readonly _destroy = inject(DestroyRef);
 
     public readonly playlist_count = input(0);
     public readonly sidebar_hidden = signal(false);
-    public playlist_ids: string[] = [];
+    public readonly playlist_ids = computed(() =>
+        new Array(this.playlist_count())
+            .fill(0)
+            .map((_, idx) => `playlist-${idx}`),
+    );
     public readonly selected_ids = signal(new Set<string>());
     public readonly selected_media = computed(() => {
         const selected_ids = this.selected_ids();
@@ -568,14 +568,6 @@ export class MediaListComponent implements OnChanges, OnInit {
     public readonly can_update = this._service.can_update;
     public readonly can_delete = this._service.can_delete;
     public readonly can_share = this._service.can_share;
-
-    public ngOnChanges(changes: SimpleChanges) {
-        if (changes.playlist_count) {
-            this.playlist_ids = new Array(this.playlist_count())
-                .fill(0)
-                .map((_, idx) => `playlist-${idx}`);
-        }
-    }
 
     public drop(_event: any) {
         // No-op for media list drops

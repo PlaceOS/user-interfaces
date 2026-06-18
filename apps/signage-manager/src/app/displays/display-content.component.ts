@@ -1,11 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    effect,
-    inject,
-    input,
-} from '@angular/core';
+import { Component, computed, effect, inject, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
@@ -66,9 +59,9 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                 @if (can_update()) {
                                     <button
                                         icon
+                                        default
                                         type="button"
                                         matRipple
-                                        class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                         [matTooltip]="
                                             'SIGNAGE_MANAGER.ADD_PLAYLIST_TOOLTIP'
                                                 | translate
@@ -235,9 +228,10 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                             @if (can_update()) {
                                                 <button
                                                     icon
+                                                    default
+                                                    error
                                                     type="button"
                                                     matRipple
-                                                    class="border-base-200 hover:bg-base-200 hover:border-base-300 mr-1 rounded-lg border hover:shadow-md"
                                                     [matTooltip]="
                                                         'SIGNAGE_MANAGER.REMOVE_PLAYLIST_TOOLTIP'
                                                             | translate
@@ -256,9 +250,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                                   }
                                                     "
                                                 >
-                                                    <icon class="text-error">
-                                                        close
-                                                    </icon>
+                                                    <icon>close</icon>
                                                 </button>
                                             }
                                         </div>
@@ -391,7 +383,6 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         MatTooltipModule,

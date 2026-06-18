@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import {
     form,
     FormField,
@@ -33,8 +28,8 @@ import {
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import {
     createPlaylistScheduleModel,
-    PlaylistScheduleFormModel,
     PlaylistScheduleFormComponent,
+    PlaylistScheduleFormModel,
     playlistSchedulePayload,
     playlistSchedules,
 } from './playlist-schedule-form.component';
@@ -290,7 +285,6 @@ export interface PlaylistEditFormModel {
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FullscreenModalShellComponent,
         SettingsToggleComponent,

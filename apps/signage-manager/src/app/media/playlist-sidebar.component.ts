@@ -1,12 +1,5 @@
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    effect,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -224,7 +217,6 @@ type PlaylistStatus =
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         DragDropModule,
         FormsModule,
