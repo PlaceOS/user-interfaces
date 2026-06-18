@@ -1,8 +1,8 @@
+import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatSliderModule } from '@angular/material/slider';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent, MockDirective } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 
 import { BindingDirective, IconComponent } from '@placeos/components';
 import { ControlStateService } from '../../app/control-state.service';
@@ -20,7 +20,7 @@ describe('OutputDisplayComponent', () => {
             {
                 provide: ControlStateService,
                 useValue: {
-                    available_inputs: new BehaviorSubject([]),
+                    available_inputs: signal([]),
                 },
             },
         ],

@@ -1,6 +1,5 @@
 import { CdkTreeModule } from '@angular/cdk/tree';
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -252,7 +251,6 @@ interface GroupListRow extends GroupTreeNode {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FormsModule,
         MatRippleModule,

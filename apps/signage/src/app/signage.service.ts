@@ -1,8 +1,7 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import {
     AsyncHandler,
     MINUTES,
-    nextValueFrom,
     randomInt,
     scoped_log,
     SECONDS,
@@ -19,21 +18,15 @@ import {
     SignagePlaylist,
     SignagePlugin,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import {
-    debounceTime,
-    distinctUntilKeyChanged,
-    filter,
-    map,
-    shareReplay,
-    startWith,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
 import { getNextCronRunTimestampInRange } from './cron-helpers';
 import { MediaCacheService } from './media-cache.service';
-import { mockAwareInterval, time } from './media-helpers';
+import { mockTimeState, time } from './media-helpers';
 import { MediaPlayerItem } from './types';
+
+/** Base interval for re-evaluating time-based playlist schedules */
+const SCHEDULE_TICK_MS = 15 * SECONDS;
+/** Shortest schedule re-evaluation delay when debug time is fast-forwarding */
+const MIN_SCHEDULE_TICK_MS = 250;
 
 const DISPLAY_KEY = 'PlaceOS.SIGNAGE.display_details';
 
@@ -210,9 +203,12 @@ export class SignageService extends AsyncHandler {
 
     public readonly debug = signal(false);
     public readonly playing_id = signal('');
-    private _display = new BehaviorSubject<string>('');
-    private _poll = new BehaviorSubject(0);
-    private _retry = new BehaviorSubject(0);
+    /** Active display system id */
+    private readonly _display = signal('');
+    /** Resolved display details for the active system */
+    private readonly _display_data = signal<any>(null);
+    /** Counter incremented on the schedule timer to re-evaluate time windows */
+    private readonly _tick = signal(0);
     private _last_modified = 0;
     private _playlists: SignagePlaylist[] = [];
     private _last_playlist: MediaPlayerItem[] = [];
@@ -229,162 +225,173 @@ export class SignageService extends AsyncHandler {
         playlist: [],
     });
 
-    public readonly display = combineLatest([this._display, this._poll]).pipe(
-        filter(([_]) => !!_),
-        switchMap(([id]) =>
-            showSignage(
-                id,
-                cleanObject(
-                    { preview: this.debug(), item_id: this.playing_id() },
-                    [undefined, null, ''],
-                ),
-                {
-                    headers: {
-                        'If-Modified-Since': new Date(
-                            this._last_modified,
-                        ).toUTCString(),
-                    },
-                },
-            )
-                .catch((_) => null)
-                .then((d: any) => {
-                    if (!d) {
-                        const display_key = displayCacheKey(id);
-                        d = JSON.parse(
-                            localStorage.getItem(display_key) ||
-                                localStorage.getItem(DISPLAY_KEY) ||
-                                '{}',
-                        );
-                        if (d.id !== id) d = {};
-                    }
-                    if (d.id === id) {
-                        localStorage.setItem(
-                            displayCacheKey(id),
-                            JSON.stringify(d),
-                        );
-                    }
-                    const path = `/api/engine/v2/signage/${id}`;
-                    const headers = responseHeaders(
-                        `${location.origin}${path}`,
-                    );
-                    const last_modified = new Date(
-                        headers['last-modified'],
-                    ).valueOf();
-                    if (Number.isFinite(last_modified) && last_modified > 0) {
-                        this._last_modified = last_modified;
-                    }
-                    return [d, this._last_modified];
-                }),
-        ),
-        distinctUntilKeyChanged(1),
-        map(([value]) => this._parseDisplay(value)),
-        switchMap((display) =>
-            this._resolveDisplayPlugins(display).then((plugins) => {
-                display.plugins = plugins;
-                return display;
-            }),
-        ),
-        shareReplay(1),
-    );
+    /** Resolved display details for the active system */
+    public readonly display = this._display_data.asReadonly();
 
-    public readonly triggers = this.display.pipe(
-        tap((display) => {
-            const triggers = Object.keys(
-                display.playlist_mappings || {},
-            ).filter((_) => _.startsWith('trig-'));
-            this.unsubWith('trigger_');
-            const mod = getModule(display.id, '_TRIGGER__1');
-            for (const id of triggers) {
-                const binding = mod.variable(id);
-                this.subscription(
-                    `trigger_listen-${id}`,
-                    binding.bindThenSubscribe(() => this._handleTrigger(id)),
-                );
-            }
-        }),
-    );
-
-    public readonly playlist = combineLatest([
-        this.display,
-        mockAwareInterval(15 * SECONDS),
-    ]).pipe(
-        map(([item]: [any, number]) => {
-            try {
-                if (!item?.id || !item.playlist_mappings?.[item.id]) {
-                    return this._last_playlist;
-                }
-                const playlists = this._mappedPlaylistIds(item);
-                this._setActivePlaylistConfigs(item, playlists);
-                const media = this._getPlaylistMedia(
-                    item,
-                    playlists,
-                    (p) =>
-                        p.enabled &&
-                        (!playlistSchedules(p).length ||
-                            activePlaylistSchedules(p).some(
-                                ({ schedule }) => !schedule.play_takeover,
-                            )),
-                );
-                this._last_playlist = media;
-                return media;
-            } catch (e) {
-                log.error(
-                    'Failed to build playlist; keeping last known playlist.',
-                    e,
-                );
+    public readonly playlist = computed<MediaPlayerItem[]>(() => {
+        this._tick();
+        const item = this._display_data();
+        try {
+            if (!item?.id || !item.playlist_mappings?.[item.id]) {
                 return this._last_playlist;
             }
-        }),
-        startWith([]),
-        shareReplay(1),
-    );
+            const playlists = this._mappedPlaylistIds(item);
+            this._setActivePlaylistConfigs(item, playlists);
+            const media = this._getPlaylistMedia(
+                item,
+                playlists,
+                (p) =>
+                    p.enabled &&
+                    (!playlistSchedules(p).length ||
+                        activePlaylistSchedules(p).some(
+                            ({ schedule }) => !schedule.play_takeover,
+                        )),
+            );
+            this._last_playlist = media;
+            return media;
+        } catch (e) {
+            log.error(
+                'Failed to build playlist; keeping last known playlist.',
+                e,
+            );
+            return this._last_playlist;
+        }
+    });
 
-    public readonly override_playlists = this.display.pipe(
-        map((item: any) => {
-            try {
-                if (!item?.id || !item.playlist_mappings?.[item.id]) {
-                    return this._last_override_playlists;
-                }
-                const playlists = this._mappedPlaylistIds(item);
-                this._setActivePlaylistConfigs(item, playlists);
-                const filtered = playlists.filter((id) =>
-                    this._isOverridePlaylist(item, id),
-                );
-                this._last_override_playlists = filtered;
-                return filtered;
-            } catch (e) {
-                log.error('Failed to build override playlists.', e);
+    public readonly override_playlists = computed<string[]>(() => {
+        const item = this._display_data();
+        try {
+            if (!item?.id || !item.playlist_mappings?.[item.id]) {
                 return this._last_override_playlists;
             }
-        }),
-        startWith([]),
-        shareReplay(1),
-    );
-
-    public readonly override_check = combineLatest([
-        this.display,
-        this.override_playlists,
-        mockAwareInterval(15 * SECONDS),
-    ]);
+            const playlists = this._mappedPlaylistIds(item);
+            this._setActivePlaylistConfigs(item, playlists);
+            const filtered = playlists.filter((id) =>
+                this._isOverridePlaylist(item, id),
+            );
+            this._last_override_playlists = filtered;
+            return filtered;
+        } catch (e) {
+            log.error('Failed to build override playlists.', e);
+            return this._last_override_playlists;
+        }
+    });
 
     public setDisplay(system_id: string) {
-        this._display.next(system_id);
+        this._display.set(system_id);
+        this._reloadDisplay();
+        // Re-arm the schedule timer so its cadence reflects the current debug
+        // time speed (fast-forwarding shortens the re-evaluation interval).
+        this._scheduleTick();
     }
 
     constructor() {
         super();
-        combineLatest([
-            this.display,
-            this._retry.pipe(debounceTime(15 * SECONDS), startWith(0)),
-        ]).subscribe(([display]) => this._syncMediaCache(display));
-        this.interval('poll', () => this._poll.next(Date.now()), 1 * MINUTES);
+        this.interval('poll', () => this._reloadDisplay(), 1 * MINUTES);
         this.interval('metrics', () => this._postMetrics(), 10 * MINUTES);
-        this.subscription('triggers', this.triggers.subscribe());
-        this.subscription(
-            'override_check',
-            this.override_check.subscribe(([display, playlists]) => {
-                this._checkScheduledOverrides(display, playlists);
-            }),
+        this._scheduleTick();
+    }
+
+    /**
+     * Re-fetch the active display details and refresh the derived playlists,
+     * trigger bindings, media cache and scheduled overrides. Skips downstream
+     * work when the server reports the display has not been modified.
+     */
+    private async _reloadDisplay() {
+        const id = this._display();
+        if (!id) return;
+        const previous_modified = this._last_modified;
+        const value = await this._fetchDisplay(id);
+        // Mirror the previous `distinctUntilKeyChanged(last_modified)`: when the
+        // display is unchanged there is no need to re-parse or re-bind anything.
+        if (this._last_modified === previous_modified && this._display_data()) {
+            return;
+        }
+        const display = this._parseDisplay(value);
+        display.plugins = await this._resolveDisplayPlugins(display);
+        this._display_data.set(display);
+        this._bindTriggers(display);
+        this._syncMediaCache(display);
+        this._checkScheduledOverrides(display, this.override_playlists());
+    }
+
+    private async _fetchDisplay(id: string) {
+        let d: any = await showSignage(
+            id,
+            cleanObject({ preview: this.debug(), item_id: this.playing_id() }, [
+                undefined,
+                null,
+                '',
+            ]),
+            {
+                headers: {
+                    'If-Modified-Since': new Date(
+                        this._last_modified,
+                    ).toUTCString(),
+                },
+            },
+        ).catch((_) => null);
+        if (!d) {
+            const display_key = displayCacheKey(id);
+            d = JSON.parse(
+                localStorage.getItem(display_key) ||
+                    localStorage.getItem(DISPLAY_KEY) ||
+                    '{}',
+            );
+            if (d.id !== id) d = {};
+        }
+        if (d.id === id) {
+            localStorage.setItem(displayCacheKey(id), JSON.stringify(d));
+        }
+        const path = `/api/engine/v2/signage/${id}`;
+        const headers = responseHeaders(`${location.origin}${path}`);
+        const last_modified = new Date(headers['last-modified']).valueOf();
+        if (Number.isFinite(last_modified) && last_modified > 0) {
+            this._last_modified = last_modified;
+        }
+        return d;
+    }
+
+    private _bindTriggers(display: any) {
+        const triggers = Object.keys(display.playlist_mappings || {}).filter(
+            (_) => _.startsWith('trig-'),
+        );
+        this.unsubWith('trigger_');
+        const mod = getModule(display.id, '_TRIGGER__1');
+        for (const id of triggers) {
+            const binding = mod.variable(id);
+            this.subscription(
+                `trigger_listen-${id}`,
+                binding.bindThenSubscribe(() => this._handleTrigger(id)),
+            );
+        }
+    }
+
+    /**
+     * Re-evaluate time-based schedules on a recurring timer, speeding up when
+     * debug time is fast-forwarding so scheduled playlists activate on time.
+     */
+    private _scheduleTick() {
+        const { active, speed } = mockTimeState();
+        const effective_speed = active && speed > 1 ? speed : 1;
+        const delay = Math.max(
+            MIN_SCHEDULE_TICK_MS,
+            Math.min(SCHEDULE_TICK_MS, SCHEDULE_TICK_MS / effective_speed),
+        );
+        this.timeout(
+            'schedule_tick',
+            () => {
+                this._tick.update((_) => _ + 1);
+                const display = this._display_data();
+                if (display) {
+                    this._checkScheduledOverrides(
+                        display,
+                        this.override_playlists(),
+                    );
+                }
+                this._scheduleTick();
+            },
+            delay,
         );
     }
 
@@ -428,7 +435,7 @@ export class SignageService extends AsyncHandler {
             'post-metrics',
             async () => {
                 if (EMPTY_METRICS === JSON.stringify(this._metrics)) return;
-                const display_id = this._display.getValue();
+                const display_id = this._display();
                 await post(
                     `/api/engine/v2/signage/${encodeURIComponent(display_id)}/metrics`,
                     this._metrics,
@@ -486,7 +493,15 @@ export class SignageService extends AsyncHandler {
         for (const item of extra_media) {
             this._media_cache.invalidateFile(item, cache_owner);
         }
-        if (has_failures) this._retry.next(Date.now());
+        // Retry caching after a delay so a transient failure can recover without
+        // hammering the network (previously a debounced `_retry` stream).
+        if (has_failures) {
+            this.timeout(
+                'retry_cache',
+                () => this._syncMediaCache(this._display_data()),
+                15 * SECONDS,
+            );
+        }
     }
 
     private _activeCacheableMediaURLs(display: any) {
@@ -848,7 +863,8 @@ export class SignageService extends AsyncHandler {
     }
 
     private async _handleTrigger(id: string) {
-        const display = await nextValueFrom(this.display);
+        const display = this._display_data();
+        if (!display?.playlist_mappings) return;
         if (this.override_playlist().playlist?.length > 0) return;
         const playlists = [...display.playlist_mappings[id]];
         const media = this._getPlaylistMedia(

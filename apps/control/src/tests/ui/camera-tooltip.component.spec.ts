@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { fakeAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -6,7 +7,6 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent, MockDirective, MockModule } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 
 import { ControlStateService } from '../../app/control-state.service';
 import { CameraTooltipComponent } from '../../app/ui/camera-tooltip.component';
@@ -38,8 +38,8 @@ describe('CameraTooltipComponent', () => {
                 provide: ControlStateService,
                 useValue: {
                     id: 'sys-1',
-                    available_cameras: new BehaviorSubject([]),
-                    selected_camera: new BehaviorSubject(''),
+                    available_cameras: signal([]),
+                    selected_camera: signal(''),
                 },
             },
             {
@@ -71,7 +71,7 @@ describe('CameraTooltipComponent', () => {
         // const cam_list = [{ id: 'cam1', name: 'Camera 1' }] as any;
         // expect('p[empty]').toExist();
         // const service = spectator.inject(ControlStateService);
-        // (service as any).camera_list.next(cam_list);
+        // (service as any).camera_list.set(cam_list);
         // spectator.detectChanges();
         // expect('p[empty]').not.toExist();
         // expect('p[no-cam]').not.toExist();
@@ -82,11 +82,11 @@ describe('CameraTooltipComponent', () => {
 
     it('should show camera joystick', () => {
         // const service = spectator.inject(ControlStateService);
-        // (service as any).camera_list.next([]);
+        // (service as any).camera_list.set([]);
         // spectator.detectChanges();
         // expect('p[empty]').toExist();
         // expect('joystick').not.toExist();
-        // (service as any).camera_list.next([{ id: 'cam1', name: 'Camera 1' }]);
+        // (service as any).camera_list.set([{ id: 'cam1', name: 'Camera 1' }]);
         // spectator.detectChanges();
         // expect('joystick').toExist();
     });
@@ -99,7 +99,7 @@ describe('CameraTooltipComponent', () => {
         // });
         // const cam_list = [{ id: 'cam1', name: 'Camera 1' }] as any;
         // const service = spectator.inject(ControlStateService);
-        // (service as any).camera_list.next(cam_list);
+        // (service as any).camera_list.set(cam_list);
         // spectator.component.selectCamera(cam_list[0]);
         // spectator.detectChanges();
         // spectator.dispatchFakeEvent('button[zoom-in]', 'mousedown');
@@ -115,7 +115,7 @@ describe('CameraTooltipComponent', () => {
     it('should allow user to select camera presets', () => {
         // const cam_list = [{ id: 'cam1', name: 'Camera 1' }] as any;
         // const service = spectator.inject(ControlStateService);
-        // (service as any).camera_list.next(cam_list);
+        // (service as any).camera_list.set(cam_list);
         // spectator.component.selectCamera(cam_list[0]);
         // spectator.detectChanges();
         // expect('p[preset]').toExist();

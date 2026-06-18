@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-} from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -52,10 +47,10 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                         <button
                             icon
                             matRipple
-                            (click)="hide_block.details = !hide_block.details"
+                            (click)="hide_block.update((h) => ({ ...h, details: !h.details }))"
                         >
                             <icon>{{
-                                hide_block.details
+                                hide_block().details
                                     ? 'expand_more'
                                     : 'expand_less'
                             }}</icon>
@@ -63,7 +58,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                     </h3>
                     <div
                         class="overflow-hidden"
-                        [@show]="hide_block.details ? 'hide' : 'show'"
+                        [@show]="hide_block().details ? 'hide' : 'show'"
                     >
                         @if (buildings().length > 1) {
                             <div class="min-w-[256px] flex-1">
@@ -198,11 +193,11 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                                 icon
                                 matRipple
                                 (click)="
-                                    hide_block.attendees = !hide_block.attendees
+                                    hide_block.update((h) => ({ ...h, attendees: !h.attendees }))
                                 "
                             >
                                 <icon>{{
-                                    hide_block.attendees
+                                    hide_block().attendees
                                         ? 'expand_more'
                                         : 'expand_less'
                                 }}</icon>
@@ -210,7 +205,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                         </h3>
                         <div
                             class="overflow-hidden"
-                            [@show]="hide_block.attendees ? 'hide' : 'show'"
+                            [@show]="hide_block().attendees ? 'hide' : 'show'"
                         >
                             <a-user-list-field
                                 class="mt-4"
@@ -232,11 +227,11 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                             icon
                             matRipple
                             (click)="
-                                hide_block.resources = !hide_block.resources
+                                hide_block.update((h) => ({ ...h, resources: !h.resources }))
                             "
                         >
                             <icon>{{
-                                hide_block.resources
+                                hide_block().resources
                                     ? 'expand_more'
                                     : 'expand_less'
                             }}</icon>
@@ -244,7 +239,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                     </h3>
                     <div
                         class="overflow-hidden"
-                        [@show]="hide_block.resources ? 'hide' : 'show'"
+                        [@show]="hide_block().resources ? 'hide' : 'show'"
                     >
                         <space-list-field
                             class="mt-4"
@@ -266,11 +261,11 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                                 icon
                                 matRipple
                                 (click)="
-                                    hide_block.catering = !hide_block.catering
+                                    hide_block.update((h) => ({ ...h, catering: !h.catering }))
                                 "
                             >
                                 <icon>{{
-                                    hide_block.catering
+                                    hide_block().catering
                                         ? 'expand_more'
                                         : 'expand_less'
                                 }}</icon>
@@ -278,7 +273,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                         </h3>
                         <div
                             class="overflow-hidden"
-                            [@show]="hide_block.catering ? 'hide' : 'show'"
+                            [@show]="hide_block().catering ? 'hide' : 'show'"
                         >
                             <catering-list-field
                                 [formField]="form.catering"
@@ -304,10 +299,10 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                         <button
                             icon
                             matRipple
-                            (click)="hide_block.assets = !hide_block.assets"
+                            (click)="hide_block.update((h) => ({ ...h, assets: !h.assets }))"
                         >
                             <icon>{{
-                                hide_block.assets
+                                hide_block().assets
                                     ? 'expand_more'
                                     : 'expand_less'
                             }}</icon>
@@ -315,7 +310,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                     </h3>
                     <div
                         class="overflow-hidden"
-                        [@show]="hide_block.assets ? 'hide' : 'show'"
+                        [@show]="hide_block().assets ? 'hide' : 'show'"
                     >
                         <asset-list-field
                             [options]="{
@@ -352,7 +347,6 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
     `,
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         FormsModule,
@@ -381,7 +375,7 @@ export class MeetingBookingFormComponent extends AsyncHandler {
     public readonly form = this._service.form;
     public readonly model = this._service.model;
 
-    public hide_block: Record<string, boolean> = {};
+    public readonly hide_block = signal<Record<string, boolean>>({});
 
     public readonly building = this._org.active_building;
     public readonly buildings = this._org.building_list;

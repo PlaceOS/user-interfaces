@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     effect,
     forwardRef,
@@ -90,7 +89,6 @@ function listPattern(fieldPattern) {
             multi: true,
         },
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [FormField],
 })
 export class CronInputFieldComponent implements ControlValueAccessor {

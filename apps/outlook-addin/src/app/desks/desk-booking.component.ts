@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -47,7 +46,6 @@ import { DeskBookingFormComponent } from './desk-form.component';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [DeskBookingFormComponent, MatRippleModule],
 })
 export class DeskBookingComponent {

@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    effect,
-    inject,
-} from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 
@@ -79,7 +74,6 @@ import { VideoCallPageComponent } from './video-call-page.component';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TopbarHeaderComponent,
         VideoCallPageComponent,
@@ -99,12 +93,10 @@ export class ControlVideoCallViewComponent {
         initialValue: this._route.snapshot.queryParamMap,
     });
 
-    public readonly system = toSignal(this._state.system, {
-        initialValue: {} as any,
-    });
+    public readonly system = this._state.system;
 
     public readonly powerOn = () => this._state.powerOn();
-    public readonly id = toSignal(this._state.system_id, { initialValue: '' });
+    public readonly id = this._state.system_id;
 
     constructor() {
         effect(() => {

@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -113,7 +112,6 @@ import { parseTokenFromUrl } from './token-from-url';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FormsModule,
         TranslatePipe,

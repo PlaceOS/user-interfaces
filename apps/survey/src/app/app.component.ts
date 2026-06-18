@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    OnInit,
-} from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
@@ -80,7 +75,6 @@ const START_QUERY = location.search;
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [RouterModule, GlobalBannerComponent, GlobalLoadingComponent],
 })
 export class AppComponent extends AsyncHandler implements OnInit {

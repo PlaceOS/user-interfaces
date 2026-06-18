@@ -1,5 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, inject } from '@angular/core';
 import {
     BindingDirective,
     CustomTooltipData,
@@ -58,7 +57,6 @@ import {
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [BindingDirective, TranslatePipe, MatRippleModule],
 })
 export class LightingTooltipComponent {
@@ -67,7 +65,7 @@ export class LightingTooltipComponent {
 
     public light: EnvironmentSource;
 
-    public readonly lights = toSignal(this._state.lights, { initialValue: [] });
+    public readonly lights = this._state.lights;
     /** Close the tooltip */
     public readonly close = () => this._tooltip.close();
 

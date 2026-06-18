@@ -1,11 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    effect,
-    inject,
-    input,
-    signal,
-} from '@angular/core';
+import { Component, effect, inject, input, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -44,10 +37,11 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                     >
                         @if (selected_playlist()) {
                             <div
-                                class="bg-base-100 border-base-300 mx-2 hidden items-center gap-2 rounded-b-lg border px-4 py-3 max-lg:flex"
+                                class="bg-base-100 border-base-300 mx-2 hidden items-center gap-2 rounded-b-lg border p-2 max-lg:flex"
                             >
                                 <button
                                     icon
+                                    default
                                     type="button"
                                     matRipple
                                     class="sm:hidden"
@@ -59,10 +53,12 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                 >
                                     <icon>arrow_back</icon>
                                 </button>
-                                <icon class="shrink-0 text-2xl opacity-60"
-                                    >playlist_play</icon
+                                <div
+                                    class="flex min-w-0 flex-1 items-center gap-2 px-2"
                                 >
-                                <div class="min-w-0 flex-1">
+                                    <icon class="shrink-0 text-2xl opacity-60"
+                                        >playlist_play</icon
+                                    >
                                     <h4 class="truncate text-lg font-medium">
                                         {{ selected_playlist().name }}
                                     </h4>
@@ -71,9 +67,9 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                     @if (can_approve()) {
                                         <button
                                             icon
+                                            default
                                             type="button"
                                             matRipple
-                                            class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                             [matTooltip]="
                                                 'SIGNAGE_MANAGER.APPROVE_PLAYLIST_TOOLTIP'
                                                     | translate
@@ -91,9 +87,9 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                     } @else {
                                         <button
                                             icon
+                                            default
                                             type="button"
                                             matRipple
-                                            class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                             [matTooltip]="
                                                 'SIGNAGE_MANAGER.REQUEST_PLAYLIST_APPROVAL_TOOLTIP'
                                                     | translate
@@ -120,9 +116,9 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                 @if (can_update()) {
                                     <button
                                         icon
+                                        default
                                         type="button"
                                         matRipple
-                                        class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                         [matTooltip]="
                                             'SIGNAGE_MANAGER.EDIT_PLAYLIST_TOOLTIP'
                                                 | translate
@@ -139,9 +135,9 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                 @if (can_share()) {
                                     <button
                                         icon
+                                        default
                                         type="button"
                                         matRipple
-                                        class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                         [matTooltip]="
                                             'SIGNAGE_MANAGER.SHARE_PLAYLIST_TOOLTIP'
                                                 | translate
@@ -158,9 +154,10 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                 @if (can_delete()) {
                                     <button
                                         icon
+                                        default
+                                        error
                                         type="button"
                                         matRipple
-                                        class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                         [matTooltip]="
                                             'SIGNAGE_MANAGER.DELETE_PLAYLIST_TOOLTIP'
                                                 | translate
@@ -171,7 +168,7 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                                 | translate
                                         "
                                     >
-                                        <icon class="text-error">delete</icon>
+                                        <icon>delete</icon>
                                     </button>
                                 }
                             </div>
@@ -284,7 +281,6 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         NavSidebarComponent,
         NavFooterComponent,

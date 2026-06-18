@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
@@ -56,7 +51,6 @@ const GROUP_PERMISSION_FLAGS = [
         </fullscreen-modal-shell>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FullscreenModalShellComponent,
         FormsModule,
@@ -77,7 +71,7 @@ export class SignageGroupPermissionsModalComponent {
     }>(MAT_DIALOG_DATA);
     public readonly permissions = GROUP_PERMISSION_FLAGS;
     public readonly value = signal(+this.data.permissions || 0);
-    public deny = !!this.data.deny;
+    public readonly deny = signal(!!this.data.deny);
 
     public hasPermission(permission: number) {
         return (this.value() & permission) === permission;
@@ -89,7 +83,10 @@ export class SignageGroupPermissionsModalComponent {
     }
 
     public save() {
-        this._dialog_ref.close({ permissions: this.value(), deny: this.deny });
+        this._dialog_ref.close({
+            permissions: this.value(),
+            deny: this.deny(),
+        });
     }
 }
 

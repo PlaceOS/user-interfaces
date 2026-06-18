@@ -1,6 +1,5 @@
 import { CdkTreeModule } from '@angular/cdk/tree';
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -256,7 +255,6 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FormsModule,
         RouterLink,

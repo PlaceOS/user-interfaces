@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-} from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { i18n } from '@placeos/common';
@@ -109,7 +104,6 @@ import { GroupSelectModalComponent } from './group-select-modal.component';
             </ng-template>
         }
     `,
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         CustomTooltipComponent,

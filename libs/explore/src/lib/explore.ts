@@ -9,4 +9,3 @@ export * from './explore-spaces.service';
 export * from './explore-state.service';
 export * from './explore-zones.service';
 export * from './explore-zoom-control.component';
-export * from './explore.module';

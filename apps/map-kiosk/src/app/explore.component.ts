@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -7,11 +6,18 @@ import {
     inject,
     OnInit,
     signal,
+    untracked,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import {
+    ActivatedRoute,
+    ParamMap,
+    Router,
+    RouterModule,
+} from '@angular/router';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
@@ -279,7 +285,6 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
         SpacePipe,
     ],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         AccessibilityControlsComponent,
         MatRippleModule,
@@ -311,7 +316,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     public readonly show_levels = signal(true);
     public readonly show_legend = signal(false);
     public readonly show_accessibility = signal(false);
-    public legend = [
+    public readonly legend = [
         { id: 'free', name: 'Space Available', color: '#43a047' },
         { id: 'busy', name: 'Space In Use', color: '#e53935' },
         { id: 'pending', name: 'Space Pending', color: '#ffb300' },
@@ -365,11 +370,23 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
 
     public readonly locate = signal('');
 
+    /** Signal of the current route query parameters */
+    private readonly _query_params = toSignal(this._route.queryParamMap);
+    /** Whether the view is ready to react to route query parameters */
+    private readonly _ready = signal(false);
+
     private readonly _clear_located_on_level_change = effect(() => {
         this._state.level();
         this.timeout('update_location', () => {
             this._state.setFeatures('_located', []);
         });
+    });
+
+    private readonly _handle_query_params = effect(() => {
+        if (!this._ready()) return;
+        const params = this._query_params();
+        if (!params) return;
+        untracked(() => this.handleQueryParams(params));
     });
 
     @HostListener('window:mousedown') public onMouse = () =>
@@ -417,82 +434,74 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         this.resetKiosk(false);
         VirtualKeyboardComponent.enabled =
             localStorage.getItem('OSK.enabled') === 'true';
-        this.subscription(
-            'route.query',
-            this._route.queryParamMap.subscribe(async (params) => {
-                if (params.has('level')) {
-                    log('Explore', 'Level changed to:', params.get('level'));
-                    this._state.setLevel(params.get('level'));
-                    const level = this._org.levelWithID([params.get('level')]);
-                    if (!level) return;
-                    const bld = this._org.buildings.find(
-                        (_) => level.parent_id === _.id,
-                    );
-                    if (!bld) return;
-                    this._org.building = bld;
-                }
+        this._ready.set(true);
+    }
+
+    /** React to changes in the route query parameters */
+    private async handleQueryParams(params: ParamMap) {
+        if (params.has('level')) {
+            log('Explore', 'Level changed to:', params.get('level'));
+            this._state.setLevel(params.get('level'));
+            const level = this._org.levelWithID([params.get('level')]);
+            if (!level) return;
+            const bld = this._org.buildings.find(
+                (_) => level.parent_id === _.id,
+            );
+            if (!bld) return;
+            this._org.building = bld;
+        }
+        this._state.setFeatures('_located', []);
+        if (params.has('space')) {
+            log('Explore', 'Focusing on space:', params.get('space'));
+            this.locateSpace(params.get('space'));
+        } else if (params.has('user')) {
+            log('Explore', 'Focusing on user:', params.get('user'));
+            let user = this._settings.value('last_search');
+            if (!user || params.get('user') !== user.email) {
+                user = null;
+                user = await showStaff(params.get('user'));
+            }
+            if (!user)
+                return notifyError(
+                    `Unable to user details for ${params.get('user')}`,
+                );
+            this.locateUser(user instanceof Array ? user[0] : user).catch(
+                (_) => {
+                    notifyError(`Unable to locate ${params.get('user')}`);
+                    this._router.navigate([], {
+                        relativeTo: this._route,
+                        queryParams: {},
+                    });
+                },
+            );
+        } else if (params.has('feature')) {
+            log('Explore', 'Focusing on feature:', params.get('feature'));
+            this.timeout('update_location', () => {
+                this._state.setFeatures('_located', [
+                    {
+                        location: params.get('feature'),
+                        content: MapPinComponent,
+                        data: {},
+                    },
+                ]);
+            });
+        } else if (params.has('locate')) {
+            log('Explore', 'Focusing on location:', params.get('locate'));
+            this.locate.set(params.get('locate'));
+            this.timeout('update_location', () => {
+                this._state.setFeatures('_located', [
+                    {
+                        location: params.get('locate'),
+                        content: MapPinComponent,
+                        data: {},
+                    },
+                ]);
+            });
+        } else {
+            this.timeout('update_location', () => {
                 this._state.setFeatures('_located', []);
-                if (params.has('space')) {
-                    log('Explore', 'Focusing on space:', params.get('space'));
-                    this.locateSpace(params.get('space'));
-                } else if (params.has('user')) {
-                    log('Explore', 'Focusing on user:', params.get('user'));
-                    let user = this._settings.value('last_search');
-                    if (!user || params.get('user') !== user.email) {
-                        user = null;
-                        user = await showStaff(params.get('user'));
-                    }
-                    if (!user)
-                        return notifyError(
-                            `Unable to user details for ${params.get('user')}`,
-                        );
-                    this.locateUser(
-                        user instanceof Array ? user[0] : user,
-                    ).catch((_) => {
-                        notifyError(`Unable to locate ${params.get('user')}`);
-                        this._router.navigate([], {
-                            relativeTo: this._route,
-                            queryParams: {},
-                        });
-                    });
-                } else if (params.has('feature')) {
-                    log(
-                        'Explore',
-                        'Focusing on feature:',
-                        params.get('feature'),
-                    );
-                    this.timeout('update_location', () => {
-                        this._state.setFeatures('_located', [
-                            {
-                                location: params.get('feature'),
-                                content: MapPinComponent,
-                                data: {},
-                            },
-                        ]);
-                    });
-                } else if (params.has('locate')) {
-                    log(
-                        'Explore',
-                        'Focusing on location:',
-                        params.get('locate'),
-                    );
-                    this.locate.set(params.get('locate'));
-                    this.timeout('update_location', () => {
-                        this._state.setFeatures('_located', [
-                            {
-                                location: params.get('locate'),
-                                content: MapPinComponent,
-                                data: {},
-                            },
-                        ]);
-                    });
-                } else {
-                    this.timeout('update_location', () => {
-                        this._state.setFeatures('_located', []);
-                    });
-                }
-            }),
-        );
+            });
+        }
     }
 
     private async locateSpace(id: string) {

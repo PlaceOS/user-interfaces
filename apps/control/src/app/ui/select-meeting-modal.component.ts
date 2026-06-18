@@ -1,11 +1,5 @@
 import { DatePipe } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    signal,
-} from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -101,7 +95,6 @@ import { ControlStateService } from '../control-state.service';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         MatProgressSpinnerModule,
@@ -120,13 +113,11 @@ export class SelectMeetingModalComponent {
         inject<MatDialogRef<SelectMeetingModalComponent>>(MatDialogRef);
 
     public readonly calendars = this._service.calendars;
-    public readonly events = toSignal(this._service.events, {
-        initialValue: [],
-    });
+    public readonly events = this._service.events;
 
     public readonly loading = signal(false);
 
-    public readonly calendar = toSignal(this._service.calendar);
+    public readonly calendar = this._service.calendar;
 
     public readonly setCalendar = (c: any) => this._service.setCalendar(c);
 

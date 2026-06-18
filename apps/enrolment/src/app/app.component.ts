@@ -29,6 +29,12 @@ import {
 } from '@placeos/common';
 import { setInternalUserDomain } from '@placeos/users';
 
+import {
+    GlobalBannerComponent,
+    ServiceWorkerUpdateCardComponent,
+} from '@placeos/components';
+import { RouterOutlet } from '@angular/router';
+
 import { SpacesService } from '@placeos/events';
 
 import * as MOCKS from '@placeos/mocks';
@@ -45,6 +51,11 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
 
 @Component({
     selector: 'app-root',
+    imports: [
+        RouterOutlet,
+        GlobalBannerComponent,
+        ServiceWorkerUpdateCardComponent,
+    ],
     template: `
         <global-banner />
         <div class="relative h-1/2 w-full flex-1">
@@ -63,7 +74,6 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
         `,
     ],
     changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false,
 })
 export class AppComponent extends AsyncHandler implements OnInit {
     private _tracing = inject(Sentry.TraceService);

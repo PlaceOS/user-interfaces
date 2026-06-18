@@ -1,6 +1,5 @@
 import { DatePipe } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     ElementRef,
     computed,
@@ -170,7 +169,6 @@ interface MpegTsLibrary {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         DatePipe,
         MatDialogModule,

@@ -1,12 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    OnInit,
-    computed,
-    signal,
-    viewChild,
-} from '@angular/core';
+import { Component, OnInit, computed, signal, viewChild } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { AsyncHandler } from '@placeos/common';
 
@@ -95,8 +88,7 @@ import { DateFieldComponent } from '@placeos/form-fields';
                     <div class="flex w-full gap-2">
                         <a-date-field
                             [from]="1"
-                            [ngModel]="edited_time()"
-                            (ngModelChange)="edited_time.set($event)"
+                            [(ngModel)]="edited_time"
                             class="no-subscript w-40 flex-1"
                         />
                         <mat-form-field
@@ -168,7 +160,6 @@ import { DateFieldComponent } from '@placeos/form-fields';
         </ng-template>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         IconComponent,

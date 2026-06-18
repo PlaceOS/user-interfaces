@@ -1,17 +1,13 @@
-import { Injectable, inject } from '@angular/core';
 import {
-    AsyncHandler,
-    nextValueFrom,
-    observableFromSignal,
-} from '@placeos/common';
+    computed,
+    effect,
+    inject,
+    Injectable,
+    signal,
+    Signal,
+} from '@angular/core';
+import { AsyncHandler } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
-import { Observable } from 'rxjs';
-import {
-    distinctUntilChanged,
-    map,
-    shareReplay,
-    switchMap,
-} from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
 
 export type VideoLayout = 'Auto' | 'Equal' | 'Overlay' | 'Prominent' | 'Single';
@@ -53,55 +49,38 @@ export interface VideoCallDetails {
 export class VideoCallStateService extends AsyncHandler {
     private _control = inject(ControlStateService);
 
-    public readonly connected: Observable<VideoCallDetails | null> =
-        this._control.system_id.pipe(
-            distinctUntilChanged(),
-            switchMap((id) => this.bindTo(id, 'connected')),
-            shareReplay(1),
-        );
-    public readonly call: Observable<VideoCallDetails | null> =
-        this._control.system_id.pipe(
-            distinctUntilChanged(),
-            switchMap((id) => this.bindTo(id, 'calls')),
-            map((_) => {
-                for (const key in _) {
-                    if (_[key].Status) return _[key];
-                }
-                return null;
-            }),
-            shareReplay(1),
-        );
-    public readonly mic_mute: Observable<VideoCallDetails | null> =
-        this._control.system_id.pipe(
-            distinctUntilChanged(),
-            switchMap((id) => this.bindTo(id, 'mic_mute')),
-            shareReplay(1),
-        );
-    public readonly presentation_mode: Observable<VideoCallDetails | null> =
-        this._control.system_id.pipe(
-            distinctUntilChanged(),
-            switchMap((id) => this.bindTo(id, 'presentation_mode')),
-            shareReplay(1),
-        );
-    public readonly video_layout: Observable<VideoCallDetails | null> =
-        this._control.system_id.pipe(
-            distinctUntilChanged(),
-            switchMap((id) => this.bindTo(id, 'video_layout')),
-            shareReplay(1),
-        );
-    public readonly show_camera_pip: Observable<VideoCallDetails | null> =
-        this._control.system_id.pipe(
-            distinctUntilChanged(),
-            switchMap((id) => this.bindTo(id, 'selfview')),
-            shareReplay(1),
-        );
-    public readonly speaker_track: Observable<boolean> =
-        this._control.system_id.pipe(
-            distinctUntilChanged(),
-            switchMap((id) => this.bindTo(id, 'speaker_track')),
-            map((_) => (_ || {})['Status/Cameras/SpeakerTrack/Availability']),
-            shareReplay(1),
-        );
+    public readonly connected = this._bindTo<VideoCallDetails | null>(
+        'connected',
+    );
+    private readonly _calls =
+        this._bindTo<Record<string, VideoCallDetails>>('calls');
+    public readonly call = computed<VideoCallDetails | null>(() => {
+        const calls = this._calls();
+        for (const key in calls) {
+            if (calls[key].Status) return calls[key];
+        }
+        return null;
+    });
+    public readonly mic_mute = this._bindTo<VideoCallDetails | null>(
+        'mic_mute',
+    );
+    public readonly presentation_mode = this._bindTo<VideoCallDetails | null>(
+        'presentation_mode',
+    );
+    public readonly video_layout = this._bindTo<VideoCallDetails | null>(
+        'video_layout',
+    );
+    public readonly show_camera_pip = this._bindTo<VideoCallDetails | null>(
+        'selfview',
+    );
+    private readonly _speaker_track =
+        this._bindTo<Record<string, boolean>>('speaker_track');
+    public readonly speaker_track = computed(
+        () =>
+            (this._speaker_track() || {})[
+                'Status/Cameras/SpeakerTrack/Availability'
+            ],
+    );
 
     public async showCameraPIP(state: boolean) {
         const id = this._control.id;
@@ -142,7 +121,7 @@ export class VideoCallStateService extends AsyncHandler {
     public async toggleCallOnHold() {
         const id = this._control.id;
         if (!id) return;
-        const call = await nextValueFrom(this.call);
+        const call = this.call();
         if (!call) return;
         return getModule(id, 'VidConf').execute(
             call.Status === 'OnHold' ? 'call_resume' : 'call_place_on_hold',
@@ -150,11 +129,29 @@ export class VideoCallStateService extends AsyncHandler {
         );
     }
 
-    private bindTo(id: string, name: string, mod_name = 'VidConf') {
-        const mod = getModule(id, mod_name);
-        const binding = mod.variable(name);
-        const unbind = binding.bind();
-        this.subscription(`binding:${name}`, unbind);
-        return observableFromSignal(binding.listen());
+    /**
+     * Create an Angular signal that mirrors a video conferencing status
+     * variable binding, rebinding whenever the active system changes.
+     */
+    private _bindTo<T>(name: string, mod_name = 'VidConf'): Signal<T | null> {
+        const value = signal<T | null>(null);
+        effect((onCleanup) => {
+            const id = this._control.system_id();
+            if (!id) {
+                value.set(null);
+                return;
+            }
+            const binding = getModule(id, mod_name).variable(name);
+            const unbind = binding.bind();
+            const listener = binding.listen();
+            const update = () => value.set(listener() ?? null);
+            update();
+            const unsubscribe = listener.subscribe(() => update());
+            onCleanup(() => {
+                unsubscribe();
+                unbind();
+            });
+        });
+        return value.asReadonly();
     }
 }

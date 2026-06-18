@@ -1,8 +1,8 @@
+import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatSliderModule } from '@angular/material/slider';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { mockComponent, mockDirective } from '@placeos/common/tests';
-import { BehaviorSubject } from 'rxjs';
 
 import {
     BindingDirective,
@@ -24,8 +24,8 @@ describe('MicrophoneTooltipComponent', () => {
             {
                 provide: ControlStateService,
                 useValue: {
-                    mic_list: new BehaviorSubject([]),
-                    microphones: new BehaviorSubject([]),
+                    mic_list: signal([]),
+                    microphones: signal([]),
                 },
             },
             {
@@ -46,7 +46,7 @@ describe('MicrophoneTooltipComponent', () => {
         spectator.detectChanges();
         expect('p').toContainText('');
         const service = spectator.inject(ControlStateService);
-        (service as any).mic_list.next([
+        (service as any).mic_list.set([
             { id: 'mic1', name: 'Microphone 1' },
             { id: 'mic2', name: 'Microphone 2' },
         ]);

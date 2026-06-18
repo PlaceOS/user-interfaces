@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     DoCheck,
@@ -399,7 +398,6 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatRippleModule,

@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     inject,
     signal,
@@ -166,7 +165,6 @@ import {
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, IconComponent, AuthenticatedImageDirective],
 })
 export class RoomDetailsComponent {

@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -279,10 +278,7 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
                         [max]="item.video_length || 300000"
                         step="100"
                     >
-                        <input
-                            matSliderThumb
-                            [formField]="form.play_time"
-                        />
+                        <input matSliderThumb [formField]="form.play_time" />
                     </mat-slider>
                     <label for="animation">{{
                         'SIGNAGE_MANAGER.ANIMATION' | translate
@@ -396,7 +392,6 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
             useValue: UploadPermissionsModalComponent,
         },
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FullscreenModalShellComponent,
         FormField,

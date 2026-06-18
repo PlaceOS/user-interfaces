@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     inject,
     signal,
@@ -79,7 +78,6 @@ interface AnalyticsPage {
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         TranslatePipe,

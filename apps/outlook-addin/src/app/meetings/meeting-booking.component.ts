@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     inject,
     signal,
@@ -56,7 +55,6 @@ import { MeetingBookingFormComponent } from './meeting-form.component';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, MeetingBookingFormComponent],
 })
 export class MeetingBookingComponent {

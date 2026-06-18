@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     OnInit,
     inject,
@@ -38,7 +37,6 @@ import { CheckinStateService } from './checkin-state.service';
         }
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, MatProgressSpinnerModule, TakePhotoComponent],
 })
 export class CheckinPhotoComponent implements OnInit {

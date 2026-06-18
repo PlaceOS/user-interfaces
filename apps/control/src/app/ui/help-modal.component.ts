@@ -1,11 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    signal,
-} from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -19,7 +12,6 @@ import {
 } from '@placeos/components';
 
 import { marked } from 'marked';
-import { debounceTime, map } from 'rxjs/operators';
 
 @Component({
     selector: 'help-modal',
@@ -103,7 +95,6 @@ import { debounceTime, map } from 'rxjs/operators';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatDialogModule,
         SafePipe,
@@ -134,17 +125,14 @@ export class HelpModalComponent {
             this.items?.[0] || { id: '', content: `` },
     );
 
-    public readonly logo = toSignal(
-        toObservable(this._org.active_building).pipe(
-            debounceTime(500),
-            map(
-                () =>
-                    (this._settings.theme === 'dark'
-                        ? this._settings.get('app.logo_dark')
-                        : this._settings.get('app.logo_light')) || {},
-            ),
-        ),
-    );
+    public readonly logo = computed(() => {
+        this._org.active_building();
+        return (
+            (this._settings.theme === 'dark'
+                ? this._settings.get('app.logo_dark')
+                : this._settings.get('app.logo_light')) || {}
+        );
+    });
 
     public readonly content = computed(() => {
         const item = this.active_item();

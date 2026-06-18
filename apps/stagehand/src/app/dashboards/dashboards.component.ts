@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     effect,
@@ -82,7 +81,6 @@ import { DashboardsService } from './dashboards.service';
         </div>
     `,
     styles: [],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         SidebarComponent,
         MatRippleModule,

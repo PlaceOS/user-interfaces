@@ -1,10 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    input,
-} from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { CalendarEvent } from '@placeos/common';
 import { getHours, getMinutes } from 'date-fns';
 
@@ -33,7 +28,6 @@ import { getHours, getMinutes } from 'date-fns';
         }
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule],
 })
 export class SpaceEventDetailsComponent {

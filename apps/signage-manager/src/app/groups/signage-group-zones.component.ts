@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -34,9 +34,9 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
                 </h5>
                 <button
                     icon
+                    default
                     type="button"
                     matRipple
-                    class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                     [matTooltip]="
                         'SIGNAGE_MANAGER.ADD_ZONE_TOOLTIP' | translate
                     "
@@ -95,9 +95,9 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
                             </div>
                             <button
                                 icon
+                                default
                                 type="button"
                                 matRipple
-                                class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                 [matTooltip]="
                                     'SIGNAGE_MANAGER.EDIT_ZONE_PERMS'
                                         | translate
@@ -112,9 +112,10 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
                             </button>
                             <button
                                 icon
+                                default
+                                error
                                 type="button"
                                 matRipple
-                                class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                 [matTooltip]="
                                     'SIGNAGE_MANAGER.REMOVE_ZONE' | translate
                                 "
@@ -123,7 +124,7 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
                                 "
                                 (click)="removeZone(row)"
                             >
-                                <icon class="text-error">close</icon>
+                                <icon>close</icon>
                             </button>
                         </div>
                     }
@@ -150,7 +151,6 @@ import { SignageGroupZoneSelectModalComponent } from './signage-group-zone-selec
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, MatTooltipModule, IconComponent, TranslatePipe],
 })
 export class SignageGroupZonesComponent {

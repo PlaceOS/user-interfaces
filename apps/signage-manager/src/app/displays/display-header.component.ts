@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-} from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { TranslatePipe } from '@placeos/components';
 import { SignageService } from '../signage.service';
 
@@ -29,7 +24,6 @@ import { SignageService } from '../signage.service';
             <div class="w-px flex-1"></div>
         </div>
     `,
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe],
 })
 export class DisplayHeaderComponent {

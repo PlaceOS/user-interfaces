@@ -1,12 +1,5 @@
 import { DatePipe } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    input,
-    output,
-} from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FieldTree, FormField } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -643,9 +636,7 @@ export function playlistSchedulePayload(
                             "
                             [formField]="schedule().play_takeover"
                         />
-                    } @else if (
-                        value().schedule_type === 'play_cron'
-                    ) {
+                    } @else if (value().schedule_type === 'play_cron') {
                         <div
                             class="bg-base-200/40 border-base-300 space-y-4 rounded-lg border p-3"
                         >
@@ -661,7 +652,9 @@ export function playlistSchedulePayload(
                                         class="no-subscript w-full"
                                     >
                                         <mat-select
-                                            [formField]="schedule().recurrence_type"
+                                            [formField]="
+                                                schedule().recurrence_type
+                                            "
                                             [attr.aria-label]="
                                                 'SIGNAGE_MANAGER.REPEAT_PATTERN_ARIA'
                                                     | translate
@@ -695,8 +688,7 @@ export function playlistSchedulePayload(
                                                 }}</mat-option
                                             >
                                             @if (
-                                                value()
-                                                    .recurrence_type ===
+                                                value().recurrence_type ===
                                                 'custom'
                                             ) {
                                                 <mat-option value="custom">{{
@@ -711,8 +703,7 @@ export function playlistSchedulePayload(
                                     <label class="m-0 min-w-40 flex-1">
                                         <div>
                                             {{
-                                                (value()
-                                                    .recurrence_type ===
+                                                (value().recurrence_type ===
                                                 'minutes'
                                                     ? 'SIGNAGE_MANAGER.MINUTES_BETWEEN_PLAYS'
                                                     : 'SIGNAGE_MANAGER.HOURS_BETWEEN_PLAYS'
@@ -722,13 +713,14 @@ export function playlistSchedulePayload(
                                         <a-counter
                                             [min]="1"
                                             [max]="
-                                                value()
-                                                    .recurrence_type ===
+                                                value().recurrence_type ===
                                                 'minutes'
                                                     ? 59
                                                     : 23
                                             "
-                                            [formField]="schedule().recurrence_interval"
+                                            [formField]="
+                                                schedule().recurrence_interval
+                                            "
                                             [attr.aria-label]="
                                                 'SIGNAGE_MANAGER.SCHEDULE_INTERVAL_ARIA'
                                                     | translate
@@ -737,9 +729,7 @@ export function playlistSchedulePayload(
                                     </label>
                                 }
                             </div>
-                            @if (
-                                value().recurrence_type === 'weekly'
-                            ) {
+                            @if (value().recurrence_type === 'weekly') {
                                 <div>
                                     <div class="mb-2 text-sm font-medium">
                                         {{
@@ -796,9 +786,7 @@ export function playlistSchedulePayload(
                                         }
                                     </div>
                                 </div>
-                            } @else if (
-                                value().recurrence_type === 'monthly'
-                            ) {
+                            } @else if (value().recurrence_type === 'monthly') {
                                 <div>
                                     <label>{{
                                         'SIGNAGE_MANAGER.PLAY_EACH_MONTH_ON'
@@ -809,7 +797,10 @@ export function playlistSchedulePayload(
                                         class="no-subscript w-full"
                                     >
                                         <mat-select
-                                            [formField]="schedule().recurrence_day_of_month"
+                                            [formField]="
+                                                schedule()
+                                                    .recurrence_day_of_month
+                                            "
                                             [attr.aria-label]="
                                                 'SIGNAGE_MANAGER.DAYS_OF_MONTH_ARIA'
                                                     | translate
@@ -828,8 +819,7 @@ export function playlistSchedulePayload(
                                     </mat-form-field>
                                 </div>
                             } @else if (
-                                value().recurrence_type ===
-                                'monthly_weekday'
+                                value().recurrence_type === 'monthly_weekday'
                             ) {
                                 <div>
                                     <label>{{
@@ -842,7 +832,10 @@ export function playlistSchedulePayload(
                                             class="no-subscript w-full"
                                         >
                                             <mat-select
-                                                [formField]="schedule().recurrence_week_of_month"
+                                                [formField]="
+                                                    schedule()
+                                                        .recurrence_week_of_month
+                                                "
                                                 [attr.aria-label]="
                                                     'SIGNAGE_MANAGER.WEEK_OF_MONTH_ARIA'
                                                         | translate
@@ -867,7 +860,10 @@ export function playlistSchedulePayload(
                                             class="no-subscript w-full"
                                         >
                                             <mat-select
-                                                [formField]="schedule().recurrence_weekdays"
+                                                [formField]="
+                                                    schedule()
+                                                        .recurrence_weekdays
+                                                "
                                                 [attr.aria-label]="
                                                     'SIGNAGE_MANAGER.DAYS_OF_WEEK_ARIA'
                                                         | translate
@@ -892,9 +888,7 @@ export function playlistSchedulePayload(
                                         </mat-form-field>
                                     </div>
                                 </div>
-                            } @else if (
-                                value().recurrence_type === 'custom'
-                            ) {
+                            } @else if (value().recurrence_type === 'custom') {
                                 <div
                                     class="border-warning/30 bg-warning/10 text-warning-content rounded-lg border p-3 text-sm"
                                 >
@@ -919,8 +913,7 @@ export function playlistSchedulePayload(
                                                 type="time"
                                                 [value]="
                                                     formatPlayHour(
-                                                        value()
-                                                            .play_start
+                                                        value().play_start
                                                     )
                                                 "
                                                 [attr.aria-label]="
@@ -947,9 +940,7 @@ export function playlistSchedulePayload(
                                         [formField]="schedule().play_period"
                                         [max]="24 * 60"
                                         [time]="recurringPlayStartTime()"
-                                        [custom_options]="[
-                                            value().play_period,
-                                        ]"
+                                        [custom_options]="[value().play_period]"
                                     ></a-duration-field>
                                 </div>
                             </div>
@@ -996,7 +987,6 @@ export function playlistSchedulePayload(
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FormField,
         FormsModule,

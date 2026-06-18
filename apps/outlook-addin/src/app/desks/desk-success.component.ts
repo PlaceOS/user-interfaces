@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -48,7 +47,6 @@ import { BookingFormService } from '@placeos/bookings';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, RouterModule, CommonModule],
 })
 export class DeskBookingSuccessComponent {

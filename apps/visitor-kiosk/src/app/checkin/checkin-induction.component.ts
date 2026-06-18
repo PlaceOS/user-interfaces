@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -58,7 +57,6 @@ import { CheckinStateService } from './checkin-state.service';
         </div>
     `,
     styles: [],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, MatRippleModule, MatCheckboxModule, FormsModule],
 })
 export class CheckinInductionComponent {

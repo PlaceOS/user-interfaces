@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     inject,
     Injector,
@@ -152,7 +151,6 @@ import {
         }
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         AssetListFieldComponent,
         DeskListFieldComponent,

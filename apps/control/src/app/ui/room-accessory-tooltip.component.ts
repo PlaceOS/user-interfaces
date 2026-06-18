@@ -1,5 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, inject } from '@angular/core';
 import {
     CustomTooltipData,
     IconComponent,
@@ -52,16 +51,13 @@ import { ControlStateService } from '../control-state.service';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, MatRippleModule, IconComponent, MatTooltipModule],
 })
 export class RoomAccessoryTooltipComponent {
     private _state = inject(ControlStateService);
     private _tooltip = inject(CustomTooltipData);
 
-    public readonly list = toSignal(this._state.room_accessories, {
-        initialValue: [] as any[],
-    });
+    public readonly list = this._state.room_accessories;
     /** Close the tooltip */
     public readonly close = () => this._tooltip.close();
 

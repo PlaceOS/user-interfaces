@@ -4,11 +4,23 @@ import {
     inject,
     OnInit,
 } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 import { PlaceOS_Service, setMocks } from '@placeos/common';
+import {
+    ChatComponent,
+    GlobalBannerComponent,
+    GlobalLoadingComponent,
+} from '@placeos/components';
 import { mocksInit } from '@placeos/mocks';
 
 @Component({
     selector: 'app-root',
+    imports: [
+        RouterOutlet,
+        ChatComponent,
+        GlobalBannerComponent,
+        GlobalLoadingComponent,
+    ],
     template: `
         <global-banner />
         <div class="relative h-1/2 w-full flex-1">
@@ -31,7 +43,6 @@ import { mocksInit } from '@placeos/mocks';
         `,
     ],
     changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false,
 })
 export class AppComponent implements OnInit {
     private _placeos = inject(PlaceOS_Service);

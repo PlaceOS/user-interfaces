@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     DestroyRef,
     inject,
@@ -49,7 +48,6 @@ import { startOfMinute } from 'date-fns';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, RouterModule, AuthenticatedImageDirective],
 })
 export class CheckinComponent {

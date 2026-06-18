@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     ElementRef,
@@ -83,7 +82,6 @@ export enum JoystickPan {
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [IconComponent],
 })
 export class JoystickComponent extends AsyncHandler {

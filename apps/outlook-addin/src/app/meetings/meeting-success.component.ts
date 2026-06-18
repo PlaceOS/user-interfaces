@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -44,7 +43,6 @@ import { EventFormService, SpacePipe } from '@placeos/events';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, SpacePipe, MatRippleModule, RouterModule],
 })
 export class MeetingBookingSuccessComponent {

@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     ElementRef,
     input,
@@ -181,8 +180,8 @@ const PLUGIN_LOAD_TIMEOUT = 15 * 1000;
                             </div>
                             <button
                                 icon
+                                default
                                 matRipple
-                                class="border-base-300 border"
                                 (click)="closed.emit()"
                             >
                                 <icon>close</icon>
@@ -201,8 +200,9 @@ const PLUGIN_LOAD_TIMEOUT = 15 * 1000;
                 }
                 <button
                     icon
+                    default
                     matRipple
-                    class="border-base-200 bg-base-100 absolute top-6 right-6 z-20 border shadow-sm"
+                    class="absolute top-6 right-6 z-20"
                     (click)="show_playlist.set(!show_playlist())"
                 >
                     <icon>{{ show_playlist() ? 'close' : 'queue_music' }}</icon>
@@ -221,7 +221,6 @@ const PLUGIN_LOAD_TIMEOUT = 15 * 1000;
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         PlaylistDisplayComponent,

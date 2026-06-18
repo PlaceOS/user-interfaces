@@ -1,6 +1,7 @@
 import { Location } from '@angular/common';
 import { Injector } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { NativeDateModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { CalendarEvent, SettingsService } from '@placeos/common';
@@ -10,7 +11,6 @@ import {
     generateEventForm,
 } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
-import { BookModule } from '../app/rooms/book.module';
 import { RoomBookingComponent } from '../app/rooms/room-booking.component';
 import { UpcomingBookingsComponent } from '../app/rooms/upcoming-bookings.component';
 
@@ -32,7 +32,7 @@ describe('RoomBookingComponent', () => {
 
     const createComponent = createRoutingFactory({
         component: RoomBookingComponent,
-        imports: [FormsModule, MatFormFieldModule, BookModule],
+        imports: [FormsModule, MatFormFieldModule, NativeDateModule],
         providers: [
             {
                 provide: EventFormService,
