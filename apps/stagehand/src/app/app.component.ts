@@ -3,8 +3,13 @@ import {
     inject,
     OnInit,
 } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 import { PlaceOS_Service, setMocks } from '@placeos/common';
 import { mocksInit } from '@placeos/mocks';
+
+import { ChatComponent } from 'libs/components/src/lib/chat/chat.component';
+import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
+import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
 
 @Component({
     selector: 'app-root',
@@ -32,7 +37,12 @@ import { mocksInit } from '@placeos/mocks';
             }
         `,
     ],
-    standalone: false,
+    imports: [
+        RouterOutlet,
+        ChatComponent,
+        GlobalBannerComponent,
+        GlobalLoadingComponent,
+    ],
 })
 export class AppComponent implements OnInit {
     private _placeos = inject(PlaceOS_Service);

@@ -6,7 +6,9 @@ import {
     OnInit,
 } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { RouterOutlet } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
+import { GlobalLoadingComponent } from '@placeos/components';
 import {
     AsyncHandler,
     current_user,
@@ -39,7 +41,7 @@ declare let OfficeRuntime: any;
     `,
     styles: [``],
     changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false,
+    imports: [RouterOutlet, GlobalLoadingComponent],
 })
 export class AppComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);

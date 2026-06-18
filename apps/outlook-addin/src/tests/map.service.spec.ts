@@ -10,7 +10,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { ngMocks } from 'ng-mocks';
 import { of } from 'rxjs';
-import { BookModule } from '../app/rooms/book.module';
 import { MapService } from '../app/rooms/map.service';
 
 import { nextValueFrom } from '@placeos/common';
@@ -29,7 +28,6 @@ describe('MapService', () => {
             ReactiveFormsModule,
             FormsModule,
             MatFormFieldModule,
-            BookModule,
             CommonModule,
             BrowserModule,
             BrowserAnimationsModule,

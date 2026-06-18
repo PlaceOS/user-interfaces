@@ -4,10 +4,22 @@ import {
     inject,
     OnInit,
 } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 import { PlaceOS_Service } from '@placeos/common';
+import {
+    ChatComponent,
+    GlobalBannerComponent,
+    GlobalLoadingComponent,
+} from '@placeos/components';
 
 @Component({
     selector: 'app-root',
+    imports: [
+        RouterOutlet,
+        ChatComponent,
+        GlobalBannerComponent,
+        GlobalLoadingComponent,
+    ],
     template: `
         <global-banner />
         <div class="relative h-1/2 w-full flex-1">
@@ -30,7 +42,6 @@ import { PlaceOS_Service } from '@placeos/common';
         `,
     ],
     changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false,
 })
 export class AppComponent implements OnInit {
     private _placeos = inject(PlaceOS_Service);
