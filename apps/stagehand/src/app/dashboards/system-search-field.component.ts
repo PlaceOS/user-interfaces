@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     ElementRef,
     effect,
@@ -103,7 +102,7 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
                     >
                         <p class="text-sm">
                             {{
-                                search_str?.length
+                                search_str()?.length
                                     ? 'No matching ' +
                                       (name() || 'item') +
                                       ' for search string'
@@ -135,7 +134,7 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
                 <div class="flex h-5 items-center justify-between">
                     <div
                         name
-                        [innerHTML]="item_name[option.id] | sanitize"
+                        [innerHTML]="item_name()[option.id] | sanitize"
                     ></div>
                     @if (option.notes) {
                         <code class="truncate text-xs!">{{
@@ -182,7 +181,6 @@ import { SanitizePipe } from 'libs/components/src/lib/sanitise.pipe';
             multi: true,
         },
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatAutocompleteModule,
@@ -247,7 +245,7 @@ export class SystemSearchFieldComponent
     }
 
     /** Map of item names to their IDs */
-    public item_name: Record<string, string> = {};
+    public readonly item_name = signal<Record<string, string>>({});
 
     private readonly _search_query = effect(() => {
         const query = this.search_str();
@@ -371,6 +369,6 @@ export class SystemSearchFieldComponent
                     (item as any).custom_name || item.name || '<Unnamed>';
             }
         }
-        this.item_name = map;
+        this.item_name.set(map);
     }
 }

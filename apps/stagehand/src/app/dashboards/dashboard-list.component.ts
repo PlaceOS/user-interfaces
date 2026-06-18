@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     inject,
     OnInit,
@@ -224,7 +223,6 @@ import { DashboardsService } from './dashboards.service';
         </div>
     `,
     styles: [],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         SimpleTableComponent,
         TranslatePipe,

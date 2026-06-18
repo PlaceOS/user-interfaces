@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     inject,
     OnInit,
@@ -62,7 +61,6 @@ interface RecorderStreamMetadata {
         </div>
     </div>`,
     styles: ``,
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [SidebarComponent, SafePipe],
 })
 export class RecorderGridViewComponent extends AsyncHandler implements OnInit {
