@@ -2262,7 +2262,7 @@
         "DAYS_OF_WEEK_ARIA": "Recurring schedule days of week",
         "DEFAULT_ANIMATION": "Default animation",
         "DEFAULT_DURATION": "Default Duration",
-        "DEFAULT_PERMISSIONS": "Default permissions",
+        "DEFAULT_PERMISSIONS": "No permissions",
         "DEFAULT_PLAY_TIME": "Default Play Time",
         "DELETE_PLAYLIST_TOOLTIP": "Delete playlist",
         "DELETE_SELECTED_PLAYLIST": "Delete selected playlist",
