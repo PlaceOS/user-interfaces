@@ -1,18 +1,20 @@
 import { CommonModule } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     OnInit,
     computed,
+    effect,
     inject,
     signal,
+    untracked,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 import {
     AsyncHandler,
@@ -338,7 +340,6 @@ import {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         MatProgressSpinnerModule,
@@ -354,6 +355,18 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
+
+    /** Signal of the current route query parameters */
+    private readonly _query_params = toSignal(this._route.queryParamMap);
+    /** Whether the bootstrap is ready to react to route query parameters */
+    private readonly _ready = signal(false);
+
+    private readonly _handle_query_params = effect(() => {
+        if (!this._ready()) return;
+        const params = this._query_params();
+        if (!params) return;
+        untracked(() => this.handleQueryParams(params));
+    });
 
     public get version() {
         return VERSION;
@@ -409,29 +422,29 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
         this.active_region.set(this._org.region);
-        this.subscription(
-            'route.query',
-            this._route.queryParamMap.subscribe((params) => {
-                if (params.has('osk')) {
-                    const osk_enabled = params.get('osk') === 'true';
-                    localStorage.setItem('OSK.enabled', `${osk_enabled}`);
-                }
-                if (params.has('clear') && params.get('clear') === 'true') {
-                    localStorage.removeItem('KIOSK.building');
-                    localStorage.removeItem('KIOSK.level');
-                    localStorage.removeItem('KIOSK.parking');
-                    localStorage.removeItem('KIOSK.orientation');
-                }
-                if (params.has('level')) {
-                    const level = this._org.levelWithID([params.get('level')]);
-                    if (level) {
-                        this.active_level.set(level);
-                        this.bootstrapKiosk();
-                    }
-                }
-            }),
-        );
+        this._ready.set(true);
         this.timeout('check', () => this.checkBootstrap(), 1000);
+    }
+
+    /** React to changes in the route query parameters */
+    private handleQueryParams(params: ParamMap) {
+        if (params.has('osk')) {
+            const osk_enabled = params.get('osk') === 'true';
+            localStorage.setItem('OSK.enabled', `${osk_enabled}`);
+        }
+        if (params.has('clear') && params.get('clear') === 'true') {
+            localStorage.removeItem('KIOSK.building');
+            localStorage.removeItem('KIOSK.level');
+            localStorage.removeItem('KIOSK.parking');
+            localStorage.removeItem('KIOSK.orientation');
+        }
+        if (params.has('level')) {
+            const level = this._org.levelWithID([params.get('level')]);
+            if (level) {
+                this.active_level.set(level);
+                this.bootstrapKiosk();
+            }
+        }
     }
 
     public updateRotations() {

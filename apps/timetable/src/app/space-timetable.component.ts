@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    input,
-    signal,
-} from '@angular/core';
+import { Component, input, signal } from '@angular/core';
 import { AsyncHandler, Space } from '@placeos/common';
 import { BindingDirective } from '@placeos/components';
 import { SpaceEventDetailsComponent } from './space-event-details.component';
@@ -49,7 +44,6 @@ import { SpaceEventDetailsComponent } from './space-event-details.component';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [BindingDirective, SpaceEventDetailsComponent],
 })
 export class SpaceTimetableComponent extends AsyncHandler {

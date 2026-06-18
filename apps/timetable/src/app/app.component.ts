@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    OnInit,
-} from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { PlaceOS_Service, setMocks } from '@placeos/common';
 import { mocksInit } from '@placeos/mocks';
 
@@ -27,7 +22,6 @@ import { mocksInit } from '@placeos/mocks';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class AppComponent implements OnInit {

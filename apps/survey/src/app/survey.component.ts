@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 
 import { SurveyOutletComponent } from '@placeos/components';
@@ -11,7 +11,6 @@ import { SurveyOutletComponent } from '@placeos/components';
         </div>
     `,
     styles: [],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [SurveyOutletComponent, RouterModule],
 })
 export class SurveyComponent {
