@@ -18,7 +18,7 @@ import { AsyncHandler, UploadsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { apiKey, token } from '@placeos/ts-client';
 
-import Squire from 'squire-rte';
+import type Squire from 'squire-rte';
 
 @Component({
     selector: 'rich-text-input',
@@ -329,11 +329,14 @@ export class RichTextInputComponent
         this._embedFile(false);
     }
 
-    private _initialiseEditor() {
+    private async _initialiseEditor() {
         const _editor_el = this._editor_el()?.nativeElement;
         if (!_editor_el) {
             return this.timeout('init', () => this._initialiseEditor());
         }
+        // Load the Squire editor lazily so the ~58KB library stays out of the
+        // initial bundle until a rich-text field is actually rendered.
+        const { default: Squire } = await import('squire-rte');
         if (this._editor) {
             this._editor.destroy();
         }

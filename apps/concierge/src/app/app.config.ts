@@ -7,7 +7,9 @@ import {
     ApplicationConfig,
     ErrorHandler,
     importProvidersFrom,
+    inject,
     LOCALE_ID,
+    provideAppInitializer,
     provideZonelessChangeDetection,
 } from '@angular/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
@@ -29,29 +31,19 @@ import { routes } from './app.routes';
 
 import * as Sentry from '@sentry/angular';
 
-import { registerLocaleData } from '@angular/common';
-import localeAr from '@angular/common/locales/ar';
-import localeEs from '@angular/common/locales/es';
-import localeFr from '@angular/common/locales/fr';
-import localeIt from '@angular/common/locales/it';
-import localeJa from '@angular/common/locales/ja';
-import localeZh from '@angular/common/locales/zh';
 import {
     LocaleService,
+    registerActiveLocale,
     reloadOnChunkLoadError,
     SettingsTitleStrategy,
 } from '@placeos/common';
 
-registerLocaleData(localeFr);
-registerLocaleData(localeAr);
-registerLocaleData(localeJa);
-registerLocaleData(localeZh);
-registerLocaleData(localeEs);
-registerLocaleData(localeIt);
-
 export const appConfig: ApplicationConfig = {
     providers: [
         provideZonelessChangeDetection(),
+        provideAppInitializer(() =>
+            registerActiveLocale(inject(LocaleService).locale),
+        ),
         provideAnimations(),
         importProvidersFrom(MatSnackBarModule),
         provideServiceWorker('ngsw-worker.js', {
