@@ -6,6 +6,7 @@ export * from './lib/fixed-device-helpers';
 export * from './lib/google-analytics.service';
 export * from './lib/keep-alive.service';
 export * from './lib/lazy-route-reload';
+export * from './lib/locale-data';
 export * from './lib/locale.service';
 export * from './lib/map.interfaces';
 export * from './lib/mapspeople.service';

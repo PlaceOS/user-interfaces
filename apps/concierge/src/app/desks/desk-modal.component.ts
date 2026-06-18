@@ -1,4 +1,12 @@
-import { Component, inject, OnInit, output, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    OnInit,
+    output,
+    signal,
+} from '@angular/core';
 import { form, FormField, required } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -12,6 +20,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
+    Booking,
     Desk,
     DialogEvent,
     notifyInfo,
@@ -20,6 +29,8 @@ import {
     unique,
     User,
 } from '@placeos/common';
+import { queryBookings } from '@placeos/bookings';
+import { addMonths, getUnixTime } from 'date-fns';
 import {
     IconComponent,
     SettingsToggleComponent,
@@ -151,6 +162,21 @@ const CHARS = '0123456789ABCDEF';
                             </icon>
                         </button>
                     </div>
+                    @if (future_bookings().length) {
+                        <div
+                            class="bg-warning/10 border-warning text-warning-content mb-4 flex items-start space-x-2 rounded-sm border p-2 text-sm"
+                        >
+                            <icon class="text-warning">warning</icon>
+                            <p class="flex-1">
+                                {{
+                                    'APP.CONCIERGE.ASSIGNED_FUTURE_DESK_BOOKINGS'
+                                        | translate
+                                            : { count: future_bookings().length }
+                                            : future_bookings().length
+                                }}
+                            </p>
+                        </div>
+                    }
                     <div class="flex space-x-4 pb-4">
                         <settings-toggle
                             [formField]="form.bookable"
@@ -258,6 +284,11 @@ export class DeskModalComponent implements OnInit {
     public readonly event = output<DialogEvent>();
     public loading = signal(false);
 
+    /** Future desk bookings for the currently assigned user (excluding this desk) */
+    public readonly future_bookings = signal<Booking[]>([]);
+
+    private readonly _assigned_email = computed(() => this.model().assigned_to);
+
     public get id(): string {
         return this._data?.desk?.id || '';
     }
@@ -312,6 +343,32 @@ export class DeskModalComponent implements OnInit {
                 id: `desk-${randomString(3, CHARS)}_${randomString(5, CHARS)}`,
             }));
         }
+        effect(() => this._checkFutureBookings(this._assigned_email()));
+    }
+
+    /**
+     * Warn when the assigned user already has upcoming desk bookings. The
+     * desk being edited is excluded so its own assignment booking does not
+     * trigger the warning.
+     */
+    private async _checkFutureBookings(email: string) {
+        if (!email) {
+            this.future_bookings.set([]);
+            return;
+        }
+        const now = Date.now();
+        const bookings = await queryBookings({
+            period_start: getUnixTime(now),
+            period_end: getUnixTime(addMonths(now, 12)),
+            type: 'desk',
+            email,
+            include_checked_out: true,
+        });
+        // Selection changed while the query was in flight; ignore stale result
+        if (this._assigned_email() !== email) return;
+        this.future_bookings.set(
+            bookings.filter((booking) => booking.asset_id !== this.id),
+        );
     }
 
     public async ngOnInit() {

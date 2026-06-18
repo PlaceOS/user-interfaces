@@ -1,5 +1,7 @@
 import {
     Component,
+    computed,
+    effect,
     EventEmitter,
     inject,
     OnInit,
@@ -17,7 +19,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { DialogEvent, User } from '@placeos/common';
+import { Booking, DialogEvent, User } from '@placeos/common';
+import { queryBookings } from '@placeos/bookings';
+import { addMonths, getUnixTime } from 'date-fns';
 import {
     IconComponent,
     SettingsToggleComponent,
@@ -105,6 +109,21 @@ import { ParkingSpace } from './parking-state.service';
                             </icon>
                         </button>
                     </div>
+                    @if (future_bookings().length) {
+                        <div
+                            class="bg-warning/10 border-warning text-warning-content mb-4 flex items-start space-x-2 rounded-sm border p-2 text-sm"
+                        >
+                            <icon class="text-warning">warning</icon>
+                            <p class="flex-1">
+                                {{
+                                    'APP.CONCIERGE.ASSIGNED_FUTURE_PARKING_BOOKINGS'
+                                        | translate
+                                            : { count: future_bookings().length }
+                                            : future_bookings().length
+                                }}
+                            </p>
+                        </div>
+                    }
                     <div class="flex space-x-4 pb-4">
                         <settings-toggle
                             [formField]="form.bookable"
@@ -177,6 +196,11 @@ export class ParkingSpaceModalComponent implements OnInit {
     @Output() public readonly event = new EventEmitter<DialogEvent>();
     public readonly loading = signal(false);
 
+    /** Future parking bookings for the assigned user (excluding this space) */
+    public readonly future_bookings = signal<Booking[]>([]);
+
+    private readonly _assigned_email = computed(() => this.model().assigned_to);
+
     public get id() {
         return this._data?.id || '';
     }
@@ -216,6 +240,32 @@ export class ParkingSpaceModalComponent implements OnInit {
                 map_rotation: data.map_rotation ?? m.map_rotation,
             }));
         }
+        effect(() => this._checkFutureBookings(this._assigned_email()));
+    }
+
+    /**
+     * Warn when the assigned user already has upcoming parking bookings. The
+     * space being edited is excluded so its own assignment booking does not
+     * trigger the warning.
+     */
+    private async _checkFutureBookings(email: string) {
+        if (!email) {
+            this.future_bookings.set([]);
+            return;
+        }
+        const now = Date.now();
+        const bookings = await queryBookings({
+            period_start: getUnixTime(now),
+            period_end: getUnixTime(addMonths(now, 12)),
+            type: 'parking',
+            email,
+            include_checked_out: true,
+        });
+        // Selection changed while the query was in flight; ignore stale result
+        if (this._assigned_email() !== email) return;
+        this.future_bookings.set(
+            bookings.filter((booking) => booking.asset_id !== this.id),
+        );
     }
 
     public async ngOnInit() {

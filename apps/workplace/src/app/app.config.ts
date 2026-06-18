@@ -1,9 +1,10 @@
-import { registerLocaleData } from '@angular/common';
 import {
     ApplicationConfig,
     ErrorHandler,
     LOCALE_ID,
     importProvidersFrom,
+    inject,
+    provideAppInitializer,
     provideZonelessChangeDetection,
 } from '@angular/core';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -18,15 +19,9 @@ import {
 } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 
-import localeAr from '@angular/common/locales/ar';
-import localeEs from '@angular/common/locales/es';
-import localeFr from '@angular/common/locales/fr';
-import localeIt from '@angular/common/locales/it';
-import localeJa from '@angular/common/locales/ja';
-import localeZh from '@angular/common/locales/zh';
-
 import {
     LocaleService,
+    registerActiveLocale,
     SettingsTitleStrategy,
     reloadOnChunkLoadError,
 } from '@placeos/common';
@@ -36,16 +31,12 @@ import { routes } from './app.routes';
 
 import * as Sentry from '@sentry/angular';
 
-registerLocaleData(localeFr);
-registerLocaleData(localeAr);
-registerLocaleData(localeJa);
-registerLocaleData(localeZh);
-registerLocaleData(localeEs);
-registerLocaleData(localeIt);
-
 export const appConfig: ApplicationConfig = {
     providers: [
         provideZonelessChangeDetection(),
+        provideAppInitializer(() =>
+            registerActiveLocale(inject(LocaleService).locale),
+        ),
         provideAnimations(),
         provideRouter(
             routes,

@@ -1,14 +1,24 @@
-import { Injectable } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { CalendarEvent, nextValueFrom } from '@placeos/common';
+import { Injectable, computed, resource, signal } from '@angular/core';
+import { email, form, required, validate } from '@angular/forms/signals';
+import { CalendarEvent, patchSignalModel } from '@placeos/common';
 import { checkinEventGuest, showEvent } from '@placeos/events';
 import { setToken } from '@placeos/ts-client';
 import { showGuest, updateGuest } from '@placeos/users';
 import { getUnixTime } from 'date-fns';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { filter, shareReplay, switchMap, tap } from 'rxjs/operators';
 
 export type EnrolmentView = 'event' | 'guest' | 'error' | 'complete';
+
+export interface EnrolmentFormValue {
+    name: string;
+    email: string;
+    organisation: string;
+    phone: string;
+    assistance_required: boolean;
+    preferred_beverage: string;
+    attachments: any[];
+    vaccination_proof: any;
+    accepted_terms_conditions: boolean;
+}
 
 export function parseJWT(token: string) {
     const base64Url = token.split('.')[1];
@@ -28,91 +38,92 @@ export function parseJWT(token: string) {
     providedIn: 'root',
 })
 export class EnrolmentStateService {
-    private _loading = new BehaviorSubject('Loading your details...');
-    private _error = new BehaviorSubject('link');
-    private _event_id = new BehaviorSubject('');
-    private _guest_id = new BehaviorSubject('');
-    private _view = new BehaviorSubject<EnrolmentView>('error');
+    private _loading = signal('Loading your details...');
+    private _error = signal('link');
+    private _event_id = signal('');
+    private _guest_id = signal('');
+    private _view = signal<EnrolmentView>('error');
 
-    public readonly guest = this._guest_id.pipe(
-        filter((id) => !!id),
-        switchMap((id) => {
-            this._loading.next('Loading your details...');
-            return showGuest(id);
-        }),
-        tap((guest) => {
-            if (!guest) this.setError('guest');
-            else this.form.patchValue({ ...guest });
-        }),
-        shareReplay(1),
-    );
-    public readonly event = combineLatest([
-        this._event_id,
-        this.guest,
-        this._error,
-    ]).pipe(
-        filter(([id, _, err]) => !!_ && !!id && !err),
-        switchMap(([id]) => {
-            this._loading.next('Loading your meeting details...');
-            return showEvent(id);
-        }),
-        tap((e) => this._checkEvent(e)),
-        shareReplay(1),
-    );
-
-    public readonly form = new FormGroup({
-        name: new FormControl('', Validators.required),
-        email: new FormControl('', [Validators.required, Validators.email]),
-        organisation: new FormControl('', Validators.required),
-        phone: new FormControl(''),
-        assistance_required: new FormControl(false),
-        preferred_beverage: new FormControl(''),
-        attachments: new FormControl([]),
-        vaccination_proof: new FormControl(),
-        accepted_terms_conditions: new FormControl(
-            false,
-            Validators.requiredTrue,
-        ),
+    public readonly model = signal<EnrolmentFormValue>({
+        name: '',
+        email: '',
+        organisation: '',
+        phone: '',
+        assistance_required: false,
+        preferred_beverage: '',
+        attachments: [],
+        vaccination_proof: null,
+        accepted_terms_conditions: false,
     });
 
-    public readonly loading = this._loading.asObservable();
-    public readonly error = this._error.asObservable();
-    public readonly view = this._view.asObservable();
+    public readonly form = form(this.model, (p) => {
+        required(p.name);
+        required(p.email);
+        email(p.email);
+        required(p.organisation);
+        validate(p.accepted_terms_conditions, ({ value }) =>
+            value() ? undefined : { kind: 'required' },
+        );
+    });
 
-    constructor() {
-        this.guest.subscribe();
-        this.event.subscribe();
-    }
+    private readonly _guest = resource({
+        params: () => this._guest_id() || undefined,
+        loader: async ({ params: id }) => {
+            this._loading.set('Loading your details...');
+            const guest = await showGuest(id);
+            if (!guest) this.setError('guest');
+            else patchSignalModel(this.model, { ...guest });
+            return guest;
+        },
+    });
+
+    private readonly _event = resource({
+        params: () => ({
+            id: this._event_id(),
+            guest: this._guest.value(),
+            error: this._error(),
+        }),
+        loader: async ({ params }) => {
+            if (!params.guest || !params.id || params.error) return undefined;
+            this._loading.set('Loading your meeting details...');
+            const event = await showEvent(params.id);
+            this._checkEvent(event);
+            return event;
+        },
+    });
+
+    public readonly guest = computed(() => this._guest.value());
+    public readonly event = computed(() => this._event.value());
+
+    public readonly loading = this._loading.asReadonly();
+    public readonly error = this._error.asReadonly();
+    public readonly view = this._view.asReadonly();
 
     public setView(value: EnrolmentView) {
-        this._view.next(value);
+        this._view.set(value);
     }
 
     public setError(error_name: string) {
-        this._error.next(error_name);
-        this._view.next('error');
-        this._loading.next('');
+        this._error.set(error_name);
+        this._view.set('error');
+        this._loading.set('');
     }
 
     public async checkin() {
-        if (this.form.dirty) await this.updateGuest();
-        this._loading.next('Checking you in...');
-        await checkinEventGuest(
-            this._event_id.getValue(),
-            this._guest_id.getValue(),
-            true,
-        );
-        this._view.next('complete');
-        this._loading.next('');
+        if (this.form().dirty()) await this.updateGuest();
+        this._loading.set('Checking you in...');
+        await checkinEventGuest(this._event_id(), this._guest_id(), true);
+        this._view.set('complete');
+        this._loading.set('');
     }
 
     public async updateGuest() {
-        this.form.markAllAsTouched();
-        if (!this.form.valid) return;
-        this._loading.next('Updating your details...');
-        const details = await nextValueFrom(this.guest);
-        await updateGuest(details.id, { ...details, ...this.form.value });
-        this._loading.next('');
+        this.form().markAsTouched();
+        if (!this.form().valid()) return;
+        this._loading.set('Updating your details...');
+        const details = this._guest.value();
+        await updateGuest(details.id, { ...details, ...this.model() });
+        this._loading.set('');
     }
 
     public handleUserToken(token: string) {
@@ -121,8 +132,8 @@ export class EnrolmentStateService {
         const user = data.u;
         const [event_id] = user.r;
         if (user && getUnixTime(Date.now()) <= data.exp) {
-            this._event_id.next(event_id);
-            this._guest_id.next(user.e);
+            this._event_id.set(event_id);
+            this._guest_id.set(user.e);
         } else {
             this.setError('link');
         }
@@ -132,6 +143,6 @@ export class EnrolmentStateService {
         if (!event) this.setError('meeting');
         else if (event.state === 'done') this.setError('link');
         else if (event.status === 'declined') this.setError('cancelled');
-        this._loading.next('');
+        this._loading.set('');
     }
 }

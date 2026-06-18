@@ -1,15 +1,14 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    OnInit,
-} from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { SettingsService } from '@placeos/common';
 import { authority, setAPI_Key } from '@placeos/ts-client';
-import { first, lastValueFrom } from 'rxjs';
 
-import { current_user, currentUser, setupPlace } from '@placeos/common';
+import {
+    current_user,
+    currentUser,
+    firstTruthyValueFrom,
+    setupPlace,
+} from '@placeos/common';
 
 @Component({
     imports: [RouterModule],
@@ -80,7 +79,6 @@ import { current_user, currentUser, setupPlace } from '@placeos/common';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     providers: [SettingsService],
 })
 export class AppComponent implements OnInit {
@@ -90,23 +88,22 @@ export class AppComponent implements OnInit {
     private _continue = '';
 
     public async ngOnInit() {
-        this._route.queryParamMap.subscribe((params) => {
-            if (params.has('continue')) {
-                this._continue = params.get('continue') || '';
-                // Only allow paths
-                if (!this._continue.startsWith('/')) this._continue = '';
-            }
-            if (params.has('x-api-key')) {
-                setAPI_Key(params.get('x-api-key') || '');
-            }
-        });
-        await lastValueFrom(this._settings.initialised.pipe(first((_) => _)));
+        const params = this._route.snapshot.queryParamMap;
+        if (params.has('continue')) {
+            this._continue = params.get('continue') || '';
+            // Only allow paths
+            if (!this._continue.startsWith('/')) this._continue = '';
+        }
+        if (params.has('x-api-key')) {
+            setAPI_Key(params.get('x-api-key') || '');
+        }
+        await firstTruthyValueFrom(this._settings.initialised);
         const settings = this._settings.get('composer') || {};
         settings.mock =
             !!this._settings.get('mock') ||
             location.origin.includes('demo.place.tech');
         await setupPlace(settings).catch((_) => console.error(_));
-        await lastValueFrom(current_user.pipe(first((_) => !!_)));
+        await firstTruthyValueFrom(current_user);
         this._checkForDomainRedirects();
     }
 
