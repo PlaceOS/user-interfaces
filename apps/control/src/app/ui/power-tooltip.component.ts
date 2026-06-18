@@ -1,5 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, inject } from '@angular/core';
 import {
     CustomTooltipData,
     SanitizePipe,
@@ -28,7 +27,6 @@ import { ControlStateService } from '../control-state.service';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, SanitizePipe, MatRippleModule],
 })
 export class PowerTooltipComponent {
@@ -40,5 +38,5 @@ export class PowerTooltipComponent {
     /** Close the tooltip */
     public readonly close = () => this._tooltip.close();
 
-    public readonly joined = toSignal(this._state.joined);
+    public readonly joined = this._state.joined;
 }

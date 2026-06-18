@@ -1,8 +1,5 @@
-import { Injectable, inject } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { AsyncHandler, currentUser, log, randomInt } from '@placeos/common';
-import { BehaviorSubject } from 'rxjs';
-import { distinctUntilChanged, filter, map, shareReplay } from 'rxjs/operators';
 
 import { ChatService } from '@placeos/components';
 
@@ -27,83 +24,72 @@ let _last_message: string;
 export class VoiceAssistantService extends AsyncHandler {
     private _chat_service = inject(ChatService);
 
-    private _system_id = new BehaviorSubject('');
-    private _active = new BehaviorSubject(false);
-    private _current_text = new BehaviorSubject('');
-    private _enabled = new BehaviorSubject(false);
-    private _error = new BehaviorSubject<Record<string, string | boolean>>({});
+    private _system_id = signal('');
+    private _active = signal(false);
+    private _current_text = signal('');
+    private _enabled = signal(false);
+    private _error = signal<Record<string, string | boolean>>({});
 
-    public readonly current_text = this._current_text.asObservable();
-    public readonly enabled = this._enabled.asObservable();
-    public readonly error = this._error.asObservable();
-    public readonly active = this._active.asObservable();
-    public readonly progress = toObservable(this._chat_service.progress);
-    public readonly waiting = toObservable(this._chat_service.messages).pipe(
-        map(
-            (_) =>
-                _.length !== 0 &&
-                _[_.length - 1]?.user_id === currentUser()?.id,
-        ),
-        shareReplay(1),
-    );
+    public readonly current_text = this._current_text.asReadonly();
+    public readonly enabled = this._enabled.asReadonly();
+    public readonly error = this._error.asReadonly();
+    public readonly active = this._active.asReadonly();
+    public readonly progress = this._chat_service.progress;
+    public readonly waiting = computed(() => {
+        const list = this._chat_service.messages();
+        return (
+            list.length !== 0 &&
+            list[list.length - 1]?.user_id === currentUser()?.id
+        );
+    });
 
     private _user_speech: any;
     private _has_command = false;
 
     constructor() {
         super();
-        this.subscription(
-            'system',
-            this._system_id
-                .pipe(
-                    filter((_) => !!_),
-                    distinctUntilChanged(),
-                )
-                .subscribe((id) => this._chat_service.setBinding(id)),
-        );
+        effect(() => {
+            const id = this._system_id();
+            if (id) this._chat_service.setBinding(id);
+        });
         const user = currentUser();
-        this.subscription(
-            'chat.messages',
-            toObservable(this._chat_service.messages).subscribe((list) => {
-                // this._scrollToBottom();
-                const msg_list = list.filter((_) => _.user_id !== user?.id);
-                const last_message = msg_list[msg_list.length - 1];
-                if (msg_list.length < 1 || _last_message === last_message.id)
-                    return;
-                _last_message = last_message.id;
-                this._speakText(last_message.message);
-                this._active.next(false);
-            }),
-        );
-        this.subscription(
-            'enabled',
-            this._enabled.subscribe((enabled) => {
-                if (enabled) this._setupVoiceRecognition();
-                else if (this._user_speech) {
-                    const speech = this._user_speech;
-                    speech.onend = () => null;
-                    speech.stop();
-                    delete this._user_speech;
-                }
-            }),
-        );
+        effect(() => {
+            const list = this._chat_service.messages();
+            const msg_list = list.filter((_) => _.user_id !== user?.id);
+            const last_message = msg_list[msg_list.length - 1];
+            if (msg_list.length < 1 || _last_message === last_message.id)
+                return;
+            _last_message = last_message.id;
+            this._speakText(last_message.message);
+            this._active.set(false);
+        });
+        effect(() => {
+            const enabled = this._enabled();
+            if (enabled) this._setupVoiceRecognition();
+            else if (this._user_speech) {
+                const speech = this._user_speech;
+                speech.onend = () => null;
+                speech.stop();
+                delete this._user_speech;
+            }
+        });
     }
 
     public setEnabled(is_enabled: boolean) {
-        this.timeout('set_enabled', () => this._enabled.next(is_enabled));
+        this.timeout('set_enabled', () => this._enabled.set(is_enabled));
     }
 
     public setBinding(system_id: string) {
-        this._system_id.next(system_id);
+        this._system_id.set(system_id);
     }
 
     public activate() {
-        if (this._error.getValue().speech_recognition) return;
-        this._active.next(true);
+        if (this._error().speech_recognition) return;
+        this._active.set(true);
         this.timeout(
             'deactivate',
             () => {
-                this._active.next(false);
+                this._active.set(false);
                 this._last_text = '';
             },
             5000,
@@ -128,7 +114,7 @@ export class VoiceAssistantService extends AsyncHandler {
             const results: SpeechRecognitionResultList = event.results;
             const transcript =
                 results[0][0].transcript?.toLowerCase().trim() || '';
-            this._current_text.next(transcript);
+            this._current_text.set(transcript);
             this.activate();
             if (!results[0].isFinal) return;
             const is_command = commands.find((_) => transcript.startsWith(_));
@@ -136,7 +122,7 @@ export class VoiceAssistantService extends AsyncHandler {
             const command = transcript
                 .substring(is_command?.length || 0)
                 .trim();
-            this._active.next(true);
+            this._active.set(true);
             if (command.length <= 3) {
                 this._has_command = true;
                 this._speakText('How may I help you?');
@@ -148,19 +134,19 @@ export class VoiceAssistantService extends AsyncHandler {
 
         this._user_speech.onerror = (event) => {
             if (event.error === 'no-speech') {
-                this._current_text.next('');
+                this._current_text.set('');
                 return;
             }
             log('VOICE', 'Speech Recognition Error:', event.error, 'warn');
             if (event.error === 'aborted') return;
-            this._error.next({
-                ...this._error.getValue(),
+            this._error.update((error) => ({
+                ...error,
                 speech_recognition: true,
-            });
+            }));
         };
 
         this._user_speech.onend = () => {
-            if (this._error.getValue().speech_recognition) return;
+            if (this._error().speech_recognition) return;
             try {
                 this._user_speech?.start();
             } catch {}
@@ -177,7 +163,7 @@ export class VoiceAssistantService extends AsyncHandler {
         log('VOICE', `Command: ${message}`);
         this._chat_service.sendMessage(`Hey PlaceOS, ${message}`);
         this._speakText(WAITING_PHRASES[randomInt(WAITING_PHRASES.length)]);
-        this.timeout('deactivate', () => this._active.next(false), 60 * 1000);
+        this.timeout('deactivate', () => this._active.set(false), 60 * 1000);
     }
 
     private _last_text: string;
@@ -188,10 +174,10 @@ export class VoiceAssistantService extends AsyncHandler {
         const text_to_speech = window.speechSynthesis;
         if (!has_speech_synth) {
             log('VOICE', `Speech Synthesis is unavailable.`, undefined, 'warn');
-            this._error.next({
-                ...this._error.getValue(),
+            this._error.update((error) => ({
+                ...error,
                 speech_synthesis: true,
-            });
+            }));
             return;
         }
         log('VOICE', `Response: "${text}"`);

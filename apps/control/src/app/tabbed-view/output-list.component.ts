@@ -1,6 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs/operators';
+import { Component, inject } from '@angular/core';
 import { ControlStateService } from '../control-state.service';
 import { DeviceOutputListItemComponent } from './output-list-item.component';
 
@@ -20,16 +18,12 @@ import { DeviceOutputListItemComponent } from './output-list-item.component';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [DeviceOutputListItemComponent],
 })
 export class DeviceOutputListComponent {
     private _state = inject(ControlStateService);
 
-    public readonly outputs = toSignal(
-        this._state.output_list.pipe(map((_) => _ || [])),
-        { initialValue: [] },
-    );
-    public readonly active_output = toSignal(this._state.active_output);
-    public readonly preview_outputs = toSignal(this._state.preview_outputs);
+    public readonly outputs = this._state.output_list;
+    public readonly active_output = this._state.active_output;
+    public readonly preview_outputs = this._state.preview_outputs;
 }

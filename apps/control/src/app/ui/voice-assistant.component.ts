@@ -1,12 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    effect,
-    inject,
-    input,
-} from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, effect, inject, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent } from '@placeos/components';
 import { VoiceAssistantService } from './voice-assistant.service';
@@ -65,7 +57,6 @@ import { VoiceAssistantService } from './voice-assistant.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, IconComponent],
 })
 export class VoiceAssistantComponent {
@@ -74,18 +65,10 @@ export class VoiceAssistantComponent {
     public readonly system_id = input<string>(undefined);
     public readonly enabled = input<boolean>(undefined);
     public readonly activate = () => this._service.activate();
-    public readonly active = toSignal(this._service.active, {
-        initialValue: false,
-    });
-    public readonly progress = toSignal(this._service.progress, {
-        initialValue: undefined,
-    });
-    public readonly error = toSignal(this._service.error, {
-        initialValue: {} as Record<string, string | boolean>,
-    });
-    public readonly service_enabled = toSignal(this._service.enabled, {
-        initialValue: false,
-    });
+    public readonly active = this._service.active;
+    public readonly progress = this._service.progress;
+    public readonly error = this._service.error;
+    public readonly service_enabled = this._service.enabled;
     public readonly available = computed(
         () => !this.error()?.speech_recognition && this.service_enabled(),
     );

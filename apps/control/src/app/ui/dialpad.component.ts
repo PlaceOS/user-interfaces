@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    input,
-    output,
-} from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { TranslatePipe } from '@placeos/components';
 
@@ -56,7 +51,6 @@ import { TranslatePipe } from '@placeos/components';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, TranslatePipe],
 })
 export class DialpadComponent {

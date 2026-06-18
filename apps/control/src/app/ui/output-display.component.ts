@@ -1,11 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    input,
-} from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, inject, input } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 
 import { FormsModule } from '@angular/forms';
@@ -81,7 +74,6 @@ export const ICON_MAP = {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatSliderModule,
         FormsModule,
@@ -92,9 +84,7 @@ export const ICON_MAP = {
 })
 export class OutputDisplayComponent extends AsyncHandler {
     private _state = inject(ControlStateService);
-    private _available_inputs = toSignal(this._state.available_inputs, {
-        initialValue: [],
-    });
+    private _available_inputs = this._state.available_inputs;
 
     public readonly item = input<RoomOutput>(undefined);
     /** Details of the associated input */

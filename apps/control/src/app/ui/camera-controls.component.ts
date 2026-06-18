@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     DestroyRef,
     effect,
@@ -7,7 +6,6 @@ import {
     OnInit,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { getModule } from '@placeos/ts-client';
 
 import { FormsModule } from '@angular/forms';
@@ -104,7 +102,6 @@ export enum ZoomDirection {
         }
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         IconComponent,
@@ -132,11 +129,9 @@ export class CameraControlsComponent implements OnInit {
     /** Current tilting value for camera */
     public readonly tilt = signal<JoystickTilt>(JoystickTilt.Stop);
     /** List of available cameras to select from */
-    public readonly camera_list = toSignal(this._state.camera_list, {
-        initialValue: [],
-    });
+    public readonly camera_list = this._state.camera_list;
 
-    private readonly _selected_camera = toSignal(this._state.selected_camera);
+    private readonly _selected_camera = this._state.selected_camera;
 
     private _move_timeout: any;
     private _zoom_timeout: any;

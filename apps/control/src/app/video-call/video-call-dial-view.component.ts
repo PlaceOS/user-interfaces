@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -7,7 +6,6 @@ import {
     output,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -50,7 +48,7 @@ import { VideoCallStateService } from './video-call-state.service';
                                 btn
                                 matRipple
                                 class="w-full"
-                                [disabled]="!dial_number"
+                                [disabled]="!dial_number()"
                                 (click)="joinConference()"
                             >
                                 {{ 'APP.CONTROL.JOIN' | translate }}
@@ -92,7 +90,6 @@ import { VideoCallStateService } from './video-call-state.service';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FormsModule,
         MatFormFieldModule,
@@ -113,12 +110,10 @@ export class VideoCallDialViewComponent {
     public readonly redirect = input(true);
     public readonly close = output<void>();
 
-    public dial_number = '';
+    public readonly dial_number = signal('');
     public readonly loading = signal(false);
     public readonly call = this._call.call;
-    private readonly _show_camera_pip = toSignal(this._call.show_camera_pip, {
-        initialValue: null,
-    });
+    private readonly _show_camera_pip = this._call.show_camera_pip;
     public readonly show_camera_pip = computed(() => !!this._show_camera_pip());
 
     public readonly toggleCamera = async () =>
@@ -130,25 +125,23 @@ export class VideoCallDialViewComponent {
 
     public addDigit(digit: string) {
         digit && digit !== '\b'
-            ? (this.dial_number += digit)
-            : (this.dial_number = this.dial_number.substr(
-                  0,
-                  this.dial_number.length - 1,
-              ));
+            ? this.dial_number.update((v) => v + digit)
+            : this.dial_number.update((v) => v.substr(0, v.length - 1));
     }
 
     public async joinConference() {
-        if (!this.dial_number) return;
+        const dial_number = this.dial_number();
+        if (!dial_number) return;
         const system_id = this._control.id;
         const mod = getModule(system_id, 'VidConf');
         this.loading.set(true);
-        await mod.execute('dial', [this.dial_number]);
+        await mod.execute('dial', [dial_number]);
         this.loading.set(false);
         if (this.redirect()) {
             this._router.navigate(['call'], { relativeTo: this._route });
         }
         // TODO: The 'emit' function requires a mandatory void argument
         this.close.emit();
-        this.dial_number = '';
+        this.dial_number.set('');
     }
 }

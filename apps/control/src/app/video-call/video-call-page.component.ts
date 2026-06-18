@@ -1,13 +1,12 @@
 import {
-    ChangeDetectionStrategy,
     Component,
+    Injector,
     OnInit,
     computed,
     inject,
     input,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -16,13 +15,12 @@ import { MatSelectModule } from '@angular/material/select';
 import { Router } from '@angular/router';
 import {
     AsyncHandler,
+    firstValueWhere,
     i18n,
-    nextValueFrom,
     notifyError,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { getModule } from '@placeos/ts-client';
-import { filter } from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
 import { DialpadComponent } from '../ui/dialpad.component';
 import { VideoCallStateService, VideoLayout } from './video-call-state.service';
@@ -224,7 +222,6 @@ import { VideoCallStateService, VideoLayout } from './video-call-state.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FormsModule,
         MatProgressSpinnerModule,
@@ -240,37 +237,25 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
     private _state = inject(VideoCallStateService);
     private _control = inject(ControlStateService);
     private _router = inject(Router);
+    private _injector = inject(Injector);
 
     public readonly redirect = input(true);
     public readonly present_output = input('');
     public readonly loading = signal('');
-    public readonly call = toSignal(this._state.call, {
-        initialValue: null,
-    });
-    private readonly _show_camera_pip = toSignal(this._state.show_camera_pip, {
-        initialValue: null,
-    });
+    public readonly call = this._state.call;
+    private readonly _show_camera_pip = this._state.show_camera_pip;
     public readonly show_camera_pip = computed(() => !!this._show_camera_pip());
-    private readonly _mic_mute = toSignal(this._state.mic_mute, {
-        initialValue: null,
-    });
+    private readonly _mic_mute = this._state.mic_mute;
     public readonly mic_mute = computed(() => !!this._mic_mute());
-    public readonly video_layout = toSignal(this._state.video_layout as never, {
-        initialValue: null as VideoLayout | null,
-    });
-    public readonly presentation_mode = toSignal(
-        this._state.presentation_mode as never,
-        {
-            initialValue: null as 'None' | 'Local' | 'Remote' | null,
-        },
+    public readonly video_layout = computed<VideoLayout | null>(
+        () => this._state.video_layout() as never,
     );
-    public readonly presentables = toSignal(this._control.presentables$, {
-        initialValue: [],
-    });
+    public readonly presentation_mode = computed<
+        'None' | 'Local' | 'Remote' | null
+    >(() => this._state.presentation_mode() as never);
+    public readonly presentables = this._control.presentables;
     /** List of available cameras to select from */
-    public readonly camera_list = toSignal(this._control.camera_list, {
-        initialValue: [],
-    });
+    public readonly camera_list = this._control.camera_list;
     public readonly video_layouts = [
         'Auto',
         'Equal',
@@ -279,9 +264,7 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
         'Single',
     ] satisfies VideoLayout[];
 
-    public readonly selected_camera = toSignal(this._control.selected_camera, {
-        initialValue: '',
-    });
+    public readonly selected_camera = this._control.selected_camera;
 
     public readonly sentDTMF = (d) => this._state.sendDTMF(d);
     public readonly setPresentationSource = (i) =>
@@ -314,7 +297,7 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
             },
             5000,
         );
-        await nextValueFrom(this._state.call.pipe(filter((_) => !!_)));
+        await firstValueWhere(this._state.call, (_) => !!_, this._injector);
         this.loading.set('');
         this.clearTimeout('check_call');
     }

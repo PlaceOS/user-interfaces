@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { ControlAdvancedViewComponent } from './advanced-view.component';
 import { SourceSelectComponent } from './ui/source-select.component';
 
@@ -26,7 +26,6 @@ import { SourceSelectComponent } from './ui/source-select.component';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [ControlAdvancedViewComponent, SourceSelectComponent],
 })
 export class ControlPageViewComponent {

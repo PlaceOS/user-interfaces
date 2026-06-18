@@ -1,9 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    effect,
-    inject,
-} from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
@@ -94,7 +89,6 @@ import { TopbarHeaderComponent } from './topbar-header.component';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TopbarHeaderComponent,
         ControlPageViewComponent,
@@ -112,9 +106,7 @@ export class ControlMainViewComponent {
     private readonly _param_map = toSignal(this._route.paramMap);
     private readonly _query_param_map = toSignal(this._route.queryParamMap);
 
-    public readonly system = toSignal(this._state.system, {
-        initialValue: {} as any,
-    });
+    public readonly system = this._state.system;
 
     public readonly powerOn = () => this._state.powerOn();
     public get id() {

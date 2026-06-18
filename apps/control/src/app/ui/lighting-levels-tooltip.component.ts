@@ -1,5 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, inject } from '@angular/core';
 import {
     BindingDirective,
     CustomTooltipData,
@@ -57,7 +56,6 @@ import { ControlStateService } from '../control-state.service';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, MatSliderModule, FormsModule, BindingDirective],
 })
 export class LightingLevelsTooltipComponent {
@@ -66,8 +64,8 @@ export class LightingLevelsTooltipComponent {
 
     private _level_timeout: any;
 
-    public readonly system = toSignal(this._state.system_id);
-    public readonly lights = toSignal(this._state.lighting_levels);
+    public readonly system = this._state.system_id;
+    public readonly lights = this._state.lighting_levels;
     /** Close the tooltip */
     public readonly close = () => this._tooltip.close();
 

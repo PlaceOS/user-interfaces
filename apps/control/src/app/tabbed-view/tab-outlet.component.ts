@@ -1,11 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    effect,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -223,7 +216,6 @@ import { TVControlsComponent } from './tv-controls.component';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         BindingDirective,
         MatRippleModule,
@@ -249,15 +241,12 @@ export class TabOutletComponent extends AsyncHandler {
     public hearing_tloop = false;
     public readonly id = this._service.id;
     public readonly active_tab = signal('');
-    public readonly hide_present_all = toSignal(this._service.hide_present_all);
-    public readonly outputs = toSignal(
-        this._service.output_list.pipe(map((_) => _ || [])),
-        { initialValue: [] },
-    );
-    public readonly system = toSignal(this._service.system);
-    public readonly tabs = toSignal(this._service.tabs, { initialValue: [] });
-    public readonly call = toSignal(this._vc_state.call);
-    public readonly speaker_track = toSignal(this._vc_state.speaker_track);
+    public readonly hide_present_all = this._service.hide_present_all;
+    public readonly outputs = this._service.output_list;
+    public readonly system = this._service.system;
+    public readonly tabs = this._service.tabs;
+    public readonly call = this._vc_state.call;
+    public readonly speaker_track = this._vc_state.speaker_track;
     public readonly tab = computed(() =>
         this.tabs().find((t: any) => (t.id || t.name) === this.active_tab()),
     );
@@ -275,9 +264,7 @@ export class TabOutletComponent extends AsyncHandler {
     });
 
     private _user_action = signal(false);
-    private _available_inputs = toSignal(this._service.available_inputs, {
-        initialValue: [],
-    });
+    private _available_inputs = this._service.available_inputs;
     private _route_tab = toSignal(
         this._route.paramMap.pipe(map((params) => params.get('tab') || '')),
         { initialValue: '' },
@@ -287,9 +274,7 @@ export class TabOutletComponent extends AsyncHandler {
         const tab = this.tab();
         return (this._help_items() || []).find((h: any) => h.id === tab?.help);
     });
-    private _help_items = toSignal(this._service.help_items, {
-        initialValue: [],
-    });
+    private _help_items = this._service.help_items;
 
     public join_code = '';
 

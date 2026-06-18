@@ -1,11 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-    input,
-} from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, inject, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { AsyncHandler } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -68,7 +61,6 @@ const STATUS = {};
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, MatRippleModule, IconComponent],
 })
 export class DeviceOutputListItemComponent extends AsyncHandler {
@@ -83,13 +75,8 @@ export class DeviceOutputListItemComponent extends AsyncHandler {
     public last_input: string;
 
     public readonly icons = ICON_MAP;
-    private readonly _available_inputs = toSignal(
-        this._state.available_inputs,
-        {
-            initialValue: [],
-        },
-    );
-    private readonly _system = toSignal(this._state.system);
+    private readonly _available_inputs = this._state.available_inputs;
+    private readonly _system = this._state.system;
     /** Details of the associated input */
     public readonly input = computed(() => {
         const id = this.item()?.source || '';

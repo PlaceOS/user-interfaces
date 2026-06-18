@@ -1,9 +1,9 @@
+import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatSliderModule } from '@angular/material/slider';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { mockComponent, mockDirective } from '@placeos/common/tests';
 import { MockModule, MockPipe, MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 import { ControlStateService } from '../app/control-state.service';
 
 import {
@@ -26,10 +26,10 @@ describe('ControlStatusBarComponent', () => {
         ],
         providers: [
             MockProvider(ControlStateService, {
-                volume: new BehaviorSubject(0),
-                system: new BehaviorSubject({}),
-                capture_list: new BehaviorSubject([]),
-                has_master_audio: new BehaviorSubject(true),
+                volume: signal(0),
+                system: signal({}),
+                capture_list: signal([]),
+                has_master_audio: signal(true),
                 setVolume: jest.fn(),
                 setMute: jest.fn(),
             }),
@@ -46,14 +46,14 @@ describe('ControlStatusBarComponent', () => {
     it('should show recording details', async () => {
         expect('[recording]').not.toExist();
         const service = spectator.inject(ControlStateService);
-        (service as any).capture_list.next([{ mod: 'Capture' }]);
+        (service as any).capture_list.set([{ mod: 'Capture' }]);
         spectator.detectChanges();
         expect('[recording]').toExist();
     });
 
     it('should allow pausing and resuming recordings', async () => {
         const service = spectator.inject(ControlStateService);
-        (service as any).capture_list.next([{ mod: 'Capture' }]);
+        (service as any).capture_list.set([{ mod: 'Capture' }]);
         spectator.detectChanges();
         expect('[place-action="start"]').toExist();
         expect('[place-action="pause"]').not.toExist();

@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    signal,
-} from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, inject, signal } from '@angular/core';
 import {
     BindingDirective,
     CustomTooltipData,
@@ -230,7 +224,6 @@ import { ControlStateService } from '../control-state.service';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         TranslatePipe,
         BindingDirective,
@@ -248,13 +241,9 @@ export class MicrophoneTooltipComponent {
     private _change_timeout: any;
 
     /** List of microphone inputs */
-    public readonly mic_list = toSignal(this._state.mic_list, {
-        initialValue: [] as any[],
-    });
+    public readonly mic_list = computed<any[]>(() => this._state.mic_list());
     /** List of microphones */
-    public readonly microphones = toSignal(this._state.microphones, {
-        initialValue: [] as any[],
-    });
+    public readonly microphones = this._state.microphones;
     /** Mapping of microphones to their volume */
     public readonly volume: Record<string | number, number> = {};
     /** Mapping of microphones to their mute state */

@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -7,7 +6,6 @@ import {
     output,
     signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { unique } from '@placeos/common';
@@ -86,7 +84,6 @@ import { ControlStateService, RoomInput } from '../control-state.service';
             }
         </div>
     `,
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [TranslatePipe, MatProgressSpinnerModule, MatRippleModule],
 })
 export class SourceSelectComponent {
@@ -100,15 +97,8 @@ export class SourceSelectComponent {
     public readonly source = output<RoomInput>();
     /** Whether routing is loading */
     public readonly loading = signal(false);
-    private readonly _outputs = toSignal(this._state.output_list, {
-        initialValue: [],
-    });
-    private readonly _available_inputs = toSignal(
-        this._state.available_inputs,
-        {
-            initialValue: [],
-        },
-    );
+    private readonly _outputs = this._state.output_list;
+    private readonly _available_inputs = this._state.available_inputs;
     // Store for the ID of the selected output
     public readonly output_id = computed(() => this.output() || '');
     // Name of the currently selected output

@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-} from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatSliderModule } from '@angular/material/slider';
@@ -13,7 +7,6 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { map } from 'rxjs/operators';
 import { ControlStateService } from './control-state.service';
 import { DurationPipe } from './ui/duration.pipe';
 
@@ -148,7 +141,6 @@ import { DurationPipe } from './ui/duration.pipe';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         BindingDirective,
         MatSliderModule,
@@ -163,16 +155,10 @@ export class ControlStatusBarComponent {
     private _state = inject(ControlStateService);
 
     /** Details of the active system */
-    public readonly system = toSignal(this._state.system, {
-        initialValue: {} as any,
-    });
-    public readonly has_master_audio = toSignal(this._state.has_master_audio, {
-        initialValue: false,
-    });
+    public readonly system = this._state.system;
+    public readonly has_master_audio = this._state.has_master_audio;
 
-    public readonly capture_mod = toSignal(
-        this._state.capture_list.pipe(map((_) => _[0])),
-    );
+    public readonly capture_mod = computed(() => this._state.capture_list()[0]);
 
     public readonly volume_icon = computed(() => {
         const sys = this.system();

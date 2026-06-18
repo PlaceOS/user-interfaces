@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-} from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, inject } from '@angular/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { i18n, OrganisationService, SettingsService } from '@placeos/common';
 import {
@@ -13,7 +7,6 @@ import {
     IconComponent,
 } from '@placeos/components';
 import { isTrusted } from '@placeos/ts-client';
-import { debounceTime, map } from 'rxjs/operators';
 import { ControlStateService } from './control-state.service';
 import { CameraTooltipComponent } from './ui/camera-tooltip.component';
 import { JoinRoomTooltipComponent } from './ui/join-room-tooltip.component';
@@ -133,7 +126,6 @@ enum TOOLTIP {
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatMenuModule,
         CustomTooltipComponent,
@@ -146,49 +138,23 @@ export class TopbarHeaderComponent {
     private _state = inject(ControlStateService);
     private _call = inject(VideoCallStateService);
     private _org = inject(OrganisationService);
-    public readonly system = toSignal(this._state.system, {
-        initialValue: {} as any,
-    });
-    public readonly join_status = toSignal(this._state.join_status, {
-        initialValue: [false, false] as [boolean, boolean],
-    });
+    public readonly system = this._state.system;
+    public readonly join_status = this._state.join_status;
 
-    private readonly _mic_list = toSignal(this._state.mic_list, {
-        initialValue: [],
-    });
-    private readonly _camera_list = toSignal(this._state.camera_list, {
-        initialValue: [],
-    });
-    private readonly _lights_list = toSignal(this._state.lights, {
-        initialValue: [],
-    });
-    private readonly _room_accessories = toSignal(
-        this._state.room_accessories,
-        {
-            initialValue: [] as any[],
-        },
-    );
-    private readonly _has_vc = toSignal(this._call.connected);
-    private readonly _call_state = toSignal(this._call.call);
-    private readonly _microphones = toSignal(this._state.microphones, {
-        initialValue: [] as any[],
-    });
-    private readonly _join_modes = toSignal(this._state.join_modes, {
-        initialValue: {} as Record<string, any>,
-    });
-    private readonly _joined = toSignal(this._state.joined);
-    private readonly _speaker_track = toSignal(this._call.speaker_track);
-    private readonly _lighting_scenes = toSignal(this._state.lighting_scenes);
-    private readonly _help_items = toSignal(this._state.help_items, {
-        initialValue: [] as any[],
-    });
-    private readonly _hide_join_button = toSignal(
-        this._state.hide_join_button,
-        {
-            initialValue: false,
-        },
-    );
-    private readonly _lighting_levels = toSignal(this._state.lighting_levels);
+    private readonly _mic_list = this._state.mic_list;
+    private readonly _camera_list = this._state.camera_list;
+    private readonly _lights_list = this._state.lights;
+    private readonly _room_accessories = this._state.room_accessories;
+    private readonly _has_vc = this._call.connected;
+    private readonly _call_state = this._call.call;
+    private readonly _microphones = this._state.microphones;
+    private readonly _join_modes = this._state.join_modes;
+    private readonly _joined = this._state.joined;
+    private readonly _speaker_track = this._call.speaker_track;
+    private readonly _lighting_scenes = this._state.lighting_scenes;
+    private readonly _help_items = this._state.help_items;
+    private readonly _hide_join_button = this._state.hide_join_button;
+    private readonly _lighting_levels = this._state.lighting_levels;
 
     public readonly cmp = {
         phone: PhoneDiallingTooltipComponent,
@@ -336,17 +302,14 @@ export class TopbarHeaderComponent {
     public readonly viewHelp = () => this._state.viewHelp();
     public readonly powerOff = () => this._state.powerOff();
 
-    public readonly logo = toSignal(
-        toObservable(this._org.active_building).pipe(
-            debounceTime(500),
-            map(
-                () =>
-                    (this._settings.theme === 'dark'
-                        ? this._settings.get('app.logo_dark')
-                        : this._settings.get('app.logo_light')) || {},
-            ),
-        ),
-    );
+    public readonly logo = computed(() => {
+        this._org.active_building();
+        return (
+            (this._settings.theme === 'dark'
+                ? this._settings.get('app.logo_dark')
+                : this._settings.get('app.logo_light')) || {}
+        );
+    });
 
     public readonly is_trusted = isTrusted();
 }
