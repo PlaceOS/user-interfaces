@@ -1,6 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -104,7 +103,6 @@ const DEFAULT_TEMPLATE = `
         `,
     ],
     providers: [DatePipe],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         MatRippleModule,

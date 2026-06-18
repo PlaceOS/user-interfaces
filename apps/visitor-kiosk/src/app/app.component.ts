@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -38,7 +37,6 @@ import { parseTokenFromUrl } from './checkin/token-from-url';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class AppComponent implements OnInit {

@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     inject,
     signal,
@@ -88,7 +87,6 @@ import { CheckinStateService } from './checkin-state.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRadioModule,
         MatRippleModule,
