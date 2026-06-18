@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -28,7 +27,6 @@ import {
 } from '@placeos/common';
 import { invalidateToken, isMock, setToken, token } from '@placeos/ts-client';
 import { setInternalUserDomain } from '@placeos/users';
-import { first } from 'rxjs/operators';
 
 declare let Office: any;
 declare let OfficeRuntime: any;
@@ -40,7 +38,6 @@ declare let OfficeRuntime: any;
         <global-loading />
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [RouterOutlet, GlobalLoadingComponent],
 })
 export class AppComponent extends AsyncHandler implements OnInit {
@@ -127,7 +124,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         if (!this._settings.get('composer.local_login')) {
             this.timeout('wait_for_user', () => this.onInitError(), 30 * 1000);
         }
-        await current_user.pipe(first((_) => !!_)).toPromise();
+        await firstTruthyValueFrom(current_user);
         this.clearTimeout('wait_for_user');
         setDefaultCreator(this._current_user());
         const internal_user_domain = this._internal_user_domain();

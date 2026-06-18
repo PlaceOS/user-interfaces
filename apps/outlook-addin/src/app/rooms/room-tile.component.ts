@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     inject,
     signal,
@@ -92,7 +91,6 @@ import { RoomConfirmService } from './room-confirm.service';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, IconComponent, AuthenticatedImageDirective],
 })
 export class RoomTileComponent {

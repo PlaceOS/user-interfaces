@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -147,7 +146,6 @@ import { RoomConfirmService } from './room-confirm.service';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, MatRippleModule, IconComponent],
 })
 export class RoomConfirmComponent {

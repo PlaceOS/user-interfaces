@@ -1,10 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    inject,
-} from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
@@ -201,7 +195,6 @@ import { FeaturesFilterService } from './features-filter.service';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         MatCheckboxModule,
@@ -226,9 +219,7 @@ export class FilterSpaceComponent {
 
     readonly buildings = this._org.building_list;
     readonly building = this._org.active_building;
-    readonly features = toSignal(this._featuresFilterService.features$, {
-        initialValue: [],
-    });
+    readonly features = this._featuresFilterService.features;
     readonly has_multiple_buildings = computed(
         () => this.buildings().length > 1,
     );

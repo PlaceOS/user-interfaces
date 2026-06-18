@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
@@ -39,7 +38,6 @@ import { IconComponent } from '@placeos/components';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatRippleModule, IconComponent],
 })
 export class FindSpaceItemComponent {

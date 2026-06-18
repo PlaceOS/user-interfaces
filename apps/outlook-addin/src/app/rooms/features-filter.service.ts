@@ -1,9 +1,6 @@
-import { inject, Injectable } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
-import { nextValueFrom, Space } from '@placeos/common';
+import { Injectable, inject, signal } from '@angular/core';
+import { Space } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
-import { BehaviorSubject, Observable, Subscription } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root',
@@ -11,30 +8,12 @@ import { map } from 'rxjs/operators';
 export class FeaturesFilterService {
     private _state = inject(EventFormService);
 
-    public spaces$: Observable<Space[]> = toObservable(
-        this._state.available_spaces,
-    );
-    public updated_spaces$: Observable<Space[]>;
-    public updated_spaces_emitter: BehaviorSubject<boolean> =
-        new BehaviorSubject<boolean>(false);
-    features_sub: Subscription;
-    _selected_features: BehaviorSubject<any> = new BehaviorSubject<any>(null);
-    selected_features$: Observable<any> =
-        this._selected_features.asObservable();
-    get selected_features() {
-        return this._selected_features.getValue();
-    }
+    public readonly spaces = this._state.available_spaces;
+    public readonly updated_spaces = signal<Space[]>([]);
+    public readonly updated_spaces_applied = signal(false);
+    public readonly selected_features = signal<any[]>(null);
 
-    _features: BehaviorSubject<any> = new BehaviorSubject<any>(null);
-    features$: Observable<any> = this._features.asObservable();
-    set features(feature) {
-        this._features.next(feature);
-    }
-    get features() {
-        return this._features.getValue();
-    }
-
-    room_features: any[] = [
+    public readonly room_features: any[] = [
         { name: 'Video Conference (VC)', id: 'VidConf', value: false },
         { name: 'Conference Phone', id: 'ConfPhone', value: false },
         { name: 'Wireless Content Sharing', id: 'Wireless', value: false },
@@ -45,54 +24,41 @@ export class FeaturesFilterService {
         { name: 'Views', id: 'Views', value: false },
     ];
 
-    constructor() {
-        this._features.next(this.room_features);
+    public readonly features = signal<any[]>(this.room_features);
+
+    getSelectedFeatures() {
+        this.selected_features.set(
+            this.features().filter((item) => item.value == true),
+        );
     }
 
-    async getSelectedFeatures() {
-        this.selected_features$ = this.features$.pipe(
-            map((arr) => arr.filter((item) => item.value == true)),
+    applyFilter() {
+        const requested_features = this.sortSelectedFeatures(
+            this.selected_features() || [],
         );
-        await nextValueFrom(this.selected_features$);
-        this.selected_features$?.subscribe(this._selected_features);
-    }
-    async applyFilter() {
-        await nextValueFrom(this.selected_features$);
-
-        const requested_features = await this.sortSelectedFeatures(
-            this.selected_features,
-        );
-
-        this.updated_spaces$ = this.spaces$.pipe(
-            map((spaces: Space[]) =>
-                spaces.filter((space: Space) => {
-                    return this._sort_and_join(space.feature_list).includes(
-                        requested_features,
-                    );
-                }),
+        this.updated_spaces.set(
+            this.spaces().filter((space: Space) =>
+                this._sort_and_join(space.feature_list).includes(
+                    requested_features,
+                ),
             ),
         );
-        await nextValueFrom(this.updated_spaces$);
-        this.updated_spaces_emitter.next(true);
+        this.updated_spaces_applied.set(true);
     }
 
     _sort_and_join(array: string[]): string {
         return array?.sort().join();
     }
 
-    async sortSelectedFeatures(array: any[]) {
-        let features_array = await array?.map((item) => item.id);
+    sortSelectedFeatures(array: any[]) {
+        const features_array = array?.map((item) => item.id);
         return this._sort_and_join(features_array);
     }
 
     clearFilter() {
-        this._selected_features.next(null);
-        this.room_features?.map((feature) => (feature.value = false));
-        this._features.next(this.room_features);
-        this.updated_spaces_emitter.next(false);
-    }
-
-    OnDestroy() {
-        this.features_sub?.unsubscribe();
+        this.selected_features.set(null);
+        this.room_features?.forEach((feature) => (feature.value = false));
+        this.features.set([...this.room_features]);
+        this.updated_spaces_applied.set(false);
     }
 }

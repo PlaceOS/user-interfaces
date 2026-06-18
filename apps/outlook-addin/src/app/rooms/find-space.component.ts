@@ -1,13 +1,12 @@
 import {
-    ChangeDetectionStrategy,
     Component,
+    Injector,
     OnInit,
     computed,
     effect,
     inject,
     signal,
 } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import {
     MatBottomSheet,
@@ -27,7 +26,7 @@ import {
     Space,
     ViewerFeature,
     ViewerStyles,
-    i18n,
+    firstValueWhere,
 } from '@placeos/common';
 import {
     IconComponent,
@@ -35,12 +34,10 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { EventFormService, SpacesService } from '@placeos/events';
-import { Observable, combineLatest, of } from 'rxjs';
-import { filter, first, map } from 'rxjs/operators';
 import { FeaturesFilterService } from './features-filter.service';
 import { FilterSpaceComponent } from './filter-space.component';
 import { FindSpaceItemComponent } from './find-space-item.component';
-import { Locatable, MapService, MapsList } from './map.service';
+import { MapService, MapsList } from './map.service';
 import { RoomConfirmService } from './room-confirm.service';
 
 @Component({
@@ -467,7 +464,6 @@ import { RoomConfirmService } from './room-confirm.service';
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         MatProgressSpinnerModule,
@@ -486,42 +482,27 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
     private _bottomSheet = inject(MatBottomSheet);
     private _org = inject(OrganisationService);
     private _spaces = inject(SpacesService);
-    private _spaces_initialised = toObservable(this._spaces.initialised);
     private _state = inject(EventFormService);
     private _featuresFilterService = inject(FeaturesFilterService);
     private _mapService = inject(MapService);
     private _roomConfirmService = inject(RoomConfirmService);
     private _router = inject(Router);
+    private _injector = inject(Injector);
 
-    start_time$: Observable<string>;
-    duration_minutes: number;
-    end_time$: Observable<string>;
-    filtered_spaces: Space[] = [];
-    show_room_details = signal(false);
-    selected_space: Space;
+    public readonly show_room_details = signal(false);
     public readonly view = signal<'list' | 'map'>('list');
-    locatable_spaces$: Observable<Locatable[]>;
-    bottomSheetRef: MatBottomSheetRef<FilterSpaceComponent>;
+    private bottomSheetRef: MatBottomSheetRef<FilterSpaceComponent>;
 
-    public readonly selected_features = toSignal(
-        this._featuresFilterService.selected_features$,
-        { initialValue: [] },
-    );
+    public readonly selected_features =
+        this._featuresFilterService.selected_features;
     public readonly selected_feature_count = computed(
         () => this.selected_features()?.length || 0,
     );
     public readonly loading = this._state.loading;
-    public readonly spaces$: Observable<Space[]> = toObservable(
-        this._state.available_spaces,
-    );
     public readonly spaces = this._state.available_spaces;
-    public readonly maps_list = toSignal(this._mapService.maps_list$, {
-        initialValue: [],
-    });
+    public readonly maps_list = this._mapService.maps_list;
     public readonly map_features = signal<ViewerFeature[]>([]);
-    public readonly map_actions = toSignal(this._mapService.map_actions$, {
-        initialValue: [],
-    });
+    public readonly map_actions = this._mapService.map_actions;
     public readonly map_styles = signal<ViewerStyles>(null);
     public readonly selected_level = signal<MapsList | MapsList[] | null>(null);
     public readonly selected_all_levels = computed(() =>
@@ -545,34 +526,8 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
     }
 
     public readonly book_space = signal<HashMap<boolean>>({});
-    public space_list: Space[] = [];
-    public quick_capacities = [
-        { name: 'Any Capacity', value: 0 },
-        { name: 'Small (1 - 4)', value: 1 },
-        { name: 'Medium (5 - 12)', value: 5 },
-        { name: 'Large (13 - 32)', value: 13 },
-        { name: 'Huge (32+)', value: 33 },
-    ];
 
     public readonly buildings = this._org.building_list;
-    public readonly building = this._org.active_building;
-
-    public readonly levels = combineLatest([
-        toObservable(this._org.active_building),
-        toObservable(this._state.options),
-    ]).pipe(
-        filter(([_]) => !!_),
-        map(([bld]) => [
-            {
-                id: this._org.building.id,
-                name: i18n('COMMON.LEVEL_ALL'),
-            },
-            ...this._org.levelsForBuilding(bld),
-        ]),
-    );
-
-    public readonly options = this._state.options;
-    public readonly features = this._spaces.features;
 
     public readonly setBuilding = (b) => (this._org.building = b);
     public readonly setOptions = (o) => this._state.setOptions(o);
@@ -585,37 +540,39 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
                 this.selected_level.set(maps);
             }
         });
+        effect(() =>
+            this.setOptions({
+                features: this._featuresFilterService.selected_features() || [],
+            }),
+        );
     }
 
     public async ngOnInit() {
         this.view.set('list');
         this._state.setView('find');
-        this.setTimeChips();
 
         await this._org.waitUntilInitialised();
-        await this._spaces_initialised.pipe(first((_) => !!_)).toPromise();
+        await firstValueWhere(
+            this._spaces.initialised,
+            (_) => !!_,
+            this._injector,
+        );
         await this._state.listAvailableSpaces();
 
         this.setBuilding(this._org.building);
         this.book_space.set({});
-        this.subscription(
-            'features',
-            this._featuresFilterService.selected_features$.subscribe((v) =>
-                this.setOptions({ features: v || [] }),
-            ),
+
+        await this._mapService.locateSpaces(this.spaces());
+
+        await firstValueWhere(
+            this._mapService.features_loaded,
+            (_) => !!_,
+            this._injector,
         );
-
-        await this._mapService.locateSpaces(this.spaces$);
-
-        this.locatable_spaces$ = this._mapService.locatable_spaces$;
-
-        await this._mapService.features_loaded$
-            .pipe(first((_) => !!_))
-            .toPromise();
 
         this.applyMapDecorations();
 
-        this.map_features.set(this._mapService.map_features || []);
+        this.map_features.set(this._mapService.map_features());
     }
 
     public handleBookEvent(space: Space, book = true) {
@@ -633,30 +590,7 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
     }
 
     openRoomDetails() {
-        this._roomConfirmService.openRoomDetail(this.selected_space);
-    }
-
-    resetSpace() {
-        this.show_room_details.set(false);
-    }
-
-    setTimeChips() {
-        this.start_time$ = of(
-            new Date(this.model()?.date).toLocaleTimeString('en-US', {
-                hour: 'numeric',
-                minute: 'numeric',
-                hour12: true,
-            }),
-        );
-        this.duration_minutes = this.model()?.duration;
-        const end = this.model()?.date + this.duration_minutes * 60 * 1000;
-        this.end_time$ = of(
-            new Date(end).toLocaleTimeString('en-US', {
-                hour: 'numeric',
-                minute: 'numeric',
-                hour12: true,
-            }),
-        );
+        this._roomConfirmService.openRoomDetail();
     }
 
     updateSelectedLevel(e) {
@@ -678,12 +612,7 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
     }
 
     processFeature() {
-        this.subscription(
-            'map_features',
-            this._mapService.map_features$.subscribe((features) =>
-                this.map_features.set(features || []),
-            ),
-        );
+        this.map_features.set(this._mapService.map_features());
     }
 
     processStyles() {

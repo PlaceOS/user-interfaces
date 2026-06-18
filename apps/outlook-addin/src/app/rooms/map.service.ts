@@ -1,15 +1,8 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import {
-    AsyncHandler,
-    BuildingLevel,
-    Space,
-    nextValueFrom,
-} from '@placeos/common';
+import { AsyncHandler, BuildingLevel, Space } from '@placeos/common';
 import { MapPinComponent } from '@placeos/components';
 import { ViewAction, ViewerFeature, ViewerStyles } from '@placeos/common';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { first, map } from 'rxjs/operators';
 import { RoomConfirmService } from './room-confirm.service';
 import { RoomTileComponent } from './room-tile.component';
 
@@ -37,139 +30,75 @@ export class MapService extends AsyncHandler {
     public style_map: ViewerStyles = {};
     public item: Locatable;
 
-    private _map_features: BehaviorSubject<ViewerFeature[]> =
-        new BehaviorSubject<ViewerFeature[]>([]);
-    public map_features$: Observable<ViewerFeature[]> =
-        this._map_features.asObservable();
+    public readonly map_features = signal<ViewerFeature[]>([]);
+    public readonly map_actions = signal<ViewAction[]>([]);
+    public readonly map_loaded = signal(false);
+    public readonly features_loaded = signal(false);
 
-    get map_features() {
-        return this._map_features.getValue();
-    }
-
-    set map_features(features: ViewerFeature[]) {
-        this._map_features.next(features);
-    }
-
-    public map_actions$: Observable<ViewAction[]>;
-
-    private _map_loaded: BehaviorSubject<boolean> =
-        new BehaviorSubject<boolean>(false);
-    readonly map_loaded$: Observable<boolean> = this._map_loaded.asObservable();
-
-    private _features_loaded: BehaviorSubject<boolean> =
-        new BehaviorSubject<boolean>(false);
-    readonly features_loaded$: Observable<boolean> =
-        this._features_loaded.asObservable();
-
-    selected_space$: Observable<Space> =
-        this._roomConfirmService.selected_space$;
+    public readonly selected_space = this._roomConfirmService.selected_space;
 
     //Store of Locatable Spaces
-    private _locatable_spaces: BehaviorSubject<Locatable[]> =
-        new BehaviorSubject<Locatable[]>([]);
-
-    locatable_spaces$: Observable<Locatable[]> =
-        this._locatable_spaces.asObservable();
-
-    set locatable_spaces(space: Locatable[]) {
-        this._locatable_spaces.next(space);
-    }
-
-    get locatable_spaces() {
-        return this._locatable_spaces.getValue();
-    }
+    public readonly locatable_spaces = signal<Locatable[]>([]);
 
     //Store of map_id urls & level names for available_spaces
-    private _maps_list: BehaviorSubject<MapsList[]> = new BehaviorSubject<any>(
-        [],
-    );
+    public readonly maps_list = signal<MapsList[]>([]);
 
-    maps_list$: Observable<any> = this._maps_list.asObservable();
-
-    set maps_list(map: MapsList[]) {
-        this._maps_list.next(map);
-    }
-
-    get maps_list() {
-        return this._maps_list.getValue();
-    }
-
-    async locateSpaces(available_spaces: Observable<Space[]>) {
-        await nextValueFrom(available_spaces);
-
-        available_spaces?.subscribe(
-            (spaces) =>
-                (this.locatable_spaces = spaces?.map((space) => ({
-                    id: space.id,
-                    name: space.name,
-                    map_id: space.map_id,
-                    level: space.level,
-                }))),
+    async locateSpaces(available_spaces: Space[]) {
+        const spaces = available_spaces || [];
+        this.locatable_spaces.set(
+            spaces.map((space) => ({
+                id: space.id,
+                name: space.name,
+                map_id: space.map_id,
+                level: space.level,
+            })),
         );
-        await this.locatable_spaces$?.pipe(first((_) => !!_)).toPromise();
         await this.loadMap();
-        await this.timeout(
+        this.timeout(
             'init',
             () => {
                 this.processFeature();
             },
             1000,
         );
-
-        await this.processStyles();
-
-        this.map_actions$ = available_spaces?.pipe(
-            map((spaces: Space[]) =>
-                spaces.map(
-                    (space: Space) =>
-                        ({
-                            id: space.map_id,
-                            action: 'click',
-                            callback: () => {
-                                this.openRoomTile(space);
-                            },
-                        }) as ViewAction,
-                ),
+        this.processStyles();
+        this.map_actions.set(
+            spaces.map(
+                (space: Space) =>
+                    ({
+                        id: space.map_id,
+                        action: 'click',
+                        callback: () => {
+                            this.openRoomTile(space);
+                        },
+                    }) as ViewAction,
             ),
         );
     }
 
     async loadMap() {
-        this._map_loaded.next(false);
-        this.maps_list$ = this.locatable_spaces$?.pipe(
-            map((spaces: Locatable[]) =>
-                spaces.map((space: Locatable) => ({
-                    map_id: space.level.map_id,
-                    level: space.level.name,
-                })),
-            ),
-        );
-
-        this.maps_list$ = this.maps_list$?.pipe(
-            map((mapsList: MapsList[]) => [
-                ...new Map(mapsList.map((v) => [v.map_id, v])).values(),
-            ]),
-        );
-
-        this._map_loaded.next(true);
+        this.map_loaded.set(false);
+        const maps_list = this.locatable_spaces().map((space: Locatable) => ({
+            map_id: space.level.map_id,
+            level: space.level.name,
+        }));
+        this.maps_list.set([
+            ...new Map(maps_list.map((v) => [v.map_id, v])).values(),
+        ]);
+        this.map_loaded.set(true);
     }
 
     public processFeature(): void {
-        this._features_loaded.next(false);
-        let focus: any;
-        this.locatable_spaces$.subscribe((spaces) =>
-            spaces
-                ? (focus = spaces?.map((space) => ({
-                      location: space.map_id,
-                      content: MapPinComponent,
-                      data: { name: space.name },
-                      z_index: 99,
-                      zoom: 100,
-                  })))
-                : [],
-        );
-        this.map_features = focus;
-        this._features_loaded.next(true);
+        this.features_loaded.set(false);
+        const focus = this.locatable_spaces().map((space) => ({
+            location: space.map_id,
+            content: MapPinComponent,
+            data: { name: space.name },
+            z_index: 99,
+            zoom: 100,
+        }));
+        this.map_features.set(focus);
+        this.features_loaded.set(true);
     }
 
     public processStyles(): void {
@@ -178,8 +107,9 @@ export class MapService extends AsyncHandler {
         styles[`#Zones`] = { display: 'none' };
         this.style_map = styles;
     }
+
     openRoomTile(space: Space) {
-        const bottomSheetRef = this._bottomSheet.open(RoomTileComponent, {
+        this._bottomSheet.open(RoomTileComponent, {
             panelClass: 'bottom-sheet-transparent',
             data: space,
         });

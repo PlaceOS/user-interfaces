@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     DOCUMENT,
     OnInit,
@@ -142,7 +141,6 @@ import { FeaturesFilterService } from './features-filter.service';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
         UserListFieldComponent,
@@ -160,9 +158,6 @@ export class RoomBookingComponent implements OnInit {
     private router = inject(Router);
     private _state = inject(EventFormService);
     private _featuresFilterService = inject(FeaturesFilterService);
-
-    public show_spaces = false;
-    public show_people = false;
 
     min_date = Date.now();
     public readonly form = signal(this._state.form);
