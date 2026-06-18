@@ -1,23 +1,21 @@
 import {
-    ChangeDetectionStrategy,
     Component,
+    computed,
     inject,
     OnInit,
+    resource,
     signal,
 } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import {
     AsyncHandler,
     i18n,
-    Identity,
     log,
     OrganisationService,
     VERSION,
 } from '@placeos/common';
 import { PlaceSystem, querySystems } from '@placeos/ts-client';
-import { first, map, shareReplay, switchMap } from 'rxjs/operators';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -58,12 +56,9 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
                                     'APP.SIGNAGE.BOOTSTRAP_DISPLAY_SELECT'
                                         | translate
                                 "
-                                [disabled]="!(displays | async)?.length"
+                                [disabled]="!displays().length"
                             >
-                                @for (
-                                    option of displays | async;
-                                    track option
-                                ) {
+                                @for (option of displays(); track option) {
                                     <mat-option [value]="option.id">
                                         <div
                                             class="flex flex-col leading-tight"
@@ -94,7 +89,7 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
                             btn
                             matRipple
                             class="mb-2 w-full"
-                            [disabled]="!active_display"
+                            [disabled]="!active_display()"
                             (click)="bootstrapPanel()"
                         >
                             {{ 'COMMON.BOOTSTRAP_SUBMIT' | translate }}
@@ -130,7 +125,6 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonModule,
         TranslatePipe,
@@ -153,33 +147,30 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     /** Loading state of the bootstrap */
     public readonly loading = signal('');
     /** Actively selected display */
-    public active_display: any;
+    public readonly active_display = signal('');
 
-    public rotations: Identity[] = [];
-
-    public readonly buildings = this._org.building_list;
-
-    public readonly displays = toObservable(this._org.initialised).pipe(
-        first((_) => !!_),
-        switchMap(() =>
-            querySystems({
+    private readonly _displays = resource({
+        params: () => this._org.initialised(),
+        loader: async ({ params: initialised }) => {
+            if (!initialised) return [] as PlaceSystem[];
+            const result = await querySystems({
                 zone_id: this._org.organisation?.id,
                 limit: 500,
                 fields: ['id', 'name', 'display_name', 'email', 'zones'].join(
                     ',',
                 ),
                 signage: true,
-            }).catch(() => ({ data: [] })),
-        ),
-        map((r) =>
-            r.data.sort((a, b) =>
+            }).catch(() => ({ data: [] }));
+            return result.data.sort((a, b) =>
                 (a.display_name || a.name).localeCompare(
                     b.display_name || b.name,
                 ),
-            ),
-        ),
-        shareReplay(1),
-    );
+            );
+        },
+    });
+
+    /** List of signage displays available for the active organisation */
+    public readonly displays = computed(() => this._displays.value() ?? []);
 
     public level(system: PlaceSystem) {
         return this._org.levelWithID((system.zones || []) as any);
@@ -202,7 +193,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                     localStorage.removeItem(STORE_BUILDING_KEY);
                 }
                 if (params.has('display')) {
-                    this.active_display = params.get('display');
+                    this.active_display.set(params.get('display'));
                     log('BOOTSTRAP', 'Bootstrapped data for display set');
                     this.bootstrapPanel();
                 }
@@ -217,20 +208,18 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
      */
     public async bootstrapPanel() {
         this.loading.set(i18n('APP.SIGNAGE.BOOTSTRAP_LOADING'));
-        if (!this.active_display || !localStorage) {
+        const active_display = this.active_display();
+        if (!active_display || !localStorage) {
             log(
                 'BOOTSTRAP',
-                `Unable to bootstrap panel. Reason: ${!this.active_display ? 'No display ID set' : 'Local Storage unavailable'}`,
+                `Unable to bootstrap panel. Reason: ${!active_display ? 'No display ID set' : 'Local Storage unavailable'}`,
             );
             this.loading.set('');
             return;
         }
-        localStorage.setItem(STORE_DISPLAY_KEY, this.active_display);
-        log(
-            'BOOTSTRAP',
-            `Bootstrapped panel to display ${this.active_display}`,
-        );
-        this._router.navigate(['/signage', this.active_display]);
+        localStorage.setItem(STORE_DISPLAY_KEY, active_display);
+        log('BOOTSTRAP', `Bootstrapped panel to display ${active_display}`);
+        this._router.navigate(['/signage', active_display]);
         this.loading.set('');
     }
 

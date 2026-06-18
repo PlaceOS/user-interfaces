@@ -1,7 +1,9 @@
-import { Injectable } from '@angular/core';
+import { effect, Injectable, signal } from '@angular/core';
 import { AsyncHandler, randomString, scoped_log } from '@placeos/common';
 import { apiKey, token } from '@placeos/ts-client';
-import { BehaviorSubject, filter, firstValueFrom, Subject } from 'rxjs';
+// `Subject`/`firstValueFrom` are kept for `on_change`: awaiting a cache item's
+// next terminal status is an event stream, not state, so it stays reactive.
+import { filter, firstValueFrom, Subject } from 'rxjs';
 
 const STORE_KEY = 'PlaceOS.SIGNAGE.cached_files';
 const STAGGER_DELAY_MS = 500; // Delay between uncached resource requests
@@ -62,10 +64,10 @@ function cacheOwners(item: CacheItem | StoredCacheRecord) {
 export class MediaCacheService extends AsyncHandler {
     private _cache_db: IDBDatabase;
     private _cache_db_ready: Promise<void>;
-    private _file_cache_index = new BehaviorSubject<CacheItem[]>([]);
+    private readonly _file_cache_index = signal<CacheItem[]>([]);
 
     private get _cache_index() {
-        return this._file_cache_index.getValue();
+        return this._file_cache_index();
     }
 
     constructor() {
@@ -97,7 +99,10 @@ export class MediaCacheService extends AsyncHandler {
         this._cache_db_ready
             .then(() => this._loadCacheMetadataFromStore())
             .catch(() => undefined);
-        this._file_cache_index.subscribe(() => this._saveCacheMetadata());
+        effect(() => {
+            this._file_cache_index();
+            this._saveCacheMetadata();
+        });
     }
 
     public async requestFilesToCache(
@@ -139,7 +144,7 @@ export class MediaCacheService extends AsyncHandler {
                 status: 'preparing',
                 on_change: new Subject(),
             };
-            this._file_cache_index.next([
+            this._file_cache_index.set([
                 ...this._cache_index.filter((_) => _.id !== existing?.id),
                 cache_item,
             ]);
@@ -153,7 +158,7 @@ export class MediaCacheService extends AsyncHandler {
                 options.prune_other_owners,
             );
         }
-        this._file_cache_index.next(this._cache_index);
+        this._file_cache_index.set(this._cache_index);
         await this.pruneCache(
             owner,
             url_list,
@@ -329,7 +334,7 @@ export class MediaCacheService extends AsyncHandler {
                         reject(event.target.error);
                     transaction.oncomplete = (_) => {
                         log.debug(`Cleared all cached resources.`);
-                        this._file_cache_index.next([]);
+                        this._file_cache_index.set([]);
                         resolve();
                     };
                 })
@@ -352,7 +357,7 @@ export class MediaCacheService extends AsyncHandler {
             if (owner && remaining_owners.length) {
                 cache_item.owner = remaining_owners[0] || '';
                 cache_item.owners = remaining_owners;
-                this._file_cache_index.next([...this._cache_index]);
+                this._file_cache_index.set([...this._cache_index]);
                 this._updateStoredOwners(cache_item).then(resolve).catch(reject);
                 return;
             }
@@ -379,7 +384,7 @@ export class MediaCacheService extends AsyncHandler {
                         reject(event.target.error);
                     transaction.oncomplete = (event: any) => {
                         log.debug(`Removed resource.`, cache_item.id, url);
-                        this._file_cache_index.next(
+                        this._file_cache_index.set(
                             this._cache_index.filter(
                                 (_) => _.id !== cache_item.id,
                             ),
@@ -494,7 +499,7 @@ export class MediaCacheService extends AsyncHandler {
         const active_items = this._cache_index.filter(
             (item) => item.status !== 'cached',
         );
-        this._file_cache_index.next([
+        this._file_cache_index.set([
             ...active_items,
             ...stored_items.filter(
                 (stored) =>
@@ -529,7 +534,7 @@ export class MediaCacheService extends AsyncHandler {
 
     private _markInvalidated(cache_item: CacheItem) {
         cacheStatus(cache_item, 'invalidated');
-        this._file_cache_index.next([...this._cache_index]);
+        this._file_cache_index.set([...this._cache_index]);
     }
 
     private _loadCacheMetadata() {
@@ -538,7 +543,7 @@ export class MediaCacheService extends AsyncHandler {
         try {
             const metadata = JSON.parse(metadata_string);
             if (metadata instanceof Array) {
-                this._file_cache_index.next(
+                this._file_cache_index.set(
                     metadata.map((_) => ({
                         id: _.id,
                         url: _.url,
@@ -571,7 +576,7 @@ export class MediaCacheService extends AsyncHandler {
         if (!owner || cacheOwners(cache_item).includes(owner)) return;
         cache_item.owner = cache_item.owner || owner;
         cache_item.owners = [...cacheOwners(cache_item), owner];
-        this._file_cache_index.next([...this._cache_index]);
+        this._file_cache_index.set([...this._cache_index]);
         await this._updateStoredOwners(cache_item);
     }
 

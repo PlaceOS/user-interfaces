@@ -2,11 +2,19 @@ import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import * as ts_client from '@placeos/ts-client';
 import { MediaAnimation } from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
-import { firstValueFrom, skip, take } from 'rxjs';
 
 import { MediaCacheService } from '../app/media-cache.service';
 import { setMockTime } from '../app/media-helpers';
 import { SignageService } from '../app/signage.service';
+
+/**
+ * Flush the microtask queue so the async display load (and its downstream
+ * media-cache sync / schedule checks) settle. Fake timers do not auto-flush
+ * promises, so several rounds are awaited to cover the chained awaits.
+ */
+const flush = async () => {
+    for (let i = 0; i < 8; i++) await Promise.resolve();
+};
 
 jest.mock('@placeos/ts-client', () => {
     const actual = jest.requireActual('@placeos/ts-client');
@@ -177,16 +185,9 @@ describe('SignageService', () => {
     });
 
     it('should map base and zone playlists into the active media playlist', async () => {
-        const playlist_promise = firstValueFrom(
-            spectator.service.playlist.pipe(skip(1), take(1)),
-        );
-
         spectator.service.setDisplay('display-1');
-        const playlist = await playlist_promise;
-        // _syncMediaCache invalidates stale files after awaiting
-        // requestFilesToCache, so flush the remaining microtasks
-        await Promise.resolve();
-        await Promise.resolve();
+        await flush();
+        const playlist = spectator.service.playlist();
 
         expect(playlist.map((_) => _.id)).toEqual(['media-1', 'media-2']);
         expect(media_cache.availableFiles).toHaveBeenCalledWith('display-1');
@@ -208,12 +209,8 @@ describe('SignageService', () => {
     });
 
     it('should bind trigger playlists when display data is loaded', async () => {
-        const display_promise = firstValueFrom(
-            spectator.service.display.pipe(take(1)),
-        );
-
         spectator.service.setDisplay('display-1');
-        await display_promise;
+        await flush();
 
         expect(ts_client.getModule).toHaveBeenCalledWith(
             'display-1',
@@ -271,12 +268,9 @@ describe('SignageService', () => {
                 ],
             } as any),
         );
-        const playlist_promise = firstValueFrom(
-            spectator.service.playlist.pipe(skip(1), take(1)),
-        );
-
         spectator.service.setDisplay('display-1');
-        const [plugin_item] = await playlist_promise;
+        await flush();
+        const [plugin_item] = spectator.service.playlist();
 
         expect(plugin_item.plugin?.uri).toBe('/plugins/weather/index.html');
         expect(plugin_item.plugin_params).toEqual({
@@ -345,12 +339,9 @@ describe('SignageService', () => {
                 }) as any,
             ),
         );
-        const playlist_promise = firstValueFrom(
-            spectator.service.playlist.pipe(skip(1), take(1)),
-        );
-
         spectator.service.setDisplay('display-1');
-        const playlist = await playlist_promise;
+        await flush();
+        const playlist = spectator.service.playlist();
 
         expect(
             playlist.find((_) => _.id === 'playlist-controlled-media')?.validity
@@ -369,7 +360,7 @@ describe('SignageService', () => {
         ).mockReturnValue(true);
 
         spectator.service.setDisplay('display-1');
-        await firstValueFrom(spectator.service.playlist.pipe(skip(1), take(1)));
+        await flush();
 
         const cache_call = media_cache.requestFilesToCache.mock.calls.find(
             ([urls]) => urls.length,
@@ -385,12 +376,9 @@ describe('SignageService', () => {
         (ts_client.showSignage as jest.Mock).mockImplementation(() =>
             Promise.reject(new Error('display unavailable')),
         );
-        const display_promise = firstValueFrom(
-            spectator.service.display.pipe(take(1)),
-        );
-
         spectator.service.setDisplay('display-2');
-        const display = await display_promise;
+        await flush();
+        const display = spectator.service.display();
 
         expect(display).toEqual(
             expect.objectContaining({
@@ -418,12 +406,9 @@ describe('SignageService', () => {
         media_cache.availableFiles.mockClear();
         media_cache.requestFilesToCache.mockClear();
         media_cache.invalidateFile.mockClear();
-        const display_promise = firstValueFrom(
-            spectator.service.display.pipe(take(1)),
-        );
 
         spectator.service.setDisplay('display-2');
-        await display_promise;
+        await flush();
 
         expect(media_cache.availableFiles).not.toHaveBeenCalled();
         expect(media_cache.requestFilesToCache).not.toHaveBeenCalled();
@@ -435,11 +420,8 @@ describe('SignageService', () => {
         (ts_client.responseHeaders as jest.Mock).mockReturnValueOnce({
             'last-modified': new Date(last_modified).toUTCString(),
         } as any);
-        const display_promise = firstValueFrom(
-            spectator.service.display.pipe(take(1)),
-        );
         spectator.service.setDisplay('display-1');
-        await display_promise;
+        await flush();
 
         (ts_client.showSignage as jest.Mock).mockImplementation(() =>
             Promise.reject(new Error('display unavailable')),
@@ -447,7 +429,7 @@ describe('SignageService', () => {
         (ts_client.responseHeaders as jest.Mock).mockReturnValue({});
 
         spectator.service.setDisplay('display-1');
-        await Promise.resolve();
+        await flush();
 
         expect((spectator.service as any)._last_modified).toBe(last_modified);
         expect(ts_client.showSignage).toHaveBeenLastCalledWith(
@@ -495,12 +477,9 @@ describe('SignageService', () => {
                 }) as any,
             ),
         );
-        const playlist_promise = firstValueFrom(
-            spectator.service.playlist.pipe(skip(1), take(1)),
-        );
-
         spectator.service.setDisplay('display-1');
-        const playlist = await playlist_promise;
+        await flush();
+        const playlist = spectator.service.playlist();
 
         expect(playlist.map((_) => _.id)).toEqual(['media-1']);
     });
@@ -543,19 +522,16 @@ describe('SignageService', () => {
                 }) as any,
             ),
         );
-        const playlist_promise = firstValueFrom(
-            spectator.service.playlist.pipe(skip(1), take(1)),
-        );
-
         spectator.service.setDisplay('display-1');
-        const playlist = await playlist_promise;
+        await flush();
+        const playlist = spectator.service.playlist();
 
         expect(playlist.map((_) => _.id)).toEqual(['media-1']);
     });
 
     it('should activate scheduled override playlists', async () => {
         spectator.service.setDisplay('display-1');
-        await Promise.resolve();
+        await flush();
 
         const override_playlist = spectator.service.override_playlist();
 
@@ -618,20 +594,19 @@ describe('SignageService', () => {
                 }) as any,
             ),
         );
-        const playlists: string[][] = [];
-        const subscription = spectator.service.playlist.subscribe((playlist) =>
-            playlists.push(playlist.map((_) => _.id)),
-        );
-
         spectator.service.setDisplay('display-1');
-        await Promise.resolve();
-        expect(playlists.at(-1)).toEqual(['media-1']);
+        await flush();
+        expect(spectator.service.playlist().map((_) => _.id)).toEqual([
+            'media-1',
+        ]);
 
         jest.advanceTimersByTime(15_000);
-        await Promise.resolve();
+        await flush();
 
-        expect(playlists.at(-1)).toEqual(['media-1', 'media-3']);
-        subscription.unsubscribe();
+        expect(spectator.service.playlist().map((_) => _.id)).toEqual([
+            'media-1',
+            'media-3',
+        ]);
     });
 
     it('should update scheduled playlists quickly while debug time is fast-forwarding', async () => {
@@ -672,20 +647,19 @@ describe('SignageService', () => {
                 }) as any,
             ),
         );
-        const playlists: string[][] = [];
-        const subscription = spectator.service.playlist.subscribe((playlist) =>
-            playlists.push(playlist.map((_) => _.id)),
-        );
-
         spectator.service.setDisplay('display-1');
-        await Promise.resolve();
-        expect(playlists.at(-1)).toEqual(['media-1']);
+        await flush();
+        expect(spectator.service.playlist().map((_) => _.id)).toEqual([
+            'media-1',
+        ]);
 
         jest.advanceTimersByTime(250);
-        await Promise.resolve();
+        await flush();
 
-        expect(playlists.at(-1)).toEqual(['media-1', 'media-3']);
-        subscription.unsubscribe();
+        expect(spectator.service.playlist().map((_) => _.id)).toEqual([
+            'media-1',
+            'media-3',
+        ]);
     });
 
     it('should end late-detected scheduled overrides at the schedule end time', async () => {
@@ -720,7 +694,7 @@ describe('SignageService', () => {
         );
 
         spectator.service.setDisplay('display-1');
-        await Promise.resolve();
+        await flush();
 
         expect(spectator.service.override_playlist().ends_at).toBe(
             starts_at + 10 * 60 * 1000,
@@ -759,12 +733,12 @@ describe('SignageService', () => {
         );
 
         spectator.service.setDisplay('display-1');
-        await Promise.resolve();
+        await flush();
         expect(spectator.service.override_playlist().playlist).toHaveLength(1);
 
         spectator.service.clearPlaylistOverride();
         jest.advanceTimersByTime(15_000);
-        await Promise.resolve();
+        await flush();
 
         expect(spectator.service.override_playlist().playlist).toHaveLength(0);
     });
@@ -782,7 +756,7 @@ describe('SignageService', () => {
             ),
         );
         spectator.service.setDisplay('display-1');
-        await firstValueFrom(spectator.service.playlist.pipe(skip(1), take(1)));
+        await flush();
 
         await spectator.service.storeMetricEvent({
             type: 'media_count',
@@ -810,7 +784,7 @@ describe('SignageService', () => {
 
     it('should handle trigger overrides when no override is active', async () => {
         spectator.service.setDisplay('display-1');
-        await firstValueFrom(spectator.service.display.pipe(take(1)));
+        await flush();
         spectator.service.clearPlaylistOverride();
 
         await (spectator.service as any)._handleTrigger('trig-fire');

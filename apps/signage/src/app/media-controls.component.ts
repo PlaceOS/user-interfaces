@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     ElementRef,
     input,
@@ -43,7 +42,6 @@ type MediaEvent =
             <div #bar class="bg-primary absolute inset-0 origin-left"></div>
         </div>
     `,
-    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [
         `
             :host {
@@ -229,7 +227,6 @@ export class MediaProgressBarComponent implements OnInit, OnDestroy {
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         IconComponent,
         TranslatePipe,

@@ -5,7 +5,6 @@ import { OrganisationService } from '@placeos/common';
 import { VirtualKeyboardComponent } from '@placeos/components';
 import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
-import { firstValueFrom } from 'rxjs';
 
 import { BootstrapComponent } from '../app/bootstrap.component';
 
@@ -83,13 +82,17 @@ describe('BootstrapComponent', () => {
     it('should request zones for bootstrap display locations', async () => {
         build_component();
 
-        await firstValueFrom(spectator.component.displays);
+        spectator.detectChanges();
+        await spectator.fixture.whenStable();
 
         expect(ts_client.querySystems).toHaveBeenCalledWith(
             expect.objectContaining({
                 fields: 'id,name,display_name,email,zones',
             }),
         );
+        expect(spectator.component.displays().map((_) => _.id)).toEqual([
+            'display-1',
+        ]);
     });
 
     it('should handle displays with no zones in bootstrap location helpers', () => {
@@ -105,7 +108,7 @@ describe('BootstrapComponent', () => {
         build_component();
         const router = spectator.inject(Router);
         const set_item_spy = jest.spyOn(Storage.prototype, 'setItem');
-        spectator.component.active_display = 'display-1';
+        spectator.component.active_display.set('display-1');
 
         await spectator.component.bootstrapPanel();
 
@@ -148,7 +151,7 @@ describe('BootstrapComponent', () => {
         spectator.setRouteQueryParam('display', 'display-2');
         spectator.detectChanges();
 
-        expect(spectator.component.active_display).toBe('display-2');
+        expect(spectator.component.active_display()).toBe('display-2');
         expect(bootstrap_spy).toHaveBeenCalled();
     });
 
