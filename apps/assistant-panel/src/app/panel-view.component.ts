@@ -1,11 +1,12 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     ElementRef,
+    computed,
+    effect,
     inject,
+    signal,
     viewChild,
 } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, currentUser } from '@placeos/common';
 import {
@@ -16,9 +17,7 @@ import {
     TranslatePipe,
     UserAvatarComponent,
 } from '@placeos/components';
-import { map, tap } from 'rxjs/operators';
 
-import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { OrganisationService } from '@placeos/common';
 import * as tf from '@tensorflow/tfjs';
@@ -41,22 +40,24 @@ declare let loadVosklet: any;
                 ></canvas>
 
                 <div class="absolute inset-x-0 top-0 p-8 text-center">
-                    <div class="text-sm">{{ current_text || last_text }}</div>
+                    <div class="text-sm">
+                        {{ current_text() || last_text() }}
+                    </div>
                 </div>
 
                 <div class="absolute inset-x-0 bottom-0 p-4 text-center"></div>
-                @if (error.speech_recognition || error.speech_synthesis) {
+                @if (error().speech_recognition || error().speech_synthesis) {
                     <div
                         class="bg-error text-error-content absolute top-2 left-1/2 -translate-x-1/2 rounded-3xl px-4 py-2 text-center text-xs"
                     >
-                        @if (error.speech_recognition) {
+                        @if (error().speech_recognition) {
                             <div
                                 class="flex h-full w-full items-center justify-center"
                             >
                                 Speech Recognition is not supported
                             </div>
                         }
-                        @if (error.speech_synthesis) {
+                        @if (error().speech_synthesis) {
                             <div
                                 class="flex h-full w-full items-center justify-center"
                             >
@@ -69,12 +70,12 @@ declare let loadVosklet: any;
                     #video
                     autoplay
                     playsinline
-                    [class.opacity-0]="!debug"
+                    [class.opacity-0]="!debug()"
                     class="bg-base-200 absolute bottom-4 left-4 h-48 w-48 rounded-xl border-[0.25rem] object-cover"
-                    [class.border-success]="person_in_view"
-                    [class.border-base-200]="!person_in_view"
+                    [class.border-success]="person_in_view()"
+                    [class.border-base-200]="!person_in_view()"
                 ></video>
-                @if (listening) {
+                @if (listening()) {
                     <div
                         class="bg-success text-success-content absolute right-4 bottom-4 flex h-12 w-12 items-center justify-center rounded-full"
                     >
@@ -91,7 +92,7 @@ declare let loadVosklet: any;
             <div
                 class="bg-base-100 relative flex h-full w-[24rem] flex-col justify-end overflow-auto"
             >
-                @if (!(messages | async)?.length) {
+                @if (!messages().length) {
                     <div
                         class="absolute inset-0 flex flex-col items-center justify-center space-y-4"
                     >
@@ -105,13 +106,11 @@ declare let loadVosklet: any;
                     </div>
                 }
                 <div class="max-h-full w-full overflow-auto" #message_element>
-                    @for (message of messages | async; track message) {
+                    @for (message of messages(); track message) {
                         <div
                             class="hover:bg-base-200 my-2 flex space-x-4 p-2"
-                            (click)="
-                                show_time[message.id] = !show_time[message.id]
-                            "
-                            [class.waiting-margin]="waiting | async"
+                            (click)="toggleMessageTime(message.id)"
+                            [class.waiting-margin]="waiting()"
                         >
                             <a-user-avatar
                                 [user]="
@@ -151,21 +150,20 @@ declare let loadVosklet: any;
                             </div>
                         </div>
                     }
-                    @if (progress | async) {
+                    @if (progress(); as progress_msg) {
                         <div class="p-4">
                             <button
                                 class="border-base-300 bg-info text-info-content block w-full rounded-sm p-2"
-                                (click)="show_info = !show_info"
+                                (click)="show_info.set(!show_info())"
                             >
                                 <div class="flex items-center space-x-2">
                                     <icon class="text-2xl">{{
-                                        icons[(progress | async).function] ||
-                                            'info'
+                                        icons[progress_msg.function] || 'info'
                                     }}</icon>
                                     <p class="text-sm">
                                         {{
-                                            (progress | async).message ||
-                                                (progress | async).function
+                                            progress_msg.message ||
+                                                progress_msg.function
                                         }}
                                     </p>
                                 </div>
@@ -175,12 +173,11 @@ declare let loadVosklet: any;
                                     <div
                                         class="bg-base-100 absolute inset-0 opacity-10"
                                     ></div>
-                                    @if (show_info) {
+                                    @if (show_info()) {
                                         <div
                                             class="text-mono p-2 text-left text-xs wrap-break-word"
                                             [innerHTML]="
-                                                (progress | async).content
-                                                    | sanitize
+                                                progress_msg.content | sanitize
                                             "
                                         ></div>
                                     }
@@ -188,7 +185,7 @@ declare let loadVosklet: any;
                             </button>
                         </div>
                     }
-                    @if (waiting | async) {
+                    @if (waiting()) {
                         <div
                             class="border-neutral bg-base-100 absolute right-2 flex items-center justify-center space-x-2 rounded-2xl border p-1"
                             [style.bottom]="'8px'"
@@ -208,7 +205,7 @@ declare let loadVosklet: any;
                 </div>
             </div>
         </div>
-        @if (setup) {
+        @if (setup()) {
             <button
                 icon
                 matRipple
@@ -218,12 +215,12 @@ declare let loadVosklet: any;
                 <icon class="text-2xl">call_end</icon>
             </button>
         }
-        @if (!setup) {
+        @if (!setup()) {
             <button
                 splash
                 matRipple
                 class="absolute inset-0 z-20 flex flex-col items-center justify-center text-white"
-                (click)="setup = true"
+                (click)="setup.set(true)"
             >
                 <h2 class="mb-4 text-4xl font-light">Touch to Start</h2>
             </button>
@@ -237,10 +234,8 @@ declare let loadVosklet: any;
             }
         `,
     ],
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatRippleModule,
-        CommonModule,
         IconComponent,
         SanitizePipe,
         DateFromPipe,
@@ -254,15 +249,15 @@ export class PanelViewComponent extends AsyncHandler {
     private _org = inject(OrganisationService);
 
     public scale = 1;
-    public current_text = '';
-    public last_text = '';
-    public listening = false;
-    public person_in_view = false;
-    public debug = true;
-    public setup = false;
-    public error: Record<string, boolean> = {};
-    public show_time: Record<string, boolean> = {};
-    public show_info = false;
+    public readonly current_text = signal('');
+    public readonly last_text = signal('');
+    public readonly listening = signal(false);
+    public readonly person_in_view = signal(false);
+    public readonly debug = signal(true);
+    public readonly setup = signal(false);
+    public readonly error = signal<Record<string, boolean>>({});
+    public readonly show_time = signal<Record<string, boolean>>({});
+    public readonly show_info = signal(false);
     public offset = 0;
     private _time = 0;
     private _last_message = '';
@@ -275,15 +270,40 @@ export class PanelViewComponent extends AsyncHandler {
         task_complete: 'check_circle',
     };
 
-    public readonly messages = toObservable(this._chat.messages);
-    public readonly progress = toObservable(this._chat.progress).pipe(
-        tap(() => this._scrollToBottom()),
-    );
-    public readonly waiting = toObservable(this._chat.messages).pipe(
-        map(
-            (_) => _.length !== 0 && _[_.length - 1]?.user_id === this.user?.id,
-        ),
-    );
+    public readonly messages = this._chat.messages;
+    public readonly progress = this._chat.progress;
+    public readonly waiting = computed(() => {
+        const list = this._chat.messages();
+        return (
+            list.length !== 0 &&
+            list[list.length - 1]?.user_id === this.user?.id
+        );
+    });
+
+    constructor() {
+        super();
+        // Scroll to the latest message whenever the chat updates
+        effect(() => {
+            this.progress();
+            this._scrollToBottom();
+        });
+        // Speak each new assistant message as it arrives
+        effect(() => {
+            const list = this._chat.messages();
+            this._scrollToBottom();
+            const msg_list = list.filter((_) => _.user_id !== this.user?.id);
+            const last_message = msg_list[msg_list.length - 1];
+            if (msg_list.length < 1 || this._last_message === last_message.id) {
+                return;
+            }
+            this._last_message = last_message.id;
+            this._speakText(last_message.message);
+        });
+    }
+
+    public toggleMessageTime(id: string) {
+        this.show_time.update((state) => ({ ...state, [id]: !state[id] }));
+    }
 
     private _recognition: any;
     private readonly _video_el =
@@ -311,43 +331,27 @@ export class PanelViewComponent extends AsyncHandler {
         });
         this._setupWebcam();
         this._chat.startChat();
-        this.subscription(
-            'chat.messages',
-            this.messages.subscribe((list) => {
-                this._scrollToBottom();
-                const msg_list = list.filter(
-                    (_) => _.user_id !== this.user?.id,
-                );
-                const last_message = msg_list[msg_list.length - 1];
-                if (
-                    msg_list.length < 1 ||
-                    this._last_message === last_message.id
-                )
-                    return;
-                this._last_message = last_message.id;
-                this._speakText(last_message.message);
-            }),
-        );
         this.interval('process_frame', () => this._processWebcamFrame(), 500);
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((p) => {
-                if (p.has('debug')) this.debug = p.get('debug') === 'true';
+                if (p.has('debug'))
+                    this.debug.set(p.get('debug') === 'true');
             }),
         );
         this._listen();
     }
 
     public startListening() {
-        if (this.listening || !this.person_in_view) return;
+        if (this.listening() || !this.person_in_view()) return;
         this._recognition.start();
-        this.listening = true;
+        this.listening.set(true);
     }
 
     public endService() {
-        this.setup = false;
+        this.setup.set(false);
         this._recognition.stop();
-        this.listening = false;
+        this.listening.set(false);
         this._last_text = '';
         this._spoken = false;
         this._chat.close();
@@ -365,7 +369,7 @@ export class PanelViewComponent extends AsyncHandler {
     private _spoken = false;
 
     private async _processWebcamFrame() {
-        if (!this.setup) return;
+        if (!this.setup()) return;
         if (!this._model) await this._loadModel();
         tf.tidy(() => {
             const tensor = this._webcamToTensor();
@@ -373,12 +377,12 @@ export class PanelViewComponent extends AsyncHandler {
             const detections = this._processPredictions(predictions, {
                 0: 'person',
             });
-            const old_state = this.person_in_view;
-            this.person_in_view = false;
+            const old_state = this.person_in_view();
+            this.person_in_view.set(false);
             for (const { box, label } of detections) {
                 if (label === 'person') {
-                    this.person_in_view = true;
-                    if (this.setup && !this._spoken) {
+                    this.person_in_view.set(true);
+                    if (this.setup() && !this._spoken) {
                         this._speakText('Hello, how may I help you?');
                         this._spoken = true;
                         this.clearTimeout('clean_chat');
@@ -386,13 +390,13 @@ export class PanelViewComponent extends AsyncHandler {
                     return;
                 }
             }
-            if (old_state !== this.person_in_view && this._recognition) {
-                if (this.person_in_view) {
+            if (old_state !== this.person_in_view() && this._recognition) {
+                if (this.person_in_view()) {
                     this._recognition.start();
-                    this.listening = true;
+                    this.listening.set(true);
                 } else {
                     this._recognition.stop();
-                    this.listening = false;
+                    this.listening.set(false);
                     this._last_text = '';
                     this._spoken = false;
                     this.timeout(
@@ -483,30 +487,33 @@ export class PanelViewComponent extends AsyncHandler {
         recognition.onresult = (event) => {
             const { transcript } = event.results[0][0];
             // do something with transcript
-            this.current_text = transcript;
+            this.current_text.set(transcript);
             this.timeout('on_end', () => this._handleEnd(), 3000);
         };
 
         recognition.onerror = (event) => {
             console.warn('Speech Recognition Error:', event);
             if (event.error === 'no-speech') {
-                this.current_text = '';
-                this.listening = false;
+                this.current_text.set('');
+                this.listening.set(false);
                 return;
             }
-            this.error.speech_recognition = true;
+            this.error.update((state) => ({
+                ...state,
+                speech_recognition: true,
+            }));
         };
 
         recognition.onend = (event) => {
             // const { transcript } = event.results[0][0];
             // do something with transcript
             this._handleEnd();
-            this.listening = false;
+            this.listening.set(false);
         };
         this._recognition = recognition;
         recognition.start();
-        this.setup = true;
-        this.listening = true;
+        this.setup.set(true);
+        this.listening.set(true);
         this.interval('check_listening', () => this.startListening(), 500);
     }
 
@@ -520,7 +527,10 @@ export class PanelViewComponent extends AsyncHandler {
                 'SpeechSynthesisUtterance' in window
             )
         ) {
-            this.error.speech_synthesis = true;
+            this.error.update((state) => ({
+                ...state,
+                speech_synthesis: true,
+            }));
             return;
         }
         this._last_text = text;
@@ -563,17 +573,18 @@ export class PanelViewComponent extends AsyncHandler {
     }
 
     private _handleEnd() {
-        if (!this.setup) return;
-        this.last_text = this.current_text;
-        this.current_text = '';
+        if (!this.setup()) return;
+        this.last_text.set(this.current_text());
+        this.current_text.set('');
         this.clearInterval('scale');
         this.scale = 1;
-        if (this.last_text.length <= 3) return;
-        if (this.last_text === this._previous_message) return;
+        const last_text = this.last_text();
+        if (last_text.length <= 3) return;
+        if (last_text === this._previous_message) return;
         this._chat.startChat();
-        this._chat.sendMessage(this.last_text);
-        this._previous_message = this.last_text;
-        this.last_text = '';
+        this._chat.sendMessage(last_text);
+        this._previous_message = last_text;
+        this.last_text.set('');
     }
 
     private _scrollToBottom() {
@@ -624,7 +635,7 @@ export class PanelViewComponent extends AsyncHandler {
     }
 
     private _drawWaveform() {
-        if (!this.setup) return;
+        if (!this.setup()) return;
         const canvas = this._waveform_canvas_el().nativeElement;
         const height = canvas.height;
         const width = canvas.width;

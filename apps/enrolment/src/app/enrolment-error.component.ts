@@ -1,5 +1,4 @@
-import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { EnrolmentStateService } from './enrolment-state.service';
 
 @Component({
@@ -12,7 +11,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
                 Unable to continue
             </h3>
             <p class="text-center">
-                @switch (error | async) {
+                @switch (error()) {
                     @case ('guest') {
                         Your details could not be retrieved.
                     }
@@ -38,8 +37,6 @@ import { EnrolmentStateService } from './enrolment-state.service';
         </div>
     `,
     styles: [``],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [CommonModule],
 })
 export class EnrolmentErrorComponent {
     private _state = inject(EnrolmentStateService);
