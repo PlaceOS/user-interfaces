@@ -319,7 +319,7 @@ export class ScheduleWeekViewComponent {
         let location = '';
         let level_name = '';
 
-        if (booking instanceof Booking) {
+        if ('asset_id' in booking) {
             location = booking.location || booking.asset_name || '';
             // Unallocated parking has no space yet; hide the raw `unallocated-*`
             // asset id that the location/asset name can fall back to.
