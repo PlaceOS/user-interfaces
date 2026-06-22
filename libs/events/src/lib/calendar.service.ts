@@ -23,6 +23,7 @@ export class CalendarService extends AsyncHandler {
     private _settings = inject(SettingsService);
 
     private readonly _calendars = signal<Calendar[]>([]);
+    private _calendars_request: Promise<void> = null;
 
     /** Signal for the list of calendars */
     public readonly calendar_list = this._calendars.asReadonly();
@@ -39,7 +40,6 @@ export class CalendarService extends AsyncHandler {
     constructor() {
         super();
         this._waitForOrg();
-        this._loadCalendars();
     }
 
     public async init() {
@@ -98,8 +98,14 @@ export class CalendarService extends AsyncHandler {
         return !!available;
     }
 
-    private async _loadCalendars() {
-        this._calendars.set(await queryCalendars());
+    public async loadCalendars() {
+        if (this._calendars().length) return;
+        this._calendars_request =
+            this._calendars_request ||
+            queryCalendars()
+                .then((list) => this._calendars.set(list))
+                .finally(() => (this._calendars_request = null));
+        await this._calendars_request;
     }
 
     private _waitForOrg() {

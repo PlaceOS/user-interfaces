@@ -38,11 +38,15 @@ describe('CalendarService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
+    it('should not load calendars until requested', () => {
+        expect(cal_fn.queryCalendars).not.toHaveBeenCalled();
+    });
+
     it('should allow getting calendars', async () => {
         (cal_fn as any).queryCalendars = jest.fn(() =>
             Promise.resolve([new Calendar()]),
         );
-        await new Promise((resolve) => setTimeout(resolve));
+        await spectator.service.loadCalendars();
         const list = spectator.service.calendar_list();
         expect(list).toEqual(spectator.service.calendars);
         expect(list).toHaveLength(1);

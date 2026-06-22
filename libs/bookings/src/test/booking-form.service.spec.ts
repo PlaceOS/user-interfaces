@@ -9,6 +9,7 @@ import { of, Subject } from 'rxjs';
 import { Booking, currentUser, OrganisationService } from '@placeos/common';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { CalendarService } from 'libs/events/src/lib/calendar.service';
 import { BookingFormService } from '../lib/booking-form.service';
 import * as booking_utility_mod from '../lib/booking.utilities';
 import * as booking_mod from '../lib/bookings.fn';
@@ -68,6 +69,9 @@ describe('BookingFormService', () => {
             MockProvider(AssetStateService, {
                 getOptions: jest.fn(() => ({ date: 0 })),
                 setOptions: jest.fn(),
+            }),
+            MockProvider(CalendarService, {
+                loadCalendars: jest.fn(),
             }),
         ],
     });

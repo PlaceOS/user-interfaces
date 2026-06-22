@@ -45,6 +45,7 @@ import {
 } from '@placeos/ts-client';
 import { addDays, addMinutes, endOfDay, format, getUnixTime } from 'date-fns';
 import { openRecurringClashModal } from 'libs/components/src/lib/recurring-clash-modal.component';
+import { CalendarService } from 'libs/events/src/lib/calendar.service';
 import { BookingLinkModalComponent } from './booking-link-modal.component';
 import {
     bookingFormValue,
@@ -160,6 +161,7 @@ export class BookingFormService extends AsyncHandler {
     private _dialog = inject(MatDialog);
     private _payments = inject(PaymentsService);
     private _assets = inject(AssetStateService);
+    private _calendar = inject(CalendarService);
     private _injector = inject(Injector);
     private _options = signal<BookingFlowOptions>({
         type: 'desk',
@@ -210,12 +212,6 @@ export class BookingFormService extends AsyncHandler {
         });
     }
 
-    private _requestNetwork() {
-        if (this._network_requested) return;
-        this._network_requested = true;
-        queueMicrotask(() => this._network_consumed.set(true));
-    }
-
     private _startNetwork() {
         this._network_requested = true;
         this._network_consumed.set(true);
@@ -262,7 +258,6 @@ export class BookingFormService extends AsyncHandler {
     });
     /** Signal for the list of resources for the current booking type */
     public readonly resources = computed<BookingAsset[]>(() => {
-        this._requestNetwork();
         return this._resources_resource.value() ?? [];
     });
 
@@ -313,7 +308,6 @@ export class BookingFormService extends AsyncHandler {
     });
     /** Signal for the booking rules grouped by building */
     public readonly booking_rules = computed<Record<string, BookingRuleset[]>>(() => {
-        this._requestNetwork();
         return this._booking_rules_resource.value() ?? {};
     });
 
@@ -331,7 +325,6 @@ export class BookingFormService extends AsyncHandler {
     });
     /** Whether the current user has a desk reserved (assigned) to them */
     public readonly has_assigned_desk = computed<boolean>(() => {
-        this._requestNetwork();
         return this._has_assigned_desk_resource.value() ?? false;
     });
 
@@ -378,7 +371,6 @@ export class BookingFormService extends AsyncHandler {
     });
     /** Signal for the resources available to book for the current selection */
     public readonly available_resources = computed<BookingAsset[]>(() => {
-        this._requestNetwork();
         return this._available_resource.value() ?? [];
     });
 
@@ -583,6 +575,8 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public newForm(type: BookingType, booking: Booking = new Booking({})) {
+        this._startNetwork();
+        this._calendar.loadCalendars();
         if (type !== this._options().type) {
             this._clearStoredForm();
         }
@@ -799,6 +793,8 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public loadForm() {
+        this._startNetwork();
+        this._calendar.loadCalendars();
         const data = JSON.parse(
             sessionStorage.getItem('PLACEOS.booking_form') || '{}',
         );
