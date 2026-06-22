@@ -99,6 +99,9 @@ export class DesksStateService extends AsyncHandler {
     private _filters = signal<DeskFilters>({});
     private _loading = signal<boolean>(false);
     private _change = signal(0);
+    private _booking_status = signal<Record<string, 'approved' | 'declined'>>(
+        {},
+    );
 
     public readonly loading = this._loading.asReadonly();
     public readonly filters = this._filters.asReadonly();
@@ -283,6 +286,7 @@ export class DesksStateService extends AsyncHandler {
                 zones: zones.join(','),
                 include_checked_out: true,
                 include_deleted: true,
+                rejected: true,
                 limit: 500,
             } as any);
     }
@@ -312,13 +316,27 @@ export class DesksStateService extends AsyncHandler {
         }));
         if (token !== this._load_token) return;
         const { data = [], total = 0, next = null } = resp || {};
+        const list = data.map((booking) => this._normaliseBooking(booking));
         this._next_page_fn = next;
         this._bookings_state.update((acc) =>
             reset
-                ? { list: data, total, has_next: data.length < total && !!next }
-                : { list: [...acc.list, ...data], total, has_next: !!next },
+                ? { list, total, has_next: list.length < total && !!next }
+                : { list: [...acc.list, ...list], total, has_next: !!next },
         );
         this._loading.set(false);
+    }
+
+    private _normaliseBooking(booking: Booking) {
+        const status =
+            this._booking_status()[this._bookingKey(booking)] ||
+            (booking?.rejected ? 'declined' : '');
+        if (!status) return booking;
+        return new Booking({
+            ...booking,
+            approved: status === 'approved',
+            rejected: status === 'declined',
+            status,
+        });
     }
 
     public setFilters(filters: DeskFilters) {
@@ -510,6 +528,7 @@ export class DesksStateService extends AsyncHandler {
         (desk as any).approved = true;
         (desk as any).rejected = false;
         (desk as any).status = 'approved';
+        this._setBookingStatus(desk, 'approved');
         this.setFilters({});
     }
 
@@ -529,6 +548,7 @@ export class DesksStateService extends AsyncHandler {
         (desk as any).approved = false;
         (desk as any).rejected = true;
         (desk as any).status = 'declined';
+        this._setBookingStatus(desk, 'declined');
         this.setFilters({});
     }
 
@@ -617,6 +637,7 @@ export class DesksStateService extends AsyncHandler {
                 (desk as any).approved = false;
                 (desk as any).rejected = true;
                 (desk as any).status = 'declined';
+                this._setBookingStatus(desk, 'declined');
             });
         } catch (e) {
             notifyError(
@@ -634,6 +655,20 @@ export class DesksStateService extends AsyncHandler {
         return desk.instance
             ? rejectBookingInstance(desk.id, desk.instance)
             : rejectBooking(desk.id);
+    }
+
+    private _setBookingStatus(
+        booking: Booking,
+        status: 'approved' | 'declined',
+    ) {
+        this._booking_status.update((map) => ({
+            ...map,
+            [this._bookingKey(booking)]: status,
+        }));
+    }
+
+    private _bookingKey(booking: Booking) {
+        return `${booking.id}:${booking.instance || ''}`;
     }
 
     private async _checkAssignedDeskLimit(
