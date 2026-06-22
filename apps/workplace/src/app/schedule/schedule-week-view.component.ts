@@ -13,6 +13,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     BookingDetailsModalComponent,
+    bookingLocationString,
     visitorDisplayNameFor,
 } from '@placeos/bookings';
 import {
@@ -316,40 +317,7 @@ export class ScheduleWeekViewComponent {
     }
 
     public location(booking: Booking | CalendarEvent): string {
-        let location = '';
-        let level_name = '';
-
-        if ('asset_id' in booking) {
-            location = booking.location || booking.asset_name || '';
-            // Unallocated parking has no space yet; hide the raw `unallocated-*`
-            // asset id that the location/asset name can fall back to.
-            if (location.startsWith('unallocated')) location = '';
-            const level = this._org.levelWithID(booking.zones);
-            level_name = level?.display_name || level?.name || '';
-        } else {
-            location =
-                booking.location ||
-                booking.space?.display_name ||
-                booking.space?.name ||
-                (booking.system as any)?.name ||
-                '';
-            level_name =
-                booking.space?.level?.display_name ||
-                booking.space?.level?.name ||
-                (booking.system as any)?.zones
-                    ? this._org.levelWithID(
-                          (booking.system as any)?.zones || [],
-                      )?.display_name ||
-                      this._org.levelWithID(
-                          (booking.system as any)?.zones || [],
-                      )?.name
-                    : '';
-        }
-
-        if (location && level_name) {
-            return `${location} - ${level_name}`;
-        }
-        return location || level_name || '';
+        return bookingLocationString(booking, this._org);
     }
 
     public viewBooking(bkn: CalendarEvent | Booking) {

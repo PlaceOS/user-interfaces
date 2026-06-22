@@ -162,6 +162,51 @@ export const visitorDisplayNameFor = (booking: Booking) => {
     return formatEmailName(asset_id || asset_name || 'Visitor');
 };
 
+/**
+ * Location text shown for a booking/event: `<resource> - <level>`, falling back
+ * to whichever part is available. Shared by the booking card, booking details
+ * modal, and workplace schedule week/day views so they all read the same.
+ */
+export function bookingLocationString(
+    booking: Booking | CalendarEvent,
+    org: OrganisationService,
+): string {
+    let location = '';
+    let level_name = '';
+
+    if (booking instanceof Booking) {
+        location =
+            booking.booking_type === 'visitor'
+                ? booking.extension_data?.location || ''
+                : booking.location || booking.asset_name || '';
+        // Unallocated parking has no space yet; hide the raw `unallocated-*`
+        // asset id that the location/asset name can fall back to.
+        if (location.startsWith('unallocated')) location = '';
+        const level = org.levelWithID(booking.zones);
+        level_name = level?.display_name || level?.name || '';
+    } else {
+        location =
+            booking.location ||
+            booking.space?.display_name ||
+            booking.space?.name ||
+            (booking.system as any)?.name ||
+            '';
+        level_name =
+            booking.space?.level?.display_name ||
+            booking.space?.level?.name ||
+            (booking.system as any)?.zones
+                ? org.levelWithID((booking.system as any)?.zones || [])
+                      ?.display_name ||
+                  org.levelWithID((booking.system as any)?.zones || [])?.name
+                : '';
+    }
+
+    if (location && level_name) {
+        return `${location} - ${level_name}`;
+    }
+    return location || level_name || '';
+}
+
 /** Raw value held by the booking form model. */
 export interface BookingFormValue {
     id: string;

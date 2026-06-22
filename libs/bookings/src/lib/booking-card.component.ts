@@ -22,6 +22,7 @@ import { StatusPillComponent } from 'libs/components/src/lib/status-pill.compone
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-event-details-modal.component';
 import { BookingDetailsModalComponent } from './booking-details-modal.component';
+import { bookingLocationString } from './booking.utilities';
 import { ParkingService } from './parking.service';
 
 @Component({
@@ -339,20 +340,9 @@ export class BookingCardComponent {
         return `${is_today ? i18n('COMMON.TODAY') : format(date, 'EEEE')}`;
     });
 
-    public readonly location = computed(() => {
-        const zones = this.booking()?.zones || [];
-        const level = this._org.levelWithID(zones);
-        const building = (this._org.buildings || []).find(
-            (bld) => zones.includes(bld.id) || bld.id === level?.parent_id,
-        );
-        return `${
-            level?.display_name ||
-            level?.name ||
-            building?.display_name ||
-            building?.name ||
-            ''
-        }`;
-    });
+    public readonly location = computed(() =>
+        bookingLocationString(this.booking(), this._org),
+    );
 
     public readonly period = computed(() => {
         const booking = this.booking();
