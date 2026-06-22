@@ -125,14 +125,15 @@ describe('BookingFormService', () => {
         };
 
         const requests = Promise.all([
-            (spectator.service as any)._bookedResourceList(query),
-            (spectator.service as any)._bookedResourceList(query),
+            (spectator.service as any)._bookedResourceList(query, 42),
+            (spectator.service as any)._bookedResourceList(query, 42),
         ]);
 
         await new Promise((resolve) => setTimeout(resolve, 250));
         expect(booking_mod.bookedResourceList).not.toHaveBeenCalled();
         await requests;
         expect(booking_mod.bookedResourceList).toHaveBeenCalledTimes(1);
+        expect(booking_mod.bookedResourceList).toHaveBeenCalledWith(query, 42);
     });
 
     it('should keep form fields bound after storeForm even when cleanObject mutates in place', () => {

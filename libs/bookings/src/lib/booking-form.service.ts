@@ -238,11 +238,10 @@ export class BookingFormService extends AsyncHandler {
 
     /** Latest raw form value, used to drive availability recalculation */
     private readonly _form_value = signal<Record<string, any>>(null);
-    private readonly _form_value_debounced = debounced(
-        this._form_value,
-        500,
-        { injector: this._injector, equal: Object.is },
-    );
+    private readonly _form_value_debounced = debounced(this._form_value, 500, {
+        injector: this._injector,
+        equal: Object.is,
+    });
 
     /** Params driving the resource list, debounced to coalesce rapid changes */
     private readonly _resource_params = computed(() => {
@@ -314,9 +313,11 @@ export class BookingFormService extends AsyncHandler {
         },
     });
     /** Signal for the booking rules grouped by building */
-    public readonly booking_rules = computed<Record<string, BookingRuleset[]>>(() => {
-        return this._booking_rules_resource.value() ?? {};
-    });
+    public readonly booking_rules = computed<Record<string, BookingRuleset[]>>(
+        () => {
+            return this._booking_rules_resource.value() ?? {};
+        },
+    );
 
     /** Whether the current user has an assigned desk in any active building */
     private readonly _has_assigned_desk_resource = resource({
@@ -513,12 +514,17 @@ export class BookingFormService extends AsyncHandler {
                 raw.recurrence_type &&
                 raw.recurrence_type !== 'none'
                     ? await this._recurringBookedResourceList(resources, zones)
-                    : await this._bookedResourceList({
-                          period_start: getUnixTime(date),
-                          period_end: getUnixTime(addMinutes(date, duration)),
-                          type: options.type,
-                          zones,
-                      });
+                    : await this._bookedResourceList(
+                          {
+                              period_start: getUnixTime(date),
+                              period_end: getUnixTime(
+                                  addMinutes(date, duration),
+                              ),
+                              type: options.type,
+                              zones,
+                          },
+                          resources.length,
+                      );
         }
         this._resource_use = {};
         for (const id of booked_ids) {
@@ -556,13 +562,16 @@ export class BookingFormService extends AsyncHandler {
         });
     }
 
-    private _bookedResourceList(query: {
-        period_start: number;
-        period_end: number;
-        type: BookingType;
-        zones: string;
-    }) {
-        const key = JSON.stringify(query);
+    private _bookedResourceList(
+        query: {
+            period_start: number;
+            period_end: number;
+            type: BookingType;
+            zones: string;
+        },
+        resource_count?: number,
+    ) {
+        const key = JSON.stringify({ ...query, resource_count });
         const existing = this._booked_resource_requests.get(key);
         if (existing) return existing;
         const request = new Promise<string[]>((resolve, reject) => {
@@ -578,8 +587,11 @@ export class BookingFormService extends AsyncHandler {
                     const queue = this._booked_resource_debounce;
                     this._booked_resource_debounce = [];
                     const latest = queue[queue.length - 1];
-                    const pending = bookedResourceList(latest.query).finally(
-                        () => this._booked_resource_requests.delete(latest.key),
+                    const pending = bookedResourceList(
+                        latest.query,
+                        resource_count,
+                    ).finally(() =>
+                        this._booked_resource_requests.delete(latest.key),
                     );
                     this._booked_resource_requests.set(latest.key, pending);
                     pending.then(

@@ -1,6 +1,7 @@
 import { Booking, VERSION } from '@placeos/common';
 import {
     approveBooking,
+    bookedResourceList,
     checkinBooking,
     createBooking,
     queryBookings,
@@ -35,6 +36,40 @@ describe('[Booking API]', () => {
             expect(ts_client.get).toHaveBeenCalledWith(
                 `/api/staff/v1/bookings?period_start=1&period_end=2&type=desk`,
             );
+            spy.mockReset();
+        });
+    });
+
+    describe('bookedResourceList', () => {
+        it('should query all pages of booked resources', async () => {
+            const spy = jest.spyOn(ts_client, 'query');
+            spy.mockResolvedValue({
+                total: 3,
+                data: ['asset-1', 'asset-2'],
+                next: () =>
+                    Promise.resolve({
+                        total: 3,
+                        data: ['asset-3'],
+                        next: null,
+                    }),
+            } as any);
+
+            await expect(
+                bookedResourceList(
+                    { period_start: 1, period_end: 2, type: 'desk' },
+                    200,
+                ),
+            ).resolves.toEqual(['asset-1', 'asset-2', 'asset-3']);
+            expect(ts_client.query).toHaveBeenCalledWith({
+                query_params: {
+                    period_start: 1,
+                    period_end: 2,
+                    type: 'desk',
+                    limit: 200,
+                },
+                endpoint: `/api/staff/v1/bookings`,
+                path: 'booked',
+            });
             spy.mockReset();
         });
     });

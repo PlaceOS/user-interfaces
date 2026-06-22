@@ -106,12 +106,25 @@ export async function queryBookings(
  */
 export async function bookedResourceList(
     q: BookingsQueryParams,
+    resource_count?: number,
 ): Promise<string[]> {
-    const query = toQueryString({ ...q, limit: 1200 });
     try {
-        return (await get(
-            `${BOOKINGS_ENDPOINT}/booked${query ? '?' + query : ''}`,
-        )) as string[];
+        let { data, next, total } = await query<string>({
+            query_params: { ...q, limit: Math.max(200, resource_count || 0) },
+            endpoint: BOOKINGS_ENDPOINT,
+            path: 'booked',
+        });
+        let list = [...data];
+        let count = 1;
+        while (next && (!total || list.length < total) && count <= MAX_PAGES) {
+            const resp = await next();
+            data = resp.data;
+            next = resp.next;
+            total = resp.total;
+            list = [...list, ...data];
+            count += 1;
+        }
+        return unique(list);
     } catch (_) {
         return [];
     }
