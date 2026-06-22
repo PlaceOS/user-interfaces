@@ -430,12 +430,14 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     </div>
                 </button>
             }
-            <button mat-menu-item (click)="remove(booking(), false)">
-                <div class="flex items-center space-x-2 text-base">
-                    <icon class="text-error">delete</icon>
-                    <div>{{ 'BOOKINGS.ACTION_DELETE' | translate }}</div>
-                </div>
-            </button>
+            @if (!booking().is_done) {
+                <button mat-menu-item (click)="remove(booking(), false)">
+                    <div class="flex items-center space-x-2 text-base">
+                        <icon class="text-error">delete</icon>
+                        <div>{{ 'BOOKINGS.ACTION_DELETE' | translate }}</div>
+                    </div>
+                </button>
+            }
             @if (can_manage_group()) {
                 <button
                     mat-menu-item
@@ -447,7 +449,11 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     </div>
                 </button>
             }
-            @if (booking().instance && allow_series_delete()) {
+            @if (
+                !booking().is_done &&
+                booking().instance &&
+                allow_series_delete()
+            ) {
                 <button mat-menu-item (click)="remove(booking(), true)">
                     <div class="flex items-center space-x-2 text-base">
                         <icon class="text-error">delete</icon>
@@ -502,7 +508,6 @@ export class BookingDetailsModalComponent {
     public readonly booking = signal(this._data.booking);
     public readonly current_user = userSignal();
     public readonly edit = this._data.edit_fn;
-    public readonly remove = this._data.remove_fn;
     public readonly end = this._data.end_fn;
     private readonly _show_request = signal<Record<string, boolean>>({});
     public readonly features = computed(() => [
@@ -681,7 +686,7 @@ export class BookingDetailsModalComponent {
     });
     public readonly can_manage_group = computed(() => {
         const group_booking = this.group_parent_booking();
-        if (!group_booking) return false;
+        if (!group_booking || group_booking.is_done) return false;
         const current_email = this.current_user()?.email?.toLowerCase();
         const host_emails = [
             group_booking.user_email,
@@ -689,6 +694,12 @@ export class BookingDetailsModalComponent {
         ].map((_) => _?.toLowerCase());
         return !!current_email && host_emails.includes(current_email);
     });
+
+    public remove(booking: Booking, remove_series?: boolean) {
+        if (booking?.is_done) return;
+        if (remove_series === undefined) this._data.remove_fn(booking);
+        else this._data.remove_fn(booking, remove_series);
+    }
     public readonly group_details = computed(() => {
         const booking = this.booking();
         const group_booking = this.group_parent_booking();

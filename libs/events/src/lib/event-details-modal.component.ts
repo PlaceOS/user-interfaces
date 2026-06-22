@@ -687,17 +687,16 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                         </div>
                     </button>
                 }
-                <button
-                    mat-menu-item
-                    (click)="remove ? remove(event(), false) : ''"
-                >
-                    <div class="flex items-center space-x-2 pr-2 text-base">
-                        <icon class="text-error text-2xl">delete</icon>
-                        <div>
-                            {{ 'CALENDAR_EVENT.ACTION_DELETE' | translate }}
+                @if (event().state !== 'done') {
+                    <button mat-menu-item (click)="remove(event(), false)">
+                        <div class="flex items-center space-x-2 pr-2 text-base">
+                            <icon class="text-error text-2xl">delete</icon>
+                            <div>
+                                {{ 'CALENDAR_EVENT.ACTION_DELETE' | translate }}
+                            </div>
                         </div>
-                    </div>
-                </button>
+                    </button>
+                }
                 @if (is_concierge) {
                     <button mat-menu-item (click)="printEvent()">
                         <div class="flex items-center space-x-2 pr-2 text-base">
@@ -708,11 +707,8 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                         </div>
                     </button>
                 }
-                @if (event().recurring_event_id) {
-                    <button
-                        mat-menu-item
-                        (click)="remove ? remove(event(), true) : ''"
-                    >
+                @if (event().state !== 'done' && event().recurring_event_id) {
+                    <button mat-menu-item (click)="remove(event(), true)">
                         <div class="flex items-center space-x-2 pr-2 text-base">
                             <icon class="text-error text-2xl">delete</icon>
                             <div>
@@ -769,7 +765,6 @@ export class EventDetailsModalComponent implements OnInit {
 
     public readonly action = output<any>();
     public readonly edit = this._data.edit_fn;
-    public readonly remove = this._data.remove_fn;
 
     public readonly empty_notes =
         '<div class="p-4 w-full rounded-md bg-base-200 text-center"><span class="opacity-30">No notes</span></div>';
@@ -791,6 +786,11 @@ export class EventDetailsModalComponent implements OnInit {
             content: MapPinComponent,
         },
     ]);
+
+    public remove(event: CalendarEvent, remove_series?: boolean) {
+        if (event?.state === 'done') return;
+        this._data.remove_fn(event, remove_series);
+    }
     public readonly has_catering = computed(
         () => this.event()?.ext('catering')?.length > 0,
     );
