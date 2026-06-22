@@ -1,11 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, resource, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    debounced,
+    inject,
+    resource,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { debouncedSignal, StaffUser } from '@placeos/common';
+import { StaffUser } from '@placeos/common';
 import { queryUsers } from '@placeos/ts-client';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -79,9 +86,9 @@ export class SelectUserModalComponent {
 
     public readonly search = signal('');
 
-    private readonly _debounced_search = debouncedSignal(this.search, 300);
+    private readonly _debounced_search = debounced(this.search, 300);
     private readonly _users = resource({
-        params: () => ({ q: this._debounced_search() }),
+        params: () => ({ q: this._debounced_search.value() }),
         loader: ({ params: { q } }) =>
             queryUsers({ q })
                 .then((o) => o.data.map((u) => new StaffUser(u)))

@@ -2,6 +2,7 @@ import {
     Injectable,
     Injector,
     computed,
+    debounced,
     inject,
     resource,
     signal,
@@ -19,7 +20,6 @@ import {
     Space,
     StaffUser,
     User,
-    debouncedSignal,
     firstValueWhere,
     flatten,
 } from '@placeos/common';
@@ -164,8 +164,8 @@ export class ExploreSearchService {
     private _emergency_contacts = signal<User[]>([]);
     /** Filter string for results */
     private _filter = signal<string>('');
-    private _debounced_filter = debouncedSignal(this._filter, 400);
-    private _slow_debounced_filter = debouncedSignal(this._filter, 1000);
+    private _debounced_filter = debounced(this._filter, 400);
+    private _slow_debounced_filter = debounced(this._filter, 1000);
 
     public readonly emergency_contacts = this._emergency_contacts.asReadonly();
 
@@ -173,7 +173,9 @@ export class ExploreSearchService {
     private _asset_based_contacts = resource({
         params: () => {
             const bld = this._building();
-            return bld ? { bld, search: this._debounced_filter() } : undefined;
+            return bld
+                ? { bld, search: this._debounced_filter.value() }
+                : undefined;
         },
         loader: async ({ params: { bld } }) => {
             // First get the category
@@ -249,7 +251,7 @@ export class ExploreSearchService {
     });
 
     private _user_search = resource({
-        params: () => ({ q: this._debounced_filter() }),
+        params: () => ({ q: this._debounced_filter.value() }),
         loader: ({ params: { q } }) =>
             q?.length > 2
                 ? this.search_fn(q).catch(() => [] as StaffUser[])
@@ -257,7 +259,7 @@ export class ExploreSearchService {
     });
 
     private _space_search = resource({
-        params: () => ({ q: this._debounced_filter() }),
+        params: () => ({ q: this._debounced_filter.value() }),
         loader: ({ params: { q } }) =>
             q?.length > 2
                 ? querySystems({ q, zone_id: this._org.organisation.id })
@@ -297,7 +299,7 @@ export class ExploreSearchService {
     private _maps_people_search = resource({
         params: () => ({
             available: this._maps_people_available(),
-            q: this._slow_debounced_filter(),
+            q: this._slow_debounced_filter.value(),
             bld: this._building(),
         }),
         loader: async ({ params: { available, q } }) => {
@@ -581,7 +583,7 @@ export class ExploreSearchService {
     /** Whether results are being loaded */
     public readonly loading = computed(
         () =>
-            this._filter() !== this._debounced_filter() ||
+            this._filter() !== this._debounced_filter.value() ||
             this._user_search.isLoading() ||
             this._space_search.isLoading(),
     );

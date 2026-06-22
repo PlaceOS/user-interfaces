@@ -1,5 +1,6 @@
 import {
     computed,
+    debounced,
     effect,
     inject,
     Injectable,
@@ -43,7 +44,6 @@ import {
     Booking,
     csvToJson,
     currentUser,
-    debouncedSignal,
     downloadFile,
     getTimezoneDifferenceInHours,
     i18n,
@@ -214,13 +214,13 @@ export class ParkingStateService extends AsyncHandler {
                 (!!a && !!b && a.zone_ids.join() === b.zone_ids.join()),
         },
     );
-    private readonly _spaces_params_debounced = debouncedSignal(
+    private readonly _spaces_params_debounced = debounced(
         this._spaces_params,
         300,
     );
     /** Resource resolving the parking spaces for the current selection */
     private readonly _spaces_resource = resource({
-        params: () => this._spaces_params_debounced(),
+        params: () => this._spaces_params_debounced.value(),
         loader: async ({ params: { zone_ids } }) => {
             const list = await queryParkingSpacesForZones(zone_ids);
             return list.sort((a, b) =>
@@ -326,14 +326,14 @@ export class ParkingStateService extends AsyncHandler {
                 a.options.zones.join() === b.options.zones.join(),
         },
     );
-    private readonly _bookings_params_debounced = debouncedSignal(
+    private readonly _bookings_params_debounced = debounced(
         this._bookings_params,
         500,
     );
     /** Resource resolving the parking bookings for the current selection */
     private readonly _bookings_resource = resource({
         params: () => {
-            const params = this._bookings_params_debounced();
+            const params = this._bookings_params_debounced.value();
             return params.bld?.id ? params : undefined;
         },
         loader: async ({ params: { bld, options, users } }) => {

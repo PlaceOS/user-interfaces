@@ -1,10 +1,4 @@
-import {
-    effect,
-    Injector,
-    signal,
-    untracked,
-    type Signal,
-} from '@angular/core';
+import { effect, Injector, untracked, type Signal } from '@angular/core';
 
 /**
  * Promise that resolves with the first value of the given signal that
@@ -34,28 +28,4 @@ export function firstValueWhere<T>(
             ),
         );
     });
-}
-
-/**
- * Create a signal that mirrors the source signal, only updating after the
- * source has settled for the given amount of time
- * @param source Signal to debounce
- * @param delay Time in ms to wait before updating
- * @param injector Injector to scope the watcher to, required outside an injection context
- */
-export function debouncedSignal<T>(
-    source: Signal<T>,
-    delay: number,
-    injector?: Injector,
-): Signal<T> {
-    const debounced = signal(untracked(source));
-    effect(
-        (onCleanup) => {
-            const value = source();
-            const timer = setTimeout(() => debounced.set(value), delay);
-            onCleanup(() => clearTimeout(timer));
-        },
-        { injector },
-    );
-    return debounced.asReadonly();
 }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import {
     Component,
     computed,
+    debounced,
     ElementRef,
     forwardRef,
     input,
@@ -24,12 +25,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import {
-    AsyncHandler,
-    debouncedSignal,
-    settingSignal,
-    User,
-} from '@placeos/common';
+import { AsyncHandler, settingSignal, User } from '@placeos/common';
 import { authority, queryUsers, showUser } from '@placeos/ts-client';
 
 import {
@@ -252,9 +248,9 @@ export class UserSearchFieldComponent
         },
     );
 
-    private readonly _debounced_term = debouncedSignal(this.search_term, 300);
+    private readonly _debounced_term = debounced(this.search_term, 300);
     private readonly _search = resource({
-        params: () => ({ term: this._debounced_term() }),
+        params: () => ({ term: this._debounced_term.value() }),
         loader: async ({ params: { term } }): Promise<User[]> => {
             if (term && typeof term !== 'string') return [term as User];
             if (term === this.user()?.name) return [this.user()];

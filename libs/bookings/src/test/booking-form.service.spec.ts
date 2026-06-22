@@ -104,6 +104,30 @@ describe('BookingFormService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
+    it('should not make resource requests before booking data is consumed', () => {
+        expect(ts_client.showMetadata).not.toHaveBeenCalled();
+        expect(ts_client.listChildMetadata).not.toHaveBeenCalled();
+    });
+
+    it('should share identical in-flight booked resource queries', async () => {
+        jest.mocked(booking_mod.bookedResourceList).mockResolvedValue([
+            'desk-1',
+        ]);
+        const query = {
+            period_start: 100,
+            period_end: 200,
+            type: 'desk' as const,
+            zones: 'bld-1',
+        };
+
+        await Promise.all([
+            (spectator.service as any)._bookedResourceList(query),
+            (spectator.service as any)._bookedResourceList(query),
+        ]);
+
+        expect(booking_mod.bookedResourceList).toHaveBeenCalledTimes(1);
+    });
+
     it('should keep form fields bound after storeForm even when cleanObject mutates in place', () => {
         // The real `cleanObject` mutates its argument in place. `storeForm`
         // must clone the live model before cleaning it, otherwise empty keys

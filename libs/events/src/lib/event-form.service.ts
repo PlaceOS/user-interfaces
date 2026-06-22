@@ -1,5 +1,6 @@
 import {
     computed,
+    debounced,
     effect,
     inject,
     Injectable,
@@ -16,7 +17,6 @@ import {
     BookingRuleset,
     CalendarEvent,
     currentUser,
-    debouncedSignal,
     filterResourcesFromRules,
     firstValueWhere,
     flatten,
@@ -124,6 +124,10 @@ export class EventFormService extends AsyncHandler {
     });
     private _loading = signal('');
     private _event = signal(new CalendarEvent());
+    private _network_requested = false;
+    private _network_consumed = signal(false);
+    private _space_requests = new Map<string, Promise<Space[]>>();
+    private _availability_requests = new Map<string, Promise<boolean[]>>();
     private _form_ref = generateEventForm(
         undefined,
         this._settings,
@@ -154,6 +158,27 @@ export class EventFormService extends AsyncHandler {
         this._settings.get('app.events.force_host') ||
         (this._settings.get('app.events.room_as_host') ? space : '') ||
         host;
+    private _requestNetwork() {
+        if (this._network_requested) return;
+        this._network_requested = true;
+        queueMicrotask(() => this._network_consumed.set(true));
+    }
+    private _startNetwork() {
+        this._network_requested = true;
+        this._network_consumed.set(true);
+    }
+    private readonly _requests_ready = computed(() => {
+        const region = this._org.active_region();
+        const building = this._org.active_building();
+        const overrides = this._settings.overrides();
+        const required_overrides = (this._org.settings?.length || 0) + 2;
+        return (
+            this._org.initialised() &&
+            (!this._org.regions.length || !!region?.id) &&
+            !!building?.id &&
+            overrides.length >= required_overrides
+        );
+    });
 
     /** Signal emitting the current loading message, empty when idle */
     public readonly loading = this._loading.asReadonly();
@@ -168,6 +193,9 @@ export class EventFormService extends AsyncHandler {
     /** Booking rules for the active buildings, grouped by building id */
     private readonly _booking_rules_resource = resource({
         params: () => {
+            if (!this._network_consumed() || !this._requests_ready()) {
+                return undefined;
+            }
             const list = this._org.building_list();
             return list.length ? list.map((bld) => bld.id) : undefined;
         },
@@ -195,9 +223,10 @@ export class EventFormService extends AsyncHandler {
         },
     });
     /** Signal for the booking rules of the active buildings, grouped by id */
-    public readonly booking_rules = computed<Record<string, BookingRuleset[]>>(
-        () => this._booking_rules_resource.value() ?? {},
-    );
+    public readonly booking_rules = computed<Record<string, BookingRuleset[]>>(() => {
+        this._requestNetwork();
+        return this._booking_rules_resource.value() ?? {};
+    });
 
     /** Active zone used to load the bookable space list */
     private readonly _space_zone = computed(() => {
@@ -206,9 +235,17 @@ export class EventFormService extends AsyncHandler {
             : this._org.active_building();
         return zone?.id || '';
     });
+    private readonly _space_zone_debounced = debounced(
+        this._space_zone,
+        300,
+        { injector: this._injector, equal: Object.is },
+    );
     /** Bookable spaces for the active zone */
     private readonly _spaces_resource = resource({
-        params: () => this._space_zone() || undefined,
+        params: () =>
+            this._network_consumed() && this._requests_ready()
+                ? this._space_zone_debounced.value() || undefined
+                : undefined,
         loader: ({ params: zone_id }) => {
             this.addLoadingTag(Tags.ListingRooms);
             return this._requestSpaces(zone_id)
@@ -222,9 +259,10 @@ export class EventFormService extends AsyncHandler {
         },
     });
     /** Signal for the list of bookable spaces in the active zone */
-    public readonly spaces = computed<Space[]>(
-        () => this._spaces_resource.value() ?? [],
-    );
+    public readonly spaces = computed<Space[]>(() => {
+        this._requestNetwork();
+        return this._spaces_resource.value() ?? [];
+    });
 
     /** Signal for the available features across the loaded spaces */
     public readonly features = computed<string[]>(() =>
@@ -233,7 +271,10 @@ export class EventFormService extends AsyncHandler {
 
     /** Room alert messaging for the active organisation */
     private readonly _room_alerts_resource = resource({
-        params: () => this._org.organisation?.id || undefined,
+        params: () =>
+            this._network_consumed() && this._requests_ready()
+                ? this._org.organisation?.id || undefined
+                : undefined,
         loader: ({ params: id }) =>
             showMetadata(id, 'room_alerts')
                 .then((r) => r.details as Record<string, [string, string]>)
@@ -241,7 +282,10 @@ export class EventFormService extends AsyncHandler {
     });
     /** Signal for the room alert messaging grouped by space */
     public readonly room_alerts = computed<Record<string, [string, string]>>(
-        () => this._room_alerts_resource.value() ?? {},
+        () => {
+            this._requestNetwork();
+            return this._room_alerts_resource.value() ?? {};
+        },
     );
 
     /** Signal for the spaces matching the active zone and filters */
@@ -285,14 +329,27 @@ export class EventFormService extends AsyncHandler {
         options: this._options(),
     }));
     /** Debounced params to coalesce rapid form and filter changes */
-    private readonly _available_params_debounced = debouncedSignal(
+    private readonly _available_params_debounced = debounced(
         this._available_params,
         300,
+        { injector: this._injector, equal: Object.is },
     );
     /** Spaces available to book for the current event selection */
     private readonly _available_resource = resource({
-        params: () => this._available_params_debounced(),
+        params: () => {
+            if (!this._network_consumed() || !this._requests_ready()) {
+                return undefined;
+            }
+            if (
+                this._spaces_resource.isLoading() ||
+                this._booking_rules_resource.isLoading()
+            ) {
+                return undefined;
+            }
+            return this._available_params_debounced.value();
+        },
         loader: ({ params: { spaces, rules, event, options } }) => {
+            if (!spaces.length) return Promise.resolve([] as Space[]);
             this.addLoadingTag(Tags.Availability);
             return this._computeAvailableSpaces(spaces, rules, event, options)
                 .catch(() => [] as Space[])
@@ -300,9 +357,10 @@ export class EventFormService extends AsyncHandler {
         },
     });
     /** Signal for the spaces available to book for the current selection */
-    public readonly available_spaces = computed<Space[]>(
-        () => this._available_resource.value() ?? [],
-    );
+    public readonly available_spaces = computed<Space[]>(() => {
+        this._requestNetwork();
+        return this._available_resource.value() ?? [];
+    });
 
     public loadLastSuccess() {
         const event = new CalendarEvent(
@@ -444,12 +502,44 @@ export class EventFormService extends AsyncHandler {
     /** Resolve the bookable space list for the given zone */
     private _requestSpaces(zone_id: string): Promise<Space[]> {
         if (!zone_id) return Promise.resolve([]);
-        return new Promise<Space[]>((resolve) => {
+        const existing = this._space_requests.get(zone_id);
+        if (existing) return existing;
+        const request = new Promise<Space[]>((resolve) => {
             requestSpacesForZone(zone_id).subscribe({
                 next: (list) => resolve(list || []),
                 error: () => resolve([]),
             });
+        }).finally(() => this._space_requests.delete(zone_id));
+        this._space_requests.set(zone_id, request);
+        return request;
+    }
+
+    private _queryAvailability(
+        ids: string[],
+        date: number,
+        duration: number,
+        ignore: string,
+        event: CalendarEvent,
+    ) {
+        const key = JSON.stringify({
+            book_internal: this.book_internal,
+            ids,
+            date,
+            duration,
+            ignore,
+            event: [event?.date, event?.duration],
         });
+        const existing = this._availability_requests.get(key);
+        if (existing) return existing;
+        const request = (this.book_internal
+            ? queryResourceAvailability(ids, date, duration, ignore, undefined)
+            : querySpaceAvailability(ids, date, duration, ignore, undefined, [
+                  event?.date,
+                  event?.duration,
+              ])
+        ).finally(() => this._availability_requests.delete(key));
+        this._availability_requests.set(key, request);
+        return request;
     }
 
     /** Filter the given spaces down to those available for the selection */
@@ -474,22 +564,13 @@ export class EventFormService extends AsyncHandler {
         ) as Space[];
         const ignore =
             event?.resources[0]?.id || event?.system?.id || event?.id;
-        const availability = await (this.book_internal
-            ? queryResourceAvailability(
-                  spaces.map(({ id }) => id),
-                  period.date || 60,
-                  period.duration || 60,
-                  ignore,
-                  undefined,
-              )
-            : querySpaceAvailability(
-                  spaces.map(({ id }) => id),
-                  period.date || 60,
-                  period.duration || 60,
-                  ignore,
-                  undefined,
-                  [event?.date, event?.duration],
-              ));
+        const availability = await this._queryAvailability(
+            spaces.map(({ id }) => id),
+            period.date || 60,
+            period.duration || 60,
+            ignore,
+            event,
+        );
         let list = spaces.filter((_, i) => availability[i]);
         list = filterResourcesFromRules(
             list,
@@ -517,6 +598,7 @@ export class EventFormService extends AsyncHandler {
 
     /** Resolve with the spaces available to book once the list has loaded */
     public async listAvailableSpaces(): Promise<Space[]> {
+        this._startNetwork();
         await this._whenSettled(this._available_resource);
         return this.available_spaces();
     }

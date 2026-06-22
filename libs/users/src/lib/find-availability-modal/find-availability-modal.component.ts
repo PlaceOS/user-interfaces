@@ -3,6 +3,7 @@ import {
     AfterViewInit,
     Component,
     computed,
+    debounced,
     ElementRef,
     inject,
     Injector,
@@ -18,7 +19,7 @@ import {
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { AsyncHandler, debouncedSignal, User } from '@placeos/common';
+import { AsyncHandler, User } from '@placeos/common';
 import {
     addMinutes,
     differenceInMinutes,
@@ -302,21 +303,13 @@ export class FindAvailabilityModalComponent
         .fill(0)
         .map((_, idx) => setHours(startOfDay(Date.now()), idx).valueOf());
 
-    private readonly _debounced_users = debouncedSignal(
-        this.users,
-        300,
-        this._injector,
-    );
-    private readonly _debounced_date = debouncedSignal(
-        this.date,
-        300,
-        this._injector,
-    );
+    private readonly _debounced_users = debounced(this.users, 300);
+    private readonly _debounced_date = debounced(this.date, 300);
     private readonly _availability_resource = resource({
         injector: this._injector,
         params: () => ({
-            users: this._debounced_users(),
-            date: this._debounced_date(),
+            users: this._debounced_users.value(),
+            date: this._debounced_date.value(),
         }),
         loader: async ({ params: { users, date } }) => {
             const availability_list = await queryUserFreeBusy({

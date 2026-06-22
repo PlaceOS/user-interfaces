@@ -14,6 +14,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 
 import { EventFormService } from '../lib/event-form.service';
 import * as events_fn from '../lib/events.fn';
+import * as ts_client from '@placeos/ts-client';
 
 jest.mock('@placeos/ts-client', () => ({
     ...jest.requireActual('@placeos/ts-client'),
@@ -76,6 +77,7 @@ describe('EventFormService', () => {
             ],
         });
 
+        jest.mocked(ts_client.showMetadata).mockClear();
         service = TestBed.inject(EventFormService);
         jest.mocked(events_fn.findEventClashes).mockReset();
     });
@@ -103,6 +105,10 @@ describe('EventFormService', () => {
 
         expect(host.email).toBe(currentUser().email);
         expect(transform_spy).not.toHaveBeenCalled();
+    });
+
+    it('should not make metadata requests before event data is consumed', () => {
+        expect(ts_client.showMetadata).not.toHaveBeenCalled();
     });
 
     it('should refresh last_success when saved event has same start time', () => {

@@ -1,9 +1,16 @@
-import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import {
+    computed,
+    debounced,
+    effect,
+    inject,
+    Injectable,
+    Injector,
+    signal,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     checkinBooking,
     loadLockerResources,
-    ParkingService,
     queryBookings,
 } from '@placeos/bookings';
 import {
@@ -13,6 +20,7 @@ import {
     CalendarEvent,
     currentUser,
     flatten,
+    MINUTES,
     OrganisationService,
     SettingsService,
     unique,
@@ -74,7 +82,7 @@ export class ScheduleStateService extends AsyncHandler {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
-    private _parking = inject(ParkingService);
+    private _injector = inject(Injector);
 
     private _poll = signal(0);
     private _event_sources = signal<EventSource[]>(['api']);
@@ -93,6 +101,9 @@ export class ScheduleStateService extends AsyncHandler {
     private _date = signal(Date.now());
     private _deleted: string[] = [];
     private _ignore_cancel: string[] = [];
+    private _network_requested = false;
+    private _network_started = false;
+    private _booking_query_requests = new Map<string, Promise<Booking[]>>();
 
     private _space_bookings = signal<CalendarEvent[]>([]);
     private _user_bookings = signal<CalendarEvent[]>([]);
@@ -103,11 +114,37 @@ export class ScheduleStateService extends AsyncHandler {
     private _locker_bookings = signal<Booking[]>([]);
     private _lockers = signal<Booking[]>([]);
 
+    private readonly _requests_ready = computed(() => {
+        const region = this._org.active_region();
+        const building = this._org.active_building();
+        const overrides = this._settings.overrides();
+        const required_overrides = (this._org.settings?.length || 0) + 2;
+        return (
+            this._org.initialised() &&
+            (!this._org.regions.length || !!region?.id) &&
+            !!building?.id &&
+            overrides.length >= required_overrides
+        );
+    });
+
     public readonly options = this._options.asReadonly();
     public readonly filters = this._filters.asReadonly();
     public readonly date = this._date.asReadonly();
     public readonly loading = this._loading.asReadonly();
     public readonly event_sources = this._event_sources.asReadonly();
+
+    private readonly _query_params = computed(() => {
+        this._poll();
+        if (!this._requests_ready()) return undefined;
+        return {
+            date: this._date(),
+            period: this._options().period,
+        };
+    });
+    private readonly _query_params_debounced = debounced(
+        this._query_params,
+        300,
+    );
 
     public readonly week_date = computed(() =>
         startOfWeek(this._date(), {
@@ -142,13 +179,21 @@ export class ScheduleStateService extends AsyncHandler {
         return options;
     });
 
-    public readonly driver_events = computed(() =>
-        this._filterUserEvents(this._user_bookings()),
-    );
-    public readonly ws_events = computed(() =>
-        this._filterUserEvents(this._space_bookings()),
-    );
-    public readonly api_events = this._api_events.asReadonly();
+    public readonly driver_events = computed(() => {
+        if (!this._hasFeature('spaces')) return [];
+        this._requestNetwork();
+        return this._filterUserEvents(this._user_bookings());
+    });
+    public readonly ws_events = computed(() => {
+        if (!this._hasFeature('spaces')) return [];
+        this._requestNetwork();
+        return this._filterUserEvents(this._space_bookings());
+    });
+    public readonly api_events = computed(() => {
+        if (!this._canLoadEvents()) return [];
+        this._requestNetwork();
+        return this._api_events();
+    });
 
     public readonly raw_events = computed(() => {
         const sources = this._event_sources();
@@ -169,14 +214,36 @@ export class ScheduleStateService extends AsyncHandler {
     public readonly events = computed(() =>
         this.raw_events().filter((_) => !_.extension_data?.shared_event),
     );
-    public readonly visitors = this._visitors.asReadonly();
-    public readonly desks = this._desks.asReadonly();
-    public readonly parking = this._parking_bookings.asReadonly();
+    public readonly visitors = computed(() => {
+        if (!this._canLoadBookingType('visitor')) return [];
+        this._requestNetwork();
+        return this._visitors();
+    });
+    public readonly desks = computed(() => {
+        if (!this._canLoadBookingType('desk')) return [];
+        this._requestNetwork();
+        return this._desks();
+    });
+    public readonly parking = computed(() => {
+        if (!this._canLoadBookingType('parking')) return [];
+        this._requestNetwork();
+        return this._parking_bookings();
+    });
     public readonly group_events = computed(() =>
-        this.raw_events().filter((_) => _.extension_data?.shared_event),
+        this._hasFeature('group-events')
+            ? this.raw_events().filter((_) => _.extension_data?.shared_event)
+            : [],
     );
-    public readonly locker_bookings = this._locker_bookings.asReadonly();
-    public readonly lockers = this._lockers.asReadonly();
+    public readonly locker_bookings = computed(() => {
+        if (!this._canLoadBookingType('locker')) return [];
+        this._requestNetwork();
+        return this._locker_bookings();
+    });
+    public readonly lockers = computed(() => {
+        if (!this._canLoadBookingType('locker')) return [];
+        this._requestNetwork();
+        return this._lockers();
+    });
 
     public readonly bookings = computed(() => {
         const events = this.events();
@@ -253,6 +320,17 @@ export class ScheduleStateService extends AsyncHandler {
             this._settings.listen('CHAT:task_complete')();
             this.triggerPoll();
         });
+    }
+
+    private _requestNetwork() {
+        if (this._network_requested || this._network_started) return;
+        this._network_requested = true;
+        queueMicrotask(() => this._startNetwork());
+    }
+
+    private _startNetwork() {
+        if (this._network_started) return;
+        this._network_started = true;
         this._loadSpaceBookings();
         this._loadUserBookings();
         this._loadApiEvents();
@@ -265,6 +343,34 @@ export class ScheduleStateService extends AsyncHandler {
         this._loadLockers();
         this.interval('wfh_checks', () => this._checkCancel(), 60 * 1000);
         this._checkCancel();
+    }
+
+    private _hasFeature(feature: string) {
+        return (this._settings.get<string[]>('app.features') || []).includes(
+            feature,
+        );
+    }
+
+    private _canLoadEvents() {
+        return this._hasFeature('spaces') || this._hasFeature('group-events');
+    }
+
+    private _canLoadBookingType(type: BookingType) {
+        switch (type) {
+            case 'desk':
+                return this._hasFeature('desks');
+            case 'parking':
+                return (
+                    this._hasFeature('parking') ||
+                    this._hasFeature('parking-requests')
+                );
+            case 'visitor':
+                return this._hasFeature('visitor-invite');
+            case 'locker':
+                return this._hasFeature('lockers');
+            default:
+                return true;
+        }
     }
 
     public setOptions(options: ScheduleOptions) {
@@ -284,10 +390,15 @@ export class ScheduleStateService extends AsyncHandler {
     }
 
     public triggerPoll() {
+        if (this._network_started) {
+            this._poll.set(Date.now());
+            return;
+        }
         this._poll.set(Date.now());
     }
 
-    public startPolling(delay = 60 * 1000) {
+    public startPolling(delay = 3 * MINUTES) {
+        this._startNetwork();
         this.interval('poll', () => this._poll.set(Date.now()), delay);
         return () => this.stopPolling();
     }
@@ -301,6 +412,7 @@ export class ScheduleStateService extends AsyncHandler {
     }
 
     public removeItem(item) {
+        this._startNetwork();
         this.setAsDeleted(
             item.instance ? `${item.id}|${item.instance}` : item.id,
         );
@@ -342,91 +454,109 @@ export class ScheduleStateService extends AsyncHandler {
     }
 
     private _loadSpaceBookings() {
-        effect(async (onCleanup) => {
-            const bld = this._org.active_building();
-            if (!bld?.id) {
-                this._space_bookings.set([]);
-                return;
-            }
-            let active = true;
-            const cleanups: (() => void)[] = [];
-            onCleanup(() => {
-                active = false;
-                for (const cleanup of cleanups) cleanup();
-            });
-            this._loading.set(true);
-            const spaces = await requestSpacesForZone(bld.id)
-                .toPromise()
-                .catch(() => []);
-            const events_by_space: CalendarEvent[][] = [];
-            for (const [idx, space] of (spaces || []).entries()) {
-                const binding = getModule(space.id, 'Bookings').variable(
-                    'bookings',
-                );
-                cleanups.push(
-                    binding.bindThenSubscribe((event_list) => {
-                        events_by_space[idx] = (event_list || []).map(
-                            (i) =>
-                                new CalendarEvent({
-                                    ...i,
-                                    resources: i.attendees.filter(
-                                        (_) =>
-                                            _.email === space.email ||
-                                            _.resource,
-                                    ),
-                                    system: space,
-                                }),
-                        );
-                        if (active) {
-                            this._space_bookings.set(
-                                flatten<CalendarEvent>(events_by_space),
+        effect(
+            async (onCleanup) => {
+                const bld = this._org.active_building();
+                if (
+                    !this._hasFeature('spaces') ||
+                    !this._requests_ready() ||
+                    !bld?.id
+                ) {
+                    this._space_bookings.set([]);
+                    return;
+                }
+                let active = true;
+                const cleanups: (() => void)[] = [];
+                onCleanup(() => {
+                    active = false;
+                    for (const cleanup of cleanups) cleanup();
+                });
+                this._loading.set(true);
+                const spaces = await requestSpacesForZone(bld.id)
+                    .toPromise()
+                    .catch(() => []);
+                const events_by_space: CalendarEvent[][] = [];
+                for (const [idx, space] of (spaces || []).entries()) {
+                    const binding = getModule(space.id, 'Bookings').variable(
+                        'bookings',
+                    );
+                    cleanups.push(
+                        binding.bindThenSubscribe((event_list) => {
+                            events_by_space[idx] = (event_list || []).map(
+                                (i) =>
+                                    new CalendarEvent({
+                                        ...i,
+                                        resources: i.attendees.filter(
+                                            (_) =>
+                                                _.email === space.email ||
+                                                _.resource,
+                                        ),
+                                        system: space,
+                                    }),
                             );
-                        }
-                    }),
-                );
-            }
-            this._loading.set(false);
-        });
+                            if (active) {
+                                this._space_bookings.set(
+                                    flatten<CalendarEvent>(events_by_space),
+                                );
+                            }
+                        }),
+                    );
+                }
+                this._loading.set(false);
+            },
+            { injector: this._injector },
+        );
     }
 
     private _loadUserBookings() {
-        effect(async () => {
-            const bld = this._org.active_building();
-            this._poll();
-            if (!bld) {
-                this._user_bookings.set([]);
-                return;
-            }
-            this._loading.set(true);
-            const mod = this._org.module(
-                'location_services',
-                'LocationServices',
-            );
-            const list = mod?.system
-                ? await mod.execute('my_bookings').catch(() => [])
-                : [];
-            this._user_bookings.set(
-                (list || []).map((_) => new CalendarEvent(_)),
-            );
-            this._loading.set(false);
-        });
+        effect(
+            async () => {
+                const bld = this._org.active_building();
+                const query = this._query_params_debounced.value();
+                if (!this._hasFeature('spaces') || !query || !bld?.id) {
+                    this._user_bookings.set([]);
+                    return;
+                }
+                this._loading.set(true);
+                const mod = this._org.module(
+                    'location_services',
+                    'LocationServices',
+                );
+                const list = mod?.system
+                    ? await mod.execute('my_bookings').catch(() => [])
+                    : [];
+                this._user_bookings.set(
+                    (list || []).map((_) => new CalendarEvent(_)),
+                );
+                this._loading.set(false);
+            },
+            { injector: this._injector },
+        );
     }
 
     private _loadApiEvents() {
-        effect(async () => {
-            const date = this._date();
-            const { period } = this._options();
-            this._poll();
-            this._loading.set(true);
-            const query = this._periodQuery(period, date);
-            const list = this._settings.get('app.events.use_bookings')
-                ? await queryBookings({ ...query, type: 'room' })
-                      .then((_) => _.map((i) => newCalendarEventFromBooking(i)))
-                      .catch(() => [])
-                : await queryEvents({ ...query }).catch(() => []);
-            this._api_events.set(list);
-            this.timeout('end_loading', () => this._loading.set(false));
-        });
+        effect(
+            async () => {
+                const query_params = this._query_params_debounced.value();
+                if (!this._canLoadEvents() || !query_params) {
+                    this._api_events.set([]);
+                    return;
+                }
+                const { date, period } = query_params;
+                this._loading.set(true);
+                const query = this._periodQuery(period, date);
+                const list = this._settings.get('app.events.use_bookings')
+                    ? await queryBookings({ ...query, type: 'room' })
+                          .then((_) =>
+                              _.map((i) => newCalendarEventFromBooking(i)),
+                          )
+                          .catch(() => [])
+                    : await queryEvents({ ...query }).catch(() => []);
+                this._api_events.set(list);
+                this.timeout('end_loading', () => this._loading.set(false));
+            },
+            { injector: this._injector },
+        );
     }
 
     private _loadBookingType(
@@ -434,57 +564,77 @@ export class ScheduleStateService extends AsyncHandler {
         target,
         map_list: (list: Booking[]) => Booking[] = (list) => list,
     ) {
-        effect(async () => {
-            const date = this._date();
-            const { period } = this._options();
-            this._poll();
-            this._loading.set(true);
-            const list = await this._bookingQuery(type, period, date);
-            target.set(map_list(list));
-            this.timeout('end_loading', () => this._loading.set(false));
-        });
+        effect(
+            async () => {
+                const query_params = this._query_params_debounced.value();
+                if (!this._canLoadBookingType(type) || !query_params) {
+                    target.set([]);
+                    return;
+                }
+                const { date, period } = query_params;
+                this._loading.set(true);
+                const list = await this._bookingQuery(type, period, date);
+                target.set(map_list(list));
+                this.timeout('end_loading', () => this._loading.set(false));
+            },
+            { injector: this._injector },
+        );
     }
 
     private _loadLockers() {
-        effect(async () => {
-            const bld = this._org.active_building();
-            const region = this._org.active_region();
-            const scope_id = this._settings.get('app.use_region')
-                ? region?.id || this._org.region?.id
-                : bld?.id;
-            if (!scope_id) {
-                this._lockers.set([]);
-                return;
-            }
-            const lockers = await loadLockerResources(this._org, scope_id);
-            const mod = this._org.module('lockers', 'LockerLocations');
-            const my_lockers = mod
-                ? await mod.execute('lockers_allocated_to_me').catch(() => [])
-                : [];
-            this._lockers.set(
-                my_lockers
-                    .map((i) => {
-                        const locker = lockers.find(
-                            (lkr) => lkr.id === i.locker_id,
-                        );
-                        if (!locker && (!i.level || !i.building)) return null;
-                        return new Booking({
-                            date: startOfDay(Date.now()).valueOf(),
-                            duration: 24 * 60 - 1,
-                            title: 'Locker Booking',
-                            description: i.locker_name,
-                            booking_type: 'locker',
-                            all_day: true,
-                            asset_id: locker.map_id,
-                            asset_name: i.locker_name,
-                            zones: [...(locker.bank?.zones || [])],
-                            extension_data: {},
-                        });
-                    })
-                    .filter((item) => item),
-            );
-            this.timeout('end_loading', () => this._loading.set(false));
-        });
+        effect(
+            async () => {
+                const bld = this._org.active_building();
+                const region = this._org.active_region();
+                if (
+                    !this._canLoadBookingType('locker') ||
+                    !this._requests_ready()
+                ) {
+                    this._lockers.set([]);
+                    return;
+                }
+                const scope_id = this._settings.get('app.use_region')
+                    ? region?.id || this._org.region?.id
+                    : bld?.id;
+                if (!scope_id) {
+                    this._lockers.set([]);
+                    return;
+                }
+                const lockers = await loadLockerResources(this._org, scope_id);
+                const mod = this._org.module('lockers', 'LockerLocations');
+                const my_lockers = mod
+                    ? await mod
+                          .execute('lockers_allocated_to_me')
+                          .catch(() => [])
+                    : [];
+                this._lockers.set(
+                    my_lockers
+                        .map((i) => {
+                            const locker = lockers.find(
+                                (lkr) => lkr.id === i.locker_id,
+                            );
+                            if (!locker && (!i.level || !i.building)) {
+                                return null;
+                            }
+                            return new Booking({
+                                date: startOfDay(Date.now()).valueOf(),
+                                duration: 24 * 60 - 1,
+                                title: 'Locker Booking',
+                                description: i.locker_name,
+                                booking_type: 'locker',
+                                all_day: true,
+                                asset_id: locker.map_id,
+                                asset_name: i.locker_name,
+                                zones: [...(locker.bank?.zones || [])],
+                                extension_data: {},
+                            });
+                        })
+                        .filter((item) => item),
+                );
+                this.timeout('end_loading', () => this._loading.set(false));
+            },
+            { injector: this._injector },
+        );
     }
 
     private _filterUserEvents(list: CalendarEvent[]) {
@@ -546,12 +696,20 @@ export class ScheduleStateService extends AsyncHandler {
         period: 'day' | 'week' | 'month',
         date: number,
     ) {
-        return queryBookings({
+        const query = {
             ...this._periodQuery(period, date),
             type,
             include_checked_out: true,
             include_booked_by: true,
-        }).catch(() => []);
+        };
+        const key = JSON.stringify(query);
+        const existing = this._booking_query_requests.get(key);
+        if (existing) return existing;
+        const request = queryBookings(query)
+            .catch(() => [])
+            .finally(() => this._booking_query_requests.delete(key));
+        this._booking_query_requests.set(key, request);
+        return request;
     }
 
     private async _checkCancel() {
@@ -568,6 +726,7 @@ export class ScheduleStateService extends AsyncHandler {
             return;
         }
         for (const type of auto_release.resources) {
+            if (!this._canLoadBookingType(type)) continue;
             const time_after =
                 auto_release[`${type}_time_after`] || auto_release.time_after;
             const time_before = Math.min(
