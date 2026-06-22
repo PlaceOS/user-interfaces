@@ -54,6 +54,7 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
                             <div class="w-px flex-1"></div>
                             <button
                                 icon
+                                type="button"
                                 matRipple
                                 (click)="
                                     hide_block.details = !hide_block.details
@@ -89,6 +90,7 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
                             <div class="w-px flex-1"></div>
                             <button
                                 icon
+                                type="button"
                                 matRipple
                                 (click)="hide_block.space = !hide_block.space"
                             >
@@ -113,6 +115,7 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
                     >
                         <button
                             btn
+                            type="button"
                             matRipple
                             confirm
                             class="mb-2 w-full sm:mb-0 sm:w-auto"
@@ -122,6 +125,7 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
                         </button>
                         <button
                             btn
+                            type="button"
                             matRipple
                             clear-form
                             class="inverse w-full sm:w-auto"
