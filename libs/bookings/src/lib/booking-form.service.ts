@@ -193,6 +193,13 @@ export class BookingFormService extends AsyncHandler {
     private _network_requested = false;
     private _network_consumed = signal(false);
     private _booked_resource_requests = new Map<string, Promise<string[]>>();
+    private _booked_resource_debounce: {
+        key: string;
+        query: Parameters<typeof bookedResourceList>[0];
+        timeout: ReturnType<typeof setTimeout>;
+        resolve: (value: string[]) => void;
+        reject: (reason?: unknown) => void;
+    }[] = [];
     private _recurring_clash_requests = new Map<string, Promise<string[]>>();
 
     public last_success: Booking = new Booking(
@@ -600,9 +607,31 @@ export class BookingFormService extends AsyncHandler {
         const key = JSON.stringify(query);
         const existing = this._booked_resource_requests.get(key);
         if (existing) return existing;
-        const request = bookedResourceList(query).finally(() =>
-            this._booked_resource_requests.delete(key),
-        );
+        const request = new Promise<string[]>((resolve, reject) => {
+            for (const item of this._booked_resource_debounce) {
+                clearTimeout(item.timeout);
+            }
+            this._booked_resource_debounce.push({
+                key,
+                query,
+                resolve,
+                reject,
+                timeout: setTimeout(() => {
+                    const queue = this._booked_resource_debounce;
+                    this._booked_resource_debounce = [];
+                    const latest = queue[queue.length - 1];
+                    const pending = bookedResourceList(latest.query).finally(
+                        () => this._booked_resource_requests.delete(latest.key),
+                    );
+                    this._booked_resource_requests.set(latest.key, pending);
+                    pending.then(
+                        (result) =>
+                            queue.forEach((item) => item.resolve(result)),
+                        (error) => queue.forEach((item) => item.reject(error)),
+                    );
+                }, 300),
+            });
+        }).finally(() => this._booked_resource_requests.delete(key));
         this._booked_resource_requests.set(key, request);
         return request;
     }

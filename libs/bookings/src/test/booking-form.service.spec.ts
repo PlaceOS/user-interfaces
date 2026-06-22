@@ -113,7 +113,7 @@ describe('BookingFormService', () => {
         expect(ts_client.listChildMetadata).not.toHaveBeenCalled();
     });
 
-    it('should share identical in-flight booked resource queries', async () => {
+    it('should debounce identical booked resource queries', async () => {
         jest.mocked(booking_mod.bookedResourceList).mockResolvedValue([
             'desk-1',
         ]);
@@ -124,11 +124,14 @@ describe('BookingFormService', () => {
             zones: 'bld-1',
         };
 
-        await Promise.all([
+        const requests = Promise.all([
             (spectator.service as any)._bookedResourceList(query),
             (spectator.service as any)._bookedResourceList(query),
         ]);
 
+        await new Promise((resolve) => setTimeout(resolve, 250));
+        expect(booking_mod.bookedResourceList).not.toHaveBeenCalled();
+        await requests;
         expect(booking_mod.bookedResourceList).toHaveBeenCalledTimes(1);
     });
 

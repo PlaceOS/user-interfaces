@@ -107,7 +107,7 @@ export async function queryBookings(
 export async function bookedResourceList(
     q: BookingsQueryParams,
 ): Promise<string[]> {
-    const query = toQueryString({ ...q, limit: 10000 });
+    const query = toQueryString({ ...q, limit: 1200 });
     try {
         return (await get(
             `${BOOKINGS_ENDPOINT}/booked${query ? '?' + query : ''}`,
