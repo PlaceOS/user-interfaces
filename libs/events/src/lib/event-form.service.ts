@@ -52,6 +52,7 @@ import { openRecurringClashModal } from 'libs/components/src/lib/recurring-clash
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { requestSpacesForZone } from 'libs/events/src/lib/space.utilities';
 import { EventLinkModalComponent } from './event-link-modal.component';
+import { CalendarService } from './calendar.service';
 import {
     findEventClashes,
     querySpaceAvailability,
@@ -112,6 +113,7 @@ export class EventFormService extends AsyncHandler {
     private _settings = inject(SettingsService);
     private _router = inject(Router);
     private _assets = inject(AssetStateService);
+    private _calendar = inject(CalendarService);
     private _dialog = inject(MatDialog);
     private _injector = inject(Injector);
     private _user_pipe = new UserPipe();
@@ -167,11 +169,6 @@ export class EventFormService extends AsyncHandler {
         this._settings.get('app.events.force_host') ||
         (this._settings.get('app.events.room_as_host') ? space : '') ||
         host;
-    private _requestNetwork() {
-        if (this._network_requested) return;
-        this._network_requested = true;
-        queueMicrotask(() => this._network_consumed.set(true));
-    }
     private _startNetwork() {
         this._network_requested = true;
         this._network_consumed.set(true);
@@ -233,7 +230,6 @@ export class EventFormService extends AsyncHandler {
     });
     /** Signal for the booking rules of the active buildings, grouped by id */
     public readonly booking_rules = computed<Record<string, BookingRuleset[]>>(() => {
-        this._requestNetwork();
         return this._booking_rules_resource.value() ?? {};
     });
 
@@ -269,7 +265,6 @@ export class EventFormService extends AsyncHandler {
     });
     /** Signal for the list of bookable spaces in the active zone */
     public readonly spaces = computed<Space[]>(() => {
-        this._requestNetwork();
         return this._spaces_resource.value() ?? [];
     });
 
@@ -292,7 +287,6 @@ export class EventFormService extends AsyncHandler {
     /** Signal for the room alert messaging grouped by space */
     public readonly room_alerts = computed<Record<string, [string, string]>>(
         () => {
-            this._requestNetwork();
             return this._room_alerts_resource.value() ?? {};
         },
     );
@@ -379,7 +373,6 @@ export class EventFormService extends AsyncHandler {
     });
     /** Signal for the spaces available to book for the current selection */
     public readonly available_spaces = computed<Space[]>(() => {
-        this._requestNetwork();
         return this._available_resource.value() ?? [];
     });
 
@@ -640,6 +633,8 @@ export class EventFormService extends AsyncHandler {
     }
 
     public newForm(event = new CalendarEvent()) {
+        this._startNetwork();
+        this._calendar.loadCalendars();
         this._loading.set('');
         const lock_start_time =
             !!event.id &&
@@ -675,6 +670,8 @@ export class EventFormService extends AsyncHandler {
     }
 
     public loadForm() {
+        this._startNetwork();
+        this._calendar.loadCalendars();
         const event_data = JSON.parse(
             sessionStorage.getItem('PLACEOS.event') || '{}',
         );

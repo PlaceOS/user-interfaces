@@ -12,6 +12,7 @@ import { Subject } from 'rxjs';
 
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 
+import { CalendarService } from '../lib/calendar.service';
 import { EventFormService } from '../lib/event-form.service';
 import * as events_fn from '../lib/events.fn';
 import * as ts_client from '@placeos/ts-client';
@@ -68,6 +69,12 @@ describe('EventFormService', () => {
                     provide: AssetStateService,
                     useValue: {
                         setOptions: jest.fn(),
+                    },
+                },
+                {
+                    provide: CalendarService,
+                    useValue: {
+                        loadCalendars: jest.fn(),
                     },
                 },
                 {
