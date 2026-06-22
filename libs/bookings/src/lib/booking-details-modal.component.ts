@@ -528,7 +528,9 @@ export class BookingDetailsModalComponent {
             this.level_or_building()?.name ||
             '';
         const resource_name =
-            this.booking().asset_name || this.booking().asset_id;
+            this.booking().asset_name ||
+            this.booking().location ||
+            this.booking().asset_id;
         return location_name
             ? `${location_name}, ${resource_name}`
             : resource_name;
