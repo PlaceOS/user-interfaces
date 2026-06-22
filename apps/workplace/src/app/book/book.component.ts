@@ -15,7 +15,7 @@ import { TopbarComponent } from '../components/topbar.component';
             </main>
         </div>
         @if (!hide_nav) {
-            <footer-menu class="z-10" />
+            <footer-menu />
         }
     `,
     styles: [

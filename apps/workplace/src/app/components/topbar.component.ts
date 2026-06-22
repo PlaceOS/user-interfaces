@@ -20,7 +20,7 @@ const EMPTY = [];
     template: `
         <div
             topbar
-            class="border-base-200 bg-base-100 relative z-50 flex h-14 items-center justify-between border-b shadow-sm"
+            class="border-base-200 bg-base-100 relative z-50 flex min-h-14 items-center justify-between border-b shadow-sm pt-[env(safe-area-inset-top)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]"
         >
             <a
                 name="nav-logo"

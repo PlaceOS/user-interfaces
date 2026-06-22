@@ -61,8 +61,6 @@ describe('LockerStateService', () => {
         (booking_mod.queryPagedBookings as jest.Mock).mockReturnValue(
             of({ data: [], total: 0, next: null } as any),
         );
-        (booking_mod.loadLockerBanks as jest.Mock).mockReturnValue(of([]));
-        (booking_mod.loadLockers as jest.Mock).mockReturnValue(of([]));
         (booking_mod.saveBooking as jest.Mock).mockReturnValue(of({}));
         (assets_mod.queryLockerAssetsForZones as jest.Mock).mockReturnValue(of([]));
         (assets_mod.queryLockerBankAssetsForZones as jest.Mock).mockReturnValue(

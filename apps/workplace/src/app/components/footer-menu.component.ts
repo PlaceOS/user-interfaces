@@ -13,7 +13,7 @@ import type { TopMenuEmbedItem } from './top-menu.component';
     template: `
         @if (show_book_items() && footer_item_count() > 1) {
             <div
-                class="fixed inset-0 bottom-16 z-20 text-white"
+                class="fixed inset-0 bottom-16 z-20"
                 [attr.dark]="dark_mode()"
                 (click)="show_book_items.set(false)"
             >
@@ -267,7 +267,7 @@ import type { TopMenuEmbedItem } from './top-menu.component';
         }
         @if (footer_item_count() > 1) {
             <div
-                class="border-base-200 bg-base-100 relative z-40 flex h-16 w-full items-center justify-center border-t shadow-sm sm:hidden"
+                class="border-base-200 bg-base-100 relative z-30 flex min-h-16 w-full items-center justify-center border-t shadow-sm sm:hidden pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]"
                 [attr.dark]="dark_mode()"
             >
                 <a
@@ -293,7 +293,7 @@ import type { TopMenuEmbedItem } from './top-menu.component';
                     class="z-10 mb-4 flex h-12 w-12 items-center justify-center rounded-full"
                     (click)="show_book_items.set(!show_book_items())"
                     [class.bg-secondary]="show_book_items()"
-                    [class.text-white]="show_book_items()"
+                    [class.bg-secondary-content]="show_book_items()"
                     [class.bg-base-200]="!show_book_items()"
                 >
                     <icon class="text-2xl">{{

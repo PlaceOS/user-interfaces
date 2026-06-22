@@ -23,7 +23,7 @@ import { LandingUpcomingComponent } from './landing-upcoming.component';
     selector: 'app-landing',
     template: `
         @if (!hide_nav()) {
-            <topbar class="z-10" />
+            <topbar />
         }
         <div class="bg-base-200 flex h-1/2 flex-1">
             @if (!hide_landing_sidebar()) {
