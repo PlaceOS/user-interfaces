@@ -157,6 +157,11 @@ export class ParkingRequestModalComponent
         '',
     );
 
+    constructor() {
+        super();
+        this._parking.loadBookings();
+    }
+
     public form = this._booking_form.form;
     public model = this._booking_form.model;
 

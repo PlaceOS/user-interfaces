@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import {
     AsyncHandler,
     CalendarEvent,
+    MINUTES,
     OrganisationService,
     SettingsService,
     i18n,
@@ -83,9 +84,7 @@ export class EventStateService extends AsyncHandler {
         if (zone_ids.length) {
             list = list.filter((event) =>
                 event.resources?.some((space) =>
-                    (space.zones || []).some((zone) =>
-                        zone_ids.includes(zone),
-                    ),
+                    (space.zones || []).some((zone) => zone_ids.includes(zone)),
                 ),
             );
         }
@@ -108,11 +107,12 @@ export class EventStateService extends AsyncHandler {
         return this._settings.get('app.group_events_calendar');
     }
 
-    public startPolling(delay = 60 * 1000) {
+    public startPolling(delay = 3 * MINUTES) {
+        const poll_delay = Math.max(delay, 3 * MINUTES);
         this.interval(
             'poll',
             () => (document.hasFocus() ? this._poll.set(Date.now()) : ''),
-            delay,
+            poll_delay,
         );
         return () => this.stopPolling();
     }

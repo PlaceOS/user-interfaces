@@ -10,8 +10,8 @@ import * as assets_mod from '@placeos/assets';
 import * as booking_mod from '@placeos/bookings';
 import * as common_mod from '@placeos/common';
 import * as component_mod from '@placeos/components';
-import { MockProvider } from 'ng-mocks';
 import { UserPipe } from '@placeos/users';
+import { MockProvider } from 'ng-mocks';
 import { ParkingStateService } from '../../app/parking/parking-state.service';
 import { ParkingBookingModalComponent } from '../../app/parking/parking-booking-modal.component';
 import { ParkingRequestModalComponent } from '../../app/parking/parking-request-modal.component';
@@ -202,6 +202,29 @@ describe('ParkingStateService', () => {
             }),
         );
 
+        jest.useRealTimers();
+    });
+
+    it('should wait for parking users before loading bookings', async () => {
+        jest.useFakeTimers();
+        let resolve_users: (users: any[]) => void;
+        (assets_mod.queryParkingUsers as jest.Mock).mockReturnValue(
+            new Promise((resolve) => (resolve_users = resolve)),
+        );
+        spectator = createService();
+
+        TestBed.flushEffects();
+        await jest.advanceTimersByTimeAsync(1100);
+        TestBed.flushEffects();
+        expect(booking_mod.queryBookings).not.toHaveBeenCalled();
+
+        resolve_users([]);
+        await Promise.resolve();
+        TestBed.flushEffects();
+        await jest.advanceTimersByTimeAsync(1100);
+        TestBed.flushEffects();
+
+        expect(booking_mod.queryBookings).toHaveBeenCalledTimes(1);
         jest.useRealTimers();
     });
 

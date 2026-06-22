@@ -62,6 +62,7 @@ export class ParkingRequestFlowComponent
     public readonly view = this._state.view;
 
     public ngOnInit() {
+        this._parking.loadBookings();
         this._state.loadForm();
         this._state.setOptions({ type: 'parking' });
         if (!this._state.model().id) this._state.newForm('parking');

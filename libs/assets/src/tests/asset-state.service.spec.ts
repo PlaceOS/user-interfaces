@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
-import { OrganisationService } from '@placeos/common';
+import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { AssetStateService } from '../lib/asset-state.service';
 import * as assets_mod from '../lib/assets.fn';
@@ -23,21 +23,30 @@ jest.mock('../lib/asset.utilities', () => ({
     getAssetRulesForZone: jest.fn(() => Promise.resolve([])),
 }));
 
+import * as bookings_mod from 'libs/bookings/src/lib/bookings.fn';
+import * as ts_client from '@placeos/ts-client';
+
 describe('AssetStateService', () => {
     let spectator: SpectatorService<AssetStateService>;
     const createService = createServiceFactory({
         service: AssetStateService,
         providers: [
+            MockProvider(SettingsService, {
+                get: jest.fn(() => undefined),
+                overrides: signal([{}, {}]),
+            }),
             MockProvider(OrganisationService, {
+                initialised: signal(true),
                 active_building: signal({ id: 'bld-1' }),
+                settings: [],
             }),
         ],
     });
 
     beforeEach(() => {
+        jest.clearAllMocks();
         spectator = createService();
         TestBed.flushEffects();
-        jest.clearAllMocks();
     });
 
     it('should create component', () => {
@@ -52,6 +61,53 @@ describe('AssetStateService', () => {
 
         expect(spectator.service.options()).toBe(initial_options);
         expect(assets_mod.queryGroupAvailability).toHaveBeenCalledTimes(0);
+    });
+
+    it('should not make asset requests before asset data is consumed', () => {
+        expect(assets_mod.queryAssets).not.toHaveBeenCalled();
+        expect(assets_mod.queryAssetCategories).not.toHaveBeenCalled();
+        expect(assets_mod.queryGroupAvailability).not.toHaveBeenCalled();
+        expect(bookings_mod.queryBookings).not.toHaveBeenCalled();
+        expect(ts_client.showMetadata).not.toHaveBeenCalled();
+    });
+
+    it('should not make asset requests when assets are disabled', () => {
+        const settings = spectator.inject(SettingsService) as any;
+        settings.get.mockImplementation((key: string) =>
+            key === 'app.has_assets' ? false : undefined,
+        );
+
+        spectator.service.filtered_assets();
+        TestBed.flushEffects();
+
+        expect(assets_mod.queryAssets).not.toHaveBeenCalled();
+        expect(assets_mod.queryAssetCategories).not.toHaveBeenCalled();
+        expect(assets_mod.queryGroupAvailability).not.toHaveBeenCalled();
+        expect(bookings_mod.queryBookings).not.toHaveBeenCalled();
+        expect(ts_client.showMetadata).not.toHaveBeenCalled();
+    });
+
+    it('should share identical in-flight asset booking requests', async () => {
+        const options = {
+            date: new Date(2026, 5, 22, 9).valueOf(),
+            zone: 'zone-1',
+        };
+
+        await Promise.all([
+            (spectator.service as any)._loadAssetBookings(options),
+            (spectator.service as any)._loadAssetBookings(options),
+        ]);
+
+        expect(bookings_mod.queryBookings).toHaveBeenCalledTimes(1);
+    });
+
+    it('should share identical in-flight asset list requests', async () => {
+        await Promise.all([
+            (spectator.service as any)._loadAssetList(),
+            (spectator.service as any)._loadAssetList(),
+        ]);
+
+        expect(assets_mod.queryAssets).toHaveBeenCalledTimes(1);
     });
 
     it('should load asset list', () => {});

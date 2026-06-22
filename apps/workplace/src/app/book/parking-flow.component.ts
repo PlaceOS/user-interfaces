@@ -122,6 +122,7 @@ export class NewParkingFlowComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
+        this._parking.loadBookings();
         await this._org.waitUntilInitialised();
         await new Promise((resolve) => setTimeout(resolve, 300));
         const active_form = this._state.model();

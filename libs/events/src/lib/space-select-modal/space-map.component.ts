@@ -1,6 +1,7 @@
 import {
     Component,
     computed,
+    debounced,
     effect,
     inject,
     input,
@@ -12,7 +13,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import {
     BuildingLevel,
-    debouncedSignal,
     settingSignal,
     SettingsService,
     Space,
@@ -153,7 +153,7 @@ export class SpaceMapComponent {
     public readonly setOptions = (o) => this._event_form.setOptions(o);
 
     // Debounced trigger mirroring the old `debounceTime(300)` on the feature pins
-    private readonly _features_source = debouncedSignal(
+    private readonly _features_source = debounced(
         computed(() => ({
             spaces: this._event_form.available_spaces(),
             change: this._change(),
@@ -162,7 +162,7 @@ export class SpaceMapComponent {
     );
 
     public readonly features = computed(() =>
-        this._features_source().spaces.map((space) => ({
+        this._features_source.value().spaces.map((space) => ({
             location: space.map_id,
             content: SpaceLocationPinComponent,
             data: {

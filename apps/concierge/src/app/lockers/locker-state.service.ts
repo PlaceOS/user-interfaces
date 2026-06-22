@@ -1,11 +1,13 @@
 import {
     computed,
+    debounced,
     effect,
     inject,
     Injectable,
     resource,
     signal,
     Signal,
+    untracked,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -205,7 +207,6 @@ export class LockerStateService extends AsyncHandler {
             region: this._org.active_region()?.id,
             change: this._change(),
         }),
-        defaultValue: [] as LockerBank[],
         loader: async ({ params }) => {
             const scope_id = this._settings.get('app.use_region')
                 ? params.region
@@ -215,17 +216,23 @@ export class LockerStateService extends AsyncHandler {
             return assets.map(lockerBankFromAsset);
         },
     });
-    public readonly lockers_banks: Signal<LockerBank[]> =
-        this._lockers_banks.value;
+    public readonly lockers_banks = computed<LockerBank[]>(
+        () => this._lockers_banks.value() ?? [],
+    );
 
     /** List of lockers for the active building/region */
     private readonly _lockers = resource({
-        params: () => ({
-            building: this._org.active_building()?.id,
-            region: this._org.active_region()?.id,
-            change: this._change(),
-            banks: this.lockers_banks(),
-        }),
+        params: () => {
+            const banks = this._lockers_banks.value();
+            return banks
+                ? {
+                      building: this._org.active_building()?.id,
+                      region: this._org.active_region()?.id,
+                      change: this._change(),
+                      banks,
+                  }
+                : undefined;
+        },
         defaultValue: [] as Locker[],
         loader: async ({ params }) => {
             const scope_id = this._settings.get('app.use_region')
@@ -340,6 +347,27 @@ export class LockerStateService extends AsyncHandler {
     private _next_page_fn: (() => QueryResponse<Booking> | null) | null = null;
     /** Token used to discard responses from superseded page loads */
     private _load_token = 0;
+    private readonly _bookings_params = computed(
+        () => ({
+            filters: this._filters(),
+            loaded: this._org.initialised(),
+            building: this._org.active_building()?.id,
+            region: this._org.active_region()?.id,
+        }),
+        {
+            equal: (a, b) =>
+                a.loaded === b.loaded &&
+                a.building === b.building &&
+                a.region === b.region &&
+                a.filters.date === b.filters.date &&
+                (a.filters.zones || []).join(',') ===
+                    (b.filters.zones || []).join(','),
+        },
+    );
+    private readonly _bookings_params_debounced = debounced(
+        this._bookings_params,
+        500,
+    );
 
     public nextPage() {
         this._loadPage(false);
@@ -350,18 +378,13 @@ export class LockerStateService extends AsyncHandler {
         // Rebuild the paging query whenever the filters or initialised state
         // change. Debounced to collapse rapid updates.
         effect(() => {
-            const filters = this._filters();
-            const loaded = this._org.initialised();
-            this.timeout(
-                'setup-paging',
-                () => {
-                    if (!loaded) return;
-                    this._first_page = this._buildFirstPage(filters);
-                    this._next_page_fn = this._first_page;
-                    this._loadPage(true);
-                },
-                500,
-            );
+            const { filters, loaded } = this._bookings_params_debounced.value();
+            if (!loaded) return;
+            untracked(() => {
+                this._first_page = this._buildFirstPage(filters);
+                this._next_page_fn = this._first_page;
+                this._loadPage(true);
+            });
         });
     }
 
@@ -423,8 +446,7 @@ export class LockerStateService extends AsyncHandler {
         );
         this.timeout(
             'stop-loading',
-            () =>
-                this._loading.set(removeToken(this._loading(), '[BOOKINGS]')),
+            () => this._loading.set(removeToken(this._loading(), '[BOOKINGS]')),
             1000,
         );
     }

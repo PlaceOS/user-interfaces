@@ -1,4 +1,5 @@
 import { EventEmitter, signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
 import { OrganisationService, SettingsService } from '@placeos/common';
@@ -8,8 +9,8 @@ import { of } from 'rxjs';
 import * as assets_mod from '@placeos/assets';
 import * as booking_mod from '@placeos/bookings';
 import * as common_mod from '@placeos/common';
-import { MockProvider } from 'ng-mocks';
 import * as ts_client_mod from '@placeos/ts-client';
+import { MockProvider } from 'ng-mocks';
 import { LockerStateService } from '../../app/lockers/locker-state.service';
 
 jest.mock('@placeos/assets');
@@ -53,6 +54,8 @@ describe('LockerStateService', () => {
     });
 
     beforeEach(() => {
+        jest.useFakeTimers();
+        jest.clearAllMocks();
         current_building = { id: 'bld-1', timezone: 'Australia/Sydney' };
         organisation_service.active_building = signal(current_building);
         organisation_service.active_region = signal({
@@ -61,10 +64,10 @@ describe('LockerStateService', () => {
         (booking_mod.queryPagedBookings as jest.Mock).mockReturnValue(
             of({ data: [], total: 0, next: null } as any),
         );
-        (booking_mod.loadLockerBanks as jest.Mock).mockReturnValue(of([]));
-        (booking_mod.loadLockers as jest.Mock).mockReturnValue(of([]));
         (booking_mod.saveBooking as jest.Mock).mockReturnValue(of({}));
-        (assets_mod.queryLockerAssetsForZones as jest.Mock).mockReturnValue(of([]));
+        (assets_mod.queryLockerAssetsForZones as jest.Mock).mockReturnValue(
+            of([]),
+        );
         (assets_mod.queryLockerBankAssetsForZones as jest.Mock).mockReturnValue(
             of([]),
         );
@@ -80,7 +83,18 @@ describe('LockerStateService', () => {
         );
     });
 
-    afterEach(() => jest.restoreAllMocks());
+    afterEach(() => {
+        jest.useRealTimers();
+        jest.restoreAllMocks();
+    });
+
+    async function settle(rounds = 4) {
+        for (let i = 0; i < rounds; i++) {
+            jest.advanceTimersByTime(500);
+            TestBed.tick();
+            await Promise.resolve();
+        }
+    }
 
     it('should apply building timezone to locker booking listing requests', () => {
         const date = new Date('2026-06-15T12:00:00').valueOf();
@@ -95,6 +109,37 @@ describe('LockerStateService', () => {
                 period_end: getUnixTime(addMinutes(endOfDay(date), 120)),
             }),
         );
+    });
+
+    it('should not reload locker bookings when loading state changes', async () => {
+        (booking_mod.queryPagedBookings as jest.Mock).mockResolvedValue({
+            data: [],
+            total: 0,
+            next: null,
+        });
+        spectator = createService();
+        await settle();
+
+        expect(booking_mod.queryPagedBookings).toHaveBeenCalledTimes(1);
+    });
+
+    it('should wait for locker banks before loading lockers', async () => {
+        let resolve_banks: (banks: any[]) => void;
+        (assets_mod.queryLockerBankAssetsForZones as jest.Mock).mockReturnValue(
+            new Promise((resolve) => (resolve_banks = resolve)),
+        );
+        (assets_mod.queryLockerAssetsForZones as jest.Mock).mockResolvedValue(
+            [],
+        );
+        spectator = createService();
+        await settle();
+        expect(assets_mod.queryLockerAssetsForZones).not.toHaveBeenCalled();
+
+        resolve_banks([]);
+        await Promise.resolve();
+        await settle();
+
+        expect(assets_mod.queryLockerAssetsForZones).toHaveBeenCalledTimes(1);
     });
 
     it('should use the building timezone for assigned locker bookings', async () => {
@@ -130,9 +175,7 @@ describe('LockerStateService', () => {
         expect(booking_mod.saveBooking).toHaveBeenCalledWith(
             expect.objectContaining({
                 booking_start: getUnixTime(assigned_start),
-                booking_end: getUnixTime(
-                    assigned_start + 20 * 60 * 60 * 1000,
-                ),
+                booking_end: getUnixTime(assigned_start + 20 * 60 * 60 * 1000),
             }),
         );
     });

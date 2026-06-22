@@ -34,6 +34,7 @@ import {
  */
 async function settle(rounds = 8) {
     for (let i = 0; i < rounds; i++) {
+        jest.advanceTimersByTime(300);
         TestBed.tick();
         await Promise.resolve();
     }
@@ -68,6 +69,7 @@ describe('EventsStateService', () => {
     });
 
     beforeEach(() => {
+        jest.useFakeTimers();
         week_start = 0;
         // Mock requestSpacesForZone to return spaces without room_booking_url.
         // The service bridges this observable to a promise via nextValueFrom.
@@ -81,6 +83,7 @@ describe('EventsStateService', () => {
     });
 
     afterEach(() => {
+        jest.useRealTimers();
         jest.clearAllMocks();
     });
 
@@ -216,6 +219,21 @@ describe('EventsStateService', () => {
             period_start: getUnixTime(startOfDay(Date.now())),
             period_end: getUnixTime(endOfDay(Date.now())),
         });
+    });
+
+    it('should debounce rapid zone changes before loading events', async () => {
+        (events_mod as any).queryEvents = jest.fn(() => Promise.resolve([]));
+        spectator.service.setZones(['bld-a']);
+        spectator.service.setZones(['bld-b']);
+        spectator.service.setZones(['bld-123']);
+        spectator.service.startPolling('day');
+        await settle();
+        spectator.service.stopPolling();
+
+        expect(events_mod.queryEvents).toHaveBeenCalledTimes(1);
+        expect(events_mod.queryEvents).toHaveBeenCalledWith(
+            expect.objectContaining({ zone_ids: 'bld-123' }),
+        );
     });
 
     it('should allow polling of events for week', async () => {

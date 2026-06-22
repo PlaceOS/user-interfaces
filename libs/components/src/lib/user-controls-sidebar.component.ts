@@ -31,7 +31,7 @@ import { UserControlsComponent } from './user-controls.component';
                 ></button>
                 <div class="absolute inset-y-0 right-0 flex max-w-full">
                     <div
-                        class="bg-base-100 relative h-full w-80 max-w-[100vw] overflow-auto pt-4 shadow-xl transition-transform duration-200 ease-out"
+                        class="bg-base-100 relative h-full w-80 max-w-[100vw] overflow-auto pt-[calc(env(safe-area-inset-top)+1rem)] pb-[env(safe-area-inset-bottom)] pr-[env(safe-area-inset-right)] shadow-xl transition-transform duration-200 ease-out"
                         [class.translate-x-0]="is_open()"
                         [class.translate-x-full]="!is_open()"
                     >
@@ -41,7 +41,7 @@ import { UserControlsComponent } from './user-controls.component';
                             default
                             matRipple
                             type="button"
-                            class="absolute top-2 right-2"
+                            class="absolute top-[calc(env(safe-area-inset-top)+0.5rem)] right-[calc(env(safe-area-inset-right)+0.5rem)]"
                             (click)="close()"
                         >
                             <icon class="text-2xl">close</icon>

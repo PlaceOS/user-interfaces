@@ -1,5 +1,6 @@
 import {
     computed,
+    debounced,
     effect,
     inject,
     Injectable,
@@ -20,7 +21,6 @@ import {
     BookingRuleset,
     BookingType,
     currentUser,
-    debouncedSignal,
     Desk,
     firstValueWhere,
     flatten,
@@ -188,6 +188,10 @@ export class BookingFormService extends AsyncHandler {
         'asset-request': settingSignal('favorites', [], true),
         'catering-order': settingSignal('favorites', [], true),
     };
+    private _network_requested = false;
+    private _network_consumed = signal(false);
+    private _booked_resource_requests = new Map<string, Promise<string[]>>();
+    private _recurring_clash_requests = new Map<string, Promise<string[]>>();
 
     public last_success: Booking = new Booking(
         JSON.parse(
@@ -236,11 +240,35 @@ export class BookingFormService extends AsyncHandler {
         });
     }
 
+    private _requestNetwork() {
+        if (this._network_requested) return;
+        this._network_requested = true;
+        queueMicrotask(() => this._network_consumed.set(true));
+    }
+
+    private _startNetwork() {
+        this._network_requested = true;
+        this._network_consumed.set(true);
+    }
+    private readonly _requests_ready = computed(() => {
+        const region = this._org.active_region();
+        const building = this._org.active_building();
+        const overrides = this._settings.overrides();
+        const required_overrides = (this._org.settings?.length || 0) + 2;
+        return (
+            this._org.initialised() &&
+            (!this._org.regions.length || !!region?.id) &&
+            !!building?.id &&
+            overrides.length >= required_overrides
+        );
+    });
+
     /** Latest raw form value, used to drive availability recalculation */
     private readonly _form_value = signal<Record<string, any>>(null);
-    private readonly _form_value_debounced = debouncedSignal(
+    private readonly _form_value_debounced = debounced(
         this._form_value,
         500,
+        { injector: this._injector, equal: Object.is },
     );
 
     /** Params driving the resource list, debounced to coalesce rapid changes */
@@ -249,19 +277,24 @@ export class BookingFormService extends AsyncHandler {
         if (!building?.id) return undefined;
         return { building: building.id, type: this._options().type };
     });
-    private readonly _resource_params_debounced = debouncedSignal(
+    private readonly _resource_params_debounced = debounced(
         this._resource_params,
         300,
+        { injector: this._injector, equal: Object.is },
     );
     /** Resource list for the active building and booking type */
     private readonly _resources_resource = resource({
-        params: () => this._resource_params_debounced(),
+        params: () =>
+            this._network_consumed() && this._requests_ready()
+                ? this._resource_params_debounced.value()
+                : undefined,
         loader: ({ params }) => this._loadResourcesForType(params.type),
     });
     /** Signal for the list of resources for the current booking type */
-    public readonly resources = computed<BookingAsset[]>(
-        () => this._resources_resource.value() ?? [],
-    );
+    public readonly resources = computed<BookingAsset[]>(() => {
+        this._requestNetwork();
+        return this._resources_resource.value() ?? [];
+    });
 
     /** Signal for the available features across the loaded resources */
     public readonly features = computed<string[]>(() => {
@@ -274,17 +307,27 @@ export class BookingFormService extends AsyncHandler {
         return unique(list).sort((a, b) => a.localeCompare(b));
     });
 
+    private readonly _booking_rules_params = computed(() => {
+        const list = this._org.building_list();
+        const { type } = this._options();
+        return list.length
+            ? { ids: list.map((bld) => bld.id), type }
+            : undefined;
+    });
+    private readonly _booking_rules_params_debounced = debounced(
+        this._booking_rules_params,
+        300,
+        { injector: this._injector, equal: Object.is },
+    );
     /** Booking rules for the current buildings and booking type */
     private readonly _booking_rules_resource = resource({
-        params: () => {
-            const list = this._org.building_list();
-            const { type } = this._options();
-            return list.length
-                ? { ids: list.map((bld) => bld.id), type }
-                : undefined;
-        },
-        loader: ({ params: { ids, type } }) =>
-            Promise.all(
+        params: () =>
+            this._network_consumed() && this._requests_ready()
+                ? this._booking_rules_params_debounced.value()
+                : undefined,
+        loader: ({ params }) => {
+            const { ids, type } = params;
+            return Promise.all(
                 ids.map((id) => showMetadata(id, `${type}_booking_rules`)),
             )
                 .then((building_rules) => {
@@ -295,16 +338,21 @@ export class BookingFormService extends AsyncHandler {
                     }
                     return mapping;
                 })
-                .catch(() => ({}) as Record<string, BookingRuleset[]>),
+                .catch(() => ({}) as Record<string, BookingRuleset[]>);
+        },
     });
     /** Signal for the booking rules grouped by building */
-    public readonly booking_rules = computed<Record<string, BookingRuleset[]>>(
-        () => this._booking_rules_resource.value() ?? {},
-    );
+    public readonly booking_rules = computed<Record<string, BookingRuleset[]>>(() => {
+        this._requestNetwork();
+        return this._booking_rules_resource.value() ?? {};
+    });
 
     /** Whether the current user has an assigned desk in any active building */
     private readonly _has_assigned_desk_resource = resource({
         params: () => {
+            if (!this._network_consumed() || !this._requests_ready()) {
+                return undefined;
+            }
             const buildings = this._org.building_list();
             const email = currentUser()?.email;
             return buildings.length && email ? { buildings, email } : undefined;
@@ -312,23 +360,36 @@ export class BookingFormService extends AsyncHandler {
         loader: () => this._computeHasAssignedDesk(),
     });
     /** Whether the current user has a desk reserved (assigned) to them */
-    public readonly has_assigned_desk = computed<boolean>(
-        () => this._has_assigned_desk_resource.value() ?? false,
-    );
+    public readonly has_assigned_desk = computed<boolean>(() => {
+        this._requestNetwork();
+        return this._has_assigned_desk_resource.value() ?? false;
+    });
 
     /** Resources available to book for the current form selection */
     private readonly _available_resource = resource({
-        params: () => ({
-            options: this._options(),
-            resources: this.resources(),
-            rules: this.booking_rules(),
-            form: this._form_value_debounced(),
-        }),
+        params: () => {
+            if (!this._network_consumed() || !this._requests_ready()) {
+                return undefined;
+            }
+            if (
+                this._resources_resource.isLoading() ||
+                this._booking_rules_resource.isLoading()
+            ) {
+                return undefined;
+            }
+            return {
+                options: this._options(),
+                resources: this.resources(),
+                rules: this.booking_rules(),
+                form: this._form_value_debounced.value(),
+            };
+        },
         loader: ({ params: { options, resources, rules, form } }) => {
             const raw = form;
             if (!(raw?.date > 0 && raw?.duration > 0)) {
                 return Promise.resolve([] as BookingAsset[]);
             }
+            if (!resources.length) return Promise.resolve([] as BookingAsset[]);
             this._loading.set(
                 i18n('BOOKINGS.LOADING_AVAILABILITY', { type: options.type }),
             );
@@ -346,9 +407,10 @@ export class BookingFormService extends AsyncHandler {
         },
     });
     /** Signal for the resources available to book for the current selection */
-    public readonly available_resources = computed<BookingAsset[]>(
-        () => this._available_resource.value() ?? [],
-    );
+    public readonly available_resources = computed<BookingAsset[]>(() => {
+        this._requestNetwork();
+        return this._available_resource.value() ?? [];
+    });
 
     /** Signal grouping available resources for group bookings */
     public readonly grouped_availability = computed<BookingAsset[][]>(() => {
@@ -386,12 +448,14 @@ export class BookingFormService extends AsyncHandler {
 
     /** Resolve with the resources for the current booking type once loaded */
     public async listResources(): Promise<BookingAsset[]> {
+        this._startNetwork();
         await this._whenSettled(this._resources_resource);
         return this.resources();
     }
 
     /** Resolve with the available resources for the current selection */
     public async listAvailableResources(): Promise<BookingAsset[]> {
+        this._startNetwork();
         await this._whenSettled(this._available_resource);
         return this.available_resources();
     }
@@ -482,7 +546,7 @@ export class BookingFormService extends AsyncHandler {
                 raw.recurrence_type &&
                 raw.recurrence_type !== 'none'
                     ? await this._recurringBookedResourceList(resources, zones)
-                    : await bookedResourceList({
+                    : await this._bookedResourceList({
                           period_start: getUnixTime(date),
                           period_end: getUnixTime(addMinutes(date, duration)),
                           type: options.type,
@@ -533,6 +597,22 @@ export class BookingFormService extends AsyncHandler {
                 !booked_ids.includes(asset.id)
             );
         });
+    }
+
+    private _bookedResourceList(query: {
+        period_start: number;
+        period_end: number;
+        type: BookingType;
+        zones: string;
+    }) {
+        const key = JSON.stringify(query);
+        const existing = this._booked_resource_requests.get(key);
+        if (existing) return existing;
+        const request = bookedResourceList(query).finally(() =>
+            this._booked_resource_requests.delete(key),
+        );
+        this._booked_resource_requests.set(key, request);
+        return request;
     }
 
     public resourceUserName(id: string) {
@@ -2158,9 +2238,22 @@ export class BookingFormService extends AsyncHandler {
             zones: [zones],
             asset_ids: resources.map((_) => _.id),
         });
-        return findBookingClashes(booking)
+        const key = JSON.stringify({
+            date: booking.date,
+            duration: booking.duration,
+            recurrence_type: (booking as any).recurrence_type,
+            recurrence_end: (booking as any).recurrence_end,
+            zones,
+            asset_ids: resources.map((_) => _.id),
+        });
+        const existing = this._recurring_clash_requests.get(key);
+        if (existing) return existing;
+        const request = findBookingClashes(booking)
             .then((ids) => ids as string[])
-            .catch(() => [] as string[]);
+            .catch(() => [] as string[])
+            .finally(() => this._recurring_clash_requests.delete(key));
+        this._recurring_clash_requests.set(key, request);
+        return request;
     }
 
     /** Load the locker resources for the active building or region */

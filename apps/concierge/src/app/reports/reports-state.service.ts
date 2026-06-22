@@ -152,7 +152,6 @@ export class ReportsStateService extends AsyncHandler {
     /** List of bookable spaces for the active zones */
     private readonly _spaces = resource({
         params: () => this._options().zones || [],
-        defaultValue: [] as any[],
         loader: async ({ params }) => {
             const use_region = this._settings.get('app.use_region');
             let zones = params;
@@ -171,15 +170,21 @@ export class ReportsStateService extends AsyncHandler {
             return flatten(lists);
         },
     });
-    public readonly spaces: Signal<any[]> = this._spaces.value;
+    public readonly spaces = computed<any[]>(() => this._spaces.value() ?? []);
 
     /** Total bookable resource counts per zone for the active filters */
     private readonly _counts = resource({
-        params: () => ({
-            type: this._options().type,
-            zones: this._options().zones || [],
-            spaces: this._spaces.value(),
-        }),
+        params: () => {
+            const type = this._options().type;
+            const spaces = this._spaces.value();
+            return (type === 'events' || type === 'catering') && !spaces
+                ? undefined
+                : {
+                      type,
+                      zones: this._options().zones || [],
+                      spaces: spaces || [],
+                  };
+        },
         defaultValue: {} as HashMap<number>,
         loader: async ({ params }) => {
             let zones = (params.zones || []).filter(

@@ -1,6 +1,7 @@
 import {
     Component,
     computed,
+    debounced,
     effect,
     inject,
     OnInit,
@@ -20,7 +21,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     AsyncHandler,
-    debouncedSignal,
     getNativeSystemId,
     OrganisationService,
     Space,
@@ -187,9 +187,9 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     /** Whether input field is focused */
     public input_focus = signal(false);
 
-    private readonly _debounced_search = debouncedSignal(this.system_id, 300);
+    private readonly _debounced_search = debounced(this.system_id, 300);
     private readonly _space_list = resource({
-        params: () => this._debounced_search(),
+        params: () => this._debounced_search.value(),
         loader: async ({ params: search }) => {
             if (search.length < 2) return [] as Space[];
             this.loading.set('search');

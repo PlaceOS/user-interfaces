@@ -3,6 +3,7 @@ import {
     Component,
     OnInit,
     computed,
+    debounced,
     inject,
     resource,
     signal,
@@ -19,7 +20,6 @@ import {
     OrganisationService,
     Space,
     VERSION,
-    debouncedSignal,
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { querySystems } from '@placeos/ts-client';
@@ -163,10 +163,10 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     /** ID of the system to bootstrap */
     public readonly system_id = signal('');
 
-    private readonly _search = debouncedSignal(this.system_id, 300);
+    private readonly _search = debounced(this.system_id, 300);
     private readonly _spaces = resource({
         params: () => ({
-            q: this._search(),
+            q: this._search.value(),
             ready: this._org.initialised(),
         }),
         loader: async ({ params }) => {

@@ -1,7 +1,9 @@
 import {
     Injectable,
+    Injector,
     Signal,
     computed,
+    debounced,
     effect,
     inject,
     resource,
@@ -12,6 +14,7 @@ import {
     AsyncHandler,
     BuildingLevel,
     CalendarEvent,
+    MINUTES,
     OrganisationService,
     SettingsService,
     Space,
@@ -70,6 +73,19 @@ export interface BookingUIOptions {
 }
 
 type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+interface SpacesParams {
+    zones: string[];
+    region_id?: string;
+    building_id?: string;
+}
+
+interface ApiEventsParams {
+    period: 'month' | 'week' | 'day';
+    zones: string[];
+    date: number;
+    poll: number;
+    spaces: Space[];
+}
 
 function periodFor(period, date, tz_offset = 0, week_start: DayOfWeek = 0) {
     const start_result =
@@ -96,6 +112,7 @@ export class EventsStateService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
+    private _injector = inject(Injector);
 
     /** Trigger for poll events */
     private _poll = signal<number>(0);
@@ -161,16 +178,33 @@ export class EventsStateService extends AsyncHandler {
     });
     public readonly levels: Signal<BuildingLevel[]> = this._levels.value;
 
-    /** List of bookable spaces for the active zones */
-    private readonly _spaces = resource({
-        params: () => ({
+    private readonly _spaces_params = computed<SpacesParams | undefined>(() => {
+        const building_id = this._org.active_building()?.id;
+        if (!building_id) return undefined;
+        return {
             zones: this._zones(),
             region_id: this._org.active_region()?.id,
-            building_id: this._org.active_building()?.id,
-        }),
+            building_id,
+        };
+    });
+    private readonly _spaces_params_debounced = debounced(
+        this._spaces_params,
+        300,
+        {
+            injector: this._injector,
+            equal: (a, b) =>
+                a?.region_id === b?.region_id &&
+                a?.building_id === b?.building_id &&
+                (a?.zones || []).join(',') === (b?.zones || []).join(','),
+        },
+    );
+
+    /** List of bookable spaces for the active zones */
+    private readonly _spaces = resource({
+        params: () => this._spaces_params_debounced.value(),
         defaultValue: [] as Space[],
         loader: async ({ params }) => {
-            if (!params.building_id) return [];
+            if (!params?.building_id) return [];
             const zone_ids = this._active_zone_ids(params.zones);
             if (!zone_ids.length) return [];
             const lists = await Promise.all(
@@ -191,17 +225,39 @@ export class EventsStateService extends AsyncHandler {
     });
     public readonly spaces: Signal<Space[]> = this._spaces.value;
 
+    private readonly _api_events_params = computed<ApiEventsParams | undefined>(
+        () => {
+            const spaces = this.spaces();
+            if (!spaces.length) return undefined;
+            return {
+                period: this._period(),
+                zones: this._zones(),
+                date: this._date(),
+                poll: this._poll(),
+                spaces,
+            };
+        },
+    );
+    private readonly _api_events_params_debounced = debounced(
+        this._api_events_params,
+        300,
+        {
+            injector: this._injector,
+            equal: (a, b) =>
+                a?.period === b?.period &&
+                a?.date === b?.date &&
+                a?.poll === b?.poll &&
+                a?.spaces === b?.spaces &&
+                (a?.zones || []).join(',') === (b?.zones || []).join(','),
+        },
+    );
+
     /** Bookings fetched from the API for spaces without a booking driver */
     private readonly _api_events = resource({
-        params: () => ({
-            period: this._period(),
-            zones: this._zones(),
-            date: this._date(),
-            poll: this._poll(),
-            spaces: this.spaces(),
-        }),
+        params: () => this._api_events_params_debounced.value(),
         defaultValue: [] as CalendarEvent[],
         loader: async ({ params }) => {
+            if (!params) return [];
             const { period, date, spaces } = params;
             const zones = this._active_zone_ids(params.zones);
             if (!period || !zones.length) return [];
@@ -256,9 +312,7 @@ export class EventsStateService extends AsyncHandler {
                 !removed.find(
                     (e) =>
                         (_.id && e.id && _.id === e.id) ||
-                        (_.ical_uid &&
-                            e.ical_uid &&
-                            _.ical_uid === e.ical_uid),
+                        (_.ical_uid && e.ical_uid && _.ical_uid === e.ical_uid),
                 ),
         );
         event_list = event_list.concat(added);
@@ -373,8 +427,7 @@ export class EventsStateService extends AsyncHandler {
         this._period.set(period);
     public readonly setZones = (zones: string[]) =>
         this._zones.set(this._clean_zone_ids(zones));
-    public readonly setEvent = (event: CalendarEvent) =>
-        this._event.set(event);
+    public readonly setEvent = (event: CalendarEvent) => this._event.set(event);
 
     public setUIOptions(options: BookingUIOptions) {
         this._options.update((old_options) => ({ ...old_options, ...options }));
@@ -382,15 +435,16 @@ export class EventsStateService extends AsyncHandler {
 
     public startPolling(
         period: 'day' | 'week' | 'month' = 'day',
-        delay: number = 30 * 1000,
+        delay: number = 3 * MINUTES,
     ) {
         this._period.set(period);
         return this.poll(delay);
     }
 
-    public poll(delay: number = 30 * 1000) {
+    public poll(delay: number = 3 * MINUTES) {
+        const poll_delay = Math.max(delay, 3 * MINUTES);
         this._poll.set(Date.now());
-        this.interval('polling', () => this._poll.set(Date.now()), delay);
+        this.interval('polling', () => this._poll.set(Date.now()), poll_delay);
         return () => this.stopPolling();
     }
 

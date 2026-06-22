@@ -2,6 +2,7 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import {
     Component,
     computed,
+    debounced,
     ElementRef,
     forwardRef,
     inject,
@@ -23,7 +24,6 @@ import {
     AsyncHandler,
     csvToJson,
     currentUser,
-    debouncedSignal,
     downloadFile,
     notifyError,
     SettingsService,
@@ -286,9 +286,9 @@ export class UserListFieldComponent
             : searchStaff(q);
     }
 
-    private readonly _debounced_search = debouncedSignal(this.search, 300);
+    private readonly _debounced_search = debounced(this.search, 300);
     private readonly _user_search = resource({
-        params: () => ({ q: this._debounced_search() }),
+        params: () => ({ q: this._debounced_search.value() }),
         loader: async ({ params: { q } }): Promise<User[]> => {
             if (!q) return [];
             try {

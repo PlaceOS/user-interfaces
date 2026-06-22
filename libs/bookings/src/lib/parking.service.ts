@@ -35,6 +35,8 @@ export class ParkingService extends AsyncHandler {
     private _has_booking = signal(false);
     private _booked_space = signal<ParkingSpace>(null);
     private _home_building_id = signal<string>(null);
+    private _load_bookings = signal(false);
+    private _bookings_request: Promise<any[]> = null;
 
     public readonly loading = computed(() => this._loading().length > 0);
     /** List of available parking levels for the current building */
@@ -120,8 +122,14 @@ export class ParkingService extends AsyncHandler {
         });
         effect(() => {
             const spaces = this._spaces();
-            if (spaces.length) untracked(() => this._loadBookings(spaces));
+            if (this._load_bookings() && spaces.length) {
+                untracked(() => this._loadBookings(spaces));
+            }
         });
+    }
+
+    public loadBookings() {
+        this._load_bookings.set(true);
     }
 
     private async _loadSpaces(level_ids: string[]) {
@@ -137,11 +145,16 @@ export class ParkingService extends AsyncHandler {
     }
 
     private async _loadBookings(spaces: ParkingSpace[]) {
-        const bookings = await queryBookings({
-            period_start: getUnixTime(startOfDay(Date.now())),
-            period_end: getUnixTime(endOfDay(Date.now())),
-            type: 'parking',
-        }).catch(() => []);
+        this._bookings_request =
+            this._bookings_request ||
+            queryBookings({
+                period_start: getUnixTime(startOfDay(Date.now())),
+                period_end: getUnixTime(endOfDay(Date.now())),
+                type: 'parking',
+            })
+                .catch(() => [])
+                .finally(() => (this._bookings_request = null));
+        const bookings = await this._bookings_request;
         this._has_booking.set(bookings.length > 0);
         const booked_spaces = bookings
             .map((booking) =>

@@ -1,5 +1,6 @@
 import {
     computed,
+    debounced,
     effect,
     inject,
     Injectable,
@@ -18,7 +19,6 @@ import {
     Calendar,
     CalendarEvent,
     currentUser,
-    debouncedSignal,
     firstValueWhere,
     HashMap,
     log,
@@ -160,14 +160,12 @@ export class ControlStateService extends AsyncHandler {
     public readonly mute = this._mute.asReadonly();
     public readonly active_output = this._active_output.asReadonly();
 
-    private readonly _debounced_id = debouncedSignal(
-        this._id,
-        1000,
-        this._injector,
-    );
+    private readonly _debounced_id = debounced(this._id, 1000, {
+        injector: this._injector,
+    });
     /** Active system details loaded from the API */
     private readonly _space = resource({
-        params: () => this._debounced_id(),
+        params: () => this._debounced_id.value(),
         loader: async ({ params: id }) => {
             if (!id) return new Space(new PlaceSystem() as any);
             log('Panel', `Loading system "${id}"...`);

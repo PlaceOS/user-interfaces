@@ -1,5 +1,6 @@
 import {
     computed,
+    debounced,
     effect,
     inject,
     Injectable,
@@ -43,12 +44,12 @@ import {
     Booking,
     csvToJson,
     currentUser,
-    debouncedSignal,
     downloadFile,
     getTimezoneDifferenceInHours,
     i18n,
     jsonToCsv,
     loadTextFileFromInputEvent,
+    MINUTES,
     notifyError,
     notifySuccess,
     OrganisationService,
@@ -214,13 +215,13 @@ export class ParkingStateService extends AsyncHandler {
                 (!!a && !!b && a.zone_ids.join() === b.zone_ids.join()),
         },
     );
-    private readonly _spaces_params_debounced = debouncedSignal(
+    private readonly _spaces_params_debounced = debounced(
         this._spaces_params,
         300,
     );
     /** Resource resolving the parking spaces for the current selection */
     private readonly _spaces_resource = resource({
-        params: () => this._spaces_params_debounced(),
+        params: () => this._spaces_params_debounced.value(),
         loader: async ({ params: { zone_ids } }) => {
             const list = await queryParkingSpacesForZones(zone_ids);
             return list.sort((a, b) =>
@@ -315,27 +316,30 @@ export class ParkingStateService extends AsyncHandler {
     private readonly _bookings_params = computed(
         () => {
             const bld = this._org.active_building();
-            return { bld, options: this._options(), users: this.users() };
+            const users = this._users_resource.value();
+            return bld?.id && users
+                ? { bld, options: this._options(), users }
+                : undefined;
         },
         {
             equal: (a, b) =>
-                a.bld === b.bld &&
-                a.users === b.users &&
-                a.options.date === b.options.date &&
-                a.options.period === b.options.period &&
-                a.options.zones.join() === b.options.zones.join(),
+                a === b ||
+                (!!a &&
+                    !!b &&
+                    a.bld === b.bld &&
+                    a.users === b.users &&
+                    a.options.date === b.options.date &&
+                    a.options.period === b.options.period &&
+                    a.options.zones.join() === b.options.zones.join()),
         },
     );
-    private readonly _bookings_params_debounced = debouncedSignal(
+    private readonly _bookings_params_debounced = debounced(
         this._bookings_params,
         500,
     );
     /** Resource resolving the parking bookings for the current selection */
     private readonly _bookings_resource = resource({
-        params: () => {
-            const params = this._bookings_params_debounced();
-            return params.bld?.id ? params : undefined;
-        },
+        params: () => this._bookings_params_debounced.value(),
         loader: async ({ params: { bld, options, users } }) => {
             const week_start = this._settings.get('app.week_start') || 0;
             const range_start =
@@ -560,9 +564,14 @@ export class ParkingStateService extends AsyncHandler {
         return list.filter((booking) => !this.isRequest(booking));
     }
 
-    public startPolling(delay = 2 * 60 * 1000) {
+    public startPolling(delay = 3 * MINUTES) {
+        const poll_delay = Math.max(delay, 3 * MINUTES);
         this._bookings_resource.reload();
-        this.interval('poll', () => this._bookings_resource.reload(), delay);
+        this.interval(
+            'poll',
+            () => this._bookings_resource.reload(),
+            poll_delay,
+        );
         return () => this.stopPolling();
     }
 

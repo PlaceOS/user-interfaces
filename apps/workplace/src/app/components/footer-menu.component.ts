@@ -168,7 +168,7 @@ const FEATURE_MENU_ITEMS: FooterMenuItem[] = [
         }
         @if (footer_item_count() > 1) {
             <div
-                class="border-base-200 bg-base-100 relative z-60 flex h-16 w-full items-center justify-center gap-3 border-t px-2 shadow-sm sm:hidden"
+                class="border-base-200 bg-base-100 relative z-60 flex min-h-16 w-full items-center justify-center gap-3 border-t px-2 pb-[env(safe-area-inset-bottom)] pl-[max(0.5rem,env(safe-area-inset-left))] pr-[max(0.5rem,env(safe-area-inset-right))] shadow-sm sm:hidden"
                 [attr.dark]="dark_mode()"
             >
                 <a
@@ -197,7 +197,7 @@ const FEATURE_MENU_ITEMS: FooterMenuItem[] = [
                         blur_backdrop.set(show_book_items())
                     "
                     [class.bg-secondary]="show_book_items()"
-                    [class.text-white]="show_book_items()"
+                    [class.bg-secondary-content]="show_book_items()"
                     [class.bg-base-200]="!show_book_items()"
                 >
                     <icon class="text-2xl">{{
