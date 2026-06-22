@@ -3,6 +3,7 @@ import {
     Injector,
     Signal,
     computed,
+    debounced,
     inject,
     resource,
     signal,
@@ -30,6 +31,7 @@ import {
     AssetRequest,
     AsyncHandler,
     Booking,
+    MINUTES,
     OrganisationService,
     SettingsService,
     flatten,
@@ -146,10 +148,14 @@ export class AssetManagerStateService extends AsyncHandler {
                 a.initialised === b.initialised,
         },
     );
+    private readonly _request_params_debounced = debounced(
+        this._request_params,
+        500,
+    );
 
     /** List of requests made by users for assets */
     private readonly _requests = resource({
-        params: () => this._request_params(),
+        params: () => this._request_params_debounced.value(),
         defaultValue: [] as Booking[],
         loader: async ({ params }) => {
             const start = startOfDay(params.date || Date.now()).valueOf();
@@ -342,8 +348,9 @@ export class AssetManagerStateService extends AsyncHandler {
         return '/book/assets';
     }
 
-    public startPolling(delay = 15 * 1000) {
-        this.interval('polling', () => this._poll.set(Date.now()), delay);
+    public startPolling(delay = 3 * MINUTES) {
+        const poll_delay = Math.max(delay, 3 * MINUTES);
+        this.interval('polling', () => this._poll.set(Date.now()), poll_delay);
         return () => this.stopPolling();
     }
 

@@ -5,6 +5,7 @@ import { checkinBooking, queryBookings, saveBooking } from '@placeos/bookings';
 import {
     AsyncHandler,
     Booking,
+    MINUTES,
     OrganisationService,
     StaffUser,
     timePeriodsIntersect,
@@ -26,6 +27,7 @@ export class StaffStateService extends AsyncHandler {
     private _onsite: Record<string, boolean> = {};
     private _events: Record<string, Booking> = {};
     private readonly _users = signal<StaffUser[]>([]);
+    private readonly _poll = signal(0);
 
     public readonly loading = signal<boolean>(false);
     public readonly filters = signal<StaffFilters>({});
@@ -49,8 +51,9 @@ export class StaffStateService extends AsyncHandler {
         super();
         this.loadUsers();
         effect(() => {
-            this.filters();
-            this._loadEvents();
+            this._org.active_building();
+            this._poll();
+            this.timeout('load-events', () => this._loadEvents(), 300);
         });
     }
 
@@ -62,9 +65,14 @@ export class StaffStateService extends AsyncHandler {
         this.search.set(search);
     }
 
-    public startPolling(delay: number = 30 * 1000) {
-        this.setFilters(this.filters());
-        this.interval('poll', () => this.setFilters(this.filters()), delay);
+    public startPolling(delay: number = 3 * MINUTES) {
+        const poll_delay = Math.max(delay, 3 * MINUTES);
+        this._poll.update((value) => value + 1);
+        this.interval(
+            'poll',
+            () => this._poll.update((value) => value + 1),
+            poll_delay,
+        );
     }
 
     public stopPolling() {

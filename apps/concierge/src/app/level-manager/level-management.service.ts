@@ -1,4 +1,12 @@
-import { Injectable, Signal, inject, resource, signal } from '@angular/core';
+import {
+    Injectable,
+    Signal,
+    computed,
+    debounced,
+    inject,
+    resource,
+    signal,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     BuildingLevel,
@@ -31,13 +39,18 @@ export class LevelManagementService {
     public readonly options = this._options.asReadonly();
 
     public readonly level_list = this._org.level_list;
+    private readonly _level_params = computed(() => ({
+        buildings: this._org.building_list(),
+        levels: this.level_list(),
+        options: this._options(),
+    }));
+    private readonly _level_params_debounced = debounced(
+        this._level_params,
+        300,
+    );
 
     private readonly _filtered_levels = resource({
-        params: () => ({
-            buildings: this._org.building_list(),
-            levels: this.level_list(),
-            options: this._options(),
-        }),
+        params: () => this._level_params_debounced.value(),
         defaultValue: [] as BuildingLevel[],
         loader: async ({ params }) => {
             const { buildings, options } = params;

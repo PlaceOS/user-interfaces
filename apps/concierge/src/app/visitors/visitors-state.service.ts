@@ -1,4 +1,11 @@
-import { Injectable, computed, effect, inject, signal } from '@angular/core';
+import {
+    Injectable,
+    computed,
+    debounced,
+    effect,
+    inject,
+    signal,
+} from '@angular/core';
 import { addDays, addMinutes, format, getUnixTime, startOfDay } from 'date-fns';
 
 import { MatDialog } from '@angular/material/dialog';
@@ -14,6 +21,7 @@ import {
     AsyncHandler,
     Booking,
     Building,
+    MINUTES,
     OrganisationService,
     SettingsService,
     downloadFile,
@@ -52,6 +60,24 @@ export class VisitorsStateService extends AsyncHandler {
 
     /** List of visitor bookings for the active building and filters */
     public readonly bookings = signal<Booking[]>([]);
+    private readonly _load_params = computed(
+        () => ({
+            building: this._org.active_building(),
+            filters: this.filters(),
+            poll: this._poll(),
+        }),
+        {
+            equal: (a, b) =>
+                a.building?.id === b.building?.id &&
+                a.poll === b.poll &&
+                a.filters.date === b.filters.date &&
+                a.filters.period === b.filters.period &&
+                a.filters.all_bookings === b.filters.all_bookings &&
+                (a.filters.zones || []).join(',') ===
+                    (b.filters.zones || []).join(','),
+        },
+    );
+    private readonly _load_params_debounced = debounced(this._load_params, 500);
 
     /** Visitor bookings filtered by the current search string */
     public readonly filtered_bookings = computed(() => {
@@ -78,9 +104,7 @@ export class VisitorsStateService extends AsyncHandler {
     constructor() {
         super();
         effect(() => {
-            const building = this._org.active_building();
-            const filters = this.filters();
-            this._poll();
+            const { building, filters } = this._load_params_debounced.value();
             if (!building) return;
             this._load(building, filters);
         });
@@ -130,8 +154,9 @@ export class VisitorsStateService extends AsyncHandler {
         this._poll.update((value) => value + 1);
     }
 
-    public startPolling(delay: number = 30 * 1000) {
-        this.interval('poll', () => this.poll(), delay);
+    public startPolling(delay: number = 3 * MINUTES) {
+        const poll_delay = Math.max(delay, 3 * MINUTES);
+        this.interval('poll', () => this.poll(), poll_delay);
     }
 
     public stopPolling() {

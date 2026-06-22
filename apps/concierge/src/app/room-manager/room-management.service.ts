@@ -1,4 +1,11 @@
-import { Injectable, Signal, computed, inject, resource, signal } from '@angular/core';
+import {
+    Injectable,
+    Signal,
+    computed,
+    inject,
+    resource,
+    signal,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { PlaceSystem, querySystems, showMetadata } from '@placeos/ts-client';
@@ -29,30 +36,33 @@ export class RoomManagementService {
             change: this._change(),
             building: this._org.active_building()?.id,
         }),
-        defaultValue: {} as Record<string, [string, string]>,
         loader: async () => {
             const metadata = await showMetadata(
                 this._org.organisation.id,
                 'room_alerts',
             ).catch(() => ({ details: {} }) as any);
-            return (
-                (metadata.details as Record<string, [string, string]>) || {}
-            );
+            return (metadata.details as Record<string, [string, string]>) || {};
         },
     });
-    public readonly room_alerts: Signal<Record<string, [string, string]>> =
-        this._room_alerts.value;
+    public readonly room_alerts = computed<Record<string, [string, string]>>(
+        () => this._room_alerts.value() ?? {},
+    );
 
     private readonly _room_list = resource({
-        params: () => ({
-            building: this._org.active_building()?.id,
-            region: this._org.active_region()?.id,
-            change: this._change(),
-            alerts: this._room_alerts.value(),
-        }),
+        params: () => {
+            const alerts = this._room_alerts.value();
+            return alerts
+                ? {
+                      building: this._org.active_building()?.id,
+                      region: this._org.active_region()?.id,
+                      change: this._change(),
+                      alerts,
+                  }
+                : undefined;
+        },
         defaultValue: [] as PlaceSystem[],
         loader: async ({ params }) => {
-            if (!params.building) return [];
+            if (!params?.building) return [];
             const zone_id =
                 (this._settings.get('app.use_region') ? params.region : '') ||
                 params.building;

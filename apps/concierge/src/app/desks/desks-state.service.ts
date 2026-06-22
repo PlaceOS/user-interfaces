@@ -1,5 +1,6 @@
 import {
     computed,
+    debounced,
     effect,
     inject,
     Injectable,
@@ -132,10 +133,11 @@ export class DesksStateService extends AsyncHandler {
                 a.zones.join(',') === b.zones.join(','),
         },
     );
+    private readonly _desk_params_debounced = debounced(this._desk_params, 300);
 
     /** List of desks for the active management zone */
     private readonly _desks = resource({
-        params: () => this._desk_params(),
+        params: () => this._desk_params_debounced.value(),
         defaultValue: [] as Desk[],
         loader: async ({ params }) => {
             // Only load desk metadata when on manage view
@@ -145,9 +147,10 @@ export class DesksStateService extends AsyncHandler {
                 const zones = this._getActiveZones(params.zones);
                 let list: any[] = [];
                 if (zones && !zones.includes('All')) {
-                    const metadata = await showMetadata(zones[0], 'desks').catch(
-                        () => ({ details: [] }) as any,
-                    );
+                    const metadata = await showMetadata(
+                        zones[0],
+                        'desks',
+                    ).catch(() => ({ details: [] }) as any);
                     list =
                         metadata.details instanceof Array
                             ? metadata.details
@@ -218,6 +221,28 @@ export class DesksStateService extends AsyncHandler {
     /** Token used to discard responses from superseded page loads */
     private _load_token = 0;
     private _all_zones_keys = ['All', -1, '-1', ''];
+    private readonly _bookings_params = computed(
+        () => ({
+            filters: this._filters(),
+            loaded: this._org.initialised(),
+            building: this._org.active_building()?.id,
+            region: this._org.active_region()?.id,
+        }),
+        {
+            equal: (a, b) =>
+                a.loaded === b.loaded &&
+                a.building === b.building &&
+                a.region === b.region &&
+                a.filters.view === b.filters.view &&
+                a.filters.date === b.filters.date &&
+                (a.filters.zones || []).join(',') ===
+                    (b.filters.zones || []).join(','),
+        },
+    );
+    private readonly _bookings_params_debounced = debounced(
+        this._bookings_params,
+        500,
+    );
 
     public nextPage() {
         this._loadPage(false);
@@ -228,21 +253,12 @@ export class DesksStateService extends AsyncHandler {
         // Rebuild the paging query whenever the filters, organisation or
         // initialised state change. Debounced to collapse rapid updates.
         effect(() => {
-            const filters = this._filters();
-            const loaded = this._org.initialised();
-            this._org.active_building();
-            this._org.active_region();
-            this.timeout(
-                'setup-paging',
-                () => {
-                    // Only load bookings when on events view
-                    if (!loaded || filters.view !== 'events') return;
-                    this._first_page = this._buildFirstPage(filters);
-                    this._next_page_fn = this._first_page;
-                    this._loadPage(true);
-                },
-                500,
-            );
+            const { filters, loaded } = this._bookings_params_debounced.value();
+            // Only load bookings when on events view
+            if (!loaded || filters.view !== 'events') return;
+            this._first_page = this._buildFirstPage(filters);
+            this._next_page_fn = this._first_page;
+            this._loadPage(true);
         });
     }
 
