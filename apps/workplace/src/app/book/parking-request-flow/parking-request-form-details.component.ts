@@ -1577,12 +1577,26 @@ export class ParkingRequestFormDetailsComponent
                 }
             }),
         );
+        // The availability count only depends on the booking window. Reading
+        // the whole `model()` in the effect would track every field, so
+        // unrelated edits (e.g. typing a plate number) re-run it. Value-compare
+        // the window so only real window changes trigger a recount.
+        const availability_window = computed(
+            () => {
+                const v = model();
+                return { date: v.date, duration: v.duration };
+            },
+            { equal: (a, b) => a.date === b.date && a.duration === b.duration },
+        );
         runInInjectionContext(this._injector, () =>
             effect((onCleanup) => {
                 const bld = this.building();
                 const spaces = this._parking.spaces();
-                const value = model();
+                const { date, duration } = availability_window();
                 let active = true;
+                // 300ms trailing debounce: each re-run clears the pending timer
+                // via onCleanup, so the lookup fires 300ms after the last
+                // change, not 300ms after the first.
                 const timeout = setTimeout(async () => {
                     if (!active) return;
                     if (!bld?.id) {
@@ -1605,13 +1619,13 @@ export class ParkingRequestFormDetailsComponent
                         this.availability_loading.set(false);
                         return;
                     }
-                    const start_date = value.date || Date.now();
-                    const duration = value.duration || 540;
+                    const start_date = date || Date.now();
+                    const window_duration = duration || 540;
                     this.availability_loading.set(true);
                     const booked_assets = await bookedResourceList({
                         period_start: getUnixTime(start_date),
                         period_end: getUnixTime(
-                            addMinutes(start_date, duration),
+                            addMinutes(start_date, window_duration),
                         ),
                         type: 'parking',
                         zones: bld.id,
@@ -1626,17 +1640,32 @@ export class ParkingRequestFormDetailsComponent
                             .length,
                     );
                     this.availability_loading.set(false);
-                });
+                }, 300);
                 onCleanup(() => {
                     active = false;
                     clearTimeout(timeout);
                 });
             }),
         );
+        // An effect tracks the whole `model()` read, not the destructured
+        // fields, so reading `model()` directly here re-runs (and re-fires
+        // `queryBookings`) on every form edit — e.g. each plate-number
+        // keystroke. Gate on a value-compared subset so the lookup only runs
+        // when the fields it actually uses change.
+        const desk_lookup_inputs = computed(
+            () => {
+                const { date, user, id } = model();
+                return { date, email: user?.email || '', id };
+            },
+            {
+                equal: (a, b) =>
+                    a.date === b.date && a.email === b.email && a.id === b.id,
+            },
+        );
         runInInjectionContext(this._injector, () =>
             effect(async () => {
                 const buildings = this.building_list();
-                const { date, user, id } = model();
+                const { date, email: model_email, id } = desk_lookup_inputs();
                 if (
                     !this.default_location_from_desk_booking() ||
                     isMock() ||
@@ -1647,7 +1676,7 @@ export class ParkingRequestFormDetailsComponent
                     this.desk_booking_building_id.set('');
                     return;
                 }
-                const email = user?.email || currentUser()?.email || '';
+                const email = model_email || currentUser()?.email || '';
                 if (!email) return;
                 const period_start = getUnixTime(startOfDay(date));
                 const period_end = getUnixTime(endOfDay(date));
