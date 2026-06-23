@@ -1,0 +1,36 @@
+name: 'Cleanup Commits'
+
+on:
+    schedule:
+        # Bi-weekly: 1st and 15th of each month.
+        - cron: '0 0 1,15 * *'
+    workflow_dispatch:
+        inputs:
+            dry_run:
+                description: 'Report what would be pruned without pushing'
+                type: boolean
+                default: false
+
+permissions:
+    contents: write
+
+concurrency:
+    group: cleanup-build-branches
+    cancel-in-progress: false
+
+jobs:
+    cleanup_build_branches:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+
+            - name: Thin build branch history
+              shell: bash
+              env:
+                  DRY_RUN: ${{ inputs.dry_run }}
+              run: |
+                  if [[ "${DRY_RUN}" == "true" ]]; then
+                      tools/thin-build-branches.sh
+                  else
+                      tools/thin-build-branches.sh --push
+                  fi

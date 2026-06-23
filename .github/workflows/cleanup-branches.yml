@@ -1,0 +1,35 @@
+name: 'Cleanup Branches'
+
+on:
+    schedule:
+        - cron: '0 0 * * 6'
+    workflow_dispatch:
+        inputs:
+            dry_run:
+                description: 'Report orphaned branches without deleting'
+                type: boolean
+                default: false
+
+permissions:
+    contents: write
+
+concurrency:
+    group: cleanup-build-branches
+    cancel-in-progress: false
+
+jobs:
+    cleanup_build_branches:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+
+            - name: Delete orphaned build branches
+              shell: bash
+              env:
+                  DRY_RUN: ${{ inputs.dry_run }}
+              run: |
+                  if [[ "${DRY_RUN}" == "true" ]]; then
+                      tools/cleanup-build-branches.sh
+                  else
+                      tools/cleanup-build-branches.sh --delete
+                  fi
