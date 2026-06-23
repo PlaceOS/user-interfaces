@@ -32,13 +32,12 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
             </button>
             <div
                 search
-                class="border-neutral bg-base-100 absolute top-1/2 right-2 z-50 flex h-12 max-w-[calc(100vw-4rem)] -translate-y-1/2 items-center space-x-2 rounded-[24px] border-2 px-2 shadow-sm"
+                class="border-neutral bg-base-100 absolute top-1/2 right-2 z-50 flex h-12 w-[calc(100vw-4rem)] -translate-y-1/2 items-center space-x-2 rounded-[24px] border-2 px-2 shadow-sm sm:w-lg"
                 [ngClass]="{
-                    'w-lg': show(),
-                    'w-px': !show(),
                     'opacity-100': show(),
                     'opacity-0': !show(),
                     'pointer-events-none': !show(),
+                    open: show(),
                 }"
                 (click)="showInput()"
             >
@@ -58,13 +57,12 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
             @if (filter_str()) {
                 <div
                     search
-                    class="border-base-200 bg-base-100 absolute right-2 bottom-0 flex max-h-[40vh] max-w-[calc(100vw-4rem)] translate-y-[calc(100%-1rem)] flex-col items-center overflow-auto rounded-b border pt-4 shadow-sm"
+                    class="border-base-200 bg-base-100 absolute right-2 bottom-0 flex max-h-[40vh] w-[calc(100vw-4rem)] translate-y-[calc(100%-1rem)] flex-col items-center overflow-auto rounded-b border pt-4 shadow-sm sm:w-lg"
                     [ngClass]="{
-                        'w-lg': show(),
-                        'w-px': !show(),
                         'opacity-100': show(),
                         'opacity-0': !show(),
                         'pointer-events-none': !show(),
+                        open: show(),
                     }"
                 >
                     @if (!results().length && filter_str()) {
@@ -131,9 +129,20 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
     styles: [
         `
             [search] {
+                clip-path: inset(0 0 0 calc(100% - 3rem) round 24px);
                 transition:
-                    width 200ms,
-                    opacity 200ms;
+                    clip-path 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+                    opacity 160ms ease-out;
+            }
+
+            [search].open {
+                clip-path: inset(0 0 0 0 round 24px);
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                [search] {
+                    transition: none;
+                }
             }
         `,
     ],
