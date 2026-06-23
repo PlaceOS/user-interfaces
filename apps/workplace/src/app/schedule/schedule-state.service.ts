@@ -1057,7 +1057,7 @@ export class ScheduleStateService extends AsyncHandler {
         });
         await promise;
         notifySuccess(i18n('APP.WORKPLACE.SCHEDULE_END_SUCCESS'));
-        this.removeItem(item);
+        this.triggerPoll();
         this._dialog.closeAll();
     }
 }

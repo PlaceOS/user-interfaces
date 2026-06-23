@@ -16,8 +16,21 @@ import { ScheduleStateService } from '../../app/schedule/schedule-state.service'
 
 jest.mock('@placeos/bookings', () => ({
     ...jest.requireActual('@placeos/bookings'),
+    checkinBooking: jest.fn(() => Promise.resolve({})),
+    checkinBookingInstance: jest.fn(() => Promise.resolve({})),
     loadLockerResources: jest.fn(() => Promise.resolve([])),
     queryBookings: jest.fn(() => Promise.resolve([])),
+}));
+
+jest.mock('@placeos/components', () => ({
+    ...jest.requireActual('@placeos/components'),
+    openConfirmModal: jest.fn(() =>
+        Promise.resolve({
+            reason: 'done',
+            loading: jest.fn(),
+            close: jest.fn(),
+        }),
+    ),
 }));
 
 jest.mock('@placeos/events', () => ({
@@ -27,6 +40,7 @@ jest.mock('@placeos/events', () => ({
 }));
 
 import {
+    checkinBooking,
     loadLockerResources,
     ParkingService,
     queryBookings,
@@ -61,7 +75,12 @@ describe('ScheduleStateService', () => {
             MockProvider(MatDialog, { closeAll: jest.fn() }),
             MockProvider(Router, router),
             MockProvider(EventFormService, event_form),
-            MockProvider(BookingFormService, { newForm: jest.fn() }),
+            MockProvider(BookingFormService, {
+                newForm: jest.fn(),
+                model: Object.assign(jest.fn(() => ({})), {
+                    update: jest.fn(),
+                }),
+            } as any),
             MockProvider(SpacesService, spaces),
             {
                 provide: ParkingService,
@@ -138,6 +157,44 @@ describe('ScheduleStateService', () => {
                 resources: [room],
             }),
         );
+    });
+
+    it('should not patch resources when editing visitor bookings', () => {
+        const booking_form = spectator.inject(BookingFormService);
+        const booking = new Booking({
+            booking_type: 'visitor',
+            type: 'visitor',
+            asset_id: 'visitor@example.com',
+            asset_name: 'Visitor',
+        } as any);
+
+        spectator.service.editBooking(booking);
+        jest.runAllTimers();
+
+        expect(booking_form.newForm).toHaveBeenCalledWith('visitor', booking);
+        expect(booking_form.model.update).not.toHaveBeenCalled();
+    });
+
+    it('should refresh ended bookings without hiding them as deleted', async () => {
+        const now = new Date(2026, 5, 23, 10).valueOf();
+        jest.setSystemTime(now);
+        const triggerPoll = jest.spyOn(spectator.service, 'triggerPoll');
+        const removeItem = jest.spyOn(spectator.service, 'removeItem');
+        const booking = new Booking({
+            id: 'booking-1',
+            booking_type: 'desk',
+            type: 'desk',
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            date: now - 10 * 60 * 1000,
+            duration: 60,
+        } as any);
+
+        await spectator.service.end(booking);
+
+        expect(checkinBooking).toHaveBeenCalledWith('booking-1', false);
+        expect(triggerPoll).toHaveBeenCalled();
+        expect(removeItem).not.toHaveBeenCalled();
     });
 
     it('should not make schedule requests before schedule data is consumed', () => {
