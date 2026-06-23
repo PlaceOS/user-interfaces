@@ -26,11 +26,12 @@ import type { TopMenuEmbedItem } from './top-menu.component';
                             class="flex w-1/2 min-w-1/2 flex-1 items-center justify-center p-2"
                         >
                             <a
+                                icon default
+                                class="flex h-28 w-28 flex-col items-center justify-center gap-2 rounded-xl"
                                 name="footer-nav-meeting"
                                 matRipple
                                 [routerLink]="['/book', 'meeting']"
                                 routerLinkActive="active"
-                                class="bg-base-100 border-base-300 flex h-28 w-28 flex-col items-center justify-center gap-2 rounded-2xl border p-2 shadow-lg"
                             >
                                 <icon class="text-4xl" filled
                                     >meeting_room</icon
@@ -52,11 +53,11 @@ import type { TopMenuEmbedItem } from './top-menu.component';
                             class="flex w-1/2 min-w-1/2 flex-1 items-center justify-center p-2"
                         >
                             <a
-                                name="footer-nav-desks"
+                                icon default
+                                class="flex h-28 w-28 flex-col items-center justify-center gap-2 rounded-xl"
                                 matRipple
                                 [routerLink]="['/book', 'desk']"
                                 routerLinkActive="active"
-                                class="bg-base-100 border-base-200 flex h-28 w-28 flex-col items-center justify-center gap-2 rounded-xl border p-2"
                             >
                                 <icon class="text-4xl" filled>desk</icon>
                                 <icon
@@ -76,11 +77,12 @@ import type { TopMenuEmbedItem } from './top-menu.component';
                             class="flex w-1/2 min-w-1/2 flex-1 items-center justify-center p-2"
                         >
                             <a
+                                icon default
+                                class="flex h-28 w-28 flex-col items-center justify-center gap-2 rounded-xl"
                                 name="footer-nav-parking"
                                 matRipple
                                 [routerLink]="['/book', 'parking']"
                                 routerLinkActive="active"
-                                class="bg-base-100 border-base-300 flex h-28 w-28 flex-col items-center justify-center gap-2 rounded-2xl border p-2 shadow-lg"
                             >
                                 <icon class="text-4xl" filled
                                     >directions_car</icon
@@ -104,11 +106,12 @@ import type { TopMenuEmbedItem } from './top-menu.component';
                             class="flex w-1/2 min-w-1/2 flex-1 items-center justify-center p-2"
                         >
                             <a
+                                icon default
+                                class="flex h-28 w-28 flex-col items-center justify-center gap-2 rounded-xl"
                                 name="footer-nav-parking-requests"
                                 matRipple
                                 [routerLink]="['/book', 'parking-request']"
                                 routerLinkActive="active"
-                                class="bg-base-100 border-base-300 flex h-28 w-28 flex-col items-center justify-center gap-2 rounded-2xl border p-2 shadow-lg"
                             >
                                 <icon class="text-4xl" filled
                                     >local_parking</icon
@@ -133,11 +136,12 @@ import type { TopMenuEmbedItem } from './top-menu.component';
                             class="flex w-1/2 min-w-1/2 flex-1 items-center justify-center p-2"
                         >
                             <a
+                                icon default
+                                class="flex h-28 w-28 flex-col items-center justify-center gap-2 rounded-xl"
                                 name="footer-nav-visitors"
                                 matRipple
                                 [routerLink]="['/book', 'visitor']"
                                 routerLinkActive="active"
-                                class="bg-base-100 border-base-300 flex h-28 w-28 flex-col items-center justify-center gap-2 rounded-2xl border p-2 shadow-lg"
                             >
                                 <icon class="text-4xl" filled>person_add</icon>
                                 <icon
@@ -160,11 +164,12 @@ import type { TopMenuEmbedItem } from './top-menu.component';
                             class="flex w-1/2 min-w-1/2 flex-1 items-center justify-center p-2"
                         >
                             <a
+                                icon default
+                                class="flex h-28 w-28 flex-col items-center justify-center gap-2 rounded-xl"
                                 name="footer-nav-my-day"
                                 matRipple
                                 [routerLink]="['/your-bookings']"
                                 routerLinkActive="active"
-                                class="bg-base-100 border-base-300 flex h-28 w-28 flex-col items-center justify-center gap-2 rounded-2xl border p-2 shadow-lg"
                             >
                                 <icon class="text-4xl" filled>today</icon>
                                 <icon
@@ -187,11 +192,12 @@ import type { TopMenuEmbedItem } from './top-menu.component';
                             class="flex w-1/2 min-w-1/2 flex-1 items-center justify-center p-2"
                         >
                             <a
+                                icon default
+                                class="flex h-28 w-28 flex-col items-center justify-center gap-2 rounded-xl"
                                 name="footer-nav-events"
                                 matRipple
                                 [routerLink]="['/group-events']"
                                 routerLinkActive="active"
-                                class="bg-base-100 border-base-300 flex h-28 w-28 flex-col items-center justify-center gap-2 rounded-2xl border p-2 shadow-lg"
                             >
                                 <icon class="text-4xl" filled
                                     >local_activity</icon
@@ -216,11 +222,12 @@ import type { TopMenuEmbedItem } from './top-menu.component';
                         >
                             @if (item.external) {
                                 <a
+                                    icon default
+                                    class="flex h-28 w-28 flex-col items-center justify-center gap-2 rounded-xl"
                                     [name]="'footer-nav-embed-' + item.id"
                                     [href]="item.url"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    class="bg-base-100 border-base-300 flex h-28 w-28 flex-col items-center justify-center gap-2 rounded-2xl border p-2 shadow-lg"
                                 >
                                     <icon class="text-4xl" filled>{{
                                         item.icon || 'open_in_browser'
@@ -239,10 +246,11 @@ import type { TopMenuEmbedItem } from './top-menu.component';
                                 </a>
                             } @else {
                                 <a
+                                    icon default
+                                    class="flex h-28 w-28 flex-col items-center justify-center gap-2 rounded-xl"
                                     [name]="'footer-nav-embed-' + item.id"
                                     [routerLink]="['/embedded', item.id]"
                                     routerLinkActive="active"
-                                    class="bg-base-100 border-base-300 flex h-28 w-28 flex-col items-center justify-center gap-2 rounded-2xl border p-2 shadow-lg"
                                 >
                                     <icon class="text-4xl" filled>{{
                                         item.icon || 'open_in_browser'
@@ -267,7 +275,7 @@ import type { TopMenuEmbedItem } from './top-menu.component';
         }
         @if (footer_item_count() > 1) {
             <div
-                class="border-base-200 bg-base-100 relative z-30 flex min-h-16 w-full items-center justify-center border-t shadow-sm sm:hidden pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]"
+                class="border-base-200 gap-1 bg-base-100 relative z-30 flex min-h-16 w-full items-center justify-center border-t shadow-sm sm:hidden pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] px-1"
                 [attr.dark]="dark_mode()"
             >
                 <a
@@ -275,7 +283,7 @@ import type { TopMenuEmbedItem } from './top-menu.component';
                     class="relative flex flex-1 flex-col items-center justify-center"
                     [routerLink]="[default_page()]"
                     name="footer-nav-home"
-                    routerLinkActive="text-secondary active"
+                    routerLinkActive="active"
                 >
                     <icon filled class="text-2xl">home</icon>
                     <icon
@@ -287,14 +295,16 @@ import type { TopMenuEmbedItem } from './top-menu.component';
                     <span class="text-sm">{{
                         'APP.WORKPLACE.MENU_HOME' | translate
                     }}</span>
+                    <div bar class="absolute -bottom-2 inset-x-2 h-1.5 rounded-t bg-info"></div>
                 </a>
                 <button
                     matRipple
-                    class="z-10 mb-4 flex h-12 w-12 items-center justify-center rounded-full"
+                    class="z-10 mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-base-300"
                     (click)="show_book_items.set(!show_book_items())"
-                    [class.bg-secondary]="show_book_items()"
-                    [class.bg-secondary-content]="show_book_items()"
                     [class.bg-base-200]="!show_book_items()"
+                    [class.border-info!]="show_book_items()"
+                    [class.bg-info-light]="show_book_items()"
+                    [class.shadow-md]="show_book_items()"
                 >
                     <icon class="text-2xl">{{
                         show_book_items() ? 'close' : 'add'
@@ -302,11 +312,11 @@ import type { TopMenuEmbedItem } from './top-menu.component';
                 </button>
                 <a
                     matRipple
-                    class="relative flex flex-1 flex-col items-center justify-center"
+                    class="relative flex flex-1 flex-col items-center justify-center rounded-lg"
                     [routerLink]="['/explore']"
                     [attr.disabled]="!features().includes('explore')"
                     [class.opacity-0]="!features().includes('explore')"
-                    routerLinkActive="text-secondary active"
+                    routerLinkActive="active"
                 >
                     <icon filled class="text-2xl">place</icon>
                     <icon
@@ -318,6 +328,7 @@ import type { TopMenuEmbedItem } from './top-menu.component';
                     <span class="text-sm">{{
                         'APP.WORKPLACE.MENU_EXPLORE' | translate
                     }}</span>
+                    <div bar class="absolute -bottom-2 inset-x-2 h-1.5 rounded-t bg-info"></div>
                 </a>
                 <div
                     class="absolute top-0 left-1/2 h-2 w-24 -translate-x-1/2 -translate-y-full overflow-hidden"
@@ -331,16 +342,19 @@ import type { TopMenuEmbedItem } from './top-menu.component';
     `,
     styles: [
         `
-            a.active icon {
-                color: var(--secondary) !important;
-            }
-
             a.active {
                 font-weight: 500;
             }
 
+            [icon][default].active {
+                background: var(--info-light);
+                color: var(--info);
+                border-color: var(--info);
+            }
+
             a:not(.active) [filled],
-            a.active [outline] {
+            a.active [outline],
+            a:not(.active) [bar] {
                 display: none;
             }
         `,
