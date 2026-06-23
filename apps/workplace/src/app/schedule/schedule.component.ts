@@ -419,7 +419,7 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
         });
         await promise;
         notifySuccess(i18n('APP.WORKPLACE.SCHEDULE_END_SUCCESS'));
-        this._state.removeItem(item);
+        this._state.triggerPoll();
         this._dialog.closeAll();
     }
 }

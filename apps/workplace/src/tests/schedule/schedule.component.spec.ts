@@ -5,6 +5,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router } from '@angular/router';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { BookingCardComponent, BookingFormService } from '@placeos/bookings';
+import * as bookings from '@placeos/bookings';
 import { Booking, SettingsService } from '@placeos/common';
 import { EventCardComponent, EventFormService } from '@placeos/events';
 import { MockComponent, MockProvider } from 'ng-mocks';
@@ -15,6 +16,23 @@ import { ScheduleMobileCalendarComponent } from '../../app/schedule/schedule-mob
 import { ScheduleSidebarComponent } from '../../app/schedule/schedule-sidebar.component';
 import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
 import { ScheduleComponent } from '../../app/schedule/schedule.component';
+
+jest.mock('@placeos/bookings', () => ({
+    ...jest.requireActual('@placeos/bookings'),
+    checkinBooking: jest.fn(() => Promise.resolve({})),
+    checkinBookingInstance: jest.fn(() => Promise.resolve({})),
+}));
+
+jest.mock('@placeos/components', () => ({
+    ...jest.requireActual('@placeos/components'),
+    openConfirmModal: jest.fn(() =>
+        Promise.resolve({
+            reason: 'done',
+            loading: jest.fn(),
+            close: jest.fn(),
+        }),
+    ),
+}));
 
 describe('ScheduleComponent', () => {
     let spectator: SpectatorRouting<ScheduleComponent>;
@@ -37,6 +55,8 @@ describe('ScheduleComponent', () => {
                 toggleType: jest.fn(),
                 setDate: jest.fn(),
                 getOptions: jest.fn(() => ({ period: 'day' })),
+                removeItem: jest.fn(),
+                triggerPoll: jest.fn(),
             } as any),
             MockProvider(EventFormService, { newForm: jest.fn() }),
             MockProvider(BookingFormService, {
@@ -47,13 +67,16 @@ describe('ScheduleComponent', () => {
                 }),
             } as any),
             MockProvider(Router, { navigate: jest.fn() }),
-            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(MatDialog, { open: jest.fn(), closeAll: jest.fn() }),
             MockProvider(SettingsService, { get: jest.fn() }),
         ],
         imports: [MatProgressBarModule, FormsModule],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        jest.clearAllMocks();
+        spectator = createComponent();
+    });
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
@@ -98,5 +121,25 @@ describe('ScheduleComponent', () => {
             asset_id: 'desk-1',
         });
         jest.useRealTimers();
+    });
+
+    it('should refresh ended bookings without hiding them as deleted', async () => {
+        const state = spectator.inject(ScheduleStateService);
+        const booking = new Booking({
+            id: 'booking-1',
+            booking_type: 'desk',
+            type: 'desk',
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+        } as any);
+
+        await spectator.component.end(booking);
+
+        expect(bookings.checkinBooking).toHaveBeenCalledWith(
+            'booking-1',
+            false,
+        );
+        expect(state.triggerPoll).toHaveBeenCalled();
+        expect(state.removeItem).not.toHaveBeenCalled();
     });
 });
