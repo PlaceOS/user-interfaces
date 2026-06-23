@@ -57,7 +57,7 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
                         key: 'actions',
                         name: ' ',
                         content: action_template,
-                        size: '3.5rem',
+                        size: '3.25rem',
                         sortable: false,
                     },
                 ]"
@@ -93,13 +93,8 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
             }
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="flex w-full justify-center space-x-2 p-1">
-                <button
-                    icon
-                    matRipple
-                    class="h-12 w-12 rounded-sm"
-                    [matMenuTriggerFor]="menu"
-                >
+            <div class="mx-auto flex items-center p-2">
+                <button icon default matRipple [matMenuTriggerFor]="menu">
                     <icon>more_vert</icon>
                 </button>
                 <mat-menu #menu="matMenu">

@@ -202,8 +202,8 @@ import { EventsStateService } from './events-state.service';
                     >
                         <button
                             icon
+                            default
                             matRipple
-                            class="h-12 w-12 rounded-sm"
                             [matMenuTriggerFor]="action_menu"
                         >
                             <icon class="text-2xl">more_vert</icon>

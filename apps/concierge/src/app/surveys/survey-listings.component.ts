@@ -65,7 +65,7 @@ import { SurveyService } from './survey.service';
                         key: 'actions',
                         name: ' ',
                         content: action_template,
-                        size: '3.5rem',
+                        size: '3.25rem',
                         sortable: false,
                     },
                 ]"
@@ -89,11 +89,11 @@ import { SurveyService } from './survey.service';
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="mx-auto flex items-center space-x-2 p-1">
+            <div class="mx-auto flex items-center p-2">
                 <button
                     icon
+                    default
                     matRipple
-                    class="h-12 w-12 rounded-sm"
                     [matMenuTriggerFor]="actionsMenu"
                 >
                     <icon>more_vert</icon>

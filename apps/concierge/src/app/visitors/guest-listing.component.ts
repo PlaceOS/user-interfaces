@@ -452,8 +452,8 @@ import { VisitorsStateService } from './visitors-state.service';
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="flex items-center justify-end px-2">
-                <button icon matRipple [matMenuTriggerFor]="guest_menu">
+            <div class="mx-auto flex items-center p-2">
+                <button icon default matRipple [matMenuTriggerFor]="guest_menu">
                     <icon>more_horiz</icon>
                 </button>
                 <mat-menu #guest_menu="matMenu">
@@ -670,10 +670,11 @@ import { VisitorsStateService } from './visitors-state.service';
                     "
                     matTooltipPosition="left"
                     icon
+                    default
                     matRipple
                     (click)="editVisitorNotes(row)"
                 >
-                    <icon class="text-2xl">edit_square</icon>
+                    <icon>edit_square</icon>
                 </button>
                 @if (row.extension_data?.notes?.length) {
                     <div

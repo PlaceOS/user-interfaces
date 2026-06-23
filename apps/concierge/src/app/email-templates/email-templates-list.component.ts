@@ -123,6 +123,7 @@ import {
                 <ng-template #actions_template let-row="row">
                     <button
                         icon
+                        default
                         matRipple
                         [matMenuTriggerFor]="menu"
                         class="mx-auto"

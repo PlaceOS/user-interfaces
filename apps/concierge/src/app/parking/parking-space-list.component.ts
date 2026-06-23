@@ -57,7 +57,7 @@ import { ParkingStateService } from './parking-state.service';
                     name: ' ',
                     content: action_template,
                     sortable: false,
-                    size: '6.5rem',
+                    size: '6rem',
                 },
             ]"
             [filter]="options().search"
@@ -139,9 +139,10 @@ import { ParkingStateService } from './parking-state.service';
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="mx-auto flex items-center space-x-2">
+            <div class="mx-auto flex items-center gap-2">
                 <button
                     icon
+                    default
                     matRipple
                     (click)="editSpace(row)"
                     [matTooltip]="
@@ -152,8 +153,9 @@ import { ParkingStateService } from './parking-state.service';
                 </button>
                 <button
                     icon
+                    default
                     matRipple
-                    class="text-error"
+                    error
                     [matTooltip]="
                         'APP.CONCIERGE.PARKING_SPACE_REMOVE' | translate
                     "

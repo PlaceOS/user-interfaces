@@ -170,7 +170,7 @@ import { DealsService } from './deals.service';
                         }
                     </div>
                 } @else {
-                    <div class="mb-4 min-w-5xl">
+                    <div class="mb-4 min-w-7xl">
                         <simple-table
                             [data]="filtered_deals()"
                             class="text-sm"
@@ -205,7 +205,7 @@ import { DealsService } from './deals.service';
                                 {
                                     key: 'actions',
                                     name: ' ',
-                                    size: '3.5rem',
+                                    size: '3.25rem',
                                     content: actions_template,
                                     sortable: false,
                                 },
@@ -249,12 +249,12 @@ import { DealsService } from './deals.service';
                     </ng-template>
                     <ng-template #actions_template let-deal="row">
                         <div
-                            class="flex h-full w-full items-center justify-end p-1"
+                            class="flex h-full w-full items-center justify-end p-2"
                         >
                             <button
                                 icon
+                                default
                                 matRipple
-                                class="h-12 w-12 rounded-sm"
                                 [matMenuTriggerFor]="menu"
                             >
                                 <icon>more_vert</icon>

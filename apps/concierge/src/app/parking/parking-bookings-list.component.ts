@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, TemplateRef } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    OnInit,
+    TemplateRef,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -415,12 +421,11 @@ interface ParkingBookingColumnTemplates {
                 </mat-menu>
             </ng-template>
             <ng-template #action_template let-row="row">
-                <div
-                    class="flex w-full items-center justify-end space-x-2 px-2"
-                >
+                <div class="flex w-full items-center justify-end gap-2 p-2">
                     @if (isRequest(row) && !hide_assign_space) {
                         <button
                             icon
+                            default
                             matRipple
                             [disabled]="
                                 row.checked_in ||
@@ -432,12 +437,13 @@ interface ParkingBookingColumnTemplates {
                             "
                             (click)="assignSpace(row)"
                         >
-                            <icon class="text-2xl">add_location</icon>
+                            <icon>add_location</icon>
                         </button>
                     }
                     @if (canEdit(row)) {
                         <button
                             icon
+                            default
                             matRipple
                             [disabled]="
                                 row.checked_in ||
@@ -450,12 +456,14 @@ interface ParkingBookingColumnTemplates {
                             "
                             (click)="editReservation(row)"
                         >
-                            <icon class="text-2xl">edit</icon>
+                            <icon>edit</icon>
                         </button>
                     }
                     @if (can_delete()) {
                         <button
                             icon
+                            default
+                            error
                             matRipple
                             [disabled]="
                                 row.checked_in ||
@@ -467,7 +475,7 @@ interface ParkingBookingColumnTemplates {
                             "
                             (click)="removeBooking(row)"
                         >
-                            <icon class="text-2xl">delete</icon>
+                            <icon>delete</icon>
                         </button>
                     }
                 </div>
@@ -735,7 +743,7 @@ export class ParkingBookingsListComponent
                 key: 'actions',
                 name: ' ',
                 content: templates.action_template,
-                size: 3.5 + (max_count - 1) * 3 + 'rem',
+                size: 3.25 + (max_count - 1) * 2.75 + 'rem',
                 sortable: false,
                 show: this.show_action_column(),
             },
