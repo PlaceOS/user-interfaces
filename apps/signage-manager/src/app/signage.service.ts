@@ -1,5 +1,6 @@
 import {
     computed,
+    debounced,
     effect,
     inject,
     Injectable,
@@ -454,6 +455,13 @@ export class SignageService {
     private readonly _api_group_id = computed(
         () => this.selected_group()?.group.id || '',
     );
+    // Group selection fans out to six heavy list queries (media, playlists,
+    // displays, zones...). Debounce so clicking through the group tree doesn't
+    // fire a full set of refetches per click.
+    private readonly _api_group_id_debounced = debounced(
+        this._api_group_id,
+        300,
+    );
     public readonly can_read = computed(() =>
         this._hasGroupPermission(SignageGroupPermission.Read),
     );
@@ -484,7 +492,7 @@ export class SignageService {
         params: () => ({
             initialised: this._org.initialised(),
             change: this._change(),
-            group_id: this._api_group_id(),
+            group_id: this._api_group_id_debounced.value(),
             can_query: this._can_query_group_data(),
         }),
         loader: async ({ params }) => {
@@ -525,7 +533,7 @@ export class SignageService {
         params: () => ({
             initialised: this._org.initialised(),
             change: this._change(),
-            group_id: this._api_group_id(),
+            group_id: this._api_group_id_debounced.value(),
             can_query: this._can_query_group_data(),
         }),
         loader: async ({ params }) => {
@@ -550,7 +558,7 @@ export class SignageService {
         params: () => ({
             initialised: this._org.initialised(),
             change: this._change(),
-            group_id: this._api_group_id(),
+            group_id: this._api_group_id_debounced.value(),
             can_query: this._can_query_group_data(),
         }),
         loader: async ({ params }) => {
@@ -578,7 +586,7 @@ export class SignageService {
         params: () => ({
             initialised: this._org.initialised(),
             change: this._change(),
-            group_id: this._api_group_id(),
+            group_id: this._api_group_id_debounced.value(),
             can_query: this._can_query_group_data(),
         }),
         loader: async ({ params }) => {
@@ -603,7 +611,7 @@ export class SignageService {
         params: () => ({
             initialised: this._org.initialised(),
             change: this._change(),
-            group_id: this._api_group_id(),
+            group_id: this._api_group_id_debounced.value(),
             can_query: this._can_query_group_data(),
         }),
         loader: async ({ params }) => {
@@ -632,7 +640,7 @@ export class SignageService {
         params: () => ({
             initialised: this._org.initialised(),
             change: this._change(),
-            group_id: this._api_group_id(),
+            group_id: this._api_group_id_debounced.value(),
             can_query: this._can_query_group_data(),
         }),
         loader: async ({ params }) => {
