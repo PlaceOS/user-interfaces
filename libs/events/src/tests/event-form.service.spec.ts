@@ -214,7 +214,10 @@ describe('EventFormService', () => {
             resources: [],
         }));
 
-        await expect(service.postForm(true)).resolves.toBeTruthy();
+        await expect(service.postForm(true)).resolves.toMatchObject({
+            id: 'event-1',
+            title: 'Boundary booking',
+        });
         expect(perform_booking_spy).toHaveBeenCalled();
     });
 
