@@ -984,7 +984,7 @@ export class EventFormService extends AsyncHandler {
                 JSON.stringify(created_event.toJSON()),
             );
             this.loadLastSuccess();
-            return true;
+            return created_event;
         } catch (e) {
             this.removeLoadingTag(Tags.PostBooking);
             if (this._isPermissionError(e)) this._clearSavedHostChange();
