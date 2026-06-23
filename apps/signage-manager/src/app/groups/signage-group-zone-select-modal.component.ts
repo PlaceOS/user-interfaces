@@ -1,11 +1,17 @@
-import { Component, inject, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    debounced,
+    inject,
+    resource,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { PlaceZone } from '@placeos/ts-client';
 import { SignageService } from '../signage.service';
 
 @Component({
@@ -36,8 +42,7 @@ import { SignageService } from '../signage.service';
             >
                 <input
                     matInput
-                    [ngModel]="search()"
-                    (ngModelChange)="setSearch($event)"
+                    [(ngModel)]="search"
                     [placeholder]="'SIGNAGE_MANAGER.SEARCH_ZONES' | translate"
                     [attr.aria-label]="
                         'SIGNAGE_MANAGER.SEARCH_ZONES' | translate
@@ -100,20 +105,15 @@ export class SignageGroupZoneSelectModalComponent {
     );
 
     public readonly search = signal('');
-    public readonly zones = signal<PlaceZone[]>([]);
-
-    constructor() {
-        this.searchZones();
-    }
-
-    public setSearch(value: string) {
-        this.search.set(value);
-        this.searchZones();
-    }
-
-    private async searchZones() {
+    private readonly _search_debounced = debounced(this.search, 300);
+    private readonly _zones = resource({
+        params: () => this._search_debounced.value() ?? '',
+        loader: ({ params }) => this._service.searchGroupZones(params),
+    });
+    public readonly zones = computed(() => {
         const exclude_ids = new Set(this._data.exclude_ids || []);
-        const zones = await this._service.searchGroupZones(this.search());
-        this.zones.set(zones.filter((zone) => !exclude_ids.has(zone.id)));
-    }
+        return (this._zones.value() || []).filter(
+            (zone) => !exclude_ids.has(zone.id),
+        );
+    });
 }

@@ -227,6 +227,12 @@ export class SignageService {
 
     public readonly search_term = signal('');
     public readonly managed_group_id = signal('');
+    // Switching managed group refetches its users and zones; debounce so quick
+    // re-selection doesn't fire a pair of queries per change.
+    private readonly _managed_group_id_debounced = debounced(
+        this.managed_group_id,
+        300,
+    );
     public readonly managed_group_tab = signal<'users' | 'zones'>('users');
     private readonly _current_user = userSignal();
     private readonly _active_user = computed(() => {
@@ -404,7 +410,7 @@ export class SignageService {
 
     private readonly _managed_group_users = resource({
         params: () => ({
-            group_id: this.managed_group_id(),
+            group_id: this._managed_group_id_debounced.value(),
             groups_change: this._groups_change(),
         }),
         loader: async ({ params }) => {
@@ -429,7 +435,7 @@ export class SignageService {
     );
     private readonly _managed_group_zones = resource({
         params: () => ({
-            group_id: this.managed_group_id(),
+            group_id: this._managed_group_id_debounced.value(),
             groups_change: this._groups_change(),
         }),
         loader: async ({ params }) => {
@@ -703,6 +709,12 @@ export class SignageService {
     public readonly plugins = computed(() => this._plugins.value() || []);
 
     public readonly selected_playlist = signal<SignagePlaylist | null>(null);
+    // Selecting a playlist loads its media; debounce so arrowing through the
+    // playlist list doesn't fetch media for every intermediate selection.
+    private readonly _selected_playlist_debounced = debounced(
+        this.selected_playlist,
+        300,
+    );
     public readonly selected_playlist_item = signal<SignageMedia | null>(null);
     public readonly playlist_search_term = signal('');
 
@@ -791,7 +803,7 @@ export class SignageService {
 
     private readonly _playlist_media_items = resource({
         params: () => ({
-            playlist: this.selected_playlist(),
+            playlist: this._selected_playlist_debounced.value(),
             playlist_change: this._playlist_change(),
         }),
         loader: async ({ params }) => {
