@@ -1074,11 +1074,16 @@ export class EventFormService extends AsyncHandler {
                   undefined,
                   [event?.date, event?.duration],
               ));
-        if (!response.every((_) => _)) {
+        const unavailable = spaces.filter((_, i) => !response[i]);
+        if (unavailable.length) {
+            const names = unavailable
+                .map((_) => _.display_name || _.name || _.email)
+                .join(', ');
             throw i18n(
-                spaces.length > 1
+                unavailable.length > 1
                     ? 'CALENDAR_EVENT.SPACES_UNAVAILABLE'
                     : 'CALENDAR_EVENT.SPACE_UNAVAILABLE',
+                { spaces: names },
             );
         }
         return true;
@@ -1107,11 +1112,15 @@ export class EventFormService extends AsyncHandler {
                 rules[bld.id],
             );
         });
-        if (!space_rules.every((_) => !_.hidden)) {
+        const hidden = spaces.filter((_, i) => space_rules[i]?.hidden);
+        if (hidden.length) {
+            const names = hidden
+                .map((_) => _.display_name || _.name || _.email)
+                .join(', ');
             throw i18n(
                 'CALENDAR_EVENT.SPACE_BOOKING_RULES_HIDDEN',
-                undefined,
-                spaces.length,
+                { spaces: names },
+                hidden.length,
             );
         }
         return true;
@@ -1242,7 +1251,7 @@ export class EventFormService extends AsyncHandler {
                 : i18n('CALENDAR_EVENT.ASSETS_ERROR');
         } else if (assets) {
             throw i18n('CALENDAR_EVENT.ASSETS_PARTIAL_ERROR', {
-                error: e,
+                error: this._errorMessage(e) || e,
             });
         }
         this.removeLoadingTag(Tags.PostBooking);

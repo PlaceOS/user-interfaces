@@ -84,6 +84,22 @@ describe('BookingDetailsModalComponent', () => {
 
     it('should show title', () => expect('[title]').toExist());
 
+    it('should not delete ended bookings', () => {
+        const booking = new Booking({
+            id: 'booking-1',
+            booking_type: 'desk',
+            type: 'desk',
+            checked_out_at: Math.floor(Date.now() / 1000) - 60,
+            date: Date.now(),
+            duration: 60,
+            status: 'approved',
+        } as any);
+
+        spectator.component.remove(booking);
+
+        expect(remove_fn).not.toHaveBeenCalled();
+    });
+
     it('should format visitor name nicely in booking details', () => {
         (spectator.component as any).booking.set(
             new Booking({

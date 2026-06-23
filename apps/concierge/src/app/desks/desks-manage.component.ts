@@ -164,6 +164,7 @@ const QR_CODES = {};
                 <div class="flex items-center justify-end space-x-2 p-2">
                     <button
                         icon
+                        default
                         matRipple
                         customTooltip
                         [content]="qr_menu"
@@ -176,6 +177,7 @@ const QR_CODES = {};
                     </button>
                     <button
                         icon
+                        default
                         matRipple
                         [matTooltip]="
                             'APP.CONCIERGE.DESKS_ACTION_EDIT' | translate
@@ -186,13 +188,15 @@ const QR_CODES = {};
                     </button>
                     <button
                         icon
+                        default
+                        error
                         matRipple
                         [matTooltip]="
                             'APP.CONCIERGE.DESKS_ACTION_REMOVE' | translate
                         "
                         (click)="removeDesk(row)"
                     >
-                        <icon class="text-error">delete</icon>
+                        <icon>delete</icon>
                     </button>
                     <ng-template #qr_menu>
                         <div class="bg-base-100 rounded-sm py-2 shadow-sm">

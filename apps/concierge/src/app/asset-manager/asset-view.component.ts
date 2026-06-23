@@ -246,6 +246,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 >
                                     <a
                                         icon
+                                        default
                                         matRipple
                                         [routerLink]="[
                                             base_route,
@@ -265,8 +266,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                     </a>
                                     <button
                                         icon
+                                        default
                                         matRipple
-                                        class="text-error"
+                                        error
                                         (click)="removeAsset(row)"
                                         [matTooltip]="
                                             'APP.CONCIERGE.ASSETS_ITEM_ASSET_REMOVE'
@@ -389,6 +391,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 >
                                     <a
                                         icon
+                                        default
                                         matRipple
                                         [routerLink]="[
                                             base_route,
@@ -404,8 +407,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                     </a>
                                     <button
                                         icon
+                                        default
                                         matRipple
-                                        class="text-error"
+                                        error
                                         (click)="removePurchaseOrder(row)"
                                     >
                                         <icon class="text-lg">delete</icon>

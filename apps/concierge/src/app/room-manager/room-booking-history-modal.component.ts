@@ -188,8 +188,8 @@ type HistoryPeriod = 'week' | 'month' | '3_months' | '12_months';
                 <div class="flex h-full w-full items-center justify-center">
                     <button
                         icon
+                        default
                         matRipple
-                        class="h-10 w-10 rounded-sm"
                         [attr.aria-label]="
                             (expanded()[row.id]
                                 ? 'APP.CONCIERGE.ROOMS_HISTORY_COLLAPSE'

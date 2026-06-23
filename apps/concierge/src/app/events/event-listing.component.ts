@@ -77,7 +77,7 @@ import { EventStateService } from './event-state.service';
                     key: 'actions',
                     name: ' ',
                     content: actions_template,
-                    size: '4rem',
+                    size: '3.25rem',
                     sortable: false,
                 },
             ]"
@@ -149,10 +149,11 @@ import { EventStateService } from './event-state.service';
         <ng-template #interested_template let-item="row">
             <button
                 icon
+                default
                 matRipple
                 customTooltip
                 [content]="view_attendees"
-                class="mx-auto h-12 w-12 rounded-sm"
+                class="mx-auto"
                 [disabled]="!attendeeCount(item.attendees)"
             >
                 {{ attendeeCount(item.attendees) || 0 }}
@@ -176,10 +177,11 @@ import { EventStateService } from './event-state.service';
         <ng-template #attending_template let-item="row">
             <button
                 icon
+                default
                 matRipple
                 customTooltip
                 [content]="view_attendees"
-                class="mx-auto h-12 w-12 rounded-sm"
+                class="mx-auto"
                 [disabled]="!checkedInCount(item.attendees)"
             >
                 {{ checkedInCount(item.attendees) }}
@@ -243,8 +245,9 @@ import { EventStateService } from './event-state.service';
         <ng-template #actions_template let-row="row">
             <button
                 icon
+                default
                 matRipple
-                class="mx-2 h-12 w-12 rounded-sm"
+                class="mx-auto"
                 [matMenuTriggerFor]="menu"
                 [disabled]="row.state === 'done'"
             >

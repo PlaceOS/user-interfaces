@@ -292,8 +292,8 @@ import { DesksStateService } from './desks-state.service';
                 <div class="mx-auto flex items-center justify-end space-x-2">
                     <button
                         icon
+                        default
                         matRipple
-                        class="h-12 w-12 rounded-sm"
                         [matMenuTriggerFor]="actionMenu"
                     >
                         <icon class="text-2xl">more_vert</icon>

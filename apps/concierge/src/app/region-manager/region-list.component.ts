@@ -62,8 +62,8 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
             <div class="flex w-full justify-end space-x-2 p-1">
                 <button
                     icon
+                    default
                     matRipple
-                    class="h-12 w-12 rounded-sm"
                     [matMenuTriggerFor]="menu"
                 >
                     <icon>more_vert</icon>

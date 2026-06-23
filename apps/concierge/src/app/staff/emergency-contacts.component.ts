@@ -182,6 +182,7 @@ export { EmergencyContact } from './emergency-contacts.service';
                         >
                             <button
                                 icon
+                                default
                                 matRipple
                                 [matTooltip]="
                                     'APP.CONCIERGE.CONTACTS_EDIT' | translate
@@ -192,8 +193,9 @@ export { EmergencyContact } from './emergency-contacts.service';
                             </button>
                             <button
                                 icon
+                                default
                                 matRipple
-                                class="text-error"
+                                error
                                 (click)="removeContact(row)"
                                 [matTooltip]="
                                     'APP.CONCIERGE.CONTACTS_REMOVE' | translate

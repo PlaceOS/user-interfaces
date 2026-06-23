@@ -41,7 +41,7 @@ import { UrlManagementService } from './url-management.service';
                         key: 'actions',
                         name: ' ',
                         content: action_template,
-                        size: '7rem',
+                        size: '6rem',
                         sortable: false,
                     },
                 ]"
@@ -69,9 +69,10 @@ import { UrlManagementService } from './url-management.service';
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="mx-auto flex w-full justify-end space-x-2 px-4 py-2">
+            <div class="mx-auto flex gap-2 p-2">
                 <button
                     icon
+                    default
                     matRipple
                     customTooltip
                     [content]="qr_menu"
@@ -119,7 +120,7 @@ import { UrlManagementService } from './url-management.service';
                         </button>
                     </div>
                 </ng-template>
-                <button btn icon matRipple [matMenuTriggerFor]="menu">
+                <button btn icon default matRipple [matMenuTriggerFor]="menu">
                     <icon>more_vert</icon>
                 </button>
                 <mat-menu #menu="matMenu">

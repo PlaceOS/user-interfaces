@@ -147,6 +147,67 @@ describe('DesksStateService', () => {
         ).toBe(getUnixTime(addMinutes(endOfDay(date), 120)));
     });
 
+    it('should include and show rejected desk bookings as declined', async () => {
+        const first_page = jest.fn(() =>
+            Promise.resolve({
+                data: [
+                    {
+                        id: 'booking-1',
+                        rejected: true,
+                        status: 'approved',
+                    },
+                ],
+                total: 1,
+                next: null,
+            }),
+        );
+        (spectator.service as any)._first_page = first_page;
+        (spectator.service as any)._next_page_fn = first_page;
+
+        await (spectator.service as any)._loadPage(true);
+
+        expect(spectator.service.bookings()[0]).toEqual(
+            expect.objectContaining({
+                rejected: true,
+                status: 'declined',
+            }),
+        );
+        jest.clearAllMocks();
+        (spectator.service as any)._buildFirstPage({ zones: [] })();
+        expect(booking_mod.queryPagedBookings).toHaveBeenCalledWith(
+            expect.objectContaining({ rejected: true }),
+        );
+    });
+
+    it('should keep rejected status when a fast reload returns the old approved state', async () => {
+        const booking = {
+            id: 'booking-1',
+            approved: true,
+            rejected: false,
+            status: 'approved',
+        } as any;
+        const first_page = jest.fn(() =>
+            Promise.resolve({
+                data: [{ ...booking, approved: true, status: 'approved' }],
+                total: 1,
+                next: null,
+            }),
+        );
+
+        await spectator.service.rejectDesk(booking);
+        (spectator.service as any)._first_page = first_page;
+        (spectator.service as any)._next_page_fn = first_page;
+        await (spectator.service as any)._loadPage(true);
+
+        expect(spectator.service.bookings()[0]).toEqual(
+            expect.objectContaining({
+                approved: false,
+                rejected: true,
+                status: 'declined',
+            }),
+        );
+    });
+
     it('should cancel only one recurring booking instance', async () => {
         const booking = {
             id: 'booking-1',

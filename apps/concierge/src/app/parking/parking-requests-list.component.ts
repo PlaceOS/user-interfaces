@@ -86,7 +86,7 @@ import { isParkingAllDayBooking } from './parking.utilities';
                         key: 'actions',
                         name: ' ',
                         content: action_template,
-                        size: '6.5rem',
+                        size: '6rem',
                         sortable: false,
                     },
                 ]"
@@ -288,9 +288,10 @@ import { isParkingAllDayBooking } from './parking.utilities';
                 </mat-menu>
             </ng-template>
             <ng-template #action_template let-row="row">
-                <div class="mx-auto flex items-center justify-end space-x-2">
+                <div class="flex w-full items-center justify-end gap-2 p-2">
                     <button
                         icon
+                        default
                         matRipple
                         [matTooltip]="
                             'BOOKINGS.P2_SPECIAL_NEEDS_DETAILS' | translate
@@ -298,11 +299,12 @@ import { isParkingAllDayBooking } from './parking.utilities';
                         [disabled]="request_type(row) !== 'special'"
                         (click)="viewSpecialNeedsRequest(row)"
                     >
-                        <icon class="text-2xl">description</icon>
+                        <icon>description</icon>
                     </button>
                     @if (!hide_assign_space) {
                         <button
                             icon
+                            default
                             matRipple
                             [disabled]="
                                 row.checked_in ||
@@ -314,11 +316,12 @@ import { isParkingAllDayBooking } from './parking.utilities';
                             "
                             (click)="assignSpace(row)"
                         >
-                            <icon class="text-2xl">add_location</icon>
+                            <icon>add_location</icon>
                         </button>
                     }
                     <button
                         icon
+                        default
                         matRipple
                         [disabled]="
                             row.checked_in ||
@@ -329,7 +332,7 @@ import { isParkingAllDayBooking } from './parking.utilities';
                         [matTooltip]="'APP.CONCIERGE.PARKING_EDIT' | translate"
                         (click)="editReservation(row)"
                     >
-                        <icon class="text-2xl">edit</icon>
+                        <icon>edit</icon>
                     </button>
                 </div>
             </ng-template>

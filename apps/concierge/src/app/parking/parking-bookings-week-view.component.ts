@@ -277,8 +277,9 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                         @if (!hide_assign_space) {
                                             <button
                                                 icon
+                                                default
                                                 matRipple
-                                                class="h-6 w-6"
+                                                class="text-xs"
                                                 [disabled]="
                                                     booking.checked_in ||
                                                     booking.state ===
@@ -300,8 +301,9 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                     @if (can_edit()) {
                                         <button
                                             icon
+                                            default
                                             matRipple
-                                            class="h-6 w-6"
+                                            class="text-xs"
                                             [disabled]="
                                                 booking.checked_in ||
                                                 booking.state ===
@@ -315,7 +317,7 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                             "
                                             (click)="editReservation(booking)"
                                         >
-                                            <icon class="text-base">edit</icon>
+                                            <icon>edit</icon>
                                         </button>
                                     }
                                     @if (can_delete()) {

@@ -187,22 +187,24 @@ import {
                                 </div>
                             </div>
                         </button>
-                        <button
-                            mat-menu-item
-                            (click)="remove ? remove(event(), false) : ''"
-                        >
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-error text-2xl">
-                                    delete
-                                </icon>
-                                <div class="mr-2">
-                                    {{
-                                        'CALENDAR_EVENT.GROUP_DELETE'
-                                            | translate
-                                    }}
+                        @if (event().state !== 'done') {
+                            <button
+                                mat-menu-item
+                                (click)="remove(event(), false)"
+                            >
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-error text-2xl">
+                                        delete
+                                    </icon>
+                                    <div class="mr-2">
+                                        {{
+                                            'CALENDAR_EVENT.GROUP_DELETE'
+                                                | translate
+                                        }}
+                                    </div>
                                 </div>
-                            </div>
-                        </button>
+                            </button>
+                        }
                     </mat-menu>
                     <mat-menu #menu="matMenu">
                         <button
@@ -488,7 +490,6 @@ export class GroupEventDetailsModalComponent implements OnInit {
     );
 
     public readonly edit = this._data?.edit_fn;
-    public readonly remove = this._data?.remove_fn;
     public readonly space = signal<Space>(new Space());
     public readonly event = model(this._data?.event);
     public readonly is_limited = signal(!this._data);
@@ -540,6 +541,11 @@ export class GroupEventDetailsModalComponent implements OnInit {
             this.event().attendees?.filter((_: any) => _.checked_in)?.length ||
             0,
     );
+
+    public remove(event: CalendarEvent, remove_series?: boolean) {
+        if (event?.state === 'done') return;
+        this._data?.remove_fn(event, remove_series);
+    }
 
     public readonly attendees = computed(
         () =>

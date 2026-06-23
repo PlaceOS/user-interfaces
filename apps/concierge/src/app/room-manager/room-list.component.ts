@@ -144,8 +144,8 @@ import { RoomManagementService } from './room-management.service';
             <div class="mx-auto p-1">
                 <button
                     icon
+                    default
                     matRipple
-                    class="h-12 w-12 rounded-sm"
                     [matMenuTriggerFor]="menu"
                 >
                     <icon>more_vert</icon>
