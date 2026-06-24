@@ -161,8 +161,11 @@ export interface GroupBookingFailure {
     error: string;
 }
 
-/** Build the `extension_data` payload saved with a booking, including the
- * per-type fields (desk/visitor/parking) and group members. */
+/** Build the `extension_data` payload saved with a booking. Only fields that
+ * need renaming, coercion, computing or a fallback live here — plain flat form
+ * fields (e.g. `phone`, `company`, `recurrence_instances`, `plate_number`,
+ * `notes`) are copied into `extension_data` automatically by the `Booking`
+ * constructor, so they must NOT be duplicated below. */
 function buildBookingExtensionData(
     value: Record<string, any>,
     group_members: any[],
@@ -170,13 +173,17 @@ function buildBookingExtensionData(
     const type = value.booking_type;
     return {
         ...(value.extension_data || {}),
-        assigned_asset_id: type === 'desk' ? value.asset_id : undefined,
-        assigned_asset_name:
-            type === 'desk' ? value.asset_name || value.asset_id : undefined,
-        assets: value.assets.map((_: any) => _.toJSON()),
+        // `group` is a getter on `Booking`, so the constructor skips the
+        // top-level form value — it has to be set into `extension_data` here.
         group: value.group,
-        phone: value.phone,
-        company: value.company,
+        // `assets` is ignored by the constructor's auto-copy, so map it here.
+        assets: value.assets.map((_: any) => _.toJSON()),
+        ...(type === 'desk'
+            ? {
+                  assigned_asset_id: value.asset_id,
+                  assigned_asset_name: value.asset_name || value.asset_id,
+              }
+            : {}),
         ...(type === 'visitor'
             ? {
                   international: !!value.international,
@@ -194,7 +201,6 @@ function buildBookingExtensionData(
               }
             : {}),
         ...(group_members.length ? { group_members } : {}),
-        recurrence_instances: value.recurrence_instances,
         department: value.user?.department || currentUser()?.department,
     };
 }
