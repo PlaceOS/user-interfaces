@@ -26,6 +26,7 @@ import {
     getAllDayTimeRange,
     getInvalidSignalFields,
     i18n,
+    isEmptyUser,
     isWithinBookableHours,
     notifyError,
     notifyWarn,
@@ -942,6 +943,12 @@ export class BookingFormService extends AsyncHandler {
 
     public async postForm(ignore_check = false, reset_form = true) {
         if (!this.form) throw 'No form for booking';
+        // user/booked_by may have been seeded with the placeholder EMPTY_USER
+        // before the signed-in user loaded. Refresh them from the now-loaded
+        // current user so bookings are never saved against the empty user.
+        if (isEmptyUser(this.model().user as any)) {
+            this._patch({ user: currentUser(), booked_by: currentUser() });
+        }
         // For all-day bookings the date/duration window is derived from the
         // all-day period at post time. Apply that clamped window up-front so the
         // form's duration validator sees the real (valid) window rather than a
