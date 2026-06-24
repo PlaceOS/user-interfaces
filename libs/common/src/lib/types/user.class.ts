@@ -286,7 +286,7 @@ export class StaffUser extends User {
 /** Placeholder user used before the current user has loaded */
 export const EMPTY_USER = {
     name: '<empty>',
-    email: '<empty>@dev.place.tech',
+    email: '<empty>@app.user',
 } as StaffUser;
 
 /** Whether the given user is the empty/unloaded placeholder user */
