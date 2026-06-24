@@ -286,7 +286,6 @@ export class DesksStateService extends AsyncHandler {
                 zones: zones.join(','),
                 include_checked_out: true,
                 include_deleted: true,
-                rejected: true,
                 limit: 500,
             } as any);
     }

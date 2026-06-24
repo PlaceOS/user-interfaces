@@ -74,6 +74,7 @@ import {
     BulkMediaUploadModalComponent,
     BulkMediaUploadModalData,
 } from './shared/bulk-media-upload-modal.component';
+import { decodeEntityNames } from './shared/decode-entity-names.util';
 import { DisplaySelectModalComponent } from './shared/display-select-modal.component';
 import { GroupSelectModalComponent } from './shared/group-select-modal.component';
 import { MediaEditModalComponent } from './shared/media-edit-modal.component';
@@ -268,7 +269,7 @@ export class SignageService {
                               }) as PlaceCurrentGroup,
                       )
                     : await currentGroups({ subsystem: 'signage' });
-                return groups.sort((a, b) =>
+                return groups.map(decodeEntityNames).sort((a, b) =>
                     a.group.name.localeCompare(b.group.name),
                 );
             } catch {
@@ -401,11 +402,13 @@ export class SignageService {
                 (item) =>
                     !!(item.permissions & SignageGroupPermission.Manage),
             )
-            .map((item) => item.group);
+            .map((item) => decodeEntityNames(item.group));
     }
 
     private _sortGroups<T extends PlaceGroup>(groups: T[]) {
-        return [...groups].sort((a, b) => a.name.localeCompare(b.name));
+        return groups
+            .map(decodeEntityNames)
+            .sort((a, b) => a.name.localeCompare(b.name));
     }
 
     private readonly _managed_group_users = resource({
@@ -420,7 +423,7 @@ export class SignageService {
                     group_id: params.group_id,
                     limit: 1000,
                 });
-                return data.sort((a, b) =>
+                return data.map(decodeEntityNames).sort((a, b) =>
                     (a.user?.name || a.user_id).localeCompare(
                         b.user?.name || b.user_id,
                     ),
@@ -445,7 +448,7 @@ export class SignageService {
                     group_id: params.group_id,
                     limit: 1000,
                 });
-                return data.sort((a, b) =>
+                return data.map(decodeEntityNames).sort((a, b) =>
                     (a.zone?.name || a.zone_id).localeCompare(
                         b.zone?.name || b.zone_id,
                     ),
@@ -512,9 +515,9 @@ export class SignageService {
                         params.group_id,
                     ),
                 );
-                return (result.data || []).sort(
-                    (a, b) => b.created_at - a.created_at,
-                );
+                return (result.data || [])
+                    .map(decodeEntityNames)
+                    .sort((a, b) => b.created_at - a.created_at);
             } catch {
                 return [] as SignageMedia[];
             }
@@ -550,9 +553,9 @@ export class SignageService {
                 const result = await querySignagePlaylists(
                     this._orgZoneQueryParams({ limit: 500 }, params.group_id),
                 );
-                return (result.data || []).sort((a, b) =>
-                    a.name.localeCompare(b.name),
-                );
+                return (result.data || [])
+                    .map(decodeEntityNames)
+                    .sort((a, b) => a.name.localeCompare(b.name));
             } catch {
                 return [] as SignagePlaylist[];
             }
@@ -575,7 +578,9 @@ export class SignageService {
                     limit: 500,
                     signage: true,
                 } as any);
-                return (result.data || []).filter((item) => item.signage);
+                return (result.data || [])
+                    .filter((item) => item.signage)
+                    .map(decodeEntityNames);
             } catch {
                 return [] as any[];
             }
@@ -603,7 +608,7 @@ export class SignageService {
                     tags: 'signage',
                     ...(params.group_id ? { group_id: params.group_id } : {}),
                 } as any);
-                return result.data || [];
+                return (result.data || []).map(decodeEntityNames);
             } catch {
                 return [] as any[];
             }
@@ -629,7 +634,7 @@ export class SignageService {
                         params.group_id,
                     ),
                 );
-                return result.data || [];
+                return (result.data || []).map(decodeEntityNames);
             } catch {
                 return [] as any[];
             }
@@ -659,7 +664,7 @@ export class SignageService {
                         ? { group_id: params.group_id }
                         : { parent_id: 'root' }),
                 } as any);
-                const zones = result.data || [];
+                const zones = (result.data || []).map(decodeEntityNames);
                 const org_zone_id = this._org.organisation?.id;
                 return org_zone_id && !params.group_id
                     ? zones.filter((zone) => zone.id === org_zone_id)
@@ -682,7 +687,7 @@ export class SignageService {
             limit: 2500,
             include_children_count: true,
         } as any);
-        return data || [];
+        return (data || []).map(decodeEntityNames);
     }
 
     private readonly _plugins = resource({
@@ -698,6 +703,7 @@ export class SignageService {
                 );
                 return (result.data || [])
                     .filter((plugin: SignagePlugin) => plugin.enabled)
+                    .map(decodeEntityNames)
                     .sort((a: SignagePlugin, b: SignagePlugin) =>
                         a.name.localeCompare(b.name),
                     );
