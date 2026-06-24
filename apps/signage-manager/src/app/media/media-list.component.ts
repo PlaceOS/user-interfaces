@@ -22,6 +22,7 @@ import {
 } from '@placeos/components';
 import { SignageMedia } from '@placeos/ts-client';
 import { SignageService } from '../signage.service';
+import { playlistMediaThumbnailUrl } from '../signage-playlist.util';
 
 @Component({
     selector: 'media-list',
@@ -113,7 +114,7 @@ import { SignageService } from '../signage.service';
                             }
                             @if (
                                 media_item.media_type === 'webpage' &&
-                                !media_item.thumbnail_url
+                                !thumbnailUrl(media_item)
                             ) {
                                 <div
                                     class="flex h-full w-full items-center justify-center"
@@ -124,7 +125,7 @@ import { SignageService } from '../signage.service';
                                 </div>
                             } @else if (
                                 media_item.media_type === 'plugin' &&
-                                !media_item.thumbnail_url
+                                !thumbnailUrl(media_item)
                             ) {
                                 <div
                                     class="flex h-full w-full items-center justify-center"
@@ -133,10 +134,10 @@ import { SignageService } from '../signage.service';
                                         >extension</icon
                                     >
                                 </div>
-                            } @else if (media_item.thumbnail_url) {
+                            } @else if (thumbnailUrl(media_item)) {
                                 <img
                                     auth
-                                    [source]="media_item.thumbnail_url"
+                                    [source]="thumbnailUrl(media_item)"
                                     [alt]="media_item.name + ' thumbnail'"
                                     class="absolute -inset-px flex h-full w-full items-center justify-center rounded-lg object-contain object-center"
                                 />
@@ -510,6 +511,10 @@ export class MediaListComponent implements OnInit {
 
     public clearSelection() {
         this.selected_ids.set(new Set<string>());
+    }
+
+    public thumbnailUrl(item: SignageMedia): string {
+        return playlistMediaThumbnailUrl(item);
     }
 
     public isExpired(item: SignageMedia): boolean {

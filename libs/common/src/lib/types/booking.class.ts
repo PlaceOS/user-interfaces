@@ -240,20 +240,25 @@ export class Booking {
                   data.asset_id ||
                   '';
         this.zones = data.zones || [];
-        this.booking_start =
-            Math.floor(data.date / 1000) ||
-            data.booking_start ||
-            getUnixTime(
-                roundToNearestMinutes(addMinutes(Date.now(), 5), {
-                    nearestTo: 5,
-                }),
-            );
-        this.booking_end =
-            data.booking_end ||
-            Math.floor(data.date / 1000) + data.duration * 60 ||
-            getUnixTime(
-                addMinutes(this.booking_start * 1000, data.duration || 60),
-            );
+        // `date`/`duration` are the source of truth for the booking window.
+        // Both ends must derive from the same source so we never pair a fresh
+        // start (from `date`) with a stale `booking_end` (which can invert the
+        // window and send booking_end before booking_start to the API).
+        const has_date = !!data.date;
+        this.booking_start = has_date
+            ? Math.floor(data.date / 1000)
+            : data.booking_start ||
+              getUnixTime(
+                  roundToNearestMinutes(addMinutes(Date.now(), 5), {
+                      nearestTo: 5,
+                  }),
+              );
+        this.booking_end = has_date
+            ? this.booking_start + (data.duration || 60) * 60
+            : data.booking_end ||
+              getUnixTime(
+                  addMinutes(this.booking_start * 1000, data.duration || 60),
+              );
         this.booking_type = data.booking_type || ' ';
         this.type = data.type || data.booking_type || 'booking';
         this.date = data.date || this.booking_start * 1000 || Date.now();
