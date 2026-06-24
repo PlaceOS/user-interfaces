@@ -707,6 +707,15 @@ export class EventFormService extends AsyncHandler {
         ignore_owner = false,
         force_calendar = false,
     ) {
+        // host/creator may have been seeded with the placeholder EMPTY_USER
+        // before the signed-in user loaded. Refresh them from the now-loaded
+        // current user so events are never saved against the empty user.
+        if (isEmptyUser({ email: this._model().host } as any)) {
+            this._model.update((m) => ({ ...m, host: currentUser().email }));
+        }
+        if (isEmptyUser({ email: this._model().creator } as any)) {
+            this._model.update((m) => ({ ...m, creator: currentUser().email }));
+        }
         this._form().markAsTouched();
         if (this._form().invalid() && !force) {
             throw i18n('FORM.INVALID_FIELDS', {
