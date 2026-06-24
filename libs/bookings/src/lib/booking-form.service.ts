@@ -942,7 +942,8 @@ export class BookingFormService extends AsyncHandler {
         const initial_duration = booking.duration;
         this.setOptions({
             ...JSON.parse(
-                sessionStorage.getItem(STORAGE_KEYS.booking_form_filters) || '{}',
+                sessionStorage.getItem(STORAGE_KEYS.booking_form_filters) ||
+                    '{}',
             ),
         });
         this._booking.set(booking);
@@ -975,7 +976,8 @@ export class BookingFormService extends AsyncHandler {
         );
         this.setOptions({
             ...JSON.parse(
-                sessionStorage.getItem(STORAGE_KEYS.booking_form_filters) || '{}',
+                sessionStorage.getItem(STORAGE_KEYS.booking_form_filters) ||
+                    '{}',
             ),
         });
     }
@@ -1759,7 +1761,8 @@ export class BookingFormService extends AsyncHandler {
                 new User({
                     name: member_name,
                     email: member.email,
-                    organisation: (member as any).company || member.organisation,
+                    organisation:
+                        (member as any).company || member.organisation,
                     phone: member.phone,
                 }),
             ],
@@ -2217,8 +2220,12 @@ export class BookingFormService extends AsyncHandler {
             return true;
         }
 
+        // date/duration are the source of truth for the booking window. Drop
+        // any stale booking_start/booking_end carried in so the constructor
+        // doesn't pair a fresh start (from date) with a stale end.
+        const { booking_start, booking_end, ...window } = booking as any;
         const temp_booking = new Booking({
-            ...booking,
+            ...window,
             booking_type: type,
         });
 
