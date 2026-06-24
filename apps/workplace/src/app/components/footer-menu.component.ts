@@ -275,7 +275,7 @@ import type { TopMenuEmbedItem } from './top-menu.component';
         }
         @if (footer_item_count() > 1) {
             <div
-                class="border-base-200 gap-1 bg-base-100 relative z-30 flex min-h-16 w-full items-center justify-center border-t shadow-sm sm:hidden pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] px-1"
+                class="border-base-200 gap-1 bg-base-100 relative z-30 flex min-h-16 w-full items-center justify-center border-t shadow-sm sm:hidden pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] px-1"
                 [attr.dark]="dark_mode()"
             >
                 <a
