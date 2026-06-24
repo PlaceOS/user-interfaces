@@ -315,7 +315,7 @@ function nextSchedulePlaySessions(
     template: `
         @if (playlist()) {
             <div
-                class="border-base-300 flex h-full min-w-60 flex-col overflow-hidden border-l"
+                class="border-base-300 flex h-full min-w-60 lg:w-84 flex-col overflow-hidden border-l"
             >
                 <mat-tab-group
                     class="flex-1 overflow-hidden"
@@ -324,8 +324,8 @@ function nextSchedulePlaySessions(
                 >
                     <mat-tab [label]="'COMMON.DETAILS' | translate">
                         <div class="h-full overflow-auto">
-                            <div class="space-y-4 p-4">
-                                <div>
+                            <div class="flex flex-col gap-2 p-4 w-full">
+                                <div class="w-full">
                                     <div
                                         class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                     >
@@ -336,7 +336,7 @@ function nextSchedulePlaySessions(
                                     </div>
                                 </div>
                                 @if (playlist().description) {
-                                    <div>
+                                    <div class="w-full">
                                         <div
                                             class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                         >

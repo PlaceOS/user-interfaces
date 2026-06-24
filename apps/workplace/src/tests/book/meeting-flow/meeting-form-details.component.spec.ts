@@ -4,7 +4,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import {
+    currentUser,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import {
     EventFormService,
@@ -112,9 +116,9 @@ describe('MeetingFormDetailsComponent', () => {
 
     it('should persist host reset after invalid book-as selection', () => {
         (spectator.component as any)._resetHostToCurrentUser();
-        expect(spectator.component.model().host).toBe('<empty>@dev.place.tech');
+        expect(spectator.component.model().host).toBe(currentUser().email);
         expect(spectator.component.model().organiser.email).toBe(
-            '<empty>@dev.place.tech',
+            currentUser().email,
         );
         expect(store_form).toHaveBeenCalledTimes(1);
     });

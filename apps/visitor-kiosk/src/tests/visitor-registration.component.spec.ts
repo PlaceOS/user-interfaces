@@ -23,6 +23,7 @@ describe('VisitorRegistrationComponent', () => {
                 organisation: { id: 'org-1' },
                 region: new Region({ id: 'region-1' }),
                 building: { id: 'bld-1' },
+                initialised: signal(true),
                 active_building: signal({ id: 'bld-1' }),
                 waitUntilInitialised: jest.fn(() => Promise.resolve()),
             } as any),
