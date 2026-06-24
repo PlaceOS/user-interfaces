@@ -2,6 +2,7 @@ import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import {
+    currentUser,
     MapsPeopleService,
     OrganisationService,
     SettingsService,
@@ -261,14 +262,14 @@ describe('BookingDetailsModalComponent', () => {
                 booking_type: 'desk',
                 type: 'desk',
                 parent_id: 'booking-group',
-                user_email: '<empty>@dev.place.tech',
+                user_email: currentUser().email,
                 linked_parent_booking: {
                     id: 'booking-group',
                     asset_id: 'group-1',
                     asset_name: 'Group Booking',
                     user_id: 'current-user',
                     user_name: '<empty>',
-                    user_email: '<empty>@dev.place.tech',
+                    user_email: currentUser().email,
                     description: 'Group Booking',
                     booking_type: 'group',
                     date: Date.now(),
@@ -278,7 +279,7 @@ describe('BookingDetailsModalComponent', () => {
                         group_resource_type: 'desk',
                         group_members: [
                             {
-                                email: '<empty>@dev.place.tech',
+                                email: currentUser().email,
                                 name: '<empty>',
                             },
                             { email: 'two@example.com', name: 'Two' },
@@ -305,7 +306,7 @@ describe('BookingDetailsModalComponent', () => {
                 booking_type: 'desk',
                 type: 'desk',
                 parent_id: 'booking-group',
-                user_email: '<empty>@dev.place.tech',
+                user_email: currentUser().email,
                 linked_parent_booking: {
                     id: 'booking-group',
                     asset_id: 'group-1',

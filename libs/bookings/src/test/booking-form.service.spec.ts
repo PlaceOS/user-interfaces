@@ -727,7 +727,7 @@ describe('BookingFormService', () => {
                         details: [
                             {
                                 id: 'assigned-desk',
-                                assigned_to: '<empty>@dev.place.tech',
+                                assigned_to: currentUser().email,
                             },
                         ],
                     },
@@ -785,7 +785,7 @@ describe('BookingFormService', () => {
                         details: [
                             {
                                 id: 'assigned-desk',
-                                assigned_to: '<empty>@dev.place.tech',
+                                assigned_to: currentUser().email,
                             },
                         ],
                     },
@@ -843,7 +843,7 @@ describe('BookingFormService', () => {
                         details: [
                             {
                                 id: 'assigned-desk',
-                                assigned_to: '<empty>@dev.place.tech',
+                                assigned_to: currentUser().email,
                             },
                         ],
                     },
@@ -901,7 +901,7 @@ describe('BookingFormService', () => {
                         details: [
                             {
                                 id: 'assigned-desk',
-                                assigned_to: '<empty>@dev.place.tech',
+                                assigned_to: currentUser().email,
                             },
                         ],
                     },
@@ -961,7 +961,7 @@ describe('BookingFormService', () => {
                         details: [
                             {
                                 id: 'assigned-desk',
-                                assigned_to: '<empty>@dev.place.tech',
+                                assigned_to: currentUser().email,
                             },
                         ],
                     },
@@ -1159,7 +1159,7 @@ describe('BookingFormService', () => {
             group: true,
             members: [
                 {
-                    email: '<empty>@dev.place.tech',
+                    email: currentUser().email,
                     name: '<empty>',
                 } as any,
                 {
@@ -1247,7 +1247,7 @@ describe('BookingFormService', () => {
             group: true,
             members: [
                 {
-                    email: '<empty>@dev.place.tech',
+                    email: currentUser().email,
                     name: '<empty>',
                 } as any,
                 {
@@ -1335,7 +1335,7 @@ describe('BookingFormService', () => {
             group: true,
             members: [
                 {
-                    email: '<empty>@dev.place.tech',
+                    email: currentUser().email,
                     name: '<empty>',
                 } as any,
                 {
@@ -1450,7 +1450,7 @@ describe('BookingFormService', () => {
             group: true,
             members: [
                 {
-                    email: '<empty>@dev.place.tech',
+                    email: currentUser().email,
                     name: '<empty>',
                 } as any,
                 {
@@ -1465,11 +1465,11 @@ describe('BookingFormService', () => {
         });
 
         await expect(spectator.service.postFormForGroup()).resolves.toEqual(
-            expect.objectContaining({ user_email: '<empty>@dev.place.tech' }),
+            expect.objectContaining({ user_email: currentUser().email }),
         );
 
         expect(saved_users).toEqual([
-            '<empty>@dev.place.tech',
+            currentUser().email,
             'member.one@example.com',
             'member.two@example.com',
         ]);
@@ -1564,7 +1564,7 @@ describe('BookingFormService', () => {
             group: true,
             members: [
                 {
-                    email: '<empty>@dev.place.tech',
+                    email: currentUser().email,
                     name: '<empty>',
                 } as any,
                 {
@@ -1642,7 +1642,7 @@ describe('BookingFormService', () => {
                 duration: 60,
                 asset_id: 'desk-1',
                 asset_name: 'Desk 1',
-                user_email: '<empty>@dev.place.tech',
+                user_email: currentUser().email,
                 extension_data: { map_id: 'map-1' },
             }),
         );
@@ -1658,7 +1658,7 @@ describe('BookingFormService', () => {
             group: true,
             members: [
                 {
-                    email: '<empty>@dev.place.tech',
+                    email: currentUser().email,
                     name: '<empty>',
                 } as any,
                 {
@@ -1676,7 +1676,7 @@ describe('BookingFormService', () => {
             new Booking({
                 id: 'booking-parent',
                 booking_type: 'desk',
-                user_email: '<empty>@dev.place.tech',
+                user_email: currentUser().email,
                 asset_id: 'desk-1',
                 asset_name: 'Desk 1',
             }),
@@ -1691,7 +1691,7 @@ describe('BookingFormService', () => {
         ]);
 
         expect(saved_forms).toEqual([
-            { user_email: '<empty>@dev.place.tech', asset_id: 'desk-1' },
+            { user_email: currentUser().email, asset_id: 'desk-1' },
             { user_email: 'member.one@example.com', asset_id: 'desk-2' },
             { user_email: 'member.two@example.com', asset_id: 'desk-3' },
         ]);
@@ -1755,12 +1755,12 @@ describe('BookingFormService', () => {
                 duration: 60,
                 asset_id: 'desk-1',
                 asset_name: 'Desk 1',
-                user_email: '<empty>@dev.place.tech',
+                user_email: currentUser().email,
                 extension_data: {
                     group: 'group-ref',
                     map_id: 'map-1',
                     group_members: [
-                        { email: '<empty>@dev.place.tech', name: '<empty>' },
+                        { email: currentUser().email, name: '<empty>' },
                     ],
                 },
             }),
@@ -1778,7 +1778,7 @@ describe('BookingFormService', () => {
             group: true,
             members: [
                 {
-                    email: '<empty>@dev.place.tech',
+                    email: currentUser().email,
                     name: '<empty>',
                 } as any,
                 {
@@ -1793,7 +1793,7 @@ describe('BookingFormService', () => {
                 id: 'booking-current-child',
                 parent_id: 'booking-group',
                 booking_type: 'desk',
-                user_email: '<empty>@dev.place.tech',
+                user_email: currentUser().email,
                 asset_id: 'desk-1',
                 asset_name: 'Desk 1',
             }),
@@ -1858,7 +1858,7 @@ describe('BookingFormService', () => {
         const group_members_payload = [
             {
                 id: '',
-                email: '<empty>@dev.place.tech',
+                email: currentUser().email,
                 name: '<empty>',
                 company: '',
                 phone: '',
@@ -1915,7 +1915,7 @@ describe('BookingFormService', () => {
             group: true,
             members: [
                 {
-                    email: '<empty>@dev.place.tech',
+                    email: currentUser().email,
                     name: '<empty>',
                 } as any,
                 {
@@ -1937,7 +1937,7 @@ describe('BookingFormService', () => {
         // member.two's booking instead of the current user's booking.
         expect(spectator.service.last_success).not.toBeNull();
         expect(spectator.service.last_success.user_email).toBe(
-            '<empty>@dev.place.tech',
+            currentUser().email,
         );
     });
 

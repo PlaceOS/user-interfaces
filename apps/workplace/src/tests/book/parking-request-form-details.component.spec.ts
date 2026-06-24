@@ -70,6 +70,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
         time_sync.updateOptions({ timezone: 'UTC', ...time_sync_options });
         model.update((m) => ({
             ...m,
+            booking_type: 'parking',
             request_type: 'standard',
             user: null,
             prefer_booked_location_first: false,
