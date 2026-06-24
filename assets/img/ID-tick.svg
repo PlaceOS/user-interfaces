@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="67" height="67" viewBox="0 0 67 67">
+  <g id="ID-tick" transform="translate(0 -0.07)">
+    <circle id="Oval" cx="33.5" cy="33.5" r="33.5" transform="translate(0 0.07)" fill="#00529b"/>
+    <path id="Path" d="M0,14.093l10.748,10.57L32.606,0" transform="translate(18.153 20.989)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="4"/>
+  </g>
+</svg>
