@@ -16,6 +16,7 @@ import {
     queryPagedBookings,
     rejectBooking,
     rejectBookingInstance,
+    rejectOverlappingRecurringBookings,
     removeBooking,
     saveBooking,
     updateBooking,
@@ -456,7 +457,7 @@ export class DesksStateService extends AsyncHandler {
             (desk.assigned_to !== new_desk.assigned_to || recreate) &&
             new_desk.assigned_to
         ) {
-            await saveBooking(
+            const created = await saveBooking(
                 this._createAssignedBooking(new_desk, zone),
             ).catch(async (e) => {
                 await this._rollbackMetadata(zone, original_desk_list);
@@ -483,6 +484,13 @@ export class DesksStateService extends AsyncHandler {
                 ref.componentInstance.loading.set(false);
                 throw e;
             });
+            // Reject the assignee's overlapping ad-hoc desk bookings over the
+            // next 4 weeks now that they have a recurring desk assigned.
+            if (created?.id) {
+                await rejectOverlappingRecurringBookings(created, 'desk').catch(
+                    () => [],
+                );
+            }
         }
         this._change.set(Date.now());
         ref.close();
