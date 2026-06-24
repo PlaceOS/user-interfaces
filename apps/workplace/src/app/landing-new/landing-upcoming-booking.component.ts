@@ -180,6 +180,7 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                                 matRiple
                                 matTooltip="Delete Booking"
                                 matTooltipPosition="left"
+                                [disabled]="deleteDisabled()"
                                 class="white inverse h-12 w-12 px-0"
                                 (click)="remove()"
                             >
@@ -289,6 +290,9 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
     public readonly room_booking_start = signal(0);
     public readonly room_system_id = signal('');
     private readonly _room_event_key = signal('');
+    private readonly _current_time_tick = toSignal(timer(0, 1000), {
+        initialValue: 0,
+    });
 
     public readonly edit_fn = (i) => this._schedule.edit(i);
     public readonly edit_booking_fn = (i) => this._schedule.editBooking(i);
@@ -329,6 +333,12 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
         if (!event) return false;
         if (event instanceof Booking) return canEditBooking(event);
         return !event.extension_data?.shared_event;
+    });
+
+    public readonly deleteDisabled = computed(() => {
+        this._current_time_tick();
+        const event = this.nextEvent();
+        return !event || Date.now() >= event.date_end;
     });
 
     public readonly eventTitle = computed(() => {

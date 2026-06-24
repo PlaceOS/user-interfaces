@@ -120,6 +120,50 @@ describe('LandingUpcomingBookingComponent', () => {
         expect(spectator.queryAll('button[btn]')[1]).toBeDisabled();
     });
 
+    it('should keep delete enabled before the shown booking ends', () => {
+        const date = Date.now();
+        upcoming_events.set([
+            new Booking({
+                id: 'booking-1',
+                booking_type: 'desk',
+                type: 'desk',
+                asset_id: 'desk-1',
+                asset_name: 'Desk 1',
+                description: 'Desk Booking',
+                date,
+                duration: 60,
+                date_end: date + 60 * 60 * 1000,
+                status: 'approved',
+            } as any),
+        ]);
+        spectator.detectChanges();
+
+        expect(spectator.component.deleteDisabled()).toBe(false);
+        expect(spectator.queryAll('button[btn]')[3]).not.toBeDisabled();
+    });
+
+    it('should disable delete after the shown booking ends', () => {
+        const date = Date.now() - 60 * 60 * 1000;
+        upcoming_events.set([
+            new Booking({
+                id: 'booking-1',
+                booking_type: 'desk',
+                type: 'desk',
+                asset_id: 'desk-1',
+                asset_name: 'Desk 1',
+                description: 'Desk Booking',
+                date,
+                duration: 30,
+                date_end: date + 30 * 60 * 1000,
+                status: 'approved',
+            } as any),
+        ]);
+        spectator.detectChanges();
+
+        expect(spectator.component.deleteDisabled()).toBe(true);
+        expect(spectator.queryAll('button[btn]')[3]).toBeDisabled();
+    });
+
     it('should disable edit when the event details modal cannot edit', () => {
         upcoming_events.set([
             new CalendarEvent({
