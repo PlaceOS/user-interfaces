@@ -21,7 +21,7 @@ function getFolders(root) {
 }
 
 function commands(target) {
-    const release = ref.includes('release');
+    const release = ref.includes('release') || ref.includes('-prod');
     const apps = getFolders('apps');
     const libs = getFolders('libs');
     if (release) {
