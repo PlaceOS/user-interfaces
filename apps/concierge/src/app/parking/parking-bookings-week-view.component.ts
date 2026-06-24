@@ -147,88 +147,94 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                         {{ plate }}
                                     </div>
                                 }
+                                <button
+                                    matRipple
+                                    class="flex-1 rounded-full border-none text-xs w-full my-1 min-h-6 text-left"
+                                    [class.text-success-content]="
+                                        booking.status === 'approved' &&
+                                        !isAssignedBooking(booking) &&
+                                        !isDeletedBooking(booking)
+                                    "
+                                    [class.bg-success]="
+                                        booking.status === 'approved' &&
+                                        !isAssignedBooking(booking) &&
+                                        !isDeletedBooking(booking)
+                                    "
+                                    [class.text-secondary-content!]="
+                                        isAssignedBooking(booking)
+                                    "
+                                    [class.bg-secondary!]="
+                                        isAssignedBooking(booking)
+                                    "
+                                    [class.text-neutral-content!]="
+                                        isDeletedBooking(booking)
+                                    "
+                                    [class.bg-neutral!]="
+                                        isDeletedBooking(booking)
+                                    "
+                                    [class.text-error-content]="
+                                        booking.status === 'declined' &&
+                                        !isAssignedBooking(booking) &&
+                                        !isDeletedBooking(booking)
+                                    "
+                                    [class.bg-error]="
+                                        booking.status === 'declined' &&
+                                        !isAssignedBooking(booking) &&
+                                        !isDeletedBooking(booking)
+                                    "
+                                    [class.text-warning-content]="
+                                        booking.status === 'tentative' &&
+                                        !isVisibleWaitlisted(booking) &&
+                                        !isAssignedBooking(booking) &&
+                                        !isDeletedBooking(booking)
+                                    "
+                                    [class.bg-warning]="
+                                        booking.status === 'tentative' &&
+                                        !isVisibleWaitlisted(booking) &&
+                                        !isAssignedBooking(booking) &&
+                                        !isDeletedBooking(booking)
+                                    "
+                                    [class.text-info-content]="
+                                        booking.status === 'tentative' &&
+                                        isVisibleWaitlisted(booking) &&
+                                        !isAssignedBooking(booking) &&
+                                        !isDeletedBooking(booking)
+                                    "
+                                    [class.bg-info]="
+                                        booking.status === 'tentative' &&
+                                        isVisibleWaitlisted(booking) &&
+                                        !isAssignedBooking(booking) &&
+                                        !isDeletedBooking(booking)
+                                    "
+                                    [class.text-neutral-content]="
+                                        booking.status === 'ended' &&
+                                        !isAssignedBooking(booking) &&
+                                        !isDeletedBooking(booking)
+                                    "
+                                    [class.bg-neutral]="
+                                        booking.status === 'ended' &&
+                                        !isAssignedBooking(booking) &&
+                                        !isDeletedBooking(booking)
+                                    "
+                                    [class.opacity-30]="
+                                        isStatusActionDisabled(booking) &&
+                                        !isAssignedBooking(booking) &&
+                                        !isDeletedBooking(booking)
+                                    "
+                                    [matMenuTriggerFor]="menu"
+                                    [disabled]="
+                                        isStatusActionDisabled(booking)
+                                    "
+                                >
+                                    <div class="flex items-center" [class.justify-center]="isStatusActionDisabled(booking)">
+                                        <div class="px-4">{{ statusLabel(booking) | translate }}</div>
+                                        @if (!isStatusActionDisabled(booking) ) {
+                                            <div class="flex-1"></div>
+                                            <icon class="text-xl mx-1">arrow_drop_down</icon>
+                                        }
+                                    </div>
+                                </button>
                                 <div class="mt-1 flex items-center gap-1">
-                                    <button
-                                        matRipple
-                                        class="h-6 flex-1 rounded-full border-none text-xs"
-                                        [class.text-success-content]="
-                                            booking.status === 'approved' &&
-                                            !isAssignedBooking(booking) &&
-                                            !isDeletedBooking(booking)
-                                        "
-                                        [class.bg-success]="
-                                            booking.status === 'approved' &&
-                                            !isAssignedBooking(booking) &&
-                                            !isDeletedBooking(booking)
-                                        "
-                                        [class.text-secondary-content!]="
-                                            isAssignedBooking(booking)
-                                        "
-                                        [class.bg-secondary!]="
-                                            isAssignedBooking(booking)
-                                        "
-                                        [class.text-neutral-content!]="
-                                            isDeletedBooking(booking)
-                                        "
-                                        [class.bg-neutral!]="
-                                            isDeletedBooking(booking)
-                                        "
-                                        [class.text-error-content]="
-                                            booking.status === 'declined' &&
-                                            !isAssignedBooking(booking) &&
-                                            !isDeletedBooking(booking)
-                                        "
-                                        [class.bg-error]="
-                                            booking.status === 'declined' &&
-                                            !isAssignedBooking(booking) &&
-                                            !isDeletedBooking(booking)
-                                        "
-                                        [class.text-warning-content]="
-                                            booking.status === 'tentative' &&
-                                            !isVisibleWaitlisted(booking) &&
-                                            !isAssignedBooking(booking) &&
-                                            !isDeletedBooking(booking)
-                                        "
-                                        [class.bg-warning]="
-                                            booking.status === 'tentative' &&
-                                            !isVisibleWaitlisted(booking) &&
-                                            !isAssignedBooking(booking) &&
-                                            !isDeletedBooking(booking)
-                                        "
-                                        [class.text-info-content]="
-                                            booking.status === 'tentative' &&
-                                            isVisibleWaitlisted(booking) &&
-                                            !isAssignedBooking(booking) &&
-                                            !isDeletedBooking(booking)
-                                        "
-                                        [class.bg-info]="
-                                            booking.status === 'tentative' &&
-                                            isVisibleWaitlisted(booking) &&
-                                            !isAssignedBooking(booking) &&
-                                            !isDeletedBooking(booking)
-                                        "
-                                        [class.text-neutral-content]="
-                                            booking.status === 'ended' &&
-                                            !isAssignedBooking(booking) &&
-                                            !isDeletedBooking(booking)
-                                        "
-                                        [class.bg-neutral]="
-                                            booking.status === 'ended' &&
-                                            !isAssignedBooking(booking) &&
-                                            !isDeletedBooking(booking)
-                                        "
-                                        [class.opacity-30]="
-                                            isStatusActionDisabled(booking) &&
-                                            !isAssignedBooking(booking) &&
-                                            !isDeletedBooking(booking)
-                                        "
-                                        [matMenuTriggerFor]="menu"
-                                        [disabled]="
-                                            isStatusActionDisabled(booking)
-                                        "
-                                    >
-                                        {{ statusLabel(booking) | translate }}
-                                    </button>
                                     <mat-menu #menu="matMenu">
                                         <button
                                             mat-menu-item
@@ -323,8 +329,9 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                     @if (can_delete()) {
                                         <button
                                             icon
+                                            default
                                             matRipple
-                                            class="h-6 w-6"
+                                            class="text-xs"
                                             [disabled]="
                                                 booking.checked_in ||
                                                 booking.state ===
@@ -337,9 +344,7 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                             "
                                             (click)="removeBooking(booking)"
                                         >
-                                            <icon class="text-base"
-                                                >delete</icon
-                                            >
+                                            <icon>delete</icon>
                                         </button>
                                     }
                                 </div>
