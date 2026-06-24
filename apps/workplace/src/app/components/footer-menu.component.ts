@@ -168,7 +168,7 @@ const FEATURE_MENU_ITEMS: FooterMenuItem[] = [
         }
         @if (footer_item_count() > 1) {
             <div
-                class="border-base-200 bg-base-100 relative z-60 flex min-h-16 w-full items-center justify-center gap-3 border-t px-2 pb-[env(safe-area-inset-bottom)] pl-[max(0.5rem,env(safe-area-inset-left))] pr-[max(0.5rem,env(safe-area-inset-right))] shadow-sm sm:hidden"
+                class="border-base-200 bg-base-100 relative z-60 flex min-h-16 w-full items-center justify-center gap-3 border-t px-2 pr-[max(0.5rem,env(safe-area-inset-right))] pb-[env(safe-area-inset-bottom)] pl-[max(0.5rem,env(safe-area-inset-left))] shadow-sm sm:hidden"
                 [attr.dark]="dark_mode()"
             >
                 <a
@@ -191,14 +191,13 @@ const FEATURE_MENU_ITEMS: FooterMenuItem[] = [
                 </a>
                 <button
                     matRipple
-                    class="z-10 mb-4 flex h-12 w-12 items-center justify-center rounded-full"
-                    (click)="
-                        show_book_items.set(!show_book_items());
-                        blur_backdrop.set(show_book_items())
-                    "
-                    [class.bg-secondary]="show_book_items()"
-                    [class.bg-secondary-content]="show_book_items()"
+                    class="border-base-300 z-10 mb-4 flex h-12 w-12 items-center justify-center rounded-full border"
+                    (click)="show_book_items.set(!show_book_items())"
                     [class.bg-base-200]="!show_book_items()"
+                    [class.border-info!]="show_book_items()"
+                    [class.bg-info]="show_book_items()"
+                    [class.text-info-content]="show_book_items()"
+                    [class.shadow-md]="show_book_items()"
                 >
                     <icon class="text-2xl">{{
                         show_book_items() ? 'close' : 'add'
@@ -237,7 +236,7 @@ const FEATURE_MENU_ITEMS: FooterMenuItem[] = [
         `
             :host {
                 position: relative;
-                z-index: 200;
+                z-index: 20;
             }
 
             a:not(.active) [filled],

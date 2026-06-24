@@ -12,7 +12,7 @@ import { SidebarEmbedComponent } from './sidebar-embed.component';
             <button
                 icon
                 matRipple
-                class="bg-base-100 border-base-300 fixed top-72 right-2 z-30 h-14 w-14 border shadow-md"
+                class="bg-base-100 border-base-300 fixed top-72 right-2 z-10 h-14 w-14 border shadow-md"
                 (click)="viewVirtualConcierge()"
             >
                 <img class="z-10 h-12" src="assets/icons/roybot.png" />
