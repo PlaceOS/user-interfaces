@@ -305,38 +305,25 @@ describe('BookingFormService', () => {
 
     it.todo('should list available assets');
 
-    it('should exclude desks that clash with any recurring instance', async () => {
-        jest.mocked(ts_client.listChildMetadata).mockResolvedValue([
-            {
-                metadata: {
-                    desks: {
-                        details: [
-                            {
-                                id: 'desk-1',
-                                name: 'Desk 1',
-                                features: [],
-                            },
-                            {
-                                id: 'desk-2',
-                                name: 'Desk 2',
-                                features: [],
-                            },
-                        ],
-                    },
-                },
-                zone: { id: 'lvl-1', parent_id: 'bld-1' },
-            },
-        ] as any);
-        jest.mocked(ts_client.showMetadata).mockResolvedValue({
-            id: 'bld-1',
-            details: [],
-        } as any);
+    it('should exclude window-booked AND recurring-clash desks', async () => {
+        // desk-1 is booked in the first-instance window, desk-2 clashes with a
+        // later recurrence instance. Enabling recurrence must exclude both, not
+        // replace the window-booked query and let desk-1 re-appear.
         (booking_mod as any).bookedResourceList = jest.fn(() =>
-            Promise.resolve([]),
+            Promise.resolve(['desk-1']),
         );
         (booking_mod as any).findBookingClashes = jest.fn(() =>
             Promise.resolve(['desk-2']),
         );
+        const desks = ['desk-1', 'desk-2', 'desk-3'].map((id) => ({
+            id,
+            name: id,
+            bookable: true,
+            features: [],
+            zone: { id: 'lvl-1', parent_id: 'bld-1' },
+        }));
+        // The recurring clash query reads the live form model (== `raw` in
+        // production via the debounced value), so seed the recurrence there too.
         spectator.service.model.update((m) => ({
             ...m,
             date: new Date(2028, 5, 15, 15, 0, 0).valueOf(),
@@ -348,22 +335,29 @@ describe('BookingFormService', () => {
             ),
         }));
 
-        const clashes = await (
+        const available = await (
             spectator.service as any
-        )._recurringBookedResourceList(
-            [
-                { id: 'desk-1', zone: { id: 'lvl-1' } },
-                { id: 'desk-2', zone: { id: 'lvl-1' } },
-            ],
-            'bld-1',
+        )._computeAvailableResources(
+            { type: 'desk' },
+            desks,
+            {},
+            {
+                date: new Date(2028, 5, 15, 15, 0, 0).valueOf(),
+                duration: 60,
+                recurrence_type: 'daily',
+                recurrence_interval: 1,
+                recurrence_end: Math.floor(
+                    new Date(2028, 5, 18, 23, 59, 59).valueOf() / 1000,
+                ),
+            },
         );
 
-        expect(clashes).toEqual(['desk-2']);
+        expect(booking_mod.bookedResourceList).toHaveBeenCalled();
         const clash_booking = (booking_mod.findBookingClashes as jest.Mock).mock
             .calls[0][0];
-        expect(clash_booking.asset_ids).toEqual(['desk-1', 'desk-2']);
+        expect(clash_booking.asset_ids).toEqual(['desk-1', 'desk-2', 'desk-3']);
         expect(clash_booking.recurrence_type).toBe('daily');
-        expect(booking_mod.bookedResourceList).not.toHaveBeenCalled();
+        expect(available.map((_: any) => _.id)).toEqual(['desk-3']);
     });
 
     it.todo('should allow filtering of available assets');

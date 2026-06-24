@@ -562,22 +562,29 @@ export class BookingFormService extends AsyncHandler {
             this._org.organisation.id;
         let booked_ids: string[] = [];
         if (!isMock()) {
-            booked_ids =
+            // Always exclude resources booked in the first-instance window.
+            booked_ids = await this._bookedResourceList(
+                {
+                    period_start: getUnixTime(date),
+                    period_end: getUnixTime(addMinutes(date, duration)),
+                    type: options.type,
+                    zones,
+                },
+                resources.length,
+            );
+            // For recurring desk bookings, also exclude any resource that
+            // clashes with a later instance in the series. Union with (not
+            // replace) the base booked list so enabling recurrence can only
+            // remove availability, never add it back.
+            if (
                 options.type === 'desk' &&
                 raw.recurrence_type &&
                 raw.recurrence_type !== 'none'
-                    ? await this._recurringBookedResourceList(resources, zones)
-                    : await this._bookedResourceList(
-                          {
-                              period_start: getUnixTime(date),
-                              period_end: getUnixTime(
-                                  addMinutes(date, duration),
-                              ),
-                              type: options.type,
-                              zones,
-                          },
-                          resources.length,
-                      );
+            ) {
+                const recurring_clashes =
+                    await this._recurringBookedResourceList(resources, zones);
+                booked_ids = unique([...booked_ids, ...recurring_clashes]);
+            }
         }
         this._resource_use = {};
         for (const id of booked_ids) {
