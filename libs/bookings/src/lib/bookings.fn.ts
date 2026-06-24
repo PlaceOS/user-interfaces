@@ -24,7 +24,13 @@ import {
     VERSION,
 } from '@placeos/common';
 
-import { addDays, addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import {
+    addDays,
+    addMinutes,
+    endOfDay,
+    getUnixTime,
+    startOfDay,
+} from 'date-fns';
 
 export interface BookingsQueryParams {
     /** Comma seperated list of zone ids to check availability */
@@ -147,12 +153,12 @@ export async function findBookingClashes(
     booking: Booking,
     q: BookingClashQueryOptions = {},
 ): Promise<string[] | BookingClash[]> {
-    const query = toQueryString({ ...q, limit: 10000 });
+    const query = toQueryString({ ...q, limit: 1000 });
     try {
         const list = await post(
             `${BOOKINGS_ENDPOINT}/clashing-assets${query ? '?' + query : ''}`,
             booking.toJSON(),
-        );
+        ).catch(() => []);
         return q.include_clash_time
             ? (list as BookingClash[])
             : (list as string[]);
