@@ -2220,12 +2220,8 @@ export class BookingFormService extends AsyncHandler {
             return true;
         }
 
-        // date/duration are the source of truth for the booking window. Drop
-        // any stale booking_start/booking_end carried in so the constructor
-        // doesn't pair a fresh start (from date) with a stale end.
-        const { booking_start, booking_end, ...window } = booking as any;
         const temp_booking = new Booking({
-            ...window,
+            ...booking,
             booking_type: type,
         });
 

@@ -46,6 +46,7 @@ import {
     isSupportedImageFile,
     SignageMediaMetadata,
 } from '../signage-media-upload.util';
+import { playlistMediaThumbnailUrl } from '../signage-playlist.util';
 
 export interface MediaEditModalData {
     media: SignageMedia;
@@ -429,7 +430,8 @@ export class MediaEditModalComponent implements OnDestroy {
             !this._data.plugin,
     );
     public readonly thumbnail =
-        this._data.file_thumbnail || this._data.media.thumbnail_url;
+        this._data.file_thumbnail ||
+        playlistMediaThumbnailUrl(this._data.media);
     public readonly plugin_embed_schema = signal<Record<
         string,
         unknown
