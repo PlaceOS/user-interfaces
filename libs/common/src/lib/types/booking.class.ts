@@ -233,8 +233,7 @@ export class Booking {
                   data.extension_data?.name ||
                   data.asset_id ||
                   ''
-                : data.extension_data?.assigned_asset_name ||
-                  data.asset_name ||
+                : data.asset_name ||
                   data.extension_data?.asset_name ||
                   data.extension_data?.name ||
                   data.description ||
