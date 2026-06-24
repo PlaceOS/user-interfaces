@@ -1452,6 +1452,7 @@
             "PARKING_ASSIGN_SPACE_SUCCESS": "Espacio de aparcamiento asignado y reserva aprobada.",
             "PARKING_ASSIGN_SPACE_ERROR": "No se pudo asignar el espacio de aparcamiento. Error: {{ error }}",
             "PARKING_ASSIGN_SPACE_EMPTY": "No hay espacios disponibles para este horario",
+            "PARKING_ASSIGN_SPACE_CLASH": "Este espacio entra en conflicto con otra reserva de la serie recurrente",
             "PARKING_ASSIGN_LIMIT_ERROR_1": "Los usuarios solo pueden tener 1 espacio de aparcamiento asignado a la vez.",
             "PARKING_ASSIGN_LIMIT_ERROR_N": "Los usuarios solo pueden tener {{ count }} espacios de aparcamiento asignados a la vez.",
             "PARKING_DECLINE": "Rechazar Reserva",

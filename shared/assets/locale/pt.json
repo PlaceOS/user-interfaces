@@ -1452,6 +1452,7 @@
             "PARKING_ASSIGN_SPACE_SUCCESS": "Vaga de estacionamento atribuída e reserva aprovada.",
             "PARKING_ASSIGN_SPACE_ERROR": "Falha ao atribuir vaga de estacionamento. Erro: {{ error }}",
             "PARKING_ASSIGN_SPACE_EMPTY": "Nenhuma vaga disponível para este horário",
+            "PARKING_ASSIGN_SPACE_CLASH": "Esta vaga entra em conflito com outra reserva da série recorrente",
             "PARKING_ASSIGN_LIMIT_ERROR_1": "Os utilizadores só podem ter 1 vaga de estacionamento atribuída de cada vez.",
             "PARKING_ASSIGN_LIMIT_ERROR_N": "Os utilizadores só podem ter {{ count }} vagas de estacionamento atribuídas de cada vez.",
             "PARKING_DECLINE": "Recusar Reserva",

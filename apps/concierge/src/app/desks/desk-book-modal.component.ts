@@ -78,8 +78,9 @@ export class DeskBookModalComponent implements OnInit {
     public async save() {
         this.loading.set(true);
         this.model.update((m) => ({ ...m, booking_type: 'desk' }));
+        const is_group = !!this._booking_form.options()?.group;
         let method = () => this._booking_form.postForm();
-        if (this._booking_form.options()?.group) {
+        if (is_group) {
             method = () => this._booking_form.postFormForGroup();
         }
         const event = await method().catch((_) => {

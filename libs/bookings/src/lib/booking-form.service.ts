@@ -77,6 +77,16 @@ export type BookingFlowView = 'form' | 'map' | 'confirm' | 'success';
 const BOOKING_TYPES = ['desk', 'parking', 'locker', 'catering'];
 const PERSISTED_BOOKING_CONTEXT_URLS = ['landing'];
 
+const STORAGE_KEYS = {
+    booking_form: 'PLACEOS.booking_form',
+    booking_form_options: 'PLACEOS.booking_form_options',
+    booking_form_filters: 'PLACEOS.booking_form_filters',
+    last_booked_booking: 'PLACEOS.last_booked_booking',
+    last_booked_count: 'PLACEOS.last_booked_count',
+    last_group_booking_ids: 'PLACEOS.last_group_booking_ids',
+    last_group_booking_errors: 'PLACEOS.last_group_booking_errors',
+} as const;
+
 export interface BookingFlowOptions {
     /** Type of booking being made */
     type: BookingType;
@@ -160,6 +170,50 @@ export interface GroupBookingFailure {
     error: string;
 }
 
+/** Build the `extension_data` payload saved with a booking. Only fields that
+ * need renaming, coercion, computing or a fallback live here — plain flat form
+ * fields (e.g. `phone`, `company`, `recurrence_instances`, `plate_number`,
+ * `notes`) are copied into `extension_data` automatically by the `Booking`
+ * constructor, so they must NOT be duplicated below. */
+function buildBookingExtensionData(
+    value: Record<string, any>,
+    group_members: any[],
+) {
+    const type = value.booking_type;
+    return {
+        ...(value.extension_data || {}),
+        // `group` is a getter on `Booking`, so the constructor skips the
+        // top-level form value — it has to be set into `extension_data` here.
+        group: value.group,
+        // `assets` is ignored by the constructor's auto-copy, so map it here.
+        assets: value.assets.map((_: any) => _.toJSON()),
+        ...(type === 'desk'
+            ? {
+                  assigned_asset_id: value.asset_id,
+                  assigned_asset_name: value.asset_name || value.asset_id,
+              }
+            : {}),
+        ...(type === 'visitor'
+            ? {
+                  international: !!value.international,
+                  visitor_name: value.asset_name || value.asset_id || '',
+              }
+            : {}),
+        ...(type === 'parking'
+            ? {
+                  requires_manual_approval: !!value.requires_manual_approval,
+                  user_groups: [
+                      ...(value.user
+                          ? value.user.groups || []
+                          : currentUser()?.groups || []),
+                  ],
+              }
+            : {}),
+        ...(group_members.length ? { group_members } : {}),
+        department: value.user?.department || currentUser()?.department,
+    };
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -195,9 +249,8 @@ export class BookingFormService extends AsyncHandler {
     private _network_consumed = signal(false);
     private _booked_resource_requests = new Map<string, Promise<string[]>>();
     private _booked_resource_debounce: {
-        key: string;
         query: Parameters<typeof bookedResourceList>[0];
-        timeout: ReturnType<typeof setTimeout>;
+        resource_count?: number;
         resolve: (value: string[]) => void;
         reject: (reason?: unknown) => void;
     }[] = [];
@@ -205,17 +258,17 @@ export class BookingFormService extends AsyncHandler {
 
     public last_success: Booking = new Booking(
         JSON.parse(
-            sessionStorage.getItem('PLACEOS.last_booked_booking') || '{}',
+            sessionStorage.getItem(STORAGE_KEYS.last_booked_booking) || '{}',
         ),
     );
     public get last_count(): number {
         return parseInt(
-            sessionStorage.getItem('PLACEOS.last_booked_count') || '1',
+            sessionStorage.getItem(STORAGE_KEYS.last_booked_count) || '1',
             10,
         );
     }
     public set last_count(value: number) {
-        sessionStorage.setItem('PLACEOS.last_booked_count', String(value));
+        sessionStorage.setItem(STORAGE_KEYS.last_booked_count, String(value));
     }
     /** Signal emitting the current loading message, empty when idle */
     public readonly loading = this._loading.asReadonly();
@@ -617,32 +670,25 @@ export class BookingFormService extends AsyncHandler {
         const key = JSON.stringify({ ...query, resource_count });
         const existing = this._booked_resource_requests.get(key);
         if (existing) return existing;
+        // Debounce 300ms and coalesce: rapid distinct queries collapse to a
+        // single network call for the latest query; every queued waiter
+        // resolves with that result. Identical queries share one promise via
+        // the request cache above.
         const request = new Promise<string[]>((resolve, reject) => {
-            for (const item of this._booked_resource_debounce) {
-                clearTimeout(item.timeout);
-            }
             this._booked_resource_debounce.push({
-                key,
                 query,
+                resource_count,
                 resolve,
                 reject,
-                timeout: setTimeout(() => {
-                    const queue = this._booked_resource_debounce;
-                    this._booked_resource_debounce = [];
-                    const latest = queue[queue.length - 1];
-                    const pending = bookedResourceList(
-                        latest.query,
-                        resource_count,
-                    ).finally(() =>
-                        this._booked_resource_requests.delete(latest.key),
-                    );
-                    this._booked_resource_requests.set(latest.key, pending);
-                    pending.then(
-                        (result) =>
-                            queue.forEach((item) => item.resolve(result)),
-                        (error) => queue.forEach((item) => item.reject(error)),
-                    );
-                }, 300),
+            });
+            this.timeout('booked-resource', () => {
+                const queue = this._booked_resource_debounce;
+                this._booked_resource_debounce = [];
+                const latest = queue[queue.length - 1];
+                bookedResourceList(latest.query, latest.resource_count).then(
+                    (result) => queue.forEach((item) => item.resolve(result)),
+                    (error) => queue.forEach((item) => item.reject(error)),
+                );
             });
         }).finally(() => this._booked_resource_requests.delete(key));
         this._booked_resource_requests.set(key, request);
@@ -832,7 +878,7 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public resetForm() {
-        if (!sessionStorage.getItem('PLACEOS.booking_form')) {
+        if (!sessionStorage.getItem(STORAGE_KEYS.booking_form)) {
             return this.newForm(this._options().type);
         }
         const booking = this._booking();
@@ -861,14 +907,14 @@ export class BookingFormService extends AsyncHandler {
     }
 
     private _clearStoredForm() {
-        sessionStorage.removeItem('PLACEOS.booking_form');
-        sessionStorage.removeItem('PLACEOS.booking_form_options');
-        sessionStorage.removeItem('PLACEOS.booking_form_filters');
+        sessionStorage.removeItem(STORAGE_KEYS.booking_form);
+        sessionStorage.removeItem(STORAGE_KEYS.booking_form_options);
+        sessionStorage.removeItem(STORAGE_KEYS.booking_form_filters);
     }
 
     public storeForm() {
         sessionStorage.setItem(
-            'PLACEOS.booking_form',
+            STORAGE_KEYS.booking_form,
             JSON.stringify({
                 ...this._booking(),
                 // `cleanObject` mutates its argument in place, so clone the
@@ -880,7 +926,7 @@ export class BookingFormService extends AsyncHandler {
             }),
         );
         sessionStorage.setItem(
-            'PLACEOS.booking_form_filters',
+            STORAGE_KEYS.booking_form_filters,
             JSON.stringify(this._options() || {}),
         );
     }
@@ -889,14 +935,14 @@ export class BookingFormService extends AsyncHandler {
         this._startNetwork();
         this._calendar.loadCalendars();
         const data = JSON.parse(
-            sessionStorage.getItem('PLACEOS.booking_form') || '{}',
+            sessionStorage.getItem(STORAGE_KEYS.booking_form) || '{}',
         );
         const booking = new Booking(data);
         const initial_date = booking.date;
         const initial_duration = booking.duration;
         this.setOptions({
             ...JSON.parse(
-                sessionStorage.getItem('PLACEOS.booking_form_filters') || '{}',
+                sessionStorage.getItem(STORAGE_KEYS.booking_form_filters) || '{}',
             ),
         });
         this._booking.set(booking);
@@ -929,14 +975,14 @@ export class BookingFormService extends AsyncHandler {
         );
         this.setOptions({
             ...JSON.parse(
-                sessionStorage.getItem('PLACEOS.booking_form_filters') || '{}',
+                sessionStorage.getItem(STORAGE_KEYS.booking_form_filters) || '{}',
             ),
         });
     }
 
     public clearOldState() {
-        sessionStorage.removeItem('PLACEOS.last_booked_booking');
-        sessionStorage.removeItem('PLACEOS.last_booked_count');
+        sessionStorage.removeItem(STORAGE_KEYS.last_booked_booking);
+        sessionStorage.removeItem(STORAGE_KEYS.last_booked_count);
         this._loading.set('');
         this.last_success = new Booking();
     }
@@ -1183,47 +1229,7 @@ export class BookingFormService extends AsyncHandler {
                         : value.asset_name || value.description,
                 user_name: value.user?.name || value.user_name,
                 user_email: value.user?.email || value.user_email,
-                extension_data: {
-                    ...((value as any).extension_data || {}),
-                    assigned_asset_id:
-                        value.booking_type === 'desk'
-                            ? value.asset_id
-                            : undefined,
-                    assigned_asset_name:
-                        value.booking_type === 'desk'
-                            ? value.asset_name || value.asset_id
-                            : undefined,
-                    assets: value.assets.map((_) => _.toJSON()),
-                    group: value.group,
-                    phone: value.phone,
-                    company: value.company,
-                    ...(value.booking_type === 'visitor'
-                        ? {
-                              international: !!value.international,
-                              visitor_name:
-                                  value.asset_name || value.asset_id || '',
-                          }
-                        : {}),
-                    ...(value.booking_type === 'parking'
-                        ? {
-                              requires_manual_approval:
-                                  !!value.requires_manual_approval,
-                              user_groups: [
-                                  ...(value.user
-                                      ? value.user.groups || []
-                                      : currentUser()?.groups || []),
-                              ],
-                          }
-                        : {}),
-                    ...(group_members.length
-                        ? {
-                              group_members,
-                          }
-                        : {}),
-                    recurrence_instances: value.recurrence_instances,
-                    department:
-                        value.user?.department || currentUser()?.department,
-                },
+                extension_data: buildBookingExtensionData(value, group_members),
                 approved:
                     this._settings.get('app.bookings.no_approval') === true,
                 zones: unique([...zones, ...(value.zones || [])]).filter(
@@ -1276,7 +1282,7 @@ export class BookingFormService extends AsyncHandler {
         }
         this.last_success = result;
         sessionStorage.setItem(
-            'PLACEOS.last_booked_booking',
+            STORAGE_KEYS.last_booked_booking,
             JSON.stringify(result),
         );
         if (reset_form) this.setView('success');
@@ -1378,7 +1384,7 @@ export class BookingFormService extends AsyncHandler {
         if (!group) throw i18n('BOOKINGS.GROUP_NOT_SET');
         const rollback_on_group_error =
             this.setting('rollback_group_bookings') === true;
-        localStorage.removeItem('PLACEOS.last_group_booking_errors');
+        localStorage.removeItem(STORAGE_KEYS.last_group_booking_errors);
         const member_list = members || [];
         const extra_members = member_list.filter(
             (_) => _.email !== currentUser().email,
@@ -1436,10 +1442,7 @@ export class BookingFormService extends AsyncHandler {
             }),
         );
         const unavailable = group_members.filter((_, idx) => !available[idx]);
-        const group_name = `${currentUser().email}[${format(
-            Date.now(),
-            'yyyy-MM-dd',
-        )}]`;
+        const group_name = this._groupName();
         const group_error = i18n('BOOKINGS.GROUP_SOME_HAVE_BOOKINGS', {
             members: unavailable.map((_) => _.name || _.email)?.join(', '),
         });
@@ -1527,25 +1530,23 @@ export class BookingFormService extends AsyncHandler {
         if (user_booking) {
             this.last_success = user_booking;
             sessionStorage.setItem(
-                'PLACEOS.last_booked_booking',
+                STORAGE_KEYS.last_booked_booking,
                 JSON.stringify(user_booking),
             );
         }
         if (booking_ids.length > 1) {
             localStorage.setItem(
-                'PLACEOS.last_group_booking_ids',
+                STORAGE_KEYS.last_group_booking_ids,
                 JSON.stringify(booking_ids),
             );
         }
         if (booking_failures.length) {
             localStorage.setItem(
-                'PLACEOS.last_group_booking_errors',
+                STORAGE_KEYS.last_group_booking_errors,
                 JSON.stringify(booking_failures),
             );
         }
-        this.clearForm();
-        this._patch({ booking_type: type });
-        this.setView('success');
+        this._finishGroupFlow(type);
         return user_booking;
     }
 
@@ -1556,10 +1557,7 @@ export class BookingFormService extends AsyncHandler {
         const rollback_on_group_error =
             this.setting('rollback_group_bookings') === true;
         const form = this.model() as any;
-        const group_name = `${currentUser().email}[${format(
-            Date.now(),
-            'yyyy-MM-dd',
-        )}]`;
+        const group_name = this._groupName();
         const booking_ids: string[] = [];
         let parent_id = '';
         let first_booking: Booking = null;
@@ -1574,34 +1572,13 @@ export class BookingFormService extends AsyncHandler {
             if (parent_id) booking_ids.push(parent_id);
             for (const visitor of members) {
                 if (!visitor.email) continue;
-                const visitor_name = visitor.name || visitor.email;
-                this._patch({
-                    ...form,
-                    id: '',
-                    asset_id: visitor.email,
-                    asset_name: visitor_name,
-                    international:
-                        (visitor as any).international ||
-                        !!visitor.extension_data?.international,
-                    company: (visitor as any).company || visitor.organisation,
-                    phone: visitor.phone,
-                    parent_id,
-                    group: group_name,
-                    zones: form.zones?.length
-                        ? [...form.zones]
-                        : [...(this._booking()?.zones || [])],
-                    assets: [],
-                    attendees: [
-                        new User({
-                            name: visitor_name,
-                            email: visitor.email,
-                            organisation:
-                                (visitor as any).company ||
-                                visitor.organisation,
-                            phone: visitor.phone,
-                        }),
-                    ],
-                });
+                this._patch(
+                    this._visitorMemberPatch(visitor, form, {
+                        id: '',
+                        parent_id,
+                        group_name,
+                    }),
+                );
                 const bkn = await this.postForm(true, false).catch((error) => {
                     throw `${visitor.name || visitor.email}: ${this._error_message(error)}`;
                 });
@@ -1614,9 +1591,7 @@ export class BookingFormService extends AsyncHandler {
             }
             throw this._error_message(error);
         }
-        this.clearForm();
-        this._patch({ booking_type: 'visitor' });
-        this.setView('success');
+        this._finishGroupFlow('visitor');
         return first_booking;
     }
 
@@ -1656,9 +1631,7 @@ export class BookingFormService extends AsyncHandler {
         const form = this.model() as any;
         const base_form = { ...form, id: '' };
         const parent_id = form.parent_id || form.id;
-        const group_name =
-            form.group ||
-            `${currentUser().email}[${format(Date.now(), 'yyyy-MM-dd')}]`;
+        const group_name = this._groupName(form.group);
         const is_visitor = type === 'visitor';
         const has_group_container_parent =
             !!form.parent_id &&
@@ -1706,42 +1679,15 @@ export class BookingFormService extends AsyncHandler {
                 const existing = sibling_map[member.email];
                 const booking_id = existing?.id || '';
                 if (is_visitor) {
-                    const member_name = member.name || member.email;
-                    this._patch({
-                        ...base_form,
-                        id: booking_id,
-                        parent_id: booking_id === parent_id ? '' : parent_id,
-                        group: group_name,
-                        asset_id: member.email,
-                        asset_name: member_name,
-                        international:
-                            (member as any).international ||
-                            !!member.extension_data?.international,
-                        company: (member as any).company || member.organisation,
-                        phone: member.phone,
-                        zones: unique(
-                            [
-                                this._org.organisation?.id,
-                                this._org.region?.id,
-                                ...(base_form.zones?.length
-                                    ? base_form.zones
-                                    : existing?.zones?.length
-                                      ? existing.zones
-                                      : this._booking()?.zones || []),
-                            ].filter((_) => _),
-                        ),
-                        assets: [],
-                        attendees: [
-                            new User({
-                                name: member_name,
-                                email: member.email,
-                                organisation:
-                                    (member as any).company ||
-                                    member.organisation,
-                                phone: member.phone,
-                            }),
-                        ],
-                    });
+                    this._patch(
+                        this._visitorMemberPatch(member, base_form, {
+                            id: booking_id,
+                            parent_id:
+                                booking_id === parent_id ? '' : parent_id,
+                            group_name,
+                            existing_zones: existing?.zones,
+                        }),
+                    );
                 } else {
                     const asset = desk_resources[index];
                     this._patch({
@@ -1761,10 +1707,70 @@ export class BookingFormService extends AsyncHandler {
         } catch (error) {
             throw this._error_message(error);
         }
-        this.clearForm();
-        this._patch({ booking_type: type });
-        this.setView('success');
+        this._finishGroupFlow(type);
         return first_result;
+    }
+
+    /** Build the group identifier, reusing an existing one when supplied. */
+    private _groupName(existing?: string) {
+        return (
+            existing ||
+            `${currentUser().email}[${format(Date.now(), 'yyyy-MM-dd')}]`
+        );
+    }
+
+    /** Form patch for a single visitor in a group flow. */
+    private _visitorMemberPatch(
+        member: User,
+        base_form: any,
+        opts: {
+            id: string;
+            parent_id: string;
+            group_name: string;
+            existing_zones?: string[];
+        },
+    ) {
+        const member_name = member.name || member.email;
+        return {
+            ...base_form,
+            id: opts.id,
+            parent_id: opts.parent_id,
+            group: opts.group_name,
+            asset_id: member.email,
+            asset_name: member_name,
+            international:
+                (member as any).international ||
+                !!member.extension_data?.international,
+            company: (member as any).company || member.organisation,
+            phone: member.phone,
+            zones: unique(
+                [
+                    this._org.organisation?.id,
+                    this._org.region?.id,
+                    ...(base_form.zones?.length
+                        ? base_form.zones
+                        : opts.existing_zones?.length
+                          ? opts.existing_zones
+                          : this._booking()?.zones || []),
+                ].filter((_) => _),
+            ),
+            assets: [],
+            attendees: [
+                new User({
+                    name: member_name,
+                    email: member.email,
+                    organisation: (member as any).company || member.organisation,
+                    phone: member.phone,
+                }),
+            ],
+        };
+    }
+
+    /** Shared success tail for every group flow: reset, retag, show success. */
+    private _finishGroupFlow(booking_type: BookingType) {
+        this.clearForm();
+        this._patch({ booking_type });
+        this.setView('success');
     }
 
     private _resourceFormData(asset: BookingAsset) {
@@ -1882,10 +1888,10 @@ export class BookingFormService extends AsyncHandler {
         };
         this._patch(host_data, { emitEvent: false });
         const saved_form = JSON.parse(
-            sessionStorage.getItem('PLACEOS.booking_form') || '{}',
+            sessionStorage.getItem(STORAGE_KEYS.booking_form) || '{}',
         );
         sessionStorage.setItem(
-            'PLACEOS.booking_form',
+            STORAGE_KEYS.booking_form,
             JSON.stringify({ ...saved_form, ...host_data }),
         );
     }
@@ -2241,16 +2247,7 @@ export class BookingFormService extends AsyncHandler {
 
         // Check setting for allow_recurring_instance_clashes
         const allow_clashes =
-            this._settings.get(
-                `app.${type}s.allow_recurring_instance_clashes`,
-            ) ??
-            this._settings.get(
-                `app.${type}.allow_recurring_instance_clashes`,
-            ) ??
-            this._settings.get(
-                'app.bookings.allow_recurring_instance_clashes',
-            ) ??
-            true;
+            this.setting('allow_recurring_instance_clashes') ?? true;
 
         if (!allow_clashes) {
             throw i18n('BOOKINGS.RECURRING_CLASHES_NOT_ALLOWED', {

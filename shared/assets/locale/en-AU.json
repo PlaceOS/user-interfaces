@@ -2147,6 +2147,7 @@
             "PARKING_ASSIGN_SPACE_SUCCESS": "Parking space assigned and booking approved.",
             "PARKING_ASSIGN_SPACE_ERROR": "Failed to assign parking space. Error: {{ error }}",
             "PARKING_ASSIGN_SPACE_EMPTY": "No available spaces for this time",
+            "PARKING_ASSIGN_SPACE_CLASH": "This space clashes with another booking in the recurring series",
             "PARKING_ASSIGN_LIMIT_ERROR_1": "Users can only have 1 assigned parking space at a time.",
             "PARKING_ASSIGN_LIMIT_ERROR_N": "Users can only have {{ count }} assigned parking spaces at a time.",
             "PARKING_DECLINE": "Reject Reservation",
