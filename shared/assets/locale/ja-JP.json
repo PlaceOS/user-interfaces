@@ -1447,6 +1447,7 @@
             "PARKING_ASSIGN_SPACE_SUCCESS": "駐車スペースが割り当てられ、予約が承認されました。",
             "PARKING_ASSIGN_SPACE_ERROR": "駐車スペースの割り当てに失敗しました。エラー: {{ error }}",
             "PARKING_ASSIGN_SPACE_EMPTY": "この時間帯に利用可能なスペースがありません",
+            "PARKING_ASSIGN_SPACE_CLASH": "このスペースは繰り返し予約の別の予約と競合しています",
             "PARKING_ASSIGN_LIMIT_ERROR_1": "ユーザーは同時に1つの割り当て済み駐車スペースしか持てません。",
             "PARKING_ASSIGN_LIMIT_ERROR_N": "ユーザーは同時に{{ count }}件の割り当て済み駐車スペースしか持てません。",
             "PARKING_DECLINE": "予約を拒否",

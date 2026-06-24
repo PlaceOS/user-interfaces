@@ -1448,6 +1448,7 @@
             "PARKING_ASSIGN_SPACE_SUCCESS": "Posto auto assegnato e prenotazione approvata.",
             "PARKING_ASSIGN_SPACE_ERROR": "Impossibile assegnare il posto auto. Errore: {{ error }}",
             "PARKING_ASSIGN_SPACE_EMPTY": "Nessuno spazio disponibile per questo orario",
+            "PARKING_ASSIGN_SPACE_CLASH": "Questo spazio è in conflitto con un'altra prenotazione della serie ricorrente",
             "PARKING_ASSIGN_LIMIT_ERROR_1": "Gli utenti possono avere solo 1 posto auto assegnato alla volta.",
             "PARKING_ASSIGN_LIMIT_ERROR_N": "Gli utenti possono avere solo {{ count }} posti auto assegnati alla volta.",
             "PARKING_DECLINE": "Rifiuta prenotazione",
