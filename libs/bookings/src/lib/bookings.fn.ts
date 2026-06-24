@@ -15,14 +15,16 @@ import {
     BookingType,
     CalendarEvent,
     flatten,
+    fromBookingRecurrence,
     GuestUser,
+    isRecurrenceInstanceDate,
     setting,
     toQueryString,
     unique,
     VERSION,
 } from '@placeos/common';
 
-import { addMinutes, getUnixTime } from 'date-fns';
+import { addDays, addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
 export interface BookingsQueryParams {
     /** Comma seperated list of zone ids to check availability */
@@ -328,6 +330,70 @@ export function removeBooking(id: string, q: any = {}): Promise<void> {
     return del(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, {
         response_type: 'void',
     });
+}
+
+/** Whether two bookings overlap by time-of-day (all-day spans the whole day) */
+function bookingsTimeOfDayOverlap(a: Booking, b: Booking): boolean {
+    const window = (bk: Booking): [number, number] => {
+        if (bk.all_day) return [0, 24 * 60];
+        const date = new Date(bk.date);
+        const start = date.getHours() * 60 + date.getMinutes();
+        return [start, start + (bk.duration || 0)];
+    };
+    const [a_start, a_end] = window(a);
+    const [b_start, b_end] = window(b);
+    return a_start < b_end && b_start < a_end;
+}
+
+/**
+ * Reject the assignee's bookings of the given type, within the next
+ * `window_days` days, that overlap with instances of a recurring booking.
+ * Used when assigning a desk/parking space to a recurring booking so the
+ * assignee's existing ad-hoc bookings on those days/times are rejected. A
+ * no-op for non-recurring bookings.
+ * @param booking Recurring booking being assigned (must have a `user_email`)
+ * @param type Booking type to clear (e.g. 'desk', 'parking')
+ * @param window_days How far ahead to look (default 28)
+ * @returns ids of the bookings that were rejected
+ */
+export async function rejectOverlappingRecurringBookings(
+    booking: Booking,
+    type: BookingType,
+    window_days = 28,
+): Promise<string[]> {
+    if (!booking?.recurrence_type || booking.recurrence_type === 'none') {
+        return [];
+    }
+    const email = booking.user_email;
+    if (!email) return [];
+    const now = Date.now();
+    const existing = await queryBookings({
+        period_start: getUnixTime(startOfDay(now)),
+        period_end: getUnixTime(endOfDay(addDays(now, window_days))),
+        type,
+        email,
+        limit: 1000,
+    });
+    const recurrence = fromBookingRecurrence(booking as any);
+    const overlapping = existing.filter(
+        (other) =>
+            other.id !== booking.id &&
+            other.parent_id !== booking.id &&
+            other.status !== 'declined' &&
+            other.status !== 'cancelled' &&
+            !other.rejected &&
+            isRecurrenceInstanceDate(recurrence, booking.date, other.date) &&
+            bookingsTimeOfDayOverlap(booking, other),
+    );
+    await Promise.all(
+        overlapping.map((other) =>
+            (other.instance
+                ? rejectBookingInstance(other.id, other.instance)
+                : rejectBooking(other.id)
+            ).catch(() => null),
+        ),
+    );
+    return overlapping.map((_) => _.id);
 }
 
 /**

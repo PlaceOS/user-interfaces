@@ -23,7 +23,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { queryParkingSpaces } from '@placeos/assets';
 import {
     approveBooking,
+    findBookingClashes,
     queryBookings,
+    rejectOverlappingRecurringBookings,
     updateBooking,
 } from '@placeos/bookings';
 import {
@@ -280,6 +282,40 @@ export class ParkingAssignSpaceModalComponent
         () => this._bookings_resource.value() ?? [],
     );
 
+    /**
+     * Asset ids that clash with the recurring booking series. For a recurring
+     * request a space can be free on the first instance but booked on a later
+     * one, so the single-day query above is not enough — ask the API which of
+     * the level's spaces clash across the whole series.
+     */
+    private readonly _recurring_clash_resource = resource({
+        params: () => {
+            const booking = this._data.booking;
+            const level = this.selected_level();
+            const spaces = this._all_spaces();
+            const is_recurring =
+                booking.recurrence_type &&
+                booking.recurrence_type !== 'none';
+            if (!level || !spaces.length || !is_recurring) return null;
+            return { level, space_ids: spaces.map((s) => s.id) };
+        },
+        loader: ({ params }) => {
+            if (!params) return Promise.resolve([] as string[]);
+            const booking = new Booking({
+                ...this._data.booking,
+                booking_type: 'parking',
+                zones: bookingZonesForLevel(this._org, params.level),
+                asset_ids: params.space_ids,
+            } as any);
+            return findBookingClashes(booking).catch(
+                () => [] as string[],
+            ) as Promise<string[]>;
+        },
+    });
+    private readonly _recurring_clash_ids = computed(
+        () => new Set(this._recurring_clash_resource.value() ?? []),
+    );
+
     /** Available spaces for the selected level, excluding those booked during the booking's time range */
     public readonly available_spaces = computed(() => {
         const booked_ids = new Set(
@@ -291,9 +327,11 @@ export class ParkingAssignSpaceModalComponent
                 )
                 .map((booking) => booking.asset_id),
         );
+        const clash_ids = this._recurring_clash_ids();
         return this._all_spaces().filter(
             (space) =>
                 !booked_ids.has(space.id) &&
+                !clash_ids.has(space.id) &&
                 !space.assigned_to &&
                 space.bookable !== false,
         );
@@ -393,6 +431,13 @@ export class ParkingAssignSpaceModalComponent
         const space = this.selected_space();
         const level = this.selected_level();
         if (!space) return;
+        // Guard against assigning a space that clashes with the recurring
+        // series (e.g. selected before the clash check resolved).
+        if (!this.available_spaces().some((s) => s.id === space.id)) {
+            this.selected_space.set(null);
+            notifyError(i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_CLASH'));
+            return;
+        }
         this.loading.set(true);
         try {
             const asset_name = space.name || space.id;
@@ -408,6 +453,12 @@ export class ParkingAssignSpaceModalComponent
                 },
             } as any);
             await approveBooking(this._data.booking.id);
+            // Reject the assignee's overlapping parking bookings over the next
+            // 4 weeks now that they have a recurring space assigned.
+            await rejectOverlappingRecurringBookings(
+                this._data.booking,
+                'parking',
+            ).catch(() => []);
             notifySuccess(i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_SUCCESS'));
             this._dialog_ref.close(true);
         } catch (e) {

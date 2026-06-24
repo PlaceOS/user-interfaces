@@ -1,7 +1,11 @@
 import { Component, inject, OnInit, output, signal } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { BookingFormService } from '@placeos/bookings';
 import {
+    BookingFormService,
+    rejectOverlappingRecurringBookings,
+} from '@placeos/bookings';
+import {
+    Booking,
     DialogEvent,
     i18n,
     notifyError,
@@ -78,8 +82,9 @@ export class DeskBookModalComponent implements OnInit {
     public async save() {
         this.loading.set(true);
         this.model.update((m) => ({ ...m, booking_type: 'desk' }));
+        const is_group = !!this._booking_form.options()?.group;
         let method = () => this._booking_form.postForm();
-        if (this._booking_form.options()?.group) {
+        if (is_group) {
             method = () => this._booking_form.postFormForGroup();
         }
         const event = await method().catch((_) => {
@@ -91,6 +96,18 @@ export class DeskBookModalComponent implements OnInit {
             this.loading.set(false);
             throw _;
         });
+        // Reject the assignee's overlapping desk bookings over the next 4
+        // weeks now that they have a recurring desk assigned. Group bookings
+        // have multiple assignees and are handled separately.
+        if (!is_group) {
+            const created = new Booking({ ...this.model(), ...event });
+            if (created.id) {
+                await rejectOverlappingRecurringBookings(
+                    created,
+                    'desk',
+                ).catch(() => []);
+            }
+        }
         this.event.emit({ reason: 'done', metadata: event });
         notifySuccess(i18n('APP.CONCIERGE.DESKS_BOOKING_SUCCESS'));
         this._dialog_ref.close();
