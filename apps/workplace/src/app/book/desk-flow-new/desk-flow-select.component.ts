@@ -803,30 +803,24 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
                 .map((resource) => resource.zone?.id)
                 .filter((_) => _),
         );
-        const viewable_levels = level_list.filter(
-            (lvl) => !lvl.tags.includes('parking') && level_ids.has(lvl.id),
-        );
-        if (viewable_levels.length) {
-            const current_zones = this.options_value()?.zones || [];
-            const current_zone_valid = current_zones.some((zone) =>
-                viewable_levels.some((lvl) => lvl.id === zone),
+        const viewable_levels = level_list
+            .filter(
+                (lvl) => !lvl.tags.includes('parking') && level_ids.has(lvl.id),
+            )
+            .sort(
+                (a, b) =>
+                    a.parent_id.localeCompare(b.parent_id) ||
+                    (a.display_name || '').localeCompare(b.display_name || ''),
             );
-            if (current_zone_valid) {
-                const valid_zone = current_zones.find((zone) =>
-                    viewable_levels.some((lvl) => lvl.id === zone),
-                );
-                this.setOptions({ zones: [valid_zone] });
-            } else {
-                const first_level = viewable_levels.sort(
-                    (a, b) =>
-                        a.parent_id.localeCompare(b.parent_id) ||
-                        (a.display_name || '').localeCompare(
-                            b.display_name || '',
-                        ),
-                )[0];
-                this.setOptions({ zones: [first_level.id] });
-            }
-        }
+        if (!viewable_levels.length) return;
+        // The zone filters are hidden on the map, so apply the user's selected
+        // level as the map's active level. Prefer a level they already picked in
+        // the list filters, otherwise default to the first viewable level.
+        const current_zones = this.options_value()?.zones || [];
+        const active_level =
+            viewable_levels.find((lvl) => current_zones.includes(lvl.id)) ||
+            viewable_levels[0];
+        this.setOptions({ zones: [active_level.id], zone_id: active_level.id });
     }
 
     public toggleDesk(space: Space) {
