@@ -32,7 +32,7 @@ import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/desk-fl
             "
             (confirm)="save()"
         >
-            <desk-form-details [form]="form" />
+            <desk-form-details [form]="form" [model_input]="model" />
         </fullscreen-modal-shell>
     `,
     styles: [``],
