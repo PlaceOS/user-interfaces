@@ -30,6 +30,7 @@ import {
     addSignagePlaylist,
     apiEndpoint,
     currentGroups,
+    listSignageMediaTags,
     listSignagePlaylistApprovers,
     listSignagePlaylistMedia,
     mediaThumbnail,
@@ -612,6 +613,32 @@ export class SignageService {
                 ),
         );
     });
+
+    // Distinct tags in use across the active group/zone's signage media. Sourced
+    // from the dedicated tags endpoint so the folder list stays complete no
+    // matter how many media pages have been loaded.
+    private readonly _media_tags = resource({
+        params: () => ({
+            initialised: this._org.initialised(),
+            can_query: this._can_query_group_data(),
+            group_id: this._api_group_id_debounced.value(),
+            change: this._change(),
+        }),
+        loader: async ({ params }) => {
+            if (!params.initialised || !params.can_query) return [] as string[];
+            try {
+                const tags = await listSignageMediaTags(
+                    this._orgZoneQueryParams({}, params.group_id),
+                );
+                return [...tags].sort((a, b) => a.localeCompare(b));
+            } catch {
+                return [] as string[];
+            }
+        },
+    });
+    public readonly media_tags = computed(
+        () => this._media_tags.value() || [],
+    );
 
     // --- Playlists (paged incrementally as the user scrolls) ---
     private readonly _playlist_items = signal<SignagePlaylist[]>([]);

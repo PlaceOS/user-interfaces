@@ -9,10 +9,12 @@ function media(id: string, tags: string[]) {
 
 describe('MediaListComponent folders', () => {
     const filtered_media = signal<any[]>([]);
+    const media_tags = signal<string[]>([]);
     const media_view_mode = signal<'grid' | 'list' | 'folder'>('grid');
     const set_selected_group = jest.fn();
     const service_stub = {
         filtered_media,
+        media_tags,
         media_view_mode,
         media_has_more: signal(false),
         signage_groups: signal([]),
@@ -43,20 +45,37 @@ describe('MediaListComponent folders', () => {
             media('b', ['news']),
             media('c', []),
         ]);
+        // Tags come from the media-tags endpoint (pre-sorted by the service).
+        media_tags.set(['lobby', 'news']);
         media_view_mode.set('folder');
         set_selected_group.mockReset();
     });
 
-    it('builds one folder per tag plus an untagged bucket', () => {
+    it('builds one folder per endpoint tag with loaded counts plus an untagged bucket', () => {
         const component = make();
         const folders = component.folders();
-        // news (2), lobby (1), untagged (1) — untagged sorted last
+        // untagged first, then tags from the endpoint with loaded-media counts
         expect(folders.map((f) => [f.id, f.count])).toEqual([
+            [component.untagged_id, 1],
             ['lobby', 1],
             ['news', 2],
-            [component.untagged_id, 1],
         ]);
-        expect(folders.at(-1)!.untagged).toBe(true);
+        expect(folders.at(0)!.untagged).toBe(true);
+    });
+
+    it('always shows the untagged bucket, even when every item is tagged', () => {
+        const component = make();
+        filtered_media.set([media('a', ['news']), media('b', ['lobby'])]);
+        const untagged = component.folders().find((f) => f.untagged);
+        expect(untagged).toBeTruthy();
+        expect(untagged!.count).toBe(0);
+    });
+
+    it('shows no folders when there is no media and no tags', () => {
+        const component = make();
+        filtered_media.set([]);
+        media_tags.set([]);
+        expect(component.folders()).toEqual([]);
     });
 
     it('shows only media in the opened folder', () => {
