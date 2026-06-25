@@ -353,6 +353,7 @@ export class SchedulesSectionComponent {
                     route: ['/displays', display.id],
                     blocks,
                     search_index,
+                    signage_last_seen: display.signage_last_seen,
                     updated_at: display.updated_at,
                 };
             })

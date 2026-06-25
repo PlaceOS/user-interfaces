@@ -72,18 +72,24 @@ import {
                     >
                         <div
                             class="bg-base-content/6 hidden h-8 w-8 shrink-0 items-center justify-center rounded-md sm:flex"
-                            [class.bg-success]="
+                            [class.bg-info]="
                                 displayRowStatus(row) === 'success'
                             "
                             [class.bg-error]="displayRowStatus(row) === 'error'"
+                            [class.text-info-content]="
+                                displayRowStatus(row) === 'success'
+                            "
+                            [class.text-error-content]="
+                                displayRowStatus(row) === 'error'
+                            "
                             [matTooltip]="
                                 displayRowStatus(row)
-                                    ? (row.updated_at * 1000 | dateFrom)
+                                    ? (row.signage_last_seen * 1000 | dateFrom)
                                     : ''
                             "
                             matTooltipPosition="right"
                         >
-                            <icon class="text-base-content/50 text-base">{{
+                            <icon class="text-base opacity-60">{{
                                 row.icon
                             }}</icon>
                         </div>
@@ -324,7 +330,7 @@ export class ScheduleTimelineComponent {
     public displayRowStatus(row: ScheduleTimelineRow) {
         if (this.view_tab() !== 'displays') return '';
         const diff = Math.abs(
-            differenceInMinutes(row.updated_at * 1000, Date.now()),
+            differenceInMinutes(row.signage_last_seen * 1000, Date.now()),
         );
         return diff > 5 ? 'error' : 'success';
     }
