@@ -147,7 +147,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
     selector: 'parking-request-form-details',
     template: `
         @if (form() && model) {
-            <div class="space-y-4">
+            <div class="flex flex-col gap-2 sm:gap-4">
                 <!-- BOOKING FREQUENCY -->
                 <div class="border-base-300 space-y-3 rounded-lg border p-4">
                     <h3

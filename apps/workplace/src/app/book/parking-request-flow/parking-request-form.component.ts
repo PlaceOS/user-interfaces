@@ -24,9 +24,9 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
 @Component({
     selector: 'parking-request-form',
     template: `
-        <div class="bg-base-200 h-full w-full overflow-auto p-4">
+        <div class="bg-base-200 h-full w-full overflow-auto p-2 sm:p-4">
             <div
-                class="bg-base-100 mx-auto w-3xl max-w-full space-y-4 rounded-xl p-4"
+                class="bg-base-100 border-base-300 mx-auto flex w-3xl max-w-full flex-col gap-2 rounded-xl border p-2 sm:gap-4 sm:p-4"
             >
                 <!-- Header -->
                 <div
@@ -63,7 +63,7 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
 
                 <!-- SUMMARY + SUBMISSION -->
                 <div
-                    class="bg-base-200 border-base-300 mt-4 space-y-4 rounded-lg border p-2"
+                    class="bg-base-200 border-base-300 space-y-4 rounded-lg border p-2 sm:mt-2"
                 >
                     @if (submission_notes_html()) {
                         <div
@@ -81,31 +81,37 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
                         </div>
                     }
                     <!-- Buttons -->
-                    <div class="flex items-center justify-end gap-3">
+                    <div
+                        class="flex items-center justify-end gap-1 text-sm sm:gap-3 sm:text-base"
+                    >
                         @if (loading()) {
                             <mat-spinner diameter="32"></mat-spinner>
                         } @else {
                             <button
                                 btn
                                 matRipple
-                                class="inverse flex items-center gap-2"
+                                class="inverse flex w-24 flex-1 items-center gap-2 sm:w-auto sm:flex-none"
                                 (click)="clearForm()"
                             >
-                                <icon>close</icon>
-                                {{ 'BOOKINGS.PARKING_CANCEL' | translate }}
+                                <icon class="text-xl">close</icon>
+                                <div class="mr-2">
+                                    {{ 'BOOKINGS.PARKING_CANCEL' | translate }}
+                                </div>
                             </button>
                             <button
                                 btn
                                 matRipple
                                 confirm
-                                class="flex items-center gap-2"
+                                class="flex flex-1 items-center gap-2 sm:flex-none"
                                 (click)="submitRequest()"
                             >
-                                <icon>send</icon>
-                                {{
-                                    'BOOKINGS.PARKING_SUBMIT_REQUEST'
-                                        | translate
-                                }}
+                                <icon class="text-xl">send</icon>
+                                <div>
+                                    {{
+                                        'BOOKINGS.PARKING_SUBMIT_REQUEST'
+                                            | translate
+                                    }}
+                                </div>
                             </button>
                         }
                     </div>
