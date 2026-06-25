@@ -14,6 +14,7 @@ describe('MediaListComponent folders', () => {
     const service_stub = {
         filtered_media,
         media_view_mode,
+        media_has_more: signal(false),
         signage_groups: signal([]),
         selected_group_id: signal(''),
         is_sys_admin: signal(false),
@@ -21,6 +22,7 @@ describe('MediaListComponent folders', () => {
         can_delete: signal(true),
         can_share: signal(true),
         setSelectedGroup: set_selected_group,
+        loadMoreMedia: jest.fn(),
     };
 
     function make() {

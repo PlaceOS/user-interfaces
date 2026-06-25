@@ -13,6 +13,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
+import { IntersectDirective } from '../shared/intersect.directive';
 import { SignageService } from '../signage.service';
 
 type PlaylistStatus =
@@ -210,6 +211,19 @@ type PlaylistStatus =
                             </div>
                         </a>
                     }
+                    @if (has_more()) {
+                        <div
+                            class="h-px w-full"
+                            intersect
+                            (intersect)="loadMore()"
+                        ></div>
+                    } @else {
+                        <div
+                            class="text-base-content/50 bg-base-content/10 col-span-full rounded-lg p-2 text-center text-xs"
+                        >
+                            {{ 'COMMON.END_OF_LIST' | translate }}
+                        </div>
+                    }
                 } @else if (loading()) {
                     <div class="flex items-center justify-center p-8">
                         <mat-spinner diameter="32" />
@@ -258,6 +272,7 @@ type PlaylistStatus =
         MatRippleModule,
         TranslatePipe,
         MatTooltipModule,
+        IntersectDirective,
     ],
 })
 export class PlaylistSidebarComponent {
@@ -280,6 +295,12 @@ export class PlaylistSidebarComponent {
         if (!term) return list;
         return list.filter((p) => p.name.toLowerCase().includes(term));
     });
+
+    // Backend pagination: fetches the next page as the sentinel scrolls in.
+    public readonly has_more = this._service.playlists_has_more;
+    public loadMore() {
+        this._service.loadMorePlaylists();
+    }
 
     private readonly _load_playlist_thumbnails = effect(() => {
         this._service.queuePlaylistMeta(this.filtered_playlists());

@@ -517,7 +517,7 @@ export class OrganisationService {
             await this._queryZones({
                 tags: 'region',
                 parent_id: this._organisation?.id || '',
-                limit: 500,
+                limit: 200,
             }).catch(() => [])
         ).map((_) => new Region(_));
         this._region_list.set(list);
