@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import {
@@ -209,6 +210,10 @@ type PlaylistStatus =
                             </div>
                         </a>
                     }
+                } @else if (loading()) {
+                    <div class="flex items-center justify-center p-8">
+                        <mat-spinner diameter="32" />
+                    </div>
                 } @else {
                     <div
                         class="text-base-content/70 flex flex-col items-center justify-center p-8"
@@ -246,6 +251,7 @@ type PlaylistStatus =
         FormsModule,
         MatFormFieldModule,
         MatInputModule,
+        MatProgressSpinnerModule,
         AuthenticatedImageDirective,
         IconComponent,
         RouterLink,
@@ -260,6 +266,7 @@ export class PlaylistSidebarComponent {
     private readonly _playlists = this._service.playlists;
 
     public readonly can_create = this._service.can_create;
+    public readonly loading = this._service.playlists_loading;
     public readonly search = signal('');
     public readonly playlist_thumbnail_media =
         this._service.playlist_thumbnail_media;

@@ -527,6 +527,7 @@ export class SignageService {
         },
     });
     public readonly media = computed(() => this._media.value() || []);
+    public readonly media_loading = computed(() => this._media.isLoading());
 
     public readonly filtered_media = computed(() => {
         const term = this.search_term().trim().toLowerCase();
@@ -565,6 +566,9 @@ export class SignageService {
         },
     });
     public readonly playlists = computed(() => this._playlists.value() || []);
+    public readonly playlists_loading = computed(() =>
+        this._playlists.isLoading(),
+    );
 
     private readonly _display_list = resource({
         params: () => ({
