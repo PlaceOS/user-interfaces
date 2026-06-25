@@ -544,6 +544,9 @@ export class ParkingStateService extends AsyncHandler {
                 booking.booked_by_name?.toLowerCase().includes(search_term) ||
                 booking.booked_by_email?.toLowerCase().includes(search_term) ||
                 booking.asset_name?.toLowerCase().includes(search_term) ||
+                booking.extension_data?.plate_number
+                    ?.toLowerCase()
+                    .includes(search_term) ||
                 this.bayNumber(booking, spaces)
                     ?.toLowerCase()
                     .includes(search_term),
