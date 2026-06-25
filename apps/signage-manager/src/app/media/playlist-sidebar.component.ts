@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import {
     AuthenticatedImageDirective,
@@ -26,16 +27,39 @@ type PlaylistStatus =
         <div
             class="border-base-300 bg-base-100 rounded-ld m-2 hidden h-[calc(100%-1rem)] w-72 shrink-0 flex-col rounded-lg border md:flex"
         >
-            <div class="border-base-300 border-b px-4 py-3">
-                <h4 class="text-lg font-medium">
-                    {{ 'SIGNAGE_MANAGER.NAV_PLAYLISTS' | translate }}
-                </h4>
-                <p class="mb-2 text-xs opacity-60">
-                    {{ 'SIGNAGE_MANAGER.DRAG_MEDIA_HINT' | translate }}
-                </p>
+            <div class="border-base-300 border-b p-2">
+                <div class="flex justify-between">
+                    <div class="px-2">
+                        <h4 class="text-lg font-medium">
+                            {{ 'SIGNAGE_MANAGER.NAV_PLAYLISTS' | translate }}
+                        </h4>
+                        <p class="mb-2 text-xs opacity-60">
+                            {{ 'SIGNAGE_MANAGER.DRAG_MEDIA_HINT' | translate }}
+                        </p>
+                    </div>
+                    @if (can_create()) {
+                        <button
+                            icon
+                            default
+                            type="button"
+                            matRipple
+                            (click)="addPlaylist()"
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.CREATE_NEW_PLAYLIST'
+                                    | translate
+                            "
+                            [matTooltip]="
+                                'SIGNAGE_MANAGER.NEW_PLAYLIST' | translate
+                            "
+                            matTooltipPosition="right"
+                        >
+                            <icon>add</icon>
+                        </button>
+                    }
+                </div>
                 <mat-form-field
                     appearance="outline"
-                    class="no-subscript -mx-2 w-[calc(100%+1rem)]"
+                    class="no-subscript w-full"
                 >
                     <input
                         matInput
@@ -227,6 +251,7 @@ type PlaylistStatus =
         RouterLink,
         MatRippleModule,
         TranslatePipe,
+        MatTooltipModule,
     ],
 })
 export class PlaylistSidebarComponent {
@@ -234,6 +259,7 @@ export class PlaylistSidebarComponent {
 
     private readonly _playlists = this._service.playlists;
 
+    public readonly can_create = this._service.can_create;
     public readonly search = signal('');
     public readonly playlist_thumbnail_media =
         this._service.playlist_thumbnail_media;
@@ -251,6 +277,10 @@ export class PlaylistSidebarComponent {
     private readonly _load_playlist_thumbnails = effect(() => {
         this._service.queuePlaylistMeta(this.filtered_playlists());
     });
+
+    public addPlaylist() {
+        this._service.addPlaylist();
+    }
 
     public async onDrop(playlist: SignagePlaylist, event: CdkDragDrop<any>) {
         const media = event.previousContainer.data[event.previousIndex];
