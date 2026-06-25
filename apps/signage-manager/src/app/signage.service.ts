@@ -227,6 +227,9 @@ export class SignageService {
     public readonly media_upload_accept = SIGNAGE_MEDIA_PICKER_ACCEPT;
 
     public readonly search_term = signal('');
+    public readonly media_view_mode = signal<'grid' | 'list' | 'folder'>(
+        'grid',
+    );
     public readonly managed_group_id = signal('');
     // Switching managed group refetches its users and zones; debounce so quick
     // re-selection doesn't fire a pair of queries per change.

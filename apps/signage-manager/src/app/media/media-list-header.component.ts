@@ -49,9 +49,36 @@ function isValidUrl(url: string): boolean {
                 </div>
             </div>
             <div class="w-px flex-1"></div>
+            <div
+                class="border-base-300 bg-base-200 flex items-center rounded-lg border p-0.5"
+                role="group"
+                [attr.aria-label]="
+                    'SIGNAGE_MANAGER.MEDIA_VIEW_ARIA' | translate
+                "
+            >
+                @for (option of view_options; track option.mode) {
+                    <button
+                        icon
+                        type="button"
+                        matRipple
+                        class="h-10 w-10 rounded-md"
+                        [class.bg-base-100]="view_mode() === option.mode"
+                        [class.shadow]="view_mode() === option.mode"
+                        [class.text-base-content/60]="
+                            view_mode() !== option.mode
+                        "
+                        [matTooltip]="option.label | translate"
+                        [attr.aria-pressed]="view_mode() === option.mode"
+                        [attr.aria-label]="option.label | translate"
+                        (click)="view_mode.set(option.mode)"
+                    >
+                        <icon>{{ option.icon }}</icon>
+                    </button>
+                }
+            </div>
             <mat-form-field
                 appearance="outline"
-                class="no-subscript white order-last w-full sm:order-none sm:flex-1"
+                class="no-subscript white order-last w-80 min-w-80 sm:order-none"
             >
                 <input
                     matInput
@@ -66,11 +93,12 @@ function isValidUrl(url: string): boolean {
             @if (can_create()) {
                 <button
                     icon
+                    default
                     type="button"
                     matRipple
                     customTooltip
                     [content]="add_plugin_template"
-                    class="bg-secondary text-secondary-content h-12 w-12 rounded-lg"
+                    class="text-xl"
                     [matTooltip]="'SIGNAGE_MANAGER.ADD_PLUGIN' | translate"
                     matTooltipPosition="left"
                     [attr.aria-label]="
@@ -129,11 +157,12 @@ function isValidUrl(url: string): boolean {
                 </ng-template>
                 <button
                     icon
+                    default
+                    class="text-xl"
                     type="button"
                     matRipple
                     customTooltip
                     [content]="add_link_template"
-                    class="bg-secondary text-secondary-content h-12 w-12 rounded-lg"
                     [matTooltip]="'SIGNAGE_MANAGER.ADD_FROM_LINK' | translate"
                     matTooltipPosition="left"
                     [attr.aria-label]="
@@ -173,9 +202,10 @@ function isValidUrl(url: string): boolean {
                 </ng-template>
                 <button
                     icon
+                    default
                     type="button"
                     matRipple
-                    class="bg-secondary text-secondary-content h-12 w-12 rounded-lg"
+                    class="text-xl"
                     [matTooltip]="'SIGNAGE_MANAGER.UPLOAD_MEDIA' | translate"
                     matTooltipPosition="left"
                     [attr.aria-label]="
@@ -222,6 +252,20 @@ export class MediaListHeaderComponent {
     public readonly item_count = computed(() => this._media().length);
     public readonly total_count = computed(() => this._all_media().length);
     public readonly search = this._service.search_term;
+    public readonly view_mode = this._service.media_view_mode;
+    public readonly view_options = [
+        { mode: 'grid', icon: 'grid_view', label: 'SIGNAGE_MANAGER.VIEW_GRID' },
+        {
+            mode: 'list',
+            icon: 'view_list',
+            label: 'SIGNAGE_MANAGER.VIEW_LIST',
+        },
+        {
+            mode: 'folder',
+            icon: 'folder',
+            label: 'SIGNAGE_MANAGER.VIEW_FOLDER',
+        },
+    ] as const;
     public readonly file_accept = this._service.media_upload_accept;
     public readonly can_create = this._service.can_create;
 

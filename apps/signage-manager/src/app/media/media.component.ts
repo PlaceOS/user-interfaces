@@ -18,10 +18,10 @@ import { PlaylistSidebarComponent } from './playlist-sidebar.component';
             (window:drop)="handleDrop($event)"
         >
             <nav-sidebar class="sm:h-full" />
-            <div class="flex min-h-0 flex-1 flex-col">
+            <div class="flex min-h-0 min-w-0 flex-1 flex-col">
                 <media-list-header class="relative z-10" />
                 <div class="flex min-h-0 flex-1 flex-row">
-                    <main class="relative flex-1 overflow-auto">
+                    <main class="relative min-w-0 flex-1 overflow-auto">
                         <media-list
                             class="relative z-0"
                             [playlist_count]="playlists()?.length"
