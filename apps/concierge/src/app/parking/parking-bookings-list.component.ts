@@ -516,16 +516,25 @@ export class ParkingBookingsListComponent
             this.bookings(),
             request_filter,
         );
-        return this._state.filterEventSearch(list, search).map((booking) => ({
-            ...booking,
-            vehicle_type: this.vehicleType(booking),
-            notes: booking.extension_data?.notes || '',
-            // Resolve the human-readable bay identifier onto the row so the
-            // table's built-in search matches it (the `asset_id` field only
-            // holds the space id, not the bay number/name).
-            bay_number: this._state.bayNumber(booking),
-            ...this.customExtensionColumnValues(booking),
-        }));
+        return this._state
+            .filterEventSearch(list, search)
+            .map((booking) => ({
+                ...booking,
+                vehicle_type: this.vehicleType(booking),
+                notes: booking.extension_data?.notes || '',
+                // Resolve the human-readable bay identifier onto the row so the
+                // table's built-in search matches it (the `asset_id` field only
+                // holds the space id, not the bay number/name).
+                bay_number: this._state.bayNumber(booking),
+                ...this.customExtensionColumnValues(booking),
+            }))
+            .sort((a, b) =>
+                (a.asset_name || a.bay_number || '').localeCompare(
+                    b.asset_name || b.bay_number || '',
+                    undefined,
+                    { numeric: true },
+                ),
+            );
     });
 
     public action_count(row) {
