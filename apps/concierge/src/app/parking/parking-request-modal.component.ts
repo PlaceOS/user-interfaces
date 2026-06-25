@@ -68,6 +68,7 @@ import { ParkingRequestFormDetailsComponent } from '../../../../workplace/src/ap
 
                     <parking-request-form-details
                         [form]="form"
+                        [model_input]="model"
                         [show_special_needs]="show_special_needs()"
                         [force_show_host_select]="true"
                         [force_allow_any_host]="can_book_for_anyone()"
