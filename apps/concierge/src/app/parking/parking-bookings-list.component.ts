@@ -522,6 +522,8 @@ export class ParkingBookingsListComponent
                 ...booking,
                 vehicle_type: this.vehicleType(booking),
                 notes: booking.extension_data?.notes || '',
+                // Surface plate number as a root field so the table can sort by it
+                plate_number: booking.extension_data?.plate_number || '',
                 // Resolve the human-readable bay identifier onto the row so the
                 // table's built-in search matches it (the `asset_id` field only
                 // holds the space id, not the bay number/name).
@@ -727,7 +729,6 @@ export class ParkingBookingsListComponent
                 name: templates.plate_number_label,
                 content: templates.plate_template,
                 size: '10rem',
-                sortable: false,
             },
             {
                 key: 'notes',
