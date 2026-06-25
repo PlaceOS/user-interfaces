@@ -134,6 +134,8 @@ interface PlaylistMetaState {
 
 const PLAYLIST_META_SESSION_KEY = 'PlaceOS.SIGNAGE:playlist-meta-cache:v1';
 const SIGNAGE_GROUP_STORAGE_KEY = 'PlaceOS.SIGNAGE:selected-group:v1';
+const SIGNAGE_VIEW_MODE_STORAGE_KEY = 'PlaceOS.SIGNAGE:media-view-mode:v1';
+type MediaViewMode = 'grid' | 'list' | 'folder';
 const SIGNAGE_GROUP_FIELDS = [
     'id',
     'name',
@@ -189,6 +191,25 @@ function loadSelectedGroupId() {
     }
 }
 
+function loadMediaViewMode(): MediaViewMode {
+    if (typeof localStorage === 'undefined') return 'grid';
+    try {
+        const stored = localStorage.getItem(SIGNAGE_VIEW_MODE_STORAGE_KEY);
+        return stored === 'list' || stored === 'folder' ? stored : 'grid';
+    } catch {
+        return 'grid';
+    }
+}
+
+function persistMediaViewMode(mode: MediaViewMode) {
+    if (typeof localStorage === 'undefined') return;
+    try {
+        localStorage.setItem(SIGNAGE_VIEW_MODE_STORAGE_KEY, mode);
+    } catch {
+        // Local storage can be unavailable in private browsing or restricted embeds.
+    }
+}
+
 function persistSelectedGroupId(group_id: string) {
     if (typeof localStorage === 'undefined') return;
     try {
@@ -230,9 +251,8 @@ export class SignageService {
     public readonly media_upload_accept = SIGNAGE_MEDIA_PICKER_ACCEPT;
 
     public readonly search_term = signal('');
-    public readonly media_view_mode = signal<'grid' | 'list' | 'folder'>(
-        'grid',
-    );
+    public readonly media_view_mode =
+        signal<MediaViewMode>(loadMediaViewMode());
     public readonly managed_group_id = signal('');
     // Switching managed group refetches its users and zones; debounce so quick
     // re-selection doesn't fire a pair of queries per change.
@@ -636,9 +656,7 @@ export class SignageService {
             }
         },
     });
-    public readonly media_tags = computed(
-        () => this._media_tags.value() || [],
-    );
+    public readonly media_tags = computed(() => this._media_tags.value() || []);
 
     // --- Playlists (paged incrementally as the user scrolls) ---
     private readonly _playlist_items = signal<SignagePlaylist[]>([]);
@@ -845,7 +863,7 @@ export class SignageService {
             if (!params.initialised || !params.can_query) return [] as any[];
             try {
                 const result = await queryZones({
-                    limit: 2500,
+                    limit: 500,
                     include_children_count: true,
                     ...(params.group_id
                         ? { group_id: params.group_id }
@@ -1056,6 +1074,7 @@ export class SignageService {
         });
 
         effect(() => persistSelectedGroupId(this.selected_group_id()));
+        effect(() => persistMediaViewMode(this.media_view_mode()));
     }
 
     public async addPlaylist() {
