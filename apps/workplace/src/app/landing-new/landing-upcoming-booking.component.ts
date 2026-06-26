@@ -338,7 +338,11 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
     public readonly deleteDisabled = computed(() => {
         this._current_time_tick();
         const event = this.nextEvent();
-        return !event || Date.now() >= event.date_end;
+        if (!event) return true;
+        // Bookings can be ended early (sets checked_out_at); has_ended covers
+        // both the manual-end and scheduled-end cases.
+        if (event instanceof Booking) return event.has_ended;
+        return Date.now() >= event.date_end;
     });
 
     public readonly eventTitle = computed(() => {
@@ -546,6 +550,7 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
 
     public remove() {
         const event = this.nextEvent();
+        if (this.deleteDisabled()) return;
         this.remove_fn(event);
     }
 

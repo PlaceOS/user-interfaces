@@ -164,6 +164,29 @@ describe('LandingUpcomingBookingComponent', () => {
         expect(spectator.queryAll('button[btn]')[3]).toBeDisabled();
     });
 
+    it('should disable delete when the booking is ended early before its scheduled end', () => {
+        const date = Date.now();
+        upcoming_events.set([
+            new Booking({
+                id: 'booking-1',
+                booking_type: 'desk',
+                type: 'desk',
+                asset_id: 'desk-1',
+                asset_name: 'Desk 1',
+                description: 'Desk Booking',
+                date,
+                duration: 60,
+                date_end: date + 60 * 60 * 1000,
+                checked_out_at: Math.floor(date / 1000) - 60,
+                status: 'approved',
+            } as any),
+        ]);
+        spectator.detectChanges();
+
+        expect(spectator.component.deleteDisabled()).toBe(true);
+        expect(spectator.queryAll('button[btn]')[3]).toBeDisabled();
+    });
+
     it('should disable edit when the event details modal cannot edit', () => {
         upcoming_events.set([
             new CalendarEvent({
