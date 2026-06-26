@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["map-locate-modal.component.ts"],
+  "sourcesContent": ["\n            [body] {\n                min-width: 80vw !important;\n            }\n            :host {\n                display: block;\n                width: 100%;\n                height: 100%;\n            }\n        "],
+  "mappings": ";AACY,CAAA;AACI,aAAA;AACJ;AACA;AACI,WAAA;AACA,SAAA;AACA,UAAA;AACJ;",
+  "names": []
+}
