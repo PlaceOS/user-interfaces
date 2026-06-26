@@ -19,6 +19,7 @@ import {
     currentUser,
     filterResourcesFromRules,
     firstValueWhere,
+    ExternalCateringService,
     flatten,
     getAllDayTimeRange,
     getInvalidSignalFields,
@@ -102,6 +103,7 @@ export interface EventFormFilters {
 export class EventFormService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private _external_catering = inject(ExternalCateringService);
     private _router = inject(Router);
     private _assets = inject(AssetStateService);
     private _calendar = inject(CalendarService);
@@ -937,14 +939,56 @@ export class EventFormService extends AsyncHandler {
                 );
             }
             // Create bookings for each catering order in the event
+            const is_new_booking = !event.id;
             if (this._model().catering?.length) {
-                await createBookingsForEvent(
-                    created_event,
-                    'catering-order',
-                    this._model().catering as any,
-                ).catch((e) =>
+                let submit_catering: Promise<unknown> | null = null;
+                if (this._external_catering.enabled) {
+                    // The external catering driver only creates orders (no update/cancel) and
+                    // keys them by purchase_order_number = event id, so
+                    // re-submitting on an edit would duplicate the order. Only
+                    // place orders for brand new bookings; existing external orders
+                    // are left untouched on edit.
+                    if (is_new_booking) {
+                        submit_catering = this._external_catering
+                            .placeOrders(
+                                created_event,
+                                this._model().catering as any,
+                            )
+                            .then((placed) => {
+                                // Create local catering-order bookings that
+                                // reference the external order so they show in the
+                                // management UI like native orders
+                                const orders = placed.map(
+                                    ({ order, reference }) => {
+                                        const data =
+                                            typeof (order as any).toJSON ===
+                                            'function'
+                                                ? (order as any).toJSON()
+                                                : { ...order };
+                                        return {
+                                            ...data,
+                                            external_reference: reference,
+                                        };
+                                    },
+                                );
+                                if (!orders.length) return;
+                                return createBookingsForEvent(
+                                    created_event,
+                                    'catering-order',
+                                    orders as any,
+                                );
+                            });
+                    }
+                } else {
+                    submit_catering = createBookingsForEvent(
+                        created_event,
+                        'catering-order',
+                        this._model().catering as any,
+                    );
+                }
+                await submit_catering?.catch((e) =>
                     this._removeBookingAfterError(
-                        !event.id,
+                        is_new_booking,
                         created_event,
                         false,
                         e,
