@@ -268,10 +268,15 @@ export class SignageService {
             ? user
             : null;
     });
-    private readonly _signage_groups_loaded = signal(false);
-    public readonly signage_groups_loaded = computed(() =>
-        this._signage_groups_loaded(),
-    );
+    // Derived from the resource status (not a manually-set flag) so it stays in
+    // sync with signage_groups() — a separate flag flipped in the loader's
+    // finally block races ahead of the resource committing its value, which let
+    // the access guard read an empty group list and redirect permitted users.
+    public readonly signage_groups_loaded = computed(() => {
+        if (!this._active_user()?.email) return false;
+        const status = this._signage_groups.status();
+        return status === 'resolved' || status === 'local' || status === 'error';
+    });
     public readonly selected_group_id = signal(loadSelectedGroupId());
     public readonly signage_group_tree_expanded = signal<
         Record<string, boolean>
@@ -284,7 +289,6 @@ export class SignageService {
         }),
         loader: async ({ params }) => {
             if (!params.user_email) return [] as PlaceCurrentGroup[];
-            this._signage_groups_loaded.set(false);
             try {
                 const groups = params.sys_admin
                     ? (await this._queryManageableGroups()).map(
@@ -300,8 +304,6 @@ export class SignageService {
                     .sort((a, b) => a.group.name.localeCompare(b.group.name));
             } catch {
                 return [] as PlaceCurrentGroup[];
-            } finally {
-                this._signage_groups_loaded.set(true);
             }
         },
     });
@@ -1045,7 +1047,7 @@ export class SignageService {
 
     constructor() {
         effect(() => {
-            if (!this._signage_groups_loaded()) return;
+            if (!this.signage_groups_loaded()) return;
             const groups = this.signage_groups();
             const selected_group_id = this.selected_group_id();
             if (!groups.length) {
