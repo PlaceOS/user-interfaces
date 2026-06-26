@@ -5,8 +5,8 @@ import {
     signal,
 } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { SignageService } from '../signage.service';
-import { MediaSectionComponent } from './media.component';
+import { MediaSectionComponent } from '../../app/media/media.component';
+import { SignageService } from '../../app/signage.service';
 
 @Component({
     selector: 'nav-sidebar',

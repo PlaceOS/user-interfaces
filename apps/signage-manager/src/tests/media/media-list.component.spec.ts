@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { SignageService } from '../signage.service';
-import { MediaListComponent } from './media-list.component';
+import { MediaListComponent } from '../../app/media/media-list.component';
+import { SignageService } from '../../app/signage.service';
 
 function media(id: string, tags: string[]) {
     return { id, name: id, tags, media_type: 'image' } as any;
