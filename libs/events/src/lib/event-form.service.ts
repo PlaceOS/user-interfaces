@@ -1082,7 +1082,23 @@ export class EventFormService extends AsyncHandler {
     ) {
         const user = await this._bookingRulesHost(host);
         await this._whenSettled(this._booking_rules_resource);
-        const rules = this.booking_rules();
+        const rules = { ...this.booking_rules() };
+        // The booking panel does not eagerly load zone metadata, so the
+        // reactive rules resource may still be empty when a booking is
+        // submitted. Fetch any missing building rules on demand so they are
+        // always enforced regardless of which app submitted the booking.
+        for (const space of spaces) {
+            const bld = this._org.buildings.find((b) =>
+                space.zones.includes(b.id),
+            );
+            if (!bld || rules[bld.id]) continue;
+            const metadata = await showMetadata(
+                bld.id,
+                'room_booking_rules',
+            ).catch(() => ({ details: [] }) as any);
+            rules[bld.id] =
+                metadata.details instanceof Array ? metadata.details : [];
+        }
         const space_rules = spaces.map((space) => {
             const bld = this._org.buildings.find((b) =>
                 space.zones.includes(b.id),
@@ -1094,7 +1110,7 @@ export class EventFormService extends AsyncHandler {
                     host: new User(user),
                     resource: space,
                 },
-                rules[bld.id],
+                rules[bld?.id],
             );
         });
         const hidden = spaces.filter((_, i) => space_rules[i]?.hidden);
