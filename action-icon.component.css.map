@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["action-icon.component.ts"],
+  "sourcesContent": ["\n            .action-icon.fade > icon {\n                opacity: 0.35;\n            }\n\n            .success {\n                pointer-events: none;\n            }\n\n            .success icon[root] {\n                opacity: 0.2;\n            }\n\n            .state.success {\n                color: #388e3c;\n            }\n\n            .state.error {\n                color: #e53935;\n            }\n        "],
+  "mappings": ";AACY,CAAA,WAAA,CAAA,KAAA,EAAA;AACI,WAAA;AACJ;AAEA,CAAA;AACI,kBAAA;AACJ;AAEA,CAJA,QAIA,IAAA,CAAA;AACI,WAAA;AACJ;AAEA,CAAA,KAAA,CARA;AASI,SAAA;AACJ;AAEA,CAJA,KAIA,CAAA;AACI,SAAA;AACJ;",
+  "names": []
+}
