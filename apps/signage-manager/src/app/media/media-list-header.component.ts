@@ -1,8 +1,10 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { i18n, notifyError } from '@placeos/common';
@@ -12,6 +14,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { SignageService } from '../signage.service';
+import { MediaAddModalComponent } from '../shared/media-add-modal.component';
 
 function isValidUrl(url: string): boolean {
     try {
@@ -26,7 +29,7 @@ function isValidUrl(url: string): boolean {
     selector: 'media-list-header',
     template: `
         <div
-            class="bg-base-100 border-base-300 sticky top-0 flex flex-wrap items-center gap-2 border-b px-4 py-2 shadow sm:flex-nowrap"
+            class="bg-base-100 border-base-300 sticky top-0 flex flex-wrap items-center gap-1 border-b px-4 py-2 shadow sm:flex-nowrap sm:gap-2"
         >
             <div class="py-2">
                 <h3 class="text-2xl font-medium">
@@ -78,7 +81,7 @@ function isValidUrl(url: string): boolean {
             </div>
             <mat-form-field
                 appearance="outline"
-                class="no-subscript white order-last w-80 min-w-80 sm:order-none"
+                class="no-subscript white order-last w-full sm:order-0 sm:w-80"
             >
                 <input
                     matInput
@@ -98,7 +101,7 @@ function isValidUrl(url: string): boolean {
                     matRipple
                     customTooltip
                     [content]="add_plugin_template"
-                    class="text-xl"
+                    class="text-xl max-sm:hidden"
                     [matTooltip]="'SIGNAGE_MANAGER.ADD_PLUGIN' | translate"
                     matTooltipPosition="left"
                     [attr.aria-label]="
@@ -158,7 +161,7 @@ function isValidUrl(url: string): boolean {
                 <button
                     icon
                     default
-                    class="text-xl"
+                    class="text-xl max-sm:hidden"
                     type="button"
                     matRipple
                     customTooltip
@@ -205,7 +208,7 @@ function isValidUrl(url: string): boolean {
                     default
                     type="button"
                     matRipple
-                    class="text-xl"
+                    class="text-xl max-sm:hidden"
                     [matTooltip]="'SIGNAGE_MANAGER.UPLOAD_MEDIA' | translate"
                     matTooltipPosition="left"
                     [attr.aria-label]="
@@ -215,6 +218,59 @@ function isValidUrl(url: string): boolean {
                 >
                     <icon>add</icon>
                 </button>
+                <button
+                    icon
+                    default
+                    type="button"
+                    matRipple
+                    class="text-xl sm:hidden"
+                    [matMenuTriggerFor]="actions_menu"
+                    [matTooltip]="'SIGNAGE_MANAGER.MEDIA_ACTIONS' | translate"
+                    matTooltipPosition="left"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.MEDIA_ACTIONS' | translate
+                    "
+                >
+                    <icon>add</icon>
+                </button>
+                <mat-menu #actions_menu="matMenu">
+                    <button
+                        mat-menu-item
+                        type="button"
+                        (click)="openAdd('plugin')"
+                    >
+                        <div class="flex items-center gap-2">
+                            <icon class="text-2xl">extension</icon>
+                            <div>
+                                {{ 'SIGNAGE_MANAGER.ADD_PLUGIN' | translate }}
+                            </div>
+                        </div>
+                    </button>
+                    <button
+                        mat-menu-item
+                        type="button"
+                        (click)="openAdd('link')"
+                    >
+                        <div class="flex items-center gap-2">
+                            <icon class="text-2xl">link</icon>
+                            <div>
+                                {{ 'SIGNAGE_MANAGER.ADD_FROM_LINK' | translate }}
+                            </div>
+                        </div>
+                    </button>
+                    <button
+                        mat-menu-item
+                        type="button"
+                        (click)="upload_input.click()"
+                    >
+                        <div class="flex items-center gap-2">
+                            <icon class="text-2xl">upload</icon>
+                            <div>
+                                {{ 'SIGNAGE_MANAGER.UPLOAD_MEDIA' | translate }}
+                            </div>
+                        </div>
+                    </button>
+                </mat-menu>
                 <input
                     #upload_input
                     type="file"
@@ -234,6 +290,7 @@ function isValidUrl(url: string): boolean {
         MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
+        MatMenuModule,
         MatSelectModule,
         MatTooltipModule,
         CustomTooltipComponent,
@@ -243,6 +300,7 @@ function isValidUrl(url: string): boolean {
 })
 export class MediaListHeaderComponent {
     private readonly _service = inject(SignageService);
+    private readonly _dialog = inject(MatDialog);
     private readonly _media = this._service.filtered_media;
     private readonly _all_media = this._service.media;
     private readonly _plugins = this._service.plugins;
@@ -271,6 +329,13 @@ export class MediaListHeaderComponent {
 
     public readonly previewFile = (event) =>
         this._service.previewFileFromInput(event);
+
+    public openAdd(mode: 'plugin' | 'link') {
+        this._dialog.open(MediaAddModalComponent, {
+            data: { mode },
+            panelClass: 'mobile-fullscreen',
+        });
+    }
 
     public async addFromLink() {
         const link = this.link().trim();
