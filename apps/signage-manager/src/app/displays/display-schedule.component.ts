@@ -144,6 +144,10 @@ import { SignageService } from '../signage.service';
                                                 <div class="min-w-0 flex-1">
                                                     <div
                                                         class="truncate text-[13px] leading-tight font-medium"
+                                                        [class.line-through]="
+                                                            !block.playlist
+                                                                .enabled
+                                                        "
                                                     >
                                                         {{
                                                             block.playlist.name
@@ -192,6 +196,10 @@ import { SignageService } from '../signage.service';
                                                 <div class="min-w-0 flex-1">
                                                     <div
                                                         class="truncate text-[13px] leading-tight"
+                                                        [class.line-through]="
+                                                            !block.playlist
+                                                                .enabled
+                                                        "
                                                     >
                                                         {{
                                                             block.playlist.name

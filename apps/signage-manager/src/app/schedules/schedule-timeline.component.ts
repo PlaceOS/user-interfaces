@@ -196,6 +196,7 @@ import {
                             >
                                 <div
                                     class="truncate text-[11px] leading-tight font-semibold"
+                                    [class.line-through]="!block.playlist.enabled"
                                 >
                                     {{ block.playlist.name }}
                                 </div>
