@@ -285,6 +285,12 @@ export class BookingFormService extends AsyncHandler {
             this._org.initialised() &&
             (!this._org.regions.length || !!region?.id) &&
             !!building?.id &&
+            // The override count can be satisfied by placeholder `{}` building
+            // settings before `loadBuildingData` populates them, so also wait
+            // for the active building's metadata to actually land. Otherwise
+            // building/region-level settings (e.g. allow_booking_with_reserved_desk)
+            // read as their defaults during the load window.
+            this._org.active_building_loaded() &&
             overrides.length >= required_overrides
         );
     });
