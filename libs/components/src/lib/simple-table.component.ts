@@ -88,8 +88,8 @@ export interface TableColumn {
                                 {{
                                     sort()?.key === column.key &&
                                     sort()?.reverse
-                                        ? 'arrow_upward'
-                                        : 'arrow_downward'
+                                        ? 'arrow_downward'
+                                        : 'arrow_upward'
                                 }}
                             </icon>
                         }
