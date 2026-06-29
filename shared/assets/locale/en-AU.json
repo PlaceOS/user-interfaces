@@ -1660,7 +1660,7 @@
             "BOOKING_REMOVE_SUCCESS": "Successfully cancelled booking.",
             "BOOKING_REMOVE_ERROR": "Failed to cancel booking. Error: {{ error }}",
             "BOOKING_REMOVE_LOADING": "Cancelling booking...",
-            "ROOMS_PENDING_HEADER": "Pending Approval ({{ count }} of {{ total }})",
+            "ROOMS_PENDING_HEADER": "Pending Approval",
             "ROOMS_PENDING_EMPTY": "No pending requests",
             "ROOMS_PENDING_LOADING": "Processing...",
             "ROOMS_PENDING_SHOW": "Show Pending Approvals",
