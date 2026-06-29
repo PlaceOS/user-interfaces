@@ -183,8 +183,9 @@ interface ParkingBookingColumnTemplates {
                     </div>
                 }
             </ng-template>
-            <ng-template #bay_template let-id="data">
+            <ng-template #bay_template let-row="row">
                 <div class="px-4 py-2">
+                    @let id = row.asset_id;
                     @if (id && !isRequestId(id)) {
                         {{ (id | parkingSpace | async)?.identifier || id }}
                     } @else {
