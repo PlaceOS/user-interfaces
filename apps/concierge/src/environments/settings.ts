@@ -55,6 +55,7 @@ const app = {
         assign_space_on_approve: false,
         max_assigned_count: 0,
         custom_booking_columns: [],
+        show_user_groups: [],
     },
     events: {
         allow_setup_breakdown: false,

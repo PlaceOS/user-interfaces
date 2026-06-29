@@ -1465,6 +1465,7 @@
             "PARKING_FILTER_MANUAL": "Pending",
             "PARKING_BAY": "Parking Bay",
             "PARKING_BAY_NUMBER": "Bay Number",
+            "PARKING_USER_GROUPS": "User Groups",
             "PARKING_RESERVED_FOR": "Reserved For",
             "PARKING_RESERVED_BY": "Reserved By",
             "PARKING_CHECKED_OUT_AT": "Left at {{ time }}",
