@@ -1,8 +1,8 @@
+import { i18n } from '@placeos/common';
 import {
     SignagePlaylist,
     type SignagePlaylistSchedule,
 } from '@placeos/ts-client';
-import { i18n } from '@placeos/common';
 import { isSameDay, startOfDay } from 'date-fns';
 
 const BLOCK_PALETTE = [
@@ -47,6 +47,7 @@ export interface ScheduleTimelineRow {
     route: string[];
     blocks: ScheduleBlock[];
     search_index: string;
+    signage_last_seen?: number;
     updated_at: number;
 }
 
@@ -357,9 +358,7 @@ export function buildDisplayScheduleAssignments(
                 zone_playlist_sources[playlist_id] = [];
             }
             zone_playlist_sources[playlist_id].push(
-                zone.display_name ||
-                    zone.name ||
-                    i18n('COMMON.ZONE'),
+                zone.display_name || zone.name || i18n('COMMON.ZONE'),
             );
         }
     }
@@ -373,9 +372,13 @@ export function buildDisplayScheduleAssignments(
             source_type: 'zone',
             source_label:
                 labels.length > 1
-                    ? i18n('SIGNAGE_MANAGER.ZONE_COUNT_LABEL', {
-                          count: labels.length,
-                      }, labels.length)
+                    ? i18n(
+                          'SIGNAGE_MANAGER.ZONE_COUNT_LABEL',
+                          {
+                              count: labels.length,
+                          },
+                          labels.length,
+                      )
                     : labels[0],
         });
     }
@@ -399,9 +402,6 @@ export function buildZoneScheduleAssignments(
         .map((playlist) => ({
             playlist,
             source_type: 'zone' as const,
-            source_label:
-                zone.display_name ||
-                zone.name ||
-                i18n('COMMON.ZONE'),
+            source_label: zone.display_name || zone.name || i18n('COMMON.ZONE'),
         }));
 }

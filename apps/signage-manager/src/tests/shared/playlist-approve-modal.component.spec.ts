@@ -7,8 +7,8 @@ import {
     listSignagePlaylistMediaRevisions,
     updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
-import { SignageService } from '../signage.service';
-import { PlaylistApproveModalComponent } from './playlist-approve-modal.component';
+import { PlaylistApproveModalComponent } from '../../app/shared/playlist-approve-modal.component';
+import { SignageService } from '../../app/signage.service';
 
 jest.mock('@placeos/common', () => ({
     ...jest.requireActual('@placeos/common'),
@@ -41,32 +41,30 @@ describe('PlaylistApproveModalComponent', () => {
         jest.clearAllMocks();
         dialog_ref.disableClose = false;
         service.can_update.set(true);
-        (listSignagePlaylistMediaRevisions as jest.Mock).mockResolvedValue(
-            [
-                {
-                    id: 'current-version',
-                    items: ['media-1', 'media-3'],
-                    media: [
-                        {
-                            id: 'media-1',
-                            name: 'Media 1',
-                        },
-                        {
-                            id: 'media-3',
-                            name: 'Webpage',
-                            media_type: 'webpage',
-                        },
-                    ],
-                    updated_at: 1,
-                },
-                {
-                    id: 'previous-version',
-                    items: ['media-2'],
-                    media: [{ id: 'media-2', name: 'Media 2' }],
-                    updated_at: 2,
-                },
-            ],
-        );
+        (listSignagePlaylistMediaRevisions as jest.Mock).mockResolvedValue([
+            {
+                id: 'current-version',
+                items: ['media-1', 'media-3'],
+                media: [
+                    {
+                        id: 'media-1',
+                        name: 'Media 1',
+                    },
+                    {
+                        id: 'media-3',
+                        name: 'Webpage',
+                        media_type: 'webpage',
+                    },
+                ],
+                updated_at: 1,
+            },
+            {
+                id: 'previous-version',
+                items: ['media-2'],
+                media: [{ id: 'media-2', name: 'Media 2' }],
+                updated_at: 2,
+            },
+        ]);
         await TestBed.configureTestingModule({
             imports: [PlaylistApproveModalComponent],
             providers: [

@@ -76,7 +76,6 @@ const EMPTY_METRICS = JSON.stringify({
 });
 
 const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
-const SCHEDULE_TRIGGER_WINDOW_SECONDS = 28;
 const SINGLE_PASS_TRIGGER_WINDOW_MS = 30 * 1000;
 const log = scoped_log('Signage');
 
@@ -575,13 +574,11 @@ export class SignageService extends AsyncHandler {
         return playlist_ids
             .map((id) => this._playlistConfig(display, id)?.[0])
             .filter((_) => !!_)
-            .flatMap((playlist) =>
-                activePlaylistSchedules(
-                    playlist,
-                    now,
-                    SCHEDULE_TRIGGER_WINDOW_SECONDS,
-                ),
-            )
+            // Detect across each schedule's full play period (like `play_at` and
+            // the background playlist) so an in-progress cron takeover is picked
+            // up even if the display booted/ticked after it fired. Single-pass
+            // (period 0) schedules still resolve to a short ~30s window.
+            .flatMap((playlist) => activePlaylistSchedules(playlist, now))
             .filter(({ key }) => !this._completed_schedule_overrides.has(key));
     }
 

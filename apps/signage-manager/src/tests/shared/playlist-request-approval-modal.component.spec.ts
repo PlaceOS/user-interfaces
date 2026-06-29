@@ -6,8 +6,8 @@ import {
     listSignagePlaylistMediaRevisions,
     updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
-import { SignageService } from '../signage.service';
-import { PlaylistRequestApprovalModalComponent } from './playlist-request-approval-modal.component';
+import { PlaylistRequestApprovalModalComponent } from '../../app/shared/playlist-request-approval-modal.component';
+import { SignageService } from '../../app/signage.service';
 
 jest.mock('@placeos/common', () => ({
     ...jest.requireActual('@placeos/common'),
@@ -38,32 +38,30 @@ describe('PlaylistRequestApprovalModalComponent', () => {
         jest.clearAllMocks();
         dialog_ref.disableClose = false;
         service.can_update.set(true);
-        (listSignagePlaylistMediaRevisions as jest.Mock).mockResolvedValue(
-            [
-                {
-                    id: 'current-version',
-                    items: ['media-1', 'media-3'],
-                    media: [
-                        {
-                            id: 'media-1',
-                            name: 'Media 1',
-                        },
-                        {
-                            id: 'media-3',
-                            name: 'Plugin',
-                            media_type: 'plugin',
-                        },
-                    ],
-                    updated_at: 1,
-                },
-                {
-                    id: 'previous-version',
-                    items: ['media-2'],
-                    media: [{ id: 'media-2', name: 'Media 2' }],
-                    updated_at: 2,
-                },
-            ],
-        );
+        (listSignagePlaylistMediaRevisions as jest.Mock).mockResolvedValue([
+            {
+                id: 'current-version',
+                items: ['media-1', 'media-3'],
+                media: [
+                    {
+                        id: 'media-1',
+                        name: 'Media 1',
+                    },
+                    {
+                        id: 'media-3',
+                        name: 'Plugin',
+                        media_type: 'plugin',
+                    },
+                ],
+                updated_at: 1,
+            },
+            {
+                id: 'previous-version',
+                items: ['media-2'],
+                media: [{ id: 'media-2', name: 'Media 2' }],
+                updated_at: 2,
+            },
+        ]);
         (updateSignagePlaylistMedia as jest.Mock).mockResolvedValue({});
         await TestBed.configureTestingModule({
             imports: [PlaylistRequestApprovalModalComponent],
@@ -133,9 +131,7 @@ describe('PlaylistRequestApprovalModalComponent', () => {
         expect(fixture.nativeElement.textContent).toContain(
             'Version to approve',
         );
-        expect(fixture.nativeElement.textContent).toContain(
-            'Previous version',
-        );
+        expect(fixture.nativeElement.textContent).toContain('Previous version');
     });
 
     it('hides the request form when preview is toggled on', async () => {

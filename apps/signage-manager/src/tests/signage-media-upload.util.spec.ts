@@ -4,7 +4,7 @@ import {
     isImageSourceFile,
     validateSignageMediaDimensions,
     validateSignageMediaFile,
-} from './signage-media-upload.util';
+} from '../app/signage-media-upload.util';
 
 describe('signage-media-upload util', () => {
     it('exposes the requested file picker formats', () => {

@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import {
     AuthenticatedImageDirective,
@@ -11,6 +13,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
+import { IntersectDirective } from '../shared/intersect.directive';
 import { SignageService } from '../signage.service';
 
 type PlaylistStatus =
@@ -26,16 +29,39 @@ type PlaylistStatus =
         <div
             class="border-base-300 bg-base-100 rounded-ld m-2 hidden h-[calc(100%-1rem)] w-72 shrink-0 flex-col rounded-lg border md:flex"
         >
-            <div class="border-base-300 border-b px-4 py-3">
-                <h4 class="text-lg font-medium">
-                    {{ 'SIGNAGE_MANAGER.NAV_PLAYLISTS' | translate }}
-                </h4>
-                <p class="mb-2 text-xs opacity-60">
-                    {{ 'SIGNAGE_MANAGER.DRAG_MEDIA_HINT' | translate }}
-                </p>
+            <div class="border-base-300 border-b p-2">
+                <div class="flex justify-between">
+                    <div class="px-2">
+                        <h4 class="text-lg font-medium">
+                            {{ 'SIGNAGE_MANAGER.NAV_PLAYLISTS' | translate }}
+                        </h4>
+                        <p class="mb-2 text-xs opacity-60">
+                            {{ 'SIGNAGE_MANAGER.DRAG_MEDIA_HINT' | translate }}
+                        </p>
+                    </div>
+                    @if (can_create()) {
+                        <button
+                            icon
+                            default
+                            type="button"
+                            matRipple
+                            (click)="addPlaylist()"
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.CREATE_NEW_PLAYLIST'
+                                    | translate
+                            "
+                            [matTooltip]="
+                                'SIGNAGE_MANAGER.NEW_PLAYLIST' | translate
+                            "
+                            matTooltipPosition="right"
+                        >
+                            <icon>add</icon>
+                        </button>
+                    }
+                </div>
                 <mat-form-field
                     appearance="outline"
-                    class="no-subscript -mx-2 w-[calc(100%+1rem)]"
+                    class="no-subscript w-full"
                 >
                     <input
                         matInput
@@ -185,6 +211,23 @@ type PlaylistStatus =
                             </div>
                         </a>
                     }
+                    @if (has_more()) {
+                        <div
+                            class="h-px w-full"
+                            intersect
+                            (intersect)="loadMore()"
+                        ></div>
+                    } @else {
+                        <div
+                            class="text-base-content/50 bg-base-content/10 col-span-full rounded-lg p-2 text-center text-xs"
+                        >
+                            {{ 'COMMON.END_OF_LIST' | translate }}
+                        </div>
+                    }
+                } @else if (loading()) {
+                    <div class="flex items-center justify-center p-8">
+                        <mat-spinner diameter="32" />
+                    </div>
                 } @else {
                     <div
                         class="text-base-content/70 flex flex-col items-center justify-center p-8"
@@ -222,11 +265,14 @@ type PlaylistStatus =
         FormsModule,
         MatFormFieldModule,
         MatInputModule,
+        MatProgressSpinnerModule,
         AuthenticatedImageDirective,
         IconComponent,
         RouterLink,
         MatRippleModule,
         TranslatePipe,
+        MatTooltipModule,
+        IntersectDirective,
     ],
 })
 export class PlaylistSidebarComponent {
@@ -234,6 +280,8 @@ export class PlaylistSidebarComponent {
 
     private readonly _playlists = this._service.playlists;
 
+    public readonly can_create = this._service.can_create;
+    public readonly loading = this._service.playlists_loading;
     public readonly search = signal('');
     public readonly playlist_thumbnail_media =
         this._service.playlist_thumbnail_media;
@@ -248,9 +296,19 @@ export class PlaylistSidebarComponent {
         return list.filter((p) => p.name.toLowerCase().includes(term));
     });
 
+    // Backend pagination: fetches the next page as the sentinel scrolls in.
+    public readonly has_more = this._service.playlists_has_more;
+    public loadMore() {
+        this._service.loadMorePlaylists();
+    }
+
     private readonly _load_playlist_thumbnails = effect(() => {
         this._service.queuePlaylistMeta(this.filtered_playlists());
     });
+
+    public addPlaylist() {
+        this._service.addPlaylist();
+    }
 
     public async onDrop(playlist: SignagePlaylist, event: CdkDragDrop<any>) {
         const media = event.previousContainer.data[event.previousIndex];

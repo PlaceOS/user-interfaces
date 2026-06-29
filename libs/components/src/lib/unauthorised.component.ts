@@ -4,17 +4,19 @@ import { TranslatePipe } from './translate.pipe';
 @Component({
     selector: 'app-unauthorised',
     template: `
-        <div
-            class="unauthorised border-base-200 bg-base-100 m-4 rounded-sm border p-4 text-center text-black shadow-sm"
-        >
-            <h1 class="text-4xl">403</h1>
-            <h3>{{ 'COMMON.FORBIDDEN' | translate }}</h3>
-            <p class="py-4">
-                {{ 'COMMON.INVALID_PAGE_PERMISSIONS' | translate }}
-            </p>
-            <p>
-                {{ 'COMMON.CONTACT_ADMIN' | translate }}
-            </p>
+        <div unauthorised class="absolute inset-0">
+            <div
+                class="border-base-300 bg-base-100 text-base-content mx-auto my-4 w-104 max-w-[calc(100%-1rem)] rounded-xl border p-4 text-center shadow-lg"
+            >
+                <h1 class="text-4xl">403</h1>
+                <h3>{{ 'COMMON.FORBIDDEN' | translate }}</h3>
+                <p class="py-4">
+                    {{ 'COMMON.INVALID_PAGE_PERMISSIONS' | translate }}
+                </p>
+                <p>
+                    {{ 'COMMON.CONTACT_ADMIN' | translate }}
+                </p>
+            </div>
         </div>
     `,
     styles: [
@@ -25,16 +27,12 @@ import { TranslatePipe } from './translate.pipe';
                 justify-content: center;
             }
 
-            .unauthorised {
-                width: 28em;
-                max-width: calc(100vw - 1rem);
-            }
-
-            @media (prefers-color-scheme: dark) {
-                .unauthorised {
-                    background-color: #262626;
-                    color: #fff;
-                }
+            [unauthorised] {
+                background-image: linear-gradient(
+                    to right,
+                    #c62828 0%,
+                    #ef5350 100%
+                );
             }
         `,
     ],
