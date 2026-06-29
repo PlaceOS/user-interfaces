@@ -542,10 +542,8 @@ export class ParkingBookingsListComponent
                 ...this.customExtensionColumnValues(booking),
             }))
             .sort((a, b) =>
-                (a.asset_name || a.bay_number || '').localeCompare(
-                    b.asset_name || b.bay_number || '',
-                    undefined,
-                    { numeric: true },
+                (a.bay_number || a.asset_name || '').localeCompare(
+                    b.bay_number || b.asset_name || '',
                 ),
             );
     });
@@ -733,7 +731,7 @@ export class ParkingBookingsListComponent
                 content: templates.date_template,
             },
             {
-                key: 'asset_id',
+                key: 'bay_number',
                 name: templates.bay_number_label,
                 content: templates.bay_template,
                 show: !this.hide_bay_number_column(),
