@@ -1617,6 +1617,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .w-88 {
   width: calc(var(--spacing) * 88);
 }
+#placeos .w-104 {
+  width: calc(var(--spacing) * 104);
+}
 #placeos .w-120 {
   width: calc(var(--spacing) * 120);
 }
@@ -3185,9 +3188,6 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .bg-secondary\! {
   background-color: var(--secondary) !important;
-}
-#placeos .bg-secondary-content {
-  background-color: var(--secondary-content);
 }
 #placeos .bg-secondary-content\/60 {
   background-color: var(--secondary-content);
@@ -4786,6 +4786,11 @@ input:where([type=button], [type=reset], [type=submit]),
     flex-direction: column;
   }
 }
+@media (width < 40rem) {
+  #placeos .max-sm\:hidden {
+    display: none;
+  }
+}
 @media (width >= 40rem) {
   #placeos .sm\:relative {
     position: relative;
@@ -4832,7 +4837,7 @@ input:where([type=button], [type=reset], [type=submit]),
   }
 }
 @media (width >= 40rem) {
-  #placeos .sm\:order-none {
+  #placeos .sm\:order-0 {
     order: 0;
   }
 }
@@ -5172,6 +5177,11 @@ input:where([type=button], [type=reset], [type=submit]),
   }
 }
 @media (width >= 40rem) {
+  #placeos .sm\:gap-2 {
+    gap: calc(var(--spacing) * 2);
+  }
+}
+@media (width >= 40rem) {
   #placeos .sm\:gap-3 {
     gap: calc(var(--spacing) * 3);
   }
@@ -5193,6 +5203,13 @@ input:where([type=button], [type=reset], [type=submit]),
     --tw-space-y-reverse: 0;
     margin-block-start: calc(calc(var(--spacing) * 2) * var(--tw-space-y-reverse));
     margin-block-end: calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-y-reverse)));
+  }
+}
+@media (width >= 40rem) {
+  :where(#placeos .sm\:space-y-4 > :not(:last-child)) {
+    --tw-space-y-reverse: 0;
+    margin-block-start: calc(calc(var(--spacing) * 4) * var(--tw-space-y-reverse));
+    margin-block-end: calc(calc(var(--spacing) * 4) * calc(1 - var(--tw-space-y-reverse)));
   }
 }
 @media (width >= 40rem) {
@@ -5323,6 +5340,11 @@ input:where([type=button], [type=reset], [type=submit]),
 @media (width >= 40rem) {
   #placeos .sm\:pt-1 {
     padding-top: calc(var(--spacing) * 1);
+  }
+}
+@media (width >= 40rem) {
+  #placeos .sm\:pt-4 {
+    padding-top: calc(var(--spacing) * 4);
   }
 }
 @media (width >= 40rem) {
@@ -5543,6 +5565,11 @@ input:where([type=button], [type=reset], [type=submit]),
 @media (width >= 80rem) {
   #placeos .xl\:grid-cols-5 {
     grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+@media (width >= 80rem) {
+  #placeos .xl\:grid-cols-6 {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 }
 @media (orientation: portrait) {
