@@ -45,6 +45,7 @@ export async function ensureWorkspace(app_name) {
     // in JS, so the OAuth redirect (and code exchange) is never handled.
     // ManagedConfigurations exposes the MDM-pushed app config to JS.
     // StatusBar lets the app hide the OS status bar for fullscreen rendering.
+    // IntuneMAM provides the Microsoft Intune enrolled account and MS token.
     const package_json = {
         name: `${app_name}-capacitor`,
         private: true,
@@ -55,6 +56,7 @@ export async function ensureWorkspace(app_name) {
             '@capacitor/browser': '8.0.3',
             '@capacitor/status-bar': '8.0.2',
             '@capawesome/capacitor-managed-configurations': '8.0.1',
+            '@capgo/capacitor-intune': '8.1.2',
         },
     };
     writeFileSync(

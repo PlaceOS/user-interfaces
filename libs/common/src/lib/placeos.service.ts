@@ -34,17 +34,23 @@ import {
     closeNativeBrowser,
     consumeNativeAuthError,
     consumeNativeAuthRedirect,
+    getIntuneAccount,
+    getIntuneToken,
     getNativeApiKey,
     getNativeDomain,
     hideNativeStatusBar,
     isNativeApp,
+    lookupNativeDomainByEmail,
     markNativeAuthRedirectConsumed,
     openNativeBrowser,
     restoreNativePkceVerifier,
     scheduleNativeRestart,
     setNativeAuthError,
+    setNativeDomain,
+    setNativeEmail,
     syncNativeManagedConfig,
 } from './native-app';
+import type { IntuneAccount } from './native-app';
 import { notifySuccess, setNotifyOutlet } from './notifications';
 import { OrganisationService } from './org/organisation.service';
 import { createNativeAuthUrl, setupPlace } from './placeos';
@@ -335,6 +341,33 @@ export class PlaceOS_Service extends AsyncHandler {
                 );
             }
         }
+        /**
+         * On an Intune-managed device, authenticate with the MS token from the
+         * enrolled account and auto-configure the server from the user's email
+         * domain. Falls through to the normal OAuth flow when not enrolled.
+         */
+        let intune_token = '';
+        if (isNativeApp()) {
+            setLoadingMessage('Checking managed account...');
+            const account = await getIntuneAccount();
+            if (account) {
+                intune_token = await getIntuneToken(
+                    account,
+                    this._settings.get('app.intune.scopes') || undefined,
+                );
+                const email = `${account.username || ''}`.trim();
+                // Only derive the domain when the MDM config didn't supply one.
+                if (email && !getNativeDomain()) {
+                    const domain = await lookupNativeDomainByEmail(email).catch(
+                        () => '',
+                    );
+                    if (domain) {
+                        setNativeDomain(domain);
+                        setNativeEmail(email);
+                    }
+                }
+            }
+        }
         /** On native platforms, ensure we have a server domain before auth. */
         while (isNativeApp()) {
             let domain = getNativeDomain();
@@ -366,6 +399,12 @@ export class PlaceOS_Service extends AsyncHandler {
                     localStorage.removeItem(client_key);
                     invalidateToken();
                 }
+                // Authenticate with the Intune MS token. Set after setupPlace
+                // so it's stored under the computed client ID, and makes
+                // token() truthy so the OAuth sign-in below is skipped.
+                // ponytail: the plugin returns no expiry — leave setToken's
+                // default and re-acquire silently on the next launch.
+                if (intune_token) setToken(intune_token);
                 break;
             }
             log('APP', 'Auth failed, resetting domain.', auth_error, 'warn');
