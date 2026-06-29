@@ -5,6 +5,7 @@ import {
     inject,
     OnInit,
     signal,
+    untracked,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -269,13 +270,18 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
                 .split(',')
                 .filter(Boolean);
             if (!zones.length) return;
-            const level = this._org.levelWithID(zones);
-            this.zones.set(zones);
-            if (!level) return;
-            this._org.building = this._org.buildings.find(
-                (bld) => bld.id === level.parent_id,
-            );
-            this._state.setFilters({ zones });
+            // Reading/writing org state here must stay untracked: setting the
+            // building reloads level metadata, which would re-fire this effect
+            // and loop forever.
+            untracked(() => {
+                const level = this._org.levelWithID(zones);
+                this.zones.set(zones);
+                if (!level) return;
+                this._org.building = this._org.buildings.find(
+                    (bld) => bld.id === level.parent_id,
+                );
+                this._state.setFilters({ zones });
+            });
         });
         effect(() => {
             if (!this._ready() || this.use_region) return;
