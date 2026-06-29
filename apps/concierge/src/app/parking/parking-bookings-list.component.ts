@@ -70,7 +70,7 @@ interface ParkingBookingColumnTemplates {
                 class="sticky left-0 w-full"
             />
             <simple-table
-                class="block min-w-304 text-sm"
+                class="block min-w-324 text-sm"
                 [data]="filtered_events()"
                 [columns]="
                     bookingColumns({
