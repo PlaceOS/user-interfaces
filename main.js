@@ -2,33 +2,33 @@ import {
   MatProgressBar,
   MatProgressBarModule,
   subDays
-} from "./chunk-H63HMGCI.js";
+} from "./chunk-HYMBYU76.js";
 import {
   FooterMenuComponent,
   TopbarComponent,
   parse2 as parse
-} from "./chunk-E4KTWUKQ.js";
+} from "./chunk-Z37IMBTI.js";
 import {
   subMinutes
-} from "./chunk-LGSXLCAK.js";
-import "./chunk-AZXX6Q7Q.js";
-import "./chunk-JNHLAP4A.js";
-import "./chunk-I3I54RLZ.js";
-import "./chunk-6GLWND3Q.js";
-import "./chunk-O7HRHR5N.js";
+} from "./chunk-UNPKG7UB.js";
+import "./chunk-YXSVS7IX.js";
+import "./chunk-E3TGPY42.js";
+import "./chunk-RCPRAUWN.js";
+import "./chunk-BXUVRHGB.js";
+import "./chunk-6WGLOMSZ.js";
 import {
   generateMockSpace,
   setMinutes
-} from "./chunk-IUBQJEFF.js";
-import "./chunk-X4X7IJRH.js";
-import "./chunk-SZAIIA2F.js";
-import "./chunk-6NND2YX5.js";
-import "./chunk-Y3B6LNLK.js";
+} from "./chunk-MJRMNQMR.js";
+import "./chunk-NBNND7IG.js";
+import "./chunk-PTP6JBB5.js";
+import "./chunk-K2Y3YGPB.js";
+import "./chunk-QCPXHUSL.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-QP2TXM74.js";
-import "./chunk-PWK3AANS.js";
+} from "./chunk-TGKJJFDQ.js";
+import "./chunk-ODEIVSVD.js";
 import {
   AUTO_STYLE,
   AnimationGroupPlayer,
@@ -83,7 +83,7 @@ import {
   style,
   user_groups_loaded,
   ɵPRE_STYLE
-} from "./chunk-LUHGU66G.js";
+} from "./chunk-KYM44FNI.js";
 import {
   ANIMATION_MODULE_TYPE,
   ActivatedRoute,
@@ -94,6 +94,7 @@ import {
   DomRendererFactory2,
   Dr,
   ErrorHandler,
+  Fl,
   FormsModule,
   Hr,
   Inject,
@@ -103,13 +104,13 @@ import {
   LocaleService,
   MatRipple,
   MatRippleModule,
-  Ml,
   NgControlStatus,
   NgControlStatusGroup,
   NgForm,
   NgModel,
   NgModule,
   NgZone,
+  Nl,
   Output,
   Pipe,
   RendererFactory2,
@@ -162,7 +163,6 @@ import {
   withHashLocation,
   withNavigationErrorHandler,
   withRouterConfig,
-  zl,
   ɵNgNoValidate,
   ɵsetClassDebugInfo,
   ɵɵInheritDefinitionFeature,
@@ -210,7 +210,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-NJ4V3UPE.js";
+} from "./chunk-LVHOI3HH.js";
 import {
   __objRest,
   __spreadProps,
@@ -427,7 +427,7 @@ var ChatService = class _ChatService extends AsyncHandler {
     this._timeoutSocket();
   }
   _bindHint(id) {
-    const mod = zl(id, "LLM");
+    const mod = Fl(id, "LLM");
     const binding = mod.variable("user_hint");
     this.subscription(`binding:LLM:user_hint`, binding.bind());
     this.subscription(`listen:LLM:user_hint`, binding.listen().subscribe((value) => this.chat_hint.set(value)));
@@ -2047,56 +2047,58 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UnauthorisedComponent, selectors: [["app-unauthorised"]], decls: 12, vars: 9, consts: [[1, "unauthorised", "border-base-200", "bg-base-100", "m-4", "rounded-sm", "border", "p-4", "text-center", "text-black", "shadow-sm"], [1, "text-4xl"], [1, "py-4"]], template: function UnauthorisedComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UnauthorisedComponent, selectors: [["app-unauthorised"]], decls: 13, vars: 9, consts: [["unauthorised", "", 1, "absolute", "inset-0"], [1, "border-base-300", "bg-base-100", "text-base-content", "mx-auto", "my-4", "w-104", "max-w-[calc(100%-1rem)]", "rounded-xl", "border", "p-4", "text-center", "shadow-lg"], [1, "text-4xl"], [1, "py-4"]], template: function UnauthorisedComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275domElementStart(0, "div", 0)(1, "h1", 1);
-        \u0275\u0275text(2, "403");
+        \u0275\u0275domElementStart(0, "div", 0)(1, "div", 1)(2, "h1", 2);
+        \u0275\u0275text(3, "403");
         \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(3, "h3");
-        \u0275\u0275text(4);
-        \u0275\u0275pipe(5, "translate");
+        \u0275\u0275domElementStart(4, "h3");
+        \u0275\u0275text(5);
+        \u0275\u0275pipe(6, "translate");
         \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(6, "p", 2);
-        \u0275\u0275text(7);
-        \u0275\u0275pipe(8, "translate");
+        \u0275\u0275domElementStart(7, "p", 3);
+        \u0275\u0275text(8);
+        \u0275\u0275pipe(9, "translate");
         \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(9, "p");
-        \u0275\u0275text(10);
-        \u0275\u0275pipe(11, "translate");
-        \u0275\u0275domElementEnd()();
+        \u0275\u0275domElementStart(10, "p");
+        \u0275\u0275text(11);
+        \u0275\u0275pipe(12, "translate");
+        \u0275\u0275domElementEnd()()();
       }
       if (rf & 2) {
-        \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(5, 3, "COMMON.FORBIDDEN"));
+        \u0275\u0275advance(5);
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 3, "COMMON.FORBIDDEN"));
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(8, 5, "COMMON.INVALID_PAGE_PERMISSIONS"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(9, 5, "COMMON.INVALID_PAGE_PERMISSIONS"), " ");
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(11, 7, "COMMON.CONTACT_ADMIN"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 7, "COMMON.CONTACT_ADMIN"), " ");
       }
-    }, dependencies: [TranslatePipe], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n.unauthorised[_ngcontent-%COMP%] {\n  width: 28em;\n  max-width: calc(100vw - 1rem);\n}\n@media (prefers-color-scheme: dark) {\n  .unauthorised[_ngcontent-%COMP%] {\n    background-color: #262626;\n    color: #fff;\n  }\n}\n/*# sourceMappingURL=unauthorised.component.css.map */"] });
+    }, dependencies: [TranslatePipe], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */"] });
   }
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(UnauthorisedComponent, [{
     type: Component,
     args: [{ selector: "app-unauthorised", template: `
-        <div
-            class="unauthorised border-base-200 bg-base-100 m-4 rounded-sm border p-4 text-center text-black shadow-sm"
-        >
-            <h1 class="text-4xl">403</h1>
-            <h3>{{ 'COMMON.FORBIDDEN' | translate }}</h3>
-            <p class="py-4">
-                {{ 'COMMON.INVALID_PAGE_PERMISSIONS' | translate }}
-            </p>
-            <p>
-                {{ 'COMMON.CONTACT_ADMIN' | translate }}
-            </p>
+        <div unauthorised class="absolute inset-0">
+            <div
+                class="border-base-300 bg-base-100 text-base-content mx-auto my-4 w-104 max-w-[calc(100%-1rem)] rounded-xl border p-4 text-center shadow-lg"
+            >
+                <h1 class="text-4xl">403</h1>
+                <h3>{{ 'COMMON.FORBIDDEN' | translate }}</h3>
+                <p class="py-4">
+                    {{ 'COMMON.INVALID_PAGE_PERMISSIONS' | translate }}
+                </p>
+                <p>
+                    {{ 'COMMON.CONTACT_ADMIN' | translate }}
+                </p>
+            </div>
         </div>
-    `, imports: [TranslatePipe], styles: ["/* angular:styles/component:css;339f683703826d739a4087ca77098749890dd229026cd1cea15fbae0a611d80b;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/unauthorised.component.ts */\n:host {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n.unauthorised {\n  width: 28em;\n  max-width: calc(100vw - 1rem);\n}\n@media (prefers-color-scheme: dark) {\n  .unauthorised {\n    background-color: #262626;\n    color: #fff;\n  }\n}\n/*# sourceMappingURL=unauthorised.component.css.map */\n"] }]
+    `, imports: [TranslatePipe], styles: ["/* angular:styles/component:css;9e56e45d1ecd17d612bec636f553ceddd9b98cd2552edbd57d59534065beeefe;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/unauthorised.component.ts */\n:host {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UnauthorisedComponent, { className: "UnauthorisedComponent", filePath: "libs/components/src/lib/unauthorised.component.ts", lineNumber: 43 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UnauthorisedComponent, { className: "UnauthorisedComponent", filePath: "libs/components/src/lib/unauthorised.component.ts", lineNumber: 41 });
 })();
 
 // libs/components/src/lib/authorised-user.guard.ts
@@ -9409,7 +9411,7 @@ var createVideoConferenceModule = (space = {}, overrides = {}) => new VideoConfe
 
 // libs/mocks/src/lib/systems-bindings.mock.ts
 function createSystem(space) {
-  Ml(space.id, {
+  Nl(space.id, {
     System: [createSystemModule(space)],
     Bookings: [createBookingsModule(space)],
     ContactTracing: [createContactTracingModule(space)],
@@ -14253,62 +14255,62 @@ var routes = [
     title: "Book",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./book.routes-OYKU36VL.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./book.routes-C5IOQALQ.js").then((m) => m.ROUTES)
   },
   {
     path: "explore",
     title: "Explore",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-Y6H63677.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-QSWF5GKP.js").then((m) => m.ROUTES)
   },
   {
     path: "control",
     title: "Control",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./control.routes-HD6FXWJ5.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./control.routes-LLKNQ7E5.js").then((m) => m.ROUTES)
   },
   {
     path: "directory",
     title: "Directory",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./directory.routes-ZHRNT55I.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./directory.routes-GWG2KOWA.js").then((m) => m.ROUTES)
   },
   {
     path: "your-bookings",
     title: "Your Bookings",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./schedule.routes-ZXETN2PR.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./schedule.routes-VXS32G2P.js").then((m) => m.ROUTES)
   },
   {
     path: "group-events",
     title: "Group Events",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./group-events.routes-PZGGY5EK.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./group-events.routes-XH3OM5TY.js").then((m) => m.ROUTES)
   },
   {
     path: "deals-n-offers",
     title: "Deals & Offers",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./deals.routes-MON57UTR.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./deals.routes-LBU2V2ME.js").then((m) => m.ROUTES)
   },
   {
     path: "landing",
     title: "Home",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadComponent: () => import("./landing-new.component-5L2A5FL5.js").then((m) => m.LandingNewComponent)
+    loadComponent: () => import("./landing-new.component-OVKLX54J.js").then((m) => m.LandingNewComponent)
   },
   {
     path: "team-schedule",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadComponent: () => import("./team-schedule.component-HXMTIZ3P.js").then((m) => m.TeamScheduleComponent)
+    loadComponent: () => import("./team-schedule.component-DARHHLO2.js").then((m) => m.TeamScheduleComponent)
   },
   {
     path: "embedded/:id",
