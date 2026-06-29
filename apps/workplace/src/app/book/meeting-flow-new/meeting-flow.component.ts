@@ -183,6 +183,7 @@ export class MeetingFlowNewComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit() {
+        this._event_form.loadForm();
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((param) => {
