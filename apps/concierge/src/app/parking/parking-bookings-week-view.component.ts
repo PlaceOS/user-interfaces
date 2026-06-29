@@ -147,6 +147,11 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                         {{ plate }}
                                     </div>
                                 }
+                                @if (matchedUserGroups(booking); as groups) {
+                                    <div class="mt-0.5 opacity-40">
+                                        {{ groups }}
+                                    </div>
+                                }
                                 <button
                                     matRipple
                                     class="flex-1 rounded-full border-none text-xs w-full my-1 min-h-6 text-left"
@@ -480,6 +485,19 @@ export class ParkingBookingsWeekViewComponent
 
     public get show_waitlist() {
         return this._settings.get('app.parking.show_waitlist') !== false;
+    }
+
+    public get show_user_groups(): string[] {
+        const groups = this._settings.get('app.parking.show_user_groups');
+        return Array.isArray(groups) ? groups.filter(Boolean) : [];
+    }
+
+    public matchedUserGroups(booking: Booking): string {
+        const allowed = this.show_user_groups;
+        if (!allowed.length) return '';
+        const groups = booking?.extension_data?.user_groups;
+        if (!Array.isArray(groups)) return '';
+        return groups.filter((group) => allowed.includes(group)).join(', ');
     }
 
     public isVisibleWaitlisted(booking: Booking) {

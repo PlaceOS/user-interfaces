@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { PlaylistApprovalPreviewComponent } from './playlist-approval-preview.component';
+import { PlaylistApprovalPreviewComponent } from '../../app/shared/playlist-approval-preview.component';
 
 describe('PlaylistApprovalPreviewComponent', () => {
     beforeEach(async () => {
@@ -9,7 +9,9 @@ describe('PlaylistApprovalPreviewComponent', () => {
     });
 
     it('uses signage thumbnail endpoints when media has a thumbnail id', () => {
-        const fixture = TestBed.createComponent(PlaylistApprovalPreviewComponent);
+        const fixture = TestBed.createComponent(
+            PlaylistApprovalPreviewComponent,
+        );
         const component = fixture.componentInstance;
 
         expect(
@@ -22,7 +24,9 @@ describe('PlaylistApprovalPreviewComponent', () => {
     });
 
     it('falls back to the media thumbnail url', () => {
-        const fixture = TestBed.createComponent(PlaylistApprovalPreviewComponent);
+        const fixture = TestBed.createComponent(
+            PlaylistApprovalPreviewComponent,
+        );
         const component = fixture.componentInstance;
 
         expect(
@@ -35,7 +39,9 @@ describe('PlaylistApprovalPreviewComponent', () => {
     });
 
     it('renders current and previous media lists', () => {
-        const fixture = TestBed.createComponent(PlaylistApprovalPreviewComponent);
+        const fixture = TestBed.createComponent(
+            PlaylistApprovalPreviewComponent,
+        );
         fixture.componentRef.setInput('versions', [
             {
                 id: 'current-version',
@@ -60,9 +66,7 @@ describe('PlaylistApprovalPreviewComponent', () => {
         expect(fixture.nativeElement.textContent).toContain(
             'Version to approve',
         );
-        expect(fixture.nativeElement.textContent).toContain(
-            'Previous version',
-        );
+        expect(fixture.nativeElement.textContent).toContain('Previous version');
         expect(fixture.nativeElement.textContent).toContain('Image');
         expect(fixture.nativeElement.textContent).toContain('Webpage');
         expect(fixture.nativeElement.textContent).toContain('Video');

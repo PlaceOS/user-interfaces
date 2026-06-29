@@ -30,10 +30,10 @@ import { NewDeskFlowSuccessComponent } from './desk-flow-success.component';
     template: `
         @if (view() !== 'success') {
             <div
-                class="bg-base-200 relative z-0 flex h-full w-full flex-col overflow-auto"
+                class="bg-base-200 relative flex h-full w-full flex-col overflow-auto"
             >
                 <div
-                    class="mx-auto min-h-full w-[80rem] max-w-full flex-1 space-y-4 px-4 pt-4"
+                    class="mx-auto min-h-full w-7xl max-w-full flex-1 space-y-4 px-4 pt-4"
                 >
                     @if (!is_edit_mode()) {
                         <desk-flow-auto-assign class="block" />
@@ -152,7 +152,10 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
         }));
         this._booking_form.setOptions({ type: 'desk' });
         if (!this._booking_form.model().id)
-            this._booking_form.model.update((m) => ({ ...m, title: 'Booking' }));
+            this._booking_form.model.update((m) => ({
+                ...m,
+                title: 'Booking',
+            }));
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((param) => {
@@ -216,9 +219,8 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
         const resource = await this._findDeskResourceFromStream(asset_id, 50);
         if (resource) return resource;
 
-        const building_resource = await this._findDeskResourceFromBuildings(
-            asset_id,
-        );
+        const building_resource =
+            await this._findDeskResourceFromBuildings(asset_id);
         return (
             building_resource ||
             (await this._findDeskResourceFromStream(asset_id, 5000))

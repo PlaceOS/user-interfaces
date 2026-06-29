@@ -5,7 +5,7 @@ import { SignageMedia } from '@placeos/ts-client';
 import {
     BulkMediaUploadModalComponent,
     BulkMediaUploadModalData,
-} from './bulk-media-upload-modal.component';
+} from '../../app/shared/bulk-media-upload-modal.component';
 
 jest.mock('@placeos/common', () => ({
     ...jest.requireActual('@placeos/common'),

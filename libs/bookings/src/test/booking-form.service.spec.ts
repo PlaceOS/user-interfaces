@@ -44,6 +44,7 @@ describe('BookingFormService', () => {
                 initialised: signal(true),
                 waitUntilInitialised: () => Promise.resolve(),
                 active_building: signal({ id: 'bld-1' }),
+                active_building_loaded: signal(true),
                 building_list: signal([{ id: 'bld-1', parent_id: 'reg-1' }]),
                 organisation: { id: 'org-1' },
                 region: { id: 'reg-1' },

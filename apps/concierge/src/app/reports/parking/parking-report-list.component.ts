@@ -37,6 +37,11 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
         description: 'True when the booking checked-in flag is set.',
     },
     {
+        label: 'Checked-in at',
+        description:
+            'Time the booking was checked in; empty when no check-in has been recorded.',
+    },
+    {
         label: 'Status',
         description:
             'Cancelled bookings show Cancelled; rejected bookings show Rejected; otherwise the booking status is shown, defaulting to tentative.',
@@ -101,6 +106,11 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                         name: 'COMMON.CHECKED_IN' | translate,
                     },
                     {
+                        key: 'checked_in_at',
+                        name: 'COMMON.CHECKED_IN_AT' | translate,
+                        content: checked_in_at_template,
+                    },
+                    {
                         key: 'status',
                         name: 'COMMON.STATUS' | translate,
                     },
@@ -114,6 +124,17 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
             <ng-template #date_template let-row="row">
                 <div class="p-4">
                     {{ row.date | date: 'mediumDate' }}
+                </div>
+            </ng-template>
+            <ng-template #checked_in_at_template let-row="row">
+                <div class="p-4">
+                    @if (row.checked_in_at) {
+                        {{ row.checked_in_at * 1000 | date: 'short' }}
+                    } @else {
+                        <span class="opacity-30">
+                            {{ 'COMMON.EMPTY' | translate }}
+                        </span>
+                    }
                 </div>
             </ng-template>
             <ng-template #duration_template let-row="row">
@@ -162,6 +183,9 @@ export class ParkingReportListComponent {
                 checked_in: i18n(
                     booking.checked_in ? 'COMMON.TRUE' : 'COMMON.FALSE',
                 ),
+                checked_in_at: booking.checked_in_at
+                    ? booking.checked_in_at * 1000
+                    : 0,
                 status: reportBookingStatus(booking),
                 self_registered: i18n(
                     booking.extension_data?.self_registered
@@ -178,6 +202,9 @@ export class ParkingReportListComponent {
         const data = this.parking_bookings();
         for (const bkn of data) {
             bkn.date = format(bkn.date, 'yyyy-MM-dd HH:mm');
+            bkn.checked_in_at = bkn.checked_in_at
+                ? format(bkn.checked_in_at, 'yyyy-MM-dd HH:mm')
+                : '';
         }
         downloadFile('report-parking-daily-usage.csv', jsonToCsv(data));
     };

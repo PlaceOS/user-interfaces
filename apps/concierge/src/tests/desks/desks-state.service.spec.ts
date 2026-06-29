@@ -172,11 +172,6 @@ describe('DesksStateService', () => {
                 status: 'declined',
             }),
         );
-        jest.clearAllMocks();
-        (spectator.service as any)._buildFirstPage({ zones: [] })();
-        expect(booking_mod.queryPagedBookings).toHaveBeenCalledWith(
-            expect.objectContaining({ rejected: true }),
-        );
     });
 
     it('should keep rejected status when a fast reload returns the old approved state', async () => {

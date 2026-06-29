@@ -5,7 +5,7 @@ import { SignageMedia, SignagePlugin } from '@placeos/ts-client';
 import {
     MediaEditModalComponent,
     MediaEditModalData,
-} from './media-edit-modal.component';
+} from '../../app/shared/media-edit-modal.component';
 
 jest.mock('@placeos/common', () => ({
     ...jest.requireActual('@placeos/common'),

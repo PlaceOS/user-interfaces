@@ -45,6 +45,7 @@ interface ParkingBookingColumnTemplates {
     plate_template: TemplateRef<any>;
     notes_template: TemplateRef<any>;
     status_template: TemplateRef<any>;
+    user_groups_template: TemplateRef<any>;
     action_template: TemplateRef<any>;
     status_busy_label: string;
     type_label: string;
@@ -55,6 +56,7 @@ interface ParkingBookingColumnTemplates {
     plate_number_label: string;
     notes_label: string;
     status_label: string;
+    user_groups_label: string;
 }
 
 @Component({
@@ -68,7 +70,7 @@ interface ParkingBookingColumnTemplates {
                 class="sticky left-0 w-full"
             />
             <simple-table
-                class="block min-w-304 text-sm"
+                class="block min-w-324 text-sm"
                 [data]="filtered_events()"
                 [columns]="
                     bookingColumns({
@@ -81,6 +83,7 @@ interface ParkingBookingColumnTemplates {
                         plate_template,
                         notes_template,
                         status_template,
+                        user_groups_template,
                         action_template,
                         status_busy_label: 'COMMON.STATUS_BUSY' | translate,
                         type_label: 'BOOKINGS.PARKING_VEHICLE_TYPE' | translate,
@@ -95,6 +98,8 @@ interface ParkingBookingColumnTemplates {
                             'EXPLORE.PARKING_PLATE_NUMBER' | translate,
                         notes_label: 'FORM.NOTES' | translate,
                         status_label: 'COMMON.STATUS' | translate,
+                        user_groups_label:
+                            'APP.CONCIERGE.PARKING_USER_GROUPS' | translate,
                     })
                 "
                 [filter]="options().search"
@@ -178,8 +183,9 @@ interface ParkingBookingColumnTemplates {
                     </div>
                 }
             </ng-template>
-            <ng-template #bay_template let-id="data">
+            <ng-template #bay_template let-row="row">
                 <div class="px-4 py-2">
+                    @let id = row.asset_id;
                     @if (id && !isRequestId(id)) {
                         {{ (id | parkingSpace | async)?.identifier || id }}
                     } @else {
@@ -420,6 +426,9 @@ interface ParkingBookingColumnTemplates {
                     }
                 </mat-menu>
             </ng-template>
+            <ng-template #user_groups_template let-row="row">
+                <div class="px-4 py-2">{{ row.user_groups }}</div>
+            </ng-template>
             <ng-template #action_template let-row="row">
                 <div class="flex w-full items-center justify-end gap-2 p-2">
                     @if (isRequest(row) && !hide_assign_space) {
@@ -516,16 +525,28 @@ export class ParkingBookingsListComponent
             this.bookings(),
             request_filter,
         );
-        return this._state.filterEventSearch(list, search).map((booking) => ({
-            ...booking,
-            vehicle_type: this.vehicleType(booking),
-            notes: booking.extension_data?.notes || '',
-            // Resolve the human-readable bay identifier onto the row so the
-            // table's built-in search matches it (the `asset_id` field only
-            // holds the space id, not the bay number/name).
-            bay_number: this._state.bayNumber(booking),
-            ...this.customExtensionColumnValues(booking),
-        }));
+        return this._state
+            .filterEventSearch(list, search)
+            .map((booking) => ({
+                ...booking,
+                vehicle_type: this.vehicleType(booking),
+                notes: booking.extension_data?.notes || '',
+                // Surface plate number as a root field so the table can sort by it
+                plate_number: booking.extension_data?.plate_number || '',
+                // Resolve the human-readable bay identifier onto the row so the
+                // table's built-in search matches it (the `asset_id` field only
+                // holds the space id, not the bay number/name).
+                bay_number: this._state.bayNumber(booking),
+                // Intersection of the booking's user groups with the
+                // configured `show_user_groups` filter, surfaced for display.
+                user_groups: this.matchedUserGroups(booking),
+                ...this.customExtensionColumnValues(booking),
+            }))
+            .sort((a, b) =>
+                (a.bay_number || a.asset_name || '').localeCompare(
+                    b.bay_number || b.asset_name || '',
+                ),
+            );
     });
 
     public action_count(row) {
@@ -610,6 +631,19 @@ export class ParkingBookingsListComponent
         return Array.isArray(columns)
             ? columns.filter((column) => !!column?.field)
             : [];
+    }
+
+    public get show_user_groups(): string[] {
+        const groups = this._settings.get('app.parking.show_user_groups');
+        return Array.isArray(groups) ? groups.filter(Boolean) : [];
+    }
+
+    public matchedUserGroups(booking: Booking): string {
+        const allowed = this.show_user_groups;
+        if (!allowed.length) return '';
+        const groups = booking?.extension_data?.user_groups;
+        if (!Array.isArray(groups)) return '';
+        return groups.filter((group) => allowed.includes(group)).join(', ');
     }
 
     public get show_waitlist() {
@@ -698,7 +732,7 @@ export class ParkingBookingsListComponent
                 content: templates.date_template,
             },
             {
-                key: 'asset_id',
+                key: 'bay_number',
                 name: templates.bay_number_label,
                 content: templates.bay_template,
                 show: !this.hide_bay_number_column(),
@@ -718,7 +752,6 @@ export class ParkingBookingsListComponent
                 name: templates.plate_number_label,
                 content: templates.plate_template,
                 size: '10rem',
-                sortable: false,
             },
             {
                 key: 'notes',
@@ -738,6 +771,14 @@ export class ParkingBookingsListComponent
                 name: templates.status_label,
                 content: templates.status_template,
                 size: '9.5rem',
+            },
+            {
+                key: 'user_groups',
+                name: templates.user_groups_label,
+                content: templates.user_groups_template,
+                size: '12rem',
+                sortable: false,
+                show: this.show_user_groups.length > 0,
             },
             {
                 key: 'actions',

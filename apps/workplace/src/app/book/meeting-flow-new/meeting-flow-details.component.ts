@@ -78,7 +78,10 @@ import {
                                 name="time"
                                 [ngModel]="form_value().date"
                                 (ngModelChange)="
-                                    model.update((m) => ({ ...m, date: $event }))
+                                    model.update((m) => ({
+                                        ...m,
+                                        date: $event,
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [range]="bookable_hours()"
@@ -138,7 +141,24 @@ import {
                         btn
                         matRipple
                         class="m-1 min-w-40 flex-1"
-                        [class.inverse]="capacity !== 1 && capacity !== -1"
+                        [class.inverse]="capacity !== -1"
+                        (click)="setCapacity(-1)"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <icon>person</icon>
+                            <div>
+                                {{ 'COMMON.CAPACITY_ANY' | translate }}
+                            </div>
+                        </div>
+                        @if (capacity === -1) {
+                            <icon class="absolute top-0 right-0">task_alt</icon>
+                        }
+                    </button>
+                    <button
+                        btn
+                        matRipple
+                        class="m-1 min-w-40 flex-1"
+                        [class.inverse]="capacity !== 1"
                         (click)="setCapacity(1)"
                     >
                         <div class="flex items-center space-x-2">
@@ -147,7 +167,7 @@ import {
                                 {{ 'CALENDAR_EVENT.ROOM_SIZE_1_2' | translate }}
                             </div>
                         </div>
-                        @if (!(capacity !== 1 && capacity !== -1)) {
+                        @if (capacity === 1) {
                             <icon class="absolute top-0 right-0">task_alt</icon>
                         }
                     </button>

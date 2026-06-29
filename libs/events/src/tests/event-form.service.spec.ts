@@ -44,6 +44,7 @@ describe('EventFormService', () => {
                     provide: OrganisationService,
                     useValue: {
                         building: { id: 'bld-1', timezone: 'Australia/Sydney' },
+                        buildings: [{ id: 'bld-1' }],
                         building_list: signal([]),
                         active_building: signal({}),
                         active_region: signal({}),
@@ -425,6 +426,55 @@ describe('EventFormService', () => {
         } finally {
             jest.useRealTimers();
         }
+    });
+
+    it('should fetch and enforce booking rules on demand when not preloaded', async () => {
+        // The booking panel submits bookings before the reactive rules
+        // resource has loaded, so the rules metadata must be fetched on
+        // demand and still block hidden rooms.
+        jest.mocked(ts_client.showMetadata).mockResolvedValueOnce({
+            details: [{ zone: '*', conditions: {}, rules: { hidden: true } }],
+        } as any);
+        const space = {
+            id: 'space-1',
+            email: 'space-1@example.com',
+            name: 'Boardroom',
+            zones: ['bld-1'],
+        } as any;
+
+        await expect(
+            (service as any)._checkResourceRules(
+                [space],
+                new Date(2028, 5, 15, 10, 0, 0, 0).valueOf(),
+                60,
+                currentUser().email,
+            ),
+        ).rejects.toBeTruthy();
+        expect(ts_client.showMetadata).toHaveBeenCalledWith(
+            'bld-1',
+            'room_booking_rules',
+        );
+    });
+
+    it('should allow bookings when on-demand rules do not hide the room', async () => {
+        jest.mocked(ts_client.showMetadata).mockResolvedValueOnce({
+            details: [{ zone: '*', conditions: {}, rules: { hidden: false } }],
+        } as any);
+        const space = {
+            id: 'space-1',
+            email: 'space-1@example.com',
+            name: 'Boardroom',
+            zones: ['bld-1'],
+        } as any;
+
+        await expect(
+            (service as any)._checkResourceRules(
+                [space],
+                new Date(2028, 5, 15, 10, 0, 0, 0).valueOf(),
+                60,
+                currentUser().email,
+            ),
+        ).resolves.toBe(true);
     });
 
     it('should block recurring room bookings that clash by default', async () => {

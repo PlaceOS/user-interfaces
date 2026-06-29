@@ -172,7 +172,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
     selector: 'parking-request-form-details',
     template: `
         @if (form() && model) {
-            <div class="space-y-4">
+            <div class="flex flex-col gap-2 sm:gap-4">
                 <!-- BOOKING FREQUENCY -->
                 <div
                     class="gradient border-base-content flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
@@ -447,7 +447,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                         }}</span>
                                         @if (type.badge) {
                                             <span
-                                                class="bg-base-200 rounded px-2 py-0.5 text-xs"
+                                                class="bg-base-200 rounded px-2 py-0.5 text-center text-xs"
                                                 >{{
                                                     type.badge | translate
                                                 }}</span
@@ -507,8 +507,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                     }
                 </div>
                 @if (
-                    model().request_type === 'special' &&
-                    show_special_needs()
+                    model().request_type === 'special' && show_special_needs()
                 ) {
                     <!-- P2 SPECIAL NEEDS DETAILS -->
                     <div

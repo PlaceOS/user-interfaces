@@ -701,6 +701,50 @@ describe('SignageService', () => {
         );
     });
 
+    it('should activate an in-progress cron takeover detected after it fired', async () => {
+        const fired_at = new Date('2026-01-01T09:00:00');
+        // Boot the display two hours into an eight-hour takeover window.
+        jest.setSystemTime(fired_at.getTime() + 2 * 60 * 60 * 1000);
+        const cron = `${fired_at.getMinutes()} ${fired_at.getHours()} * * *`;
+        (ts_client.showSignage as jest.Mock).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_config: {
+                        ...create_display().playlist_config,
+                        'scheduled-playlist': [
+                            {
+                                id: 'scheduled-playlist',
+                                name: 'Scheduled Playlist',
+                                enabled: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 10000,
+                                schedules: [
+                                    {
+                                        play_at: 0,
+                                        play_cron: cron,
+                                        play_period: 8 * 60,
+                                        play_takeover: true,
+                                    },
+                                ],
+                            },
+                            ['media-3'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        expect(
+            spectator.service.override_playlist().playlist.map((_) => _.id),
+        ).toEqual(['media-3']);
+        expect(spectator.service.override_playlist().ends_at).toBe(
+            fired_at.getTime() + 8 * 60 * 60 * 1000,
+        );
+    });
+
     it('should not retrigger completed single-pass scheduled overrides', async () => {
         const now = new Date('2026-01-01T10:00:00Z').getTime();
         jest.setSystemTime(now);

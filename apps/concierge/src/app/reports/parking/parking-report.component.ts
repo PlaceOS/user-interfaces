@@ -80,12 +80,12 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
                     />
                     <parking-report-overall></parking-report-overall>
                     <parking-report-charts></parking-report-charts>
-                    <parking-report-daily-usage
-                        [print]="printing()"
-                    ></parking-report-daily-usage>
                     <parking-report-list
                         [print]="printing()"
                     ></parking-report-list>
+                    <parking-report-daily-usage
+                        [print]="printing()"
+                    ></parking-report-daily-usage>
                 } @else {
                     <div
                         class="screen-only flex h-full w-full flex-col items-center p-8"

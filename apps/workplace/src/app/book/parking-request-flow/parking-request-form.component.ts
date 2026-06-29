@@ -28,7 +28,7 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
             class="bg-base-200 relative z-0 flex h-full w-full flex-col overflow-auto"
         >
             <div
-                class="mx-auto min-h-full w-[80rem] max-w-full flex-1 space-y-4 px-4 pt-4"
+                class="mx-auto min-h-full w-[80rem] max-w-full flex-1 space-y-2 px-2 pt-2 sm:space-y-4 sm:px-4 sm:pt-4"
             >
                 <div
                     class="border-base-300 bg-base-100 flex w-full flex-col overflow-hidden rounded-xl border"
@@ -133,8 +133,8 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
 
                         <!-- Conditional after-hours warning -->
                         @if (model().request_type === 'after_hours') {
-                            <div class="text-warning flex items-center gap-2">
-                                <icon class="text-lg">error</icon>
+                            <div class="flex items-center gap-2">
+                                <icon class="text-warning text-lg">error</icon>
                                 <span class="text-sm">{{
                                     'BOOKINGS.PARKING_AFTER_HOURS_WARNING'
                                         | translate
@@ -146,7 +146,7 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
 
                 <!-- Sticky bottom bar -->
                 <div
-                    class="border-base-300 bg-base-100 sticky bottom-0 z-20 flex justify-between rounded-t-xl border-x border-t p-3"
+                    class="border-base-300 bg-base-100 sticky bottom-0 z-20 flex justify-between gap-2 rounded-t-xl border-x border-t p-3 text-sm sm:text-base"
                 >
                     <button
                         btn
@@ -154,8 +154,10 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
                         class="inverse flex items-center gap-2"
                         (click)="clearForm()"
                     >
-                        <icon>close</icon>
-                        {{ 'BOOKINGS.PARKING_CANCEL' | translate }}
+                        <icon class="text-xl">close</icon>
+                        <div class="pr-2">
+                            {{ 'BOOKINGS.PARKING_CANCEL' | translate }}
+                        </div>
                     </button>
                     <button
                         btn
@@ -169,7 +171,7 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
                                     >progress_activity</icon
                                 >
                             } @else {
-                                <icon class="text-2xl">send</icon>
+                                <icon class="text-xl">send</icon>
                             }
                             <div class="flex-1 pr-4">
                                 {{

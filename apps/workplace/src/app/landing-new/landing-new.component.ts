@@ -17,7 +17,7 @@ import { LandingUpcomingBookingComponent } from './landing-upcoming-booking.comp
     template: `
         <div class="absolute inset-0 flex flex-col overflow-hidden">
             @if (!hide_nav()) {
-                <topbar class="z-10" />
+                <topbar />
             }
             <div class="bg-base-200 relative flex h-1/2 flex-1 overflow-auto">
                 <div

@@ -43,9 +43,9 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
 @Component({
     selector: 'desk-flow-select',
     template: `
-        <div class="relative w-full bg-base-100">
+        <div class="bg-base-100 relative w-full">
             <div
-                class="gradient relative flex h-14 items-center justify-between space-x-2 border-l-8 border-base-content px-4 text-xl font-medium"
+                class="gradient border-base-content relative flex h-14 items-center justify-between space-x-2 border-l-8 px-4 text-xl font-medium"
             >
                 <div class="flex items-center space-x-2">
                     <icon>desk</icon>
@@ -65,7 +65,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
             <!-- Mobile backdrop -->
             @if (filters_open()) {
                 <div
-                    class="fixed inset-0 z-20 bg-black/50 sm:hidden"
+                    class="fixed inset-0 z-[60] bg-black/50 sm:hidden"
                     (click)="filters_open.set(false)"
                 ></div>
             }
@@ -209,7 +209,9 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                             <settings-toggle
                                 class="mb-4"
                                 [ngModel]="options()?.show_fav"
-                                (ngModelChange)="setOptions({ show_fav: $event })"
+                                (ngModelChange)="
+                                    setOptions({ show_fav: $event })
+                                "
                                 [ngModelOptions]="{ standalone: true }"
                                 >{{
                                     'COMMON.FAVOURITES_ONLY' | translate
@@ -223,7 +225,9 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                     @if (!hide_features().includes(feat)) {
                                         <settings-toggle
                                             class="w-full"
-                                            [label]="feature_display()[feat] || feat"
+                                            [label]="
+                                                feature_display()[feat] || feat
+                                            "
                                             [ngModel]="
                                                 options()?.features?.includes(
                                                     feat
@@ -232,7 +236,9 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                             (ngModelChange)="
                                                 toggleFeature(feat, $event)
                                             "
-                                            [ngModelOptions]="{ standalone: true }"
+                                            [ngModelOptions]="{
+                                                standalone: true,
+                                            }"
                                         ></settings-toggle>
                                     }
                                 }
@@ -245,10 +251,9 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                     <div class="mb-2 flex space-x-2">
                         <div
                             filters
-                            class="flex flex-1 flex-wrap rounded-lg border border-base-300 bg-base-100 p-2"
+                            class="border-base-300 bg-base-100 flex flex-1 flex-wrap rounded-lg border p-2"
                         >
-                            @let feature_list =
-                                options()?.features || [];
+                            @let feature_list = options()?.features || [];
                             @let zones = options()?.zones || [];
                             @let event = model();
                             @let zone = (zones | level) || (zones | building);
@@ -259,7 +264,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                     btn
                                     matRipple
                                     name="clear-space-filters"
-                                    class="mb-2 mr-2 min-h-[2rem]"
+                                    class="mr-2 mb-2 min-h-[2rem]"
                                     (click)="removeAllFeatures()"
                                 >
                                     {{ 'COMMON.FILTERS_CLEAR' | translate }}
@@ -325,7 +330,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                         </div>
                     </div>
                     <div
-                        class="relative flex flex-col overflow-hidden rounded-lg border border-base-300 bg-base-200 p-2"
+                        class="border-base-300 bg-base-200 relative flex flex-col overflow-hidden rounded-lg border p-2"
                         [class.flex-1]="view() !== 'map'"
                         [class.h-[600px]]="view() === 'map'"
                         [class.min-h-[600px]]="view() === 'map'"
@@ -347,12 +352,12 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
             </div>
             <!-- Mobile Filters Panel - Bottom Sheet -->
             <div
-                class="filters-panel-mobile fixed bottom-0 left-0 right-0 z-30 w-full border-t border-base-300 bg-base-100 shadow-lg transition-transform duration-300 sm:hidden"
+                class="filters-panel-mobile border-base-300 bg-base-100 fixed right-0 bottom-0 left-0 z-[70] w-full border-t shadow-lg transition-transform duration-300 sm:hidden"
                 [class.translate-y-full]="!filters_open()"
                 [class.translate-y-0]="filters_open()"
             >
                 <div
-                    class="flex w-full items-center justify-between border-b border-base-300 p-2"
+                    class="border-base-300 flex w-full items-center justify-between border-b p-2"
                 >
                     <h3 class="px-2 text-xl font-medium">
                         {{ 'COMMON.FILTERS' | translate }}
@@ -393,8 +398,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                 (ngModelChange)="setBuilding($event)"
                                 [ngModelOptions]="{ standalone: true }"
                                 [placeholder]="
-                                    building()?.display_name ||
-                                    building()?.name
+                                    building()?.display_name || building()?.name
                                 "
                             >
                                 @for (bld of buildings(); track bld) {
@@ -454,7 +458,10 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                                 class="flex-1"
                                 [ngModel]="field('date')"
                                 (ngModelChange)="
-                                    model.update((m) => ({ ...m, date: $event }))
+                                    model.update((m) => ({
+                                        ...m,
+                                        date: $event,
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr()"
@@ -484,14 +491,16 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                             }}</settings-toggle
                         >
                         <h2 class="text-lg font-medium">
-                            {{ 'CALENDAR_EVENT.FACILITIES' | translate }}
+                            {{ 'BOOKINGS.FACILITIES' | translate }}
                         </h2>
                         <div class="mb-4 flex flex-col space-y-2">
                             @for (feat of features(); track feat) {
                                 @if (!hide_features().includes(feat)) {
                                     <settings-toggle
                                         class="w-full"
-                                        [label]="feature_display()[feat] || feat"
+                                        [label]="
+                                            feature_display()[feat] || feat
+                                        "
                                         [ngModel]="
                                             options()?.features?.includes(feat)
                                         "
@@ -683,9 +692,7 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
     public readonly features = computed(() =>
         unique(
             flatten(
-                this._booking_form
-                    .resources()
-                    .map((_) => _.features),
+                this._booking_form.resources().map((_) => _.features),
             ).filter((_) => _.trim()),
         ),
     );
@@ -803,30 +810,24 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
                 .map((resource) => resource.zone?.id)
                 .filter((_) => _),
         );
-        const viewable_levels = level_list.filter(
-            (lvl) => !lvl.tags.includes('parking') && level_ids.has(lvl.id),
-        );
-        if (viewable_levels.length) {
-            const current_zones = this.options_value()?.zones || [];
-            const current_zone_valid = current_zones.some((zone) =>
-                viewable_levels.some((lvl) => lvl.id === zone),
+        const viewable_levels = level_list
+            .filter(
+                (lvl) => !lvl.tags.includes('parking') && level_ids.has(lvl.id),
+            )
+            .sort(
+                (a, b) =>
+                    a.parent_id.localeCompare(b.parent_id) ||
+                    (a.display_name || '').localeCompare(b.display_name || ''),
             );
-            if (current_zone_valid) {
-                const valid_zone = current_zones.find((zone) =>
-                    viewable_levels.some((lvl) => lvl.id === zone),
-                );
-                this.setOptions({ zones: [valid_zone] });
-            } else {
-                const first_level = viewable_levels.sort(
-                    (a, b) =>
-                        a.parent_id.localeCompare(b.parent_id) ||
-                        (a.display_name || '').localeCompare(
-                            b.display_name || '',
-                        ),
-                )[0];
-                this.setOptions({ zones: [first_level.id] });
-            }
-        }
+        if (!viewable_levels.length) return;
+        // The zone filters are hidden on the map, so apply the user's selected
+        // level as the map's active level. Prefer a level they already picked in
+        // the list filters, otherwise default to the first viewable level.
+        const current_zones = this.options_value()?.zones || [];
+        const active_level =
+            viewable_levels.find((lvl) => current_zones.includes(lvl.id)) ||
+            viewable_levels[0];
+        this.setOptions({ zones: [active_level.id], zone_id: active_level.id });
     }
 
     public toggleDesk(space: Space) {

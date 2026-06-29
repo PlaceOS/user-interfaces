@@ -1,4 +1,7 @@
-import { decodeEntities, decodeEntityNames } from './decode-entity-names.util';
+import {
+    decodeEntities,
+    decodeEntityNames,
+} from '../../app/shared/decode-entity-names.util';
 
 describe('decodeEntities', () => {
     it('decodes HTML entities', () => {

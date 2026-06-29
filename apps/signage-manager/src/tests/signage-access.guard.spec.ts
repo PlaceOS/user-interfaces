@@ -1,8 +1,11 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router, UrlTree } from '@angular/router';
-import { SignageService } from './signage.service';
-import { canAccessSignageApp, signageAccessGuard } from './signage-access.guard';
+import {
+    canAccessSignageApp,
+    signageAccessGuard,
+} from '../app/signage-access.guard';
+import { SignageService } from '../app/signage.service';
 
 describe('canAccessSignageApp', () => {
     it('allows sys admins and support users without groups', () => {
@@ -25,7 +28,10 @@ describe('signageAccessGuard', () => {
 
     function runGuard() {
         return TestBed.runInInjectionContext(
-            () => signageAccessGuard({} as any, {} as any) as Promise<boolean | UrlTree>,
+            () =>
+                signageAccessGuard({} as any, {} as any) as Promise<
+                    boolean | UrlTree
+                >,
         );
     }
 

@@ -163,6 +163,25 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                 </mat-select>
                             </mat-form-field>
                         }
+                        <label for="capacity">{{
+                            'COMMON.CAPACITY' | translate
+                        }}</label>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-select
+                                name="capacity"
+                                [ngModel]="filters()?.capacity ?? -1"
+                                (ngModelChange)="
+                                    setFilters({ capacity: $event })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                            >
+                                @for (opt of capacity_options; track opt.value) {
+                                    <mat-option [value]="opt.value">
+                                        {{ opt.label | translate }}
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
                         <label for="date">{{ 'FORM.DATE' | translate }}</label>
                         <date-field [formField]="form.date" />
                         @if (allow_all_day()) {
@@ -459,6 +478,23 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                             </mat-select>
                         </mat-form-field>
                     }
+                    <label for="capacity">{{
+                        'COMMON.CAPACITY' | translate
+                    }}</label>
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-select
+                            name="capacity-mobile"
+                            [ngModel]="filters()?.capacity ?? -1"
+                            (ngModelChange)="setFilters({ capacity: $event })"
+                            [ngModelOptions]="{ standalone: true }"
+                        >
+                            @for (opt of capacity_options; track opt.value) {
+                                <mat-option [value]="opt.value">
+                                    {{ opt.label | translate }}
+                                </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
                     <label for="date">{{ 'FORM.DATE' | translate }}</label>
                     <date-field [formField]="form.date" />
                     @if (allow_all_day()) {
@@ -644,6 +680,14 @@ export class MeetingFlowSpaceSelectComponent {
     );
     public readonly view = signal<'map' | 'list'>('list');
     public readonly filters_open = signal(false);
+
+    public readonly capacity_options = [
+        { value: -1, label: 'COMMON.CAPACITY_ANY' },
+        { value: 1, label: 'CALENDAR_EVENT.ROOM_SIZE_1_2' },
+        { value: 3, label: 'CALENDAR_EVENT.ROOM_SIZE_3_4' },
+        { value: 5, label: 'CALENDAR_EVENT.ROOM_SIZE_5_8' },
+        { value: 9, label: 'CALENDAR_EVENT.ROOM_SIZE_9_PLUS' },
+    ];
 
     public get form() {
         return this._event_form.form;

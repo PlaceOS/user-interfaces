@@ -67,6 +67,8 @@ export class OrganisationService {
     );
     private readonly _level_list = signal<BuildingLevel[]>([]);
     private readonly _loaded_data: string[] = [];
+    /** Ids of buildings whose settings metadata has finished loading */
+    private readonly _loaded_buildings = signal<string[]>([]);
     private readonly _limited_init = signal(false);
 
     public readonly app_key = `${(
@@ -82,6 +84,16 @@ export class OrganisationService {
     public readonly active_region = this._active_region.asReadonly();
     /** Signal for the currently active building */
     public readonly active_building = this._active_building.asReadonly();
+    /**
+     * Whether the active building's settings metadata has loaded into the
+     * override stack. False while `loadBuildingData` is still in flight, so
+     * consumers can avoid reading building-level settings before they land.
+     */
+    public readonly active_building_loaded = computed(() => {
+        if (this._service.get('dont_load_metadata')) return true;
+        const id = this._active_building()?.id;
+        return !id || this._loaded_buildings().includes(id);
+    });
     /** Signal for the buildings associated with the currently active region */
     public readonly active_buildings = computed(() => {
         const region = this._active_region();
@@ -376,6 +388,7 @@ export class OrganisationService {
     public async reloadMetadata(): Promise<void> {
         this._clearSessionCache();
         this._loaded_data.length = 0;
+        this._loaded_buildings.set([]);
         await this.load();
     }
 
@@ -517,7 +530,7 @@ export class OrganisationService {
             await this._queryZones({
                 tags: 'region',
                 parent_id: this._organisation?.id || '',
-                limit: 500,
+                limit: 200,
             }).catch(() => [])
         ).map((_) => new Region(_));
         this._region_list.set(list);
@@ -607,6 +620,9 @@ export class OrganisationService {
         (bld as any).bindings = bindings;
         (bld as any).booking_rules = booking_rules;
         this._loaded_data[bld.id] = true;
+        this._loaded_buildings.update((ids) =>
+            ids.includes(bld.id) ? ids : [...ids, bld.id],
+        );
         this._updateSettingOverrides();
     }
 
