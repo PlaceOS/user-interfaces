@@ -19,7 +19,7 @@ import { ParkingStateService } from './parking-state.service';
     selector: 'parking-map',
     template: `
         <div
-            class="bg-base-200 relative my-2 h-[calc(100%-1.5rem)] w-full rounded-xl shadow-sm"
+            class="bg-base-200 relative mx-8 my-2 h-[calc(100%-1.5rem)] w-[calc(100%-4rem)] rounded-xl shadow-sm"
         >
             <interactive-map
                 [src]="url()"
