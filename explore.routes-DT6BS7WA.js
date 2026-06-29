@@ -35,7 +35,7 @@ import {
   setHours,
   setMinutes,
   showStaff
-} from "./chunk-UMRLFYTJ.js";
+} from "./chunk-Y54VF67J.js";
 import {
   ANIMATION_SHOW_CONTRACT_EXPAND,
   ActivatedRoute,
@@ -56,6 +56,7 @@ import {
   Ea,
   ElementRef,
   EventEmitter,
+  Fl,
   FocusMonitor,
   FormControl,
   FormControlName,
@@ -233,7 +234,6 @@ import {
   viewChild,
   viewChildren,
   ye,
-  zl,
   ɵsetClassDebugInfo,
   ɵɵInheritDefinitionFeature,
   ɵɵNgOnChangesFeature,
@@ -304,7 +304,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-NJSQSRSX.js";
+} from "./chunk-C5D35LRF.js";
 import {
   __spreadProps,
   __spreadValues
@@ -5443,7 +5443,14 @@ var EventFormService = class _EventFormService extends AsyncHandler {
   async _checkResourceRules(spaces, date, duration, host) {
     const user = await this._bookingRulesHost(host);
     await this._whenSettled(this._booking_rules_resource);
-    const rules = this.booking_rules();
+    const rules = __spreadValues({}, this.booking_rules());
+    for (const space of spaces) {
+      const bld = this._org.buildings.find((b) => space.zones.includes(b.id));
+      if (!bld || rules[bld.id])
+        continue;
+      const metadata = await ju(bld.id, "room_booking_rules").catch(() => ({ details: [] }));
+      rules[bld.id] = metadata.details instanceof Array ? metadata.details : [];
+    }
     const space_rules = spaces.map((space) => {
       const bld = this._org.buildings.find((b) => space.zones.includes(b.id));
       return rulesForResource({
@@ -5451,7 +5458,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         duration,
         host: new User(user),
         resource: space
-      }, rules[bld.id]);
+      }, rules[bld?.id]);
     });
     const hidden = spaces.filter((_, i) => space_rules[i]?.hidden);
     if (hidden.length) {
@@ -6782,7 +6789,7 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
     if (!list?.length)
       return;
     for (const space of list) {
-      const mod = zl(space.id, "Bookings");
+      const mod = Fl(space.id, "Bookings");
       let binding = mod.variable("bookings");
       this.subscription(`b-${space.id}`, binding.bindThenSubscribe((d2) => this.handleBookingsChange(list, space, d2)));
       binding = mod.variable("status");
@@ -8008,7 +8015,7 @@ var ExploreDeviceInfoComponent = class _ExploreDeviceInfoComponent {
   async loadUser() {
     if (this.username())
       return;
-    const mod = zl(this._details.system, "LocationServices");
+    const mod = Fl(this._details.system, "LocationServices");
     if (!mod)
       return;
     this.username.set("Loading...");
@@ -8414,12 +8421,12 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
     const list = [];
     for (const device of devices) {
       const x = device.x / device.map_width;
-      const y2 = device.y / device.map_height;
+      const y = device.y / device.map_height;
       list.push({
-        track_id: `device:hover:${x},${y2}`,
+        track_id: `device:hover:${x},${y}`,
         location: {
           x: device.coordinates_from?.includes("right") ? 1 - x : x,
-          y: device.coordinates_from?.includes("bottom") ? 1 - y2 : y2
+          y: device.coordinates_from?.includes("bottom") ? 1 - y : y
         },
         content: ExploreDeviceInfoComponent,
         z_index: 20,
@@ -9404,29 +9411,29 @@ var MapCanvasComponent = class _MapCanvasComponent {
     ctx.fillStyle = polygon.color + "80";
     ctx.beginPath();
     ctx.moveTo(points[0][0] * width, points[0][1] * height);
-    points.forEach(([x, y2]) => ctx.lineTo(x * width, y2 * height));
+    points.forEach(([x, y]) => ctx.lineTo(x * width, y * height));
     ctx.closePath();
     ctx.fill();
     ctx.strokeStyle = shiftColorTowards(polygon.color, "#888888", 0.5);
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(points[0][0] * width, points[0][1] * height);
-    points.forEach(([x, y2]) => ctx.lineTo(x * width, y2 * height));
+    points.forEach(([x, y]) => ctx.lineTo(x * width, y * height));
     ctx.closePath();
     ctx.stroke();
     if (this._data.draw_points !== false) {
       ctx.fillStyle = "#fff";
       ctx.strokeStyle = polygon.color;
       ctx.lineWidth = 4;
-      points.forEach(([x, y2]) => {
+      points.forEach(([x, y]) => {
         ctx.beginPath();
-        ctx.arc(x * width, y2 * height, 8, 0, Math.PI * 2);
+        ctx.arc(x * width, y * height, 8, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
       });
     }
     if (this._data.draw_labels !== false) {
-      const center = points.reduce((acc, [x, y2]) => [acc[0] + x, acc[1] + y2], [0, 0]);
+      const center = points.reduce((acc, [x, y]) => [acc[0] + x, acc[1] + y], [0, 0]);
       center[0] /= points.length;
       center[1] /= points.length;
       ctx.textAlign = "center";
@@ -9862,11 +9869,11 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
   }], () => [], null);
 })();
 function getCenterPoint(points) {
-  const diff = (points || []).reduce((m, [x, y2]) => ({
+  const diff = (points || []).reduce((m, [x, y]) => ({
     x_min: x < m.x_min ? x : m.x_min,
     x_max: x > m.x_max ? x : m.x_max,
-    y_min: y2 < m.y_min ? y2 : m.y_min,
-    y_max: y2 > m.y_max ? y2 : m.y_max
+    y_min: y < m.y_min ? y : m.y_min,
+    y_max: y > m.y_max ? y : m.y_max
   }), {
     x_min: 100,
     x_max: -100,
@@ -11731,7 +11738,7 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
         module: "LocationServices"
       };
     }
-    const mod = zl(locate_details.system_id, locate_details.module);
+    const mod = Fl(locate_details.system_id, locate_details.module);
     const locations = (await mod.execute("locate_user", [
       user.email,
       user.username || user.id
@@ -12118,4 +12125,4 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# sourceMappingURL=explore.routes-AUYORDT3.js.map
+//# sourceMappingURL=explore.routes-DT6BS7WA.js.map

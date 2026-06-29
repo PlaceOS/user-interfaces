@@ -46,6 +46,7 @@ import {
   FormGroup,
   FormGroupDirective,
   FormsModule,
+  Gh,
   IconComponent,
   Injectable,
   InjectionToken,
@@ -129,8 +130,8 @@ import {
   ViewEncapsulation,
   ViewportRuler,
   VirtualKeyboardComponent,
+  Xh,
   Ye,
-  Yh,
   Ys,
   _CdkPrivateStyleLoader,
   _IdGenerator,
@@ -195,13 +196,12 @@ import {
   isFakeTouchstartFromScreenReader,
   isMobileSafari,
   isWithinBookableHours,
-  jh,
   ju,
+  kn,
   localToTimezone,
   map,
   merge,
   model,
-  nl,
   notifyError,
   notifyWarn,
   of,
@@ -229,6 +229,7 @@ import {
   shareReplay,
   signal,
   skipWhile,
+  sl,
   startOfDay,
   startOfMinute,
   startWith,
@@ -247,7 +248,6 @@ import {
   validate,
   validateAssetRequestsForResource,
   viewChild,
-  vn,
   ɵNgNoValidate,
   ɵsetClassDebugInfo,
   ɵɵHostDirectivesFeature,
@@ -320,7 +320,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-NJSQSRSX.js";
+} from "./chunk-C5D35LRF.js";
 import {
   __objRest,
   __spreadProps,
@@ -5029,7 +5029,7 @@ function normalise_name(name = "") {
 }
 async function query_hidden_categories() {
   if (!_hidden_categories_promise) {
-    _hidden_categories_promise = nl({
+    _hidden_categories_promise = sl({
       hidden: true,
       limit: 500
     }).then((_) => _.data).catch(() => []);
@@ -5038,7 +5038,7 @@ async function query_hidden_categories() {
 }
 async function query_types_for_category(category_id) {
   if (!_types_for_category_promises.has(category_id)) {
-    _types_for_category_promises.set(category_id, Yh({ category_id, limit: 500 }).then((_) => _.data).catch(() => []));
+    _types_for_category_promises.set(category_id, Vh({ category_id, limit: 500 }).then((_) => _.data).catch(() => []));
   }
   return _types_for_category_promises.get(category_id);
 }
@@ -5148,7 +5148,7 @@ async function queryParkingSpacesForZones(zone_ids) {
   if (!zone_ids?.length)
     return [];
   const type_id = await resolveParkingTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => jh({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => Gh({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
   return flatten(results);
 }
 var PARKING_USER_TYPE_NAME = "_PARKING_USERS_";
@@ -5185,7 +5185,7 @@ function toParkingUser(asset) {
 }
 async function queryParkingUsers(zone_id) {
   const type_id = await resolveParkingUserTypeId();
-  const assets = await jh({ zone_id, type_id, limit: 500 });
+  const assets = await Gh({ zone_id, type_id, limit: 500 });
   return assets.data.map(toParkingUser);
 }
 
@@ -5210,7 +5210,7 @@ var AssetGroupPipe = class _AssetGroupPipe {
     let asset_group = ASSET_GROUP_LIST.find(({ id }) => id === group_id);
     if (asset_group)
       return asset_group;
-    const group = await Vh(group_id).catch(() => null);
+    const group = await Xh(group_id).catch(() => null);
     if (group) {
       asset_group = __spreadValues({}, group);
       ASSET_GROUP_LIST.push(asset_group);
@@ -6992,7 +6992,7 @@ function normalise_name2(name = "") {
 }
 async function query_hidden_categories2() {
   if (!_hidden_categories_promise2) {
-    _hidden_categories_promise2 = nl({
+    _hidden_categories_promise2 = sl({
       hidden: true,
       limit: 500
     }).then((_) => _.data).catch(() => []);
@@ -7001,7 +7001,7 @@ async function query_hidden_categories2() {
 }
 async function query_types_for_category2(category_id) {
   if (!_types_for_category_promises2.has(category_id)) {
-    _types_for_category_promises2.set(category_id, Yh({ category_id, limit: 500 }).then((_) => _.data).catch(() => []));
+    _types_for_category_promises2.set(category_id, Vh({ category_id, limit: 500 }).then((_) => _.data).catch(() => []));
   }
   return _types_for_category_promises2.get(category_id);
 }
@@ -7065,14 +7065,14 @@ async function queryLockerBankAssetsForZones(zone_ids) {
   if (!zone_ids?.length)
     return [];
   const type_id = await resolveLockerBankTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => jh({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => Gh({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
   return flatten(results);
 }
 async function queryLockerAssetsForZones(zone_ids) {
   if (!zone_ids?.length)
     return [];
   const type_id = await resolveLockerTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => jh({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => Gh({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
   return flatten(results);
 }
 
@@ -9465,7 +9465,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     const default_zone = (this._settings.get("app.use_region") ? this._org.region?.id : this._org.building?.id) || this._org.organisation.id;
     const zones = options.zones?.length ? options.zones.join(",") : options.zone_id || default_zone;
     let booked_ids = [];
-    if (!vn()) {
+    if (!kn()) {
       booked_ids = await this._bookedResourceList({
         period_start: getUnixTime(date),
         period_end: getUnixTime(addMinutes(date, duration)),
@@ -9646,7 +9646,12 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
         const building = this._org.active_building();
         const overrides = this._settings.overrides();
         const required_overrides = (this._org.settings?.length || 0) + 2;
-        return this._org.initialised() && (!this._org.regions.length || !!region?.id) && !!building?.id && overrides.length >= required_overrides;
+        return this._org.initialised() && (!this._org.regions.length || !!region?.id) && !!building?.id && // The override count can be satisfied by placeholder `{}` building
+        // settings before `loadBuildingData` populates them, so also wait
+        // for the active building's metadata to actually land. Otherwise
+        // building/region-level settings (e.g. allow_booking_with_reserved_desk)
+        // read as their defaults during the load window.
+        this._org.active_building_loaded() && overrides.length >= required_overrides;
       },
       ...ngDevMode ? [{ debugName: "_requests_ready" }] : (
         /* istanbul ignore next */
@@ -11688,4 +11693,4 @@ export {
   CalendarService,
   BookingFormService
 };
-//# sourceMappingURL=chunk-UMRLFYTJ.js.map
+//# sourceMappingURL=chunk-Y54VF67J.js.map

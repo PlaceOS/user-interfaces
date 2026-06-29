@@ -1,7 +1,7 @@
 import {
   CheckinStateService,
   parseTokenFromUrl
-} from "./chunk-IAV4TVMI.js";
+} from "./chunk-UTN6QLOL.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -14,6 +14,7 @@ import {
   DestroyRef,
   FormField,
   FormsModule,
+  Gh,
   IconComponent,
   Input,
   MatCheckbox,
@@ -46,10 +47,10 @@ import {
   SettingsService,
   TranslatePipe,
   UserAvatarComponent,
+  Vh,
   ViewChild,
   ViewEncapsulation,
   VirtualKeyboardComponent,
-  Yh,
   computed,
   decode_default,
   effect,
@@ -63,9 +64,7 @@ import {
   inject,
   input,
   isPublicMode,
-  jh,
   log,
-  nl,
   notifyError,
   notifyInfo,
   notifySuccess,
@@ -78,6 +77,7 @@ import {
   setGuestCateringItem,
   settingSignal,
   signal,
+  sl,
   startOfMinute,
   viewChild,
   ɵsetClassDebugInfo,
@@ -126,7 +126,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-NJSQSRSX.js";
+} from "./chunk-C5D35LRF.js";
 import {
   __spreadProps,
   __spreadValues
@@ -175,7 +175,7 @@ function reset_hidden_categories_cache() {
 }
 async function query_hidden_categories() {
   if (!_hidden_categories_promise) {
-    _hidden_categories_promise = nl({
+    _hidden_categories_promise = sl({
       hidden: true,
       limit: 500
     }).then((_) => _.data).catch(() => []);
@@ -226,7 +226,7 @@ function resolveCateringCategoryId() {
 }
 function query_catering_types() {
   if (!_catering_types_promise) {
-    _catering_types_promise = resolveCateringCategoryId().then((category_id) => Yh({ category_id, limit: 500 })).then((_) => _.data.filter((type) => isCateringTypeName(type.name))).catch(() => []);
+    _catering_types_promise = resolveCateringCategoryId().then((category_id) => Vh({ category_id, limit: 500 })).then((_) => _.data.filter((type) => isCateringTypeName(type.name))).catch(() => []);
   }
   return _catering_types_promise;
 }
@@ -254,7 +254,7 @@ async function queryCateringItems(zone_id) {
   const types = await query_catering_types();
   if (!types.length)
     return [];
-  const results = await Promise.all(types.map((type) => jh({
+  const results = await Promise.all(types.map((type) => Gh({
     zone_id,
     type_id: type.id,
     limit: 500
@@ -3296,4 +3296,4 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# sourceMappingURL=checkin.routes-OBPARTQA.js.map
+//# sourceMappingURL=checkin.routes-YEGSATW4.js.map
