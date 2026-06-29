@@ -133,8 +133,8 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
 
                         <!-- Conditional after-hours warning -->
                         @if (model().request_type === 'after_hours') {
-                            <div class="text-warning flex items-center gap-2">
-                                <icon class="text-lg">error</icon>
+                            <div class="flex items-center gap-2">
+                                <icon class="text-warning text-lg">error</icon>
                                 <span class="text-sm">{{
                                     'BOOKINGS.PARKING_AFTER_HOURS_WARNING'
                                         | translate
