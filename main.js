@@ -26,13 +26,13 @@ import {
   MatRippleModule,
   MatTooltip,
   MatTooltipModule,
-  Ml,
   NgControlStatus,
   NgControlStatusGroup,
   NgForm,
   NgModel,
   NgModule,
   NgZone,
+  Nl,
   OrganisationService,
   Output,
   PlaceOS_Service,
@@ -142,7 +142,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-HFNBY3CF.js";
+} from "./chunk-3TMNWB7D.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1393,56 +1393,58 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UnauthorisedComponent, selectors: [["app-unauthorised"]], decls: 12, vars: 9, consts: [[1, "unauthorised", "border-base-200", "bg-base-100", "m-4", "rounded-sm", "border", "p-4", "text-center", "text-black", "shadow-sm"], [1, "text-4xl"], [1, "py-4"]], template: function UnauthorisedComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UnauthorisedComponent, selectors: [["app-unauthorised"]], decls: 13, vars: 9, consts: [["unauthorised", "", 1, "absolute", "inset-0"], [1, "border-base-300", "bg-base-100", "text-base-content", "mx-auto", "my-4", "w-104", "max-w-[calc(100%-1rem)]", "rounded-xl", "border", "p-4", "text-center", "shadow-lg"], [1, "text-4xl"], [1, "py-4"]], template: function UnauthorisedComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275domElementStart(0, "div", 0)(1, "h1", 1);
-        \u0275\u0275text(2, "403");
+        \u0275\u0275domElementStart(0, "div", 0)(1, "div", 1)(2, "h1", 2);
+        \u0275\u0275text(3, "403");
         \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(3, "h3");
-        \u0275\u0275text(4);
-        \u0275\u0275pipe(5, "translate");
+        \u0275\u0275domElementStart(4, "h3");
+        \u0275\u0275text(5);
+        \u0275\u0275pipe(6, "translate");
         \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(6, "p", 2);
-        \u0275\u0275text(7);
-        \u0275\u0275pipe(8, "translate");
+        \u0275\u0275domElementStart(7, "p", 3);
+        \u0275\u0275text(8);
+        \u0275\u0275pipe(9, "translate");
         \u0275\u0275domElementEnd();
-        \u0275\u0275domElementStart(9, "p");
-        \u0275\u0275text(10);
-        \u0275\u0275pipe(11, "translate");
-        \u0275\u0275domElementEnd()();
+        \u0275\u0275domElementStart(10, "p");
+        \u0275\u0275text(11);
+        \u0275\u0275pipe(12, "translate");
+        \u0275\u0275domElementEnd()()();
       }
       if (rf & 2) {
-        \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(5, 3, "COMMON.FORBIDDEN"));
+        \u0275\u0275advance(5);
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 3, "COMMON.FORBIDDEN"));
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(8, 5, "COMMON.INVALID_PAGE_PERMISSIONS"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(9, 5, "COMMON.INVALID_PAGE_PERMISSIONS"), " ");
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(11, 7, "COMMON.CONTACT_ADMIN"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 7, "COMMON.CONTACT_ADMIN"), " ");
       }
-    }, dependencies: [TranslatePipe], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n.unauthorised[_ngcontent-%COMP%] {\n  width: 28em;\n  max-width: calc(100vw - 1rem);\n}\n@media (prefers-color-scheme: dark) {\n  .unauthorised[_ngcontent-%COMP%] {\n    background-color: #262626;\n    color: #fff;\n  }\n}\n/*# sourceMappingURL=unauthorised.component.css.map */"] });
+    }, dependencies: [TranslatePipe], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */"] });
   }
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(UnauthorisedComponent, [{
     type: Component,
     args: [{ selector: "app-unauthorised", template: `
-        <div
-            class="unauthorised border-base-200 bg-base-100 m-4 rounded-sm border p-4 text-center text-black shadow-sm"
-        >
-            <h1 class="text-4xl">403</h1>
-            <h3>{{ 'COMMON.FORBIDDEN' | translate }}</h3>
-            <p class="py-4">
-                {{ 'COMMON.INVALID_PAGE_PERMISSIONS' | translate }}
-            </p>
-            <p>
-                {{ 'COMMON.CONTACT_ADMIN' | translate }}
-            </p>
+        <div unauthorised class="absolute inset-0">
+            <div
+                class="border-base-300 bg-base-100 text-base-content mx-auto my-4 w-104 max-w-[calc(100%-1rem)] rounded-xl border p-4 text-center shadow-lg"
+            >
+                <h1 class="text-4xl">403</h1>
+                <h3>{{ 'COMMON.FORBIDDEN' | translate }}</h3>
+                <p class="py-4">
+                    {{ 'COMMON.INVALID_PAGE_PERMISSIONS' | translate }}
+                </p>
+                <p>
+                    {{ 'COMMON.CONTACT_ADMIN' | translate }}
+                </p>
+            </div>
         </div>
-    `, imports: [TranslatePipe], styles: ["/* angular:styles/component:css;339f683703826d739a4087ca77098749890dd229026cd1cea15fbae0a611d80b;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/unauthorised.component.ts */\n:host {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n.unauthorised {\n  width: 28em;\n  max-width: calc(100vw - 1rem);\n}\n@media (prefers-color-scheme: dark) {\n  .unauthorised {\n    background-color: #262626;\n    color: #fff;\n  }\n}\n/*# sourceMappingURL=unauthorised.component.css.map */\n"] }]
+    `, imports: [TranslatePipe], styles: ["/* angular:styles/component:css;9e56e45d1ecd17d612bec636f553ceddd9b98cd2552edbd57d59534065beeefe;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/unauthorised.component.ts */\n:host {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UnauthorisedComponent, { className: "UnauthorisedComponent", filePath: "libs/components/src/lib/unauthorised.component.ts", lineNumber: 43 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UnauthorisedComponent, { className: "UnauthorisedComponent", filePath: "libs/components/src/lib/unauthorised.component.ts", lineNumber: 41 });
 })();
 
 // libs/components/src/lib/authorised-user.guard.ts
@@ -8755,7 +8757,7 @@ var createVideoConferenceModule = (space = {}, overrides = {}) => new VideoConfe
 
 // libs/mocks/src/lib/systems-bindings.mock.ts
 function createSystem(space) {
-  Ml(space.id, {
+  Nl(space.id, {
     System: [createSystemModule(space)],
     Bookings: [createBookingsModule(space)],
     ContactTracing: [createContactTracingModule(space)],
@@ -9372,39 +9374,39 @@ var APP_ROUTES = [
     children: [
       {
         path: "media",
-        loadComponent: () => import("./media.component-OJIP7D37.js").then((m) => m.MediaSectionComponent)
+        loadComponent: () => import("./media.component-CATSNC55.js").then((m) => m.MediaSectionComponent)
       },
       {
         path: "playlists/:id",
-        loadComponent: () => import("./playlists.component-C73XX577.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-RGLYEUZJ.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "playlists",
-        loadComponent: () => import("./playlists.component-C73XX577.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-RGLYEUZJ.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "schedules",
-        loadComponent: () => import("./schedules.component-Y4N46WQR.js").then((m) => m.SchedulesSectionComponent)
+        loadComponent: () => import("./schedules.component-FHN6I4MI.js").then((m) => m.SchedulesSectionComponent)
       },
       {
         path: "displays/:id",
-        loadComponent: () => import("./displays.component-IR7IAYFR.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-V526A3VD.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "displays",
-        loadComponent: () => import("./displays.component-IR7IAYFR.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-V526A3VD.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "groups",
-        loadComponent: () => import("./groups.component-D7SBHK3R.js").then((m) => m.GroupsSectionComponent)
+        loadComponent: () => import("./groups.component-MPEQ6RJW.js").then((m) => m.GroupsSectionComponent)
       },
       {
         path: "zones/:id",
-        loadComponent: () => import("./zones.component-VLDKCDGI.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-LLFDK6MM.js").then((m) => m.ZonesSectionComponent)
       },
       {
         path: "zones",
-        loadComponent: () => import("./zones.component-VLDKCDGI.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-LLFDK6MM.js").then((m) => m.ZonesSectionComponent)
       },
       { path: "**", redirectTo: "media" }
     ]

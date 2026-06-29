@@ -1,11 +1,14 @@
 import {
+  IntersectDirective
+} from "./chunk-4K2UX2KG.js";
+import {
   DAY_COUNT,
   buildScheduleBlocks
-} from "./chunk-6S457LZQ.js";
+} from "./chunk-TAOO5FN5.js";
 import {
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-HVG7NAGA.js";
+} from "./chunk-5WLKEG7S.js";
 import {
   ActivatedRoute,
   AuthenticatedImageDirective,
@@ -74,7 +77,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-HFNBY3CF.js";
+} from "./chunk-3TMNWB7D.js";
 import "./chunk-653SOEEV.js";
 
 // apps/signage-manager/src/app/displays/display-schedule.component.ts
@@ -146,19 +149,21 @@ function DisplayScheduleComponent_Conditional_20_For_6_Conditional_1_For_2_Templ
   if (rf & 2) {
     const block_r4 = ctx.$implicit;
     const ctx_r2 = \u0275\u0275nextContext(4);
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(8, _c0, block_r4.playlist.id))("matTooltip", ctx_r2.block_tooltip(block_r4));
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(10, _c0, block_r4.playlist.id))("matTooltip", ctx_r2.block_tooltip(block_r4));
     \u0275\u0275advance();
     \u0275\u0275styleProp("background-color", block_r4.text_color);
-    \u0275\u0275advance(3);
+    \u0275\u0275advance(2);
+    \u0275\u0275classProp("line-through", !block_r4.playlist.enabled);
+    \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", block_r4.playlist.name, " ");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(7, 6, "SIGNAGE_MANAGER.ALL_DAY"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(7, 8, "SIGNAGE_MANAGER.ALL_DAY"), " ");
   }
 }
 function DisplayScheduleComponent_Conditional_20_For_6_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 17);
-    \u0275\u0275repeaterCreate(1, DisplayScheduleComponent_Conditional_20_For_6_Conditional_1_For_2_Template, 8, 10, "a", 20, _forTrack0);
+    \u0275\u0275repeaterCreate(1, DisplayScheduleComponent_Conditional_20_For_6_Conditional_1_For_2_Template, 8, 12, "a", 20, _forTrack0);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -182,10 +187,12 @@ function DisplayScheduleComponent_Conditional_20_For_6_Conditional_2_For_2_Templ
   if (rf & 2) {
     const block_r6 = ctx.$implicit;
     const ctx_r2 = \u0275\u0275nextContext(4);
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(6, _c0, block_r6.playlist.id))("matTooltip", ctx_r2.block_tooltip(block_r6));
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(8, _c0, block_r6.playlist.id))("matTooltip", ctx_r2.block_tooltip(block_r6));
     \u0275\u0275advance();
     \u0275\u0275styleProp("background-color", block_r6.text_color);
-    \u0275\u0275advance(3);
+    \u0275\u0275advance(2);
+    \u0275\u0275classProp("line-through", !block_r6.playlist.enabled);
+    \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", block_r6.playlist.name, " ");
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", block_r6.label, " ");
@@ -194,7 +201,7 @@ function DisplayScheduleComponent_Conditional_20_For_6_Conditional_2_For_2_Templ
 function DisplayScheduleComponent_Conditional_20_For_6_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 18);
-    \u0275\u0275repeaterCreate(1, DisplayScheduleComponent_Conditional_20_For_6_Conditional_2_For_2_Template, 7, 8, "a", 25, _forTrack1);
+    \u0275\u0275repeaterCreate(1, DisplayScheduleComponent_Conditional_20_For_6_Conditional_2_For_2_Template, 7, 10, "a", 25, _forTrack1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -577,6 +584,10 @@ var DisplayScheduleComponent = class _DisplayScheduleComponent {
                                                 <div class="min-w-0 flex-1">
                                                     <div
                                                         class="truncate text-[13px] leading-tight font-medium"
+                                                        [class.line-through]="
+                                                            !block.playlist
+                                                                .enabled
+                                                        "
                                                     >
                                                         {{
                                                             block.playlist.name
@@ -625,6 +636,10 @@ var DisplayScheduleComponent = class _DisplayScheduleComponent {
                                                 <div class="min-w-0 flex-1">
                                                     <div
                                                         class="truncate text-[13px] leading-tight"
+                                                        [class.line-through]="
+                                                            !block.playlist
+                                                                .enabled
+                                                        "
                                                     >
                                                         {{
                                                             block.playlist.name
@@ -675,7 +690,7 @@ var DisplayScheduleComponent = class _DisplayScheduleComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DisplayScheduleComponent, { className: "DisplayScheduleComponent", filePath: "apps/signage-manager/src/app/displays/display-schedule.component.ts", lineNumber: 266 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DisplayScheduleComponent, { className: "DisplayScheduleComponent", filePath: "apps/signage-manager/src/app/displays/display-schedule.component.ts", lineNumber: 274 });
 })();
 
 // apps/signage-manager/src/app/displays/display-content.component.ts
@@ -1571,7 +1586,7 @@ var _c12 = (a0) => ({ name: a0 });
 var _forTrack03 = ($index, $item) => $item.id;
 function DisplayListComponent_Conditional_6_For_1_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 11);
+    \u0275\u0275elementStart(0, "div", 13);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -1585,15 +1600,15 @@ function DisplayListComponent_Conditional_6_For_1_Conditional_7_Template(rf, ctx
 }
 function DisplayListComponent_Conditional_6_For_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "a", 6);
+    \u0275\u0275elementStart(0, "a", 8);
     \u0275\u0275pipe(1, "translate");
-    \u0275\u0275elementStart(2, "icon", 7);
+    \u0275\u0275elementStart(2, "icon", 9);
     \u0275\u0275text(3, "tv");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 8)(5, "div", 9);
+    \u0275\u0275elementStart(4, "div", 10)(5, "div", 11);
     \u0275\u0275text(6);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(7, DisplayListComponent_Conditional_6_For_1_Conditional_7_Template, 2, 5, "div", 10);
+    \u0275\u0275conditionalCreate(7, DisplayListComponent_Conditional_6_For_1_Conditional_7_Template, 2, 5, "div", 12);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -1608,18 +1623,45 @@ function DisplayListComponent_Conditional_6_For_1_Template(rf, ctx) {
     \u0275\u0275conditional(display_r1.description ? 7 : -1);
   }
 }
+function DisplayListComponent_Conditional_6_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 14);
+    \u0275\u0275listener("intersect", function DisplayListComponent_Conditional_6_Conditional_2_Template_div_intersect_0_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.loadMore());
+    });
+    \u0275\u0275elementEnd();
+  }
+}
+function DisplayListComponent_Conditional_6_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 7);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "COMMON.END_OF_LIST"), " ");
+  }
+}
 function DisplayListComponent_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275repeaterCreate(0, DisplayListComponent_Conditional_6_For_1_Template, 8, 17, "a", 5, _forTrack03);
+    \u0275\u0275conditionalCreate(2, DisplayListComponent_Conditional_6_Conditional_2_Template, 1, 0, "div", 6)(3, DisplayListComponent_Conditional_6_Conditional_3_Template, 3, 3, "div", 7);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275repeater(ctx_r1.displays());
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r1.has_more() ? 2 : 3);
   }
 }
 function DisplayListComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 4)(1, "icon", 12);
+    \u0275\u0275elementStart(0, "div", 4)(1, "icon", 15);
     \u0275\u0275text(2, "tv");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
@@ -1638,6 +1680,10 @@ var DisplayListComponent = class _DisplayListComponent {
     this.search = this._service.display_search_term;
     this.displays = this._service.filtered_displays;
     this.selected = this._service.selected_display;
+    this.has_more = this._service.displays_has_more;
+  }
+  loadMore() {
+    this._service.loadMoreDisplays();
   }
   static {
     this.\u0275fac = function DisplayListComponent_Factory(__ngFactoryType__) {
@@ -1645,7 +1691,7 @@ var DisplayListComponent = class _DisplayListComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DisplayListComponent, selectors: [["display-list"]], decls: 8, vars: 8, consts: [[1, "bg-base-100", "border-base-300", "h-full", "min-w-64", "overflow-auto", "border-r", "sm:max-w-80"], [1, "border-base-300", "border-b", "p-2"], ["appearance", "outline", 1, "no-subscript", "w-full"], ["matInput", "", 3, "ngModelChange", "placeholder", "ngModel"], [1, "text-base-content/70", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], ["matRipple", "", "queryParamsHandling", "merge", 1, "border-base-300", "flex", "w-full", "cursor-pointer", "items-center", "gap-3", "border-b", "px-4", "py-3", "text-left", "no-underline", "transition-colors", 3, "bg-primary", "text-primary-content", "hover:bg-base-200", "routerLink"], ["matRipple", "", "queryParamsHandling", "merge", 1, "border-base-300", "flex", "w-full", "cursor-pointer", "items-center", "gap-3", "border-b", "px-4", "py-3", "text-left", "no-underline", "transition-colors", 3, "routerLink"], [1, "shrink-0", "text-2xl"], [1, "min-w-0", "flex-1"], [1, "truncate", "font-medium"], [1, "mt-0.5", "truncate", "text-xs", 3, "opacity-70", "opacity-90"], [1, "mt-0.5", "truncate", "text-xs"], [1, "text-6xl"]], template: function DisplayListComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DisplayListComponent, selectors: [["display-list"]], decls: 8, vars: 8, consts: [[1, "bg-base-100", "border-base-300", "h-full", "min-w-64", "overflow-auto", "border-r", "sm:max-w-80"], [1, "border-base-300", "border-b", "p-2"], ["appearance", "outline", 1, "no-subscript", "w-full"], ["matInput", "", 3, "ngModelChange", "placeholder", "ngModel"], [1, "text-base-content/70", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], ["matRipple", "", "queryParamsHandling", "merge", 1, "border-base-300", "flex", "w-full", "cursor-pointer", "items-center", "gap-3", "border-b", "px-4", "py-3", "text-left", "no-underline", "transition-colors", 3, "bg-primary", "text-primary-content", "hover:bg-base-200", "routerLink"], ["intersect", "", 1, "h-px", "w-full"], [1, "text-base-content/50", "p-3", "text-center", "text-xs"], ["matRipple", "", "queryParamsHandling", "merge", 1, "border-base-300", "flex", "w-full", "cursor-pointer", "items-center", "gap-3", "border-b", "px-4", "py-3", "text-left", "no-underline", "transition-colors", 3, "routerLink"], [1, "shrink-0", "text-2xl"], [1, "min-w-0", "flex-1"], [1, "truncate", "font-medium"], [1, "mt-0.5", "truncate", "text-xs", 3, "opacity-70", "opacity-90"], [1, "mt-0.5", "truncate", "text-xs"], ["intersect", "", 1, "h-px", "w-full", 3, "intersect"], [1, "text-6xl"]], template: function DisplayListComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "mat-form-field", 2)(3, "input", 3);
         \u0275\u0275pipe(4, "translate");
@@ -1656,7 +1702,7 @@ var DisplayListComponent = class _DisplayListComponent {
         \u0275\u0275elementEnd();
         \u0275\u0275controlCreate();
         \u0275\u0275elementEnd()();
-        \u0275\u0275conditionalCreate(6, DisplayListComponent_Conditional_6_Template, 2, 0)(7, DisplayListComponent_Conditional_7_Template, 6, 3, "div", 4);
+        \u0275\u0275conditionalCreate(6, DisplayListComponent_Conditional_6_Template, 4, 1)(7, DisplayListComponent_Conditional_7_Template, 6, 3, "div", 4);
         \u0275\u0275elementEnd();
       }
       if (rf & 2) {
@@ -1680,6 +1726,7 @@ var DisplayListComponent = class _DisplayListComponent {
       MatInputModule,
       MatInput,
       IconComponent,
+      IntersectDirective,
       TranslatePipe
     ], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n}\n/*# sourceMappingURL=display-list.component.css.map */"] });
   }
@@ -1754,6 +1801,17 @@ var DisplayListComponent = class _DisplayListComponent {
                         </div>
                     </a>
                 }
+                @if (has_more()) {
+                    <div
+                        class="h-px w-full"
+                        intersect
+                        (intersect)="loadMore()"
+                    ></div>
+                } @else {
+                    <div class="text-base-content/50 p-3 text-center text-xs">
+                        {{ 'COMMON.END_OF_LIST' | translate }}
+                    </div>
+                }
             } @else {
                 <div
                     class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
@@ -1770,12 +1828,13 @@ var DisplayListComponent = class _DisplayListComponent {
       MatFormFieldModule,
       MatInputModule,
       IconComponent,
-      TranslatePipe
+      TranslatePipe,
+      IntersectDirective
     ], styles: ["/* angular:styles/component:css;62f1948e80f1d37fbfc7dd0fe5a3ff76993e7e5f074002a0c62e64986fc743cb;/home/runner/work/user-interfaces/user-interfaces/apps/signage-manager/src/app/displays/display-list.component.ts */\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n}\n/*# sourceMappingURL=display-list.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DisplayListComponent, { className: "DisplayListComponent", filePath: "apps/signage-manager/src/app/displays/display-list.component.ts", lineNumber: 108 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DisplayListComponent, { className: "DisplayListComponent", filePath: "apps/signage-manager/src/app/displays/display-list.component.ts", lineNumber: 121 });
 })();
 
 // apps/signage-manager/src/app/displays/displays.component.ts
@@ -2227,4 +2286,4 @@ var DisplaysSectionComponent = class _DisplaysSectionComponent {
 export {
   DisplaysSectionComponent
 };
-//# sourceMappingURL=displays.component-IR7IAYFR.js.map
+//# sourceMappingURL=displays.component-V526A3VD.js.map

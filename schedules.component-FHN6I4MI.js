@@ -3,11 +3,11 @@ import {
   buildDisplayScheduleAssignments,
   buildScheduleBlocks,
   buildZoneScheduleAssignments
-} from "./chunk-6S457LZQ.js";
+} from "./chunk-TAOO5FN5.js";
 import {
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-HVG7NAGA.js";
+} from "./chunk-5WLKEG7S.js";
 import {
   ActivatedRoute,
   Component,
@@ -70,7 +70,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-HFNBY3CF.js";
+} from "./chunk-3TMNWB7D.js";
 import "./chunk-653SOEEV.js";
 
 // libs/components/src/lib/date-from.pipe.ts
@@ -180,8 +180,8 @@ function ScheduleTimelineComponent_For_10_Template(rf, ctx) {
     \u0275\u0275styleProp("height", ctx_r2.row_height + "rem");
     \u0275\u0275classProp("row-highlight", ctx_r2.hovered_row() === \u0275$index_22_r5);
     \u0275\u0275advance();
-    \u0275\u0275classProp("bg-success", ctx_r2.displayRowStatus(row_r6) === "success")("bg-error", ctx_r2.displayRowStatus(row_r6) === "error");
-    \u0275\u0275property("matTooltip", ctx_r2.displayRowStatus(row_r6) ? \u0275\u0275pipeBind1(2, 14, row_r6.updated_at * 1e3) : "");
+    \u0275\u0275classProp("bg-info", ctx_r2.displayRowStatus(row_r6) === "success")("bg-error", ctx_r2.displayRowStatus(row_r6) === "error")("text-info-content", ctx_r2.displayRowStatus(row_r6) === "success")("text-error-content", ctx_r2.displayRowStatus(row_r6) === "error");
+    \u0275\u0275property("matTooltip", ctx_r2.displayRowStatus(row_r6) ? \u0275\u0275pipeBind1(2, 18, row_r6.signage_last_seen * 1e3) : "");
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate(row_r6.icon);
     \u0275\u0275advance(2);
@@ -280,15 +280,17 @@ function ScheduleTimelineComponent_For_15_For_4_Template(rf, ctx) {
     const \u0275$index_47_r9 = ctx_r11.$index;
     const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275styleProp("left", ctx_r2.timeToOffset(block_r11.start_minutes) + "%")("top", \u0275$index_47_r9 * ctx_r2.row_height + 0.375 + "rem")("width", ctx_r2.durationToOffset(ctx_r2.visibleDuration(block_r11)) + "%")("height", ctx_r2.row_height - 0.75 + "rem")("min-width", 2, "rem");
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(27, _c0, block_r11.playlist.id))("matTooltip", ctx_r2.blockTooltip(row_r13, block_r11));
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(29, _c0, block_r11.playlist.id))("matTooltip", ctx_r2.blockTooltip(row_r13, block_r11));
     \u0275\u0275attribute("aria-label", ctx_r2.blockAriaLabel(row_r13, block_r11));
     \u0275\u0275advance();
     \u0275\u0275styleProp("background-color", ctx_r2.blockBackgroundColor(block_r11))("color", ctx_r2.blockTextColor(block_r11))("border-color", ctx_r2.blockBorderColor(block_r11));
     \u0275\u0275classProp("border-dashed", block_r11.source_type === "zone" && ctx_r2.view_tab() === "displays");
-    \u0275\u0275advance(2);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("line-through", !block_r11.playlist.enabled);
+    \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", block_r11.playlist.name, " ");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", block_r11.all_day ? \u0275\u0275pipeBind1(6, 25, "SIGNAGE_MANAGER.ALL_DAY") : block_r11.label, " ");
+    \u0275\u0275textInterpolate1(" ", block_r11.all_day ? \u0275\u0275pipeBind1(6, 27, "SIGNAGE_MANAGER.ALL_DAY") : block_r11.label, " ");
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx_r2.requiresApproval(block_r11) ? 7 : -1);
     \u0275\u0275advance();
@@ -311,7 +313,7 @@ function ScheduleTimelineComponent_For_15_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275element(1, "div", 22);
     \u0275\u0275conditionalCreate(2, ScheduleTimelineComponent_For_15_Conditional_2_Template, 5, 7, "div", 23);
-    \u0275\u0275repeaterCreate(3, ScheduleTimelineComponent_For_15_For_4_Template, 9, 29, "a", 24, _forTrack1);
+    \u0275\u0275repeaterCreate(3, ScheduleTimelineComponent_For_15_For_4_Template, 9, 31, "a", 24, _forTrack1);
   }
   if (rf & 2) {
     const row_r13 = ctx.$implicit;
@@ -396,7 +398,7 @@ var ScheduleTimelineComponent = class _ScheduleTimelineComponent {
   displayRowStatus(row) {
     if (this.view_tab() !== "displays")
       return "";
-    const diff = Math.abs(differenceInMinutes(row.updated_at * 1e3, Date.now()));
+    const diff = Math.abs(differenceInMinutes(row.signage_last_seen * 1e3, Date.now()));
     return diff > 5 ? "error" : "success";
   }
   clearHoveredRow(index) {
@@ -456,7 +458,7 @@ ${i18n("SIGNAGE_MANAGER.TOOLTIP_TIME", {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ScheduleTimelineComponent, selectors: [["schedule-timeline"]], inputs: { rows: [1, "rows"], view_tab: [1, "view_tab"], selected_date: [1, "selected_date"], current_minutes: [1, "current_minutes"], show_current_time: [1, "show_current_time"], playlist_approval_status: [1, "playlist_approval_status"] }, decls: 17, vars: 12, consts: [["timeline", "", 1, "z-0", "grid", "min-h-0", "flex-1", "overflow-auto"], ["corner", "", 1, "bg-base-100", "border-base-300", "sticky", "top-0", "left-0", "z-40", "flex", "flex-col", "justify-end", "border-r", "border-b", "px-4", "pb-2"], [1, "text-base-content/50", "text-[10px]", "font-semibold", "tracking-[0.2em]", "uppercase"], ["time-headers", "", 1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-30", "flex", "h-14", "items-end", "border-b"], [1, "relative", "flex", "h-full", "items-end", "pb-2", 3, "width"], ["row-headers", "", 1, "border-base-300", "bg-base-100", "sticky", "left-0", "z-40", "border-r"], [1, "border-base-200", "flex", "w-full", "items-center", "gap-2", "border-b", "px-2", "transition-colors", "duration-100", "sm:gap-3", "sm:px-3", 3, "height", "row-highlight"], ["timeline-grid", "", 1, "relative", "z-0", "overflow-hidden"], [1, "bg-base-content/6", "absolute", "top-0", "h-full", "w-px", 3, "left"], [1, "pointer-events-none", "absolute", "inset-y-0", "z-30", 3, "left"], [1, "relative", "flex", "h-full", "items-end", "pb-2"], [1, "text-base-content/50", "w-full", "text-center", "text-[10px]", "tabular-nums"], [1, "bg-base-300/60", "absolute", "top-0", "left-0", "h-2.5", "w-px"], [1, "border-base-200", "flex", "w-full", "items-center", "gap-2", "border-b", "px-2", "transition-colors", "duration-100", "sm:gap-3", "sm:px-3", 3, "mouseenter", "mouseleave"], ["matTooltipPosition", "right", 1, "bg-base-content/6", "hidden", "h-8", "w-8", "shrink-0", "items-center", "justify-center", "rounded-md", "sm:flex", 3, "matTooltip"], [1, "text-base-content/50", "text-base"], [1, "min-w-0", "flex-1"], [1, "block", "truncate", "text-xs", "font-medium", "hover:underline", "sm:text-sm", 3, "routerLink"], [1, "text-base-content/50", "truncate", "text-[10px]", "sm:text-[11px]"], [1, "bg-base-content/6", "text-base-content/60", "hidden", "rounded-md", "px-1.5", "py-0.5", "text-[10px]", "font-semibold", "tabular-nums", "sm:block"], [1, "bg-base-content/6", "absolute", "top-0", "h-full", "w-px"], [1, "absolute", "left-0", "w-full", "transition-colors", "duration-100", 3, "mouseenter", "mouseleave"], [1, "border-base-content/6", "absolute", "left-0", "w-full", "border-b"], [1, "text-base-content/30", "pointer-events-none", "absolute", "left-4", "flex", "items-center", "gap-1.5", "text-[11px]", 3, "top", "height"], ["matRipple", "", 1, "schedule-block", "absolute", "z-10", "text-left", 3, "left", "top", "width", "height", "min-width", "routerLink", "matTooltip"], [1, "text-base-content/30", "pointer-events-none", "absolute", "left-4", "flex", "items-center", "gap-1.5", "text-[11px]"], [1, "text-sm"], ["matRipple", "", 1, "schedule-block", "absolute", "z-10", "text-left", 3, "mouseenter", "mouseleave", "routerLink", "matTooltip"], [1, "relative", "flex", "h-full", "w-full", "flex-col", "overflow-hidden", "rounded-md", "border", "px-2", "py-1"], [1, "truncate", "text-[11px]", "leading-tight", "font-semibold"], [1, "truncate", "text-[10px]", "leading-tight", "opacity-70"], [1, "mt-auto", "truncate", "text-[10px]", "leading-tight", "font-medium"], [1, "mt-auto", "truncate", "text-[10px]", "leading-tight", "opacity-60"], [1, "pointer-events-none", "absolute", "inset-y-0", "z-30"], [1, "bg-error", "absolute", "-top-0.5", "left-1/2", "h-2", "w-2", "-translate-x-1/2", "rounded-full"], [1, "bg-error", "h-full", "w-0.5"]], template: function ScheduleTimelineComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ScheduleTimelineComponent, selectors: [["schedule-timeline"]], inputs: { rows: [1, "rows"], view_tab: [1, "view_tab"], selected_date: [1, "selected_date"], current_minutes: [1, "current_minutes"], show_current_time: [1, "show_current_time"], playlist_approval_status: [1, "playlist_approval_status"] }, decls: 17, vars: 12, consts: [["timeline", "", 1, "z-0", "grid", "min-h-0", "flex-1", "overflow-auto"], ["corner", "", 1, "bg-base-100", "border-base-300", "sticky", "top-0", "left-0", "z-40", "flex", "flex-col", "justify-end", "border-r", "border-b", "px-4", "pb-2"], [1, "text-base-content/50", "text-[10px]", "font-semibold", "tracking-[0.2em]", "uppercase"], ["time-headers", "", 1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-30", "flex", "h-14", "items-end", "border-b"], [1, "relative", "flex", "h-full", "items-end", "pb-2", 3, "width"], ["row-headers", "", 1, "border-base-300", "bg-base-100", "sticky", "left-0", "z-40", "border-r"], [1, "border-base-200", "flex", "w-full", "items-center", "gap-2", "border-b", "px-2", "transition-colors", "duration-100", "sm:gap-3", "sm:px-3", 3, "height", "row-highlight"], ["timeline-grid", "", 1, "relative", "z-0", "overflow-hidden"], [1, "bg-base-content/6", "absolute", "top-0", "h-full", "w-px", 3, "left"], [1, "pointer-events-none", "absolute", "inset-y-0", "z-30", 3, "left"], [1, "relative", "flex", "h-full", "items-end", "pb-2"], [1, "text-base-content/50", "w-full", "text-center", "text-[10px]", "tabular-nums"], [1, "bg-base-300/60", "absolute", "top-0", "left-0", "h-2.5", "w-px"], [1, "border-base-200", "flex", "w-full", "items-center", "gap-2", "border-b", "px-2", "transition-colors", "duration-100", "sm:gap-3", "sm:px-3", 3, "mouseenter", "mouseleave"], ["matTooltipPosition", "right", 1, "bg-base-content/6", "hidden", "h-8", "w-8", "shrink-0", "items-center", "justify-center", "rounded-md", "sm:flex", 3, "matTooltip"], [1, "text-base", "opacity-60"], [1, "min-w-0", "flex-1"], [1, "block", "truncate", "text-xs", "font-medium", "hover:underline", "sm:text-sm", 3, "routerLink"], [1, "text-base-content/50", "truncate", "text-[10px]", "sm:text-[11px]"], [1, "bg-base-content/6", "text-base-content/60", "hidden", "rounded-md", "px-1.5", "py-0.5", "text-[10px]", "font-semibold", "tabular-nums", "sm:block"], [1, "bg-base-content/6", "absolute", "top-0", "h-full", "w-px"], [1, "absolute", "left-0", "w-full", "transition-colors", "duration-100", 3, "mouseenter", "mouseleave"], [1, "border-base-content/6", "absolute", "left-0", "w-full", "border-b"], [1, "text-base-content/30", "pointer-events-none", "absolute", "left-4", "flex", "items-center", "gap-1.5", "text-[11px]", 3, "top", "height"], ["matRipple", "", 1, "schedule-block", "absolute", "z-10", "text-left", 3, "left", "top", "width", "height", "min-width", "routerLink", "matTooltip"], [1, "text-base-content/30", "pointer-events-none", "absolute", "left-4", "flex", "items-center", "gap-1.5", "text-[11px]"], [1, "text-sm"], ["matRipple", "", 1, "schedule-block", "absolute", "z-10", "text-left", 3, "mouseenter", "mouseleave", "routerLink", "matTooltip"], [1, "relative", "flex", "h-full", "w-full", "flex-col", "overflow-hidden", "rounded-md", "border", "px-2", "py-1"], [1, "truncate", "text-[11px]", "leading-tight", "font-semibold"], [1, "truncate", "text-[10px]", "leading-tight", "opacity-70"], [1, "mt-auto", "truncate", "text-[10px]", "leading-tight", "font-medium"], [1, "mt-auto", "truncate", "text-[10px]", "leading-tight", "opacity-60"], [1, "pointer-events-none", "absolute", "inset-y-0", "z-30"], [1, "bg-error", "absolute", "-top-0.5", "left-1/2", "h-2", "w-2", "-translate-x-1/2", "rounded-full"], [1, "bg-error", "h-full", "w-0.5"]], template: function ScheduleTimelineComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "div", 2);
         \u0275\u0275text(3);
@@ -466,7 +468,7 @@ ${i18n("SIGNAGE_MANAGER.TOOLTIP_TIME", {
         \u0275\u0275repeaterCreate(6, ScheduleTimelineComponent_For_7_Template, 4, 4, "div", 4, \u0275\u0275repeaterTrackByIdentity);
         \u0275\u0275elementEnd();
         \u0275\u0275elementStart(8, "div", 5);
-        \u0275\u0275repeaterCreate(9, ScheduleTimelineComponent_For_10_Template, 12, 16, "div", 6, _forTrack0);
+        \u0275\u0275repeaterCreate(9, ScheduleTimelineComponent_For_10_Template, 12, 20, "div", 6, _forTrack0);
         \u0275\u0275elementEnd();
         \u0275\u0275elementStart(11, "div", 7);
         \u0275\u0275repeaterCreate(12, ScheduleTimelineComponent_For_13_Template, 1, 2, "div", 8, \u0275\u0275repeaterTrackByIdentity);
@@ -564,18 +566,24 @@ ${i18n("SIGNAGE_MANAGER.TOOLTIP_TIME", {
                     >
                         <div
                             class="bg-base-content/6 hidden h-8 w-8 shrink-0 items-center justify-center rounded-md sm:flex"
-                            [class.bg-success]="
+                            [class.bg-info]="
                                 displayRowStatus(row) === 'success'
                             "
                             [class.bg-error]="displayRowStatus(row) === 'error'"
+                            [class.text-info-content]="
+                                displayRowStatus(row) === 'success'
+                            "
+                            [class.text-error-content]="
+                                displayRowStatus(row) === 'error'
+                            "
                             [matTooltip]="
                                 displayRowStatus(row)
-                                    ? (row.updated_at * 1000 | dateFrom)
+                                    ? (row.signage_last_seen * 1000 | dateFrom)
                                     : ''
                             "
                             matTooltipPosition="right"
                         >
-                            <icon class="text-base-content/50 text-base">{{
+                            <icon class="text-base opacity-60">{{
                                 row.icon
                             }}</icon>
                         </div>
@@ -682,6 +690,7 @@ ${i18n("SIGNAGE_MANAGER.TOOLTIP_TIME", {
                             >
                                 <div
                                     class="truncate text-[11px] leading-tight font-semibold"
+                                    [class.line-through]="!block.playlist.enabled"
                                 >
                                     {{ block.playlist.name }}
                                 </div>
@@ -753,7 +762,7 @@ ${i18n("SIGNAGE_MANAGER.TOOLTIP_TIME", {
   }], null, { rows: [{ type: Input, args: [{ isSignal: true, alias: "rows", required: false }] }], view_tab: [{ type: Input, args: [{ isSignal: true, alias: "view_tab", required: false }] }], selected_date: [{ type: Input, args: [{ isSignal: true, alias: "selected_date", required: true }] }], current_minutes: [{ type: Input, args: [{ isSignal: true, alias: "current_minutes", required: false }] }], show_current_time: [{ type: Input, args: [{ isSignal: true, alias: "show_current_time", required: false }] }], playlist_approval_status: [{ type: Input, args: [{ isSignal: true, alias: "playlist_approval_status", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ScheduleTimelineComponent, { className: "ScheduleTimelineComponent", filePath: "apps/signage-manager/src/app/schedules/schedule-timeline.component.ts", lineNumber: 308 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ScheduleTimelineComponent, { className: "ScheduleTimelineComponent", filePath: "apps/signage-manager/src/app/schedules/schedule-timeline.component.ts", lineNumber: 315 });
 })();
 
 // apps/signage-manager/src/app/schedules/schedules.component.ts
@@ -919,6 +928,7 @@ var SchedulesSectionComponent = class _SchedulesSectionComponent {
             route: ["/displays", display.id],
             blocks,
             search_index,
+            signage_last_seen: display.signage_last_seen,
             updated_at: display.updated_at
           };
         }).filter((row) => !search || row.search_index.includes(search));
@@ -1399,4 +1409,4 @@ var SchedulesSectionComponent = class _SchedulesSectionComponent {
 export {
   SchedulesSectionComponent
 };
-//# sourceMappingURL=schedules.component-Y4N46WQR.js.map
+//# sourceMappingURL=schedules.component-FHN6I4MI.js.map
