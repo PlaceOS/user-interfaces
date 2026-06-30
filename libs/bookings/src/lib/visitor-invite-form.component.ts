@@ -620,7 +620,7 @@ export class VisitorInviteFormComponent
 
     private async initFormZone() {
         await this._org.waitUntilInitialised();
-        this._service.loadForm();
+        this._service.loadForm('visitor');
         this._service.setOptions({ type: 'visitor' });
         if (!this.model().id) this._service.newForm('visitor');
         this.model.update((m) => ({ ...m, booking_type: 'visitor' }));
