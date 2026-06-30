@@ -234,9 +234,13 @@ export class PlaceOS_Service extends AsyncHandler {
         setupCache(this._cache);
         log('APP', 'MOCKS:', _mocks);
         if (_mocks) {
+            // Mirror setupPlace's mock detection — the URL param enables mocks
+            // on first load before setupPlace persists it to localStorage.
             const mocks_enabled =
-                localStorage.getItem('mock') === 'true' ||
-                location.origin.includes('demo.place.tech');
+                !location.href.includes('mock=false') &&
+                (localStorage.getItem('mock') === 'true' ||
+                    location.href.includes('mock=true') ||
+                    location.origin.includes('demo.place.tech'));
             if (mocks_enabled) {
                 setLoadingMessage('Initializing mocks...');
                 _mocks();
