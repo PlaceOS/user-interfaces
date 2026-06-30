@@ -56,6 +56,10 @@ import { EventsStateService } from './events-state.service';
                                   }
                     }}
                 </h3>
+                <div class="bg-info-light rounded-full px-2 py-1 text-xs">
+                    {{ filtered_pending().length || '0' }} of
+                    {{ pending().length || '0' }}
+                </div>
             </div>
             <div class="border-base-300 relative -mt-px border-b">
                 <input
@@ -85,7 +89,7 @@ import { EventsStateService } from './events-state.service';
                 }
                 @for (event of filtered_pending(); track event.id) {
                     <div
-                        class="border-base-300 bg-base-100 relative w-full rounded-lg border p-2"
+                        class="border-base-300 bg-base-100 hover:border-info relative w-full rounded-lg border p-2 hover:shadow-lg"
                     >
                         @if (event.recurring_event_id) {
                             <div

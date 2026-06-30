@@ -47,8 +47,8 @@ const EMPTY = [];
 @Component({
     selector: 'room-bookings',
     template: `
-        <div class="absolute inset-0 flex flex-col overflow-hidden pl-8">
-            <div class="flex w-full items-center space-x-2 py-4 pr-8">
+        <div class="absolute inset-0 flex flex-col overflow-hidden">
+            <div class="flex w-full items-center gap-2 px-8 py-4">
                 <h2 class="text-2xl font-medium">
                     {{ 'APP.CONCIERGE.ROOM_BOOKINGS' | translate }}
                 </h2>
@@ -89,13 +89,13 @@ const EMPTY = [];
                     <icon class="text-2xl">add</icon>
                 </button>
                 <div
-                    class="border-base-300 bg-base-100 ml-2 flex rounded border"
+                    class="border-base-300 bg-base-100 flex overflow-hidden rounded-lg border"
                 >
                     <button
                         icon
                         matRipple
-                        class="h-12 w-12 rounded-none"
-                        [class.bg-secondary]="view() === 'timeline'"
+                        class="hover:bg-base-200 h-12 w-12 rounded-none"
+                        [class.bg-secondary!]="view() === 'timeline'"
                         [class.text-secondary-content]="view() === 'timeline'"
                         [class.opacity-70]="view() !== 'timeline'"
                         [matTooltip]="'COMMON.DAY' | translate"
@@ -106,8 +106,8 @@ const EMPTY = [];
                     <button
                         icon
                         matRipple
-                        class="h-12 w-12 rounded-none"
-                        [class.bg-secondary]="view() === 'list'"
+                        class="hover:bg-base-200 h-12 w-12 rounded-none"
+                        [class.bg-secondary!]="view() === 'list'"
                         [class.text-secondary-content]="view() === 'list'"
                         [class.opacity-70]="view() !== 'list'"
                         [matTooltip]="'COMMON.LIST' | translate"
@@ -117,7 +117,7 @@ const EMPTY = [];
                     </button>
                 </div>
             </div>
-            <div class="flex w-full items-center space-x-2">
+            <div class="flex w-full items-center gap-2 px-8">
                 <mat-form-field appearance="outline" class="no-subscript w-52">
                     <mat-select
                         [ngModel]="zones()"
@@ -156,9 +156,9 @@ const EMPTY = [];
                         }}</settings-toggle
                     >
                 }
-                <div class="flex flex-1 justify-end pr-2">
+                <div class="flex flex-1 justify-end">
                     <div
-                        class="border-base-300 flex max-w-lg flex-1 items-center rounded-full border"
+                        class="border-base-300 bg-base-200 flex max-w-lg flex-1 items-center rounded-full border"
                     >
                         <div
                             class="flex w-px flex-1 items-center space-x-1 overflow-x-auto rounded-l-full px-1"
@@ -166,7 +166,7 @@ const EMPTY = [];
                             @for (type of types(); track type.id) {
                                 @if (!type_list.includes(type.id)) {
                                     <div
-                                        class="border-base-300 flex items-center rounded-full border"
+                                        class="border-base-300 bg-base-100 flex items-center rounded-full border"
                                     >
                                         <div
                                             class="m-2 h-4 w-4 rounded-full"
@@ -292,9 +292,7 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
         }),
         defaultValue: [],
         loader: async ({ params }) => {
-            const zone_id = params.use_region
-                ? params.region
-                : params.building;
+            const zone_id = params.use_region ? params.region : params.building;
             if (!zone_id) return [];
             const spaces = await nextValueFrom(
                 requestSpacesForZone(zone_id),

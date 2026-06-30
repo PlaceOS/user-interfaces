@@ -119,7 +119,7 @@ export class BookLockerFlowComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit() {
-        this._state.loadForm();
+        this._state.loadForm('locker');
         this._state.setOptions({ type: 'locker' });
         if (!this._state.model().id) this._state.newForm('locker');
         this._state.model.update((m) => ({ ...m, booking_type: 'locker' }));

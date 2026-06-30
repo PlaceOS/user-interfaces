@@ -111,7 +111,7 @@ describe('ParkingBookingsListComponent', () => {
             'state',
             'vehicle_type',
             'date',
-            'asset_id',
+            'bay_number',
             'user_name',
             'booked_by_name',
             'plate_number',
@@ -188,7 +188,7 @@ describe('ParkingBookingsListComponent', () => {
         const table = spectator.query(SimpleTableComponent);
         expect(
             table?.active_columns().map((column) => column.key),
-        ).not.toContain('asset_id');
+        ).not.toContain('bay_number');
     });
 
     it('should hide the bay number column when the setting is enabled', () => {
@@ -199,7 +199,7 @@ describe('ParkingBookingsListComponent', () => {
         const table = spectator.query(SimpleTableComponent);
         expect(
             table?.active_columns().map((column) => column.key),
-        ).not.toContain('asset_id');
+        ).not.toContain('bay_number');
     });
 
     it('should show parking request notes when bookings include notes', () => {

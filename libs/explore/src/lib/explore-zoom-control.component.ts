@@ -8,60 +8,42 @@ import { ExploreStateService } from './explore-state.service';
 @Component({
     selector: `explore-zoom-controls`,
     template: `
-        <button
-            z-in
-            icon
-            matRipple
-            class="bg-base-100"
-            (click)="zoomIn()"
-            [matTooltip]="'EXPLORE.ZOOM_IN' | translate"
+        <div
+            class="bg-base-100 divide-base-300 border-base-300 flex flex-col divide-y overflow-hidden rounded-lg border shadow-md"
         >
-            <icon>add</icon>
-        </button>
-        <button
-            z-out
-            icon
-            matRipple
-            class="bg-base-100"
-            (click)="zoomOut()"
-            [matTooltip]="'EXPLORE.ZOOM_OUT' | translate"
-        >
-            <icon>remove</icon>
-        </button>
-        <button
-            reset
-            icon
-            matRipple
-            class="bg-base-100"
-            (click)="reset()"
-            [matTooltip]="'EXPLORE.ZOOM_RESET' | translate"
-        >
-            <icon>autorenew</icon>
-        </button>
+            <button
+                z-in
+                icon
+                matRipple
+                class="hover:bg-base-200"
+                (click)="zoomIn()"
+                [matTooltip]="'EXPLORE.ZOOM_IN' | translate"
+            >
+                <icon>add</icon>
+            </button>
+            <button
+                z-out
+                icon
+                matRipple
+                class="hover:bg-base-200"
+                (click)="zoomOut()"
+                [matTooltip]="'EXPLORE.ZOOM_OUT' | translate"
+            >
+                <icon>remove</icon>
+            </button>
+            <button
+                reset
+                icon
+                matRipple
+                class="hover:bg-base-200"
+                (click)="reset()"
+                [matTooltip]="'EXPLORE.ZOOM_RESET' | translate"
+            >
+                <icon>autorenew</icon>
+            </button>
+        </div>
     `,
-    styles: [
-        `
-            :host {
-                display: flex;
-                flex-direction: column;
-            }
-
-            button {
-                border: 1px solid #9998;
-                border-radius: 0;
-            }
-
-            button:first-child {
-                border-radius: 0.25rem 0.25rem 0 0;
-                border-bottom: none;
-            }
-
-            button:last-child {
-                border-radius: 0 0 0.25rem 0.25rem;
-                border-top: none;
-            }
-        `,
-    ],
+    styles: [``],
     imports: [MatRippleModule, TranslatePipe, IconComponent, MatTooltipModule],
 })
 export class ExploreZoomControlComponent {

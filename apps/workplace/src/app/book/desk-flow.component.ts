@@ -59,7 +59,7 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
         const active_form = this._state.model();
         const has_edit_state =
             !!active_form?.id && active_form?.booking_type === 'desk';
-        if (!has_edit_state) this._state.loadForm();
+        if (!has_edit_state) this._state.loadForm('desk');
         this._state.setOptions({ type: 'desk' });
         const { id, booking_type } = this._state.model();
         if (!id || booking_type !== 'desk') this._state.newForm('desk');
