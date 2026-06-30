@@ -1,1 +1,0 @@
-import {m,r as rr,dX as $n}from'./main-Z5BB23ZR.js';var u=(()=>{class i{constructor(){this._org=m(rr);}transform(r){return this._org.buildings.find(t=>r instanceof Array?r.includes(t.id):t.id===r)}static{this.\u0275fac=function(t){return new(t||i)};}static{this.\u0275pipe=$n({name:"building",type:i,pure:true});}}return i})();export{u};
