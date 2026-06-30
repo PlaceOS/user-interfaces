@@ -35,7 +35,7 @@ import {
   setHours,
   setMinutes,
   showStaff
-} from "./chunk-Y54VF67J.js";
+} from "./chunk-S5JZGZVL.js";
 import {
   ANIMATION_SHOW_CONTRACT_EXPAND,
   ActivatedRoute,
@@ -304,7 +304,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-C5D35LRF.js";
+} from "./chunk-DS3EWMOE.js";
 import {
   __spreadProps,
   __spreadValues
@@ -860,92 +860,90 @@ var MapZoomControlsComponent = class _MapZoomControlsComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MapZoomControlsComponent, selectors: [["map-zoom-controls"]], hostAttrs: [1, "divide-base-200", "border-base-200", "bg-base-100", "text-base-content", "absolute", "right-1", "bottom-16", "z-40", "flex", "flex-col", "divide-y", "overflow-hidden", "rounded-sm", "border", "shadow-sm"], inputs: { zoom: [1, "zoom"], reset: [1, "reset"] }, outputs: { zoom: "zoomChange", reset: "resetChange" }, decls: 12, vars: 9, consts: [["icon", "", "matRipple", "", "matTooltipPosition", "left", 1, "rounded-none", 3, "click", "matTooltip"]], template: function MapZoomControlsComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MapZoomControlsComponent, selectors: [["map-zoom-controls"]], inputs: { zoom: [1, "zoom"], reset: [1, "reset"] }, outputs: { zoom: "zoomChange", reset: "resetChange" }, decls: 13, vars: 9, consts: [[1, "bg-base-100", "divide-base-300", "border-base-300", "absolute", "right-2", "bottom-16", "flex", "flex-col", "divide-y", "overflow-hidden", "rounded-lg", "border", "shadow-md"], ["icon", "", "matRipple", "", "matTooltipPosition", "left", 1, "hover:bg-base-200", 3, "click", "matTooltip"]], template: function MapZoomControlsComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275elementStart(0, "button", 0);
-        \u0275\u0275pipe(1, "translate");
-        \u0275\u0275listener("click", function MapZoomControlsComponent_Template_button_click_0_listener($event) {
+        \u0275\u0275elementStart(0, "div", 0)(1, "button", 1);
+        \u0275\u0275pipe(2, "translate");
+        \u0275\u0275listener("click", function MapZoomControlsComponent_Template_button_click_1_listener($event) {
           ctx.zoom.set(ctx.zoom() * 1.1);
           return $event.stopPropagation();
         });
-        \u0275\u0275elementStart(2, "icon");
-        \u0275\u0275text(3, "add");
+        \u0275\u0275elementStart(3, "icon");
+        \u0275\u0275text(4, "add");
         \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(4, "button", 0);
-        \u0275\u0275pipe(5, "translate");
-        \u0275\u0275listener("click", function MapZoomControlsComponent_Template_button_click_4_listener($event) {
+        \u0275\u0275elementStart(5, "button", 1);
+        \u0275\u0275pipe(6, "translate");
+        \u0275\u0275listener("click", function MapZoomControlsComponent_Template_button_click_5_listener($event) {
           ctx.zoom.set(ctx.zoom() * (10 / 11));
           return $event.stopPropagation();
         });
-        \u0275\u0275elementStart(6, "icon");
-        \u0275\u0275text(7, "remove");
+        \u0275\u0275elementStart(7, "icon");
+        \u0275\u0275text(8, "remove");
         \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(8, "button", 0);
-        \u0275\u0275pipe(9, "translate");
-        \u0275\u0275listener("click", function MapZoomControlsComponent_Template_button_click_8_listener($event) {
+        \u0275\u0275elementStart(9, "button", 1);
+        \u0275\u0275pipe(10, "translate");
+        \u0275\u0275listener("click", function MapZoomControlsComponent_Template_button_click_9_listener($event) {
           ctx.reset.set(ctx.reset() + 1);
           return $event.stopPropagation();
         });
-        \u0275\u0275elementStart(10, "icon");
-        \u0275\u0275text(11, "refresh");
-        \u0275\u0275elementEnd()();
+        \u0275\u0275elementStart(11, "icon");
+        \u0275\u0275text(12, "refresh");
+        \u0275\u0275elementEnd()()();
       }
       if (rf & 2) {
-        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 3, "EXPLORE.ZOOM_IN"));
+        \u0275\u0275advance();
+        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(2, 3, "EXPLORE.ZOOM_IN"));
         \u0275\u0275advance(4);
-        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(5, 5, "EXPLORE.ZOOM_OUT"));
+        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(6, 5, "EXPLORE.ZOOM_OUT"));
         \u0275\u0275advance(4);
-        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(9, 7, "EXPLORE.ZOOM_RESET"));
+        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(10, 7, "EXPLORE.ZOOM_RESET"));
       }
-    }, dependencies: [IconComponent, MatRippleModule, MatRipple, MatTooltipModule, MatTooltip, TranslatePipe], encapsulation: 2 });
+    }, dependencies: [IconComponent, MatRippleModule, MatRipple, MatTooltipModule, MatTooltip, TranslatePipe], styles: ["\nbutton[_ngcontent-%COMP%] {\n  border-radius: 0;\n}\n/*# sourceMappingURL=map-zoom-controls.component.css.map */"] });
   }
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MapZoomControlsComponent, [{
     type: Component,
-    args: [{
-      selector: "map-zoom-controls",
-      template: `
-        <button
-            icon
-            matRipple
-            [matTooltip]="'EXPLORE.ZOOM_IN' | translate"
-            matTooltipPosition="left"
-            class="rounded-none"
-            (click)="zoom.set(zoom() * 1.1); $event.stopPropagation()"
+    args: [{ selector: "map-zoom-controls", template: `
+        <div
+            class="bg-base-100 divide-base-300 border-base-300 absolute right-2 bottom-16 flex flex-col divide-y overflow-hidden rounded-lg border shadow-md"
         >
-            <icon>add</icon>
-        </button>
-        <button
-            icon
-            matRipple
-            [matTooltip]="'EXPLORE.ZOOM_OUT' | translate"
-            matTooltipPosition="left"
-            class="rounded-none"
-            (click)="zoom.set(zoom() * (10 / 11)); $event.stopPropagation()"
-        >
-            <icon>remove</icon>
-        </button>
-        <button
-            icon
-            matRipple
-            [matTooltip]="'EXPLORE.ZOOM_RESET' | translate"
-            matTooltipPosition="left"
-            class="rounded-none"
-            (click)="reset.set(reset() + 1); $event.stopPropagation()"
-        >
-            <icon>refresh</icon>
-        </button>
-    `,
-      host: {
-        class: "divide-base-200 border-base-200 bg-base-100 text-base-content absolute right-1 bottom-16 z-40 flex flex-col divide-y overflow-hidden rounded-sm border shadow-sm"
-      },
-      imports: [IconComponent, TranslatePipe, MatRippleModule, MatTooltipModule]
-    }]
+            <button
+                icon
+                matRipple
+                [matTooltip]="'EXPLORE.ZOOM_IN' | translate"
+                matTooltipPosition="left"
+                class="hover:bg-base-200"
+                (click)="zoom.set(zoom() * 1.1); $event.stopPropagation()"
+            >
+                <icon>add</icon>
+            </button>
+            <button
+                icon
+                matRipple
+                [matTooltip]="'EXPLORE.ZOOM_OUT' | translate"
+                matTooltipPosition="left"
+                class="hover:bg-base-200"
+                (click)="zoom.set(zoom() * (10 / 11)); $event.stopPropagation()"
+            >
+                <icon>remove</icon>
+            </button>
+            <button
+                icon
+                matRipple
+                [matTooltip]="'EXPLORE.ZOOM_RESET' | translate"
+                matTooltipPosition="left"
+                class="hover:bg-base-200"
+                (click)="reset.set(reset() + 1); $event.stopPropagation()"
+            >
+                <icon>refresh</icon>
+            </button>
+        </div>
+    `, imports: [IconComponent, TranslatePipe, MatRippleModule, MatTooltipModule], styles: ["/* angular:styles/component:css;3acd8ef39876159d073e8897fa9cab043ba04b0b5279b833ba6e69fa287e4f39;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/map-zoom-controls.component.ts */\nbutton {\n  border-radius: 0;\n}\n/*# sourceMappingURL=map-zoom-controls.component.css.map */\n"] }]
   }], null, { zoom: [{ type: Input, args: [{ isSignal: true, alias: "zoom", required: false }] }, { type: Output, args: ["zoomChange"] }], reset: [{ type: Input, args: [{ isSignal: true, alias: "reset", required: false }] }, { type: Output, args: ["resetChange"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MapZoomControlsComponent, { className: "MapZoomControlsComponent", filePath: "libs/components/src/lib/map-zoom-controls.component.ts", lineNumber: 47 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MapZoomControlsComponent, { className: "MapZoomControlsComponent", filePath: "libs/components/src/lib/map-zoom-controls.component.ts", lineNumber: 55 });
 })();
 
 // libs/components/src/lib/dynamic-map.component.ts
@@ -12125,4 +12123,4 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# sourceMappingURL=explore.routes-DT6BS7WA.js.map
+//# sourceMappingURL=explore.routes-53LI24AK.js.map

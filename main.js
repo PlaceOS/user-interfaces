@@ -11,11 +11,11 @@ import {
   generateMockSpace,
   setHours,
   setMinutes
-} from "./chunk-Y54VF67J.js";
+} from "./chunk-S5JZGZVL.js";
 import {
   CheckinStateService,
   parseTokenFromUrl
-} from "./chunk-UTN6QLOL.js";
+} from "./chunk-LDMVAJK4.js";
 import {
   ANIMATION_MODULE_TYPE,
   AUTO_STYLE,
@@ -221,7 +221,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-C5D35LRF.js";
+} from "./chunk-DS3EWMOE.js";
 import {
   __objRest,
   __spreadProps,
@@ -17895,7 +17895,10 @@ var VisitorRegistrationComponent = class _VisitorRegistrationComponent extends A
     this._booking_form.setOptions({ type: "visitor" });
     this._booking_form.model.update((m) => __spreadProps(__spreadValues({}, m), {
       booking_type: "visitor",
-      title: "Visit"
+      title: "Visit",
+      // Always ask for the host - never inherit the logged-in user that
+      // the shared form factory seeds via currentUser().
+      user: null
     }));
     setTimeout(() => {
       if (this.allow_self_registration())
@@ -17908,6 +17911,11 @@ var VisitorRegistrationComponent = class _VisitorRegistrationComponent extends A
     if (!this.form().valid()) {
       return notifyError(i18n("FORM.INVALID_FIELDS", {
         field_list: getInvalidSignalFields(this.form, this._booking_form.model).join(", ")
+      }));
+    }
+    if (!this.host()) {
+      return notifyError(i18n("FORM.INVALID_FIELDS", {
+        field_list: i18n("APP.VISITOR_KIOSK.HOST")
       }));
     }
     this.loading.set(true);
@@ -18680,12 +18688,12 @@ var routes = [
   {
     path: "explore",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-DT6BS7WA.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-53LI24AK.js").then((m) => m.ROUTES)
   },
   {
     path: "checkin",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkin.routes-YEGSATW4.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkin.routes-XSDNVGDF.js").then((m) => m.ROUTES)
   },
   { path: "**", redirectTo: "bootstrap" }
 ];

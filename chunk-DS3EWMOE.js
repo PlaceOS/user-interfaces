@@ -43527,7 +43527,7 @@ var APP = {
     BOOKING_REMOVE_SUCCESS: "Successfully cancelled booking.",
     BOOKING_REMOVE_ERROR: "Failed to cancel booking. Error: {{ error }}",
     BOOKING_REMOVE_LOADING: "Cancelling booking...",
-    ROOMS_PENDING_HEADER: "Pending Approval ({{ count }} of {{ total }})",
+    ROOMS_PENDING_HEADER: "Pending Approval",
     ROOMS_PENDING_EMPTY: "No pending requests",
     ROOMS_PENDING_LOADING: "Processing...",
     ROOMS_PENDING_SHOW: "Show Pending Approvals",
@@ -44399,7 +44399,7 @@ var APP = {
     REPORTS_BUSINESS_DAYS: "Business Days",
     REPORTS_TOTAL_BOOKINGS: "Total Bookings",
     REPORTS_TOTAL_SITE_ATTENDANCE: "Total Site Attendance",
-    REPORTS_TOTAL_RESERVATIONS: "Total Reservations",
+    REPORTS_TOTAL_RESERVATIONS: "Requests",
     REPORTS_TOTAL_TIME: "Total Booked Time",
     REPORTS_TOTAL_VISITORS: "Total Visitors",
     REPORTS_AVERAGE_LENGTH: "Average Length",
@@ -44407,6 +44407,10 @@ var APP = {
     REPORTS_NO_SHOWS_COUNT: "No show count",
     REPORTS_NO_SHOWS_PERCENT: "% of No shows",
     REPORTS_TOTAL_ATTENDEES: "Total Room Attendees",
+    REPORTS_ACTIVE_BOOKINGS_HEADER: "Active Bookings",
+    REPORTS_ALLOCATIONS: "Allocations",
+    REPORTS_REJECTED: "Rejected",
+    REPORTS_CANCELLED: "Cancelled",
     REPORTS_DAILY_HEADER: "Daily Utilisation",
     REPORTS_DAILY_EMPTY: "No bookings for the select date range",
     REPORTS_APPROVED: "Approved Bookings",
@@ -49971,15 +49975,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "3bea669",
-  "hash": "3bea669",
+  "raw": "517dbea",
+  "hash": "517dbea",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "3bea669",
+  "suffix": "517dbea",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1782704771983
+  "time": 1782809142757
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -51300,6 +51304,20 @@ function scheduleNativeRestart(hour) {
   if (next.valueOf() <= Date.now())
     next.setDate(next.getDate() + 1);
   _restart_timer = setTimeout(() => location.reload(), next.valueOf() - Date.now());
+}
+var DEFAULT_INTUNE_SCOPES = ["User.Read"];
+async function getIntuneAccount() {
+  if (!isNativeApp())
+    return null;
+  const result = await callNativeMethod("IntuneMAM", "enrolledAccount")?.catch(() => null);
+  return result?.accountId ? result : null;
+}
+async function getIntuneToken(account, scopes = DEFAULT_INTUNE_SCOPES) {
+  const result = await callNativeMethod("IntuneMAM", "acquireTokenSilent", {
+    scopes,
+    accountId: account.accountId
+  })?.catch(() => null);
+  return `${result?.accessToken || ""}`.trim();
 }
 async function lookupNativeDomainByEmail(email2) {
   const response = await fetch(`https://${LOOKUP_HOST}/api/engine/v2/domains/lookup/${encodeURIComponent(email2)}`);
@@ -78180,7 +78198,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     setupCache(this._cache);
     log("APP", "MOCKS:", _mocks);
     if (_mocks) {
-      const mocks_enabled = localStorage.getItem("mock") === "true" || location.origin.includes("demo.place.tech");
+      const mocks_enabled = !location.href.includes("mock=false") && (localStorage.getItem("mock") === "true" || location.href.includes("mock=true") || location.origin.includes("demo.place.tech"));
       if (mocks_enabled) {
         setLoadingMessage("Initializing mocks...");
         _mocks();
@@ -78255,6 +78273,22 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
         AUTO_CONFIRM_DOMAIN.set(confirm_managed && !!options.allow_mdm_restart && !!managed.api_key && !!managed.system_id);
       }
     }
+    let intune_token = "";
+    if (isNativeApp()) {
+      setLoadingMessage("Checking managed account...");
+      const account = await getIntuneAccount();
+      if (account) {
+        intune_token = await getIntuneToken(account, this._settings.get("app.intune.scopes") || void 0);
+        const email2 = `${account.username || ""}`.trim();
+        if (email2 && !getNativeDomain()) {
+          const domain = await lookupNativeDomainByEmail(email2).catch(() => "");
+          if (domain) {
+            setNativeDomain(domain);
+            setNativeEmail(email2);
+          }
+        }
+      }
+    }
     while (isNativeApp()) {
       let domain = getNativeDomain();
       while (!domain || confirm_managed) {
@@ -78278,6 +78312,8 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
           localStorage.removeItem(client_key);
           An();
         }
+        if (intune_token)
+          hi(intune_token);
         break;
       }
       log("APP", "Auth failed, resetting domain.", auth_error, "warn");
@@ -92505,4 +92541,4 @@ export {
   queryGroupAvailability,
   validateAssetRequestsForResource
 };
-//# sourceMappingURL=chunk-C5D35LRF.js.map
+//# sourceMappingURL=chunk-DS3EWMOE.js.map

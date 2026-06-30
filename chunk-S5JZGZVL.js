@@ -320,7 +320,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-C5D35LRF.js";
+} from "./chunk-DS3EWMOE.js";
 import {
   __objRest,
   __spreadProps,
@@ -7985,6 +7985,13 @@ function setBookingAsset(model2, resource2) {
     booking_asset: resource2
   }));
 }
+function bookingAttachments(booking = new Booking()) {
+  booking = booking || new Booking();
+  return [
+    ...booking.extension_data.attachments || [],
+    ...booking.extension_data.p2_document_names || []
+  ].filter((item) => !!item);
+}
 function bookingFormValue(booking = new Booking()) {
   const visitor_name = booking.booking_type === "visitor" ? booking.extension_data?.visitor_name || booking.asset_name || "" : booking.asset_name || booking.description;
   return {
@@ -8044,8 +8051,7 @@ function bookingFormValue(booking = new Booking()) {
     recurrence_end: booking.recurrence_end ?? 0,
     recurrence_instances: booking.extension_data.recurrence_instances ?? [],
     notes: booking.extension_data.notes || "",
-    p2_document_names: booking.extension_data.p2_document_names || [],
-    attachments: booking.extension_data.attachments || [],
+    attachments: bookingAttachments(booking),
     update_master: false,
     self_registered: false,
     is_assgined: false
@@ -9350,9 +9356,42 @@ function assetWindowKey(date, duration) {
   const duration_value = assetDurationValue(duration);
   return date_value && duration_value ? `${date_value}:${duration_value}` : "";
 }
+var BOOKING_MODEL_KEYS = new Set(Object.keys(new Booking()));
+var BOOKING_FORM_KEYS = new Set(Object.keys(bookingFormValue(new Booking())));
+var BOOKING_EXTENSION_FIELD_BLACKLIST = /* @__PURE__ */ new Set([
+  "resources",
+  "assets",
+  "level"
+]);
+function formExtensionData(data = {}) {
+  const extra = {};
+  for (const key in data) {
+    if (BOOKING_FORM_KEYS.has(key) && !BOOKING_MODEL_KEYS.has(key) && !BOOKING_EXTENSION_FIELD_BLACKLIST.has(key)) {
+      extra[key] = data[key];
+    }
+  }
+  return extra;
+}
+function formBookingData(value) {
+  const data = {};
+  for (const key in value) {
+    if (key === "extension_data") {
+      data.extension_data = formExtensionData(value.extension_data);
+    } else if (!BOOKING_EXTENSION_FIELD_BLACKLIST.has(key) && (BOOKING_FORM_KEYS.has(key) || BOOKING_MODEL_KEYS.has(key))) {
+      data[key] = value[key];
+    }
+  }
+  return data;
+}
+function isCrossTypeEdit(booking, type) {
+  return !!booking?.id && !!booking.booking_type && booking.booking_type !== type;
+}
 function buildBookingExtensionData(value, group_members) {
   const type = value.booking_type;
-  return __spreadProps(__spreadValues(__spreadValues(__spreadValues(__spreadValues(__spreadProps(__spreadValues({}, value.extension_data || {}), {
+  return __spreadProps(__spreadValues(__spreadValues(__spreadValues(__spreadValues(__spreadProps(__spreadValues(__spreadValues({}, formExtensionData(value.extension_data)), value.extension_data?.invoice ? {
+    invoice: value.extension_data.invoice,
+    invoice_id: value.extension_data.invoice_id
+  } : {}), {
     // `group` is a getter on `Booking`, so the constructor skips the
     // top-level form value — it has to be set into `extension_data` here.
     group: value.group,
@@ -9522,6 +9561,8 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     return use_building_timezone ? this._org.building?.timezone || "" : "";
   }
   newForm(type, booking = new Booking({})) {
+    if (isCrossTypeEdit(booking, type))
+      booking = new Booking({});
     this._startNetwork();
     this._calendar.loadCalendars();
     if (type !== this._options().type) {
@@ -9539,7 +9580,9 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     }
     this.model.set(bookingFormValue(new Booking()));
     this.form().reset();
-    this._patch(Ys(__spreadProps(__spreadValues(__spreadValues({}, booking.extension_data), booking), {
+    this._patch(Ys(__spreadProps(__spreadValues(__spreadProps(__spreadValues({}, booking.extension_data), {
+      attachments: bookingAttachments(booking)
+    }), booking), {
       _in_progress: booking.state === "started" || booking.state === "in_progress"
     }), [null, void 0, ""]), { emitEvent: false });
     this.applyDurationSettings();
@@ -9920,6 +9963,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     }));
     this.form().reset();
     this._patch(Ys(__spreadProps(__spreadValues(__spreadValues({}, booking || {}), booking?.extension_data || {}), {
+      attachments: bookingAttachments(booking),
       _in_progress: booking?.state === "started"
     }), [null, void 0, ""]));
     this._options.set({ type: this._options().type });
@@ -9937,11 +9981,14 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     sessionStorage.setItem(STORAGE_KEYS.booking_form, JSON.stringify(__spreadValues(__spreadValues({}, this._booking()), Ys(__spreadValues({}, this.model()), [null, void 0, ""]))));
     sessionStorage.setItem(STORAGE_KEYS.booking_form_filters, JSON.stringify(this._options() || {}));
   }
-  loadForm() {
+  loadForm(expected_type) {
     this._startNetwork();
     this._calendar.loadCalendars();
     const data = JSON.parse(sessionStorage.getItem(STORAGE_KEYS.booking_form) || "{}");
     const booking = new Booking(data);
+    if (expected_type && isCrossTypeEdit(booking, expected_type)) {
+      return this.newForm(expected_type);
+    }
     const initial_date = booking.date;
     const initial_duration = booking.duration;
     this.setOptions(__spreadValues({}, JSON.parse(sessionStorage.getItem(STORAGE_KEYS.booking_form_filters) || "{}")));
@@ -9952,6 +9999,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     }));
     this.form().reset();
     const booking_data = Ys(__spreadProps(__spreadValues(__spreadValues(__spreadValues({}, data), booking || {}), booking?.extension_data || {}), {
+      attachments: bookingAttachments(booking),
       _in_progress: booking?.state === "started"
     }), [null, void 0, ""]);
     this._patch(booking_data, { emitEvent: false });
@@ -10106,7 +10154,9 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       }
     }
     const group_members = this._options().group && this._options().members?.length ? this.mapGroupMembers(value.booking_type, this._options().members) : [];
-    const result = await saveBooking(new Booking(__spreadProps(__spreadValues(__spreadValues({}, this._options()), value), {
+    const result = await saveBooking(new Booking(__spreadProps(__spreadValues({
+      type: this._options().type
+    }, formBookingData(value)), {
       description: value.booking_type === "visitor" ? value.description || value.title || value.asset_name : value.asset_name || value.description,
       user_name: value.user?.name || value.user_name,
       user_email: value.user?.email || value.user_email,
@@ -10548,7 +10598,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       this._org.organisation.id,
       this._org.region?.id
     ].filter((_) => _));
-    return saveBooking(new Booking(__spreadProps(__spreadValues({}, form_data), {
+    return saveBooking(new Booking(__spreadProps(__spreadValues({}, formBookingData(form_data)), {
       id,
       parent_id: "",
       asset_id: group_name,
@@ -10562,7 +10612,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       user_id: form2.user?.id || form2.user_id,
       approved: this._settings.get("app.bookings.no_approval") === true,
       zones,
-      extension_data: __spreadProps(__spreadValues({}, form2.extension_data || {}), {
+      extension_data: __spreadProps(__spreadValues({}, formExtensionData(form2.extension_data)), {
         group: group_name,
         group_members,
         group_resource_type: resource_type
@@ -11693,4 +11743,4 @@ export {
   CalendarService,
   BookingFormService
 };
-//# sourceMappingURL=chunk-Y54VF67J.js.map
+//# sourceMappingURL=chunk-S5JZGZVL.js.map
