@@ -61554,7 +61554,7 @@ var APP = {
     BOOKING_REMOVE_SUCCESS: "Successfully cancelled booking.",
     BOOKING_REMOVE_ERROR: "Failed to cancel booking. Error: {{ error }}",
     BOOKING_REMOVE_LOADING: "Cancelling booking...",
-    ROOMS_PENDING_HEADER: "Pending Approval ({{ count }} of {{ total }})",
+    ROOMS_PENDING_HEADER: "Pending Approval",
     ROOMS_PENDING_EMPTY: "No pending requests",
     ROOMS_PENDING_LOADING: "Processing...",
     ROOMS_PENDING_SHOW: "Show Pending Approvals",
@@ -68021,15 +68021,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "5336fe8",
-  "hash": "5336fe8",
+  "raw": "517dbea",
+  "hash": "517dbea",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "5336fe8",
+  "suffix": "517dbea",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1782720235482
+  "time": 1782809138647
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -69358,6 +69358,20 @@ function scheduleNativeRestart(hour) {
   if (next.valueOf() <= Date.now())
     next.setDate(next.getDate() + 1);
   _restart_timer = setTimeout(() => location.reload(), next.valueOf() - Date.now());
+}
+var DEFAULT_INTUNE_SCOPES = ["User.Read"];
+async function getIntuneAccount() {
+  if (!isNativeApp())
+    return null;
+  const result = await callNativeMethod("IntuneMAM", "enrolledAccount")?.catch(() => null);
+  return result?.accountId ? result : null;
+}
+async function getIntuneToken(account, scopes = DEFAULT_INTUNE_SCOPES) {
+  const result = await callNativeMethod("IntuneMAM", "acquireTokenSilent", {
+    scopes,
+    accountId: account.accountId
+  })?.catch(() => null);
+  return `${result?.accessToken || ""}`.trim();
 }
 async function lookupNativeDomainByEmail(email2) {
   const response = await fetch(`https://${LOOKUP_HOST}/api/engine/v2/domains/lookup/${encodeURIComponent(email2)}`);
@@ -81106,7 +81120,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     setupCache(this._cache);
     log("APP", "MOCKS:", _mocks);
     if (_mocks) {
-      const mocks_enabled = localStorage.getItem("mock") === "true" || location.origin.includes("demo.place.tech");
+      const mocks_enabled = !location.href.includes("mock=false") && (localStorage.getItem("mock") === "true" || location.href.includes("mock=true") || location.origin.includes("demo.place.tech"));
       if (mocks_enabled) {
         setLoadingMessage("Initializing mocks...");
         _mocks();
@@ -81181,6 +81195,22 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
         AUTO_CONFIRM_DOMAIN.set(confirm_managed && !!options.allow_mdm_restart && !!managed.api_key && !!managed.system_id);
       }
     }
+    let intune_token = "";
+    if (isNativeApp()) {
+      setLoadingMessage("Checking managed account...");
+      const account = await getIntuneAccount();
+      if (account) {
+        intune_token = await getIntuneToken(account, this._settings.get("app.intune.scopes") || void 0);
+        const email2 = `${account.username || ""}`.trim();
+        if (email2 && !getNativeDomain()) {
+          const domain = await lookupNativeDomainByEmail(email2).catch(() => "");
+          if (domain) {
+            setNativeDomain(domain);
+            setNativeEmail(email2);
+          }
+        }
+      }
+    }
     while (isNativeApp()) {
       let domain = getNativeDomain();
       while (!domain || confirm_managed) {
@@ -81204,6 +81234,8 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
           localStorage.removeItem(client_key);
           An();
         }
+        if (intune_token)
+          hi(intune_token);
         break;
       }
       log("APP", "Auth failed, resetting domain.", auth_error, "warn");
@@ -98057,92 +98089,90 @@ var MapZoomControlsComponent = class _MapZoomControlsComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MapZoomControlsComponent, selectors: [["map-zoom-controls"]], hostAttrs: [1, "divide-base-200", "border-base-200", "bg-base-100", "text-base-content", "absolute", "right-1", "bottom-16", "z-40", "flex", "flex-col", "divide-y", "overflow-hidden", "rounded-sm", "border", "shadow-sm"], inputs: { zoom: [1, "zoom"], reset: [1, "reset"] }, outputs: { zoom: "zoomChange", reset: "resetChange" }, decls: 12, vars: 9, consts: [["icon", "", "matRipple", "", "matTooltipPosition", "left", 1, "rounded-none", 3, "click", "matTooltip"]], template: function MapZoomControlsComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MapZoomControlsComponent, selectors: [["map-zoom-controls"]], inputs: { zoom: [1, "zoom"], reset: [1, "reset"] }, outputs: { zoom: "zoomChange", reset: "resetChange" }, decls: 13, vars: 9, consts: [[1, "bg-base-100", "divide-base-300", "border-base-300", "absolute", "right-2", "bottom-16", "flex", "flex-col", "divide-y", "overflow-hidden", "rounded-lg", "border", "shadow-md"], ["icon", "", "matRipple", "", "matTooltipPosition", "left", 1, "hover:bg-base-200", 3, "click", "matTooltip"]], template: function MapZoomControlsComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275elementStart(0, "button", 0);
-        \u0275\u0275pipe(1, "translate");
-        \u0275\u0275listener("click", function MapZoomControlsComponent_Template_button_click_0_listener($event) {
+        \u0275\u0275elementStart(0, "div", 0)(1, "button", 1);
+        \u0275\u0275pipe(2, "translate");
+        \u0275\u0275listener("click", function MapZoomControlsComponent_Template_button_click_1_listener($event) {
           ctx.zoom.set(ctx.zoom() * 1.1);
           return $event.stopPropagation();
         });
-        \u0275\u0275elementStart(2, "icon");
-        \u0275\u0275text(3, "add");
+        \u0275\u0275elementStart(3, "icon");
+        \u0275\u0275text(4, "add");
         \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(4, "button", 0);
-        \u0275\u0275pipe(5, "translate");
-        \u0275\u0275listener("click", function MapZoomControlsComponent_Template_button_click_4_listener($event) {
+        \u0275\u0275elementStart(5, "button", 1);
+        \u0275\u0275pipe(6, "translate");
+        \u0275\u0275listener("click", function MapZoomControlsComponent_Template_button_click_5_listener($event) {
           ctx.zoom.set(ctx.zoom() * (10 / 11));
           return $event.stopPropagation();
         });
-        \u0275\u0275elementStart(6, "icon");
-        \u0275\u0275text(7, "remove");
+        \u0275\u0275elementStart(7, "icon");
+        \u0275\u0275text(8, "remove");
         \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(8, "button", 0);
-        \u0275\u0275pipe(9, "translate");
-        \u0275\u0275listener("click", function MapZoomControlsComponent_Template_button_click_8_listener($event) {
+        \u0275\u0275elementStart(9, "button", 1);
+        \u0275\u0275pipe(10, "translate");
+        \u0275\u0275listener("click", function MapZoomControlsComponent_Template_button_click_9_listener($event) {
           ctx.reset.set(ctx.reset() + 1);
           return $event.stopPropagation();
         });
-        \u0275\u0275elementStart(10, "icon");
-        \u0275\u0275text(11, "refresh");
-        \u0275\u0275elementEnd()();
+        \u0275\u0275elementStart(11, "icon");
+        \u0275\u0275text(12, "refresh");
+        \u0275\u0275elementEnd()()();
       }
       if (rf & 2) {
-        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 3, "EXPLORE.ZOOM_IN"));
+        \u0275\u0275advance();
+        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(2, 3, "EXPLORE.ZOOM_IN"));
         \u0275\u0275advance(4);
-        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(5, 5, "EXPLORE.ZOOM_OUT"));
+        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(6, 5, "EXPLORE.ZOOM_OUT"));
         \u0275\u0275advance(4);
-        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(9, 7, "EXPLORE.ZOOM_RESET"));
+        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(10, 7, "EXPLORE.ZOOM_RESET"));
       }
-    }, dependencies: [IconComponent, MatRippleModule, MatRipple, MatTooltipModule, MatTooltip, TranslatePipe], encapsulation: 2 });
+    }, dependencies: [IconComponent, MatRippleModule, MatRipple, MatTooltipModule, MatTooltip, TranslatePipe], styles: ["\nbutton[_ngcontent-%COMP%] {\n  border-radius: 0;\n}\n/*# sourceMappingURL=map-zoom-controls.component.css.map */"] });
   }
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MapZoomControlsComponent, [{
     type: Component,
-    args: [{
-      selector: "map-zoom-controls",
-      template: `
-        <button
-            icon
-            matRipple
-            [matTooltip]="'EXPLORE.ZOOM_IN' | translate"
-            matTooltipPosition="left"
-            class="rounded-none"
-            (click)="zoom.set(zoom() * 1.1); $event.stopPropagation()"
+    args: [{ selector: "map-zoom-controls", template: `
+        <div
+            class="bg-base-100 divide-base-300 border-base-300 absolute right-2 bottom-16 flex flex-col divide-y overflow-hidden rounded-lg border shadow-md"
         >
-            <icon>add</icon>
-        </button>
-        <button
-            icon
-            matRipple
-            [matTooltip]="'EXPLORE.ZOOM_OUT' | translate"
-            matTooltipPosition="left"
-            class="rounded-none"
-            (click)="zoom.set(zoom() * (10 / 11)); $event.stopPropagation()"
-        >
-            <icon>remove</icon>
-        </button>
-        <button
-            icon
-            matRipple
-            [matTooltip]="'EXPLORE.ZOOM_RESET' | translate"
-            matTooltipPosition="left"
-            class="rounded-none"
-            (click)="reset.set(reset() + 1); $event.stopPropagation()"
-        >
-            <icon>refresh</icon>
-        </button>
-    `,
-      host: {
-        class: "divide-base-200 border-base-200 bg-base-100 text-base-content absolute right-1 bottom-16 z-40 flex flex-col divide-y overflow-hidden rounded-sm border shadow-sm"
-      },
-      imports: [IconComponent, TranslatePipe, MatRippleModule, MatTooltipModule]
-    }]
+            <button
+                icon
+                matRipple
+                [matTooltip]="'EXPLORE.ZOOM_IN' | translate"
+                matTooltipPosition="left"
+                class="hover:bg-base-200"
+                (click)="zoom.set(zoom() * 1.1); $event.stopPropagation()"
+            >
+                <icon>add</icon>
+            </button>
+            <button
+                icon
+                matRipple
+                [matTooltip]="'EXPLORE.ZOOM_OUT' | translate"
+                matTooltipPosition="left"
+                class="hover:bg-base-200"
+                (click)="zoom.set(zoom() * (10 / 11)); $event.stopPropagation()"
+            >
+                <icon>remove</icon>
+            </button>
+            <button
+                icon
+                matRipple
+                [matTooltip]="'EXPLORE.ZOOM_RESET' | translate"
+                matTooltipPosition="left"
+                class="hover:bg-base-200"
+                (click)="reset.set(reset() + 1); $event.stopPropagation()"
+            >
+                <icon>refresh</icon>
+            </button>
+        </div>
+    `, imports: [IconComponent, TranslatePipe, MatRippleModule, MatTooltipModule], styles: ["/* angular:styles/component:css;3acd8ef39876159d073e8897fa9cab043ba04b0b5279b833ba6e69fa287e4f39;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/map-zoom-controls.component.ts */\nbutton {\n  border-radius: 0;\n}\n/*# sourceMappingURL=map-zoom-controls.component.css.map */\n"] }]
   }], null, { zoom: [{ type: Input, args: [{ isSignal: true, alias: "zoom", required: false }] }, { type: Output, args: ["zoomChange"] }], reset: [{ type: Input, args: [{ isSignal: true, alias: "reset", required: false }] }, { type: Output, args: ["resetChange"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MapZoomControlsComponent, { className: "MapZoomControlsComponent", filePath: "libs/components/src/lib/map-zoom-controls.component.ts", lineNumber: 47 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MapZoomControlsComponent, { className: "MapZoomControlsComponent", filePath: "libs/components/src/lib/map-zoom-controls.component.ts", lineNumber: 55 });
 })();
 
 // libs/components/src/lib/dynamic-map.component.ts
@@ -122304,6 +122334,13 @@ function bookingLocationString(booking, org) {
   }
   return location2 || level_name || "";
 }
+function bookingAttachments(booking = new Booking()) {
+  booking = booking || new Booking();
+  return [
+    ...booking.extension_data.attachments || [],
+    ...booking.extension_data.p2_document_names || []
+  ].filter((item) => !!item);
+}
 function bookingFormValue(booking = new Booking()) {
   const visitor_name = booking.booking_type === "visitor" ? booking.extension_data?.visitor_name || booking.asset_name || "" : booking.asset_name || booking.description;
   return {
@@ -122363,8 +122400,7 @@ function bookingFormValue(booking = new Booking()) {
     recurrence_end: booking.recurrence_end ?? 0,
     recurrence_instances: booking.extension_data.recurrence_instances ?? [],
     notes: booking.extension_data.notes || "",
-    p2_document_names: booking.extension_data.p2_document_names || [],
-    attachments: booking.extension_data.attachments || [],
+    attachments: bookingAttachments(booking),
     update_master: false,
     self_registered: false,
     is_assgined: false
@@ -126976,9 +127012,42 @@ function assetWindowKey(date, duration) {
   const duration_value = assetDurationValue(duration);
   return date_value && duration_value ? `${date_value}:${duration_value}` : "";
 }
+var BOOKING_MODEL_KEYS = new Set(Object.keys(new Booking()));
+var BOOKING_FORM_KEYS = new Set(Object.keys(bookingFormValue(new Booking())));
+var BOOKING_EXTENSION_FIELD_BLACKLIST = /* @__PURE__ */ new Set([
+  "resources",
+  "assets",
+  "level"
+]);
+function formExtensionData(data = {}) {
+  const extra = {};
+  for (const key in data) {
+    if (BOOKING_FORM_KEYS.has(key) && !BOOKING_MODEL_KEYS.has(key) && !BOOKING_EXTENSION_FIELD_BLACKLIST.has(key)) {
+      extra[key] = data[key];
+    }
+  }
+  return extra;
+}
+function formBookingData(value) {
+  const data = {};
+  for (const key in value) {
+    if (key === "extension_data") {
+      data.extension_data = formExtensionData(value.extension_data);
+    } else if (!BOOKING_EXTENSION_FIELD_BLACKLIST.has(key) && (BOOKING_FORM_KEYS.has(key) || BOOKING_MODEL_KEYS.has(key))) {
+      data[key] = value[key];
+    }
+  }
+  return data;
+}
+function isCrossTypeEdit(booking, type) {
+  return !!booking?.id && !!booking.booking_type && booking.booking_type !== type;
+}
 function buildBookingExtensionData(value, group_members) {
   const type = value.booking_type;
-  return __spreadProps(__spreadValues(__spreadValues(__spreadValues(__spreadValues(__spreadProps(__spreadValues({}, value.extension_data || {}), {
+  return __spreadProps(__spreadValues(__spreadValues(__spreadValues(__spreadValues(__spreadProps(__spreadValues(__spreadValues({}, formExtensionData(value.extension_data)), value.extension_data?.invoice ? {
+    invoice: value.extension_data.invoice,
+    invoice_id: value.extension_data.invoice_id
+  } : {}), {
     // `group` is a getter on `Booking`, so the constructor skips the
     // top-level form value — it has to be set into `extension_data` here.
     group: value.group,
@@ -127148,6 +127217,8 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     return use_building_timezone ? this._org.building?.timezone || "" : "";
   }
   newForm(type, booking = new Booking({})) {
+    if (isCrossTypeEdit(booking, type))
+      booking = new Booking({});
     this._startNetwork();
     this._calendar.loadCalendars();
     if (type !== this._options().type) {
@@ -127165,7 +127236,9 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     }
     this.model.set(bookingFormValue(new Booking()));
     this.form().reset();
-    this._patch(Ys(__spreadProps(__spreadValues(__spreadValues({}, booking.extension_data), booking), {
+    this._patch(Ys(__spreadProps(__spreadValues(__spreadProps(__spreadValues({}, booking.extension_data), {
+      attachments: bookingAttachments(booking)
+    }), booking), {
       _in_progress: booking.state === "started" || booking.state === "in_progress"
     }), [null, void 0, ""]), { emitEvent: false });
     this.applyDurationSettings();
@@ -127546,6 +127619,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     }));
     this.form().reset();
     this._patch(Ys(__spreadProps(__spreadValues(__spreadValues({}, booking || {}), booking?.extension_data || {}), {
+      attachments: bookingAttachments(booking),
       _in_progress: booking?.state === "started"
     }), [null, void 0, ""]));
     this._options.set({ type: this._options().type });
@@ -127563,11 +127637,14 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     sessionStorage.setItem(STORAGE_KEYS.booking_form, JSON.stringify(__spreadValues(__spreadValues({}, this._booking()), Ys(__spreadValues({}, this.model()), [null, void 0, ""]))));
     sessionStorage.setItem(STORAGE_KEYS.booking_form_filters, JSON.stringify(this._options() || {}));
   }
-  loadForm() {
+  loadForm(expected_type) {
     this._startNetwork();
     this._calendar.loadCalendars();
     const data = JSON.parse(sessionStorage.getItem(STORAGE_KEYS.booking_form) || "{}");
     const booking = new Booking(data);
+    if (expected_type && isCrossTypeEdit(booking, expected_type)) {
+      return this.newForm(expected_type);
+    }
     const initial_date = booking.date;
     const initial_duration = booking.duration;
     this.setOptions(__spreadValues({}, JSON.parse(sessionStorage.getItem(STORAGE_KEYS.booking_form_filters) || "{}")));
@@ -127578,6 +127655,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     }));
     this.form().reset();
     const booking_data = Ys(__spreadProps(__spreadValues(__spreadValues(__spreadValues({}, data), booking || {}), booking?.extension_data || {}), {
+      attachments: bookingAttachments(booking),
       _in_progress: booking?.state === "started"
     }), [null, void 0, ""]);
     this._patch(booking_data, { emitEvent: false });
@@ -127732,7 +127810,9 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       }
     }
     const group_members = this._options().group && this._options().members?.length ? this.mapGroupMembers(value.booking_type, this._options().members) : [];
-    const result = await saveBooking(new Booking(__spreadProps(__spreadValues(__spreadValues({}, this._options()), value), {
+    const result = await saveBooking(new Booking(__spreadProps(__spreadValues({
+      type: this._options().type
+    }, formBookingData(value)), {
       description: value.booking_type === "visitor" ? value.description || value.title || value.asset_name : value.asset_name || value.description,
       user_name: value.user?.name || value.user_name,
       user_email: value.user?.email || value.user_email,
@@ -128174,7 +128254,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       this._org.organisation.id,
       this._org.region?.id
     ].filter((_3) => _3));
-    return saveBooking(new Booking(__spreadProps(__spreadValues({}, form_data), {
+    return saveBooking(new Booking(__spreadProps(__spreadValues({}, formBookingData(form_data)), {
       id,
       parent_id: "",
       asset_id: group_name,
@@ -128188,7 +128268,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       user_id: form2.user?.id || form2.user_id,
       approved: this._settings.get("app.bookings.no_approval") === true,
       zones,
-      extension_data: __spreadProps(__spreadValues({}, form2.extension_data || {}), {
+      extension_data: __spreadProps(__spreadValues({}, formExtensionData(form2.extension_data)), {
         group: group_name,
         group_members,
         group_resource_type: resource_type
