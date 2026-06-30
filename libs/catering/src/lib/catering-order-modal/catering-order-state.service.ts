@@ -123,7 +123,9 @@ export class CateringOrderStateService {
         const load = ++this._menu_load;
         this._loading.set('[MENU]');
         const items = this._external_catering.enabled
-            ? await this._external_catering.loadMenu().catch(() => [] as CateringItem[])
+            ? await this._external_catering
+                  .loadMenu()
+                  .catch(() => [] as CateringItem[])
             : await queryCateringItems(zone_id).catch(
                   () => [] as CateringItem[],
               );

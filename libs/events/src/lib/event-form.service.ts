@@ -17,17 +17,17 @@ import {
     BookingRuleset,
     CalendarEvent,
     currentUser,
+    ExternalCateringService,
     filterResourcesFromRules,
     firstValueWhere,
-    ExternalCateringService,
     flatten,
     getAllDayTimeRange,
     getInvalidSignalFields,
     getTimeInTimezone,
-    isEmptyUser,
-    onFieldChange,
     i18n,
+    isEmptyUser,
     isWithinBookableHours,
+    onFieldChange,
     rulesForResource,
     setDefaultCreator,
     SettingsService,
@@ -51,8 +51,8 @@ import {
 import { openRecurringClashModal } from 'libs/components/src/lib/recurring-clash-modal.component';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { requestSpacesForZone } from 'libs/events/src/lib/space.utilities';
-import { EventLinkModalComponent } from './event-link-modal.component';
 import { CalendarService } from './calendar.service';
+import { EventLinkModalComponent } from './event-link-modal.component';
 import {
     findEventClashes,
     querySpaceAvailability,
@@ -222,9 +222,11 @@ export class EventFormService extends AsyncHandler {
         },
     });
     /** Signal for the booking rules of the active buildings, grouped by id */
-    public readonly booking_rules = computed<Record<string, BookingRuleset[]>>(() => {
-        return this._booking_rules_resource.value() ?? {};
-    });
+    public readonly booking_rules = computed<Record<string, BookingRuleset[]>>(
+        () => {
+            return this._booking_rules_resource.value() ?? {};
+        },
+    );
 
     /** Active zone used to load the bookable space list */
     private readonly _space_zone = computed(() => {
@@ -233,11 +235,10 @@ export class EventFormService extends AsyncHandler {
             : this._org.active_building();
         return zone?.id || '';
     });
-    private readonly _space_zone_debounced = debounced(
-        this._space_zone,
-        300,
-        { injector: this._injector, equal: Object.is },
-    );
+    private readonly _space_zone_debounced = debounced(this._space_zone, 300, {
+        injector: this._injector,
+        equal: Object.is,
+    });
     /** Bookable spaces for the active zone */
     private readonly _spaces_resource = resource({
         params: () =>
@@ -441,7 +442,9 @@ export class EventFormService extends AsyncHandler {
         const previous = {};
         effect(
             () => {
-                const { date: raw_date, duration: raw_duration } = this._model();
+                console.log('Store Form');
+                const { date: raw_date, duration: raw_duration } =
+                    this._model();
                 if (
                     (raw_date && raw_date !== previous['date']) ||
                     (raw_duration && raw_duration !== previous['duration'])
@@ -526,12 +529,23 @@ export class EventFormService extends AsyncHandler {
         });
         const existing = this._availability_requests.get(key);
         if (existing) return existing;
-        const request = (this.book_internal
-            ? queryResourceAvailability(ids, date, duration, ignore, undefined)
-            : querySpaceAvailability(ids, date, duration, ignore, undefined, [
-                  event?.date,
-                  event?.duration,
-              ])
+        const request = (
+            this.book_internal
+                ? queryResourceAvailability(
+                      ids,
+                      date,
+                      duration,
+                      ignore,
+                      undefined,
+                  )
+                : querySpaceAvailability(
+                      ids,
+                      date,
+                      duration,
+                      ignore,
+                      undefined,
+                      [event?.date, event?.duration],
+                  )
         ).finally(() => this._availability_requests.delete(key));
         this._availability_requests.set(key, request);
         return request;
@@ -670,7 +684,10 @@ export class EventFormService extends AsyncHandler {
     public openEventLinkModal(force = false) {
         this._form().markAsTouched();
         if (!this._form().valid() && !force) return;
-        const event = new CalendarEvent({ ...(this._model() as any), assets: [] });
+        const event = new CalendarEvent({
+            ...(this._model() as any),
+            assets: [],
+        });
         const ref = this._dialog.open(EventLinkModalComponent, { data: event });
         ref.afterClosed().subscribe((d) =>
             d ? this._router.navigate(['/']) : '',
@@ -1269,8 +1286,7 @@ export class EventFormService extends AsyncHandler {
                 event.id,
                 event.resources.length
                     ? {
-                          calendar:
-                              this._model().host || currentUser()?.email,
+                          calendar: this._model().host || currentUser()?.email,
                           system_id: event.resources[0].id,
                       }
                     : {},
