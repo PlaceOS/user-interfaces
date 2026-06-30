@@ -49547,7 +49547,7 @@ var APP = {
     BOOKING_REMOVE_SUCCESS: "Successfully cancelled booking.",
     BOOKING_REMOVE_ERROR: "Failed to cancel booking. Error: {{ error }}",
     BOOKING_REMOVE_LOADING: "Cancelling booking...",
-    ROOMS_PENDING_HEADER: "Pending Approval ({{ count }} of {{ total }})",
+    ROOMS_PENDING_HEADER: "Pending Approval",
     ROOMS_PENDING_EMPTY: "No pending requests",
     ROOMS_PENDING_LOADING: "Processing...",
     ROOMS_PENDING_SHOW: "Show Pending Approvals",
@@ -50419,7 +50419,7 @@ var APP = {
     REPORTS_BUSINESS_DAYS: "Business Days",
     REPORTS_TOTAL_BOOKINGS: "Total Bookings",
     REPORTS_TOTAL_SITE_ATTENDANCE: "Total Site Attendance",
-    REPORTS_TOTAL_RESERVATIONS: "Total Reservations",
+    REPORTS_TOTAL_RESERVATIONS: "Requests",
     REPORTS_TOTAL_TIME: "Total Booked Time",
     REPORTS_TOTAL_VISITORS: "Total Visitors",
     REPORTS_AVERAGE_LENGTH: "Average Length",
@@ -50427,6 +50427,10 @@ var APP = {
     REPORTS_NO_SHOWS_COUNT: "No show count",
     REPORTS_NO_SHOWS_PERCENT: "% of No shows",
     REPORTS_TOTAL_ATTENDEES: "Total Room Attendees",
+    REPORTS_ACTIVE_BOOKINGS_HEADER: "Active Bookings",
+    REPORTS_ALLOCATIONS: "Allocations",
+    REPORTS_REJECTED: "Rejected",
+    REPORTS_CANCELLED: "Cancelled",
     REPORTS_DAILY_HEADER: "Daily Utilisation",
     REPORTS_DAILY_EMPTY: "No bookings for the select date range",
     REPORTS_APPROVED: "Approved Bookings",
@@ -55860,15 +55864,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "3bea669",
-  "hash": "3bea669",
+  "raw": "517dbea",
+  "hash": "517dbea",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "3bea669",
+  "suffix": "517dbea",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1782704832903
+  "time": 1782809142933
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -57170,6 +57174,22 @@ function scheduleNativeRestart(hour) {
   if (next.valueOf() <= Date.now())
     next.setDate(next.getDate() + 1);
   _restart_timer = setTimeout(() => location.reload(), next.valueOf() - Date.now());
+}
+var DEFAULT_INTUNE_SCOPES = ["User.Read"];
+async function getIntuneAccount() {
+  var _a10;
+  if (!isNativeApp())
+    return null;
+  const result = await ((_a10 = callNativeMethod("IntuneMAM", "enrolledAccount")) == null ? void 0 : _a10.catch(() => null));
+  return (result == null ? void 0 : result.accountId) ? result : null;
+}
+async function getIntuneToken(account, scopes = DEFAULT_INTUNE_SCOPES) {
+  var _a10;
+  const result = await ((_a10 = callNativeMethod("IntuneMAM", "acquireTokenSilent", {
+    scopes,
+    accountId: account.accountId
+  })) == null ? void 0 : _a10.catch(() => null));
+  return `${(result == null ? void 0 : result.accessToken) || ""}`.trim();
 }
 async function lookupNativeDomainByEmail(email) {
   const response = await fetch(`https://${LOOKUP_HOST}/api/engine/v2/domains/lookup/${encodeURIComponent(email)}`);
@@ -78382,7 +78402,7 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     setupCache(this._cache);
     log("APP", "MOCKS:", _mocks);
     if (_mocks) {
-      const mocks_enabled = localStorage.getItem("mock") === "true" || location.origin.includes("demo.place.tech");
+      const mocks_enabled = !location.href.includes("mock=false") && (localStorage.getItem("mock") === "true" || location.href.includes("mock=true") || location.origin.includes("demo.place.tech"));
       if (mocks_enabled) {
         setLoadingMessage("Initializing mocks...");
         _mocks();
@@ -78460,6 +78480,22 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
         AUTO_CONFIRM_DOMAIN.set(confirm_managed && !!options2.allow_mdm_restart && !!managed.api_key && !!managed.system_id);
       }
     }
+    let intune_token = "";
+    if (isNativeApp()) {
+      setLoadingMessage("Checking managed account...");
+      const account = await getIntuneAccount();
+      if (account) {
+        intune_token = await getIntuneToken(account, this._settings.get("app.intune.scopes") || void 0);
+        const email = `${account.username || ""}`.trim();
+        if (email && !getNativeDomain()) {
+          const domain = await lookupNativeDomainByEmail(email).catch(() => "");
+          if (domain) {
+            setNativeDomain(domain);
+            setNativeEmail(email);
+          }
+        }
+      }
+    }
     while (isNativeApp()) {
       let domain = getNativeDomain();
       while (!domain || confirm_managed) {
@@ -78483,6 +78519,8 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
           localStorage.removeItem(client_key);
           An();
         }
+        if (intune_token)
+          hi(intune_token);
         break;
       }
       log("APP", "Auth failed, resetting domain.", auth_error, "warn");
@@ -117467,8 +117505,20 @@ var _CheckinViewComponent = class _CheckinViewComponent extends AsyncHandler {
         []
       )
     );
+    this.can_book = computed(
+      () => this._state.setting("disable_book_now") !== true,
+      ...ngDevMode ? [{ debugName: "can_book" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.checkInCurrent = () => this._state.startMeeting();
-    this.newBooking = (d2 = Date.now(), f = false) => this._state.newBooking(d2, this.has_user(), f, true);
+    this.newBooking = (d2 = Date.now(), future = false) => {
+      if (!this.can_book())
+        return;
+      this._state.newBooking(d2, this.has_user(), future, true);
+    };
+    this.bookSlot = (d2) => this.newBooking(d2, d2 > Date.now());
     this.has_user = signal(
       true,
       ...ngDevMode ? [{ debugName: "has_user" }] : (
@@ -117545,7 +117595,7 @@ _CheckinViewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ 
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(32, "div", 14)(33, "checkin-timetable", 15);
     \u0275\u0275listener("event", function CheckinViewComponent_Template_checkin_timetable_event_33_listener($event) {
-      return ctx.newBooking($event);
+      return ctx.bookSlot($event);
     });
     \u0275\u0275elementEnd()();
     \u0275\u0275conditionalCreate(34, CheckinViewComponent_Conditional_34_Template, 3, 3, "h3", 16);
@@ -117567,7 +117617,7 @@ _CheckinViewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ 
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx.state() === "pending" ? 18 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx.state() === "free" ? 19 : -1);
+    \u0275\u0275conditional(ctx.state() === "free" && ctx.can_book() ? 19 : -1);
     \u0275\u0275advance(2);
     \u0275\u0275classProp("bg-error", (_e2 = ctx.event_state()) == null ? void 0 : _e2.next)("bg-success", !((_f = ctx.event_state()) == null ? void 0 : _f.next));
     \u0275\u0275advance(3);
@@ -117575,7 +117625,7 @@ _CheckinViewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ 
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", ((_g = ctx.event_state()) == null ? void 0 : _g.next) || "No upcoming event", " ");
     \u0275\u0275advance();
-    \u0275\u0275conditional(!((_h = ctx.event_state()) == null ? void 0 : _h.next) ? 28 : -1);
+    \u0275\u0275conditional(!((_h = ctx.event_state()) == null ? void 0 : _h.next) && ctx.can_book() ? 28 : -1);
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(31, 30, "APP.BOOKING_PANEL.SCHEDULE"), " ");
     \u0275\u0275advance(3);
@@ -117715,7 +117765,7 @@ var CheckinViewComponent = _CheckinViewComponent;
                         {{ 'APP.BOOKING_PANEL.CHECKIN' | translate }}
                     </button>
                 }
-                @if (state() === 'free') {
+                @if (state() === 'free' && can_book()) {
                     <button btn matRipple class="w-24" (click)="newBooking()">
                         {{ 'APP.BOOKING_PANEL.BOOK' | translate }}
                     </button>
@@ -117737,7 +117787,7 @@ var CheckinViewComponent = _CheckinViewComponent;
                         {{ event_state()?.next || 'No upcoming event' }}
                     </div>
                 </div>
-                @if (!event_state()?.next) {
+                @if (!event_state()?.next && can_book()) {
                     <button
                         btn
                         matRipple
@@ -117757,7 +117807,7 @@ var CheckinViewComponent = _CheckinViewComponent;
         >
             <checkin-timetable
                 [events]="bookings()"
-                (event)="newBooking($event)"
+                (event)="bookSlot($event)"
             ></checkin-timetable>
         </div>
         @if (false) {
