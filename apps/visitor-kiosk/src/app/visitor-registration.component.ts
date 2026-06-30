@@ -324,6 +324,9 @@ export class VisitorRegistrationComponent
             ...m,
             booking_type: 'visitor',
             title: 'Visit',
+            // Always ask for the host - never inherit the logged-in user that
+            // the shared form factory seeds via currentUser().
+            user: null,
         }));
         setTimeout(() => {
             if (this.allow_self_registration()) return;
@@ -340,6 +343,13 @@ export class VisitorRegistrationComponent
                         this.form,
                         this._booking_form.model,
                     ).join(', '),
+                }),
+            );
+        }
+        if (!this.host()) {
+            return notifyError(
+                i18n('FORM.INVALID_FIELDS', {
+                    field_list: i18n('APP.VISITOR_KIOSK.HOST'),
                 }),
             );
         }
