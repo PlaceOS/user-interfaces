@@ -35,7 +35,7 @@ import {
   setHours,
   setMinutes,
   showStaff
-} from "./chunk-36ZU2O3W.js";
+} from "./chunk-OLHSAIY5.js";
 import {
   ANIMATION_SHOW_CONTRACT_EXPAND,
   ActivatedRoute,
@@ -304,7 +304,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-DLILM7MD.js";
+} from "./chunk-RTLJVF54.js";
 import {
   __spreadProps,
   __spreadValues
@@ -3599,12 +3599,15 @@ function generateEventForm(event = new CalendarEvent(), settings, injector) {
     const value = model2();
     if (!value.catering?.length || !value.date)
       return;
+    const event2 = {
+      date: value.all_day ? startOfDay(value.date) : value.date,
+      duration: value.all_day ? 24 * 60 : value.duration
+    };
+    if (value.catering.every((order) => +order.event?.date === +event2.date && order.event?.duration === event2.duration))
+      return;
     model2.update((m) => __spreadProps(__spreadValues({}, m), {
       catering: (m.catering || []).map((order) => __spreadProps(__spreadValues({}, order), {
-        event: {
-          date: m.all_day ? startOfDay(m.date) : m.date,
-          duration: m.all_day ? 24 * 60 : m.duration
-        }
+        event: event2
       }))
     }));
   };
@@ -4911,7 +4914,10 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         []
       )
     );
-    this._space_zone_debounced = debounced(this._space_zone, 300, { injector: this._injector, equal: Object.is });
+    this._space_zone_debounced = debounced(this._space_zone, 300, {
+      injector: this._injector,
+      equal: Object.is
+    });
     this._spaces_resource = resource(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "_spaces_resource" } : (
       /* istanbul ignore next */
       {}
@@ -5048,6 +5054,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     }));
     const previous = {};
     effect(() => {
+      console.log("Store Form");
       const { date: raw_date, duration: raw_duration } = this._model();
       if (raw_date && raw_date !== previous["date"] || raw_duration && raw_duration !== previous["duration"]) {
         this._assets.setOptions({
@@ -5108,10 +5115,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     const existing = this._availability_requests.get(key);
     if (existing)
       return existing;
-    const request = (this.book_internal ? queryResourceAvailability(ids, date, duration, ignore, void 0) : querySpaceAvailability(ids, date, duration, ignore, void 0, [
-      event?.date,
-      event?.duration
-    ])).finally(() => this._availability_requests.delete(key));
+    const request = (this.book_internal ? queryResourceAvailability(ids, date, duration, ignore, void 0) : querySpaceAvailability(ids, date, duration, ignore, void 0, [event?.date, event?.duration])).finally(() => this._availability_requests.delete(key));
     this._availability_requests.set(key, request);
     return request;
   }
@@ -5197,7 +5201,9 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this._form().markAsTouched();
     if (!this._form().valid() && !force)
       return;
-    const event = new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), { assets: [] }));
+    const event = new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), {
+      assets: []
+    }));
     const ref = this._dialog.open(EventLinkModalComponent, { data: event });
     ref.afterClosed().subscribe((d2) => d2 ? this._router.navigate(["/"]) : "");
   }
@@ -12097,4 +12103,4 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# sourceMappingURL=explore.routes-MW3FPWEN.js.map
+//# sourceMappingURL=explore.routes-4S2XHIQH.js.map
