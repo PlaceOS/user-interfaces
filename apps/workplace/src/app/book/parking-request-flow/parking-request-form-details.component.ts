@@ -34,6 +34,8 @@ import {
     settingSignal,
     SettingsService,
     startOfDayInTimezone,
+    UploadsService,
+    notifyError
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
@@ -1152,6 +1154,7 @@ export class ParkingRequestFormDetailsComponent
     private _parking = inject(ParkingService);
     private _injector = inject(Injector);
     private _settings = inject(SettingsService);
+    private _uploads = inject(UploadsService)
     private _org = inject(OrganisationService);
     private _saved_shift_state: ParkingRequestShiftState | null = null;
     private readonly _selected_shift_duration = signal(0);
@@ -1365,6 +1368,7 @@ export class ParkingRequestFormDetailsComponent
     public readonly end_time_mins = signal<number>(1020);
     public readonly custom_start_time_mins = signal<number>(480);
     public readonly custom_end_time_mins = signal<number>(600);
+    public readonly supporting_doc_names = signal<string[]>([])
     public readonly shift_options = computed(() => {
         const user_groups = currentUser()?.groups || [];
         return this._normaliseShiftOptions(this.shift_options_setting()).filter(
@@ -1557,6 +1561,11 @@ export class ParkingRequestFormDetailsComponent
         const form = this.form();
         const model = this.model;
         if (!form || !model) return;
+        this.supporting_doc_names.set(
+            (model().attachments || []).map((url) =>
+                this._fileNameFromUrl(url),
+            ),
+        );
         runInInjectionContext(this._injector, () =>
             effect((onCleanup) => {
                 const buildings = this.building_list();
@@ -1947,6 +1956,66 @@ export class ParkingRequestFormDetailsComponent
     public setBuilding(bld) {
         this.desk_booking_building_id.set('');
         this._org.building = bld;
+    }
+
+    public async onSupportingDocsSelected(event: Event) {
+        const input = event.target as HTMLInputElement;
+        const files = Array.from(input.files || []);
+        const valid_files = files.filter(
+            (file) => file.size <= 10 * 1024 * 1024,
+        );
+        if (valid_files.length !== files.length) {
+            notifyError('Some files exceeded 10MB and were skipped.');
+        }
+        const model = this.model;
+        const existing_urls: string[] = model?.().attachments || [];
+        const existing_names = this.supporting_doc_names();
+        const new_urls: string[] = [];
+        const uploaded_names: string[] = [];
+        for (const file of valid_files) {
+            const upload_id = await this._uploads
+                .uploadFile(file, true)
+                .catch(() => '');
+            if (!upload_id) continue;
+            uploaded_names.push(file.name);
+            new_urls.push(
+                `${location.origin}/api/engine/v2/uploads/${encodeURIComponent(upload_id)}/url`,
+            );
+        }
+        const names = [...existing_names, ...uploaded_names];
+        const urls = [...existing_urls, ...new_urls];
+        this.supporting_doc_names.set(names);
+        model?.update((m) => ({
+            ...m,
+            attachments: urls,
+        }));
+        input.value = '';
+    }
+
+    public removeSupportingDoc(index: number) {
+        const model = this.model;
+        const names = [...this.supporting_doc_names()];
+        const urls = [...(model?.().attachments || [])];
+        if (index < 0 || index >= names.length) return;
+        names.splice(index, 1);
+        if (index < urls.length) urls.splice(index, 1);
+        this.supporting_doc_names.set(names);
+        model?.update((m) => ({
+            ...m,
+            attachments: urls,
+        }));
+    }
+
+    public previewSupportingDoc(index: number) {
+        const urls = [...(this.model?.().attachments || [])];
+        const url = urls[index];
+        if (!url) return;
+        // this._dialog.open(FullscreenEmbedComponent, { data: url });
+    }
+
+    private _fileNameFromUrl(url: string): string {
+        const last_part = `${url || ''}`.split('/').pop() || '';
+        return decodeURIComponent(last_part || 'Uploaded file');
     }
 
     public shiftTime(mins: number): number {

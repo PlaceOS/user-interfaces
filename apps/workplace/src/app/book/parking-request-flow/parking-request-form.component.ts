@@ -179,6 +179,7 @@ export class ParkingRequestFormComponent
             space_restrictions: false,
             extra_space_restrictions: [],
             prefer_booked_location_first: false,
+            attachments: [],
             recurrence_type: 'none',
         };
         // For new parking requests (no id), always seed a sensible parking
