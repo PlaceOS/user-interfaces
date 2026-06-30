@@ -55,7 +55,7 @@ import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
             ></date-options>
             @if (this_week()) {
                 <div
-                    class="text-info absolute top-1/2 left-4 -translate-y-1/2 text-sm"
+                    class="text-info absolute top-1/2 left-10 -translate-y-1/2 text-sm"
                 >
                     {{ 'COMMON.WEEK_THIS' | translate }}
                 </div>
@@ -69,9 +69,9 @@ import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
         <div timeline class="z-0 grid h-1/2 w-full flex-1 overflow-auto">
             <div
                 timezone
-                class="bg-base-100 sticky top-0 left-0 z-30 flex items-center justify-center"
+                class="bg-base-100 min-w-items-center sticky top-0 left-0 z-30 flex justify-center"
             >
-                <div class="text-xs opacity-30">
+                <div class="m-auto text-xs opacity-30">
                     {{ date() | date: 'zzzz' : tz }}
                 </div>
                 <div
@@ -191,7 +191,7 @@ import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
             }
 
             [timeline] {
-                grid-template-columns: 4rem auto;
+                grid-template-columns: 5rem auto;
                 grid-template-rows: 3.5rem auto;
             }
         `,

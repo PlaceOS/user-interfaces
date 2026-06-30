@@ -483,6 +483,55 @@ export function scheduleNativeRestart(hour: number): void {
     );
 }
 
+/**
+ * The Microsoft Intune (MAM) enrolled account, as returned by the native
+ * `@capgo/capacitor-intune` plugin. `username` is the user's UPN (email).
+ */
+export interface IntuneAccount {
+    accountId: string;
+    accountIdentifier?: string;
+    username?: string;
+    tenantId?: string;
+    authority?: string;
+}
+
+/**
+ * Scopes requested when acquiring the Intune access token. Overridable via the
+ * `app.intune.scopes` setting per deployment.
+ * ponytail: placeholder default — the real audience/resource for the PlaceOS
+ * backend is deployment-specific; set it via settings rather than here.
+ */
+export const DEFAULT_INTUNE_SCOPES = ['User.Read'];
+
+/**
+ * Read the Intune MAM account enrolled on this device, or null when the device
+ * isn't Intune-managed (or the plugin isn't present). Used as the gate for the
+ * Intune auth path — a null result falls back to the normal OAuth flow.
+ */
+export async function getIntuneAccount(): Promise<IntuneAccount | null> {
+    if (!isNativeApp()) return null;
+    const result = await callNativeMethod(
+        'IntuneMAM',
+        'enrolledAccount',
+    )?.catch(() => null);
+    return result?.accountId ? (result as IntuneAccount) : null;
+}
+
+/**
+ * Acquire an MS access token for the enrolled Intune account without prompting.
+ * Returns an empty string when no token can be obtained silently.
+ */
+export async function getIntuneToken(
+    account: IntuneAccount,
+    scopes: string[] = DEFAULT_INTUNE_SCOPES,
+): Promise<string> {
+    const result = await callNativeMethod('IntuneMAM', 'acquireTokenSilent', {
+        scopes,
+        accountId: account.accountId,
+    })?.catch(() => null);
+    return `${result?.accessToken || ''}`.trim();
+}
+
 export async function lookupNativeDomainByEmail(
     email: string,
 ): Promise<string> {

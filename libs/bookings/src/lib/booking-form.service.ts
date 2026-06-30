@@ -170,6 +170,28 @@ export interface GroupBookingFailure {
     error: string;
 }
 
+/** Keys that live on the `Booking` model itself. `extension_data` must never
+ * duplicate these — built once from a throwaway instance. */
+const BOOKING_MODEL_KEYS = new Set(Object.keys(new Booking()));
+
+/** Strip any main-model keys from a carried `extension_data` object. These
+ * accumulate across edit/reload cycles (model fields spread back into the form
+ * model), and would otherwise persist the whole booking state into
+ * `extension_data`. */
+function nonModelExtensionData(data: Record<string, any> = {}) {
+    const extra: Record<string, any> = {};
+    for (const key in data) {
+        if (!BOOKING_MODEL_KEYS.has(key)) extra[key] = data[key];
+    }
+    return extra;
+}
+
+/** Whether a booking carries edit state from a different booking type, i.e. an
+ * existing booking being opened in the wrong type's form. */
+function isCrossTypeEdit(booking: Booking, type: BookingType) {
+    return !!booking?.id && !!booking.booking_type && booking.booking_type !== type;
+}
+
 /** Build the `extension_data` payload saved with a booking. Only fields that
  * need renaming, coercion, computing or a fallback live here — plain flat form
  * fields (e.g. `phone`, `company`, `recurrence_instances`, `plate_number`,
@@ -181,7 +203,7 @@ function buildBookingExtensionData(
 ) {
     const type = value.booking_type;
     return {
-        ...(value.extension_data || {}),
+        ...nonModelExtensionData(value.extension_data),
         // `group` is a getter on `Booking`, so the constructor skips the
         // top-level form value — it has to be set into `extension_data` here.
         group: value.group,
@@ -718,6 +740,9 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public newForm(type: BookingType, booking: Booking = new Booking({})) {
+        // Never apply an existing booking's edit state to a different type
+        // (e.g. editing parking then opening the desk form).
+        if (isCrossTypeEdit(booking, type)) booking = new Booking({});
         this._startNetwork();
         this._calendar.loadCalendars();
         if (type !== this._options().type) {
@@ -944,13 +969,18 @@ export class BookingFormService extends AsyncHandler {
         );
     }
 
-    public loadForm() {
+    public loadForm(expected_type?: BookingType) {
         this._startNetwork();
         this._calendar.loadCalendars();
         const data = JSON.parse(
             sessionStorage.getItem(STORAGE_KEYS.booking_form) || '{}',
         );
         const booking = new Booking(data);
+        // Discard persisted edit state that belongs to a different type
+        // (e.g. a parking edit opened in the desk/locker form).
+        if (expected_type && isCrossTypeEdit(booking, expected_type)) {
+            return this.newForm(expected_type);
+        }
         const initial_date = booking.date;
         const initial_duration = booking.duration;
         this.setOptions({
@@ -1863,7 +1893,7 @@ export class BookingFormService extends AsyncHandler {
                     this._settings.get('app.bookings.no_approval') === true,
                 zones,
                 extension_data: {
-                    ...(form.extension_data || {}),
+                    ...nonModelExtensionData(form.extension_data),
                     group: group_name,
                     group_members,
                     group_resource_type: resource_type,

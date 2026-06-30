@@ -978,7 +978,7 @@ export class InviteVisitorFormComponent {
             } as any);
             this.form().reset();
         } else if (!keep_preloaded_edit) {
-            this._service.loadForm();
+            this._service.loadForm('visitor');
         }
         this._service.setOptions({ type: 'visitor' });
         if (!this.model().id) this._service.newForm('visitor');

@@ -88,10 +88,8 @@ import { ParkingTopbarComponent } from './parking-topbar.component';
                         <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
                     </div>
                 }
-                <div class="relative h-1/2 w-full flex-1 overflow-auto px-8">
-                    <div class="h-full w-full overflow-auto">
-                        <router-outlet></router-outlet>
-                    </div>
+                <div class="relative h-1/2 w-full flex-1 overflow-auto">
+                    <router-outlet></router-outlet>
                 </div>
                 @if (org_initialised() && !levels().length) {
                     <div

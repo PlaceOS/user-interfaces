@@ -44,6 +44,7 @@
         "@capacitor/ios": "8.2.0",
         "@capacitor/status-bar": "8.0.2",
         "@capawesome/capacitor-managed-configurations": "8.0.1",
+        "@capgo/capacitor-intune": "8.1.2",
         "@ngneat/spectator": "^22.1.0",
         "@nx/devkit": "22.7.5",
         "@nx/eslint": "22.7.5",
@@ -454,6 +455,8 @@
     "@capacitor/status-bar": ["@capacitor/status-bar@8.0.2", "", { "peerDependencies": { "@capacitor/core": ">=8.0.0" } }, "sha512-WXs8YB8B9eEaPZz+bcdY6t2nForF1FLoj/JU0Dl9RRgQnddnS98FEEyDooQhaY7wivr000j4+SC1FyeJkrFO7A=="],
 
     "@capawesome/capacitor-managed-configurations": ["@capawesome/capacitor-managed-configurations@8.0.1", "", { "peerDependencies": { "@capacitor/core": ">=8.0.0" } }, "sha512-S/TgyFgvJ38+8SfGOyaDzr+i5/35epUmDHGLmLNX9gqVx1vA+07mXiWev+lIVTXjsHWcHXYEmNiKOTijbIDHDw=="],
+
+    "@capgo/capacitor-intune": ["@capgo/capacitor-intune@8.1.2", "", { "peerDependencies": { "@capacitor/core": ">=8.0.0" } }, "sha512-DMI4AVQt1/u1vSKJu4jq5+azJQytMR7Ypk4Riy0NixGwmdyvNYXzebuZRc3iZlofMWn/fKJaKra+BeqGCfpdDA=="],
 
     "@colordx/core": ["@colordx/core@5.4.3", "", {}, "sha512-kIxYSfA5T8HXjav55UaaH/o/cKivF6jCCGIb8eqtcsfI46wsvlSiT8jMDyrl779qLec3c2c2oHBZo4oAhvbjrQ=="],
 
