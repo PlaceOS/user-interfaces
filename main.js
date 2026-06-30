@@ -55842,15 +55842,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "135f53d",
-  "hash": "135f53d",
+  "raw": "96fea51",
+  "hash": "96fea51",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "135f53d",
+  "suffix": "96fea51",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1782455566202
+  "time": 1782785697041
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -106676,12 +106676,15 @@ function generateEventForm(event = new CalendarEvent(), settings, injector) {
     const value = model2();
     if (!value.catering?.length || !value.date)
       return;
+    const event2 = {
+      date: value.all_day ? startOfDay(value.date) : value.date,
+      duration: value.all_day ? 24 * 60 : value.duration
+    };
+    if (value.catering.every((order) => +order.event?.date === +event2.date && order.event?.duration === event2.duration))
+      return;
     model2.update((m2) => __spreadProps(__spreadValues({}, m2), {
       catering: (m2.catering || []).map((order) => __spreadProps(__spreadValues({}, order), {
-        event: {
-          date: m2.all_day ? startOfDay(m2.date) : m2.date,
-          duration: m2.all_day ? 24 * 60 : m2.duration
-        }
+        event: event2
       }))
     }));
   };
@@ -111332,6 +111335,100 @@ var RecurringClashModalComponent = class _RecurringClashModalComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(RecurringClashModalComponent, { className: "RecurringClashModalComponent", filePath: "libs/components/src/lib/recurring-clash-modal.component.ts", lineNumber: 128 });
 })();
 
+// libs/events/src/lib/calendar.service.ts
+var CalendarService = class _CalendarService extends AsyncHandler {
+  constructor() {
+    super();
+    this._org = inject2(OrganisationService);
+    this._settings = inject2(SettingsService);
+    this._calendars = signal(
+      [],
+      ...ngDevMode ? [{ debugName: "_calendars" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._calendars_request = null;
+    this.calendar_list = this._calendars.asReadonly();
+    this.query = () => queryCalendars();
+    this.freeBusy = (q) => querySpaceFreeBusy(q, this._org);
+    this.availability = (q) => queryCalendarAvailability(q);
+    this._waitForOrg();
+  }
+  async init() {
+    if (this._settings.get("app.events.use_bookings"))
+      return;
+    this._initialised.next(true);
+  }
+  get calendars() {
+    return this._calendars();
+  }
+  /** Get Free busy for the selected day
+   * @param calendars User calendar
+   * @param date Selected day
+   */
+  getFreeBusyDate(date, calendars) {
+    return querySpaceFreeBusy({
+      period_start: getUnixTime(startOfDay(date)),
+      period_end: getUnixTime(endOfDay(date)),
+      calendars
+    }, this._org);
+  }
+  /** Check rooms availability */
+  async checkSpacesAvailability(system_ids, period_start, period_end, old_booking) {
+    const result = await queryCalendarAvailability({
+      period_start,
+      period_end,
+      system_ids: system_ids.join(",")
+    });
+    const start = new Date(old_booking?.date).valueOf();
+    const end = addMinutes(start, old_booking?.duration).valueOf();
+    const available = result.every((i) => {
+      const availability = i.availability;
+      if (old_booking && i.id === old_booking.system?.email) {
+        const index = availability.findIndex((block2) => {
+          return block2.date >= start && addMinutes(block2.date, block2.duration).valueOf() <= end;
+        });
+        if (index !== -1) {
+          availability.splice(index, 1);
+        }
+      }
+      return !availability.length;
+    });
+    return !!available;
+  }
+  async loadCalendars() {
+    if (this._calendars().length)
+      return;
+    this._calendars_request = this._calendars_request || queryCalendars().then((list2) => this._calendars.set(list2)).finally(() => this._calendars_request = null);
+    await this._calendars_request;
+  }
+  _waitForOrg() {
+    const check = () => {
+      if (this._org.initialised())
+        return this.init();
+      this.timeout("init", check, 100);
+    };
+    check();
+  }
+  static {
+    this.\u0275fac = function CalendarService_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _CalendarService)();
+    };
+  }
+  static {
+    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _CalendarService, factory: _CalendarService.\u0275fac, providedIn: "root" });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CalendarService, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], () => [], null);
+})();
+
 // libs/events/src/lib/calendar-links.ts
 function formatUTC(date) {
   const utc_date = localToTimezone(date, "UTC");
@@ -111617,100 +111714,6 @@ var EventLinkModalComponent = class _EventLinkModalComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(EventLinkModalComponent, { className: "EventLinkModalComponent", filePath: "libs/events/src/lib/event-link-modal.component.ts", lineNumber: 91 });
 })();
 
-// libs/events/src/lib/calendar.service.ts
-var CalendarService = class _CalendarService extends AsyncHandler {
-  constructor() {
-    super();
-    this._org = inject2(OrganisationService);
-    this._settings = inject2(SettingsService);
-    this._calendars = signal(
-      [],
-      ...ngDevMode ? [{ debugName: "_calendars" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this._calendars_request = null;
-    this.calendar_list = this._calendars.asReadonly();
-    this.query = () => queryCalendars();
-    this.freeBusy = (q) => querySpaceFreeBusy(q, this._org);
-    this.availability = (q) => queryCalendarAvailability(q);
-    this._waitForOrg();
-  }
-  async init() {
-    if (this._settings.get("app.events.use_bookings"))
-      return;
-    this._initialised.next(true);
-  }
-  get calendars() {
-    return this._calendars();
-  }
-  /** Get Free busy for the selected day
-   * @param calendars User calendar
-   * @param date Selected day
-   */
-  getFreeBusyDate(date, calendars) {
-    return querySpaceFreeBusy({
-      period_start: getUnixTime(startOfDay(date)),
-      period_end: getUnixTime(endOfDay(date)),
-      calendars
-    }, this._org);
-  }
-  /** Check rooms availability */
-  async checkSpacesAvailability(system_ids, period_start, period_end, old_booking) {
-    const result = await queryCalendarAvailability({
-      period_start,
-      period_end,
-      system_ids: system_ids.join(",")
-    });
-    const start = new Date(old_booking?.date).valueOf();
-    const end = addMinutes(start, old_booking?.duration).valueOf();
-    const available = result.every((i) => {
-      const availability = i.availability;
-      if (old_booking && i.id === old_booking.system?.email) {
-        const index = availability.findIndex((block2) => {
-          return block2.date >= start && addMinutes(block2.date, block2.duration).valueOf() <= end;
-        });
-        if (index !== -1) {
-          availability.splice(index, 1);
-        }
-      }
-      return !availability.length;
-    });
-    return !!available;
-  }
-  async loadCalendars() {
-    if (this._calendars().length)
-      return;
-    this._calendars_request = this._calendars_request || queryCalendars().then((list2) => this._calendars.set(list2)).finally(() => this._calendars_request = null);
-    await this._calendars_request;
-  }
-  _waitForOrg() {
-    const check = () => {
-      if (this._org.initialised())
-        return this.init();
-      this.timeout("init", check, 100);
-    };
-    check();
-  }
-  static {
-    this.\u0275fac = function CalendarService_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _CalendarService)();
-    };
-  }
-  static {
-    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _CalendarService, factory: _CalendarService.\u0275fac, providedIn: "root" });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CalendarService, [{
-    type: Injectable,
-    args: [{
-      providedIn: "root"
-    }]
-  }], () => [], null);
-})();
-
 // libs/events/src/lib/event-form.service.ts
 var BOOKING_URLS = [
   "book/rooms",
@@ -111902,7 +111905,10 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         []
       )
     );
-    this._space_zone_debounced = debounced(this._space_zone, 300, { injector: this._injector, equal: Object.is });
+    this._space_zone_debounced = debounced(this._space_zone, 300, {
+      injector: this._injector,
+      equal: Object.is
+    });
     this._spaces_resource = resource(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "_spaces_resource" } : (
       /* istanbul ignore next */
       {}
@@ -112039,6 +112045,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     }));
     const previous = {};
     effect(() => {
+      console.log("Store Form");
       const { date: raw_date, duration: raw_duration } = this._model();
       if (raw_date && raw_date !== previous["date"] || raw_duration && raw_duration !== previous["duration"]) {
         this._assets.setOptions({
@@ -112099,10 +112106,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     const existing = this._availability_requests.get(key);
     if (existing)
       return existing;
-    const request = (this.book_internal ? queryResourceAvailability(ids, date, duration, ignore, void 0) : querySpaceAvailability(ids, date, duration, ignore, void 0, [
-      event?.date,
-      event?.duration
-    ])).finally(() => this._availability_requests.delete(key));
+    const request = (this.book_internal ? queryResourceAvailability(ids, date, duration, ignore, void 0) : querySpaceAvailability(ids, date, duration, ignore, void 0, [event?.date, event?.duration])).finally(() => this._availability_requests.delete(key));
     this._availability_requests.set(key, request);
     return request;
   }
@@ -112188,7 +112192,9 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this._form().markAsTouched();
     if (!this._form().valid() && !force)
       return;
-    const event = new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), { assets: [] }));
+    const event = new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), {
+      assets: []
+    }));
     const ref = this._dialog.open(EventLinkModalComponent, { data: event });
     ref.afterClosed().subscribe((d2) => d2 ? this._router.navigate(["/"]) : "");
   }
