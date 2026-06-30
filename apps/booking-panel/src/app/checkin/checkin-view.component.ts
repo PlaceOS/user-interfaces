@@ -138,7 +138,7 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                         {{ 'APP.BOOKING_PANEL.CHECKIN' | translate }}
                     </button>
                 }
-                @if (state() === 'free') {
+                @if (state() === 'free' && can_book()) {
                     <button btn matRipple class="w-24" (click)="newBooking()">
                         {{ 'APP.BOOKING_PANEL.BOOK' | translate }}
                     </button>
@@ -160,7 +160,7 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                         {{ event_state()?.next || 'No upcoming event' }}
                     </div>
                 </div>
-                @if (!event_state()?.next) {
+                @if (!event_state()?.next && can_book()) {
                     <button
                         btn
                         matRipple
@@ -180,7 +180,7 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
         >
             <checkin-timetable
                 [events]="bookings()"
-                (event)="newBooking($event)"
+                (event)="bookSlot($event)"
             ></checkin-timetable>
         </div>
         @if (false) {
@@ -269,9 +269,18 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
     public readonly bookings = this._state.bookings;
     public start = signal<number>(Date.now());
 
+    public readonly can_book = computed(
+        () => this._state.setting('disable_book_now') !== true,
+    );
+
     public readonly checkInCurrent = () => this._state.startMeeting();
-    public readonly newBooking = (d = Date.now(), f = false) =>
-        this._state.newBooking(d, this.has_user(), f, true);
+    public readonly newBooking = (d = Date.now(), future = false) => {
+        if (!this.can_book()) return;
+        this._state.newBooking(d, this.has_user(), future, true);
+    };
+    // Timetable emits the absolute start time of the tapped slot; treat any
+    // slot past now as a future booking so the chosen time isn't overwritten.
+    public readonly bookSlot = (d: number) => this.newBooking(d, d > Date.now());
 
     public has_user = signal<boolean>(true);
 
