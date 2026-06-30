@@ -614,6 +614,71 @@ describe('BookingFormService', () => {
         ).toEqual(['PlaceOS P1 Parking', 'After Hours Parking']);
     });
 
+    it('should only save form fields from booking extension data', async () => {
+        const save_booking = booking_mod.saveBooking as jest.Mock;
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        save_booking.mockReset();
+        save_booking.mockImplementation((booking: Booking) =>
+            Promise.resolve(booking),
+        );
+        spectator.service.newForm(
+            'parking',
+            new Booking({
+                booking_type: 'parking',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'unallocated-parking',
+                extension_data: {
+                    notes: 'Needs access',
+                    p2_document_names: ['Permit.pdf'],
+                    attachments: ['https://example.com/permit.pdf'],
+                    cost_code: 'CC-123',
+                    resources: [{ id: 'resource-1' }],
+                    level: { id: 'lvl-1' },
+                },
+            }),
+        );
+        spectator.service.model.update(
+            (m) =>
+                ({
+                    ...m,
+                    booking_type: 'parking',
+                    asset_id: 'unallocated-parking',
+                    asset_name: 'Parking Request',
+                    title: 'Parking Request',
+                    cost_code: 'CC-123',
+                    p2_document_names: ['Permit.pdf'],
+                    resources: [{ id: 'resource-1' }],
+                    level: { id: 'lvl-1' },
+                    extension_data: {
+                        notes: 'Needs access',
+                        p2_document_names: ['Permit.pdf'],
+                        attachments: ['https://example.com/permit.pdf'],
+                        cost_code: 'CC-123',
+                        resources: [{ id: 'resource-1' }],
+                        assets: [{ id: 'asset-1' }],
+                        level: { id: 'lvl-1' },
+                    },
+                }) as any,
+        );
+
+        await spectator.service.postForm(true);
+
+        const extension_data = (save_booking.mock.calls[0][0] as Booking)
+            .extension_data;
+        expect(save_booking).toHaveBeenCalledTimes(1);
+        expect(extension_data.notes).toBe('Needs access');
+        expect(extension_data.attachments).toEqual([
+            'https://example.com/permit.pdf',
+            'Permit.pdf',
+        ]);
+        expect(extension_data.p2_document_names).toBeUndefined();
+        expect(extension_data.cost_code).toBeUndefined();
+        expect(extension_data.resources).toBeUndefined();
+        expect(extension_data.assets).toEqual([]);
+        expect(extension_data.level).toBeUndefined();
+    });
+
     it('should recompute parking request start and end when stale booking fields are present', async () => {
         const save_booking = booking_mod.saveBooking as jest.Mock;
         (spectator.inject(PaymentsService) as any).enabled = false;

@@ -275,7 +275,6 @@ export class ParkingRequestFormComponent
             space_restrictions: false,
             extra_space_restrictions: [],
             prefer_booked_location_first: false,
-            p2_document_names: [],
             attachments: [],
             recurrence_type: 'none',
         };
