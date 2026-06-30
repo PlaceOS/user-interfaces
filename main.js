@@ -68006,15 +68006,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "135f53d",
-  "hash": "135f53d",
+  "raw": "96fea51",
+  "hash": "96fea51",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "135f53d",
+  "suffix": "96fea51",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1782455610080
+  "time": 1782785705871
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -130847,12 +130847,15 @@ function generateEventForm(event = new CalendarEvent(), settings, injector) {
     const value = model2();
     if (!value.catering?.length || !value.date)
       return;
+    const event2 = {
+      date: value.all_day ? startOfDay(value.date) : value.date,
+      duration: value.all_day ? 24 * 60 : value.duration
+    };
+    if (value.catering.every((order) => +order.event?.date === +event2.date && order.event?.duration === event2.duration))
+      return;
     model2.update((m2) => __spreadProps(__spreadValues({}, m2), {
       catering: (m2.catering || []).map((order) => __spreadProps(__spreadValues({}, order), {
-        event: {
-          date: m2.all_day ? startOfDay(m2.date) : m2.date,
-          duration: m2.all_day ? 24 * 60 : m2.duration
-        }
+        event: event2
       }))
     }));
   };
@@ -131076,7 +131079,10 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         []
       )
     );
-    this._space_zone_debounced = debounced(this._space_zone, 300, { injector: this._injector, equal: Object.is });
+    this._space_zone_debounced = debounced(this._space_zone, 300, {
+      injector: this._injector,
+      equal: Object.is
+    });
     this._spaces_resource = resource(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "_spaces_resource" } : (
       /* istanbul ignore next */
       {}
@@ -131213,6 +131219,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     }));
     const previous = {};
     effect(() => {
+      console.log("Store Form");
       const { date: raw_date, duration: raw_duration } = this._model();
       if (raw_date && raw_date !== previous["date"] || raw_duration && raw_duration !== previous["duration"]) {
         this._assets.setOptions({
@@ -131273,10 +131280,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     const existing = this._availability_requests.get(key);
     if (existing)
       return existing;
-    const request = (this.book_internal ? queryResourceAvailability(ids, date, duration, ignore, void 0) : querySpaceAvailability(ids, date, duration, ignore, void 0, [
-      event?.date,
-      event?.duration
-    ])).finally(() => this._availability_requests.delete(key));
+    const request = (this.book_internal ? queryResourceAvailability(ids, date, duration, ignore, void 0) : querySpaceAvailability(ids, date, duration, ignore, void 0, [event?.date, event?.duration])).finally(() => this._availability_requests.delete(key));
     this._availability_requests.set(key, request);
     return request;
   }
@@ -131362,7 +131366,9 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this._form().markAsTouched();
     if (!this._form().valid() && !force)
       return;
-    const event = new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), { assets: [] }));
+    const event = new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), {
+      assets: []
+    }));
     const ref = this._dialog.open(EventLinkModalComponent, { data: event });
     ref.afterClosed().subscribe((d3) => d3 ? this._router.navigate(["/"]) : "");
   }
