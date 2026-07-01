@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["parking-requests-week-view.component.ts"],
-  "sourcesContent": ["\n            :host {\n                display: block;\n                height: 100%;\n            }\n\n            [timeline] {\n                grid-template-rows: 3rem auto;\n            }\n        "],
-  "mappings": ";AACY;AACI,WAAA;AACA,UAAA;AACJ;AAEA,CAAA;AACI,sBAAA,KAAA;AACJ;",
-  "names": []
-}

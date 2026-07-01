@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["parking-bookings-week-view.component.ts"],
-  "sourcesContent": ["\n            :host {\n                display: block;\n                height: 100%;\n            }\n\n            [timeline] {\n                grid-template-rows: 3rem auto;\n            }\n        "],
-  "mappings": ";AACY;AACI,WAAA;AACA,UAAA;AACJ;AAEA,CAAA;AACI,sBAAA,KAAA;AACJ;",
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                overflow: auto;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,UAAA;AACA,YAAA;AACJ;",
   "names": []
 }
