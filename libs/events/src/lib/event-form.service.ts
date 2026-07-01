@@ -656,7 +656,11 @@ export class EventFormService extends AsyncHandler {
         const form_data = JSON.parse(
             sessionStorage.getItem('PLACEOS.event_form') || '{}',
         );
-        this._model.update((m) => ({ ...m, ...(event as any), ...form_data }));
+        this._model.update((m) => ({
+            ...m,
+            ...eventFormValue(event),
+            ...form_data,
+        }));
     }
 
     public clearForm() {
