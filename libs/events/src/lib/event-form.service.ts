@@ -917,7 +917,7 @@ export class EventFormService extends AsyncHandler {
             if (this._model().host !== host)
                 ext.host_override = this._model().host;
             const value = this._model();
-            const created_event = await this._performBooking(
+            let created_event = await this._performBooking(
                 new CalendarEvent({
                     ...(this._model() as any),
                     date: all_day_period.date,
@@ -937,6 +937,19 @@ export class EventFormService extends AsyncHandler {
                 }),
                 query,
             ).catch(on_error);
+            const date_end =
+                all_day_period.date_end ||
+                all_day_period.date + all_day_period.duration * 60 * 1000;
+            created_event = new CalendarEvent({
+                ...created_event,
+                event_start: Math.floor(all_day_period.date / 1000),
+                event_end: Math.floor(date_end / 1000),
+                date: all_day_period.date,
+                duration: all_day_period.duration,
+                date_end,
+                resources: space_list,
+                system: space_list[0] || null,
+            });
             // Create visitor bookings for external attendees
             const domain = (currentUser()?.email || '@').split('@')[1];
             const visitors = this._model().attendees.filter(
@@ -1016,7 +1029,7 @@ export class EventFormService extends AsyncHandler {
                 'PLACEOS.last_modified_event',
                 JSON.stringify(created_event.toJSON()),
             );
-            this.loadLastSuccess();
+            this.last_success.set(created_event);
             return created_event;
         } catch (e) {
             this.removeLoadingTag(Tags.PostBooking);

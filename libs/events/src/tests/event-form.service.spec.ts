@@ -222,6 +222,63 @@ describe('EventFormService', () => {
         expect(perform_booking_spy).toHaveBeenCalled();
     });
 
+    it('should keep the submitted time when the saved event response is stale', async () => {
+        const stale_start = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
+        const submitted_start = new Date(2028, 5, 16, 16, 0, 0, 0).valueOf();
+        const submitted_end = new Date(2028, 5, 16, 17, 0, 0, 0).valueOf();
+        sessionStorage.setItem(
+            'PLACEOS.last_modified_event',
+            JSON.stringify({
+                id: 'previous-event',
+                title: 'Previous booking',
+                event_start: Math.floor(stale_start / 1000),
+                event_end: Math.floor((stale_start + 30 * 60 * 1000) / 1000),
+            }),
+        );
+        jest.spyOn(service as any, '_performBooking').mockResolvedValue(
+            new CalendarEvent({
+                id: 'event-1',
+                host: 'host@test.com',
+                organiser: { email: 'host@test.com' } as any,
+                creator: 'host@test.com',
+                title: 'Moved booking',
+                event_start: Math.floor(stale_start / 1000),
+                event_end: Math.floor((stale_start + 30 * 60 * 1000) / 1000),
+                attendees: [],
+                resources: [],
+            }),
+        );
+
+        service.newForm();
+        service.model.update((m) => ({
+            ...m,
+            host: 'host@test.com',
+            organiser: { email: 'host@test.com' } as any,
+            creator: 'host@test.com',
+            title: 'Moved booking',
+            date: submitted_start,
+            duration: 60,
+            date_end: submitted_end,
+            attendees: [],
+            resources: [],
+        }));
+
+        const result = await service.postForm(true);
+        const last_success = JSON.parse(
+            sessionStorage.getItem('PLACEOS.last_modified_event'),
+        );
+
+        expect(result.date).toBe(submitted_start);
+        expect(result.date_end).toBe(submitted_end);
+        expect(service.last_success()?.id).toBe('event-1');
+        expect(service.last_success()?.date).toBe(submitted_start);
+        expect(service.last_success()?.date_end).toBe(submitted_end);
+        expect(last_success.event_start).toBe(
+            Math.floor(submitted_start / 1000),
+        );
+        expect(last_success.event_end).toBe(Math.floor(submitted_end / 1000));
+    });
+
     it('should use the original calendar when changing host on an existing room booking', async () => {
         const current_user = currentUser();
         const new_host = 'new.host@example.com';
