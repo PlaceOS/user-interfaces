@@ -176,17 +176,41 @@ export interface GroupBookingFailure {
 /** Keys that live on the `Booking` model itself. `extension_data` must never
  * duplicate these — built once from a throwaway instance. */
 const BOOKING_MODEL_KEYS = new Set(Object.keys(new Booking()));
+const BOOKING_FORM_KEYS = new Set(Object.keys(bookingFormValue(new Booking())));
+const BOOKING_EXTENSION_FIELD_BLACKLIST = new Set([
+    'resources',
+    'assets',
+    'level',
+]);
 
-/** Strip any main-model keys from a carried `extension_data` object. These
- * accumulate across edit/reload cycles (model fields spread back into the form
- * model), and would otherwise persist the whole booking state into
- * `extension_data`. */
-function nonModelExtensionData(data: Record<string, any> = {}) {
+/** Keep only real form fields from carried `extension_data`. */
+function formExtensionData(data: Record<string, any> = {}) {
     const extra: Record<string, any> = {};
     for (const key in data) {
-        if (!BOOKING_MODEL_KEYS.has(key)) extra[key] = data[key];
+        if (
+            BOOKING_FORM_KEYS.has(key) &&
+            !BOOKING_MODEL_KEYS.has(key) &&
+            !BOOKING_EXTENSION_FIELD_BLACKLIST.has(key)
+        ) {
+            extra[key] = data[key];
+        }
     }
     return extra;
+}
+
+function formBookingData(value: Record<string, any>) {
+    const data: Record<string, any> = {};
+    for (const key in value) {
+        if (key === 'extension_data') {
+            data.extension_data = formExtensionData(value.extension_data);
+        } else if (
+            !BOOKING_EXTENSION_FIELD_BLACKLIST.has(key) &&
+            (BOOKING_FORM_KEYS.has(key) || BOOKING_MODEL_KEYS.has(key))
+        ) {
+            data[key] = value[key];
+        }
+    }
+    return data;
 }
 
 /** Whether a booking carries edit state from a different booking type, i.e. an
@@ -206,7 +230,13 @@ function buildBookingExtensionData(
 ) {
     const type = value.booking_type;
     return {
-        ...nonModelExtensionData(value.extension_data),
+        ...formExtensionData(value.extension_data),
+        ...(value.extension_data?.invoice
+            ? {
+                  invoice: value.extension_data.invoice,
+                  invoice_id: value.extension_data.invoice_id,
+              }
+            : {}),
         // `group` is a getter on `Booking`, so the constructor skips the
         // top-level form value — it has to be set into `extension_data` here.
         group: value.group,
@@ -1949,7 +1979,7 @@ export class BookingFormService extends AsyncHandler {
                     this._settings.get('app.bookings.no_approval') === true,
                 zones,
                 extension_data: {
-                    ...nonModelExtensionData(form.extension_data),
+                    ...formExtensionData(form.extension_data),
                     group: group_name,
                     group_members,
                     group_resource_type: resource_type,
