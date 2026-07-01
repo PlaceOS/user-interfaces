@@ -55835,8 +55835,27 @@ function reloadUserData() {
 function currentUser() {
   return _current_user.getValue() || EMPTY_USER;
 }
-function userSignal() {
-  return user_signal;
+function currentUserIsLoaded() {
+  if (!isEmptyUser(currentUser()))
+    return true;
+  try {
+    return !!jest;
+  } catch {
+    return false;
+  }
+}
+function currentUserLoaded() {
+  const user = currentUser();
+  if (currentUserIsLoaded())
+    return Promise.resolve(user);
+  return new Promise((resolve) => {
+    const sub = _current_user.subscribe((user2) => {
+      if (isEmptyUser(user2))
+        return;
+      sub.unsubscribe();
+      resolve(user2);
+    });
+  });
 }
 function hasPermission(subsystem, permissions) {
   if (user_signal().groups?.includes("placeos_admin"))
@@ -55857,15 +55876,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "517dbea",
-  "hash": "517dbea",
+  "raw": "f0e9ff2",
+  "hash": "f0e9ff2",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "517dbea",
+  "suffix": "f0e9ff2",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1782809133404
+  "time": 1782896701456
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -108807,7 +108826,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
     this.selected_user = computed(
       () => {
         const term = this.search_term();
-        return term && typeof term !== "string" ? term : null;
+        return term && typeof term !== "string" && term.email !== EMPTY_USER.email ? term : null;
       },
       ...ngDevMode ? [{ debugName: "selected_user" }] : (
         /* istanbul ignore next */
@@ -108920,20 +108939,22 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
     )), {
       params: () => ({ term: this._debounced_term.value() }),
       loader: async ({ params: { term } }) => {
-        if (term && typeof term !== "string")
-          return [term];
+        if (term && typeof term !== "string") {
+          const user = term;
+          return user.email === EMPTY_USER.email ? [] : [user];
+        }
         if (term === this.user()?.name)
           return [this.user()];
         if (this.disable_search())
           return [];
         const s = `${term || ""}`.toLowerCase();
         if (this.options()?.length) {
-          return this.options().filter((_2) => _2.name.toLowerCase().includes(s) || _2.email.toLowerCase().includes(s));
+          return this.options().filter((_2) => _2.email !== EMPTY_USER.email && (_2.name.toLowerCase().includes(s) || _2.email.toLowerCase().includes(s)));
         }
         if (s.length <= 2)
           return [];
         const list2 = await this.query_fn()(s).catch(() => []);
-        return list2.filter((_2) => !!_2);
+        return list2.filter((_2) => !!_2 && _2.email !== EMPTY_USER.email);
       }
     }));
     this.search_results = computed(
@@ -108992,7 +109013,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
     this.resetTerm();
   }
   displayFn(user) {
-    return user && user.name ? user.name : "";
+    return user && user.email !== EMPTY_USER.email && user.name ? user.name : "";
   }
   stopEvent(event) {
     event.stopPropagation();
@@ -110880,22 +110901,24 @@ function setBookingAsset(model2, resource2) {
 }
 function bookingAttachments(booking = new Booking()) {
   booking = booking || new Booking();
+  const extension_data = booking.extension_data || {};
   return [
-    ...booking.extension_data.attachments || [],
-    ...booking.extension_data.p2_document_names || []
+    ...extension_data.attachments || [],
+    ...extension_data.p2_document_names || []
   ].filter((item) => !!item);
 }
 function bookingFormValue(booking = new Booking()) {
-  const visitor_name = booking.booking_type === "visitor" ? booking.extension_data?.visitor_name || booking.asset_name || "" : booking.asset_name || booking.description;
+  const extension_data = booking.extension_data || {};
+  const visitor_name = booking.booking_type === "visitor" ? extension_data.visitor_name || booking.asset_name || "" : booking.asset_name || booking.description;
   return {
     id: booking.id || "",
     parent_id: booking.parent_id || "",
     event_id: booking.event_id || "",
-    ical_uid: booking.extension_data.ical_uid || "",
+    ical_uid: extension_data.ical_uid || "",
     date: booking.date ?? 0,
     date_end: booking.date_end ?? 0,
     all_day: booking.all_day ?? false,
-    name: booking.extension_data.name || booking.asset_name || "",
+    name: extension_data.name || booking.asset_name || "",
     duration: booking.duration ?? 0,
     booking_type: booking.booking_type || "",
     zones: booking.zones || [],
@@ -110903,13 +110926,13 @@ function bookingFormValue(booking = new Booking()) {
     description: booking.description || "",
     booking_asset: {},
     resources: [],
-    company: booking.extension_data?.company || "",
+    company: extension_data.company || "",
     asset_id: booking.asset_id || "",
     asset_name: visitor_name || "",
-    assets: booking.extension_data?.assets || [],
+    assets: extension_data.assets || [],
     attendees: booking.attendees || [],
-    map_id: booking.extension_data?.map_id || "",
-    featured: booking.extension_data?.featured || false,
+    map_id: extension_data.map_id || "",
+    featured: extension_data.featured || false,
     user: currentUser(),
     user_id: booking.user_id || "",
     group: booking.group ?? {},
@@ -110919,31 +110942,31 @@ function bookingFormValue(booking = new Booking()) {
     booked_by: currentUser(),
     booked_by_id: booking.booked_by_id || "",
     booked_by_email: booking.booked_by_email || "",
-    secondary_resource: booking.extension_data?.other_asset_type || booking.extension_data?.secondary_resource || {},
-    location: booking.extension_data.location || "",
-    attendance_type: booking.extension_data.attendance_type || "ANY",
-    phone: booking.extension_data.phone || "",
+    secondary_resource: extension_data.other_asset_type || extension_data.secondary_resource || {},
+    location: extension_data.location || "",
+    attendance_type: extension_data.attendance_type || "ANY",
+    phone: extension_data.phone || "",
     permission: booking.permission || "PRIVATE",
     images: booking.images || [],
     tags: booking?.tags || [],
-    plate_number: booking.extension_data.plate_number || "",
-    vehicle_type: booking.extension_data.vehicle_type || "car",
-    request_type: booking.extension_data.request_type || "standard",
-    requires_manual_approval: booking.extension_data.requires_manual_approval ?? false,
-    space_restrictions: booking.extension_data.space_restrictions ?? false,
-    extra_space_restrictions: booking.extension_data.extra_space_restrictions ?? [],
-    approver_group: booking.extension_data.approver_group || "",
-    prefer_booked_location_first: booking.extension_data.prefer_booked_location_first ?? false,
-    pass_number: booking.extension_data.pass_number || "",
-    international: booking.extension_data.international ?? false,
-    recurrence_custom: booking.extension_data.recurrence_custom ?? false,
+    plate_number: extension_data.plate_number || "",
+    vehicle_type: extension_data.vehicle_type || "car",
+    request_type: extension_data.request_type || "standard",
+    requires_manual_approval: extension_data.requires_manual_approval ?? false,
+    space_restrictions: extension_data.space_restrictions ?? false,
+    extra_space_restrictions: extension_data.extra_space_restrictions ?? [],
+    approver_group: extension_data.approver_group || "",
+    prefer_booked_location_first: extension_data.prefer_booked_location_first ?? false,
+    pass_number: extension_data.pass_number || "",
+    international: extension_data.international ?? false,
+    recurrence_custom: extension_data.recurrence_custom ?? false,
     recurrence_type: booking.recurrence_type || "none",
     recurrence_days: booking.recurrence_days ?? 0,
     recurrence_nth_of_month: booking.recurrence_nth_of_month ?? 0,
     recurrence_interval: booking.recurrence_interval ?? 0,
     recurrence_end: booking.recurrence_end ?? 0,
-    recurrence_instances: booking.extension_data.recurrence_instances ?? [],
-    notes: booking.extension_data.notes || "",
+    recurrence_instances: extension_data.recurrence_instances ?? [],
+    notes: extension_data.notes || "",
     attachments: bookingAttachments(booking),
     update_master: false,
     self_registered: false,
@@ -111996,7 +112019,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this.init();
   }
   async init() {
-    await firstValueWhere(userSignal(), (user) => !isEmptyUser(user));
+    await currentUserLoaded();
     setDefaultCreator(currentUser());
     onFieldChange(this._model, (v) => v.date, (date) => this.setOptions({ date }), this._injector);
     onFieldChange(this._model, (v) => v.duration, (duration) => this.setOptions({ duration }), this._injector);
@@ -112115,6 +112138,10 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this._options.set(__spreadValues(__spreadValues({}, this._options()), options2));
   }
   newForm(event = new CalendarEvent()) {
+    if (!currentUserIsLoaded()) {
+      currentUserLoaded().then(() => this.newForm(event));
+      return;
+    }
     this._startNetwork();
     this._calendar.loadCalendars();
     this._loading.set("");
@@ -112131,6 +112158,10 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this._event.set(event);
   }
   resetForm() {
+    if (!currentUserIsLoaded()) {
+      currentUserLoaded().then(() => this.resetForm());
+      return;
+    }
     this._model.set(eventFormValue(this._event() || new CalendarEvent()));
     this._form().reset();
   }
@@ -112140,13 +112171,17 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     });
   }
   loadForm() {
+    if (!currentUserIsLoaded()) {
+      currentUserLoaded().then(() => this.loadForm());
+      return;
+    }
     this._startNetwork();
     this._calendar.loadCalendars();
     const event_data = JSON.parse(sessionStorage.getItem("PLACEOS.event") || "{}");
     const event = new CalendarEvent(event_data);
     this._event.set(event);
     const form_data = JSON.parse(sessionStorage.getItem("PLACEOS.event_form") || "{}");
-    this._model.update((m2) => __spreadValues(__spreadValues(__spreadValues({}, m2), event), form_data));
+    this._model.update((m2) => __spreadValues(__spreadValues(__spreadValues({}, m2), eventFormValue(event)), form_data));
   }
   clearForm() {
     sessionStorage.removeItem("PLACEOS.event");
@@ -112279,7 +112314,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       if (this._model().host !== host)
         ext.host_override = this._model().host;
       const value = this._model();
-      const created_event = await this._performBooking(new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), {
+      let created_event = await this._performBooking(new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), {
         date: all_day_period.date,
         duration: all_day_period.duration,
         date_end: all_day_period.date_end,
@@ -112295,6 +112330,16 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         assets: processed_assets,
         extension_data: ext
       })), query2).catch(on_error);
+      const date_end = all_day_period.date_end || all_day_period.date + all_day_period.duration * 60 * 1e3;
+      created_event = new CalendarEvent(__spreadProps(__spreadValues({}, created_event), {
+        event_start: Math.floor(all_day_period.date / 1e3),
+        event_end: Math.floor(date_end / 1e3),
+        date: all_day_period.date,
+        duration: all_day_period.duration,
+        date_end,
+        resources: space_list,
+        system: space_list[0] || null
+      }));
       const domain = (currentUser()?.email || "@").split("@")[1];
       const visitors = this._model().attendees.filter((user) => user.is_external && user.email !== event.host && !user.email.includes(domain) && user.visit_expected);
       if (visitors.length) {
@@ -112326,7 +112371,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       }
       this.clearForm();
       sessionStorage.setItem("PLACEOS.last_modified_event", JSON.stringify(created_event.toJSON()));
-      this.loadLastSuccess();
+      this.last_success.set(created_event);
       return created_event;
     } catch (e) {
       this.removeLoadingTag(Tags.PostBooking);
@@ -126014,6 +126059,34 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     const desk_lists = await Promise.all(buildings.map((building) => Qu(building.id, { name: "desks" }).then((data) => flatten2(data.map(map_metadata))).catch(() => [])));
     return flatten2(desk_lists).some((desk) => desk.assigned_to?.toLowerCase() === email2);
   }
+  /**
+   * Whether the current user has a resource of `type` reserved (assigned) to
+   * them. Only desk/parking/locker support assignment; any other type resolves
+   * to `false` so it is never blocked by the reserved-resource restriction.
+   */
+  async _computeHasAssignedResource(type) {
+    if (type === "desk")
+      return this._computeHasAssignedDesk();
+    const email2 = currentUser()?.email?.toLowerCase();
+    if (!email2)
+      return false;
+    const resources = await this._loadRawResourcesForType(type).catch(() => []);
+    return resources.some((resource2) => resource2.assigned_to?.toLowerCase() === email2);
+  }
+  /**
+   * Load the resource list for `type` without the loading-message side effects
+   * of `_loadResourcesForType`, so it can be used for background checks (e.g.
+   * detecting an assigned resource during submission).
+   */
+  _loadRawResourcesForType(type) {
+    switch (type) {
+      case "parking":
+        return this.loadParkingResources();
+      case "locker":
+        return this._loadLockerResources();
+    }
+    return Promise.resolve([]);
+  }
   async _computeAvailableResources(options2, resources, restrictions, raw) {
     const { all_day, user } = raw;
     let { date, duration } = raw;
@@ -126212,7 +126285,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
         return this._org.initialised() && (!this._org.regions.length || !!region?.id) && !!building?.id && // The override count can be satisfied by placeholder `{}` building
         // settings before `loadBuildingData` populates them, so also wait
         // for the active building's metadata to actually land. Otherwise
-        // building/region-level settings (e.g. allow_booking_with_reserved_desk)
+        // building/region-level settings (e.g. allow_booking_with_reserved_resource)
         // read as their defaults during the load window.
         this._org.active_building_loaded() && overrides.length >= required_overrides;
       },
@@ -126473,6 +126546,10 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     }
   }
   resetForm() {
+    if (!currentUserIsLoaded()) {
+      currentUserLoaded().then(() => this.resetForm());
+      return;
+    }
     if (!sessionStorage.getItem(STORAGE_KEYS.booking_form)) {
       return this.newForm(this._options().type);
     }
@@ -126607,7 +126684,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     const host = value.user?.email || value.user_email || currentUser()?.email;
     const selected_booking_type = value.booking_type || this._options().type;
     if (ignore_check) {
-      await this._checkAssignedDeskRestriction(host, selected_booking_type);
+      await this._checkAssignedResourceRestriction(host, selected_booking_type);
     } else {
       if (selected_booking_type !== "visitor") {
         await this._checkResourceAvailable(__spreadProps(__spreadValues(__spreadValues({}, booking), value), {
@@ -126731,7 +126808,15 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     return result;
   }
   setting(key) {
-    const { type } = this._options();
+    return this.settingForType(this._options().type, key);
+  }
+  /**
+   * Resolve a setting for a specific booking type. Prefer this over `setting()`
+   * when the relevant type is known (e.g. at submission), since this service is
+   * a shared singleton and `setting()` resolves against whichever flow's
+   * `_options().type` happens to be active.
+   */
+  settingForType(type, key) {
     return this._settings.get(`app.${type}.${key}`) ?? this._settings.get(`app.${type}s.${key}`) ?? this._settings.get(`app.bookings.${key}`);
   }
   /** Whether auto-allocation is enabled for the current booking type */
@@ -127280,24 +127365,33 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     ref.close();
   }
   /**
-   * Whether users with a desk reserved (assigned) to them are allowed to
-   * book another desk for themselves. Blocked by default; enable with the
-   * `allow_booking_with_reserved_desk` setting. The legacy
-   * `prevent_self_booking_if_assigned_desk` setting forces blocking.
+   * Whether a user with a resource of `type` reserved (assigned) to them is
+   * allowed to book additional resources of that type at all. When `false`
+   * (default) they are fully blocked from booking another, including on
+   * behalf of others.
    */
-  canBookWithReservedDesk() {
-    return this.setting("allow_booking_with_reserved_desk") === true && this.setting("prevent_self_booking_if_assigned_desk") !== true;
+  allowsBookingWithReservedResource(type) {
+    return this.settingForType(type, "allow_booking_with_reserved_resource") === true;
   }
-  async _checkAssignedDeskRestriction(user_email, type) {
-    if (type !== "desk")
+  /**
+   * Enforce the reserved-resource restriction for any assignable resource type
+   * (desk/parking/locker). Only ever concerns the current user's own bookings:
+   * booking on behalf of others is always permitted.
+   *
+   * `prevent_self_booking_if_assigned_resource` is deliberately evaluated here,
+   * at submission, and nowhere else. UI gating uses
+   * `allowsBookingWithReservedResource()` (the master allow) so a self-booking
+   * restriction never blanket-blocks the form for booking on behalf of others.
+   */
+  async _checkAssignedResourceRestriction(user_email, type) {
+    const is_self = !user_email || user_email.toLowerCase() === currentUser()?.email?.toLowerCase();
+    if (!is_self)
       return true;
-    if (this.canBookWithReservedDesk())
+    const self_booking_allowed = this.allowsBookingWithReservedResource(type) && this.settingForType(type, "prevent_self_booking_if_assigned_resource") !== true;
+    if (self_booking_allowed)
       return true;
-    if (user_email?.toLowerCase() !== currentUser()?.email?.toLowerCase()) {
-      return true;
-    }
-    if (await this._computeHasAssignedDesk()) {
-      throw "You have an assigned desk and cannot book another desk.";
+    if (await this._computeHasAssignedResource(type)) {
+      throw `You have an assigned ${type} and cannot book another ${type}.`;
     }
     return true;
   }
@@ -127307,7 +127401,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       throw i18n("BOOKINGS.NO_USER");
     if (type === "group-event")
       return true;
-    await this._checkAssignedDeskRestriction(user_email, type);
+    await this._checkAssignedResourceRestriction(user_email, type);
     const period = all_day ? this._allDayTimeRange(date) : { date, date_end: date + duration * 60 * 1e3 };
     const bookings = await queryBookings({
       period_start: getUnixTime(period.date),
