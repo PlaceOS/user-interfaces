@@ -1189,7 +1189,7 @@ html {
 }
 .mdc-list-group__subheader {
   font: 400 16px / 28px Roboto, sans-serif;
-  letter-spacing: .009375em;
+  letter-spacing: 0.009375em;
 }
 html {
   --mat-paginator-page-size-select-width: 84px;
@@ -2217,7 +2217,7 @@ html {
 .mat-typography .mat-h1,
 .mat-typography .mat-headline-5,
 .mat-typography h1 {
-  font: 400 24px/32px Roboto, sans-serif;
+  font: 400 24px / 32px Roboto, sans-serif;
   letter-spacing: normal;
   margin: 0 0 16px;
 }
@@ -2226,8 +2226,8 @@ html {
 .mat-typography .mat-h2,
 .mat-typography .mat-headline-6,
 .mat-typography h2 {
-  font: 500 20px/32px Roboto, sans-serif;
-  letter-spacing: .0125em;
+  font: 500 20px / 32px Roboto, sans-serif;
+  letter-spacing: 0.0125em;
   margin: 0 0 16px;
 }
 .mat-h3,
@@ -2235,8 +2235,8 @@ html {
 .mat-typography .mat-h3,
 .mat-typography .mat-subtitle-1,
 .mat-typography h3 {
-  font: 400 16px/28px Roboto, sans-serif;
-  letter-spacing: .009375em;
+  font: 400 16px / 28px Roboto, sans-serif;
+  letter-spacing: 0.009375em;
   margin: 0 0 16px;
 }
 .mat-h4,
@@ -2244,36 +2244,36 @@ html {
 .mat-typography .mat-h4,
 .mat-typography .mat-body-1,
 .mat-typography h4 {
-  font: 400 16px/24px Roboto, sans-serif;
-  letter-spacing: .03125em;
+  font: 400 16px / 24px Roboto, sans-serif;
+  letter-spacing: 0.03125em;
   margin: 0 0 16px;
 }
 .mat-h5,
 .mat-typography .mat-h5,
 .mat-typography h5 {
-  font: 400 calc(14px*.83)/20px Roboto, sans-serif;
+  font: 400 calc(14px * 0.83) / 20px Roboto, sans-serif;
   margin: 0 0 12px;
 }
 .mat-h6,
 .mat-typography .mat-h6,
 .mat-typography h6 {
-  font: 400 calc(14px*.67)/20px Roboto, sans-serif;
+  font: 400 calc(14px * 0.67) / 20px Roboto, sans-serif;
   margin: 0 0 12px;
 }
 .mat-body-strong,
 .mat-subtitle-2,
 .mat-typography .mat-body-strong,
 .mat-typography .mat-subtitle-2 {
-  font: 500 14px/22px Roboto, sans-serif;
-  letter-spacing: .0071428571em;
+  font: 500 14px / 22px Roboto, sans-serif;
+  letter-spacing: 0.0071428571em;
 }
 .mat-body,
 .mat-body-2,
 .mat-typography .mat-body,
 .mat-typography .mat-body-2,
 .mat-typography {
-  font: 400 14px/20px Roboto, sans-serif;
-  letter-spacing: .0178571429em;
+  font: 400 14px / 20px Roboto, sans-serif;
+  letter-spacing: 0.0178571429em;
 }
 .mat-body p,
 .mat-body-2 p,
@@ -2286,31 +2286,31 @@ html {
 .mat-caption,
 .mat-typography .mat-small,
 .mat-typography .mat-caption {
-  font: 400 12px/20px Roboto, sans-serif;
-  letter-spacing: .0333333333em;
+  font: 400 12px / 20px Roboto, sans-serif;
+  letter-spacing: 0.0333333333em;
 }
 .mat-headline-1,
 .mat-typography .mat-headline-1 {
-  font: 300 96px/96px Roboto, sans-serif;
+  font: 300 96px / 96px Roboto, sans-serif;
   letter-spacing: -0.015625em;
   margin: 0 0 56px;
 }
 .mat-headline-2,
 .mat-typography .mat-headline-2 {
-  font: 300 60px/60px Roboto, sans-serif;
-  letter-spacing: -.0083333333em;
+  font: 300 60px / 60px Roboto, sans-serif;
+  letter-spacing: -0.0083333333em;
   margin: 0 0 64px;
 }
 .mat-headline-3,
 .mat-typography .mat-headline-3 {
-  font: 400 48px/50px Roboto, sans-serif;
+  font: 400 48px / 50px Roboto, sans-serif;
   letter-spacing: normal;
   margin: 0 0 64px;
 }
 .mat-headline-4,
 .mat-typography .mat-headline-4 {
-  font: 400 34px/40px Roboto, sans-serif;
-  letter-spacing: .0073529412em;
+  font: 400 34px / 40px Roboto, sans-serif;
+  letter-spacing: 0.0073529412em;
   margin: 0 0 64px;
 }
 
@@ -2381,6 +2381,7 @@ html {
   --tracking-wide: 0.025em;
   --tracking-wider: 0.05em;
   --leading-tight: 1.25;
+  --leading-snug: 1.375;
   --radius-sm: 0.25rem;
   --radius-md: 0.375rem;
   --radius-lg: 0.5rem;
@@ -2740,17 +2741,23 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .top-16 {
   top: calc(var(--spacing) * 16);
 }
-#placeos .top-22 {
-  top: calc(var(--spacing) * 22);
+#placeos .top-20 {
+  top: calc(var(--spacing) * 20);
 }
 #placeos .top-24 {
   top: calc(var(--spacing) * 24);
+}
+#placeos .top-72 {
+  top: calc(var(--spacing) * 72);
 }
 #placeos .top-\[1em\] {
   top: 1em;
 }
 #placeos .top-\[8px\] {
   top: 8px;
+}
+#placeos .top-\[calc\(env\(safe-area-inset-top\)\+0\.5rem\)\] {
+  top: calc(env(safe-area-inset-top) + 0.5rem);
 }
 #placeos .top-full {
   top: 100%;
@@ -2764,8 +2771,8 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .-right-4 {
   right: calc(var(--spacing) * -4);
 }
-#placeos .-right-16 {
-  right: calc(var(--spacing) * -16);
+#placeos .-right-20 {
+  right: calc(var(--spacing) * -20);
 }
 #placeos .-right-px {
   right: -1px;
@@ -2812,6 +2819,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .right-\[8px\] {
   right: 8px;
 }
+#placeos .right-\[calc\(env\(safe-area-inset-right\)\+0\.5rem\)\] {
+  right: calc(env(safe-area-inset-right) + 0.5rem);
+}
 #placeos .-bottom-14 {
   bottom: calc(var(--spacing) * -14);
 }
@@ -2854,8 +2864,8 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .-left-4 {
   left: calc(var(--spacing) * -4);
 }
-#placeos .-left-8 {
-  left: calc(var(--spacing) * -8);
+#placeos .-left-7 {
+  left: calc(var(--spacing) * -7);
 }
 #placeos .-left-px {
   left: -1px;
@@ -2893,6 +2903,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .left-8 {
   left: calc(var(--spacing) * 8);
 }
+#placeos .left-10 {
+  left: calc(var(--spacing) * 10);
+}
 #placeos .left-12 {
   left: calc(var(--spacing) * 12);
 }
@@ -2901,6 +2914,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .left-px {
   left: 1px;
+}
+#placeos .isolate {
+  isolation: isolate;
 }
 #placeos .-z-1 {
   z-index: calc(1 * -1);
@@ -2923,6 +2939,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .z-50 {
   z-index: 50;
 }
+#placeos .z-60 {
+  z-index: 60;
+}
 #placeos .z-998 {
   z-index: 998;
 }
@@ -2934,6 +2953,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .z-\[60\] {
   z-index: 60;
+}
+#placeos .z-\[70\] {
+  z-index: 70;
 }
 #placeos .order-1 {
   order: 1;
@@ -3133,6 +3155,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .mt-6 {
   margin-top: calc(var(--spacing) * 6);
+}
+#placeos .mt-8 {
+  margin-top: calc(var(--spacing) * 8);
 }
 #placeos .mt-10 {
   margin-top: calc(var(--spacing) * 10);
@@ -3428,9 +3453,6 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .h-64 {
   height: calc(var(--spacing) * 64);
 }
-#placeos .h-69 {
-  height: calc(var(--spacing) * 69);
-}
 #placeos .h-72 {
   height: calc(var(--spacing) * 72);
 }
@@ -3491,6 +3513,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .h-\[8px\] {
   height: 8px;
 }
+#placeos .h-\[17\.25rem\] {
+  height: 17.25rem;
+}
 #placeos .h-\[50vh\] {
   height: 50vh;
 }
@@ -3544,6 +3569,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .h-\[calc\(100vh-9rem\)\] {
   height: calc(100vh - 9rem);
+}
+#placeos .h-\[calc\(100vh-10rem\)\] {
+  height: calc(100vh - 10rem);
 }
 #placeos .h-full {
   height: 100%;
@@ -3896,9 +3924,6 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .w-64 {
   width: calc(var(--spacing) * 64);
 }
-#placeos .w-69 {
-  width: calc(var(--spacing) * 69);
-}
 #placeos .w-72 {
   width: calc(var(--spacing) * 72);
 }
@@ -3916,6 +3941,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .w-88 {
   width: calc(var(--spacing) * 88);
+}
+#placeos .w-104 {
+  width: calc(var(--spacing) * 104);
 }
 #placeos .w-120 {
   width: calc(var(--spacing) * 120);
@@ -3962,6 +3990,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .w-\[8px\] {
   width: 8px;
 }
+#placeos .w-\[17\.25rem\] {
+  width: 17.25rem;
+}
 #placeos .w-\[18rem\] {
   width: 18rem;
 }
@@ -3970,6 +4001,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .w-\[24rem\] {
   width: 24rem;
+}
+#placeos .w-\[26rem\] {
+  width: 26rem;
 }
 #placeos .w-\[28\%\] {
   width: 28%;
@@ -4049,6 +4083,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .w-\[calc\(100\%\/7\)\] {
   width: calc(100% / 7);
 }
+#placeos .w-\[calc\(100vw-4rem\)\] {
+  width: calc(100vw - 4rem);
+}
 #placeos .w-\[min\(42rem\,calc\(100vw-3rem\)\)\] {
   width: min(42rem, calc(100vw - 3rem));
 }
@@ -4120,6 +4157,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .max-w-90 {
   max-width: calc(var(--spacing) * 90);
+}
+#placeos .max-w-96 {
+  max-width: calc(var(--spacing) * 96);
 }
 #placeos .max-w-156 {
   max-width: calc(var(--spacing) * 156);
@@ -4196,6 +4236,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .max-w-\[calc\(100\%-2rem\)\] {
   max-width: calc(100% - 2rem);
 }
+#placeos .max-w-\[calc\(100\%-4rem\)\] {
+  max-width: calc(100% - 4rem);
+}
 #placeos .max-w-\[calc\(100\%-18rem\)\] {
   max-width: calc(100% - 18rem);
 }
@@ -4256,6 +4299,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .min-w-4xl {
   min-width: var(--container-4xl);
 }
+#placeos .min-w-5 {
+  min-width: calc(var(--spacing) * 5);
+}
 #placeos .min-w-5xl {
   min-width: var(--container-5xl);
 }
@@ -4264,6 +4310,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .min-w-6xl {
   min-width: var(--container-6xl);
+}
+#placeos .min-w-7xl {
+  min-width: var(--container-7xl);
 }
 #placeos .min-w-8 {
   min-width: calc(var(--spacing) * 8);
@@ -4288,6 +4337,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .min-w-32 {
   min-width: calc(var(--spacing) * 32);
+}
+#placeos .min-w-36 {
+  min-width: calc(var(--spacing) * 36);
 }
 #placeos .min-w-40 {
   min-width: calc(var(--spacing) * 40);
@@ -4334,14 +4386,14 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .min-w-320 {
   min-width: calc(var(--spacing) * 320);
 }
+#placeos .min-w-324 {
+  min-width: calc(var(--spacing) * 324);
+}
 #placeos .min-w-328 {
   min-width: calc(var(--spacing) * 328);
 }
 #placeos .min-w-336 {
   min-width: calc(var(--spacing) * 336);
-}
-#placeos .min-w-360 {
-  min-width: calc(var(--spacing) * 360);
 }
 #placeos .min-w-368 {
   min-width: calc(var(--spacing) * 368);
@@ -4536,6 +4588,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .animate-spin {
   animation: var(--animate-spin);
 }
+#placeos .cursor-default {
+  cursor: default;
+}
 #placeos .cursor-grab {
   cursor: grab;
 }
@@ -4553,6 +4608,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .snap-x {
   scroll-snap-type: x var(--tw-scroll-snap-strictness);
+}
+#placeos .snap-mandatory {
+  --tw-scroll-snap-strictness: mandatory;
 }
 #placeos .snap-start {
   scroll-snap-align: start;
@@ -4583,6 +4641,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .grid-cols-7 {
   grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+#placeos .grid-cols-\[24rem_minmax\(0\,1fr\)\] {
+  grid-template-columns: 24rem minmax(0, 1fr);
 }
 #placeos .grid-cols-\[auto_1fr\] {
   grid-template-columns: auto 1fr;
@@ -5097,6 +5158,14 @@ input:where([type=button], [type=reset], [type=submit]),
     border-color: color-mix(in oklab, var(--error) 25%, transparent);
   }
 }
+#placeos .border-error\/30 {
+  border-color: var(--error);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .border-error\/30 {
+    border-color: color-mix(in oklab, var(--error) 30%, transparent);
+  }
+}
 #placeos .border-info {
   border-color: var(--info);
 }
@@ -5390,6 +5459,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .bg-info-light {
   background-color: var(--info-light);
 }
+#placeos .bg-info-light\! {
+  background-color: var(--info-light) !important;
+}
 #placeos .bg-info-light\/30 {
   background-color: var(--info-light);
 }
@@ -5448,11 +5520,27 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .bg-secondary\! {
   background-color: var(--secondary) !important;
 }
+#placeos .bg-secondary-content\/60 {
+  background-color: var(--secondary-content);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .bg-secondary-content\/60 {
+    background-color: color-mix(in oklab, var(--secondary-content) 60%, transparent);
+  }
+}
 #placeos .bg-secondary-focus {
   background-color: var(--secondary-focus);
 }
 #placeos .bg-secondary-focus\! {
   background-color: var(--secondary-focus) !important;
+}
+#placeos .bg-secondary\/10 {
+  background-color: var(--secondary);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .bg-secondary\/10 {
+    background-color: color-mix(in oklab, var(--secondary) 10%, transparent);
+  }
 }
 #placeos .bg-success {
   background-color: var(--success);
@@ -5728,6 +5816,12 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .pt-8 {
   padding-top: calc(var(--spacing) * 8);
 }
+#placeos .pt-\[calc\(env\(safe-area-inset-top\)\+1rem\)\] {
+  padding-top: calc(env(safe-area-inset-top) + 1rem);
+}
+#placeos .pt-\[env\(safe-area-inset-top\)\] {
+  padding-top: env(safe-area-inset-top);
+}
 #placeos .pr-1 {
   padding-right: calc(var(--spacing) * 1);
 }
@@ -5755,6 +5849,12 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .pr-12 {
   padding-right: calc(var(--spacing) * 12);
 }
+#placeos .pr-\[env\(safe-area-inset-right\)\] {
+  padding-right: env(safe-area-inset-right);
+}
+#placeos .pr-\[max\(0\.5rem\,env\(safe-area-inset-right\)\)\] {
+  padding-right: max(0.5rem, env(safe-area-inset-right));
+}
 #placeos .pb-1 {
   padding-bottom: calc(var(--spacing) * 1);
 }
@@ -5772,6 +5872,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .pb-16 {
   padding-bottom: calc(var(--spacing) * 16);
+}
+#placeos .pb-\[env\(safe-area-inset-bottom\)\] {
+  padding-bottom: env(safe-area-inset-bottom);
 }
 #placeos .pl-0 {
   padding-left: calc(var(--spacing) * 0);
@@ -5797,9 +5900,6 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .pl-7 {
   padding-left: calc(var(--spacing) * 7);
 }
-#placeos .pl-8 {
-  padding-left: calc(var(--spacing) * 8);
-}
 #placeos .pl-10 {
   padding-left: calc(var(--spacing) * 10);
 }
@@ -5811,6 +5911,12 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .pl-16 {
   padding-left: calc(var(--spacing) * 16);
+}
+#placeos .pl-\[env\(safe-area-inset-left\)\] {
+  padding-left: env(safe-area-inset-left);
+}
+#placeos .pl-\[max\(0\.5rem\,env\(safe-area-inset-left\)\)\] {
+  padding-left: max(0.5rem, env(safe-area-inset-left));
 }
 #placeos .text-center {
   text-align: center;
@@ -5934,6 +6040,10 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .leading-none {
   --tw-leading: 1;
   line-height: 1;
+}
+#placeos .leading-snug {
+  --tw-leading: var(--leading-snug);
+  line-height: var(--leading-snug);
 }
 #placeos .leading-tight {
   --tw-leading: var(--leading-tight);
@@ -6211,6 +6321,9 @@ input:where([type=button], [type=reset], [type=submit]),
   -webkit-font-smoothing: auto;
   -moz-osx-font-smoothing: auto;
 }
+#placeos .accent-secondary {
+  accent-color: var(--secondary);
+}
 #placeos .opacity-0 {
   opacity: 0%;
 }
@@ -6395,6 +6508,11 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .backdrop-blur {
   --tw-backdrop-blur: blur(8px);
+  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+}
+#placeos .backdrop-blur-sm {
+  --tw-backdrop-blur: blur(var(--blur-sm));
   -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
   backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
 }
@@ -6770,11 +6888,6 @@ input:where([type=button], [type=reset], [type=submit]),
   }
 }
 @media (hover: hover) {
-  #placeos .hover\:bg-info-light:hover {
-    background-color: var(--info-light);
-  }
-}
-@media (hover: hover) {
   #placeos .hover\:bg-info-light\/40:hover {
     background-color: var(--info-light);
   }
@@ -7009,6 +7122,11 @@ input:where([type=button], [type=reset], [type=submit]),
     flex-direction: column;
   }
 }
+@media (width < 40rem) {
+  #placeos .max-sm\:hidden {
+    display: none;
+  }
+}
 @media (width >= 40rem) {
   #placeos .sm\:relative {
     position: relative;
@@ -7045,12 +7163,17 @@ input:where([type=button], [type=reset], [type=submit]),
   }
 }
 @media (width >= 40rem) {
+  #placeos .sm\:left-auto {
+    left: auto;
+  }
+}
+@media (width >= 40rem) {
   #placeos .sm\:z-40 {
     z-index: 40;
   }
 }
 @media (width >= 40rem) {
-  #placeos .sm\:order-none {
+  #placeos .sm\:order-0 {
     order: 0;
   }
 }
@@ -7390,6 +7513,11 @@ input:where([type=button], [type=reset], [type=submit]),
   }
 }
 @media (width >= 40rem) {
+  #placeos .sm\:gap-2 {
+    gap: calc(var(--spacing) * 2);
+  }
+}
+@media (width >= 40rem) {
   #placeos .sm\:gap-3 {
     gap: calc(var(--spacing) * 3);
   }
@@ -7411,6 +7539,13 @@ input:where([type=button], [type=reset], [type=submit]),
     --tw-space-y-reverse: 0;
     margin-block-start: calc(calc(var(--spacing) * 2) * var(--tw-space-y-reverse));
     margin-block-end: calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-y-reverse)));
+  }
+}
+@media (width >= 40rem) {
+  :where(#placeos .sm\:space-y-4 > :not(:last-child)) {
+    --tw-space-y-reverse: 0;
+    margin-block-start: calc(calc(var(--spacing) * 4) * var(--tw-space-y-reverse));
+    margin-block-end: calc(calc(var(--spacing) * 4) * calc(1 - var(--tw-space-y-reverse)));
   }
 }
 @media (width >= 40rem) {
@@ -7541,6 +7676,11 @@ input:where([type=button], [type=reset], [type=submit]),
 @media (width >= 40rem) {
   #placeos .sm\:pt-1 {
     padding-top: calc(var(--spacing) * 1);
+  }
+}
+@media (width >= 40rem) {
+  #placeos .sm\:pt-4 {
+    padding-top: calc(var(--spacing) * 4);
   }
 }
 @media (width >= 40rem) {
@@ -7695,6 +7835,11 @@ input:where([type=button], [type=reset], [type=submit]),
   }
 }
 @media (width >= 64rem) {
+  #placeos .lg\:w-84 {
+    width: calc(var(--spacing) * 84);
+  }
+}
+@media (width >= 64rem) {
   #placeos .lg\:max-w-1\/2 {
     max-width: calc(1 / 2 * 100%);
   }
@@ -7756,6 +7901,11 @@ input:where([type=button], [type=reset], [type=submit]),
 @media (width >= 80rem) {
   #placeos .xl\:grid-cols-5 {
     grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+@media (width >= 80rem) {
+  #placeos .xl\:grid-cols-6 {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 }
 @media (orientation: portrait) {
@@ -8379,6 +8529,21 @@ code {
     box-shadow: none;
   }
 }
+.fullscreen-dialog {
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+}
+.fullscreen-dialog .mdc-dialog__surface,
+.fullscreen-dialog .mat-mdc-dialog-surface {
+  border-radius: 0 !important;
+  height: 100%;
+  width: 100%;
+}
+.fullscreen-dialog mat-dialog-container,
+.fullscreen-dialog .mat-mdc-dialog-container {
+  height: 100%;
+  width: 100%;
+}
 .mdc-dialog__container {
   padding: 0;
 }
@@ -8830,6 +8995,22 @@ a[icon][disabled] {
     box-shadow: none;
   }
 }
+@keyframes sidebar-dialog-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes sidebar-dialog-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
 #placeos mat-select .mdc-select-trigger .mdc-select-arrow-wrapper {
   transform: none;
 }
@@ -8881,6 +9062,22 @@ a[icon][disabled] {
 }
 #placeos .cdk-overlay-pane {
   max-width: none !important;
+}
+#placeos .sidebar-embed-dialog .mat-mdc-dialog-surface {
+  border-radius: 0;
+  overflow: hidden;
+  padding: 0;
+}
+#placeos .sidebar-embed-dialog-left .mat-mdc-dialog-surface {
+  animation: sidebar-dialog-in-left 200ms ease-out;
+}
+#placeos .sidebar-embed-dialog-right .mat-mdc-dialog-surface {
+  animation: sidebar-dialog-in-right 200ms ease-out;
+}
+#placeos .svg-viewer__label {
+  top: -200%;
+  left: -200%;
+  line-height: 1.1;
 }
 #placeos .mdc-datepicker-toggle button {
   position: relative;

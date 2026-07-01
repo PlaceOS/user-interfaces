@@ -1,7 +1,7 @@
 import {
   CheckinStateService,
   parseTokenFromUrl
-} from "./chunk-WNLXJ2IM.js";
+} from "./chunk-RAIW275D.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -12,9 +12,9 @@ import {
   DatePipe,
   DefaultValueAccessor,
   DestroyRef,
-  FormControlName,
-  FormGroupDirective,
+  FormField,
   FormsModule,
+  Gh,
   IconComponent,
   Input,
   MatCheckbox,
@@ -35,12 +35,10 @@ import {
   MatSelect,
   MatSelectModule,
   NgControlStatus,
-  NgControlStatusGroup,
   NgModel,
-  NgModule,
   OrganisationService,
   Output,
-  ReactiveFormsModule,
+  Pipe,
   Router,
   RouterLink,
   RouterModule,
@@ -48,49 +46,40 @@ import {
   SanitizePipe,
   SettingsService,
   TranslatePipe,
-  UserLabelComponent,
+  UserAvatarComponent,
+  Vh,
   ViewChild,
+  ViewEncapsulation,
   VirtualKeyboardComponent,
-  __spreadProps,
-  __spreadValues,
-  ai,
-  catchError,
-  combineLatest,
   computed,
-  filter,
-  first,
-  firstValueFrom,
+  decode_default,
+  effect,
+  email,
+  flatten,
+  form,
   generateQRCode,
   getGuestCateringItem,
+  hi,
   i18n,
   inject,
   input,
   isPublicMode,
-  lastValueFrom,
   log,
-  map,
-  nextValueFrom,
   notifyError,
   notifyInfo,
   notifySuccess,
-  of,
   output,
   parseJWT,
-  queryCateringItems,
+  required,
   roundToNearestMinutes,
-  scanForQRCode,
+  saveAssetCategory,
   setClassMetadata,
   setGuestCateringItem,
   settingSignal,
-  shareReplay,
   signal,
+  sl,
   startOfMinute,
-  startWith,
-  switchMap,
-  toObservable,
-  toSignal,
   viewChild,
-  ɵNgNoValidate,
   ɵsetClassDebugInfo,
   ɵɵInheritDefinitionFeature,
   ɵɵProvidersFeature,
@@ -99,10 +88,11 @@ import {
   ɵɵclassProp,
   ɵɵconditional,
   ɵɵconditionalCreate,
+  ɵɵcontrol,
+  ɵɵcontrolCreate,
   ɵɵdeclareLet,
   ɵɵdefineComponent,
-  ɵɵdefineInjector,
-  ɵɵdefineNgModule,
+  ɵɵdefinePipe,
   ɵɵelement,
   ɵɵelementEnd,
   ɵɵelementStart,
@@ -115,6 +105,7 @@ import {
   ɵɵpipeBind2,
   ɵɵproperty,
   ɵɵpureFunction0,
+  ɵɵpureFunction1,
   ɵɵpureFunctionV,
   ɵɵqueryAdvance,
   ɵɵreadContextLet,
@@ -124,6 +115,7 @@ import {
   ɵɵresetView,
   ɵɵrestoreView,
   ɵɵsanitizeHtml,
+  ɵɵsanitizeUrl,
   ɵɵstoreLet,
   ɵɵstyleProp,
   ɵɵtext,
@@ -134,23 +126,439 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-AY5QOKJZ.js";
+} from "./chunk-GUGM3I7Y.js";
+import {
+  __spreadProps,
+  __spreadValues
+} from "./chunk-653SOEEV.js";
+
+// libs/components/src/lib/level.pipe.ts
+var LevelPipe = class _LevelPipe {
+  constructor() {
+    this._org = inject(OrganisationService);
+  }
+  transform(id) {
+    return this._org.levelWithID(id instanceof Array ? id : [id]);
+  }
+  static {
+    this.\u0275fac = function LevelPipe_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _LevelPipe)();
+    };
+  }
+  static {
+    this.\u0275pipe = /* @__PURE__ */ \u0275\u0275definePipe({ name: "level", type: _LevelPipe, pure: true });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(LevelPipe, [{
+    type: Pipe,
+    args: [{
+      name: "level"
+    }]
+  }], null, null);
+})();
+
+// libs/assets/src/lib/catering-assets.fn.ts
+var CATERING_CATEGORY_NAME = "_CATERING_";
+var CATERING_TYPE_PREFIX = "CATERING:";
+var STANDALONE_CATERER_NAME = "_STANDALONE_";
+var STANDALONE_CATERER_LABEL = "standalone";
+var _catering_category_id = null;
+var _catering_category_id_promise = null;
+var _hidden_categories_promise = null;
+var _catering_types_promise = null;
+function normalise_name(name = "") {
+  return name.trim().toLowerCase();
+}
+function reset_hidden_categories_cache() {
+  _hidden_categories_promise = null;
+}
+async function query_hidden_categories() {
+  if (!_hidden_categories_promise) {
+    _hidden_categories_promise = sl({
+      hidden: true,
+      limit: 500
+    }).then((_) => _.data).catch(() => []);
+  }
+  return _hidden_categories_promise;
+}
+async function ensure_hidden_category(name) {
+  const match_name = normalise_name(name);
+  let category = (await query_hidden_categories()).find((_) => normalise_name(_.name) === match_name);
+  if (category)
+    return category;
+  reset_hidden_categories_cache();
+  category = (await query_hidden_categories()).find((_) => normalise_name(_.name) === match_name);
+  if (category)
+    return category;
+  try {
+    category = await saveAssetCategory({
+      name,
+      hidden: true
+    });
+    reset_hidden_categories_cache();
+    return category;
+  } catch (error) {
+    reset_hidden_categories_cache();
+    category = (await query_hidden_categories()).find((_) => normalise_name(_.name) === match_name);
+    if (category)
+      return category;
+    throw error;
+  }
+}
+function fromCateringTypeName(type_name = "") {
+  const name = type_name.startsWith(CATERING_TYPE_PREFIX) ? type_name.slice(CATERING_TYPE_PREFIX.length) : type_name;
+  return name === STANDALONE_CATERER_NAME ? STANDALONE_CATERER_LABEL : name;
+}
+function isCateringTypeName(type_name = "") {
+  return type_name.startsWith(CATERING_TYPE_PREFIX);
+}
+function resolveCateringCategoryId() {
+  if (_catering_category_id)
+    return Promise.resolve(_catering_category_id);
+  if (!_catering_category_id_promise) {
+    _catering_category_id_promise = ensure_hidden_category(CATERING_CATEGORY_NAME).then((category) => {
+      _catering_category_id = category.id;
+      return category.id;
+    });
+  }
+  return _catering_category_id_promise;
+}
+function query_catering_types() {
+  if (!_catering_types_promise) {
+    _catering_types_promise = resolveCateringCategoryId().then((category_id) => Vh({ category_id, limit: 500 })).then((_) => _.data.filter((type) => isCateringTypeName(type.name))).catch(() => []);
+  }
+  return _catering_types_promise;
+}
+function toCateringItem(asset, caterer) {
+  const details = asset.other_data || {};
+  return new CateringItem({
+    id: asset.id,
+    name: asset.name || asset.identifier || asset.id,
+    caterer,
+    category: details.category || "",
+    description: details.description || "",
+    unit_price: +details.unit_price || 0,
+    quantity: +details.quantity || 0,
+    options: details.options instanceof Array ? details.options : [],
+    tags: details.tags instanceof Array ? details.tags : [],
+    accept_points: !!details.accept_points,
+    discount_cap: +details.discount_cap || 0,
+    images: asset.images instanceof Array ? asset.images : details.images instanceof Array ? details.images : [],
+    hide_for_zones: details.hide_for_zones instanceof Array ? details.hide_for_zones : []
+  });
+}
+async function queryCateringItems(zone_id) {
+  if (!zone_id)
+    return [];
+  const types = await query_catering_types();
+  if (!types.length)
+    return [];
+  const results = await Promise.all(types.map((type) => Gh({
+    zone_id,
+    type_id: type.id,
+    limit: 500
+  }).then((assets) => assets.data.map((asset) => toCateringItem(asset, fromCateringTypeName(type.name))))));
+  return flatten(results).sort((a, b) => a.name.localeCompare(b.name));
+}
+
+// libs/users/src/lib/user-label.component.ts
+var _c0 = (a0) => ({ host_name: a0 });
+var _c1 = (a0) => ({ location: a0 });
+function UserLabelComponent_Conditional_16_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 9);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275nextContext();
+    const level_r1 = \u0275\u0275readContextLet(14);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(2, 1, "APP.VISITOR_KIOSK.LABEL_LOCATION", \u0275\u0275pureFunction1(4, _c1, level_r1.display_name || level_r1.name)), " ");
+  }
+}
+function UserLabelComponent_Conditional_19_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "pre", 9);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r1.user()?.pass_number);
+  }
+}
+function UserLabelComponent_Conditional_29_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "img", 14);
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275property("src", ctx_r1.user().qr_code, \u0275\u0275sanitizeUrl);
+  }
+}
+var UserLabelComponent = class _UserLabelComponent {
+  constructor() {
+    this._settings = inject(SettingsService);
+    this._theme = this._settings.theme_signal;
+    this._logo_dark = this._settings.signal("logo_dark", null);
+    this._logo_light = this._settings.signal("logo_light", null);
+    this.user = input(
+      {},
+      ...ngDevMode ? [{ debugName: "user" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.width = input(
+      25,
+      ...ngDevMode ? [{ debugName: "width" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.height = input(
+      15,
+      ...ngDevMode ? [{ debugName: "height" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.landscape = computed(
+      () => this.width() > this.height(),
+      ...ngDevMode ? [{ debugName: "landscape" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.logo = computed(
+      () => {
+        const logo = this._theme() === "dark" ? this._logo_dark() : this._logo_light();
+        return typeof logo === "function" ? logo() : logo;
+      },
+      ...ngDevMode ? [{ debugName: "logo" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+  }
+  print() {
+    console.log("Printing user label...");
+  }
+  static {
+    this.\u0275fac = function UserLabelComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _UserLabelComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UserLabelComponent, selectors: [["user-label"]], inputs: { user: [1, "user"], width: [1, "width"], height: [1, "height"] }, decls: 30, vars: 39, consts: [[1, "user-label", "border-neutral", "bg-base-100", "relative", "m-[0.5em]", "rounded-[0.75em]", "border", "p-[1em]"], [1, "flex", "h-full", "flex-col", "leading-tight"], [1, "border-base-400", "bg-base-200", "mb-[0.25em]", "flex", "h-[5em]", "w-[5em]", "items-center", "justify-center", "overflow-hidden", "rounded-full", "border"], [1, "text-[2.25em]", 3, "user"], [1, "mb-[0.25em]", "text-[1.5em]", "text-black"], [1, "text-black"], [1, "absolute", "bottom-[1em]", "left-[1em]", "mt-[0.5em]", "w-[8em]", "rounded-[0.5em]", "border", "border-black", "px-[0.5em]", "py-[0.25em]", "text-center", "font-medium", "text-black", "uppercase"], [1, "absolute", "top-[1em]", "right-[1em]", "flex", "flex-col", "items-end", "space-y-[0.5em]"], ["auth", "", "alt", "Logo", 1, "h-[3em]", "object-contain", 3, "src"], [1, "text-right", "text-[0.75em]", "text-black"], [1, "text-right", "text-black"], [1, "absolute", "right-[1em]", "bottom-[1em]", "flex", "items-end"], [1, "text-right", "leading-tight", "font-medium", "text-black"], [1, "border-base-200", "relative", "flex", "h-[4em]", "w-[4em]", "items-center", "justify-center", "rounded-[0.5em]", "border"], [1, "h-[3.5em]", "w-[3.5em]", "object-contain", "object-center", 3, "src"]], template: function UserLabelComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "div", 2);
+        \u0275\u0275element(3, "a-user-avatar", 3);
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(4, "div", 4);
+        \u0275\u0275text(5);
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(6, "div", 5);
+        \u0275\u0275text(7);
+        \u0275\u0275pipe(8, "translate");
+        \u0275\u0275elementEnd()();
+        \u0275\u0275elementStart(9, "div", 6);
+        \u0275\u0275text(10);
+        \u0275\u0275pipe(11, "translate");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(12, "div", 7);
+        \u0275\u0275element(13, "img", 8);
+        \u0275\u0275declareLet(14);
+        \u0275\u0275pipe(15, "level");
+        \u0275\u0275conditionalCreate(16, UserLabelComponent_Conditional_16_Template, 3, 6, "div", 9);
+        \u0275\u0275elementStart(17, "pre", 10);
+        \u0275\u0275text(18);
+        \u0275\u0275elementEnd();
+        \u0275\u0275conditionalCreate(19, UserLabelComponent_Conditional_19_Template, 2, 1, "pre", 9);
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(20, "div", 11)(21, "div", 12)(22, "div");
+        \u0275\u0275text(23);
+        \u0275\u0275pipe(24, "date");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(25, "div");
+        \u0275\u0275text(26);
+        \u0275\u0275pipe(27, "date");
+        \u0275\u0275elementEnd()();
+        \u0275\u0275elementStart(28, "div", 13);
+        \u0275\u0275conditionalCreate(29, UserLabelComponent_Conditional_29_Template, 1, 1, "img", 14);
+        \u0275\u0275elementEnd()()();
+      }
+      if (rf & 2) {
+        \u0275\u0275styleProp("width", ctx.width() + "em")("height", ctx.height() + "em");
+        \u0275\u0275advance(3);
+        \u0275\u0275property("user", ctx.user());
+        \u0275\u0275advance(2);
+        \u0275\u0275textInterpolate1(" ", ctx.user().name, " ");
+        \u0275\u0275advance(2);
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(8, 23, "APP.VISITOR_KIOSK.LABEL_HOST", \u0275\u0275pureFunction1(37, _c0, ctx.user()?.host)), " ");
+        \u0275\u0275advance(3);
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(11, 26, "APP.VISITOR_KIOSK.VISITOR"), " ");
+        \u0275\u0275advance(3);
+        \u0275\u0275styleProp("max-width", ctx.landscape() ? "8em" : "");
+        \u0275\u0275property("src", ctx.logo()?.src || ctx.logo(), \u0275\u0275sanitizeUrl);
+        \u0275\u0275advance();
+        const level_r3 = \u0275\u0275storeLet(\u0275\u0275pipeBind1(15, 28, ctx.user().zones));
+        \u0275\u0275advance(2);
+        \u0275\u0275conditional(level_r3 ? 16 : -1);
+        \u0275\u0275advance(2);
+        \u0275\u0275textInterpolate(ctx.user()?.extra_details);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.user()?.pass_number ? 19 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275classProp("space-x-[0", !ctx.landscape())("space-y-[0", ctx.landscape())("flex-col", ctx.landscape());
+        \u0275\u0275advance(3);
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(24, 31, ctx.user().date, "shortTime"), " ");
+        \u0275\u0275advance(3);
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(27, 34, ctx.user().date, "mediumDate"), " ");
+        \u0275\u0275advance(3);
+        \u0275\u0275conditional(ctx.user().qr_code ? 29 : -1);
+      }
+    }, dependencies: [
+      CommonModule,
+      UserAvatarComponent,
+      AuthenticatedImageDirective,
+      DatePipe,
+      TranslatePipe,
+      LevelPipe
+    ], styles: ["/* angular:styles/component:css;725153a99cf1545964099fddfcea602bed4f1c33b32c3fcd6d11ef23d4316b5e;/home/runner/work/user-interfaces/user-interfaces/libs/users/src/lib/user-label.component.ts */\n:host {\n  font-size: 1rem;\n}\n/*# sourceMappingURL=user-label.component.css.map */\n"], encapsulation: 2 });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(UserLabelComponent, [{
+    type: Component,
+    args: [{ selector: `user-label`, template: `
+        <div
+            class="user-label border-neutral bg-base-100 relative m-[0.5em] rounded-[0.75em] border p-[1em]"
+            [style.width]="width() + 'em'"
+            [style.height]="height() + 'em'"
+        >
+            <div class="flex h-full flex-col leading-tight">
+                <div
+                    class="border-base-400 bg-base-200 mb-[0.25em] flex h-[5em] w-[5em] items-center justify-center overflow-hidden rounded-full border"
+                >
+                    <a-user-avatar
+                        class="text-[2.25em]"
+                        [user]="user()"
+                    ></a-user-avatar>
+                </div>
+                <div class="mb-[0.25em] text-[1.5em] text-black">
+                    {{ user().name }}
+                </div>
+                <div class="text-black">
+                    {{
+                        'APP.VISITOR_KIOSK.LABEL_HOST'
+                            | translate
+                                : {
+                                      host_name: user()?.host,
+                                  }
+                    }}
+                </div>
+            </div>
+            <div
+                class="absolute bottom-[1em] left-[1em] mt-[0.5em] w-[8em] rounded-[0.5em] border border-black px-[0.5em] py-[0.25em] text-center font-medium text-black uppercase"
+            >
+                {{ 'APP.VISITOR_KIOSK.VISITOR' | translate }}
+            </div>
+            <div
+                class="absolute top-[1em] right-[1em] flex flex-col items-end space-y-[0.5em]"
+            >
+                <img
+                    auth
+                    class="h-[3em] object-contain"
+                    [style.max-width]="landscape() ? '8em' : ''"
+                    alt="Logo"
+                    [src]="logo()?.src || logo()"
+                />
+                @let level = user().zones | level;
+                @if (level) {
+                    <div class="text-right text-[0.75em] text-black">
+                        {{
+                            'APP.VISITOR_KIOSK.LABEL_LOCATION'
+                                | translate
+                                    : {
+                                          location:
+                                              level.display_name || level.name,
+                                      }
+                        }}
+                    </div>
+                }
+                <pre class="text-right text-black">{{
+                    user()?.extra_details
+                }}</pre>
+                @if (user()?.pass_number) {
+                    <pre class="text-right text-[0.75em] text-black">{{
+                        user()?.pass_number
+                    }}</pre>
+                }
+            </div>
+            <div
+                class="absolute right-[1em] bottom-[1em] flex items-end"
+                [class.space-x-[0.5em]]="!landscape()"
+                [class.space-y-[0.5em]]="landscape()"
+                [class.flex-col]="landscape()"
+            >
+                <div class="text-right leading-tight font-medium text-black">
+                    <div>
+                        {{ user().date | date: 'shortTime' }}
+                    </div>
+                    <div>
+                        {{ user().date | date: 'mediumDate' }}
+                    </div>
+                </div>
+                <div
+                    class="border-base-200 relative flex h-[4em] w-[4em] items-center justify-center rounded-[0.5em] border"
+                >
+                    @if (user().qr_code) {
+                        <img
+                            class="h-[3.5em] w-[3.5em] object-contain object-center"
+                            [src]="user().qr_code"
+                        />
+                    }
+                </div>
+            </div>
+        </div>
+    `, encapsulation: ViewEncapsulation.None, imports: [
+      CommonModule,
+      UserAvatarComponent,
+      TranslatePipe,
+      LevelPipe,
+      AuthenticatedImageDirective
+    ], styles: ["/* angular:styles/component:css;725153a99cf1545964099fddfcea602bed4f1c33b32c3fcd6d11ef23d4316b5e;/home/runner/work/user-interfaces/user-interfaces/libs/users/src/lib/user-label.component.ts */\n:host {\n  font-size: 1rem;\n}\n/*# sourceMappingURL=user-label.component.css.map */\n"] }]
+  }], null, { user: [{ type: Input, args: [{ isSignal: true, alias: "user", required: false }] }], width: [{ type: Input, args: [{ isSignal: true, alias: "width", required: false }] }], height: [{ type: Input, args: [{ isSignal: true, alias: "height", required: false }] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserLabelComponent, { className: "UserLabelComponent", filePath: "libs/users/src/lib/user-label.component.ts", lineNumber: 141 });
+})();
 
 // apps/visitor-kiosk/src/app/checkin/checkin-covid.component.ts
-var _c0 = ["checkin-covid", ""];
-var _c1 = () => ["/welcome"];
+var _c02 = () => ["/welcome"];
 var CheckinCovidComponent = class _CheckinCovidComponent {
   constructor() {
     this._router = inject(Router);
     this._checkin = inject(CheckinStateService);
-    this.contact = signal("", ...ngDevMode ? [{ debugName: "contact" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.symptoms = signal("", ...ngDevMode ? [{ debugName: "symptoms" }] : (
-      /* istanbul ignore next */
-      []
-    ));
+    this.contact = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "contact" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.symptoms = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "symptoms" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
   }
   confirm() {
     const symptoms = this.symptoms();
@@ -174,7 +582,7 @@ var CheckinCovidComponent = class _CheckinCovidComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinCovidComponent, selectors: [["", "checkin-covid", ""]], attrs: _c0, decls: 55, vars: 5, consts: [[1, "bg-base-100", "relative", "overflow-x-hidden", "overflow-y-auto", "rounded-sm", "p-4"], [1, "mb-4", "text-xl", "font-medium"], [1, "list-inside", "list-decimal"], [1, "mb-4", "list-inside", "list-disc", "px-4"], ["aria-label", "Has Symptoms", 3, "ngModelChange", "ngModel"], ["value", "true"], ["value", "false", 1, "ml-4"], [1, "my-4"], ["aria-label", "COVID contact or self-isolated", 3, "ngModelChange", "ngModel"], ["btn", "", "matRipple", "", 3, "click"], ["icon", "", "matRipple", "", 1, "absolute", "top-0", "right-0", 3, "routerLink"]], template: function CheckinCovidComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinCovidComponent, selectors: [["", "checkin-covid", ""]], decls: 55, vars: 5, consts: [[1, "bg-base-100", "relative", "overflow-x-hidden", "overflow-y-auto", "rounded-sm", "p-4"], [1, "mb-4", "text-xl", "font-medium"], [1, "list-inside", "list-decimal"], [1, "mb-4", "list-inside", "list-disc", "px-4"], ["aria-label", "Has Symptoms", 3, "ngModelChange", "ngModel"], ["value", "true"], ["value", "false", 1, "ml-4"], [1, "my-4"], ["aria-label", "COVID contact or self-isolated", 3, "ngModelChange", "ngModel"], ["btn", "", "matRipple", "", 3, "click"], ["icon", "", "matRipple", "", 1, "absolute", "top-0", "right-0", 3, "routerLink"]], template: function CheckinCovidComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0)(1, "h3", 1);
         \u0275\u0275text(2, "COVID Disclaimer");
@@ -231,7 +639,9 @@ var CheckinCovidComponent = class _CheckinCovidComponent {
         \u0275\u0275elementEnd();
         \u0275\u0275elementStart(38, "mat-radio-button", 6);
         \u0275\u0275text(39, "No");
-        \u0275\u0275elementEnd()()();
+        \u0275\u0275elementEnd()();
+        \u0275\u0275controlCreate();
+        \u0275\u0275elementEnd();
         \u0275\u0275element(40, "hr", 7);
         \u0275\u0275elementStart(41, "li");
         \u0275\u0275text(42, " Have you been in contact with a COVID-19 case in the last 14 days or been asked to self-isolate by a health offical?");
@@ -246,7 +656,9 @@ var CheckinCovidComponent = class _CheckinCovidComponent {
         \u0275\u0275elementEnd();
         \u0275\u0275elementStart(48, "mat-radio-button", 6);
         \u0275\u0275text(49, "No");
-        \u0275\u0275elementEnd()()()();
+        \u0275\u0275elementEnd()();
+        \u0275\u0275controlCreate();
+        \u0275\u0275elementEnd()();
         \u0275\u0275elementStart(50, "button", 9);
         \u0275\u0275listener("click", function CheckinCovidComponent_Template_button_click_50_listener() {
           return ctx.confirm();
@@ -260,10 +672,12 @@ var CheckinCovidComponent = class _CheckinCovidComponent {
       if (rf & 2) {
         \u0275\u0275advance(35);
         \u0275\u0275twoWayProperty("ngModel", ctx.symptoms);
+        \u0275\u0275control();
         \u0275\u0275advance(10);
         \u0275\u0275twoWayProperty("ngModel", ctx.contact);
+        \u0275\u0275control();
         \u0275\u0275advance(7);
-        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(4, _c1));
+        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(4, _c02));
         \u0275\u0275attribute("disabled", !ctx.symptoms() && !ctx.contact());
       }
     }, dependencies: [
@@ -353,28 +767,30 @@ var CheckinCovidComponent = class _CheckinCovidComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinCovidComponent, { className: "CheckinCovidComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-covid.component.ts", lineNumber: 94 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinCovidComponent, { className: "CheckinCovidComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-covid.component.ts", lineNumber: 98 });
 })();
 
 // apps/visitor-kiosk/src/app/checkin/checkin-details.component.ts
-var _c02 = ["checkin-details", ""];
-var _c12 = () => ["/welcome"];
+var _c03 = () => ["/welcome"];
 function CheckinDetailsComponent_Conditional_0_Conditional_46_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 3)(1, "label", 16);
+    \u0275\u0275elementStart(0, "div", 3)(1, "label", 13);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "mat-form-field", 17);
-    \u0275\u0275element(5, "input", 18);
+    \u0275\u0275elementStart(4, "mat-form-field", 14);
+    \u0275\u0275element(5, "input", 6);
     \u0275\u0275pipe(6, "translate");
+    \u0275\u0275controlCreate();
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 2, "BOOKINGS.VISITOR_PASS"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 3, "BOOKINGS.VISITOR_PASS"), " ");
     \u0275\u0275advance(3);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(6, 4, "BOOKINGS.VISITOR_PASS_PLACEHOLDER"));
+    \u0275\u0275property("formField", ctx_r1.form.pass_number)("placeholder", \u0275\u0275pipeBind1(6, 5, "BOOKINGS.VISITOR_PASS_PLACEHOLDER"));
+    \u0275\u0275control();
   }
 }
 function CheckinDetailsComponent_Conditional_0_Template(rf, ctx) {
@@ -390,6 +806,7 @@ function CheckinDetailsComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275elementStart(7, "mat-form-field", 5);
     \u0275\u0275element(8, "input", 6);
     \u0275\u0275pipe(9, "translate");
+    \u0275\u0275controlCreate();
     \u0275\u0275elementStart(10, "mat-error");
     \u0275\u0275text(11);
     \u0275\u0275pipe(12, "translate");
@@ -399,40 +816,44 @@ function CheckinDetailsComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275pipe(16, "translate");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(17, "mat-form-field", 5);
-    \u0275\u0275element(18, "input", 8);
+    \u0275\u0275element(18, "input", 6);
     \u0275\u0275pipe(19, "translate");
+    \u0275\u0275controlCreate();
     \u0275\u0275elementStart(20, "mat-error");
     \u0275\u0275text(21, "Please enter your full name");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(22, "div", 3)(23, "label", 9);
+    \u0275\u0275elementStart(22, "div", 3)(23, "label", 8);
     \u0275\u0275text(24);
     \u0275\u0275pipe(25, "translate");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(26, "mat-form-field", 5);
-    \u0275\u0275element(27, "input", 10);
+    \u0275\u0275element(27, "input", 6);
     \u0275\u0275pipe(28, "translate");
+    \u0275\u0275controlCreate();
     \u0275\u0275elementStart(29, "mat-error");
     \u0275\u0275text(30);
     \u0275\u0275pipe(31, "translate");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(32, "div", 3)(33, "label", 9);
+    \u0275\u0275elementStart(32, "div", 3)(33, "label", 8);
     \u0275\u0275text(34);
     \u0275\u0275pipe(35, "translate");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(36, "mat-form-field", 5);
-    \u0275\u0275element(37, "input", 11);
+    \u0275\u0275element(37, "input", 9);
     \u0275\u0275pipe(38, "translate");
+    \u0275\u0275controlCreate();
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(39, "div", 3)(40, "label", 12);
+    \u0275\u0275elementStart(39, "div", 3)(40, "label", 10);
     \u0275\u0275text(41);
     \u0275\u0275pipe(42, "translate");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(43, "mat-form-field", 5);
-    \u0275\u0275element(44, "input", 13);
+    \u0275\u0275element(44, "input", 6);
     \u0275\u0275pipe(45, "translate");
+    \u0275\u0275controlCreate();
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(46, CheckinDetailsComponent_Conditional_0_Conditional_46_Template, 7, 6, "div", 3);
-    \u0275\u0275elementStart(47, "button", 14);
+    \u0275\u0275conditionalCreate(46, CheckinDetailsComponent_Conditional_0_Conditional_46_Template, 7, 7, "div", 3);
+    \u0275\u0275elementStart(47, "button", 11);
     \u0275\u0275listener("click", function CheckinDetailsComponent_Conditional_0_Template_button_click_47_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
@@ -441,50 +862,54 @@ function CheckinDetailsComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275text(48);
     \u0275\u0275pipe(49, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(50, "a", 15)(51, "icon");
+    \u0275\u0275elementStart(50, "a", 12)(51, "icon");
     \u0275\u0275text(52, "close");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275property("formGroup", ctx);
     \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 16, "APP.VISITOR_KIOSK.HOST"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 20, "APP.VISITOR_KIOSK.HOST"));
     \u0275\u0275advance(3);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(9, 18, "APP.VISITOR_KIOSK.HOST"));
+    \u0275\u0275property("formField", ctx_r1.form.host)("placeholder", \u0275\u0275pipeBind1(9, 22, "APP.VISITOR_KIOSK.HOST"));
+    \u0275\u0275control();
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 20, "APP.VISITOR_KIOSK.EMAIL_REQUIRED"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 24, "APP.VISITOR_KIOSK.EMAIL_REQUIRED"), " ");
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(16, 22, "APP.VISITOR_KIOSK.NAME"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(16, 26, "APP.VISITOR_KIOSK.NAME"));
     \u0275\u0275advance(3);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(19, 24, "APP.VISITOR_KIOSK.NAME"));
+    \u0275\u0275property("formField", ctx_r1.form.name)("placeholder", \u0275\u0275pipeBind1(19, 28, "APP.VISITOR_KIOSK.NAME"));
+    \u0275\u0275control();
     \u0275\u0275advance(6);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(25, 26, "APP.VISITOR_KIOSK.NAME"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(25, 30, "APP.VISITOR_KIOSK.NAME"));
     \u0275\u0275advance(3);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(28, 28, "APP.VISITOR_KIOSK.EMAIL"));
+    \u0275\u0275property("formField", ctx_r1.form.email)("placeholder", \u0275\u0275pipeBind1(28, 32, "APP.VISITOR_KIOSK.EMAIL"));
+    \u0275\u0275control();
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(31, 30, "APP.VISITOR_KIOSK.EMAIL_REQUIRED"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(31, 34, "APP.VISITOR_KIOSK.EMAIL_REQUIRED"));
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(35, 32, "APP.VISITOR_KIOSK.PHONE"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(35, 36, "APP.VISITOR_KIOSK.PHONE"));
     \u0275\u0275advance(3);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(38, 34, "APP.VISITOR_KIOSK.PHONE"));
+    \u0275\u0275property("formField", ctx_r1.form.phone)("placeholder", \u0275\u0275pipeBind1(38, 38, "APP.VISITOR_KIOSK.PHONE"));
+    \u0275\u0275control();
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(42, 36, "APP.VISITOR_KIOSK.ORGANISATION"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(42, 40, "APP.VISITOR_KIOSK.ORGANISATION"));
     \u0275\u0275advance(3);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(45, 38, "APP.VISITOR_KIOSK.ORGANISATION"));
+    \u0275\u0275property("formField", ctx_r1.form.organisation)("placeholder", \u0275\u0275pipeBind1(45, 42, "APP.VISITOR_KIOSK.ORGANISATION"));
+    \u0275\u0275control();
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx_r1.allow_pass_number() ? 46 : -1);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(49, 40, "APP.VISITOR_KIOSK.CONTINUE"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(49, 44, "APP.VISITOR_KIOSK.CONTINUE"), " ");
     \u0275\u0275advance(2);
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(42, _c12));
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(46, _c03));
   }
 }
 function CheckinDetailsComponent_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 1)(1, "div", 19);
-    \u0275\u0275element(2, "mat-spinner", 20);
-    \u0275\u0275elementStart(3, "div", 21);
+    \u0275\u0275elementStart(0, "div", 1)(1, "div", 15);
+    \u0275\u0275element(2, "mat-spinner", 16);
+    \u0275\u0275elementStart(3, "div", 17);
     \u0275\u0275text(4);
     \u0275\u0275pipe(5, "translate");
     \u0275\u0275elementEnd()()();
@@ -500,38 +925,54 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
   constructor() {
     this._checkin = inject(CheckinStateService);
     this._router = inject(Router);
-    this.form$ = this._checkin.form;
-    this.form = toSignal(this.form$, { initialValue: null });
-    this.loading = signal(false, ...ngDevMode ? [{ debugName: "loading" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.ready_form = computed(() => this.loading() ? null : this.form(), ...ngDevMode ? [{ debugName: "ready_form" }] : (
-      /* istanbul ignore next */
-      []
-    ));
+    this.form = form(this._checkin.form, (p) => {
+      required(p.host, { message: "Host is required" });
+      required(p.name, { message: "Name is required" });
+      required(p.email, { message: "Email is required" });
+      email(p.email, { message: "Email is invalid" });
+      required(p.organisation, { message: "Organisation is required" });
+    });
+    this.loading = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "loading" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.ready_form = computed(
+      () => !this.loading(),
+      ...ngDevMode ? [{ debugName: "ready_form" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.induction_after_details = settingSignal("induction_after_details", false);
     this.allow_pass_number = settingSignal("allow_pass_number", false);
     this.induction_enabled = settingSignal("induction_enabled", false);
     this.induction_details = settingSignal("induction_details");
     this.allow_printing_label = settingSignal("allow_printing_label", false);
     this.allow_user_photo_setting = settingSignal("allow_user_photo", false);
-    this.induction_available = computed(() => this.induction_enabled() && this.induction_details(), ...ngDevMode ? [{ debugName: "induction_available" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.allow_user_photo = computed(() => this.allow_user_photo_setting() && this.allow_printing_label(), ...ngDevMode ? [{ debugName: "allow_user_photo" }] : (
-      /* istanbul ignore next */
-      []
-    ));
+    this.induction_available = computed(
+      () => this.induction_enabled() && this.induction_details(),
+      ...ngDevMode ? [{ debugName: "induction_available" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.allow_user_photo = computed(
+      () => this.allow_user_photo_setting() && this.allow_printing_label(),
+      ...ngDevMode ? [{ debugName: "allow_user_photo" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
   }
   async ngOnInit() {
-    const form = await nextValueFrom(this.form$.pipe(first()));
-    const event = await nextValueFrom(this._checkin.event.pipe(first()));
+    const form_value = this._checkin.form();
     if (this._checkin.metadata === "registered") {
       this.updateGuest(false);
     } else {
-      !form || !form.value.email ? this.previous() : "";
+      !form_value.email ? this.previous() : "";
     }
   }
   async updateGuest(update = true) {
@@ -560,13 +1001,12 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinDetailsComponent, selectors: [["", "checkin-details", ""]], attrs: _c02, decls: 2, vars: 1, consts: [[1, "bg-base-100", "relative", "flex", "w-xl", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "p-4", "shadow-sm", 3, "formGroup"], [1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center"], [1, "m-4", "text-2xl"], ["field", "", 1, "flex", "flex-col"], ["form", "host"], ["appearance", "outline"], ["keyboard", "", "matInput", "", "name", "host", "formControlName", "host", 3, "placeholder"], ["form", "name"], ["keyboard", "", "matInput", "", "name", "name", "formControlName", "name", 3, "placeholder"], ["form", "email"], ["keyboard", "", "matInput", "", "name", "email", "formControlName", "email", 3, "placeholder"], ["keyboard", "", "matInput", "", "name", "phone", "type", "tel", "formControlName", "phone", 3, "placeholder"], ["form", "org"], ["keyboard", "", "matInput", "", "name", "org", "formControlName", "organisation", 3, "placeholder"], ["next", "", "btn", "", "matRipple", "", 3, "click"], ["icon", "", "matRipple", "", 1, "absolute", "top-0", "right-0", 3, "routerLink"], ["form", "pass"], ["appearance", "outline", 1, "w-full"], ["keyboard", "", "matInput", "", "name", "pass", "formControlName", "pass_number", 3, "placeholder"], [1, "bg-base-100", "flex", "flex-col", "items-center", "space-y-2", "rounded-sm", "p-16", "shadow-sm"], [3, "diameter"], [1, "my-4", "text-lg"]], template: function CheckinDetailsComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinDetailsComponent, selectors: [["", "checkin-details", ""]], decls: 2, vars: 1, consts: [[1, "bg-base-100", "relative", "flex", "w-xl", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "p-4", "shadow-sm"], [1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center"], [1, "m-4", "text-2xl"], ["field", "", 1, "flex", "flex-col"], ["form", "host"], ["appearance", "outline"], ["keyboard", "", "matInput", "", 3, "formField", "placeholder"], ["form", "name"], ["form", "email"], ["keyboard", "", "matInput", "", "type", "tel", 3, "formField", "placeholder"], ["form", "org"], ["next", "", "type", "button", "btn", "", "matRipple", "", 3, "click"], ["icon", "", "matRipple", "", 1, "absolute", "top-0", "right-0", 3, "routerLink"], ["form", "pass"], ["appearance", "outline", 1, "w-full"], [1, "bg-base-100", "flex", "flex-col", "items-center", "space-y-2", "rounded-sm", "p-16", "shadow-sm"], [3, "diameter"], [1, "my-4", "text-lg"]], template: function CheckinDetailsComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275conditionalCreate(0, CheckinDetailsComponent_Conditional_0_Template, 53, 43, "form", 0)(1, CheckinDetailsComponent_Conditional_1_Template, 6, 4, "div", 1);
+        \u0275\u0275conditionalCreate(0, CheckinDetailsComponent_Conditional_0_Template, 53, 47, "form", 0)(1, CheckinDetailsComponent_Conditional_1_Template, 6, 4, "div", 1);
       }
       if (rf & 2) {
-        let tmp_0_0;
-        \u0275\u0275conditional((tmp_0_0 = ctx.ready_form()) ? 0 : 1, tmp_0_0);
+        \u0275\u0275conditional(ctx.ready_form() ? 0 : 1);
       }
     }, dependencies: [
       IconComponent,
@@ -579,13 +1019,7 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
       MatError,
       MatInputModule,
       MatInput,
-      ReactiveFormsModule,
-      \u0275NgNoValidate,
-      DefaultValueAccessor,
-      NgControlStatus,
-      NgControlStatusGroup,
-      FormGroupDirective,
-      FormControlName,
+      FormField,
       VirtualKeyboardComponent,
       TranslatePipe
     ], styles: ["\nform[_ngcontent-%COMP%] {\n  width: 32rem;\n  max-width: calc(100vw - 2rem);\n}\n[field][_ngcontent-%COMP%] {\n  width: calc(100% - 2rem);\n}\nbutton[_ngcontent-%COMP%] {\n  margin-bottom: 1rem;\n  width: 8rem;\n}\n/*# sourceMappingURL=checkin-details.component.css.map */"] });
@@ -595,9 +1029,8 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CheckinDetailsComponent, [{
     type: Component,
     args: [{ selector: "[checkin-details]", template: `
-        @if (ready_form(); as form_group) {
+        @if (ready_form()) {
             <form
-                [formGroup]="form_group"
                 class="bg-base-100 relative flex w-xl flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             >
                 <h3 class="m-4 text-2xl">Confirm Details</h3>
@@ -609,8 +1042,7 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
                         <input
                             keyboard
                             matInput
-                            name="host"
-                            formControlName="host"
+                            [formField]="form.host"
                             [placeholder]="'APP.VISITOR_KIOSK.HOST' | translate"
                         />
                         <mat-error>
@@ -626,8 +1058,7 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
                         <input
                             keyboard
                             matInput
-                            name="name"
-                            formControlName="name"
+                            [formField]="form.name"
                             [placeholder]="'APP.VISITOR_KIOSK.NAME' | translate"
                         />
                         <mat-error>Please enter your full name</mat-error>
@@ -641,8 +1072,7 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
                         <input
                             keyboard
                             matInput
-                            name="email"
-                            formControlName="email"
+                            [formField]="form.email"
                             [placeholder]="
                                 'APP.VISITOR_KIOSK.EMAIL' | translate
                             "
@@ -660,9 +1090,8 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
                         <input
                             keyboard
                             matInput
-                            name="phone"
                             type="tel"
-                            formControlName="phone"
+                            [formField]="form.phone"
                             [placeholder]="
                                 'APP.VISITOR_KIOSK.PHONE' | translate
                             "
@@ -677,8 +1106,7 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
                         <input
                             keyboard
                             matInput
-                            name="org"
-                            formControlName="organisation"
+                            [formField]="form.organisation"
                             [placeholder]="
                                 'APP.VISITOR_KIOSK.ORGANISATION' | translate
                             "
@@ -694,8 +1122,7 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
                             <input
                                 keyboard
                                 matInput
-                                name="pass"
-                                formControlName="pass_number"
+                                [formField]="form.pass_number"
                                 [placeholder]="
                                     'BOOKINGS.VISITOR_PASS_PLACEHOLDER'
                                         | translate
@@ -704,7 +1131,7 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
                         </mat-form-field>
                     </div>
                 }
-                <button next btn matRipple (click)="updateGuest()">
+                <button next type="button" btn matRipple (click)="updateGuest()">
                     {{ 'APP.VISITOR_KIOSK.CONTINUE' | translate }}
                 </button>
                 <a
@@ -737,17 +1164,17 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
       RouterModule,
       MatFormFieldModule,
       MatInputModule,
-      ReactiveFormsModule,
+      FormField,
       VirtualKeyboardComponent
     ], styles: ["/* angular:styles/component:css;a33792e615dc48068535fd49c6ab78561fd4fd12d78fb032c7f5187e35f7c658;/home/runner/work/user-interfaces/user-interfaces/apps/visitor-kiosk/src/app/checkin/checkin-details.component.ts */\nform {\n  width: 32rem;\n  max-width: calc(100vw - 2rem);\n}\n[field] {\n  width: calc(100% - 2rem);\n}\nbutton {\n  margin-bottom: 1rem;\n  width: 8rem;\n}\n/*# sourceMappingURL=checkin-details.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinDetailsComponent, { className: "CheckinDetailsComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-details.component.ts", lineNumber: 184 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinDetailsComponent, { className: "CheckinDetailsComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-details.component.ts", lineNumber: 186 });
 })();
 
 // apps/visitor-kiosk/src/app/checkin/checkin-error.component.ts
-var _c03 = () => ["/welcome"];
+var _c04 = () => ["/welcome"];
 function CheckinErrorComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "p");
@@ -767,7 +1194,7 @@ function CheckinErrorComponent_Conditional_6_Template(rf, ctx) {
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(4, _c03));
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(4, _c04));
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 2, "APP.VISITOR_KIOSK.CONFIRM"), " ");
   }
@@ -775,7 +1202,7 @@ function CheckinErrorComponent_Conditional_6_Template(rf, ctx) {
 var CheckinErrorComponent = class _CheckinErrorComponent {
   constructor() {
     this._checkin = inject(CheckinStateService);
-    this.error = toSignal(this._checkin.error, { initialValue: "" });
+    this.error = this._checkin.error;
     this.is_public_mode = isPublicMode;
   }
   static {
@@ -828,11 +1255,10 @@ var CheckinErrorComponent = class _CheckinErrorComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinErrorComponent, { className: "CheckinErrorComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-error.component.ts", lineNumber: 37 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinErrorComponent, { className: "CheckinErrorComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-error.component.ts", lineNumber: 36 });
 })();
 
 // apps/visitor-kiosk/src/app/checkin/checkin-induction.component.ts
-var _c04 = ["checkin-induction", ""];
 var CheckinInductionComponent = class _CheckinInductionComponent {
   constructor() {
     this._checkin = inject(CheckinStateService);
@@ -842,28 +1268,40 @@ var CheckinInductionComponent = class _CheckinInductionComponent {
     this._allow_printing_label = settingSignal("allow_printing_label");
     this._induction_enabled = settingSignal("induction_enabled", false);
     this.event = this._checkin.event;
-    this.agree = signal(false, ...ngDevMode ? [{ debugName: "agree" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.loading = signal(false, ...ngDevMode ? [{ debugName: "loading" }] : (
-      /* istanbul ignore next */
-      []
-    ));
+    this.agree = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "agree" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.loading = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "loading" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.induction_details = settingSignal("induction_details");
     this.induction_after_details = settingSignal("induction_after_details", false);
-    this.allow_user_photo = computed(() => this._allow_user_photo() && this._allow_printing_label() !== false, ...ngDevMode ? [{ debugName: "allow_user_photo" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.is_enabled = computed(() => !!(this._induction_enabled() && this.induction_details()), ...ngDevMode ? [{ debugName: "is_enabled" }] : (
-      /* istanbul ignore next */
-      []
-    ));
+    this.allow_user_photo = computed(
+      () => this._allow_user_photo() && this._allow_printing_label() !== false,
+      ...ngDevMode ? [{ debugName: "allow_user_photo" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.is_enabled = computed(
+      () => !!(this._induction_enabled() && this.induction_details()),
+      ...ngDevMode ? [{ debugName: "is_enabled" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
   }
   async ngOnInit() {
-    await this._org.initialised.pipe(first((_) => _)).toPromise();
-    const event = await this.event.pipe(first()).toPromise();
+    await this._org.waitUntilInitialised();
+    const event = this.event();
     if (!event)
       this._router.navigate(["/checkin"]);
     if (!this.is_enabled() || event.induction === "accepted") {
@@ -906,7 +1344,7 @@ var CheckinInductionComponent = class _CheckinInductionComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinInductionComponent, selectors: [["", "checkin-induction", ""]], attrs: _c04, decls: 16, vars: 15, consts: [[1, "bg-base-100", "relative", "flex", "w-lg", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "p-4", "shadow-sm"], [1, "my-4"], [1, "border-base-300", "max-h-[50vh]", "w-full", "overflow-x-hidden", "overflow-y-auto", "rounded-sm", "border", "p-4", "text-sm", "whitespace-pre-wrap", "opacity-60"], [1, "my-4", 3, "ngModelChange", "ngModel"], [1, "flex", "items-center", "justify-center", "space-x-2"], ["btn", "", "matRipple", "", 1, "clear", "w-32", "underline", 3, "click"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click", "disabled"]], template: function CheckinInductionComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinInductionComponent, selectors: [["", "checkin-induction", ""]], decls: 16, vars: 15, consts: [[1, "bg-base-100", "relative", "flex", "w-lg", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "p-4", "shadow-sm"], [1, "my-4"], [1, "border-base-300", "max-h-[50vh]", "w-full", "overflow-x-hidden", "overflow-y-auto", "rounded-sm", "border", "p-4", "text-sm", "whitespace-pre-wrap", "opacity-60"], [1, "my-4", 3, "ngModelChange", "ngModel"], [1, "flex", "items-center", "justify-center", "space-x-2"], ["btn", "", "matRipple", "", 1, "clear", "w-32", "underline", 3, "click"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click", "disabled"]], template: function CheckinInductionComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0)(1, "p", 1);
         \u0275\u0275text(2);
@@ -923,6 +1361,7 @@ var CheckinInductionComponent = class _CheckinInductionComponent {
         \u0275\u0275text(7);
         \u0275\u0275pipe(8, "translate");
         \u0275\u0275elementEnd();
+        \u0275\u0275controlCreate();
         \u0275\u0275elementStart(9, "div", 4)(10, "button", 5);
         \u0275\u0275listener("click", function CheckinInductionComponent_Template_button_click_10_listener() {
           return ctx.decline();
@@ -945,6 +1384,7 @@ var CheckinInductionComponent = class _CheckinInductionComponent {
         \u0275\u0275textInterpolate1(" ", ctx.induction_details(), " ");
         \u0275\u0275advance();
         \u0275\u0275twoWayProperty("ngModel", ctx.agree);
+        \u0275\u0275control();
         \u0275\u0275advance();
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(8, 9, "APP.VISITOR_KIOSK.ACCEPT_TERMS"), " ");
         \u0275\u0275advance(4);
@@ -999,12 +1439,12 @@ var CheckinInductionComponent = class _CheckinInductionComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinInductionComponent, { className: "CheckinInductionComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-induction.component.ts", lineNumber: 58 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinInductionComponent, { className: "CheckinInductionComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-induction.component.ts", lineNumber: 62 });
 })();
 
 // apps/visitor-kiosk/src/app/components/take-photo.component.ts
 var _c05 = ["video"];
-var _c13 = ["canvas"];
+var _c12 = ["canvas"];
 function TakePhotoComponent_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 5);
@@ -1081,38 +1521,56 @@ function TakePhotoComponent_Conditional_8_Template(rf, ctx) {
 var TakePhotoComponent = class _TakePhotoComponent extends AsyncHandler {
   constructor() {
     super(...arguments);
-    this.back_text = input("", ...ngDevMode ? [{ debugName: "back_text" }] : (
-      /* istanbul ignore next */
-      []
-    ));
+    this.back_text = input(
+      "",
+      ...ngDevMode ? [{ debugName: "back_text" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.captured = output();
     this.back = output();
-    this.has_photo = signal(false, ...ngDevMode ? [{ debugName: "has_photo" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.loading = signal(false, ...ngDevMode ? [{ debugName: "loading" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this._video_el = viewChild("video", ...ngDevMode ? [{ debugName: "_video_el" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this._canvas_el = viewChild("canvas", ...ngDevMode ? [{ debugName: "_canvas_el" }] : (
-      /* istanbul ignore next */
-      []
-    ));
+    this.has_photo = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "has_photo" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.loading = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "loading" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._video_el = viewChild(
+      "video",
+      ...ngDevMode ? [{ debugName: "_video_el" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._canvas_el = viewChild(
+      "canvas",
+      ...ngDevMode ? [{ debugName: "_canvas_el" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.constraints = {
       audio: false,
       video: {
         aspectRatio: { ideal: 1, exact: 1 }
       }
     };
-    this.image_url = signal(null, ...ngDevMode ? [{ debugName: "image_url" }] : (
-      /* istanbul ignore next */
-      []
-    ));
+    this.image_url = signal(
+      null,
+      ...ngDevMode ? [{ debugName: "image_url" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
   }
   ngOnInit() {
     this.loading.set(true);
@@ -1184,7 +1642,7 @@ var TakePhotoComponent = class _TakePhotoComponent extends AsyncHandler {
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TakePhotoComponent, selectors: [["a-take-photo"]], viewQuery: function TakePhotoComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._video_el, _c05, 5)(ctx._canvas_el, _c13, 5);
+        \u0275\u0275viewQuerySignal(ctx._video_el, _c05, 5)(ctx._canvas_el, _c12, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance(2);
@@ -1333,10 +1791,13 @@ var CheckinPhotoComponent = class _CheckinPhotoComponent {
   constructor() {
     this._checkin = inject(CheckinStateService);
     this._router = inject(Router);
-    this.loading = signal(false, ...ngDevMode ? [{ debugName: "loading" }] : (
-      /* istanbul ignore next */
-      []
-    ));
+    this.loading = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "loading" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
   }
   ngOnInit() {
     this.loading.set(false);
@@ -1397,7 +1858,7 @@ var CheckinPhotoComponent = class _CheckinPhotoComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinPhotoComponent, { className: "CheckinPhotoComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-photo.component.ts", lineNumber: 37 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinPhotoComponent, { className: "CheckinPhotoComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-photo.component.ts", lineNumber: 42 });
 })();
 
 // apps/visitor-kiosk/src/app/checkin/checkin-preferences.component.ts
@@ -1438,7 +1899,9 @@ function CheckinPreferencesComponent_Conditional_0_Template(rf, ctx) {
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275repeaterCreate(8, CheckinPreferencesComponent_Conditional_0_For_9_Template, 2, 2, "mat-option", 6, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd()();
     \u0275\u0275conditionalCreate(10, CheckinPreferencesComponent_Conditional_0_Conditional_10_Template, 2, 0, "div", 7);
     \u0275\u0275elementStart(11, "div", 8)(12, "button", 9);
     \u0275\u0275listener("click", function CheckinPreferencesComponent_Conditional_0_Template_button_click_12_listener() {
@@ -1460,6 +1923,7 @@ function CheckinPreferencesComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275advance(4);
     \u0275\u0275twoWayProperty("ngModel", ctx_r1.beverage);
     \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(7, 9, "APP.VISITOR_KIOSK.BEVERAGE_SELECT"));
+    \u0275\u0275control();
     \u0275\u0275advance(2);
     \u0275\u0275repeater(ctx_r1.menu());
     \u0275\u0275advance(2);
@@ -1497,98 +1961,123 @@ var CheckinPreferencesComponent = class _CheckinPreferencesComponent extends Asy
     this._checkin = inject(CheckinStateService);
     this._org = inject(OrganisationService);
     this._last_jwt = "";
-    this.loading = signal(false, ...ngDevMode ? [{ debugName: "loading" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.type = signal("menu", ...ngDevMode ? [{ debugName: "type" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.existing_beverage = signal(null, ...ngDevMode ? [{ debugName: "existing_beverage" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.beverage = signal(null, ...ngDevMode ? [{ debugName: "beverage" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.has_beverage = computed(() => !!this.existing_beverage(), ...ngDevMode ? [{ debugName: "has_beverage" }] : (
-      /* istanbul ignore next */
-      []
-    ));
+    this.loading = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "loading" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.type = signal(
+      "menu",
+      ...ngDevMode ? [{ debugName: "type" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.existing_beverage = signal(
+      null,
+      ...ngDevMode ? [{ debugName: "existing_beverage" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.beverage = signal(
+      null,
+      ...ngDevMode ? [{ debugName: "beverage" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.has_beverage = computed(
+      () => !!this.existing_beverage(),
+      ...ngDevMode ? [{ debugName: "has_beverage" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.event = this._checkin.event;
-    this.bld_id = signal("", ...ngDevMode ? [{ debugName: "bld_id" }] : (
-      /* istanbul ignore next */
-      []
-    ));
+    this.bld_id = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "bld_id" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.menu = signal(
+      [],
+      ...ngDevMode ? [{ debugName: "menu" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.allow_standalone = settingSignal("standalone_visitor_location", "");
-    this._menu = toObservable(this.bld_id).pipe(filter((_) => !!_), switchMap((bld) => queryCateringItems(bld).pipe(catchError(() => of([])))), map((menu) => menu.filter((_) => (_.tags || []).find((_2) => _2.toLowerCase() === "drink" || _2.toLowerCase() === "drinks" || _2.toLowerCase() === "beverage"))), startWith([]), shareReplay(1));
-    this.menu = toSignal(this._menu, { initialValue: [] });
+    this._menu_load_id = 0;
+    this._update_bld_id = effect(
+      () => {
+        this.bld_id.set(this._org.active_building()?.id || "");
+      },
+      ...ngDevMode ? [{ debugName: "_update_bld_id" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._load_menu = effect(
+      async () => {
+        const bld = this.bld_id();
+        const load_id = ++this._menu_load_id;
+        if (!bld) {
+          this.menu.set([]);
+          return;
+        }
+        const menu = await queryCateringItems(bld).catch(() => []);
+        if (load_id !== this._menu_load_id)
+          return;
+        this.menu.set(menu.filter((_) => (_.tags || []).find((_2) => _2.toLowerCase() === "drink" || _2.toLowerCase() === "drinks" || _2.toLowerCase() === "beverage")));
+      },
+      ...ngDevMode ? [{ debugName: "_load_menu" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._handle_menu = effect(
+      () => {
+        const menu = this.menu();
+        if (menu.length) {
+          this.loading.set(false);
+          this.clearTimeout("no_menu");
+        } else if (this.bld_id()) {
+          this.timeout("no_menu", () => {
+            notifyError("No menu available");
+            this.next();
+          }, 1e3);
+        }
+      },
+      ...ngDevMode ? [{ debugName: "_handle_menu" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
   }
   ngOnInit() {
     this.loading.set(true);
-    this.subscription("bld", this._org.active_building.subscribe((v) => this.bld_id.set(v?.id || "")));
-    this.subscription("route.query", this._route.queryParamMap.subscribe(async (params) => {
-      const jwt = params.get("jwt") || params.get("token") || parseTokenFromUrl(window.location.href);
-      if (!jwt || jwt === this._last_jwt)
-        return;
-      this._last_jwt = jwt;
-      if (jwt) {
-        ai(jwt);
-        const data = parseJWT(jwt);
-        const user = data.u;
-        if (user) {
-          const email = user.e;
-          const [event_id, , bld_zone] = user.r || [];
-          this.bld_id.set(bld_zone);
-          await this._checkin.loadGuestAndEvent(email, event_id).catch((err) => {
-            this.handleError("Unable to find visitor or a meeting associated with the given email address.");
-            throw err;
-          });
-        }
-      }
-    }));
+    this.loadJwtFromRoute();
     this.type.set("menu");
-    this.timeout("event", () => {
-      this.event.pipe(first()).subscribe(async (event) => {
-        if (!event)
-          return this.next();
-        if (!event.linked_event && !this.allow_standalone()) {
-          log("CHECKIN", "Visitor booking does not support catering.", void 0, "info");
-        }
-        const existing = await lastValueFrom(getGuestCateringItem(event.asset_id, event.id).pipe(catchError(() => of(null))));
-        if (existing) {
-          this.existing_beverage.set(existing);
-          this.beverage.set(existing);
-        }
-      });
-    }, 1e3);
-    this.subscription("menu", this._menu.subscribe((l) => {
-      if (l.length) {
-        this.loading.set(false);
-        this.clearTimeout("no_menu");
-      } else {
-        this.timeout("no_menu", () => {
-          notifyError("No menu available");
-          this.next();
-        }, 1e3);
-      }
-    }));
+    this.timeout("event", () => this.loadExistingBeverage(), 1e3);
   }
   async update() {
     this.type.set("save");
     if (!this.beverage())
       return this.next();
     this.loading.set(true);
-    const booking = await nextValueFrom(this._checkin.event);
+    const booking = this._checkin.event();
     if (!booking)
       return notifyError(i18n("APP.VISITOR_KIOSK.LOAD_ERROR"));
-    const email = booking.asset_id;
+    const email2 = booking.asset_id;
     const catering_item = new CateringItem(__spreadProps(__spreadValues({}, this.beverage()), {
       quantity: 1
     }));
-    await lastValueFrom(setGuestCateringItem(email, catering_item, booking.id));
+    await setGuestCateringItem(email2, catering_item, booking.id);
     notifySuccess(i18n("APP.VISITOR_KIOSK.BEVERAGE_SUCCESS"));
     this.loading.set(false);
     this.next();
@@ -1599,6 +2088,38 @@ var CheckinPreferencesComponent = class _CheckinPreferencesComponent extends Asy
   handleError(message) {
     this._checkin.setError(message?.statusText || message);
     this._router.navigate(["/checkin", "error"]);
+  }
+  async loadJwtFromRoute() {
+    const params = this._route.snapshot.queryParamMap;
+    const jwt = params.get("jwt") || params.get("token") || parseTokenFromUrl(window.location.href);
+    if (!jwt || jwt === this._last_jwt)
+      return;
+    this._last_jwt = jwt;
+    hi(jwt);
+    const data = parseJWT(jwt);
+    const user = data.u;
+    if (!user)
+      return;
+    const email2 = user.e;
+    const [event_id, , bld_zone] = user.r || [];
+    this.bld_id.set(bld_zone);
+    await this._checkin.loadGuestAndEvent(email2, event_id).catch((err) => {
+      this.handleError("Unable to find visitor or a meeting associated with the given email address.");
+      throw err;
+    });
+  }
+  async loadExistingBeverage() {
+    const event = this.event();
+    if (!event)
+      return this.next();
+    if (!event.linked_event && !this.allow_standalone()) {
+      log("CHECKIN", "Visitor booking does not support catering.", void 0, "info");
+    }
+    const existing = await getGuestCateringItem(event.asset_id, event.id).catch(() => null);
+    if (existing) {
+      this.existing_beverage.set(existing);
+      this.beverage.set(existing);
+    }
   }
   static {
     this.\u0275fac = /* @__PURE__ */ (() => {
@@ -1723,13 +2244,12 @@ var CheckinPreferencesComponent = class _CheckinPreferencesComponent extends Asy
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinPreferencesComponent, { className: "CheckinPreferencesComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-preferences.component.ts", lineNumber: 131 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinPreferencesComponent, { className: "CheckinPreferencesComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-preferences.component.ts", lineNumber: 126 });
 })();
 
 // apps/visitor-kiosk/src/app/checkin/checkin-qr-scan.component.ts
 var _c07 = ["video"];
-var _c14 = ["checkin-qr-scan", ""];
-var _c2 = () => ["/welcome"];
+var _c13 = () => ["/welcome"];
 function CheckinQRScanComponent_Conditional_22_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 12);
@@ -1744,29 +2264,45 @@ var CheckinQRScanComponent = class _CheckinQRScanComponent extends AsyncHandler 
     this._checkin = inject(CheckinStateService);
     this._router = inject(Router);
     this._settings = inject(SettingsService);
-    this.checking_code = signal(false, ...ngDevMode ? [{ debugName: "checking_code" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.scanner_ready = signal(false, ...ngDevMode ? [{ debugName: "scanner_ready" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.email = signal("", ...ngDevMode ? [{ debugName: "email" }] : (
-      /* istanbul ignore next */
-      []
-    ));
+    this.checking_code = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "checking_code" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.scanner_ready = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "scanner_ready" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.email = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "email" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.induction_enabled = settingSignal("induction_enabled", false);
     this.induction_details = settingSignal("induction_details");
-    this.is_induction_enabled = computed(() => this.induction_enabled() && this.induction_details(), ...ngDevMode ? [{ debugName: "is_induction_enabled" }] : (
-      /* istanbul ignore next */
-      []
-    ));
+    this.is_induction_enabled = computed(
+      () => this.induction_enabled() && this.induction_details(),
+      ...ngDevMode ? [{ debugName: "is_induction_enabled" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.induction_after_details = settingSignal("induction_after_details");
-    this._video_el = viewChild("video", ...ngDevMode ? [{ debugName: "_video_el" }] : (
-      /* istanbul ignore next */
-      []
-    ));
+    this._video_el = viewChild(
+      "video",
+      ...ngDevMode ? [{ debugName: "_video_el" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._qr_scan_interval = null;
   }
   ngAfterViewInit() {
     this._checkin.metadata = "";
@@ -1777,12 +2313,12 @@ var CheckinQRScanComponent = class _CheckinQRScanComponent extends AsyncHandler 
     if (_video_el.nativeElement.srcObject) {
       _video_el.nativeElement.srcObject.getTracks().forEach((track) => track?.stop());
     }
-    this.unsub("scan_for_qr_code");
+    this.stopQRReader();
   }
   async checkQRCode(raw_text) {
     if (this.checking_code())
       return;
-    this.unsub("scan_for_qr_code");
+    this.stopQRReader();
     this.checking_code.set(true);
     const chunks = raw_text.split(",");
     let [visit_block, system_id, event_id, host_email] = chunks;
@@ -1800,7 +2336,12 @@ var CheckinQRScanComponent = class _CheckinQRScanComponent extends AsyncHandler 
       this.checking_code.set(false);
       throw err;
     });
-    const event = await nextValueFrom(this._checkin.event);
+    const event = this._checkin.event();
+    if (!event) {
+      this.handleError("Unable to find visitor booking.");
+      this.checking_code.set(false);
+      return;
+    }
     if (event.rejected) {
       this.handleError("Your meeting has been rejected.");
       this.checking_code.set(false);
@@ -1822,18 +2363,23 @@ var CheckinQRScanComponent = class _CheckinQRScanComponent extends AsyncHandler 
     }
     this.checking_code.set(false);
   }
-  async checkEmail(email) {
-    if (this.checking_code() || !email || !email.includes("@") || email.length < 5)
+  async checkEmail(email2) {
+    if (this.checking_code() || !email2 || !email2.includes("@") || email2.length < 5)
       return;
     this.checking_code.set(true);
     try {
-      await this._checkin.loadGuestAndEvent(email);
+      await this._checkin.loadGuestAndEvent(email2);
     } catch {
       this.handleError("Unable to find visitor or a meeting associated with the given email address.");
       this.checking_code.set(false);
       return;
     }
-    const event = await nextValueFrom(this._checkin.event);
+    const event = this._checkin.event();
+    if (!event) {
+      this.handleError("Unable to find visitor booking.");
+      this.checking_code.set(false);
+      return;
+    }
     if (event.checked_out_at) {
       this.handleError("Your meeting has already finished.");
       this.checking_code.set(false);
@@ -1869,16 +2415,54 @@ var CheckinQRScanComponent = class _CheckinQRScanComponent extends AsyncHandler 
       }).then((stream) => {
         _video_el.srcObject = stream;
         _video_el.onloadedmetadata = () => this.scanner_ready.set(true);
-        this.subscription("scan_for_qr_code", scanForQRCode(_video_el).subscribe({
-          next: (qr_code) => qr_code ? this.checkQRCode(qr_code) : null,
-          error: (error) => console.error("Error scanning QR code:", error)
-        }));
+        this.startQRScanner(_video_el);
       }).catch((e) => {
         this.scanner_ready.set(false);
         console.error("Unable to fetch media devices!", e);
       });
     } else if (_video_el.srcObject) {
-      this.unsub("scan_for_qr_code");
+      this.stopQRReader();
+    }
+  }
+  stopQRReader() {
+    if (this._qr_scan_interval)
+      clearInterval(this._qr_scan_interval);
+    this._qr_scan_interval = null;
+  }
+  startQRScanner(video_el) {
+    this.stopQRReader();
+    this._canvas = document.createElement("canvas");
+    this._ctx = this._canvas.getContext("2d");
+    if (!this._ctx) {
+      console.error("Unable to get 2D context for QR scanning");
+      return;
+    }
+    this._qr_scan_interval = setInterval(() => this.scanVideoFrame(video_el), 120);
+    this.scanVideoFrame(video_el);
+  }
+  scanVideoFrame(video_el) {
+    if (!video_el || video_el.videoWidth === 0 || video_el.videoHeight === 0)
+      return;
+    const source_width = video_el.videoWidth;
+    const source_height = video_el.videoHeight;
+    const scale = Math.min(1, 720 / Math.max(source_width, source_height));
+    const target_width = Math.max(1, Math.floor(source_width * scale));
+    const target_height = Math.max(1, Math.floor(source_height * scale));
+    if (this._canvas.width !== target_width || this._canvas.height !== target_height) {
+      this._canvas.width = target_width;
+      this._canvas.height = target_height;
+    }
+    this._ctx.drawImage(video_el, 0, 0, target_width, target_height);
+    try {
+      const image_data = this._ctx.getImageData(0, 0, this._canvas.width, this._canvas.height);
+      const qr_code = decode_default({
+        height: image_data.height,
+        width: image_data.width,
+        data: image_data.data
+      });
+      if (qr_code)
+        this.checkQRCode(qr_code);
+    } catch {
     }
   }
   handleError(message) {
@@ -1901,7 +2485,7 @@ var CheckinQRScanComponent = class _CheckinQRScanComponent extends AsyncHandler 
       if (rf & 2) {
         \u0275\u0275queryAdvance();
       }
-    }, features: [\u0275\u0275InheritDefinitionFeature], attrs: _c14, decls: 31, vars: 23, consts: [["video", ""], [1, "bg-base-100", "relative", "flex", "w-xl", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "p-4", "shadow-sm"], [1, "my-4"], [1, "flex", "w-full", "items-center", "space-x-2"], ["appearance", "outline", 1, "no-subscript", "w-px", "flex-1"], ["keyboard", "", "matInput", "", "placeholder", "Enter email...", "type", "email", "autocomplete", "off", 3, "ngModelChange", "blur", "keyup.enter", "ngModel"], ["btn", "", "matRipple", "", 3, "click"], [1, "border-base-200", "bg-base-200", "relative", "mt-4", "overflow-hidden", "rounded-sm", "border"], [1, "absolute", "top-1/2", "left-1/2", "z-0", "flex", "-translate-x-1/2", "-translate-y-1/2", "flex-col", "items-center", "space-y-2", "opacity-30"], [1, "text-6xl"], [1, "text-center"], ["id", "qr-stream", "playsinline", "", "width", "640", "height", "480", "autoplay", "", 1, "relative", "z-10", "object-cover"], [1, "bg-base-100/90", "text-base-content", "absolute", "right-2", "bottom-2", "z-20", "inline-flex", "items-center", "gap-2", "rounded", "px-2", "py-1", "text-sm", "shadow"], ["icon", "", "matRipple", "", 1, "absolute", "top-0", "right-0", 3, "routerLink"], [1, "bg-base-100", "relative", "flex", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "p-16", "shadow-sm"], ["diameter", "32"], [1, "status-dot"]], template: function CheckinQRScanComponent_Template(rf, ctx) {
+    }, features: [\u0275\u0275InheritDefinitionFeature], decls: 31, vars: 23, consts: [["video", ""], [1, "bg-base-100", "relative", "flex", "w-xl", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "p-4", "shadow-sm"], [1, "my-4"], [1, "flex", "w-full", "items-center", "space-x-2"], ["appearance", "outline", 1, "no-subscript", "w-px", "flex-1"], ["keyboard", "", "matInput", "", "placeholder", "Enter email...", "type", "email", "autocomplete", "off", 3, "ngModelChange", "blur", "keyup.enter", "ngModel"], ["btn", "", "matRipple", "", 3, "click"], [1, "border-base-200", "bg-base-200", "relative", "mt-4", "overflow-hidden", "rounded-sm", "border"], [1, "absolute", "top-1/2", "left-1/2", "z-0", "flex", "-translate-x-1/2", "-translate-y-1/2", "flex-col", "items-center", "space-y-2", "opacity-30"], [1, "text-6xl"], [1, "text-center"], ["id", "qr-stream", "playsinline", "", "width", "640", "height", "480", "autoplay", "", 1, "relative", "z-10", "object-cover"], [1, "bg-base-100/90", "text-base-content", "absolute", "right-2", "bottom-2", "z-20", "inline-flex", "items-center", "gap-2", "rounded", "px-2", "py-1", "text-sm", "shadow"], ["icon", "", "matRipple", "", 1, "absolute", "top-0", "right-0", 3, "routerLink"], [1, "bg-base-100", "relative", "flex", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "p-16", "shadow-sm"], ["diameter", "32"], [1, "status-dot"]], template: function CheckinQRScanComponent_Template(rf, ctx) {
       if (rf & 1) {
         const _r1 = \u0275\u0275getCurrentView();
         \u0275\u0275elementStart(0, "div", 1)(1, "p", 2);
@@ -1920,6 +2504,7 @@ var CheckinQRScanComponent = class _CheckinQRScanComponent extends AsyncHandler 
           return ctx.checkEmail(ctx.email());
         });
         \u0275\u0275elementEnd();
+        \u0275\u0275controlCreate();
         \u0275\u0275elementStart(7, "mat-error");
         \u0275\u0275text(8);
         \u0275\u0275pipe(9, "translate");
@@ -1957,6 +2542,7 @@ var CheckinQRScanComponent = class _CheckinQRScanComponent extends AsyncHandler 
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 12, "APP.VISITOR_KIOSK.QR_CODE_MSG"), " ");
         \u0275\u0275advance(4);
         \u0275\u0275twoWayProperty("ngModel", ctx.email);
+        \u0275\u0275control();
         \u0275\u0275advance(2);
         \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(9, 14, "APP.VISITOR_KIOSK.INVALID_EMAIL"));
         \u0275\u0275advance(3);
@@ -1966,7 +2552,7 @@ var CheckinQRScanComponent = class _CheckinQRScanComponent extends AsyncHandler 
         \u0275\u0275advance(4);
         \u0275\u0275conditional(ctx.scanner_ready() ? 22 : -1);
         \u0275\u0275advance();
-        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(22, _c2));
+        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(22, _c13));
         \u0275\u0275advance(3);
         \u0275\u0275classProp("hidden", !ctx.checking_code());
         \u0275\u0275advance(3);
@@ -2089,7 +2675,7 @@ var CheckinQRScanComponent = class _CheckinQRScanComponent extends AsyncHandler 
   }], null, { _video_el: [{ type: ViewChild, args: ["video", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinQRScanComponent, { className: "CheckinQRScanComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-qr-scan.component.ts", lineNumber: 146 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinQRScanComponent, { className: "CheckinQRScanComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-qr-scan.component.ts", lineNumber: 145 });
 })();
 
 // apps/visitor-kiosk/src/app/checkin/checkin-result.component.ts
@@ -2142,7 +2728,7 @@ function CheckinResultsComponent_Conditional_0_Conditional_13_Template(rf, ctx) 
     const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance();
     \u0275\u0275styleProp("font-size", ctx_r2.label_size().scale + "mm");
-    \u0275\u0275property("user", \u0275\u0275pureFunctionV(5, _c08, [(ev_r5 == null ? null : ev_r5.asset_name) || (ev_r5 == null ? null : ev_r5.description), ev_r5 == null ? null : ev_r5.asset_id, ctx_r2.photo(), ev_r5 == null ? null : ev_r5.title, (ev_r5 == null ? null : ev_r5.user_name) || ev_r5.user_email, ev_r5 == null ? null : ev_r5.zones, (ev_r5 == null ? null : ev_r5.date) || ctx_r2.date(), ev_r5 == null ? null : ev_r5.extension_data == null ? null : ev_r5.extension_data.extra_details, ev_r5 == null ? null : ev_r5.extension_data == null ? null : ev_r5.extension_data.pass_number, ctx_r2.qr_code()]))("width", ctx_r2.label_size().width)("height", ctx_r2.label_size().height);
+    \u0275\u0275property("user", \u0275\u0275pureFunctionV(5, _c08, [ev_r5?.asset_name || ev_r5?.description, ev_r5?.asset_id, ctx_r2.photo(), ev_r5?.title, ev_r5?.user_name || ev_r5.user_email, ev_r5?.zones, ev_r5?.date || ctx_r2.date(), ev_r5?.extension_data?.extra_details, ev_r5?.extension_data?.pass_number, ctx_r2.qr_code()]))("width", ctx_r2.label_size().width)("height", ctx_r2.label_size().height);
   }
 }
 function CheckinResultsComponent_Conditional_0_Template(rf, ctx) {
@@ -2175,7 +2761,7 @@ function CheckinResultsComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275advance();
     const ev_r6 = \u0275\u0275storeLet(ctx_r2.event());
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 7, (ev_r6.extension_data == null ? null : ev_r6.extension_data.self_registered) ? "APP.VISITOR_KIOSK.CHECKED_IN_MSG_SELF_REG" : "APP.VISITOR_KIOSK.CHECKED_IN_MSG"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 7, ev_r6.extension_data?.self_registered ? "APP.VISITOR_KIOSK.CHECKED_IN_MSG_SELF_REG" : "APP.VISITOR_KIOSK.CHECKED_IN_MSG"), " ");
     \u0275\u0275advance(2);
     \u0275\u0275property("innerHTML", \u0275\u0275pipeBind2(6, 9, ctx_r2.result_template(), "html"), \u0275\u0275sanitizeHtml);
     \u0275\u0275advance(3);
@@ -2203,56 +2789,91 @@ var CheckinResultsComponent = class _CheckinResultsComponent extends AsyncHandle
     this._router = inject(Router);
     this._date = inject(DatePipe);
     this._checkin = inject(CheckinStateService);
-    this.qr_code = signal("", ...ngDevMode ? [{ debugName: "qr_code" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.date = signal(Date.now(), ...ngDevMode ? [{ debugName: "date" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.zones = signal([], ...ngDevMode ? [{ debugName: "zones" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.booking = signal(void 0, ...ngDevMode ? [{ debugName: "booking" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.allow_beverages = signal(false, ...ngDevMode ? [{ debugName: "allow_beverages" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.printing = signal(false, ...ngDevMode ? [{ debugName: "printing" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.label_size = signal({ width: 25, height: 15, scale: 4 }, ...ngDevMode ? [{ debugName: "label_size" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.event = toSignal(this._checkin.event || of(void 0), {
-      initialValue: void 0
-    });
-    this.guest = toSignal(this._checkin.guest || of(void 0), {
-      initialValue: void 0
-    });
-    this.photo = toSignal(this._checkin.photo || of(void 0), {
-      initialValue: void 0
-    });
-    this.level = toSignal(combineLatest([this._checkin.event, this._org.initialised]).pipe(map(([_]) => _ ? this._org.levelWithID(_.zones) : null)), { initialValue: null });
-    this.result_template = toSignal(combineLatest([this._checkin.event, this._checkin.guest]).pipe(filter(([event, guest]) => !!event && !!guest), map(([event, guest]) => {
-      let template = this._settings.get("app.checked_in_template");
-      if (!template)
-        template = DEFAULT_TEMPLATE;
-      let updated_template = template.replace(/{{ title }}/g, event?.title || "").replace(/{{ room_name }}/g, event?.extension_data?.location_id || "").replace(/{{ host_name }}/g, event?.user_name || "").replace(/{{ host_email }}/g, event?.user_email || "").replace(/{{ visitor_name }}/g, guest?.name || "").replace(/{{ visitor_email }}/g, guest?.email || "").replace(/{{ can_use_lift }}/g, event?.extension_data?.can_use_lift ? `Please use the vistor access lift over there` : `Please wait in the lobby.`);
-      try {
-        const date = event.date || event.event_start * 1e3 || event.booking_start * 1e3 || startOfMinute(Date.now());
-        updated_template = updated_template.replace(/{{ date }}/g, this._date.transform(date, "mediumDate")).replace(/{{ time }}/g, this._date.transform(date, this.time_format));
-      } catch {
-      }
-      return updated_template;
-    }), startWith(DEFAULT_TEMPLATE)), { initialValue: DEFAULT_TEMPLATE });
+    this.qr_code = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "qr_code" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.date = signal(
+      Date.now(),
+      ...ngDevMode ? [{ debugName: "date" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.zones = signal(
+      [],
+      ...ngDevMode ? [{ debugName: "zones" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.booking = signal(
+      void 0,
+      ...ngDevMode ? [{ debugName: "booking" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.allow_beverages = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "allow_beverages" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.printing = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "printing" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.label_size = signal(
+      { width: 25, height: 15, scale: 4 },
+      ...ngDevMode ? [{ debugName: "label_size" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.event = this._checkin.event;
+    this.guest = this._checkin.guest;
+    this.photo = this._checkin.photo;
+    this.level = computed(
+      () => {
+        const event = this.event();
+        this._org.initialised();
+        return event ? this._org.levelWithID(event.zones) : null;
+      },
+      ...ngDevMode ? [{ debugName: "level" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.result_template = computed(
+      () => {
+        const event = this.event();
+        const guest = this.guest();
+        if (!event || !guest)
+          return DEFAULT_TEMPLATE;
+        let template = this._settings.get("app.checked_in_template");
+        if (!template)
+          template = DEFAULT_TEMPLATE;
+        let updated_template = template.replace(/{{ title }}/g, event?.title || "").replace(/{{ room_name }}/g, event?.extension_data?.location_id || "").replace(/{{ host_name }}/g, event?.user_name || "").replace(/{{ host_email }}/g, event?.user_email || "").replace(/{{ visitor_name }}/g, guest?.name || "").replace(/{{ visitor_email }}/g, guest?.email || "").replace(/{{ can_use_lift }}/g, event?.extension_data?.can_use_lift ? `Please use the vistor access lift over there` : `Please wait in the lobby.`);
+        try {
+          const date = event.date || event.event_start * 1e3 || event.booking_start * 1e3 || startOfMinute(Date.now());
+          updated_template = updated_template.replace(/{{ date }}/g, this._date.transform(date, "mediumDate")).replace(/{{ time }}/g, this._date.transform(date, this.time_format));
+        } catch {
+        }
+        return updated_template;
+      },
+      ...ngDevMode ? [{ debugName: "result_template" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.print = () => {
       this.printing.set(true);
       this.qr_code.set(generateQRCode(this.booking()?.asset_id));
@@ -2272,7 +2893,7 @@ var CheckinResultsComponent = class _CheckinResultsComponent extends AsyncHandle
     return this._settings.get("app.allow_printing_label") !== false;
   }
   async ngOnInit() {
-    const event = await firstValueFrom(this._checkin.event.pipe(first()));
+    const event = this._checkin.event();
     !event ? this.previous() : "";
     if (!event)
       return;
@@ -2295,7 +2916,7 @@ var CheckinResultsComponent = class _CheckinResultsComponent extends AsyncHandle
     this._router.navigate(["/welcome"]);
   }
   async next() {
-    const event = await nextValueFrom(this._checkin.event);
+    const event = this._checkin.event();
     const standalone_location = this._settings.get("app.standalone_visitor_location");
     this._settings.get("app.allow_beverages") && (event.linked_event || standalone_location) ? this._router.navigate(["/checkin", "preferences"]) : this._router.navigate(["/welcome"]);
   }
@@ -2379,7 +3000,8 @@ var CheckinResultsComponent = class _CheckinResultsComponent extends AsyncHandle
                                 host: ev?.user_name || ev.user_email,
                                 zones: ev?.zones,
                                 date: ev?.date || date(),
-                                extra_details: ev?.extension_data?.extra_details,
+                                extra_details:
+                                    ev?.extension_data?.extra_details,
                                 pass_number: ev?.extension_data?.pass_number,
                                 qr_code: qr_code(),
                             })
@@ -2405,7 +3027,6 @@ var CheckinResultsComponent = class _CheckinResultsComponent extends AsyncHandle
 })();
 
 // apps/visitor-kiosk/src/app/checkin/checkin.component.ts
-var _c09 = ["app-checkin", ""];
 function CheckinComponent_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "img", 4);
@@ -2416,10 +3037,13 @@ var CheckinComponent = class _CheckinComponent {
     this._destroy_ref = inject(DestroyRef);
     this.background = settingSignal("welcome_background");
     this.hide_building_image = settingSignal("hide_building_image");
-    this.now = signal(startOfMinute(/* @__PURE__ */ new Date()), ...ngDevMode ? [{ debugName: "now" }] : (
-      /* istanbul ignore next */
-      []
-    ));
+    this.now = signal(
+      startOfMinute(/* @__PURE__ */ new Date()),
+      ...ngDevMode ? [{ debugName: "now" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     const interval_id = setInterval(() => {
       this.now.set(startOfMinute(/* @__PURE__ */ new Date()));
     }, 1e3);
@@ -2431,7 +3055,7 @@ var CheckinComponent = class _CheckinComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinComponent, selectors: [["", "app-checkin", ""]], attrs: _c09, decls: 9, vars: 10, consts: [[1, "absolute", "inset-0", "flex", "items-center", "p-8", "print:static", "print:block", "print:p-0"], ["auth", "", 1, "absolute", "top-1/2", "left-1/2", "min-h-full", "min-w-full", "-translate-x-1/2", "-translate-y-1/2", "print:hidden", 3, "source"], [1, "z-10", "flex", "w-full", "flex-col", "justify-center", "space-y-8"], [1, "absolute", "top-4", "right-4", "text-2xl", "text-white", "print:hidden"], ["src", "assets/img/building.png", 1, "absolute", "right-0", "bottom-0", "w-[60%]", "print:hidden"]], template: function CheckinComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinComponent, selectors: [["", "app-checkin", ""]], decls: 9, vars: 10, consts: [[1, "absolute", "inset-0", "flex", "items-center", "p-8", "print:static", "print:block", "print:p-0"], ["auth", "", 1, "absolute", "top-1/2", "left-1/2", "min-h-full", "min-w-full", "-translate-x-1/2", "-translate-y-1/2", "print:hidden", 3, "source"], [1, "z-10", "flex", "w-full", "flex-col", "justify-center", "space-y-8"], [1, "absolute", "top-4", "right-4", "text-2xl", "text-white", "print:hidden"], ["src", "assets/img/building.png", 1, "absolute", "right-0", "bottom-0", "w-[60%]", "print:hidden"]], template: function CheckinComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0);
         \u0275\u0275element(1, "img", 1);
@@ -2462,7 +3086,9 @@ var CheckinComponent = class _CheckinComponent {
     type: Component,
     args: [{ selector: "[app-checkin]", template: `
         <!-- <a-topbar-header class="w-full screen-only"></a-topbar-header> -->
-        <div class="absolute inset-0 flex items-center p-8 print:static print:block print:p-0">
+        <div
+            class="absolute inset-0 flex items-center p-8 print:static print:block print:p-0"
+        >
             <img
                 auth
                 [source]="background()"
@@ -2471,7 +3097,9 @@ var CheckinComponent = class _CheckinComponent {
             <div class="z-10 flex w-full flex-col justify-center space-y-8">
                 <router-outlet></router-outlet>
             </div>
-            <div class="absolute top-4 right-4 text-2xl text-white print:hidden">
+            <div
+                class="absolute top-4 right-4 text-2xl text-white print:hidden"
+            >
                 {{ now() | date: 'mediumDate' }} {{ now() | date: 'shortTime' }}
             </div>
             @if (!hide_building_image()) {
@@ -2485,11 +3113,11 @@ var CheckinComponent = class _CheckinComponent {
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinComponent, { className: "CheckinComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin.component.ts", lineNumber: 44 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinComponent, { className: "CheckinComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin.component.ts", lineNumber: 53 });
 })();
 
 // apps/visitor-kiosk/src/app/checkin/checkout.component.ts
-var _c010 = () => ["/welcome"];
+var _c09 = () => ["/welcome"];
 function CheckoutComponent_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
@@ -2522,7 +3150,7 @@ function CheckoutComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275advance(4);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(10, 8, "COMMON.CHECK_OUT"), " ");
     \u0275\u0275advance(2);
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(10, _c010));
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(10, _c09));
   }
 }
 function CheckoutComponent_Conditional_1_Template(rf, ctx) {
@@ -2546,14 +3174,17 @@ var CheckoutComponent = class _CheckoutComponent {
     this._state = inject(CheckinStateService);
     this._router = inject(Router);
     this._org = inject(OrganisationService);
-    this.loading = signal(false, ...ngDevMode ? [{ debugName: "loading" }] : (
-      /* istanbul ignore next */
-      []
-    ));
+    this.loading = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "loading" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
   }
   async ngOnInit() {
-    await this._org.initialised.pipe(first((_) => _)).toPromise();
-    const event = await this._state.event.pipe(first()).toPromise();
+    await this._org.waitUntilInitialised();
+    const event = this._state.event();
     if (!event)
       this._router.navigate(["/checkin"]);
   }
@@ -2639,10 +3270,10 @@ var CheckoutComponent = class _CheckoutComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckoutComponent, { className: "CheckoutComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkout.component.ts", lineNumber: 63 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckoutComponent, { className: "CheckoutComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkout.component.ts", lineNumber: 67 });
 })();
 
-// apps/visitor-kiosk/src/app/checkin/checkin.module.ts
+// apps/visitor-kiosk/src/app/checkin/checkin.routes.ts
 var ROUTES = [
   {
     path: "",
@@ -2662,49 +3293,7 @@ var ROUTES = [
   },
   { path: "**", redirectTo: "" }
 ];
-var STANDALONE_COMPONENTS = [
-  CheckinComponent,
-  CheckinResultsComponent,
-  CheckinQRScanComponent,
-  CheckinPreferencesComponent,
-  CheckinPhotoComponent,
-  CheckinDetailsComponent,
-  CheckinErrorComponent,
-  CheckinCovidComponent,
-  CheckinInductionComponent,
-  CheckoutComponent
-];
-var VisitorCheckinModule = class _VisitorCheckinModule {
-  static {
-    this.\u0275fac = function VisitorCheckinModule_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _VisitorCheckinModule)();
-    };
-  }
-  static {
-    this.\u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({ type: _VisitorCheckinModule });
-  }
-  static {
-    this.\u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({ imports: [
-      CommonModule,
-      RouterModule.forChild(ROUTES),
-      STANDALONE_COMPONENTS
-    ] });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(VisitorCheckinModule, [{
-    type: NgModule,
-    args: [{
-      declarations: [],
-      imports: [
-        CommonModule,
-        RouterModule.forChild(ROUTES),
-        ...STANDALONE_COMPONENTS
-      ]
-    }]
-  }], null, null);
-})();
 export {
-  VisitorCheckinModule
+  ROUTES
 };
-//# sourceMappingURL=checkin.module-RWOXIPFY.js.map
+//# sourceMappingURL=checkin.routes-J75SHUI4.js.map

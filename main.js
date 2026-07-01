@@ -1,7 +1,21 @@
 import {
+  BookingFormService,
+  DurationFieldComponent,
+  MatMenu,
+  MatMenuItem,
+  MatMenuModule,
+  MatMenuTrigger,
+  MatTooltip,
+  MatTooltipModule,
+  UserSearchFieldComponent,
+  generateMockSpace,
+  setHours,
+  setMinutes
+} from "./chunk-OUY2HQL6.js";
+import {
   CheckinStateService,
   parseTokenFromUrl
-} from "./chunk-WNLXJ2IM.js";
+} from "./chunk-RAIW275D.js";
 import {
   ANIMATION_MODULE_TYPE,
   AUTO_STYLE,
@@ -10,29 +24,30 @@ import {
   AnimationMetadataType,
   AsyncHandler,
   AuthenticatedImageDirective,
-  AuthorisedUserGuard,
-  BookingFormService,
+  BidiModule,
   BrowserModule,
   ChangeDetectorRef,
-  ChatComponent,
-  Cl,
   CommonModule,
   Component,
   DOCUMENT,
   DatePipe,
   DefaultValueAccessor,
   DomRendererFactory2,
-  DurationFieldComponent,
+  Dr,
+  EMPTY_USER,
+  ElementRef,
   ErrorHandler,
-  FormControlName,
-  FormGroupDirective,
+  EventEmitter,
+  Fl,
+  FormField,
   FormsModule,
-  GlobalBannerComponent,
-  GlobalLoadingComponent,
-  Gr,
+  GroupPermission,
+  Hr,
   IconComponent,
   Inject,
   Injectable,
+  InjectionToken,
+  Input,
   LOCALE_ID,
   LocaleService,
   MatCheckbox,
@@ -42,11 +57,8 @@ import {
   MatFormFieldModule,
   MatInput,
   MatInputModule,
-  MatMenu,
-  MatMenuItem,
-  MatMenuModule,
-  MatMenuTrigger,
   MatOption,
+  MatPrefix,
   MatProgressSpinner,
   MatProgressSpinnerModule,
   MatRipple,
@@ -54,70 +66,97 @@ import {
   MatSelect,
   MatSelectModule,
   MatSelectTrigger,
-  MatTooltip,
-  MatTooltipModule,
   NgControlStatus,
   NgControlStatusGroup,
+  NgForm,
   NgModel,
   NgModule,
   NgZone,
+  Nl,
   NoopAnimationPlayer,
   OrganisationService,
+  Output,
+  Pipe,
   PlaceOS_Service,
-  ReactiveFormsModule,
+  Renderer2,
   RendererFactory2,
+  RequiredValidator,
   Router,
   RouterLink,
   RouterModule,
   RouterOutlet,
+  Rt,
   RuntimeError,
   SanitizePipe,
-  ServiceWorkerModule,
   SettingsService,
   TraceService,
   TranslatePipe,
-  UnauthorisedComponent,
   User,
-  UserSearchFieldComponent,
+  V,
   VERSION,
-  Validators,
+  ViewChild,
+  ViewEncapsulation,
   VirtualKeyboardComponent,
-  __objRest,
-  __spreadProps,
-  __spreadValues,
+  Wr,
+  Ye,
+  _getAnimationsState,
   addDays,
+  addMilliseconds,
   addMinutes,
   addMonths,
-  addSeconds,
+  autoConfirmNativeDomain,
+  bootstrapApplication,
   capitalizeFirstLetter,
   computed,
   createErrorHandler,
+  currentUser,
+  current_user,
   differenceInMinutes,
+  effect,
   enableProdMode,
   firstTruthyValueFrom,
-  generateMockSpace,
-  getInvalidFields,
+  format,
+  getInvalidSignalFields,
+  getLoadingMessage,
+  getNativeApiKey,
+  getNativeDomain,
+  getNativeEmail,
   getUnixTime,
+  hasPermission,
   i18n,
   inject,
+  input,
   isBefore,
+  isEmptyUser,
   isPublicMode,
-  map,
+  log,
+  lookupNativeDomainByEmail,
+  mr,
+  nativeDomainError,
+  needsNativeDomain,
+  normaliseNativeDomain,
   notifyError,
+  numberAttribute,
+  output,
   padString,
-  platformBrowser,
-  pr,
+  performanceMarkFeature,
   predictableRandomInt,
+  provideAppInitializer,
+  provideRouter,
+  provideServiceWorker,
   provideZonelessChangeDetection,
   randomInt,
   randomString,
-  registerLocaleData,
+  registerActiveLocale,
   reloadOnChunkLoadError,
+  ri,
   sequence,
+  serviceWorkerUpdate,
   setClassMetadata,
-  setHours,
-  setMinutes,
   setMocks,
+  setNativeApiKey,
+  setNativeDomain,
+  setNativeEmail,
   setPublicMode,
   settingSignal,
   signal,
@@ -125,20 +164,32 @@ import {
   startOfMinute,
   style,
   timePeriodsIntersect,
-  timer,
-  toSignal,
   unique,
+  untracked,
+  user_groups_loaded,
+  viewChild,
+  withHashLocation,
+  withNavigationErrorHandler,
+  ɵNgNoValidate,
   ɵPRE_STYLE,
   ɵsetClassDebugInfo,
   ɵɵInheritDefinitionFeature,
   ɵɵadvance,
+  ɵɵattribute,
+  ɵɵclassMap,
   ɵɵclassProp,
   ɵɵconditional,
   ɵɵconditionalCreate,
+  ɵɵcontrol,
+  ɵɵcontrolCreate,
   ɵɵdefineComponent,
   ɵɵdefineInjectable,
   ɵɵdefineInjector,
   ɵɵdefineNgModule,
+  ɵɵdefinePipe,
+  ɵɵdomElement,
+  ɵɵdomElementEnd,
+  ɵɵdomElementStart,
   ɵɵelement,
   ɵɵelementEnd,
   ɵɵelementStart,
@@ -153,6284 +204,4395 @@ import {
   ɵɵproperty,
   ɵɵpureFunction0,
   ɵɵpureFunction1,
+  ɵɵqueryAdvance,
   ɵɵreference,
   ɵɵrepeater,
   ɵɵrepeaterCreate,
   ɵɵrepeaterTrackByIdentity,
   ɵɵresetView,
+  ɵɵresolveWindow,
   ɵɵrestoreView,
   ɵɵsanitizeHtml,
+  ɵɵstyleProp,
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1,
   ɵɵtextInterpolate2,
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
-  ɵɵtwoWayProperty
-} from "./chunk-AY5QOKJZ.js";
+  ɵɵtwoWayProperty,
+  ɵɵviewQuerySignal
+} from "./chunk-GUGM3I7Y.js";
+import {
+  __objRest,
+  __spreadProps,
+  __spreadValues
+} from "./chunk-653SOEEV.js";
+
+// node_modules/date-fns/addSeconds.js
+function addSeconds(date, amount, options2) {
+  return addMilliseconds(date, amount * 1e3, options2);
+}
 
 // node_modules/date-fns/subDays.js
-function subDays(date, amount, options) {
-  return addDays(date, -amount, options);
+function subDays(date, amount, options2) {
+  return addDays(date, -amount, options2);
 }
 
 // node_modules/date-fns/subMonths.js
-function subMonths(date, amount, options) {
-  return addMonths(date, -amount, options);
+function subMonths(date, amount, options2) {
+  return addMonths(date, -amount, options2);
 }
 
 // node_modules/date-fns/subMinutes.js
-function subMinutes(date, amount, options) {
-  return addMinutes(date, -amount, options);
+function subMinutes(date, amount, options2) {
+  return addMinutes(date, -amount, options2);
 }
 
 // node_modules/date-fns/subSeconds.js
-function subSeconds(date, amount, options) {
-  return addSeconds(date, -amount, options);
+function subSeconds(date, amount, options2) {
+  return addSeconds(date, -amount, options2);
 }
 
-// node_modules/@angular/animations/fesm2022/_util-chunk.mjs
-var LINE_START = "\n - ";
-function invalidTimingValue(exp) {
-  return new RuntimeError(3e3, ngDevMode && `The provided timing value "${exp}" is invalid.`);
-}
-function negativeStepValue() {
-  return new RuntimeError(3100, ngDevMode && "Duration values below 0 are not allowed for this animation step.");
-}
-function negativeDelayValue() {
-  return new RuntimeError(3101, ngDevMode && "Delay values below 0 are not allowed for this animation step.");
-}
-function invalidStyleParams(varName) {
-  return new RuntimeError(3001, ngDevMode && `Unable to resolve the local animation param ${varName} in the given list of values`);
-}
-function invalidParamValue(varName) {
-  return new RuntimeError(3003, ngDevMode && `Please provide a value for the animation param ${varName}`);
-}
-function invalidNodeType(nodeType) {
-  return new RuntimeError(3004, ngDevMode && `Unable to resolve animation metadata node #${nodeType}`);
-}
-function invalidCssUnitValue(userProvidedProperty, value) {
-  return new RuntimeError(3005, ngDevMode && `Please provide a CSS unit value for ${userProvidedProperty}:${value}`);
-}
-function invalidTrigger() {
-  return new RuntimeError(3006, ngDevMode && "animation triggers cannot be prefixed with an `@` sign (e.g. trigger('@foo', [...]))");
-}
-function invalidDefinition() {
-  return new RuntimeError(3007, ngDevMode && "only state() and transition() definitions can sit inside of a trigger()");
-}
-function invalidState(metadataName, missingSubs) {
-  return new RuntimeError(3008, ngDevMode && `state("${metadataName}", ...) must define default values for all the following style substitutions: ${missingSubs.join(", ")}`);
-}
-function invalidStyleValue(value) {
-  return new RuntimeError(3002, ngDevMode && `The provided style string value ${value} is not allowed.`);
-}
-function invalidParallelAnimation(prop, firstStart, firstEnd, secondStart, secondEnd) {
-  return new RuntimeError(3010, ngDevMode && `The CSS property "${prop}" that exists between the times of "${firstStart}ms" and "${firstEnd}ms" is also being animated in a parallel animation between the times of "${secondStart}ms" and "${secondEnd}ms"`);
-}
-function invalidKeyframes() {
-  return new RuntimeError(3011, ngDevMode && `keyframes() must be placed inside of a call to animate()`);
-}
-function invalidOffset() {
-  return new RuntimeError(3012, ngDevMode && `Please ensure that all keyframe offsets are between 0 and 1`);
-}
-function keyframeOffsetsOutOfOrder() {
-  return new RuntimeError(3200, ngDevMode && `Please ensure that all keyframe offsets are in order`);
-}
-function keyframesMissingOffsets() {
-  return new RuntimeError(3202, ngDevMode && `Not all style() steps within the declared keyframes() contain offsets`);
-}
-function invalidStagger() {
-  return new RuntimeError(3013, ngDevMode && `stagger() can only be used inside of query()`);
-}
-function invalidQuery(selector) {
-  return new RuntimeError(3014, ngDevMode && `\`query("${selector}")\` returned zero elements. (Use \`query("${selector}", { optional: true })\` if you wish to allow this.)`);
-}
-function invalidExpression(expr) {
-  return new RuntimeError(3015, ngDevMode && `The provided transition expression "${expr}" is not supported`);
-}
-function invalidTransitionAlias(alias) {
-  return new RuntimeError(3016, ngDevMode && `The transition alias value "${alias}" is not supported`);
-}
-function triggerBuildFailed(name, errors) {
-  return new RuntimeError(3404, ngDevMode && `The animation trigger "${name}" has failed to build due to the following errors:
- - ${errors.map((err) => err.message).join("\n - ")}`);
-}
-function animationFailed(errors) {
-  return new RuntimeError(3502, ngDevMode && `Unable to animate due to the following errors:${LINE_START}${errors.map((err) => err.message).join(LINE_START)}`);
-}
-function registerFailed(errors) {
-  return new RuntimeError(3503, ngDevMode && `Unable to build the animation due to the following errors: ${errors.map((err) => err.message).join("\n")}`);
-}
-function missingOrDestroyedAnimation() {
-  return new RuntimeError(3300, ngDevMode && "The requested animation doesn't exist or has already been destroyed");
-}
-function createAnimationFailed(errors) {
-  return new RuntimeError(3504, ngDevMode && `Unable to create the animation due to the following errors:${errors.map((err) => err.message).join("\n")}`);
-}
-function missingPlayer(id) {
-  return new RuntimeError(3301, ngDevMode && `Unable to find the timeline player referenced by ${id}`);
-}
-function missingTrigger(phase, name) {
-  return new RuntimeError(3302, ngDevMode && `Unable to listen on the animation trigger event "${phase}" because the animation trigger "${name}" doesn't exist!`);
-}
-function missingEvent(name) {
-  return new RuntimeError(3303, ngDevMode && `Unable to listen on the animation trigger "${name}" because the provided event is undefined!`);
-}
-function unsupportedTriggerEvent(phase, name) {
-  return new RuntimeError(3400, ngDevMode && `The provided animation trigger event "${phase}" for the animation trigger "${name}" is not supported!`);
-}
-function unregisteredTrigger(name) {
-  return new RuntimeError(3401, ngDevMode && `The provided animation trigger "${name}" has not been registered!`);
-}
-function triggerTransitionsFailed(errors) {
-  return new RuntimeError(3402, ngDevMode && `Unable to process animations due to the following failed trigger transitions
- ${errors.map((err) => err.message).join("\n")}`);
-}
-function transitionFailed(name, errors) {
-  return new RuntimeError(3505, ngDevMode && `@${name} has failed due to:
- ${errors.map((err) => err.message).join("\n- ")}`);
-}
-var ANIMATABLE_PROP_SET = /* @__PURE__ */ new Set(["-moz-outline-radius", "-moz-outline-radius-bottomleft", "-moz-outline-radius-bottomright", "-moz-outline-radius-topleft", "-moz-outline-radius-topright", "-ms-grid-columns", "-ms-grid-rows", "-webkit-line-clamp", "-webkit-text-fill-color", "-webkit-text-stroke", "-webkit-text-stroke-color", "accent-color", "all", "backdrop-filter", "background", "background-color", "background-position", "background-size", "block-size", "border", "border-block-end", "border-block-end-color", "border-block-end-width", "border-block-start", "border-block-start-color", "border-block-start-width", "border-bottom", "border-bottom-color", "border-bottom-left-radius", "border-bottom-right-radius", "border-bottom-width", "border-color", "border-end-end-radius", "border-end-start-radius", "border-image-outset", "border-image-slice", "border-image-width", "border-inline-end", "border-inline-end-color", "border-inline-end-width", "border-inline-start", "border-inline-start-color", "border-inline-start-width", "border-left", "border-left-color", "border-left-width", "border-radius", "border-right", "border-right-color", "border-right-width", "border-start-end-radius", "border-start-start-radius", "border-top", "border-top-color", "border-top-left-radius", "border-top-right-radius", "border-top-width", "border-width", "bottom", "box-shadow", "caret-color", "clip", "clip-path", "color", "column-count", "column-gap", "column-rule", "column-rule-color", "column-rule-width", "column-width", "columns", "filter", "flex", "flex-basis", "flex-grow", "flex-shrink", "font", "font-size", "font-size-adjust", "font-stretch", "font-variation-settings", "font-weight", "gap", "grid-column-gap", "grid-gap", "grid-row-gap", "grid-template-columns", "grid-template-rows", "height", "inline-size", "input-security", "inset", "inset-block", "inset-block-end", "inset-block-start", "inset-inline", "inset-inline-end", "inset-inline-start", "left", "letter-spacing", "line-clamp", "line-height", "margin", "margin-block-end", "margin-block-start", "margin-bottom", "margin-inline-end", "margin-inline-start", "margin-left", "margin-right", "margin-top", "mask", "mask-border", "mask-position", "mask-size", "max-block-size", "max-height", "max-inline-size", "max-lines", "max-width", "min-block-size", "min-height", "min-inline-size", "min-width", "object-position", "offset", "offset-anchor", "offset-distance", "offset-path", "offset-position", "offset-rotate", "opacity", "order", "outline", "outline-color", "outline-offset", "outline-width", "padding", "padding-block-end", "padding-block-start", "padding-bottom", "padding-inline-end", "padding-inline-start", "padding-left", "padding-right", "padding-top", "perspective", "perspective-origin", "right", "rotate", "row-gap", "scale", "scroll-margin", "scroll-margin-block", "scroll-margin-block-end", "scroll-margin-block-start", "scroll-margin-bottom", "scroll-margin-inline", "scroll-margin-inline-end", "scroll-margin-inline-start", "scroll-margin-left", "scroll-margin-right", "scroll-margin-top", "scroll-padding", "scroll-padding-block", "scroll-padding-block-end", "scroll-padding-block-start", "scroll-padding-bottom", "scroll-padding-inline", "scroll-padding-inline-end", "scroll-padding-inline-start", "scroll-padding-left", "scroll-padding-right", "scroll-padding-top", "scroll-snap-coordinate", "scroll-snap-destination", "scrollbar-color", "shape-image-threshold", "shape-margin", "shape-outside", "tab-size", "text-decoration", "text-decoration-color", "text-decoration-thickness", "text-emphasis", "text-emphasis-color", "text-indent", "text-shadow", "text-underline-offset", "top", "transform", "transform-origin", "translate", "vertical-align", "visibility", "width", "word-spacing", "z-index", "zoom"]);
-function optimizeGroupPlayer(players) {
-  switch (players.length) {
-    case 0:
-      return new NoopAnimationPlayer();
-    case 1:
-      return players[0];
-    default:
-      return new AnimationGroupPlayer(players);
-  }
-}
-function normalizeKeyframes$1(normalizer, keyframes, preStyles = /* @__PURE__ */ new Map(), postStyles = /* @__PURE__ */ new Map()) {
-  const errors = [];
-  const normalizedKeyframes = [];
-  let previousOffset = -1;
-  let previousKeyframe = null;
-  keyframes.forEach((kf) => {
-    const offset = kf.get("offset");
-    const isSameOffset = offset == previousOffset;
-    const normalizedKeyframe = isSameOffset && previousKeyframe || /* @__PURE__ */ new Map();
-    kf.forEach((val, prop) => {
-      let normalizedProp = prop;
-      let normalizedValue = val;
-      if (prop !== "offset") {
-        normalizedProp = normalizer.normalizePropertyName(normalizedProp, errors);
-        switch (normalizedValue) {
-          case \u0275PRE_STYLE:
-            normalizedValue = preStyles.get(prop);
-            break;
-          case AUTO_STYLE:
-            normalizedValue = postStyles.get(prop);
-            break;
-          default:
-            normalizedValue = normalizer.normalizeStyleValue(prop, normalizedProp, normalizedValue, errors);
-            break;
-        }
-      }
-      normalizedKeyframe.set(normalizedProp, normalizedValue);
-    });
-    if (!isSameOffset) {
-      normalizedKeyframes.push(normalizedKeyframe);
-    }
-    previousKeyframe = normalizedKeyframe;
-    previousOffset = offset;
-  });
-  if (errors.length) {
-    throw animationFailed(errors);
-  }
-  return normalizedKeyframes;
-}
-function listenOnPlayer(player, eventName, event, callback) {
-  switch (eventName) {
-    case "start":
-      player.onStart(() => callback(event && copyAnimationEvent(event, "start", player)));
-      break;
-    case "done":
-      player.onDone(() => callback(event && copyAnimationEvent(event, "done", player)));
-      break;
-    case "destroy":
-      player.onDestroy(() => callback(event && copyAnimationEvent(event, "destroy", player)));
-      break;
-  }
-}
-function copyAnimationEvent(e, phaseName, player) {
-  const totalTime = player.totalTime;
-  const disabled = player.disabled ? true : false;
-  const event = makeAnimationEvent(e.element, e.triggerName, e.fromState, e.toState, phaseName || e.phaseName, totalTime == void 0 ? e.totalTime : totalTime, disabled);
-  const data = e["_data"];
-  if (data != null) {
-    event["_data"] = data;
-  }
-  return event;
-}
-function makeAnimationEvent(element, triggerName, fromState, toState, phaseName = "", totalTime = 0, disabled) {
+// node_modules/marked/lib/marked.esm.js
+function _getDefaults() {
   return {
-    element,
-    triggerName,
-    fromState,
-    toState,
-    phaseName,
-    totalTime,
-    disabled: !!disabled
+    async: false,
+    breaks: false,
+    extensions: null,
+    gfm: true,
+    hooks: null,
+    pedantic: false,
+    renderer: null,
+    silent: false,
+    tokenizer: null,
+    walkTokens: null
   };
 }
-function getOrSetDefaultValue(map2, key, defaultValue) {
-  let value = map2.get(key);
-  if (!value) {
-    map2.set(key, value = defaultValue);
+var _defaults = _getDefaults();
+function changeDefaults(newDefaults) {
+  _defaults = newDefaults;
+}
+var escapeTest = /[&<>"']/;
+var escapeReplace = new RegExp(escapeTest.source, "g");
+var escapeTestNoEncode = /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/;
+var escapeReplaceNoEncode = new RegExp(escapeTestNoEncode.source, "g");
+var escapeReplacements = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;"
+};
+var getEscapeReplacement = (ch) => escapeReplacements[ch];
+function escape$1(html2, encode) {
+  if (encode) {
+    if (escapeTest.test(html2)) {
+      return html2.replace(escapeReplace, getEscapeReplacement);
+    }
+  } else {
+    if (escapeTestNoEncode.test(html2)) {
+      return html2.replace(escapeReplaceNoEncode, getEscapeReplacement);
+    }
   }
-  return value;
+  return html2;
 }
-function parseTimelineCommand(command) {
-  const separatorPos = command.indexOf(":");
-  const id = command.substring(1, separatorPos);
-  const action = command.slice(separatorPos + 1);
-  return [id, action];
+var unescapeTest = /&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/ig;
+function unescape(html2) {
+  return html2.replace(unescapeTest, (_, n) => {
+    n = n.toLowerCase();
+    if (n === "colon")
+      return ":";
+    if (n.charAt(0) === "#") {
+      return n.charAt(1) === "x" ? String.fromCharCode(parseInt(n.substring(2), 16)) : String.fromCharCode(+n.substring(1));
+    }
+    return "";
+  });
 }
-var documentElement = /* @__PURE__ */ (() => typeof document === "undefined" ? null : document.documentElement)();
-function getParentElement(element) {
-  const parent = element.parentNode || element.host || null;
-  if (parent === documentElement) {
+var caret = /(^|[^\[])\^/g;
+function edit(regex, opt) {
+  let source = typeof regex === "string" ? regex : regex.source;
+  opt = opt || "";
+  const obj = {
+    replace: (name, val) => {
+      let valSource = typeof val === "string" ? val : val.source;
+      valSource = valSource.replace(caret, "$1");
+      source = source.replace(name, valSource);
+      return obj;
+    },
+    getRegex: () => {
+      return new RegExp(source, opt);
+    }
+  };
+  return obj;
+}
+function cleanUrl(href) {
+  try {
+    href = encodeURI(href).replace(/%25/g, "%");
+  } catch {
     return null;
   }
-  return parent;
+  return href;
 }
-function containsVendorPrefix(prop) {
-  return prop.substring(1, 6) == "ebkit";
-}
-var _CACHED_BODY = null;
-var _IS_WEBKIT = false;
-function validateStyleProperty(prop) {
-  if (!_CACHED_BODY) {
-    _CACHED_BODY = getBodyNode() || {};
-    _IS_WEBKIT = _CACHED_BODY.style ? "WebkitAppearance" in _CACHED_BODY.style : false;
+var noopTest = { exec: () => null };
+function splitCells(tableRow, count) {
+  const row = tableRow.replace(/\|/g, (match, offset, str) => {
+    let escaped = false;
+    let curr = offset;
+    while (--curr >= 0 && str[curr] === "\\")
+      escaped = !escaped;
+    if (escaped) {
+      return "|";
+    } else {
+      return " |";
+    }
+  }), cells = row.split(/ \|/);
+  let i = 0;
+  if (!cells[0].trim()) {
+    cells.shift();
   }
-  let result = true;
-  if (_CACHED_BODY.style && !containsVendorPrefix(prop)) {
-    result = prop in _CACHED_BODY.style;
-    if (!result && _IS_WEBKIT) {
-      const camelProp = "Webkit" + prop.charAt(0).toUpperCase() + prop.slice(1);
-      result = camelProp in _CACHED_BODY.style;
+  if (cells.length > 0 && !cells[cells.length - 1].trim()) {
+    cells.pop();
+  }
+  if (count) {
+    if (cells.length > count) {
+      cells.splice(count);
+    } else {
+      while (cells.length < count)
+        cells.push("");
     }
   }
-  return result;
-}
-function validateWebAnimatableStyleProperty(prop) {
-  return ANIMATABLE_PROP_SET.has(prop);
-}
-function getBodyNode() {
-  if (typeof document != "undefined") {
-    return document.body;
+  for (; i < cells.length; i++) {
+    cells[i] = cells[i].trim().replace(/\\\|/g, "|");
   }
-  return null;
+  return cells;
 }
-function containsElement(elm1, elm2) {
-  while (elm2) {
-    if (elm2 === elm1) {
-      return true;
-    }
-    elm2 = getParentElement(elm2);
+function rtrim(str, c2, invert) {
+  const l = str.length;
+  if (l === 0) {
+    return "";
   }
-  return false;
-}
-function invokeQuery(element, selector, multi) {
-  if (multi) {
-    return Array.from(element.querySelectorAll(selector));
+  let suffLen = 0;
+  while (suffLen < l) {
+    const currChar = str.charAt(l - suffLen - 1);
+    if (currChar === c2 && !invert) {
+      suffLen++;
+    } else if (currChar !== c2 && invert) {
+      suffLen++;
+    } else {
+      break;
+    }
   }
-  const elem = element.querySelector(selector);
-  return elem ? [elem] : [];
+  return str.slice(0, l - suffLen);
 }
-var ONE_SECOND = 1e3;
-var SUBSTITUTION_EXPR_START = "{{";
-var SUBSTITUTION_EXPR_END = "}}";
-var ENTER_CLASSNAME = "ng-enter";
-var LEAVE_CLASSNAME = "ng-leave";
-var NG_TRIGGER_CLASSNAME = "ng-trigger";
-var NG_TRIGGER_SELECTOR = ".ng-trigger";
-var NG_ANIMATING_CLASSNAME = "ng-animating";
-var NG_ANIMATING_SELECTOR = ".ng-animating";
-function resolveTimingValue(value) {
-  if (typeof value == "number") return value;
-  const matches = value.match(/^(-?[\.\d]+)(m?s)/);
-  if (!matches || matches.length < 2) return 0;
-  return _convertTimeValueToMS(parseFloat(matches[1]), matches[2]);
-}
-function _convertTimeValueToMS(value, unit) {
-  switch (unit) {
-    case "s":
-      return value * ONE_SECOND;
-    default:
-      return value;
+function findClosingBracket(str, b) {
+  if (str.indexOf(b[1]) === -1) {
+    return -1;
   }
-}
-function resolveTiming(timings, errors, allowNegativeValues) {
-  return timings.hasOwnProperty("duration") ? timings : parseTimeExpression(timings, errors, allowNegativeValues);
-}
-var PARSE_TIME_EXPRESSION_REGEX = /^(-?[\.\d]+)(m?s)(?:\s+(-?[\.\d]+)(m?s))?(?:\s+([-a-z]+(?:\(.+?\))?))?$/i;
-function parseTimeExpression(exp, errors, allowNegativeValues) {
-  let duration;
-  let delay = 0;
-  let easing = "";
-  if (typeof exp === "string") {
-    const matches = exp.match(PARSE_TIME_EXPRESSION_REGEX);
-    if (matches === null) {
-      errors.push(invalidTimingValue(exp));
-      return {
-        duration: 0,
-        delay: 0,
-        easing: ""
-      };
+  let level = 0;
+  for (let i = 0; i < str.length; i++) {
+    if (str[i] === "\\") {
+      i++;
+    } else if (str[i] === b[0]) {
+      level++;
+    } else if (str[i] === b[1]) {
+      level--;
+      if (level < 0) {
+        return i;
+      }
     }
-    duration = _convertTimeValueToMS(parseFloat(matches[1]), matches[2]);
-    const delayMatch = matches[3];
-    if (delayMatch != null) {
-      delay = _convertTimeValueToMS(parseFloat(delayMatch), matches[4]);
-    }
-    const easingVal = matches[5];
-    if (easingVal) {
-      easing = easingVal;
-    }
-  } else {
-    duration = exp;
   }
-  if (!allowNegativeValues) {
-    let containsErrors = false;
-    let startIndex = errors.length;
-    if (duration < 0) {
-      errors.push(negativeStepValue());
-      containsErrors = true;
-    }
-    if (delay < 0) {
-      errors.push(negativeDelayValue());
-      containsErrors = true;
-    }
-    if (containsErrors) {
-      errors.splice(startIndex, 0, invalidTimingValue(exp));
-    }
+  return -1;
+}
+function outputLink(cap, link2, raw, lexer2) {
+  const href = link2.href;
+  const title = link2.title ? escape$1(link2.title) : null;
+  const text = cap[1].replace(/\\([\[\]])/g, "$1");
+  if (cap[0].charAt(0) !== "!") {
+    lexer2.state.inLink = true;
+    const token = {
+      type: "link",
+      raw,
+      href,
+      title,
+      text,
+      tokens: lexer2.inlineTokens(text)
+    };
+    lexer2.state.inLink = false;
+    return token;
   }
   return {
-    duration,
-    delay,
-    easing
+    type: "image",
+    raw,
+    href,
+    title,
+    text: escape$1(text)
   };
 }
-function normalizeKeyframes(keyframes) {
-  if (!keyframes.length) {
-    return [];
+function indentCodeCompensation(raw, text) {
+  const matchIndentToCode = raw.match(/^(\s+)(?:```)/);
+  if (matchIndentToCode === null) {
+    return text;
   }
-  if (keyframes[0] instanceof Map) {
-    return keyframes;
-  }
-  return keyframes.map((kf) => new Map(Object.entries(kf)));
+  const indentToCode = matchIndentToCode[1];
+  return text.split("\n").map((node) => {
+    const matchIndentInNode = node.match(/^\s+/);
+    if (matchIndentInNode === null) {
+      return node;
+    }
+    const [indentInNode] = matchIndentInNode;
+    if (indentInNode.length >= indentToCode.length) {
+      return node.slice(indentToCode.length);
+    }
+    return node;
+  }).join("\n");
 }
-function setStyles(element, styles, formerStyles) {
-  styles.forEach((val, prop) => {
-    const camelProp = dashCaseToCamelCase(prop);
-    if (formerStyles && !formerStyles.has(prop)) {
-      formerStyles.set(prop, element.style[camelProp]);
-    }
-    element.style[camelProp] = val;
-  });
-}
-function eraseStyles(element, styles) {
-  styles.forEach((_, prop) => {
-    const camelProp = dashCaseToCamelCase(prop);
-    element.style[camelProp] = "";
-  });
-}
-function normalizeAnimationEntry(steps) {
-  if (Array.isArray(steps)) {
-    if (steps.length == 1) return steps[0];
-    return sequence(steps);
-  }
-  return steps;
-}
-function validateStyleParams(value, options, errors) {
-  const params = options.params || {};
-  const matches = extractStyleParams(value);
-  if (matches.length) {
-    matches.forEach((varName) => {
-      if (!params.hasOwnProperty(varName)) {
-        errors.push(invalidStyleParams(varName));
-      }
-    });
-  }
-}
-var PARAM_REGEX = /* @__PURE__ */ new RegExp(`${SUBSTITUTION_EXPR_START}\\s*(.+?)\\s*${SUBSTITUTION_EXPR_END}`, "g");
-function extractStyleParams(value) {
-  let params = [];
-  if (typeof value === "string") {
-    let match;
-    while (match = PARAM_REGEX.exec(value)) {
-      params.push(match[1]);
-    }
-    PARAM_REGEX.lastIndex = 0;
-  }
-  return params;
-}
-function interpolateParams(value, params, errors) {
-  const original = `${value}`;
-  const str = original.replace(PARAM_REGEX, (_, varName) => {
-    let localVal = params[varName];
-    if (localVal == null) {
-      errors.push(invalidParamValue(varName));
-      localVal = "";
-    }
-    return localVal.toString();
-  });
-  return str == original ? value : str;
-}
-var DASH_CASE_REGEXP = /-+([a-z0-9])/g;
-function dashCaseToCamelCase(input) {
-  return input.replace(DASH_CASE_REGEXP, (...m) => m[1].toUpperCase());
-}
-function camelCaseToDashCase(input) {
-  return input.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
-}
-function allowPreviousPlayerStylesMerge(duration, delay) {
-  return duration === 0 || delay === 0;
-}
-function balancePreviousStylesIntoKeyframes(element, keyframes, previousStyles) {
-  if (previousStyles.size && keyframes.length) {
-    let startingKeyframe = keyframes[0];
-    let missingStyleProps = [];
-    previousStyles.forEach((val, prop) => {
-      if (!startingKeyframe.has(prop)) {
-        missingStyleProps.push(prop);
-      }
-      startingKeyframe.set(prop, val);
-    });
-    if (missingStyleProps.length) {
-      for (let i = 1; i < keyframes.length; i++) {
-        let kf = keyframes[i];
-        missingStyleProps.forEach((prop) => kf.set(prop, computeStyle(element, prop)));
-      }
-    }
-  }
-  return keyframes;
-}
-function visitDslNode(visitor, node, context) {
-  switch (node.type) {
-    case AnimationMetadataType.Trigger:
-      return visitor.visitTrigger(node, context);
-    case AnimationMetadataType.State:
-      return visitor.visitState(node, context);
-    case AnimationMetadataType.Transition:
-      return visitor.visitTransition(node, context);
-    case AnimationMetadataType.Sequence:
-      return visitor.visitSequence(node, context);
-    case AnimationMetadataType.Group:
-      return visitor.visitGroup(node, context);
-    case AnimationMetadataType.Animate:
-      return visitor.visitAnimate(node, context);
-    case AnimationMetadataType.Keyframes:
-      return visitor.visitKeyframes(node, context);
-    case AnimationMetadataType.Style:
-      return visitor.visitStyle(node, context);
-    case AnimationMetadataType.Reference:
-      return visitor.visitReference(node, context);
-    case AnimationMetadataType.AnimateChild:
-      return visitor.visitAnimateChild(node, context);
-    case AnimationMetadataType.AnimateRef:
-      return visitor.visitAnimateRef(node, context);
-    case AnimationMetadataType.Query:
-      return visitor.visitQuery(node, context);
-    case AnimationMetadataType.Stagger:
-      return visitor.visitStagger(node, context);
-    default:
-      throw invalidNodeType(node.type);
-  }
-}
-function computeStyle(element, prop) {
-  return window.getComputedStyle(element)[prop];
-}
-
-// node_modules/@angular/animations/fesm2022/browser.mjs
-var NoopAnimationDriver = class _NoopAnimationDriver {
-  validateStyleProperty(prop) {
-    return validateStyleProperty(prop);
-  }
-  containsElement(elm1, elm2) {
-    return containsElement(elm1, elm2);
-  }
-  getParentElement(element) {
-    return getParentElement(element);
-  }
-  query(element, selector, multi) {
-    return invokeQuery(element, selector, multi);
-  }
-  computeStyle(element, prop, defaultValue) {
-    return defaultValue || "";
-  }
-  animate(element, keyframes, duration, delay, easing, previousPlayers = [], scrubberAccessRequested) {
-    return new NoopAnimationPlayer(duration, delay);
-  }
-  static \u0275fac = function NoopAnimationDriver_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _NoopAnimationDriver)();
-  };
-  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
-    token: _NoopAnimationDriver,
-    factory: _NoopAnimationDriver.\u0275fac
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NoopAnimationDriver, [{
-    type: Injectable
-  }], null, null);
-})();
-var AnimationDriver = class {
-  static NOOP = new NoopAnimationDriver();
-};
-var AnimationStyleNormalizer = class {
-};
-var DIMENSIONAL_PROP_SET = /* @__PURE__ */ new Set(["width", "height", "minWidth", "minHeight", "maxWidth", "maxHeight", "left", "top", "bottom", "right", "fontSize", "outlineWidth", "outlineOffset", "paddingTop", "paddingLeft", "paddingBottom", "paddingRight", "marginTop", "marginLeft", "marginBottom", "marginRight", "borderRadius", "borderWidth", "borderTopWidth", "borderLeftWidth", "borderRightWidth", "borderBottomWidth", "textIndent", "perspective"]);
-var WebAnimationsStyleNormalizer = class extends AnimationStyleNormalizer {
-  normalizePropertyName(propertyName, errors) {
-    return dashCaseToCamelCase(propertyName);
-  }
-  normalizeStyleValue(userProvidedProperty, normalizedProperty, value, errors) {
-    let unit = "";
-    const strVal = value.toString().trim();
-    if (DIMENSIONAL_PROP_SET.has(normalizedProperty) && value !== 0 && value !== "0") {
-      if (typeof value === "number") {
-        unit = "px";
-      } else {
-        const valAndSuffixMatch = value.match(/^[+-]?[\d\.]+([a-z]*)$/);
-        if (valAndSuffixMatch && valAndSuffixMatch[1].length == 0) {
-          errors.push(invalidCssUnitValue(userProvidedProperty, value));
-        }
-      }
-    }
-    return strVal + unit;
-  }
-};
-function createListOfWarnings(warnings) {
-  const LINE_START2 = "\n - ";
-  return `${LINE_START2}${warnings.filter(Boolean).map((warning) => warning).join(LINE_START2)}`;
-}
-function warnTriggerBuild(name, warnings) {
-  console.warn(`The animation trigger "${name}" has built with the following warnings:${createListOfWarnings(warnings)}`);
-}
-function warnRegister(warnings) {
-  console.warn(`Animation built with the following warnings:${createListOfWarnings(warnings)}`);
-}
-function pushUnrecognizedPropertiesWarning(warnings, props) {
-  if (props.length) {
-    warnings.push(`The following provided properties are not recognized: ${props.join(", ")}`);
-  }
-}
-var ANY_STATE = "*";
-function parseTransitionExpr(transitionValue, errors) {
-  const expressions = [];
-  if (typeof transitionValue == "string") {
-    transitionValue.split(/\s*,\s*/).forEach((str) => parseInnerTransitionStr(str, expressions, errors));
-  } else {
-    expressions.push(transitionValue);
-  }
-  return expressions;
-}
-function parseInnerTransitionStr(eventStr, expressions, errors) {
-  if (eventStr[0] == ":") {
-    const result = parseAnimationAlias(eventStr, errors);
-    if (typeof result == "function") {
-      expressions.push(result);
-      return;
-    }
-    eventStr = result;
-  }
-  const match = eventStr.match(/^(\*|[-\w]+)\s*(<?[=-]>)\s*(\*|[-\w]+)$/);
-  if (match == null || match.length < 4) {
-    errors.push(invalidExpression(eventStr));
-    return expressions;
-  }
-  const fromState = match[1];
-  const separator = match[2];
-  const toState = match[3];
-  expressions.push(makeLambdaFromStates(fromState, toState));
-  const isFullAnyStateExpr = fromState == ANY_STATE && toState == ANY_STATE;
-  if (separator[0] == "<" && !isFullAnyStateExpr) {
-    expressions.push(makeLambdaFromStates(toState, fromState));
-  }
-  return;
-}
-function parseAnimationAlias(alias, errors) {
-  switch (alias) {
-    case ":enter":
-      return "void => *";
-    case ":leave":
-      return "* => void";
-    case ":increment":
-      return (fromState, toState) => parseFloat(toState) > parseFloat(fromState);
-    case ":decrement":
-      return (fromState, toState) => parseFloat(toState) < parseFloat(fromState);
-    default:
-      errors.push(invalidTransitionAlias(alias));
-      return "* => *";
-  }
-}
-var TRUE_BOOLEAN_VALUES = /* @__PURE__ */ new Set(["true", "1"]);
-var FALSE_BOOLEAN_VALUES = /* @__PURE__ */ new Set(["false", "0"]);
-function makeLambdaFromStates(lhs, rhs) {
-  const LHS_MATCH_BOOLEAN = TRUE_BOOLEAN_VALUES.has(lhs) || FALSE_BOOLEAN_VALUES.has(lhs);
-  const RHS_MATCH_BOOLEAN = TRUE_BOOLEAN_VALUES.has(rhs) || FALSE_BOOLEAN_VALUES.has(rhs);
-  return (fromState, toState) => {
-    let lhsMatch = lhs == ANY_STATE || lhs == fromState;
-    let rhsMatch = rhs == ANY_STATE || rhs == toState;
-    if (!lhsMatch && LHS_MATCH_BOOLEAN && typeof fromState === "boolean") {
-      lhsMatch = fromState ? TRUE_BOOLEAN_VALUES.has(lhs) : FALSE_BOOLEAN_VALUES.has(lhs);
-    }
-    if (!rhsMatch && RHS_MATCH_BOOLEAN && typeof toState === "boolean") {
-      rhsMatch = toState ? TRUE_BOOLEAN_VALUES.has(rhs) : FALSE_BOOLEAN_VALUES.has(rhs);
-    }
-    return lhsMatch && rhsMatch;
-  };
-}
-var SELF_TOKEN = ":self";
-var SELF_TOKEN_REGEX = /* @__PURE__ */ new RegExp(`s*${SELF_TOKEN}s*,?`, "g");
-function buildAnimationAst(driver, metadata, errors, warnings) {
-  return new AnimationAstBuilderVisitor(driver).build(metadata, errors, warnings);
-}
-var ROOT_SELECTOR = "";
-var AnimationAstBuilderVisitor = class {
-  _driver;
-  constructor(_driver) {
-    this._driver = _driver;
-  }
-  build(metadata, errors, warnings) {
-    const context = new AnimationAstBuilderContext(errors);
-    this._resetContextStyleTimingState(context);
-    const ast = visitDslNode(this, normalizeAnimationEntry(metadata), context);
-    if (typeof ngDevMode === "undefined" || ngDevMode) {
-      if (context.unsupportedCSSPropertiesFound.size) {
-        pushUnrecognizedPropertiesWarning(warnings, [...context.unsupportedCSSPropertiesFound.keys()]);
-      }
-    }
-    return ast;
-  }
-  _resetContextStyleTimingState(context) {
-    context.currentQuerySelector = ROOT_SELECTOR;
-    context.collectedStyles = /* @__PURE__ */ new Map();
-    context.collectedStyles.set(ROOT_SELECTOR, /* @__PURE__ */ new Map());
-    context.currentTime = 0;
-  }
-  visitTrigger(metadata, context) {
-    let queryCount = context.queryCount = 0;
-    let depCount = context.depCount = 0;
-    const states = [];
-    const transitions = [];
-    if (metadata.name.charAt(0) == "@") {
-      context.errors.push(invalidTrigger());
-    }
-    metadata.definitions.forEach((def) => {
-      this._resetContextStyleTimingState(context);
-      if (def.type == AnimationMetadataType.State) {
-        const stateDef = def;
-        const name = stateDef.name;
-        name.toString().split(/\s*,\s*/).forEach((n) => {
-          stateDef.name = n;
-          states.push(this.visitState(stateDef, context));
-        });
-        stateDef.name = name;
-      } else if (def.type == AnimationMetadataType.Transition) {
-        const transition = this.visitTransition(def, context);
-        queryCount += transition.queryCount;
-        depCount += transition.depCount;
-        transitions.push(transition);
-      } else {
-        context.errors.push(invalidDefinition());
-      }
-    });
-    return {
-      type: AnimationMetadataType.Trigger,
-      name: metadata.name,
-      states,
-      transitions,
-      queryCount,
-      depCount,
-      options: null
-    };
-  }
-  visitState(metadata, context) {
-    const styleAst = this.visitStyle(metadata.styles, context);
-    const astParams = metadata.options && metadata.options.params || null;
-    if (styleAst.containsDynamicStyles) {
-      const missingSubs = /* @__PURE__ */ new Set();
-      const params = astParams || {};
-      styleAst.styles.forEach((style2) => {
-        if (style2 instanceof Map) {
-          style2.forEach((value) => {
-            extractStyleParams(value).forEach((sub) => {
-              if (!params.hasOwnProperty(sub)) {
-                missingSubs.add(sub);
-              }
-            });
-          });
-        }
-      });
-      if (missingSubs.size) {
-        context.errors.push(invalidState(metadata.name, [...missingSubs.values()]));
-      }
-    }
-    return {
-      type: AnimationMetadataType.State,
-      name: metadata.name,
-      style: styleAst,
-      options: astParams ? {
-        params: astParams
-      } : null
-    };
-  }
-  visitTransition(metadata, context) {
-    context.queryCount = 0;
-    context.depCount = 0;
-    const animation = visitDslNode(this, normalizeAnimationEntry(metadata.animation), context);
-    const matchers = parseTransitionExpr(metadata.expr, context.errors);
-    return {
-      type: AnimationMetadataType.Transition,
-      matchers,
-      animation,
-      queryCount: context.queryCount,
-      depCount: context.depCount,
-      options: normalizeAnimationOptions(metadata.options)
-    };
-  }
-  visitSequence(metadata, context) {
-    return {
-      type: AnimationMetadataType.Sequence,
-      steps: metadata.steps.map((s) => visitDslNode(this, s, context)),
-      options: normalizeAnimationOptions(metadata.options)
-    };
-  }
-  visitGroup(metadata, context) {
-    const currentTime = context.currentTime;
-    let furthestTime = 0;
-    const steps = metadata.steps.map((step) => {
-      context.currentTime = currentTime;
-      const innerAst = visitDslNode(this, step, context);
-      furthestTime = Math.max(furthestTime, context.currentTime);
-      return innerAst;
-    });
-    context.currentTime = furthestTime;
-    return {
-      type: AnimationMetadataType.Group,
-      steps,
-      options: normalizeAnimationOptions(metadata.options)
-    };
-  }
-  visitAnimate(metadata, context) {
-    const timingAst = constructTimingAst(metadata.timings, context.errors);
-    context.currentAnimateTimings = timingAst;
-    let styleAst;
-    let styleMetadata = metadata.styles ? metadata.styles : style({});
-    if (styleMetadata.type == AnimationMetadataType.Keyframes) {
-      styleAst = this.visitKeyframes(styleMetadata, context);
-    } else {
-      let styleMetadata2 = metadata.styles;
-      let isEmpty = false;
-      if (!styleMetadata2) {
-        isEmpty = true;
-        const newStyleData = {};
-        if (timingAst.easing) {
-          newStyleData["easing"] = timingAst.easing;
-        }
-        styleMetadata2 = style(newStyleData);
-      }
-      context.currentTime += timingAst.duration + timingAst.delay;
-      const _styleAst = this.visitStyle(styleMetadata2, context);
-      _styleAst.isEmptyStep = isEmpty;
-      styleAst = _styleAst;
-    }
-    context.currentAnimateTimings = null;
-    return {
-      type: AnimationMetadataType.Animate,
-      timings: timingAst,
-      style: styleAst,
-      options: null
-    };
-  }
-  visitStyle(metadata, context) {
-    const ast = this._makeStyleAst(metadata, context);
-    this._validateStyleAst(ast, context);
-    return ast;
-  }
-  _makeStyleAst(metadata, context) {
-    const styles = [];
-    const metadataStyles = Array.isArray(metadata.styles) ? metadata.styles : [metadata.styles];
-    for (let styleTuple of metadataStyles) {
-      if (typeof styleTuple === "string") {
-        if (styleTuple === AUTO_STYLE) {
-          styles.push(styleTuple);
-        } else {
-          context.errors.push(invalidStyleValue(styleTuple));
-        }
-      } else {
-        styles.push(new Map(Object.entries(styleTuple)));
-      }
-    }
-    let containsDynamicStyles = false;
-    let collectedEasing = null;
-    styles.forEach((styleData) => {
-      if (styleData instanceof Map) {
-        if (styleData.has("easing")) {
-          collectedEasing = styleData.get("easing");
-          styleData.delete("easing");
-        }
-        if (!containsDynamicStyles) {
-          for (let value of styleData.values()) {
-            if (value.toString().indexOf(SUBSTITUTION_EXPR_START) >= 0) {
-              containsDynamicStyles = true;
-              break;
-            }
-          }
-        }
-      }
-    });
-    return {
-      type: AnimationMetadataType.Style,
-      styles,
-      easing: collectedEasing,
-      offset: metadata.offset,
-      containsDynamicStyles,
-      options: null
-    };
-  }
-  _validateStyleAst(ast, context) {
-    const timings = context.currentAnimateTimings;
-    let endTime = context.currentTime;
-    let startTime = context.currentTime;
-    if (timings && startTime > 0) {
-      startTime -= timings.duration + timings.delay;
-    }
-    ast.styles.forEach((tuple) => {
-      if (typeof tuple === "string") return;
-      tuple.forEach((value, prop) => {
-        if (typeof ngDevMode === "undefined" || ngDevMode) {
-          if (!this._driver.validateStyleProperty(prop)) {
-            tuple.delete(prop);
-            context.unsupportedCSSPropertiesFound.add(prop);
-            return;
-          }
-        }
-        const collectedStyles = context.collectedStyles.get(context.currentQuerySelector);
-        const collectedEntry = collectedStyles.get(prop);
-        let updateCollectedStyle = true;
-        if (collectedEntry) {
-          if (startTime != endTime && startTime >= collectedEntry.startTime && endTime <= collectedEntry.endTime) {
-            context.errors.push(invalidParallelAnimation(prop, collectedEntry.startTime, collectedEntry.endTime, startTime, endTime));
-            updateCollectedStyle = false;
-          }
-          startTime = collectedEntry.startTime;
-        }
-        if (updateCollectedStyle) {
-          collectedStyles.set(prop, {
-            startTime,
-            endTime
-          });
-        }
-        if (context.options) {
-          validateStyleParams(value, context.options, context.errors);
-        }
-      });
-    });
-  }
-  visitKeyframes(metadata, context) {
-    const ast = {
-      type: AnimationMetadataType.Keyframes,
-      styles: [],
-      options: null
-    };
-    if (!context.currentAnimateTimings) {
-      context.errors.push(invalidKeyframes());
-      return ast;
-    }
-    const MAX_KEYFRAME_OFFSET = 1;
-    let totalKeyframesWithOffsets = 0;
-    const offsets = [];
-    let offsetsOutOfOrder = false;
-    let keyframesOutOfRange = false;
-    let previousOffset = 0;
-    const keyframes = metadata.steps.map((styles) => {
-      const style2 = this._makeStyleAst(styles, context);
-      let offsetVal = style2.offset != null ? style2.offset : consumeOffset(style2.styles);
-      let offset = 0;
-      if (offsetVal != null) {
-        totalKeyframesWithOffsets++;
-        offset = style2.offset = offsetVal;
-      }
-      keyframesOutOfRange = keyframesOutOfRange || offset < 0 || offset > 1;
-      offsetsOutOfOrder = offsetsOutOfOrder || offset < previousOffset;
-      previousOffset = offset;
-      offsets.push(offset);
-      return style2;
-    });
-    if (keyframesOutOfRange) {
-      context.errors.push(invalidOffset());
-    }
-    if (offsetsOutOfOrder) {
-      context.errors.push(keyframeOffsetsOutOfOrder());
-    }
-    const length = metadata.steps.length;
-    let generatedOffset = 0;
-    if (totalKeyframesWithOffsets > 0 && totalKeyframesWithOffsets < length) {
-      context.errors.push(keyframesMissingOffsets());
-    } else if (totalKeyframesWithOffsets == 0) {
-      generatedOffset = MAX_KEYFRAME_OFFSET / (length - 1);
-    }
-    const limit = length - 1;
-    const currentTime = context.currentTime;
-    const currentAnimateTimings = context.currentAnimateTimings;
-    const animateDuration = currentAnimateTimings.duration;
-    keyframes.forEach((kf, i) => {
-      const offset = generatedOffset > 0 ? i == limit ? 1 : generatedOffset * i : offsets[i];
-      const durationUpToThisFrame = offset * animateDuration;
-      context.currentTime = currentTime + currentAnimateTimings.delay + durationUpToThisFrame;
-      currentAnimateTimings.duration = durationUpToThisFrame;
-      this._validateStyleAst(kf, context);
-      kf.offset = offset;
-      ast.styles.push(kf);
-    });
-    return ast;
-  }
-  visitReference(metadata, context) {
-    return {
-      type: AnimationMetadataType.Reference,
-      animation: visitDslNode(this, normalizeAnimationEntry(metadata.animation), context),
-      options: normalizeAnimationOptions(metadata.options)
-    };
-  }
-  visitAnimateChild(metadata, context) {
-    context.depCount++;
-    return {
-      type: AnimationMetadataType.AnimateChild,
-      options: normalizeAnimationOptions(metadata.options)
-    };
-  }
-  visitAnimateRef(metadata, context) {
-    return {
-      type: AnimationMetadataType.AnimateRef,
-      animation: this.visitReference(metadata.animation, context),
-      options: normalizeAnimationOptions(metadata.options)
-    };
-  }
-  visitQuery(metadata, context) {
-    const parentSelector = context.currentQuerySelector;
-    const options = metadata.options || {};
-    context.queryCount++;
-    context.currentQuery = metadata;
-    const [selector, includeSelf] = normalizeSelector(metadata.selector);
-    context.currentQuerySelector = parentSelector.length ? parentSelector + " " + selector : selector;
-    getOrSetDefaultValue(context.collectedStyles, context.currentQuerySelector, /* @__PURE__ */ new Map());
-    const animation = visitDslNode(this, normalizeAnimationEntry(metadata.animation), context);
-    context.currentQuery = null;
-    context.currentQuerySelector = parentSelector;
-    return {
-      type: AnimationMetadataType.Query,
-      selector,
-      limit: options.limit || 0,
-      optional: !!options.optional,
-      includeSelf,
-      animation,
-      originalSelector: metadata.selector,
-      options: normalizeAnimationOptions(metadata.options)
-    };
-  }
-  visitStagger(metadata, context) {
-    if (!context.currentQuery) {
-      context.errors.push(invalidStagger());
-    }
-    const timings = metadata.timings === "full" ? {
-      duration: 0,
-      delay: 0,
-      easing: "full"
-    } : resolveTiming(metadata.timings, context.errors, true);
-    return {
-      type: AnimationMetadataType.Stagger,
-      animation: visitDslNode(this, normalizeAnimationEntry(metadata.animation), context),
-      timings,
-      options: null
-    };
-  }
-};
-function normalizeSelector(selector) {
-  const hasAmpersand = selector.split(/\s*,\s*/).find((token) => token == SELF_TOKEN) ? true : false;
-  if (hasAmpersand) {
-    selector = selector.replace(SELF_TOKEN_REGEX, "");
-  }
-  selector = selector.replace(/@\*/g, NG_TRIGGER_SELECTOR).replace(/@\w+/g, (match) => NG_TRIGGER_SELECTOR + "-" + match.slice(1)).replace(/:animating/g, NG_ANIMATING_SELECTOR);
-  return [selector, hasAmpersand];
-}
-function normalizeParams(obj) {
-  return obj ? __spreadValues({}, obj) : null;
-}
-var AnimationAstBuilderContext = class {
-  errors;
-  queryCount = 0;
-  depCount = 0;
-  currentTransition = null;
-  currentQuery = null;
-  currentQuerySelector = null;
-  currentAnimateTimings = null;
-  currentTime = 0;
-  collectedStyles = /* @__PURE__ */ new Map();
-  options = null;
-  unsupportedCSSPropertiesFound = /* @__PURE__ */ new Set();
-  constructor(errors) {
-    this.errors = errors;
-  }
-};
-function consumeOffset(styles) {
-  if (typeof styles == "string") return null;
-  let offset = null;
-  if (Array.isArray(styles)) {
-    styles.forEach((styleTuple) => {
-      if (styleTuple instanceof Map && styleTuple.has("offset")) {
-        const obj = styleTuple;
-        offset = parseFloat(obj.get("offset"));
-        obj.delete("offset");
-      }
-    });
-  } else if (styles instanceof Map && styles.has("offset")) {
-    const obj = styles;
-    offset = parseFloat(obj.get("offset"));
-    obj.delete("offset");
-  }
-  return offset;
-}
-function constructTimingAst(value, errors) {
-  if (value.hasOwnProperty("duration")) {
-    return value;
-  }
-  if (typeof value == "number") {
-    const duration = resolveTiming(value, errors).duration;
-    return makeTimingAst(duration, 0, "");
-  }
-  const strValue = value;
-  const isDynamic = strValue.split(/\s+/).some((v) => v.charAt(0) == "{" && v.charAt(1) == "{");
-  if (isDynamic) {
-    const ast = makeTimingAst(0, 0, "");
-    ast.dynamic = true;
-    ast.strValue = strValue;
-    return ast;
-  }
-  const timings = resolveTiming(strValue, errors);
-  return makeTimingAst(timings.duration, timings.delay, timings.easing);
-}
-function normalizeAnimationOptions(options) {
-  if (options) {
-    options = __spreadValues({}, options);
-    if (options["params"]) {
-      options["params"] = normalizeParams(options["params"]);
-    }
-  } else {
-    options = {};
-  }
-  return options;
-}
-function makeTimingAst(duration, delay, easing) {
-  return {
-    duration,
-    delay,
-    easing
-  };
-}
-function createTimelineInstruction(element, keyframes, preStyleProps, postStyleProps, duration, delay, easing = null, subTimeline = false) {
-  return {
-    type: 1,
-    element,
-    keyframes,
-    preStyleProps,
-    postStyleProps,
-    duration,
-    delay,
-    totalTime: duration + delay,
-    easing,
-    subTimeline
-  };
-}
-var ElementInstructionMap = class {
-  _map = /* @__PURE__ */ new Map();
-  get(element) {
-    return this._map.get(element) || [];
-  }
-  append(element, instructions) {
-    let existingInstructions = this._map.get(element);
-    if (!existingInstructions) {
-      this._map.set(element, existingInstructions = []);
-    }
-    existingInstructions.push(...instructions);
-  }
-  has(element) {
-    return this._map.has(element);
-  }
-  clear() {
-    this._map.clear();
-  }
-};
-var ONE_FRAME_IN_MILLISECONDS = 1;
-var ENTER_TOKEN = ":enter";
-var ENTER_TOKEN_REGEX = /* @__PURE__ */ new RegExp(ENTER_TOKEN, "g");
-var LEAVE_TOKEN = ":leave";
-var LEAVE_TOKEN_REGEX = /* @__PURE__ */ new RegExp(LEAVE_TOKEN, "g");
-function buildAnimationTimelines(driver, rootElement, ast, enterClassName, leaveClassName, startingStyles = /* @__PURE__ */ new Map(), finalStyles = /* @__PURE__ */ new Map(), options, subInstructions, errors = []) {
-  return new AnimationTimelineBuilderVisitor().buildKeyframes(driver, rootElement, ast, enterClassName, leaveClassName, startingStyles, finalStyles, options, subInstructions, errors);
-}
-var AnimationTimelineBuilderVisitor = class {
-  buildKeyframes(driver, rootElement, ast, enterClassName, leaveClassName, startingStyles, finalStyles, options, subInstructions, errors = []) {
-    subInstructions = subInstructions || new ElementInstructionMap();
-    const context = new AnimationTimelineContext(driver, rootElement, subInstructions, enterClassName, leaveClassName, errors, []);
-    context.options = options;
-    const delay = options.delay ? resolveTimingValue(options.delay) : 0;
-    context.currentTimeline.delayNextStep(delay);
-    context.currentTimeline.setStyles([startingStyles], null, context.errors, options);
-    visitDslNode(this, ast, context);
-    const timelines = context.timelines.filter((timeline) => timeline.containsAnimation());
-    if (timelines.length && finalStyles.size) {
-      let lastRootTimeline;
-      for (let i = timelines.length - 1; i >= 0; i--) {
-        const timeline = timelines[i];
-        if (timeline.element === rootElement) {
-          lastRootTimeline = timeline;
-          break;
-        }
-      }
-      if (lastRootTimeline && !lastRootTimeline.allowOnlyTimelineStyles()) {
-        lastRootTimeline.setStyles([finalStyles], null, context.errors, options);
-      }
-    }
-    return timelines.length ? timelines.map((timeline) => timeline.buildKeyframes()) : [createTimelineInstruction(rootElement, [], [], [], 0, delay, "", false)];
-  }
-  visitTrigger(ast, context) {
-  }
-  visitState(ast, context) {
-  }
-  visitTransition(ast, context) {
-  }
-  visitAnimateChild(ast, context) {
-    const elementInstructions = context.subInstructions.get(context.element);
-    if (elementInstructions) {
-      const innerContext = context.createSubContext(ast.options);
-      const startTime = context.currentTimeline.currentTime;
-      const endTime = this._visitSubInstructions(elementInstructions, innerContext, innerContext.options);
-      if (startTime != endTime) {
-        context.transformIntoNewTimeline(endTime);
-      }
-    }
-    context.previousNode = ast;
-  }
-  visitAnimateRef(ast, context) {
-    const innerContext = context.createSubContext(ast.options);
-    innerContext.transformIntoNewTimeline();
-    this._applyAnimationRefDelays([ast.options, ast.animation.options], context, innerContext);
-    this.visitReference(ast.animation, innerContext);
-    context.transformIntoNewTimeline(innerContext.currentTimeline.currentTime);
-    context.previousNode = ast;
-  }
-  _applyAnimationRefDelays(animationsRefsOptions, context, innerContext) {
-    for (const animationRefOptions of animationsRefsOptions) {
-      const animationDelay = animationRefOptions?.delay;
-      if (animationDelay) {
-        const animationDelayValue = typeof animationDelay === "number" ? animationDelay : resolveTimingValue(interpolateParams(animationDelay, animationRefOptions?.params ?? {}, context.errors));
-        innerContext.delayNextStep(animationDelayValue);
-      }
-    }
-  }
-  _visitSubInstructions(instructions, context, options) {
-    const startTime = context.currentTimeline.currentTime;
-    let furthestTime = startTime;
-    const duration = options.duration != null ? resolveTimingValue(options.duration) : null;
-    const delay = options.delay != null ? resolveTimingValue(options.delay) : null;
-    if (duration !== 0) {
-      instructions.forEach((instruction) => {
-        const instructionTimings = context.appendInstructionToTimeline(instruction, duration, delay);
-        furthestTime = Math.max(furthestTime, instructionTimings.duration + instructionTimings.delay);
-      });
-    }
-    return furthestTime;
-  }
-  visitReference(ast, context) {
-    context.updateOptions(ast.options, true);
-    visitDslNode(this, ast.animation, context);
-    context.previousNode = ast;
-  }
-  visitSequence(ast, context) {
-    const subContextCount = context.subContextCount;
-    let ctx = context;
-    const options = ast.options;
-    if (options && (options.params || options.delay)) {
-      ctx = context.createSubContext(options);
-      ctx.transformIntoNewTimeline();
-      if (options.delay != null) {
-        if (ctx.previousNode.type == AnimationMetadataType.Style) {
-          ctx.currentTimeline.snapshotCurrentStyles();
-          ctx.previousNode = DEFAULT_NOOP_PREVIOUS_NODE;
-        }
-        const delay = resolveTimingValue(options.delay);
-        ctx.delayNextStep(delay);
-      }
-    }
-    if (ast.steps.length) {
-      ast.steps.forEach((s) => visitDslNode(this, s, ctx));
-      ctx.currentTimeline.applyStylesToKeyframe();
-      if (ctx.subContextCount > subContextCount) {
-        ctx.transformIntoNewTimeline();
-      }
-    }
-    context.previousNode = ast;
-  }
-  visitGroup(ast, context) {
-    const innerTimelines = [];
-    let furthestTime = context.currentTimeline.currentTime;
-    const delay = ast.options && ast.options.delay ? resolveTimingValue(ast.options.delay) : 0;
-    ast.steps.forEach((s) => {
-      const innerContext = context.createSubContext(ast.options);
-      if (delay) {
-        innerContext.delayNextStep(delay);
-      }
-      visitDslNode(this, s, innerContext);
-      furthestTime = Math.max(furthestTime, innerContext.currentTimeline.currentTime);
-      innerTimelines.push(innerContext.currentTimeline);
-    });
-    innerTimelines.forEach((timeline) => context.currentTimeline.mergeTimelineCollectedStyles(timeline));
-    context.transformIntoNewTimeline(furthestTime);
-    context.previousNode = ast;
-  }
-  _visitTiming(ast, context) {
-    if (ast.dynamic) {
-      const strValue = ast.strValue;
-      const timingValue = context.params ? interpolateParams(strValue, context.params, context.errors) : strValue;
-      return resolveTiming(timingValue, context.errors);
-    } else {
-      return {
-        duration: ast.duration,
-        delay: ast.delay,
-        easing: ast.easing
-      };
-    }
-  }
-  visitAnimate(ast, context) {
-    const timings = context.currentAnimateTimings = this._visitTiming(ast.timings, context);
-    const timeline = context.currentTimeline;
-    if (timings.delay) {
-      context.incrementTime(timings.delay);
-      timeline.snapshotCurrentStyles();
-    }
-    const style2 = ast.style;
-    if (style2.type == AnimationMetadataType.Keyframes) {
-      this.visitKeyframes(style2, context);
-    } else {
-      context.incrementTime(timings.duration);
-      this.visitStyle(style2, context);
-      timeline.applyStylesToKeyframe();
-    }
-    context.currentAnimateTimings = null;
-    context.previousNode = ast;
-  }
-  visitStyle(ast, context) {
-    const timeline = context.currentTimeline;
-    const timings = context.currentAnimateTimings;
-    if (!timings && timeline.hasCurrentStyleProperties()) {
-      timeline.forwardFrame();
-    }
-    const easing = timings && timings.easing || ast.easing;
-    if (ast.isEmptyStep) {
-      timeline.applyEmptyStep(easing);
-    } else {
-      timeline.setStyles(ast.styles, easing, context.errors, context.options);
-    }
-    context.previousNode = ast;
-  }
-  visitKeyframes(ast, context) {
-    const currentAnimateTimings = context.currentAnimateTimings;
-    const startTime = context.currentTimeline.duration;
-    const duration = currentAnimateTimings.duration;
-    const innerContext = context.createSubContext();
-    const innerTimeline = innerContext.currentTimeline;
-    innerTimeline.easing = currentAnimateTimings.easing;
-    ast.styles.forEach((step) => {
-      const offset = step.offset || 0;
-      innerTimeline.forwardTime(offset * duration);
-      innerTimeline.setStyles(step.styles, step.easing, context.errors, context.options);
-      innerTimeline.applyStylesToKeyframe();
-    });
-    context.currentTimeline.mergeTimelineCollectedStyles(innerTimeline);
-    context.transformIntoNewTimeline(startTime + duration);
-    context.previousNode = ast;
-  }
-  visitQuery(ast, context) {
-    const startTime = context.currentTimeline.currentTime;
-    const options = ast.options || {};
-    const delay = options.delay ? resolveTimingValue(options.delay) : 0;
-    if (delay && (context.previousNode.type === AnimationMetadataType.Style || startTime == 0 && context.currentTimeline.hasCurrentStyleProperties())) {
-      context.currentTimeline.snapshotCurrentStyles();
-      context.previousNode = DEFAULT_NOOP_PREVIOUS_NODE;
-    }
-    let furthestTime = startTime;
-    const elms = context.invokeQuery(ast.selector, ast.originalSelector, ast.limit, ast.includeSelf, options.optional ? true : false, context.errors);
-    context.currentQueryTotal = elms.length;
-    let sameElementTimeline = null;
-    elms.forEach((element, i) => {
-      context.currentQueryIndex = i;
-      const innerContext = context.createSubContext(ast.options, element);
-      if (delay) {
-        innerContext.delayNextStep(delay);
-      }
-      if (element === context.element) {
-        sameElementTimeline = innerContext.currentTimeline;
-      }
-      visitDslNode(this, ast.animation, innerContext);
-      innerContext.currentTimeline.applyStylesToKeyframe();
-      const endTime = innerContext.currentTimeline.currentTime;
-      furthestTime = Math.max(furthestTime, endTime);
-    });
-    context.currentQueryIndex = 0;
-    context.currentQueryTotal = 0;
-    context.transformIntoNewTimeline(furthestTime);
-    if (sameElementTimeline) {
-      context.currentTimeline.mergeTimelineCollectedStyles(sameElementTimeline);
-      context.currentTimeline.snapshotCurrentStyles();
-    }
-    context.previousNode = ast;
-  }
-  visitStagger(ast, context) {
-    const parentContext = context.parentContext;
-    const tl = context.currentTimeline;
-    const timings = ast.timings;
-    const duration = Math.abs(timings.duration);
-    const maxTime = duration * (context.currentQueryTotal - 1);
-    let delay = duration * context.currentQueryIndex;
-    let staggerTransformer = timings.duration < 0 ? "reverse" : timings.easing;
-    switch (staggerTransformer) {
-      case "reverse":
-        delay = maxTime - delay;
-        break;
-      case "full":
-        delay = parentContext.currentStaggerTime;
-        break;
-    }
-    const timeline = context.currentTimeline;
-    if (delay) {
-      timeline.delayNextStep(delay);
-    }
-    const startingTime = timeline.currentTime;
-    visitDslNode(this, ast.animation, context);
-    context.previousNode = ast;
-    parentContext.currentStaggerTime = tl.currentTime - startingTime + (tl.startTime - parentContext.currentTimeline.startTime);
-  }
-};
-var DEFAULT_NOOP_PREVIOUS_NODE = {};
-var AnimationTimelineContext = class _AnimationTimelineContext {
-  _driver;
-  element;
-  subInstructions;
-  _enterClassName;
-  _leaveClassName;
-  errors;
-  timelines;
-  parentContext = null;
-  currentTimeline;
-  currentAnimateTimings = null;
-  previousNode = DEFAULT_NOOP_PREVIOUS_NODE;
-  subContextCount = 0;
-  options = {};
-  currentQueryIndex = 0;
-  currentQueryTotal = 0;
-  currentStaggerTime = 0;
-  constructor(_driver, element, subInstructions, _enterClassName, _leaveClassName, errors, timelines, initialTimeline) {
-    this._driver = _driver;
-    this.element = element;
-    this.subInstructions = subInstructions;
-    this._enterClassName = _enterClassName;
-    this._leaveClassName = _leaveClassName;
-    this.errors = errors;
-    this.timelines = timelines;
-    this.currentTimeline = initialTimeline || new TimelineBuilder(this._driver, element, 0);
-    timelines.push(this.currentTimeline);
-  }
-  get params() {
-    return this.options.params;
-  }
-  updateOptions(options, skipIfExists) {
-    if (!options) return;
-    const newOptions = options;
-    let optionsToUpdate = this.options;
-    if (newOptions.duration != null) {
-      optionsToUpdate.duration = resolveTimingValue(newOptions.duration);
-    }
-    if (newOptions.delay != null) {
-      optionsToUpdate.delay = resolveTimingValue(newOptions.delay);
-    }
-    const newParams = newOptions.params;
-    if (newParams) {
-      let paramsToUpdate = optionsToUpdate.params;
-      if (!paramsToUpdate) {
-        paramsToUpdate = this.options.params = {};
-      }
-      Object.keys(newParams).forEach((name) => {
-        if (!skipIfExists || !paramsToUpdate.hasOwnProperty(name)) {
-          paramsToUpdate[name] = interpolateParams(newParams[name], paramsToUpdate, this.errors);
-        }
-      });
-    }
-  }
-  _copyOptions() {
-    const options = {};
-    if (this.options) {
-      const oldParams = this.options.params;
-      if (oldParams) {
-        const params = options["params"] = {};
-        Object.keys(oldParams).forEach((name) => {
-          params[name] = oldParams[name];
-        });
-      }
-    }
-    return options;
-  }
-  createSubContext(options = null, element, newTime) {
-    const target = element || this.element;
-    const context = new _AnimationTimelineContext(this._driver, target, this.subInstructions, this._enterClassName, this._leaveClassName, this.errors, this.timelines, this.currentTimeline.fork(target, newTime || 0));
-    context.previousNode = this.previousNode;
-    context.currentAnimateTimings = this.currentAnimateTimings;
-    context.options = this._copyOptions();
-    context.updateOptions(options);
-    context.currentQueryIndex = this.currentQueryIndex;
-    context.currentQueryTotal = this.currentQueryTotal;
-    context.parentContext = this;
-    this.subContextCount++;
-    return context;
-  }
-  transformIntoNewTimeline(newTime) {
-    this.previousNode = DEFAULT_NOOP_PREVIOUS_NODE;
-    this.currentTimeline = this.currentTimeline.fork(this.element, newTime);
-    this.timelines.push(this.currentTimeline);
-    return this.currentTimeline;
-  }
-  appendInstructionToTimeline(instruction, duration, delay) {
-    const updatedTimings = {
-      duration: duration != null ? duration : instruction.duration,
-      delay: this.currentTimeline.currentTime + (delay != null ? delay : 0) + instruction.delay,
-      easing: ""
-    };
-    const builder = new SubTimelineBuilder(this._driver, instruction.element, instruction.keyframes, instruction.preStyleProps, instruction.postStyleProps, updatedTimings, instruction.stretchStartingKeyframe);
-    this.timelines.push(builder);
-    return updatedTimings;
-  }
-  incrementTime(time) {
-    this.currentTimeline.forwardTime(this.currentTimeline.duration + time);
-  }
-  delayNextStep(delay) {
-    if (delay > 0) {
-      this.currentTimeline.delayNextStep(delay);
-    }
-  }
-  invokeQuery(selector, originalSelector, limit, includeSelf, optional, errors) {
-    let results = [];
-    if (includeSelf) {
-      results.push(this.element);
-    }
-    if (selector.length > 0) {
-      selector = selector.replace(ENTER_TOKEN_REGEX, "." + this._enterClassName);
-      selector = selector.replace(LEAVE_TOKEN_REGEX, "." + this._leaveClassName);
-      const multi = limit != 1;
-      let elements = this._driver.query(this.element, selector, multi);
-      if (limit !== 0) {
-        elements = limit < 0 ? elements.slice(elements.length + limit, elements.length) : elements.slice(0, limit);
-      }
-      results.push(...elements);
-    }
-    if (!optional && results.length == 0) {
-      errors.push(invalidQuery(originalSelector));
-    }
-    return results;
-  }
-};
-var TimelineBuilder = class _TimelineBuilder {
-  _driver;
-  element;
-  startTime;
-  _elementTimelineStylesLookup;
-  duration = 0;
-  easing = null;
-  _previousKeyframe = /* @__PURE__ */ new Map();
-  _currentKeyframe = /* @__PURE__ */ new Map();
-  _keyframes = /* @__PURE__ */ new Map();
-  _styleSummary = /* @__PURE__ */ new Map();
-  _localTimelineStyles = /* @__PURE__ */ new Map();
-  _globalTimelineStyles;
-  _pendingStyles = /* @__PURE__ */ new Map();
-  _backFill = /* @__PURE__ */ new Map();
-  _currentEmptyStepKeyframe = null;
-  constructor(_driver, element, startTime, _elementTimelineStylesLookup) {
-    this._driver = _driver;
-    this.element = element;
-    this.startTime = startTime;
-    this._elementTimelineStylesLookup = _elementTimelineStylesLookup;
-    if (!this._elementTimelineStylesLookup) {
-      this._elementTimelineStylesLookup = /* @__PURE__ */ new Map();
-    }
-    this._globalTimelineStyles = this._elementTimelineStylesLookup.get(element);
-    if (!this._globalTimelineStyles) {
-      this._globalTimelineStyles = this._localTimelineStyles;
-      this._elementTimelineStylesLookup.set(element, this._localTimelineStyles);
-    }
-    this._loadKeyframe();
-  }
-  containsAnimation() {
-    switch (this._keyframes.size) {
-      case 0:
-        return false;
-      case 1:
-        return this.hasCurrentStyleProperties();
-      default:
-        return true;
-    }
-  }
-  hasCurrentStyleProperties() {
-    return this._currentKeyframe.size > 0;
-  }
-  get currentTime() {
-    return this.startTime + this.duration;
-  }
-  delayNextStep(delay) {
-    const hasPreStyleStep = this._keyframes.size === 1 && this._pendingStyles.size;
-    if (this.duration || hasPreStyleStep) {
-      this.forwardTime(this.currentTime + delay);
-      if (hasPreStyleStep) {
-        this.snapshotCurrentStyles();
-      }
-    } else {
-      this.startTime += delay;
-    }
-  }
-  fork(element, currentTime) {
-    this.applyStylesToKeyframe();
-    return new _TimelineBuilder(this._driver, element, currentTime || this.currentTime, this._elementTimelineStylesLookup);
-  }
-  _loadKeyframe() {
-    if (this._currentKeyframe) {
-      this._previousKeyframe = this._currentKeyframe;
-    }
-    this._currentKeyframe = this._keyframes.get(this.duration);
-    if (!this._currentKeyframe) {
-      this._currentKeyframe = /* @__PURE__ */ new Map();
-      this._keyframes.set(this.duration, this._currentKeyframe);
-    }
-  }
-  forwardFrame() {
-    this.duration += ONE_FRAME_IN_MILLISECONDS;
-    this._loadKeyframe();
-  }
-  forwardTime(time) {
-    this.applyStylesToKeyframe();
-    this.duration = time;
-    this._loadKeyframe();
-  }
-  _updateStyle(prop, value) {
-    this._localTimelineStyles.set(prop, value);
-    this._globalTimelineStyles.set(prop, value);
-    this._styleSummary.set(prop, {
-      time: this.currentTime,
-      value
-    });
-  }
-  allowOnlyTimelineStyles() {
-    return this._currentEmptyStepKeyframe !== this._currentKeyframe;
-  }
-  applyEmptyStep(easing) {
-    if (easing) {
-      this._previousKeyframe.set("easing", easing);
-    }
-    for (let [prop, value] of this._globalTimelineStyles) {
-      this._backFill.set(prop, value || AUTO_STYLE);
-      this._currentKeyframe.set(prop, AUTO_STYLE);
-    }
-    this._currentEmptyStepKeyframe = this._currentKeyframe;
-  }
-  setStyles(input, easing, errors, options) {
-    if (easing) {
-      this._previousKeyframe.set("easing", easing);
-    }
-    const params = options && options.params || {};
-    const styles = flattenStyles(input, this._globalTimelineStyles);
-    for (let [prop, value] of styles) {
-      const val = interpolateParams(value, params, errors);
-      this._pendingStyles.set(prop, val);
-      if (!this._localTimelineStyles.has(prop)) {
-        this._backFill.set(prop, this._globalTimelineStyles.get(prop) ?? AUTO_STYLE);
-      }
-      this._updateStyle(prop, val);
-    }
-  }
-  applyStylesToKeyframe() {
-    if (this._pendingStyles.size == 0) return;
-    this._pendingStyles.forEach((val, prop) => {
-      this._currentKeyframe.set(prop, val);
-    });
-    this._pendingStyles.clear();
-    this._localTimelineStyles.forEach((val, prop) => {
-      if (!this._currentKeyframe.has(prop)) {
-        this._currentKeyframe.set(prop, val);
-      }
-    });
-  }
-  snapshotCurrentStyles() {
-    for (let [prop, val] of this._localTimelineStyles) {
-      this._pendingStyles.set(prop, val);
-      this._updateStyle(prop, val);
-    }
-  }
-  getFinalKeyframe() {
-    return this._keyframes.get(this.duration);
-  }
-  get properties() {
-    const properties = [];
-    for (let prop in this._currentKeyframe) {
-      properties.push(prop);
-    }
-    return properties;
-  }
-  mergeTimelineCollectedStyles(timeline) {
-    timeline._styleSummary.forEach((details1, prop) => {
-      const details0 = this._styleSummary.get(prop);
-      if (!details0 || details1.time > details0.time) {
-        this._updateStyle(prop, details1.value);
-      }
-    });
-  }
-  buildKeyframes() {
-    this.applyStylesToKeyframe();
-    const preStyleProps = /* @__PURE__ */ new Set();
-    const postStyleProps = /* @__PURE__ */ new Set();
-    const isEmpty = this._keyframes.size === 1 && this.duration === 0;
-    let finalKeyframes = [];
-    this._keyframes.forEach((keyframe, time) => {
-      const finalKeyframe = new Map([...this._backFill, ...keyframe]);
-      finalKeyframe.forEach((value, prop) => {
-        if (value === \u0275PRE_STYLE) {
-          preStyleProps.add(prop);
-        } else if (value === AUTO_STYLE) {
-          postStyleProps.add(prop);
-        }
-      });
-      if (!isEmpty) {
-        finalKeyframe.set("offset", time / this.duration);
-      }
-      finalKeyframes.push(finalKeyframe);
-    });
-    const preProps = [...preStyleProps.values()];
-    const postProps = [...postStyleProps.values()];
-    if (isEmpty) {
-      const kf0 = finalKeyframes[0];
-      const kf1 = new Map(kf0);
-      kf0.set("offset", 0);
-      kf1.set("offset", 1);
-      finalKeyframes = [kf0, kf1];
-    }
-    return createTimelineInstruction(this.element, finalKeyframes, preProps, postProps, this.duration, this.startTime, this.easing, false);
-  }
-};
-var SubTimelineBuilder = class extends TimelineBuilder {
-  keyframes;
-  preStyleProps;
-  postStyleProps;
-  _stretchStartingKeyframe;
-  timings;
-  constructor(driver, element, keyframes, preStyleProps, postStyleProps, timings, _stretchStartingKeyframe = false) {
-    super(driver, element, timings.delay);
-    this.keyframes = keyframes;
-    this.preStyleProps = preStyleProps;
-    this.postStyleProps = postStyleProps;
-    this._stretchStartingKeyframe = _stretchStartingKeyframe;
-    this.timings = {
-      duration: timings.duration,
-      delay: timings.delay,
-      easing: timings.easing
-    };
-  }
-  containsAnimation() {
-    return this.keyframes.length > 1;
-  }
-  buildKeyframes() {
-    let keyframes = this.keyframes;
-    let {
-      delay,
-      duration,
-      easing
-    } = this.timings;
-    if (this._stretchStartingKeyframe && delay) {
-      const newKeyframes = [];
-      const totalTime = duration + delay;
-      const startingGap = delay / totalTime;
-      const newFirstKeyframe = new Map(keyframes[0]);
-      newFirstKeyframe.set("offset", 0);
-      newKeyframes.push(newFirstKeyframe);
-      const oldFirstKeyframe = new Map(keyframes[0]);
-      oldFirstKeyframe.set("offset", roundOffset(startingGap));
-      newKeyframes.push(oldFirstKeyframe);
-      const limit = keyframes.length - 1;
-      for (let i = 1; i <= limit; i++) {
-        let kf = new Map(keyframes[i]);
-        const oldOffset = kf.get("offset");
-        const timeAtKeyframe = delay + oldOffset * duration;
-        kf.set("offset", roundOffset(timeAtKeyframe / totalTime));
-        newKeyframes.push(kf);
-      }
-      duration = totalTime;
-      delay = 0;
-      easing = "";
-      keyframes = newKeyframes;
-    }
-    return createTimelineInstruction(this.element, keyframes, this.preStyleProps, this.postStyleProps, duration, delay, easing, true);
-  }
-};
-function roundOffset(offset, decimalPoints = 3) {
-  const mult = Math.pow(10, decimalPoints - 1);
-  return Math.round(offset * mult) / mult;
-}
-function flattenStyles(input, allStyles) {
-  const styles = /* @__PURE__ */ new Map();
-  let allProperties;
-  input.forEach((token) => {
-    if (token === "*") {
-      allProperties ??= allStyles.keys();
-      for (let prop of allProperties) {
-        styles.set(prop, AUTO_STYLE);
-      }
-    } else {
-      for (let [prop, val] of token) {
-        styles.set(prop, val);
-      }
-    }
-  });
-  return styles;
-}
-function createTransitionInstruction(element, triggerName, fromState, toState, isRemovalTransition, fromStyles, toStyles, timelines, queriedElements, preStyleProps, postStyleProps, totalTime, errors) {
-  return {
-    type: 0,
-    element,
-    triggerName,
-    isRemovalTransition,
-    fromState,
-    fromStyles,
-    toState,
-    toStyles,
-    timelines,
-    queriedElements,
-    preStyleProps,
-    postStyleProps,
-    totalTime,
-    errors
-  };
-}
-var EMPTY_OBJECT = {};
-var AnimationTransitionFactory = class {
-  _triggerName;
-  ast;
-  _stateStyles;
-  constructor(_triggerName, ast, _stateStyles) {
-    this._triggerName = _triggerName;
-    this.ast = ast;
-    this._stateStyles = _stateStyles;
-  }
-  match(currentState, nextState, element, params) {
-    return oneOrMoreTransitionsMatch(this.ast.matchers, currentState, nextState, element, params);
-  }
-  buildStyles(stateName, params, errors) {
-    let styler = this._stateStyles.get("*");
-    if (stateName !== void 0) {
-      styler = this._stateStyles.get(stateName?.toString()) || styler;
-    }
-    return styler ? styler.buildStyles(params, errors) : /* @__PURE__ */ new Map();
-  }
-  build(driver, element, currentState, nextState, enterClassName, leaveClassName, currentOptions, nextOptions, subInstructions, skipAstBuild) {
-    const errors = [];
-    const transitionAnimationParams = this.ast.options && this.ast.options.params || EMPTY_OBJECT;
-    const currentAnimationParams = currentOptions && currentOptions.params || EMPTY_OBJECT;
-    const currentStateStyles = this.buildStyles(currentState, currentAnimationParams, errors);
-    const nextAnimationParams = nextOptions && nextOptions.params || EMPTY_OBJECT;
-    const nextStateStyles = this.buildStyles(nextState, nextAnimationParams, errors);
-    const queriedElements = /* @__PURE__ */ new Set();
-    const preStyleMap = /* @__PURE__ */ new Map();
-    const postStyleMap = /* @__PURE__ */ new Map();
-    const isRemoval = nextState === "void";
-    const animationOptions = {
-      params: applyParamDefaults(nextAnimationParams, transitionAnimationParams),
-      delay: this.ast.options?.delay
-    };
-    const timelines = skipAstBuild ? [] : buildAnimationTimelines(driver, element, this.ast.animation, enterClassName, leaveClassName, currentStateStyles, nextStateStyles, animationOptions, subInstructions, errors);
-    let totalTime = 0;
-    timelines.forEach((tl) => {
-      totalTime = Math.max(tl.duration + tl.delay, totalTime);
-    });
-    if (errors.length) {
-      return createTransitionInstruction(element, this._triggerName, currentState, nextState, isRemoval, currentStateStyles, nextStateStyles, [], [], preStyleMap, postStyleMap, totalTime, errors);
-    }
-    timelines.forEach((tl) => {
-      const elm = tl.element;
-      const preProps = getOrSetDefaultValue(preStyleMap, elm, /* @__PURE__ */ new Set());
-      tl.preStyleProps.forEach((prop) => preProps.add(prop));
-      const postProps = getOrSetDefaultValue(postStyleMap, elm, /* @__PURE__ */ new Set());
-      tl.postStyleProps.forEach((prop) => postProps.add(prop));
-      if (elm !== element) {
-        queriedElements.add(elm);
-      }
-    });
-    if (typeof ngDevMode === "undefined" || ngDevMode) {
-      checkNonAnimatableInTimelines(timelines, this._triggerName, driver);
-    }
-    return createTransitionInstruction(element, this._triggerName, currentState, nextState, isRemoval, currentStateStyles, nextStateStyles, timelines, [...queriedElements.values()], preStyleMap, postStyleMap, totalTime);
-  }
-};
-function checkNonAnimatableInTimelines(timelines, triggerName, driver) {
-  if (!driver.validateAnimatableStyleProperty) {
-    return;
-  }
-  const allowedNonAnimatableProps = /* @__PURE__ */ new Set(["easing"]);
-  const invalidNonAnimatableProps = /* @__PURE__ */ new Set();
-  timelines.forEach(({
-    keyframes
-  }) => {
-    const nonAnimatablePropsInitialValues = /* @__PURE__ */ new Map();
-    keyframes.forEach((keyframe) => {
-      const entriesToCheck = Array.from(keyframe.entries()).filter(([prop]) => !allowedNonAnimatableProps.has(prop));
-      for (const [prop, value] of entriesToCheck) {
-        if (!driver.validateAnimatableStyleProperty(prop)) {
-          if (nonAnimatablePropsInitialValues.has(prop) && !invalidNonAnimatableProps.has(prop)) {
-            const propInitialValue = nonAnimatablePropsInitialValues.get(prop);
-            if (propInitialValue !== value) {
-              invalidNonAnimatableProps.add(prop);
-            }
-          } else {
-            nonAnimatablePropsInitialValues.set(prop, value);
-          }
-        }
-      }
-    });
-  });
-  if (invalidNonAnimatableProps.size > 0) {
-    console.warn(`Warning: The animation trigger "${triggerName}" is attempting to animate the following not animatable properties: ` + Array.from(invalidNonAnimatableProps).join(", ") + "\n(to check the list of all animatable properties visit https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_animated_properties)");
-  }
-}
-function oneOrMoreTransitionsMatch(matchFns, currentState, nextState, element, params) {
-  return matchFns.some((fn) => fn(currentState, nextState, element, params));
-}
-function applyParamDefaults(userParams, defaults) {
-  const result = __spreadValues({}, defaults);
-  Object.entries(userParams).forEach(([key, value]) => {
-    if (value != null) {
-      result[key] = value;
-    }
-  });
-  return result;
-}
-var AnimationStateStyles = class {
-  styles;
-  defaultParams;
-  normalizer;
-  constructor(styles, defaultParams, normalizer) {
-    this.styles = styles;
-    this.defaultParams = defaultParams;
-    this.normalizer = normalizer;
-  }
-  buildStyles(params, errors) {
-    const finalStyles = /* @__PURE__ */ new Map();
-    const combinedParams = applyParamDefaults(params, this.defaultParams);
-    this.styles.styles.forEach((value) => {
-      if (typeof value !== "string") {
-        value.forEach((val, prop) => {
-          if (val) {
-            val = interpolateParams(val, combinedParams, errors);
-          }
-          const normalizedProp = this.normalizer.normalizePropertyName(prop, errors);
-          val = this.normalizer.normalizeStyleValue(prop, normalizedProp, val, errors);
-          finalStyles.set(prop, val);
-        });
-      }
-    });
-    return finalStyles;
-  }
-};
-function buildTrigger(name, ast, normalizer) {
-  return new AnimationTrigger(name, ast, normalizer);
-}
-var AnimationTrigger = class {
-  name;
-  ast;
-  _normalizer;
-  transitionFactories = [];
-  fallbackTransition;
-  states = /* @__PURE__ */ new Map();
-  constructor(name, ast, _normalizer) {
-    this.name = name;
-    this.ast = ast;
-    this._normalizer = _normalizer;
-    ast.states.forEach((ast2) => {
-      const defaultParams = ast2.options && ast2.options.params || {};
-      this.states.set(ast2.name, new AnimationStateStyles(ast2.style, defaultParams, _normalizer));
-    });
-    balanceProperties(this.states, "true", "1");
-    balanceProperties(this.states, "false", "0");
-    ast.transitions.forEach((ast2) => {
-      this.transitionFactories.push(new AnimationTransitionFactory(name, ast2, this.states));
-    });
-    this.fallbackTransition = createFallbackTransition(name, this.states);
-  }
-  get containsQueries() {
-    return this.ast.queryCount > 0;
-  }
-  matchTransition(currentState, nextState, element, params) {
-    const entry = this.transitionFactories.find((f) => f.match(currentState, nextState, element, params));
-    return entry || null;
-  }
-  matchStyles(currentState, params, errors) {
-    return this.fallbackTransition.buildStyles(currentState, params, errors);
-  }
-};
-function createFallbackTransition(triggerName, states, normalizer) {
-  const matchers = [(fromState, toState) => true];
-  const animation = {
-    type: AnimationMetadataType.Sequence,
-    steps: [],
-    options: null
-  };
-  const transition = {
-    type: AnimationMetadataType.Transition,
-    animation,
-    matchers,
-    options: null,
-    queryCount: 0,
-    depCount: 0
-  };
-  return new AnimationTransitionFactory(triggerName, transition, states);
-}
-function balanceProperties(stateMap, key1, key2) {
-  if (stateMap.has(key1)) {
-    if (!stateMap.has(key2)) {
-      stateMap.set(key2, stateMap.get(key1));
-    }
-  } else if (stateMap.has(key2)) {
-    stateMap.set(key1, stateMap.get(key2));
-  }
-}
-var EMPTY_INSTRUCTION_MAP = /* @__PURE__ */ new ElementInstructionMap();
-var TimelineAnimationEngine = class {
-  bodyNode;
-  _driver;
-  _normalizer;
-  _animations = /* @__PURE__ */ new Map();
-  _playersById = /* @__PURE__ */ new Map();
-  players = [];
-  constructor(bodyNode, _driver, _normalizer) {
-    this.bodyNode = bodyNode;
-    this._driver = _driver;
-    this._normalizer = _normalizer;
-  }
-  register(id, metadata) {
-    const errors = [];
-    const warnings = [];
-    const ast = buildAnimationAst(this._driver, metadata, errors, warnings);
-    if (errors.length) {
-      throw registerFailed(errors);
-    } else {
-      if (typeof ngDevMode === "undefined" || ngDevMode) {
-        if (warnings.length) {
-          warnRegister(warnings);
-        }
-      }
-      this._animations.set(id, ast);
-    }
-  }
-  _buildPlayer(i, preStyles, postStyles) {
-    const element = i.element;
-    const keyframes = normalizeKeyframes$1(this._normalizer, i.keyframes, preStyles, postStyles);
-    return this._driver.animate(element, keyframes, i.duration, i.delay, i.easing, [], true);
-  }
-  create(id, element, options = {}) {
-    const errors = [];
-    const ast = this._animations.get(id);
-    let instructions;
-    const autoStylesMap = /* @__PURE__ */ new Map();
-    if (ast) {
-      instructions = buildAnimationTimelines(this._driver, element, ast, ENTER_CLASSNAME, LEAVE_CLASSNAME, /* @__PURE__ */ new Map(), /* @__PURE__ */ new Map(), options, EMPTY_INSTRUCTION_MAP, errors);
-      instructions.forEach((inst) => {
-        const styles = getOrSetDefaultValue(autoStylesMap, inst.element, /* @__PURE__ */ new Map());
-        inst.postStyleProps.forEach((prop) => styles.set(prop, null));
-      });
-    } else {
-      errors.push(missingOrDestroyedAnimation());
-      instructions = [];
-    }
-    if (errors.length) {
-      throw createAnimationFailed(errors);
-    }
-    autoStylesMap.forEach((styles, element2) => {
-      styles.forEach((_, prop) => {
-        styles.set(prop, this._driver.computeStyle(element2, prop, AUTO_STYLE));
-      });
-    });
-    const players = instructions.map((i) => {
-      const styles = autoStylesMap.get(i.element);
-      return this._buildPlayer(i, /* @__PURE__ */ new Map(), styles);
-    });
-    const player = optimizeGroupPlayer(players);
-    this._playersById.set(id, player);
-    player.onDestroy(() => this.destroy(id));
-    this.players.push(player);
-    return player;
-  }
-  destroy(id) {
-    const player = this._getPlayer(id);
-    player.destroy();
-    this._playersById.delete(id);
-    const index = this.players.indexOf(player);
-    if (index >= 0) {
-      this.players.splice(index, 1);
-    }
-  }
-  _getPlayer(id) {
-    const player = this._playersById.get(id);
-    if (!player) {
-      throw missingPlayer(id);
-    }
-    return player;
-  }
-  listen(id, element, eventName, callback) {
-    const baseEvent = makeAnimationEvent(element, "", "", "");
-    listenOnPlayer(this._getPlayer(id), eventName, baseEvent, callback);
-    return () => {
-    };
-  }
-  command(id, element, command, args) {
-    if (command == "register") {
-      this.register(id, args[0]);
-      return;
-    }
-    if (command == "create") {
-      const options = args[0] || {};
-      this.create(id, element, options);
-      return;
-    }
-    const player = this._getPlayer(id);
-    switch (command) {
-      case "play":
-        player.play();
-        break;
-      case "pause":
-        player.pause();
-        break;
-      case "reset":
-        player.reset();
-        break;
-      case "restart":
-        player.restart();
-        break;
-      case "finish":
-        player.finish();
-        break;
-      case "init":
-        player.init();
-        break;
-      case "setPosition":
-        player.setPosition(parseFloat(args[0]));
-        break;
-      case "destroy":
-        this.destroy(id);
-        break;
-    }
-  }
-};
-var QUEUED_CLASSNAME = "ng-animate-queued";
-var QUEUED_SELECTOR = ".ng-animate-queued";
-var DISABLED_CLASSNAME = "ng-animate-disabled";
-var DISABLED_SELECTOR = ".ng-animate-disabled";
-var STAR_CLASSNAME = "ng-star-inserted";
-var STAR_SELECTOR = ".ng-star-inserted";
-var EMPTY_PLAYER_ARRAY = [];
-var NULL_REMOVAL_STATE = {
-  namespaceId: "",
-  setForRemoval: false,
-  setForMove: false,
-  hasAnimation: false,
-  removedBeforeQueried: false
-};
-var NULL_REMOVED_QUERIED_STATE = {
-  namespaceId: "",
-  setForMove: false,
-  setForRemoval: false,
-  hasAnimation: false,
-  removedBeforeQueried: true
-};
-var REMOVAL_FLAG = "__ng_removed";
-var StateValue = class {
-  namespaceId;
-  value;
+var _Tokenizer = class {
   options;
-  get params() {
-    return this.options.params;
+  rules;
+  // set by the lexer
+  lexer;
+  // set by the lexer
+  constructor(options2) {
+    this.options = options2 || _defaults;
   }
-  constructor(input, namespaceId = "") {
-    this.namespaceId = namespaceId;
-    const isObj = input && input.hasOwnProperty("value");
-    const value = isObj ? input["value"] : input;
-    this.value = normalizeTriggerValue(value);
-    if (isObj) {
-      const _a = input, {
-        value: value2
-      } = _a, options = __objRest(_a, [
-        "value"
-      ]);
-      this.options = options;
-    } else {
-      this.options = {};
-    }
-    if (!this.options.params) {
-      this.options.params = {};
+  space(src) {
+    const cap = this.rules.block.newline.exec(src);
+    if (cap && cap[0].length > 0) {
+      return {
+        type: "space",
+        raw: cap[0]
+      };
     }
   }
-  absorbOptions(options) {
-    const newParams = options.params;
-    if (newParams) {
-      const oldParams = this.options.params;
-      Object.keys(newParams).forEach((prop) => {
-        if (oldParams[prop] == null) {
-          oldParams[prop] = newParams[prop];
-        }
-      });
+  code(src) {
+    const cap = this.rules.block.code.exec(src);
+    if (cap) {
+      const text = cap[0].replace(/^ {1,4}/gm, "");
+      return {
+        type: "code",
+        raw: cap[0],
+        codeBlockStyle: "indented",
+        text: !this.options.pedantic ? rtrim(text, "\n") : text
+      };
     }
   }
-};
-var VOID_VALUE = "void";
-var DEFAULT_STATE_VALUE = /* @__PURE__ */ new StateValue(VOID_VALUE);
-var AnimationTransitionNamespace = class {
-  id;
-  hostElement;
-  _engine;
-  players = [];
-  _triggers = /* @__PURE__ */ new Map();
-  _queue = [];
-  _elementListeners = /* @__PURE__ */ new Map();
-  _hostClassName;
-  constructor(id, hostElement, _engine) {
-    this.id = id;
-    this.hostElement = hostElement;
-    this._engine = _engine;
-    this._hostClassName = "ng-tns-" + id;
-    addClass(hostElement, this._hostClassName);
-  }
-  listen(element, name, phase, callback) {
-    if (!this._triggers.has(name)) {
-      throw missingTrigger(phase, name);
-    }
-    if (phase == null || phase.length == 0) {
-      throw missingEvent(name);
-    }
-    if (!isTriggerEventValid(phase)) {
-      throw unsupportedTriggerEvent(phase, name);
-    }
-    const listeners = getOrSetDefaultValue(this._elementListeners, element, []);
-    const data = {
-      name,
-      phase,
-      callback
-    };
-    listeners.push(data);
-    const triggersWithStates = getOrSetDefaultValue(this._engine.statesByElement, element, /* @__PURE__ */ new Map());
-    if (!triggersWithStates.has(name)) {
-      addClass(element, NG_TRIGGER_CLASSNAME);
-      addClass(element, NG_TRIGGER_CLASSNAME + "-" + name);
-      triggersWithStates.set(name, DEFAULT_STATE_VALUE);
-    }
-    return () => {
-      this._engine.afterFlush(() => {
-        const index = listeners.indexOf(data);
-        if (index >= 0) {
-          listeners.splice(index, 1);
-        }
-        if (!this._triggers.has(name)) {
-          triggersWithStates.delete(name);
-        }
-      });
-    };
-  }
-  register(name, ast) {
-    if (this._triggers.has(name)) {
-      return false;
-    } else {
-      this._triggers.set(name, ast);
-      return true;
+  fences(src) {
+    const cap = this.rules.block.fences.exec(src);
+    if (cap) {
+      const raw = cap[0];
+      const text = indentCodeCompensation(raw, cap[3] || "");
+      return {
+        type: "code",
+        raw,
+        lang: cap[2] ? cap[2].trim().replace(this.rules.inline.anyPunctuation, "$1") : cap[2],
+        text
+      };
     }
   }
-  _getTrigger(name) {
-    const trigger = this._triggers.get(name);
-    if (!trigger) {
-      throw unregisteredTrigger(name);
-    }
-    return trigger;
-  }
-  trigger(element, triggerName, value, defaultToFallback = true) {
-    const trigger = this._getTrigger(triggerName);
-    const player = new TransitionAnimationPlayer(this.id, triggerName, element);
-    let triggersWithStates = this._engine.statesByElement.get(element);
-    if (!triggersWithStates) {
-      addClass(element, NG_TRIGGER_CLASSNAME);
-      addClass(element, NG_TRIGGER_CLASSNAME + "-" + triggerName);
-      this._engine.statesByElement.set(element, triggersWithStates = /* @__PURE__ */ new Map());
-    }
-    let fromState = triggersWithStates.get(triggerName);
-    const toState = new StateValue(value, this.id);
-    const isObj = value && value.hasOwnProperty("value");
-    if (!isObj && fromState) {
-      toState.absorbOptions(fromState.options);
-    }
-    triggersWithStates.set(triggerName, toState);
-    if (!fromState) {
-      fromState = DEFAULT_STATE_VALUE;
-    }
-    const isRemoval = toState.value === VOID_VALUE;
-    if (!isRemoval && fromState.value === toState.value) {
-      if (!objEquals(fromState.params, toState.params)) {
-        const errors = [];
-        const fromStyles = trigger.matchStyles(fromState.value, fromState.params, errors);
-        const toStyles = trigger.matchStyles(toState.value, toState.params, errors);
-        if (errors.length) {
-          this._engine.reportError(errors);
-        } else {
-          this._engine.afterFlush(() => {
-            eraseStyles(element, fromStyles);
-            setStyles(element, toStyles);
-          });
+  heading(src) {
+    const cap = this.rules.block.heading.exec(src);
+    if (cap) {
+      let text = cap[2].trim();
+      if (/#$/.test(text)) {
+        const trimmed = rtrim(text, "#");
+        if (this.options.pedantic) {
+          text = trimmed.trim();
+        } else if (!trimmed || / $/.test(trimmed)) {
+          text = trimmed.trim();
         }
       }
-      return;
-    }
-    const playersOnElement = getOrSetDefaultValue(this._engine.playersByElement, element, []);
-    playersOnElement.forEach((player2) => {
-      if (player2.namespaceId == this.id && player2.triggerName == triggerName && player2.queued) {
-        player2.destroy();
-      }
-    });
-    let transition = trigger.matchTransition(fromState.value, toState.value, element, toState.params);
-    let isFallbackTransition = false;
-    if (!transition) {
-      if (!defaultToFallback) return;
-      transition = trigger.fallbackTransition;
-      isFallbackTransition = true;
-    }
-    this._engine.totalQueuedPlayers++;
-    this._queue.push({
-      element,
-      triggerName,
-      transition,
-      fromState,
-      toState,
-      player,
-      isFallbackTransition
-    });
-    if (!isFallbackTransition) {
-      addClass(element, QUEUED_CLASSNAME);
-      player.onStart(() => {
-        removeClass(element, QUEUED_CLASSNAME);
-      });
-    }
-    player.onDone(() => {
-      let index = this.players.indexOf(player);
-      if (index >= 0) {
-        this.players.splice(index, 1);
-      }
-      const players = this._engine.playersByElement.get(element);
-      if (players) {
-        let index2 = players.indexOf(player);
-        if (index2 >= 0) {
-          players.splice(index2, 1);
-        }
-      }
-    });
-    this.players.push(player);
-    playersOnElement.push(player);
-    return player;
-  }
-  deregister(name) {
-    this._triggers.delete(name);
-    this._engine.statesByElement.forEach((stateMap) => stateMap.delete(name));
-    this._elementListeners.forEach((listeners, element) => {
-      this._elementListeners.set(element, listeners.filter((entry) => {
-        return entry.name != name;
-      }));
-    });
-  }
-  clearElementCache(element) {
-    this._engine.statesByElement.delete(element);
-    this._elementListeners.delete(element);
-    const elementPlayers = this._engine.playersByElement.get(element);
-    if (elementPlayers) {
-      elementPlayers.forEach((player) => player.destroy());
-      this._engine.playersByElement.delete(element);
+      return {
+        type: "heading",
+        raw: cap[0],
+        depth: cap[1].length,
+        text,
+        tokens: this.lexer.inline(text)
+      };
     }
   }
-  _signalRemovalForInnerTriggers(rootElement, context) {
-    const elements = this._engine.driver.query(rootElement, NG_TRIGGER_SELECTOR, true);
-    elements.forEach((elm) => {
-      if (elm[REMOVAL_FLAG]) return;
-      const namespaces = this._engine.fetchNamespacesByElement(elm);
-      if (namespaces.size) {
-        namespaces.forEach((ns) => ns.triggerLeaveAnimation(elm, context, false, true));
-      } else {
-        this.clearElementCache(elm);
-      }
-    });
-    this._engine.afterFlushAnimationsDone(() => elements.forEach((elm) => this.clearElementCache(elm)));
-  }
-  triggerLeaveAnimation(element, context, destroyAfterComplete, defaultToFallback) {
-    const triggerStates = this._engine.statesByElement.get(element);
-    const previousTriggersValues = /* @__PURE__ */ new Map();
-    if (triggerStates) {
-      const players = [];
-      triggerStates.forEach((state, triggerName) => {
-        previousTriggersValues.set(triggerName, state.value);
-        if (this._triggers.has(triggerName)) {
-          const player = this.trigger(element, triggerName, VOID_VALUE, defaultToFallback);
-          if (player) {
-            players.push(player);
-          }
-        }
-      });
-      if (players.length) {
-        this._engine.markElementAsRemoved(this.id, element, true, context, previousTriggersValues);
-        if (destroyAfterComplete) {
-          optimizeGroupPlayer(players).onDone(() => this._engine.processLeaveNode(element));
-        }
-        return true;
-      }
-    }
-    return false;
-  }
-  prepareLeaveAnimationListeners(element) {
-    const listeners = this._elementListeners.get(element);
-    const elementStates = this._engine.statesByElement.get(element);
-    if (listeners && elementStates) {
-      const visitedTriggers = /* @__PURE__ */ new Set();
-      listeners.forEach((listener) => {
-        const triggerName = listener.name;
-        if (visitedTriggers.has(triggerName)) return;
-        visitedTriggers.add(triggerName);
-        const trigger = this._triggers.get(triggerName);
-        const transition = trigger.fallbackTransition;
-        const fromState = elementStates.get(triggerName) || DEFAULT_STATE_VALUE;
-        const toState = new StateValue(VOID_VALUE);
-        const player = new TransitionAnimationPlayer(this.id, triggerName, element);
-        this._engine.totalQueuedPlayers++;
-        this._queue.push({
-          element,
-          triggerName,
-          transition,
-          fromState,
-          toState,
-          player,
-          isFallbackTransition: true
-        });
-      });
+  hr(src) {
+    const cap = this.rules.block.hr.exec(src);
+    if (cap) {
+      return {
+        type: "hr",
+        raw: rtrim(cap[0], "\n")
+      };
     }
   }
-  removeNode(element, context) {
-    const engine = this._engine;
-    if (element.childElementCount) {
-      this._signalRemovalForInnerTriggers(element, context);
-    }
-    if (this.triggerLeaveAnimation(element, context, true)) return;
-    let containsPotentialParentTransition = false;
-    if (engine.totalAnimations) {
-      const currentPlayers = engine.players.length ? engine.playersByQueriedElement.get(element) : [];
-      if (currentPlayers && currentPlayers.length) {
-        containsPotentialParentTransition = true;
-      } else {
-        let parent = element;
-        while (parent = parent.parentNode) {
-          const triggers = engine.statesByElement.get(parent);
-          if (triggers) {
-            containsPotentialParentTransition = true;
+  blockquote(src) {
+    const cap = this.rules.block.blockquote.exec(src);
+    if (cap) {
+      let lines = rtrim(cap[0], "\n").split("\n");
+      let raw = "";
+      let text = "";
+      const tokens = [];
+      while (lines.length > 0) {
+        let inBlockquote = false;
+        const currentLines = [];
+        let i;
+        for (i = 0; i < lines.length; i++) {
+          if (/^ {0,3}>/.test(lines[i])) {
+            currentLines.push(lines[i]);
+            inBlockquote = true;
+          } else if (!inBlockquote) {
+            currentLines.push(lines[i]);
+          } else {
             break;
           }
         }
-      }
-    }
-    this.prepareLeaveAnimationListeners(element);
-    if (containsPotentialParentTransition) {
-      engine.markElementAsRemoved(this.id, element, false, context);
-    } else {
-      const removalFlag = element[REMOVAL_FLAG];
-      if (!removalFlag || removalFlag === NULL_REMOVAL_STATE) {
-        engine.afterFlush(() => this.clearElementCache(element));
-        engine.destroyInnerAnimations(element);
-        engine._onRemovalComplete(element, context);
-      }
-    }
-  }
-  insertNode(element, parent) {
-    addClass(element, this._hostClassName);
-  }
-  drainQueuedTransitions(microtaskId) {
-    const instructions = [];
-    this._queue.forEach((entry) => {
-      const player = entry.player;
-      if (player.destroyed) return;
-      const element = entry.element;
-      const listeners = this._elementListeners.get(element);
-      if (listeners) {
-        listeners.forEach((listener) => {
-          if (listener.name == entry.triggerName) {
-            const baseEvent = makeAnimationEvent(element, entry.triggerName, entry.fromState.value, entry.toState.value);
-            baseEvent["_data"] = microtaskId;
-            listenOnPlayer(entry.player, listener.phase, baseEvent, listener.callback);
-          }
-        });
-      }
-      if (player.markedForDestroy) {
-        this._engine.afterFlush(() => {
-          player.destroy();
-        });
-      } else {
-        instructions.push(entry);
-      }
-    });
-    this._queue = [];
-    return instructions.sort((a, b) => {
-      const d0 = a.transition.ast.depCount;
-      const d1 = b.transition.ast.depCount;
-      if (d0 == 0 || d1 == 0) {
-        return d0 - d1;
-      }
-      return this._engine.driver.containsElement(a.element, b.element) ? 1 : -1;
-    });
-  }
-  destroy(context) {
-    this.players.forEach((p) => p.destroy());
-    this._signalRemovalForInnerTriggers(this.hostElement, context);
-  }
-};
-var TransitionAnimationEngine = class {
-  bodyNode;
-  driver;
-  _normalizer;
-  players = [];
-  newHostElements = /* @__PURE__ */ new Map();
-  playersByElement = /* @__PURE__ */ new Map();
-  playersByQueriedElement = /* @__PURE__ */ new Map();
-  statesByElement = /* @__PURE__ */ new Map();
-  disabledNodes = /* @__PURE__ */ new Set();
-  totalAnimations = 0;
-  totalQueuedPlayers = 0;
-  _namespaceLookup = {};
-  _namespaceList = [];
-  _flushFns = [];
-  _whenQuietFns = [];
-  namespacesByHostElement = /* @__PURE__ */ new Map();
-  collectedEnterElements = [];
-  collectedLeaveElements = [];
-  onRemovalComplete = (element, context) => {
-  };
-  _onRemovalComplete(element, context) {
-    this.onRemovalComplete(element, context);
-  }
-  constructor(bodyNode, driver, _normalizer) {
-    this.bodyNode = bodyNode;
-    this.driver = driver;
-    this._normalizer = _normalizer;
-  }
-  get queuedPlayers() {
-    const players = [];
-    this._namespaceList.forEach((ns) => {
-      ns.players.forEach((player) => {
-        if (player.queued) {
-          players.push(player);
-        }
-      });
-    });
-    return players;
-  }
-  createNamespace(namespaceId, hostElement) {
-    const ns = new AnimationTransitionNamespace(namespaceId, hostElement, this);
-    if (this.bodyNode && this.driver.containsElement(this.bodyNode, hostElement)) {
-      this._balanceNamespaceList(ns, hostElement);
-    } else {
-      this.newHostElements.set(hostElement, ns);
-      this.collectEnterElement(hostElement);
-    }
-    return this._namespaceLookup[namespaceId] = ns;
-  }
-  _balanceNamespaceList(ns, hostElement) {
-    const namespaceList = this._namespaceList;
-    const namespacesByHostElement = this.namespacesByHostElement;
-    const limit = namespaceList.length - 1;
-    if (limit >= 0) {
-      let found = false;
-      let ancestor = this.driver.getParentElement(hostElement);
-      while (ancestor) {
-        const ancestorNs = namespacesByHostElement.get(ancestor);
-        if (ancestorNs) {
-          const index = namespaceList.indexOf(ancestorNs);
-          namespaceList.splice(index + 1, 0, ns);
-          found = true;
+        lines = lines.slice(i);
+        const currentRaw = currentLines.join("\n");
+        const currentText = currentRaw.replace(/\n {0,3}((?:=+|-+) *)(?=\n|$)/g, "\n    $1").replace(/^ {0,3}>[ \t]?/gm, "");
+        raw = raw ? `${raw}
+${currentRaw}` : currentRaw;
+        text = text ? `${text}
+${currentText}` : currentText;
+        const top = this.lexer.state.top;
+        this.lexer.state.top = true;
+        this.lexer.blockTokens(currentText, tokens, true);
+        this.lexer.state.top = top;
+        if (lines.length === 0) {
           break;
         }
-        ancestor = this.driver.getParentElement(ancestor);
-      }
-      if (!found) {
-        namespaceList.unshift(ns);
-      }
-    } else {
-      namespaceList.push(ns);
-    }
-    namespacesByHostElement.set(hostElement, ns);
-    return ns;
-  }
-  register(namespaceId, hostElement) {
-    let ns = this._namespaceLookup[namespaceId];
-    if (!ns) {
-      ns = this.createNamespace(namespaceId, hostElement);
-    }
-    return ns;
-  }
-  registerTrigger(namespaceId, name, trigger) {
-    let ns = this._namespaceLookup[namespaceId];
-    if (ns && ns.register(name, trigger)) {
-      this.totalAnimations++;
-    }
-  }
-  destroy(namespaceId, context) {
-    if (!namespaceId) return;
-    this.afterFlush(() => {
-    });
-    this.afterFlushAnimationsDone(() => {
-      const ns = this._fetchNamespace(namespaceId);
-      this.namespacesByHostElement.delete(ns.hostElement);
-      const index = this._namespaceList.indexOf(ns);
-      if (index >= 0) {
-        this._namespaceList.splice(index, 1);
-      }
-      ns.destroy(context);
-      delete this._namespaceLookup[namespaceId];
-    });
-  }
-  _fetchNamespace(id) {
-    return this._namespaceLookup[id];
-  }
-  fetchNamespacesByElement(element) {
-    const namespaces = /* @__PURE__ */ new Set();
-    const elementStates = this.statesByElement.get(element);
-    if (elementStates) {
-      for (let stateValue of elementStates.values()) {
-        if (stateValue.namespaceId) {
-          const ns = this._fetchNamespace(stateValue.namespaceId);
-          if (ns) {
-            namespaces.add(ns);
-          }
+        const lastToken = tokens[tokens.length - 1];
+        if (lastToken?.type === "code") {
+          break;
+        } else if (lastToken?.type === "blockquote") {
+          const oldToken = lastToken;
+          const newText = oldToken.raw + "\n" + lines.join("\n");
+          const newToken = this.blockquote(newText);
+          tokens[tokens.length - 1] = newToken;
+          raw = raw.substring(0, raw.length - oldToken.raw.length) + newToken.raw;
+          text = text.substring(0, text.length - oldToken.text.length) + newToken.text;
+          break;
+        } else if (lastToken?.type === "list") {
+          const oldToken = lastToken;
+          const newText = oldToken.raw + "\n" + lines.join("\n");
+          const newToken = this.list(newText);
+          tokens[tokens.length - 1] = newToken;
+          raw = raw.substring(0, raw.length - lastToken.raw.length) + newToken.raw;
+          text = text.substring(0, text.length - oldToken.raw.length) + newToken.raw;
+          lines = newText.substring(tokens[tokens.length - 1].raw.length).split("\n");
+          continue;
         }
       }
+      return {
+        type: "blockquote",
+        raw,
+        tokens,
+        text
+      };
     }
-    return namespaces;
   }
-  trigger(namespaceId, element, name, value) {
-    if (isElementNode(element)) {
-      const ns = this._fetchNamespace(namespaceId);
-      if (ns) {
-        ns.trigger(element, name, value);
-        return true;
+  list(src) {
+    let cap = this.rules.block.list.exec(src);
+    if (cap) {
+      let bull = cap[1].trim();
+      const isordered = bull.length > 1;
+      const list2 = {
+        type: "list",
+        raw: "",
+        ordered: isordered,
+        start: isordered ? +bull.slice(0, -1) : "",
+        loose: false,
+        items: []
+      };
+      bull = isordered ? `\\d{1,9}\\${bull.slice(-1)}` : `\\${bull}`;
+      if (this.options.pedantic) {
+        bull = isordered ? bull : "[*+-]";
       }
-    }
-    return false;
-  }
-  insertNode(namespaceId, element, parent, insertBefore) {
-    if (!isElementNode(element)) return;
-    const details = element[REMOVAL_FLAG];
-    if (details && details.setForRemoval) {
-      details.setForRemoval = false;
-      details.setForMove = true;
-      const index = this.collectedLeaveElements.indexOf(element);
-      if (index >= 0) {
-        this.collectedLeaveElements.splice(index, 1);
-      }
-    }
-    if (namespaceId) {
-      const ns = this._fetchNamespace(namespaceId);
-      if (ns) {
-        ns.insertNode(element, parent);
-      }
-    }
-    if (insertBefore) {
-      this.collectEnterElement(element);
-    }
-  }
-  collectEnterElement(element) {
-    this.collectedEnterElements.push(element);
-  }
-  markElementAsDisabled(element, value) {
-    if (value) {
-      if (!this.disabledNodes.has(element)) {
-        this.disabledNodes.add(element);
-        addClass(element, DISABLED_CLASSNAME);
-      }
-    } else if (this.disabledNodes.has(element)) {
-      this.disabledNodes.delete(element);
-      removeClass(element, DISABLED_CLASSNAME);
-    }
-  }
-  removeNode(namespaceId, element, context) {
-    if (isElementNode(element)) {
-      const ns = namespaceId ? this._fetchNamespace(namespaceId) : null;
-      if (ns) {
-        ns.removeNode(element, context);
-      } else {
-        this.markElementAsRemoved(namespaceId, element, false, context);
-      }
-      const hostNS = this.namespacesByHostElement.get(element);
-      if (hostNS && hostNS.id !== namespaceId) {
-        hostNS.removeNode(element, context);
-      }
-    } else {
-      this._onRemovalComplete(element, context);
-    }
-  }
-  markElementAsRemoved(namespaceId, element, hasAnimation, context, previousTriggersValues) {
-    this.collectedLeaveElements.push(element);
-    element[REMOVAL_FLAG] = {
-      namespaceId,
-      setForRemoval: context,
-      hasAnimation,
-      removedBeforeQueried: false,
-      previousTriggersValues
-    };
-  }
-  listen(namespaceId, element, name, phase, callback) {
-    if (isElementNode(element)) {
-      return this._fetchNamespace(namespaceId).listen(element, name, phase, callback);
-    }
-    return () => {
-    };
-  }
-  _buildInstruction(entry, subTimelines, enterClassName, leaveClassName, skipBuildAst) {
-    return entry.transition.build(this.driver, entry.element, entry.fromState.value, entry.toState.value, enterClassName, leaveClassName, entry.fromState.options, entry.toState.options, subTimelines, skipBuildAst);
-  }
-  destroyInnerAnimations(containerElement) {
-    let elements = this.driver.query(containerElement, NG_TRIGGER_SELECTOR, true);
-    elements.forEach((element) => this.destroyActiveAnimationsForElement(element));
-    if (this.playersByQueriedElement.size == 0) return;
-    elements = this.driver.query(containerElement, NG_ANIMATING_SELECTOR, true);
-    elements.forEach((element) => this.finishActiveQueriedAnimationOnElement(element));
-  }
-  destroyActiveAnimationsForElement(element) {
-    const players = this.playersByElement.get(element);
-    if (players) {
-      players.forEach((player) => {
-        if (player.queued) {
-          player.markedForDestroy = true;
+      const itemRegex = new RegExp(`^( {0,3}${bull})((?:[	 ][^\\n]*)?(?:\\n|$))`);
+      let endsWithBlankLine = false;
+      while (src) {
+        let endEarly = false;
+        let raw = "";
+        let itemContents = "";
+        if (!(cap = itemRegex.exec(src))) {
+          break;
+        }
+        if (this.rules.block.hr.test(src)) {
+          break;
+        }
+        raw = cap[0];
+        src = src.substring(raw.length);
+        let line = cap[2].split("\n", 1)[0].replace(/^\t+/, (t) => " ".repeat(3 * t.length));
+        let nextLine = src.split("\n", 1)[0];
+        let blankLine = !line.trim();
+        let indent = 0;
+        if (this.options.pedantic) {
+          indent = 2;
+          itemContents = line.trimStart();
+        } else if (blankLine) {
+          indent = cap[1].length + 1;
         } else {
-          player.destroy();
+          indent = cap[2].search(/[^ ]/);
+          indent = indent > 4 ? 1 : indent;
+          itemContents = line.slice(indent);
+          indent += cap[1].length;
         }
-      });
-    }
-  }
-  finishActiveQueriedAnimationOnElement(element) {
-    const players = this.playersByQueriedElement.get(element);
-    if (players) {
-      players.forEach((player) => player.finish());
-    }
-  }
-  whenRenderingDone() {
-    return new Promise((resolve) => {
-      if (this.players.length) {
-        return optimizeGroupPlayer(this.players).onDone(() => resolve());
-      } else {
-        resolve();
-      }
-    });
-  }
-  processLeaveNode(element) {
-    const details = element[REMOVAL_FLAG];
-    if (details && details.setForRemoval) {
-      element[REMOVAL_FLAG] = NULL_REMOVAL_STATE;
-      if (details.namespaceId) {
-        this.destroyInnerAnimations(element);
-        const ns = this._fetchNamespace(details.namespaceId);
-        if (ns) {
-          ns.clearElementCache(element);
+        if (blankLine && /^ *$/.test(nextLine)) {
+          raw += nextLine + "\n";
+          src = src.substring(nextLine.length + 1);
+          endEarly = true;
         }
-      }
-      this._onRemovalComplete(element, details.setForRemoval);
-    }
-    if (element.classList?.contains(DISABLED_CLASSNAME)) {
-      this.markElementAsDisabled(element, false);
-    }
-    this.driver.query(element, DISABLED_SELECTOR, true).forEach((node) => {
-      this.markElementAsDisabled(node, false);
-    });
-  }
-  flush(microtaskId = -1) {
-    let players = [];
-    if (this.newHostElements.size) {
-      this.newHostElements.forEach((ns, element) => this._balanceNamespaceList(ns, element));
-      this.newHostElements.clear();
-    }
-    if (this.totalAnimations && this.collectedEnterElements.length) {
-      for (let i = 0; i < this.collectedEnterElements.length; i++) {
-        const elm = this.collectedEnterElements[i];
-        addClass(elm, STAR_CLASSNAME);
-      }
-    }
-    if (this._namespaceList.length && (this.totalQueuedPlayers || this.collectedLeaveElements.length)) {
-      const cleanupFns = [];
-      try {
-        players = this._flushAnimations(cleanupFns, microtaskId);
-      } finally {
-        for (let i = 0; i < cleanupFns.length; i++) {
-          cleanupFns[i]();
-        }
-      }
-    } else {
-      for (let i = 0; i < this.collectedLeaveElements.length; i++) {
-        const element = this.collectedLeaveElements[i];
-        this.processLeaveNode(element);
-      }
-    }
-    this.totalQueuedPlayers = 0;
-    this.collectedEnterElements.length = 0;
-    this.collectedLeaveElements.length = 0;
-    this._flushFns.forEach((fn) => fn());
-    this._flushFns = [];
-    if (this._whenQuietFns.length) {
-      const quietFns = this._whenQuietFns;
-      this._whenQuietFns = [];
-      if (players.length) {
-        optimizeGroupPlayer(players).onDone(() => {
-          quietFns.forEach((fn) => fn());
-        });
-      } else {
-        quietFns.forEach((fn) => fn());
-      }
-    }
-  }
-  reportError(errors) {
-    throw triggerTransitionsFailed(errors);
-  }
-  _flushAnimations(cleanupFns, microtaskId) {
-    const subTimelines = new ElementInstructionMap();
-    const skippedPlayers = [];
-    const skippedPlayersMap = /* @__PURE__ */ new Map();
-    const queuedInstructions = [];
-    const queriedElements = /* @__PURE__ */ new Map();
-    const allPreStyleElements = /* @__PURE__ */ new Map();
-    const allPostStyleElements = /* @__PURE__ */ new Map();
-    const disabledElementsSet = /* @__PURE__ */ new Set();
-    this.disabledNodes.forEach((node) => {
-      disabledElementsSet.add(node);
-      const nodesThatAreDisabled = this.driver.query(node, QUEUED_SELECTOR, true);
-      for (let i2 = 0; i2 < nodesThatAreDisabled.length; i2++) {
-        disabledElementsSet.add(nodesThatAreDisabled[i2]);
-      }
-    });
-    const bodyNode = this.bodyNode;
-    const allTriggerElements = Array.from(this.statesByElement.keys());
-    const enterNodeMap = buildRootMap(allTriggerElements, this.collectedEnterElements);
-    const enterNodeMapIds = /* @__PURE__ */ new Map();
-    let i = 0;
-    enterNodeMap.forEach((nodes, root) => {
-      const className = ENTER_CLASSNAME + i++;
-      enterNodeMapIds.set(root, className);
-      nodes.forEach((node) => addClass(node, className));
-    });
-    const allLeaveNodes = [];
-    const mergedLeaveNodes = /* @__PURE__ */ new Set();
-    const leaveNodesWithoutAnimations = /* @__PURE__ */ new Set();
-    for (let i2 = 0; i2 < this.collectedLeaveElements.length; i2++) {
-      const element = this.collectedLeaveElements[i2];
-      const details = element[REMOVAL_FLAG];
-      if (details && details.setForRemoval) {
-        allLeaveNodes.push(element);
-        mergedLeaveNodes.add(element);
-        if (details.hasAnimation) {
-          this.driver.query(element, STAR_SELECTOR, true).forEach((elm) => mergedLeaveNodes.add(elm));
-        } else {
-          leaveNodesWithoutAnimations.add(element);
-        }
-      }
-    }
-    const leaveNodeMapIds = /* @__PURE__ */ new Map();
-    const leaveNodeMap = buildRootMap(allTriggerElements, Array.from(mergedLeaveNodes));
-    leaveNodeMap.forEach((nodes, root) => {
-      const className = LEAVE_CLASSNAME + i++;
-      leaveNodeMapIds.set(root, className);
-      nodes.forEach((node) => addClass(node, className));
-    });
-    cleanupFns.push(() => {
-      enterNodeMap.forEach((nodes, root) => {
-        const className = enterNodeMapIds.get(root);
-        nodes.forEach((node) => removeClass(node, className));
-      });
-      leaveNodeMap.forEach((nodes, root) => {
-        const className = leaveNodeMapIds.get(root);
-        nodes.forEach((node) => removeClass(node, className));
-      });
-      allLeaveNodes.forEach((element) => {
-        this.processLeaveNode(element);
-      });
-    });
-    const allPlayers = [];
-    const erroneousTransitions = [];
-    for (let i2 = this._namespaceList.length - 1; i2 >= 0; i2--) {
-      const ns = this._namespaceList[i2];
-      ns.drainQueuedTransitions(microtaskId).forEach((entry) => {
-        const player = entry.player;
-        const element = entry.element;
-        allPlayers.push(player);
-        if (this.collectedEnterElements.length) {
-          const details = element[REMOVAL_FLAG];
-          if (details && details.setForMove) {
-            if (details.previousTriggersValues && details.previousTriggersValues.has(entry.triggerName)) {
-              const previousValue = details.previousTriggersValues.get(entry.triggerName);
-              const triggersWithStates = this.statesByElement.get(entry.element);
-              if (triggersWithStates && triggersWithStates.has(entry.triggerName)) {
-                const state = triggersWithStates.get(entry.triggerName);
-                state.value = previousValue;
-                triggersWithStates.set(entry.triggerName, state);
-              }
+        if (!endEarly) {
+          const nextBulletRegex = new RegExp(`^ {0,${Math.min(3, indent - 1)}}(?:[*+-]|\\d{1,9}[.)])((?:[ 	][^\\n]*)?(?:\\n|$))`);
+          const hrRegex = new RegExp(`^ {0,${Math.min(3, indent - 1)}}((?:- *){3,}|(?:_ *){3,}|(?:\\* *){3,})(?:\\n+|$)`);
+          const fencesBeginRegex = new RegExp(`^ {0,${Math.min(3, indent - 1)}}(?:\`\`\`|~~~)`);
+          const headingBeginRegex = new RegExp(`^ {0,${Math.min(3, indent - 1)}}#`);
+          while (src) {
+            const rawLine = src.split("\n", 1)[0];
+            nextLine = rawLine;
+            if (this.options.pedantic) {
+              nextLine = nextLine.replace(/^ {1,4}(?=( {4})*[^ ])/g, "  ");
             }
-            player.destroy();
-            return;
-          }
-        }
-        const nodeIsOrphaned = !bodyNode || !this.driver.containsElement(bodyNode, element);
-        const leaveClassName = leaveNodeMapIds.get(element);
-        const enterClassName = enterNodeMapIds.get(element);
-        const instruction = this._buildInstruction(entry, subTimelines, enterClassName, leaveClassName, nodeIsOrphaned);
-        if (instruction.errors && instruction.errors.length) {
-          erroneousTransitions.push(instruction);
-          return;
-        }
-        if (nodeIsOrphaned) {
-          player.onStart(() => eraseStyles(element, instruction.fromStyles));
-          player.onDestroy(() => setStyles(element, instruction.toStyles));
-          skippedPlayers.push(player);
-          return;
-        }
-        if (entry.isFallbackTransition) {
-          player.onStart(() => eraseStyles(element, instruction.fromStyles));
-          player.onDestroy(() => setStyles(element, instruction.toStyles));
-          skippedPlayers.push(player);
-          return;
-        }
-        const timelines = [];
-        instruction.timelines.forEach((tl) => {
-          tl.stretchStartingKeyframe = true;
-          if (!this.disabledNodes.has(tl.element)) {
-            timelines.push(tl);
-          }
-        });
-        instruction.timelines = timelines;
-        subTimelines.append(element, instruction.timelines);
-        const tuple = {
-          instruction,
-          player,
-          element
-        };
-        queuedInstructions.push(tuple);
-        instruction.queriedElements.forEach((element2) => getOrSetDefaultValue(queriedElements, element2, []).push(player));
-        instruction.preStyleProps.forEach((stringMap, element2) => {
-          if (stringMap.size) {
-            let setVal = allPreStyleElements.get(element2);
-            if (!setVal) {
-              allPreStyleElements.set(element2, setVal = /* @__PURE__ */ new Set());
-            }
-            stringMap.forEach((_, prop) => setVal.add(prop));
-          }
-        });
-        instruction.postStyleProps.forEach((stringMap, element2) => {
-          let setVal = allPostStyleElements.get(element2);
-          if (!setVal) {
-            allPostStyleElements.set(element2, setVal = /* @__PURE__ */ new Set());
-          }
-          stringMap.forEach((_, prop) => setVal.add(prop));
-        });
-      });
-    }
-    if (erroneousTransitions.length) {
-      const errors = [];
-      erroneousTransitions.forEach((instruction) => {
-        errors.push(transitionFailed(instruction.triggerName, instruction.errors));
-      });
-      allPlayers.forEach((player) => player.destroy());
-      this.reportError(errors);
-    }
-    const allPreviousPlayersMap = /* @__PURE__ */ new Map();
-    const animationElementMap = /* @__PURE__ */ new Map();
-    queuedInstructions.forEach((entry) => {
-      const element = entry.element;
-      if (subTimelines.has(element)) {
-        animationElementMap.set(element, element);
-        this._beforeAnimationBuild(entry.player.namespaceId, entry.instruction, allPreviousPlayersMap);
-      }
-    });
-    skippedPlayers.forEach((player) => {
-      const element = player.element;
-      const previousPlayers = this._getPreviousPlayers(element, false, player.namespaceId, player.triggerName, null);
-      previousPlayers.forEach((prevPlayer) => {
-        getOrSetDefaultValue(allPreviousPlayersMap, element, []).push(prevPlayer);
-        prevPlayer.destroy();
-      });
-    });
-    const replaceNodes = allLeaveNodes.filter((node) => {
-      return replacePostStylesAsPre(node, allPreStyleElements, allPostStyleElements);
-    });
-    const postStylesMap = /* @__PURE__ */ new Map();
-    const allLeaveQueriedNodes = cloakAndComputeStyles(postStylesMap, this.driver, leaveNodesWithoutAnimations, allPostStyleElements, AUTO_STYLE);
-    allLeaveQueriedNodes.forEach((node) => {
-      if (replacePostStylesAsPre(node, allPreStyleElements, allPostStyleElements)) {
-        replaceNodes.push(node);
-      }
-    });
-    const preStylesMap = /* @__PURE__ */ new Map();
-    enterNodeMap.forEach((nodes, root) => {
-      cloakAndComputeStyles(preStylesMap, this.driver, new Set(nodes), allPreStyleElements, \u0275PRE_STYLE);
-    });
-    replaceNodes.forEach((node) => {
-      const post = postStylesMap.get(node);
-      const pre = preStylesMap.get(node);
-      postStylesMap.set(node, new Map([...post?.entries() ?? [], ...pre?.entries() ?? []]));
-    });
-    const rootPlayers = [];
-    const subPlayers = [];
-    const NO_PARENT_ANIMATION_ELEMENT_DETECTED = {};
-    queuedInstructions.forEach((entry) => {
-      const {
-        element,
-        player,
-        instruction
-      } = entry;
-      if (subTimelines.has(element)) {
-        if (disabledElementsSet.has(element)) {
-          player.onDestroy(() => setStyles(element, instruction.toStyles));
-          player.disabled = true;
-          player.overrideTotalTime(instruction.totalTime);
-          skippedPlayers.push(player);
-          return;
-        }
-        let parentWithAnimation = NO_PARENT_ANIMATION_ELEMENT_DETECTED;
-        if (animationElementMap.size > 1) {
-          let elm = element;
-          const parentsToAdd = [];
-          while (elm = elm.parentNode) {
-            const detectedParent = animationElementMap.get(elm);
-            if (detectedParent) {
-              parentWithAnimation = detectedParent;
+            if (fencesBeginRegex.test(nextLine)) {
               break;
             }
-            parentsToAdd.push(elm);
+            if (headingBeginRegex.test(nextLine)) {
+              break;
+            }
+            if (nextBulletRegex.test(nextLine)) {
+              break;
+            }
+            if (hrRegex.test(src)) {
+              break;
+            }
+            if (nextLine.search(/[^ ]/) >= indent || !nextLine.trim()) {
+              itemContents += "\n" + nextLine.slice(indent);
+            } else {
+              if (blankLine) {
+                break;
+              }
+              if (line.search(/[^ ]/) >= 4) {
+                break;
+              }
+              if (fencesBeginRegex.test(line)) {
+                break;
+              }
+              if (headingBeginRegex.test(line)) {
+                break;
+              }
+              if (hrRegex.test(line)) {
+                break;
+              }
+              itemContents += "\n" + nextLine;
+            }
+            if (!blankLine && !nextLine.trim()) {
+              blankLine = true;
+            }
+            raw += rawLine + "\n";
+            src = src.substring(rawLine.length + 1);
+            line = nextLine.slice(indent);
           }
-          parentsToAdd.forEach((parent) => animationElementMap.set(parent, parentWithAnimation));
         }
-        const innerPlayer = this._buildAnimation(player.namespaceId, instruction, allPreviousPlayersMap, skippedPlayersMap, preStylesMap, postStylesMap);
-        player.setRealPlayer(innerPlayer);
-        if (parentWithAnimation === NO_PARENT_ANIMATION_ELEMENT_DETECTED) {
-          rootPlayers.push(player);
+        if (!list2.loose) {
+          if (endsWithBlankLine) {
+            list2.loose = true;
+          } else if (/\n *\n *$/.test(raw)) {
+            endsWithBlankLine = true;
+          }
+        }
+        let istask = null;
+        let ischecked;
+        if (this.options.gfm) {
+          istask = /^\[[ xX]\] /.exec(itemContents);
+          if (istask) {
+            ischecked = istask[0] !== "[ ] ";
+            itemContents = itemContents.replace(/^\[[ xX]\] +/, "");
+          }
+        }
+        list2.items.push({
+          type: "list_item",
+          raw,
+          task: !!istask,
+          checked: ischecked,
+          loose: false,
+          text: itemContents,
+          tokens: []
+        });
+        list2.raw += raw;
+      }
+      list2.items[list2.items.length - 1].raw = list2.items[list2.items.length - 1].raw.trimEnd();
+      list2.items[list2.items.length - 1].text = list2.items[list2.items.length - 1].text.trimEnd();
+      list2.raw = list2.raw.trimEnd();
+      for (let i = 0; i < list2.items.length; i++) {
+        this.lexer.state.top = false;
+        list2.items[i].tokens = this.lexer.blockTokens(list2.items[i].text, []);
+        if (!list2.loose) {
+          const spacers = list2.items[i].tokens.filter((t) => t.type === "space");
+          const hasMultipleLineBreaks = spacers.length > 0 && spacers.some((t) => /\n.*\n/.test(t.raw));
+          list2.loose = hasMultipleLineBreaks;
+        }
+      }
+      if (list2.loose) {
+        for (let i = 0; i < list2.items.length; i++) {
+          list2.items[i].loose = true;
+        }
+      }
+      return list2;
+    }
+  }
+  html(src) {
+    const cap = this.rules.block.html.exec(src);
+    if (cap) {
+      const token = {
+        type: "html",
+        block: true,
+        raw: cap[0],
+        pre: cap[1] === "pre" || cap[1] === "script" || cap[1] === "style",
+        text: cap[0]
+      };
+      return token;
+    }
+  }
+  def(src) {
+    const cap = this.rules.block.def.exec(src);
+    if (cap) {
+      const tag2 = cap[1].toLowerCase().replace(/\s+/g, " ");
+      const href = cap[2] ? cap[2].replace(/^<(.*)>$/, "$1").replace(this.rules.inline.anyPunctuation, "$1") : "";
+      const title = cap[3] ? cap[3].substring(1, cap[3].length - 1).replace(this.rules.inline.anyPunctuation, "$1") : cap[3];
+      return {
+        type: "def",
+        tag: tag2,
+        raw: cap[0],
+        href,
+        title
+      };
+    }
+  }
+  table(src) {
+    const cap = this.rules.block.table.exec(src);
+    if (!cap) {
+      return;
+    }
+    if (!/[:|]/.test(cap[2])) {
+      return;
+    }
+    const headers = splitCells(cap[1]);
+    const aligns = cap[2].replace(/^\||\| *$/g, "").split("|");
+    const rows = cap[3] && cap[3].trim() ? cap[3].replace(/\n[ \t]*$/, "").split("\n") : [];
+    const item = {
+      type: "table",
+      raw: cap[0],
+      header: [],
+      align: [],
+      rows: []
+    };
+    if (headers.length !== aligns.length) {
+      return;
+    }
+    for (const align of aligns) {
+      if (/^ *-+: *$/.test(align)) {
+        item.align.push("right");
+      } else if (/^ *:-+: *$/.test(align)) {
+        item.align.push("center");
+      } else if (/^ *:-+ *$/.test(align)) {
+        item.align.push("left");
+      } else {
+        item.align.push(null);
+      }
+    }
+    for (let i = 0; i < headers.length; i++) {
+      item.header.push({
+        text: headers[i],
+        tokens: this.lexer.inline(headers[i]),
+        header: true,
+        align: item.align[i]
+      });
+    }
+    for (const row of rows) {
+      item.rows.push(splitCells(row, item.header.length).map((cell, i) => {
+        return {
+          text: cell,
+          tokens: this.lexer.inline(cell),
+          header: false,
+          align: item.align[i]
+        };
+      }));
+    }
+    return item;
+  }
+  lheading(src) {
+    const cap = this.rules.block.lheading.exec(src);
+    if (cap) {
+      return {
+        type: "heading",
+        raw: cap[0],
+        depth: cap[2].charAt(0) === "=" ? 1 : 2,
+        text: cap[1],
+        tokens: this.lexer.inline(cap[1])
+      };
+    }
+  }
+  paragraph(src) {
+    const cap = this.rules.block.paragraph.exec(src);
+    if (cap) {
+      const text = cap[1].charAt(cap[1].length - 1) === "\n" ? cap[1].slice(0, -1) : cap[1];
+      return {
+        type: "paragraph",
+        raw: cap[0],
+        text,
+        tokens: this.lexer.inline(text)
+      };
+    }
+  }
+  text(src) {
+    const cap = this.rules.block.text.exec(src);
+    if (cap) {
+      return {
+        type: "text",
+        raw: cap[0],
+        text: cap[0],
+        tokens: this.lexer.inline(cap[0])
+      };
+    }
+  }
+  escape(src) {
+    const cap = this.rules.inline.escape.exec(src);
+    if (cap) {
+      return {
+        type: "escape",
+        raw: cap[0],
+        text: escape$1(cap[1])
+      };
+    }
+  }
+  tag(src) {
+    const cap = this.rules.inline.tag.exec(src);
+    if (cap) {
+      if (!this.lexer.state.inLink && /^<a /i.test(cap[0])) {
+        this.lexer.state.inLink = true;
+      } else if (this.lexer.state.inLink && /^<\/a>/i.test(cap[0])) {
+        this.lexer.state.inLink = false;
+      }
+      if (!this.lexer.state.inRawBlock && /^<(pre|code|kbd|script)(\s|>)/i.test(cap[0])) {
+        this.lexer.state.inRawBlock = true;
+      } else if (this.lexer.state.inRawBlock && /^<\/(pre|code|kbd|script)(\s|>)/i.test(cap[0])) {
+        this.lexer.state.inRawBlock = false;
+      }
+      return {
+        type: "html",
+        raw: cap[0],
+        inLink: this.lexer.state.inLink,
+        inRawBlock: this.lexer.state.inRawBlock,
+        block: false,
+        text: cap[0]
+      };
+    }
+  }
+  link(src) {
+    const cap = this.rules.inline.link.exec(src);
+    if (cap) {
+      const trimmedUrl = cap[2].trim();
+      if (!this.options.pedantic && /^</.test(trimmedUrl)) {
+        if (!/>$/.test(trimmedUrl)) {
+          return;
+        }
+        const rtrimSlash = rtrim(trimmedUrl.slice(0, -1), "\\");
+        if ((trimmedUrl.length - rtrimSlash.length) % 2 === 0) {
+          return;
+        }
+      } else {
+        const lastParenIndex = findClosingBracket(cap[2], "()");
+        if (lastParenIndex > -1) {
+          const start = cap[0].indexOf("!") === 0 ? 5 : 4;
+          const linkLen = start + cap[1].length + lastParenIndex;
+          cap[2] = cap[2].substring(0, lastParenIndex);
+          cap[0] = cap[0].substring(0, linkLen).trim();
+          cap[3] = "";
+        }
+      }
+      let href = cap[2];
+      let title = "";
+      if (this.options.pedantic) {
+        const link2 = /^([^'"]*[^\s])\s+(['"])(.*)\2/.exec(href);
+        if (link2) {
+          href = link2[1];
+          title = link2[3];
+        }
+      } else {
+        title = cap[3] ? cap[3].slice(1, -1) : "";
+      }
+      href = href.trim();
+      if (/^</.test(href)) {
+        if (this.options.pedantic && !/>$/.test(trimmedUrl)) {
+          href = href.slice(1);
         } else {
-          const parentPlayers = this.playersByElement.get(parentWithAnimation);
-          if (parentPlayers && parentPlayers.length) {
-            player.parentPlayer = optimizeGroupPlayer(parentPlayers);
+          href = href.slice(1, -1);
+        }
+      }
+      return outputLink(cap, {
+        href: href ? href.replace(this.rules.inline.anyPunctuation, "$1") : href,
+        title: title ? title.replace(this.rules.inline.anyPunctuation, "$1") : title
+      }, cap[0], this.lexer);
+    }
+  }
+  reflink(src, links) {
+    let cap;
+    if ((cap = this.rules.inline.reflink.exec(src)) || (cap = this.rules.inline.nolink.exec(src))) {
+      const linkString = (cap[2] || cap[1]).replace(/\s+/g, " ");
+      const link2 = links[linkString.toLowerCase()];
+      if (!link2) {
+        const text = cap[0].charAt(0);
+        return {
+          type: "text",
+          raw: text,
+          text
+        };
+      }
+      return outputLink(cap, link2, cap[0], this.lexer);
+    }
+  }
+  emStrong(src, maskedSrc, prevChar = "") {
+    let match = this.rules.inline.emStrongLDelim.exec(src);
+    if (!match)
+      return;
+    if (match[3] && prevChar.match(/[\p{L}\p{N}]/u))
+      return;
+    const nextChar = match[1] || match[2] || "";
+    if (!nextChar || !prevChar || this.rules.inline.punctuation.exec(prevChar)) {
+      const lLength = [...match[0]].length - 1;
+      let rDelim, rLength, delimTotal = lLength, midDelimTotal = 0;
+      const endReg = match[0][0] === "*" ? this.rules.inline.emStrongRDelimAst : this.rules.inline.emStrongRDelimUnd;
+      endReg.lastIndex = 0;
+      maskedSrc = maskedSrc.slice(-1 * src.length + lLength);
+      while ((match = endReg.exec(maskedSrc)) != null) {
+        rDelim = match[1] || match[2] || match[3] || match[4] || match[5] || match[6];
+        if (!rDelim)
+          continue;
+        rLength = [...rDelim].length;
+        if (match[3] || match[4]) {
+          delimTotal += rLength;
+          continue;
+        } else if (match[5] || match[6]) {
+          if (lLength % 3 && !((lLength + rLength) % 3)) {
+            midDelimTotal += rLength;
+            continue;
           }
-          skippedPlayers.push(player);
         }
+        delimTotal -= rLength;
+        if (delimTotal > 0)
+          continue;
+        rLength = Math.min(rLength, rLength + delimTotal + midDelimTotal);
+        const lastCharLength = [...match[0]][0].length;
+        const raw = src.slice(0, lLength + match.index + lastCharLength + rLength);
+        if (Math.min(lLength, rLength) % 2) {
+          const text2 = raw.slice(1, -1);
+          return {
+            type: "em",
+            raw,
+            text: text2,
+            tokens: this.lexer.inlineTokens(text2)
+          };
+        }
+        const text = raw.slice(2, -2);
+        return {
+          type: "strong",
+          raw,
+          text,
+          tokens: this.lexer.inlineTokens(text)
+        };
+      }
+    }
+  }
+  codespan(src) {
+    const cap = this.rules.inline.code.exec(src);
+    if (cap) {
+      let text = cap[2].replace(/\n/g, " ");
+      const hasNonSpaceChars = /[^ ]/.test(text);
+      const hasSpaceCharsOnBothEnds = /^ /.test(text) && / $/.test(text);
+      if (hasNonSpaceChars && hasSpaceCharsOnBothEnds) {
+        text = text.substring(1, text.length - 1);
+      }
+      text = escape$1(text, true);
+      return {
+        type: "codespan",
+        raw: cap[0],
+        text
+      };
+    }
+  }
+  br(src) {
+    const cap = this.rules.inline.br.exec(src);
+    if (cap) {
+      return {
+        type: "br",
+        raw: cap[0]
+      };
+    }
+  }
+  del(src) {
+    const cap = this.rules.inline.del.exec(src);
+    if (cap) {
+      return {
+        type: "del",
+        raw: cap[0],
+        text: cap[2],
+        tokens: this.lexer.inlineTokens(cap[2])
+      };
+    }
+  }
+  autolink(src) {
+    const cap = this.rules.inline.autolink.exec(src);
+    if (cap) {
+      let text, href;
+      if (cap[2] === "@") {
+        text = escape$1(cap[1]);
+        href = "mailto:" + text;
       } else {
-        eraseStyles(element, instruction.fromStyles);
-        player.onDestroy(() => setStyles(element, instruction.toStyles));
-        subPlayers.push(player);
-        if (disabledElementsSet.has(element)) {
-          skippedPlayers.push(player);
-        }
+        text = escape$1(cap[1]);
+        href = text;
       }
-    });
-    subPlayers.forEach((player) => {
-      const playersForElement = skippedPlayersMap.get(player.element);
-      if (playersForElement && playersForElement.length) {
-        const innerPlayer = optimizeGroupPlayer(playersForElement);
-        player.setRealPlayer(innerPlayer);
-      }
-    });
-    skippedPlayers.forEach((player) => {
-      if (player.parentPlayer) {
-        player.syncPlayerEvents(player.parentPlayer);
-      } else {
-        player.destroy();
-      }
-    });
-    for (let i2 = 0; i2 < allLeaveNodes.length; i2++) {
-      const element = allLeaveNodes[i2];
-      const details = element[REMOVAL_FLAG];
-      removeClass(element, LEAVE_CLASSNAME);
-      if (details && details.hasAnimation) continue;
-      let players = [];
-      if (queriedElements.size) {
-        let queriedPlayerResults = queriedElements.get(element);
-        if (queriedPlayerResults && queriedPlayerResults.length) {
-          players.push(...queriedPlayerResults);
-        }
-        let queriedInnerElements = this.driver.query(element, NG_ANIMATING_SELECTOR, true);
-        for (let j = 0; j < queriedInnerElements.length; j++) {
-          let queriedPlayers = queriedElements.get(queriedInnerElements[j]);
-          if (queriedPlayers && queriedPlayers.length) {
-            players.push(...queriedPlayers);
+      return {
+        type: "link",
+        raw: cap[0],
+        text,
+        href,
+        tokens: [
+          {
+            type: "text",
+            raw: text,
+            text
           }
-        }
-      }
-      const activePlayers = players.filter((p) => !p.destroyed);
-      if (activePlayers.length) {
-        removeNodesAfterAnimationDone(this, element, activePlayers);
+        ]
+      };
+    }
+  }
+  url(src) {
+    let cap;
+    if (cap = this.rules.inline.url.exec(src)) {
+      let text, href;
+      if (cap[2] === "@") {
+        text = escape$1(cap[0]);
+        href = "mailto:" + text;
       } else {
-        this.processLeaveNode(element);
-      }
-    }
-    allLeaveNodes.length = 0;
-    rootPlayers.forEach((player) => {
-      this.players.push(player);
-      player.onDone(() => {
-        player.destroy();
-        const index = this.players.indexOf(player);
-        this.players.splice(index, 1);
-      });
-      player.play();
-    });
-    return rootPlayers;
-  }
-  afterFlush(callback) {
-    this._flushFns.push(callback);
-  }
-  afterFlushAnimationsDone(callback) {
-    this._whenQuietFns.push(callback);
-  }
-  _getPreviousPlayers(element, isQueriedElement, namespaceId, triggerName, toStateValue) {
-    let players = [];
-    if (isQueriedElement) {
-      const queriedElementPlayers = this.playersByQueriedElement.get(element);
-      if (queriedElementPlayers) {
-        players = queriedElementPlayers;
-      }
-    } else {
-      const elementPlayers = this.playersByElement.get(element);
-      if (elementPlayers) {
-        const isRemovalAnimation = !toStateValue || toStateValue == VOID_VALUE;
-        elementPlayers.forEach((player) => {
-          if (player.queued) return;
-          if (!isRemovalAnimation && player.triggerName != triggerName) return;
-          players.push(player);
-        });
-      }
-    }
-    if (namespaceId || triggerName) {
-      players = players.filter((player) => {
-        if (namespaceId && namespaceId != player.namespaceId) return false;
-        if (triggerName && triggerName != player.triggerName) return false;
-        return true;
-      });
-    }
-    return players;
-  }
-  _beforeAnimationBuild(namespaceId, instruction, allPreviousPlayersMap) {
-    const triggerName = instruction.triggerName;
-    const rootElement = instruction.element;
-    const targetNameSpaceId = instruction.isRemovalTransition ? void 0 : namespaceId;
-    const targetTriggerName = instruction.isRemovalTransition ? void 0 : triggerName;
-    for (const timelineInstruction of instruction.timelines) {
-      const element = timelineInstruction.element;
-      const isQueriedElement = element !== rootElement;
-      const players = getOrSetDefaultValue(allPreviousPlayersMap, element, []);
-      const previousPlayers = this._getPreviousPlayers(element, isQueriedElement, targetNameSpaceId, targetTriggerName, instruction.toState);
-      previousPlayers.forEach((player) => {
-        const realPlayer = player.getRealPlayer();
-        if (realPlayer.beforeDestroy) {
-          realPlayer.beforeDestroy();
-        }
-        player.destroy();
-        players.push(player);
-      });
-    }
-    eraseStyles(rootElement, instruction.fromStyles);
-  }
-  _buildAnimation(namespaceId, instruction, allPreviousPlayersMap, skippedPlayersMap, preStylesMap, postStylesMap) {
-    const triggerName = instruction.triggerName;
-    const rootElement = instruction.element;
-    const allQueriedPlayers = [];
-    const allConsumedElements = /* @__PURE__ */ new Set();
-    const allSubElements = /* @__PURE__ */ new Set();
-    const allNewPlayers = instruction.timelines.map((timelineInstruction) => {
-      const element = timelineInstruction.element;
-      allConsumedElements.add(element);
-      const details = element[REMOVAL_FLAG];
-      if (details && details.removedBeforeQueried) return new NoopAnimationPlayer(timelineInstruction.duration, timelineInstruction.delay);
-      const isQueriedElement = element !== rootElement;
-      const previousPlayers = flattenGroupPlayers((allPreviousPlayersMap.get(element) || EMPTY_PLAYER_ARRAY).map((p) => p.getRealPlayer())).filter((p) => {
-        const pp = p;
-        return pp.element ? pp.element === element : false;
-      });
-      const preStyles = preStylesMap.get(element);
-      const postStyles = postStylesMap.get(element);
-      const keyframes = normalizeKeyframes$1(this._normalizer, timelineInstruction.keyframes, preStyles, postStyles);
-      const player2 = this._buildPlayer(timelineInstruction, keyframes, previousPlayers);
-      if (timelineInstruction.subTimeline && skippedPlayersMap) {
-        allSubElements.add(element);
-      }
-      if (isQueriedElement) {
-        const wrappedPlayer = new TransitionAnimationPlayer(namespaceId, triggerName, element);
-        wrappedPlayer.setRealPlayer(player2);
-        allQueriedPlayers.push(wrappedPlayer);
-      }
-      return player2;
-    });
-    allQueriedPlayers.forEach((player2) => {
-      getOrSetDefaultValue(this.playersByQueriedElement, player2.element, []).push(player2);
-      player2.onDone(() => deleteOrUnsetInMap(this.playersByQueriedElement, player2.element, player2));
-    });
-    allConsumedElements.forEach((element) => addClass(element, NG_ANIMATING_CLASSNAME));
-    const player = optimizeGroupPlayer(allNewPlayers);
-    player.onDestroy(() => {
-      allConsumedElements.forEach((element) => removeClass(element, NG_ANIMATING_CLASSNAME));
-      setStyles(rootElement, instruction.toStyles);
-    });
-    allSubElements.forEach((element) => {
-      getOrSetDefaultValue(skippedPlayersMap, element, []).push(player);
-    });
-    return player;
-  }
-  _buildPlayer(instruction, keyframes, previousPlayers) {
-    if (keyframes.length > 0) {
-      return this.driver.animate(instruction.element, keyframes, instruction.duration, instruction.delay, instruction.easing, previousPlayers);
-    }
-    return new NoopAnimationPlayer(instruction.duration, instruction.delay);
-  }
-};
-var TransitionAnimationPlayer = class {
-  namespaceId;
-  triggerName;
-  element;
-  _player = new NoopAnimationPlayer();
-  _containsRealPlayer = false;
-  _queuedCallbacks = /* @__PURE__ */ new Map();
-  destroyed = false;
-  parentPlayer = null;
-  markedForDestroy = false;
-  disabled = false;
-  queued = true;
-  totalTime = 0;
-  constructor(namespaceId, triggerName, element) {
-    this.namespaceId = namespaceId;
-    this.triggerName = triggerName;
-    this.element = element;
-  }
-  setRealPlayer(player) {
-    if (this._containsRealPlayer) return;
-    this._player = player;
-    this._queuedCallbacks.forEach((callbacks, phase) => {
-      callbacks.forEach((callback) => listenOnPlayer(player, phase, void 0, callback));
-    });
-    this._queuedCallbacks.clear();
-    this._containsRealPlayer = true;
-    this.overrideTotalTime(player.totalTime);
-    this.queued = false;
-  }
-  getRealPlayer() {
-    return this._player;
-  }
-  overrideTotalTime(totalTime) {
-    this.totalTime = totalTime;
-  }
-  syncPlayerEvents(player) {
-    const p = this._player;
-    if (p.triggerCallback) {
-      player.onStart(() => p.triggerCallback("start"));
-    }
-    player.onDone(() => this.finish());
-    player.onDestroy(() => this.destroy());
-  }
-  _queueEvent(name, callback) {
-    getOrSetDefaultValue(this._queuedCallbacks, name, []).push(callback);
-  }
-  onDone(fn) {
-    if (this.queued) {
-      this._queueEvent("done", fn);
-    }
-    this._player.onDone(fn);
-  }
-  onStart(fn) {
-    if (this.queued) {
-      this._queueEvent("start", fn);
-    }
-    this._player.onStart(fn);
-  }
-  onDestroy(fn) {
-    if (this.queued) {
-      this._queueEvent("destroy", fn);
-    }
-    this._player.onDestroy(fn);
-  }
-  init() {
-    this._player.init();
-  }
-  hasStarted() {
-    return this.queued ? false : this._player.hasStarted();
-  }
-  play() {
-    !this.queued && this._player.play();
-  }
-  pause() {
-    !this.queued && this._player.pause();
-  }
-  restart() {
-    !this.queued && this._player.restart();
-  }
-  finish() {
-    this._player.finish();
-  }
-  destroy() {
-    this.destroyed = true;
-    this._player.destroy();
-  }
-  reset() {
-    !this.queued && this._player.reset();
-  }
-  setPosition(p) {
-    if (!this.queued) {
-      this._player.setPosition(p);
-    }
-  }
-  getPosition() {
-    return this.queued ? 0 : this._player.getPosition();
-  }
-  triggerCallback(phaseName) {
-    const p = this._player;
-    if (p.triggerCallback) {
-      p.triggerCallback(phaseName);
-    }
-  }
-};
-function deleteOrUnsetInMap(map2, key, value) {
-  let currentValues = map2.get(key);
-  if (currentValues) {
-    if (currentValues.length) {
-      const index = currentValues.indexOf(value);
-      currentValues.splice(index, 1);
-    }
-    if (currentValues.length == 0) {
-      map2.delete(key);
-    }
-  }
-  return currentValues;
-}
-function normalizeTriggerValue(value) {
-  return value != null ? value : null;
-}
-function isElementNode(node) {
-  return node && node["nodeType"] === 1;
-}
-function isTriggerEventValid(eventName) {
-  return eventName == "start" || eventName == "done";
-}
-function cloakElement(element, value) {
-  const oldValue = element.style.display;
-  element.style.display = value != null ? value : "none";
-  return oldValue;
-}
-function cloakAndComputeStyles(valuesMap, driver, elements, elementPropsMap, defaultStyle) {
-  const cloakVals = [];
-  elements.forEach((element) => cloakVals.push(cloakElement(element)));
-  const failedElements = [];
-  elementPropsMap.forEach((props, element) => {
-    const styles = /* @__PURE__ */ new Map();
-    props.forEach((prop) => {
-      const value = driver.computeStyle(element, prop, defaultStyle);
-      styles.set(prop, value);
-      if (!value || value.length == 0) {
-        element[REMOVAL_FLAG] = NULL_REMOVED_QUERIED_STATE;
-        failedElements.push(element);
-      }
-    });
-    valuesMap.set(element, styles);
-  });
-  let i = 0;
-  elements.forEach((element) => cloakElement(element, cloakVals[i++]));
-  return failedElements;
-}
-function buildRootMap(roots, nodes) {
-  const rootMap = /* @__PURE__ */ new Map();
-  roots.forEach((root) => rootMap.set(root, []));
-  if (nodes.length == 0) return rootMap;
-  const NULL_NODE = 1;
-  const nodeSet = new Set(nodes);
-  const localRootMap = /* @__PURE__ */ new Map();
-  function getRoot(node) {
-    if (!node) return NULL_NODE;
-    let root = localRootMap.get(node);
-    if (root) return root;
-    const parent = node.parentNode;
-    if (rootMap.has(parent)) {
-      root = parent;
-    } else if (nodeSet.has(parent)) {
-      root = NULL_NODE;
-    } else {
-      root = getRoot(parent);
-    }
-    localRootMap.set(node, root);
-    return root;
-  }
-  nodes.forEach((node) => {
-    const root = getRoot(node);
-    if (root !== NULL_NODE) {
-      rootMap.get(root).push(node);
-    }
-  });
-  return rootMap;
-}
-function addClass(element, className) {
-  element.classList?.add(className);
-}
-function removeClass(element, className) {
-  element.classList?.remove(className);
-}
-function removeNodesAfterAnimationDone(engine, element, players) {
-  optimizeGroupPlayer(players).onDone(() => engine.processLeaveNode(element));
-}
-function flattenGroupPlayers(players) {
-  const finalPlayers = [];
-  _flattenGroupPlayersRecur(players, finalPlayers);
-  return finalPlayers;
-}
-function _flattenGroupPlayersRecur(players, finalPlayers) {
-  for (let i = 0; i < players.length; i++) {
-    const player = players[i];
-    if (player instanceof AnimationGroupPlayer) {
-      _flattenGroupPlayersRecur(player.players, finalPlayers);
-    } else {
-      finalPlayers.push(player);
-    }
-  }
-}
-function objEquals(a, b) {
-  const k1 = Object.keys(a);
-  const k2 = Object.keys(b);
-  if (k1.length != k2.length) return false;
-  for (let i = 0; i < k1.length; i++) {
-    const prop = k1[i];
-    if (!b.hasOwnProperty(prop) || a[prop] !== b[prop]) return false;
-  }
-  return true;
-}
-function replacePostStylesAsPre(element, allPreStyleElements, allPostStyleElements) {
-  const postEntry = allPostStyleElements.get(element);
-  if (!postEntry) return false;
-  let preEntry = allPreStyleElements.get(element);
-  if (preEntry) {
-    postEntry.forEach((data) => preEntry.add(data));
-  } else {
-    allPreStyleElements.set(element, postEntry);
-  }
-  allPostStyleElements.delete(element);
-  return true;
-}
-var AnimationEngine = class {
-  _driver;
-  _normalizer;
-  _transitionEngine;
-  _timelineEngine;
-  _triggerCache = {};
-  onRemovalComplete = (element, context) => {
-  };
-  constructor(doc, _driver, _normalizer) {
-    this._driver = _driver;
-    this._normalizer = _normalizer;
-    this._transitionEngine = new TransitionAnimationEngine(doc.body, _driver, _normalizer);
-    this._timelineEngine = new TimelineAnimationEngine(doc.body, _driver, _normalizer);
-    this._transitionEngine.onRemovalComplete = (element, context) => this.onRemovalComplete(element, context);
-  }
-  registerTrigger(componentId, namespaceId, hostElement, name, metadata) {
-    const cacheKey = componentId + "-" + name;
-    let trigger = this._triggerCache[cacheKey];
-    if (!trigger) {
-      const errors = [];
-      const warnings = [];
-      const ast = buildAnimationAst(this._driver, metadata, errors, warnings);
-      if (errors.length) {
-        throw triggerBuildFailed(name, errors);
-      }
-      if (typeof ngDevMode === "undefined" || ngDevMode) {
-        if (warnings.length) {
-          warnTriggerBuild(name, warnings);
+        let prevCapZero;
+        do {
+          prevCapZero = cap[0];
+          cap[0] = this.rules.inline._backpedal.exec(cap[0])?.[0] ?? "";
+        } while (prevCapZero !== cap[0]);
+        text = escape$1(cap[0]);
+        if (cap[1] === "www.") {
+          href = "http://" + cap[0];
+        } else {
+          href = cap[0];
         }
       }
-      trigger = buildTrigger(name, ast, this._normalizer);
-      this._triggerCache[cacheKey] = trigger;
-    }
-    this._transitionEngine.registerTrigger(namespaceId, name, trigger);
-  }
-  register(namespaceId, hostElement) {
-    this._transitionEngine.register(namespaceId, hostElement);
-  }
-  destroy(namespaceId, context) {
-    this._transitionEngine.destroy(namespaceId, context);
-  }
-  onInsert(namespaceId, element, parent, insertBefore) {
-    this._transitionEngine.insertNode(namespaceId, element, parent, insertBefore);
-  }
-  onRemove(namespaceId, element, context) {
-    this._transitionEngine.removeNode(namespaceId, element, context);
-  }
-  disableAnimations(element, disable) {
-    this._transitionEngine.markElementAsDisabled(element, disable);
-  }
-  process(namespaceId, element, property, value) {
-    if (property.charAt(0) == "@") {
-      const [id, action] = parseTimelineCommand(property);
-      const args = value;
-      this._timelineEngine.command(id, element, action, args);
-    } else {
-      this._transitionEngine.trigger(namespaceId, element, property, value);
+      return {
+        type: "link",
+        raw: cap[0],
+        text,
+        href,
+        tokens: [
+          {
+            type: "text",
+            raw: text,
+            text
+          }
+        ]
+      };
     }
   }
-  listen(namespaceId, element, eventName, eventPhase, callback) {
-    if (eventName.charAt(0) == "@") {
-      const [id, action] = parseTimelineCommand(eventName);
-      return this._timelineEngine.listen(id, element, action, callback);
-    }
-    return this._transitionEngine.listen(namespaceId, element, eventName, eventPhase, callback);
-  }
-  flush(microtaskId = -1) {
-    this._transitionEngine.flush(microtaskId);
-  }
-  get players() {
-    return [...this._transitionEngine.players, ...this._timelineEngine.players];
-  }
-  whenRenderingDone() {
-    return this._transitionEngine.whenRenderingDone();
-  }
-  afterFlushAnimationsDone(cb) {
-    this._transitionEngine.afterFlushAnimationsDone(cb);
-  }
-};
-function packageNonAnimatableStyles(element, styles) {
-  let startStyles = null;
-  let endStyles = null;
-  if (Array.isArray(styles) && styles.length) {
-    startStyles = filterNonAnimatableStyles(styles[0]);
-    if (styles.length > 1) {
-      endStyles = filterNonAnimatableStyles(styles[styles.length - 1]);
-    }
-  } else if (styles instanceof Map) {
-    startStyles = filterNonAnimatableStyles(styles);
-  }
-  return startStyles || endStyles ? new SpecialCasedStyles(element, startStyles, endStyles) : null;
-}
-var SpecialCasedStyles = class _SpecialCasedStyles {
-  _element;
-  _startStyles;
-  _endStyles;
-  static initialStylesByElement = /* @__PURE__ */ new WeakMap();
-  _state = 0;
-  _initialStyles;
-  constructor(_element, _startStyles, _endStyles) {
-    this._element = _element;
-    this._startStyles = _startStyles;
-    this._endStyles = _endStyles;
-    let initialStyles = _SpecialCasedStyles.initialStylesByElement.get(_element);
-    if (!initialStyles) {
-      _SpecialCasedStyles.initialStylesByElement.set(_element, initialStyles = /* @__PURE__ */ new Map());
-    }
-    this._initialStyles = initialStyles;
-  }
-  start() {
-    if (this._state < 1) {
-      if (this._startStyles) {
-        setStyles(this._element, this._startStyles, this._initialStyles);
+  inlineText(src) {
+    const cap = this.rules.inline.text.exec(src);
+    if (cap) {
+      let text;
+      if (this.lexer.state.inRawBlock) {
+        text = cap[0];
+      } else {
+        text = escape$1(cap[0]);
       }
-      this._state = 1;
-    }
-  }
-  finish() {
-    this.start();
-    if (this._state < 2) {
-      setStyles(this._element, this._initialStyles);
-      if (this._endStyles) {
-        setStyles(this._element, this._endStyles);
-        this._endStyles = null;
-      }
-      this._state = 1;
-    }
-  }
-  destroy() {
-    this.finish();
-    if (this._state < 3) {
-      _SpecialCasedStyles.initialStylesByElement.delete(this._element);
-      if (this._startStyles) {
-        eraseStyles(this._element, this._startStyles);
-        this._endStyles = null;
-      }
-      if (this._endStyles) {
-        eraseStyles(this._element, this._endStyles);
-        this._endStyles = null;
-      }
-      setStyles(this._element, this._initialStyles);
-      this._state = 3;
+      return {
+        type: "text",
+        raw: cap[0],
+        text
+      };
     }
   }
 };
-function filterNonAnimatableStyles(styles) {
-  let result = null;
-  styles.forEach((val, prop) => {
-    if (isNonAnimatableStyle(prop)) {
-      result = result || /* @__PURE__ */ new Map();
-      result.set(prop, val);
-    }
-  });
-  return result;
-}
-function isNonAnimatableStyle(prop) {
-  return prop === "display" || prop === "position";
-}
-var WebAnimationsPlayer = class {
-  element;
-  keyframes;
+var newline = /^(?: *(?:\n|$))+/;
+var blockCode = /^( {4}[^\n]+(?:\n(?: *(?:\n|$))*)?)+/;
+var fences = /^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})([^\n]*)(?:\n|$)(?:|([\s\S]*?)(?:\n|$))(?: {0,3}\1[~`]* *(?=\n|$)|$)/;
+var hr = /^ {0,3}((?:-[\t ]*){3,}|(?:_[ \t]*){3,}|(?:\*[ \t]*){3,})(?:\n+|$)/;
+var heading = /^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/;
+var bullet = /(?:[*+-]|\d{1,9}[.)])/;
+var lheading = edit(/^(?!bull |blockCode|fences|blockquote|heading|html)((?:.|\n(?!\s*?\n|bull |blockCode|fences|blockquote|heading|html))+?)\n {0,3}(=+|-+) *(?:\n+|$)/).replace(/bull/g, bullet).replace(/blockCode/g, / {4}/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}/).replace(/html/g, / {0,3}<[^\n>]+>\n/).getRegex();
+var _paragraph = /^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html|table| +\n)[^\n]+)*)/;
+var blockText = /^[^\n]+/;
+var _blockLabel = /(?!\s*\])(?:\\.|[^\[\]\\])+/;
+var def = edit(/^ {0,3}\[(label)\]: *(?:\n *)?([^<\s][^\s]*|<.*?>)(?:(?: +(?:\n *)?| *\n *)(title))? *(?:\n+|$)/).replace("label", _blockLabel).replace("title", /(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/).getRegex();
+var list = edit(/^( {0,3}bull)([ \t][^\n]+?)?(?:\n|$)/).replace(/bull/g, bullet).getRegex();
+var _tag = "address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul";
+var _comment = /<!--(?:-?>|[\s\S]*?(?:-->|$))/;
+var html = edit("^ {0,3}(?:<(script|pre|style|textarea)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)|comment[^\\n]*(\\n+|$)|<\\?[\\s\\S]*?(?:\\?>\\n*|$)|<![A-Z][\\s\\S]*?(?:>\\n*|$)|<!\\[CDATA\\[[\\s\\S]*?(?:\\]\\]>\\n*|$)|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:(?:\\n *)+\\n|$)|<(?!script|pre|style|textarea)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n *)+\\n|$)|</(?!script|pre|style|textarea)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n *)+\\n|$))", "i").replace("comment", _comment).replace("tag", _tag).replace("attribute", / +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/).getRegex();
+var paragraph = edit(_paragraph).replace("hr", hr).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("|table", "").replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", _tag).getRegex();
+var blockquote = edit(/^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/).replace("paragraph", paragraph).getRegex();
+var blockNormal = {
+  blockquote,
+  code: blockCode,
+  def,
+  fences,
+  heading,
+  hr,
+  html,
+  lheading,
+  list,
+  newline,
+  paragraph,
+  table: noopTest,
+  text: blockText
+};
+var gfmTable = edit("^ *([^\\n ].*)\\n {0,3}((?:\\| *)?:?-+:? *(?:\\| *:?-+:? *)*(?:\\| *)?)(?:\\n((?:(?! *\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)").replace("hr", hr).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("blockquote", " {0,3}>").replace("code", " {4}[^\\n]").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", _tag).getRegex();
+var blockGfm = __spreadProps(__spreadValues({}, blockNormal), {
+  table: gfmTable,
+  paragraph: edit(_paragraph).replace("hr", hr).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("table", gfmTable).replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", _tag).getRegex()
+});
+var blockPedantic = __spreadProps(__spreadValues({}, blockNormal), {
+  html: edit(`^ *(?:comment *(?:\\n|\\s*$)|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)|<tag(?:"[^"]*"|'[^']*'|\\s[^'"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))`).replace("comment", _comment).replace(/tag/g, "(?!(?:a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)\\b)\\w+(?!:|[^\\w\\s@]*@)\\b").getRegex(),
+  def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/,
+  heading: /^(#{1,6})(.*)(?:\n+|$)/,
+  fences: noopTest,
+  // fences not supported
+  lheading: /^(.+?)\n {0,3}(=+|-+) *(?:\n+|$)/,
+  paragraph: edit(_paragraph).replace("hr", hr).replace("heading", " *#{1,6} *[^\n]").replace("lheading", lheading).replace("|table", "").replace("blockquote", " {0,3}>").replace("|fences", "").replace("|list", "").replace("|html", "").replace("|tag", "").getRegex()
+});
+var escape = /^\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/;
+var inlineCode = /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/;
+var br = /^( {2,}|\\)\n(?!\s*$)/;
+var inlineText = /^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*_]|\b_|$)|[^ ](?= {2,}\n)))/;
+var _punctuation = "\\p{P}\\p{S}";
+var punctuation = edit(/^((?![*_])[\spunctuation])/, "u").replace(/punctuation/g, _punctuation).getRegex();
+var blockSkip = /\[[^[\]]*?\]\([^\(\)]*?\)|`[^`]*?`|<[^<>]*?>/g;
+var emStrongLDelim = edit(/^(?:\*+(?:((?!\*)[punct])|[^\s*]))|^_+(?:((?!_)[punct])|([^\s_]))/, "u").replace(/punct/g, _punctuation).getRegex();
+var emStrongRDelimAst = edit("^[^_*]*?__[^_*]*?\\*[^_*]*?(?=__)|[^*]+(?=[^*])|(?!\\*)[punct](\\*+)(?=[\\s]|$)|[^punct\\s](\\*+)(?!\\*)(?=[punct\\s]|$)|(?!\\*)[punct\\s](\\*+)(?=[^punct\\s])|[\\s](\\*+)(?!\\*)(?=[punct])|(?!\\*)[punct](\\*+)(?!\\*)(?=[punct])|[^punct\\s](\\*+)(?=[^punct\\s])", "gu").replace(/punct/g, _punctuation).getRegex();
+var emStrongRDelimUnd = edit("^[^_*]*?\\*\\*[^_*]*?_[^_*]*?(?=\\*\\*)|[^_]+(?=[^_])|(?!_)[punct](_+)(?=[\\s]|$)|[^punct\\s](_+)(?!_)(?=[punct\\s]|$)|(?!_)[punct\\s](_+)(?=[^punct\\s])|[\\s](_+)(?!_)(?=[punct])|(?!_)[punct](_+)(?!_)(?=[punct])", "gu").replace(/punct/g, _punctuation).getRegex();
+var anyPunctuation = edit(/\\([punct])/, "gu").replace(/punct/g, _punctuation).getRegex();
+var autolink = edit(/^<(scheme:[^\s\x00-\x1f<>]*|email)>/).replace("scheme", /[a-zA-Z][a-zA-Z0-9+.-]{1,31}/).replace("email", /[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/).getRegex();
+var _inlineComment = edit(_comment).replace("(?:-->|$)", "-->").getRegex();
+var tag = edit("^comment|^</[a-zA-Z][\\w:-]*\\s*>|^<[a-zA-Z][\\w-]*(?:attribute)*?\\s*/?>|^<\\?[\\s\\S]*?\\?>|^<![a-zA-Z]+\\s[\\s\\S]*?>|^<!\\[CDATA\\[[\\s\\S]*?\\]\\]>").replace("comment", _inlineComment).replace("attribute", /\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/).getRegex();
+var _inlineLabel = /(?:\[(?:\\.|[^\[\]\\])*\]|\\.|`[^`]*`|[^\[\]\\`])*?/;
+var link = edit(/^!?\[(label)\]\(\s*(href)(?:\s+(title))?\s*\)/).replace("label", _inlineLabel).replace("href", /<(?:\\.|[^\n<>\\])+>|[^\s\x00-\x1f]*/).replace("title", /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/).getRegex();
+var reflink = edit(/^!?\[(label)\]\[(ref)\]/).replace("label", _inlineLabel).replace("ref", _blockLabel).getRegex();
+var nolink = edit(/^!?\[(ref)\](?:\[\])?/).replace("ref", _blockLabel).getRegex();
+var reflinkSearch = edit("reflink|nolink(?!\\()", "g").replace("reflink", reflink).replace("nolink", nolink).getRegex();
+var inlineNormal = {
+  _backpedal: noopTest,
+  // only used for GFM url
+  anyPunctuation,
+  autolink,
+  blockSkip,
+  br,
+  code: inlineCode,
+  del: noopTest,
+  emStrongLDelim,
+  emStrongRDelimAst,
+  emStrongRDelimUnd,
+  escape,
+  link,
+  nolink,
+  punctuation,
+  reflink,
+  reflinkSearch,
+  tag,
+  text: inlineText,
+  url: noopTest
+};
+var inlinePedantic = __spreadProps(__spreadValues({}, inlineNormal), {
+  link: edit(/^!?\[(label)\]\((.*?)\)/).replace("label", _inlineLabel).getRegex(),
+  reflink: edit(/^!?\[(label)\]\s*\[([^\]]*)\]/).replace("label", _inlineLabel).getRegex()
+});
+var inlineGfm = __spreadProps(__spreadValues({}, inlineNormal), {
+  escape: edit(escape).replace("])", "~|])").getRegex(),
+  url: edit(/^((?:ftp|https?):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/, "i").replace("email", /[A-Za-z0-9._+-]+(@)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![-_])/).getRegex(),
+  _backpedal: /(?:[^?!.,:;*_'"~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_'"~)]+(?!$))+/,
+  del: /^(~~?)(?=[^\s~])([\s\S]*?[^\s~])\1(?=[^~]|$)/,
+  text: /^([`~]+|[^`~])(?:(?= {2,}\n)|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)|[\s\S]*?(?:(?=[\\<!\[`*~_]|\b_|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)))/
+});
+var inlineBreaks = __spreadProps(__spreadValues({}, inlineGfm), {
+  br: edit(br).replace("{2,}", "*").getRegex(),
+  text: edit(inlineGfm.text).replace("\\b_", "\\b_| {2,}\\n").replace(/\{2,\}/g, "*").getRegex()
+});
+var block = {
+  normal: blockNormal,
+  gfm: blockGfm,
+  pedantic: blockPedantic
+};
+var inline = {
+  normal: inlineNormal,
+  gfm: inlineGfm,
+  breaks: inlineBreaks,
+  pedantic: inlinePedantic
+};
+var _Lexer = class __Lexer {
+  tokens;
   options;
-  _specialStyles;
-  _onDoneFns = [];
-  _onStartFns = [];
-  _onDestroyFns = [];
-  _duration;
-  _delay;
-  _initialized = false;
-  _finished = false;
-  _started = false;
-  _destroyed = false;
-  _finalKeyframe;
-  _originalOnDoneFns = [];
-  _originalOnStartFns = [];
-  domPlayer = null;
-  time = 0;
-  parentPlayer = null;
-  currentSnapshot = /* @__PURE__ */ new Map();
-  constructor(element, keyframes, options, _specialStyles) {
-    this.element = element;
-    this.keyframes = keyframes;
-    this.options = options;
-    this._specialStyles = _specialStyles;
-    this._duration = options["duration"];
-    this._delay = options["delay"] || 0;
-    this.time = this._duration + this._delay;
-  }
-  _onFinish() {
-    if (!this._finished) {
-      this._finished = true;
-      this._onDoneFns.forEach((fn) => fn());
-      this._onDoneFns = [];
-    }
-  }
-  init() {
-    if (!this._buildPlayer()) {
-      return;
-    }
-    this._preparePlayerBeforeStart();
-  }
-  _buildPlayer() {
-    if (this._initialized) return this.domPlayer;
-    this._initialized = true;
-    const keyframes = this.keyframes;
-    const animation = this._triggerWebAnimation(this.element, keyframes, this.options);
-    if (!animation) {
-      this._onFinish();
-      return null;
-    }
-    this.domPlayer = animation;
-    this._finalKeyframe = keyframes.length ? keyframes[keyframes.length - 1] : /* @__PURE__ */ new Map();
-    const onFinish = () => this._onFinish();
-    animation.addEventListener("finish", onFinish);
-    this.onDestroy(() => {
-      animation.removeEventListener("finish", onFinish);
-    });
-    return animation;
-  }
-  _preparePlayerBeforeStart() {
-    if (this._delay) {
-      this._resetDomPlayerState();
-    } else {
-      this.domPlayer?.pause();
-    }
-  }
-  _convertKeyframesToObject(keyframes) {
-    const kfs = [];
-    keyframes.forEach((frame) => {
-      kfs.push(Object.fromEntries(frame));
-    });
-    return kfs;
-  }
-  _triggerWebAnimation(element, keyframes, options) {
-    const keyframesObject = this._convertKeyframesToObject(keyframes);
-    try {
-      return element.animate(keyframesObject, options);
-    } catch {
-      return null;
-    }
-  }
-  onStart(fn) {
-    this._originalOnStartFns.push(fn);
-    this._onStartFns.push(fn);
-  }
-  onDone(fn) {
-    this._originalOnDoneFns.push(fn);
-    this._onDoneFns.push(fn);
-  }
-  onDestroy(fn) {
-    this._onDestroyFns.push(fn);
-  }
-  play() {
-    const player = this._buildPlayer();
-    if (!player) {
-      return;
-    }
-    if (!this.hasStarted()) {
-      this._onStartFns.forEach((fn) => fn());
-      this._onStartFns = [];
-      this._started = true;
-      if (this._specialStyles) {
-        this._specialStyles.start();
-      }
-    }
-    player.play();
-  }
-  pause() {
-    this.init();
-    this.domPlayer?.pause();
-  }
-  finish() {
-    this.init();
-    if (!this.domPlayer) return;
-    if (this._specialStyles) {
-      this._specialStyles.finish();
-    }
-    this._onFinish();
-    this.domPlayer.finish();
-  }
-  reset() {
-    this._resetDomPlayerState();
-    this._destroyed = false;
-    this._finished = false;
-    this._started = false;
-    this._onStartFns = this._originalOnStartFns;
-    this._onDoneFns = this._originalOnDoneFns;
-  }
-  _resetDomPlayerState() {
-    this.domPlayer?.cancel();
-  }
-  restart() {
-    this.reset();
-    this.play();
-  }
-  hasStarted() {
-    return this._started;
-  }
-  destroy() {
-    if (!this._destroyed) {
-      this._destroyed = true;
-      this._resetDomPlayerState();
-      this._onFinish();
-      if (this._specialStyles) {
-        this._specialStyles.destroy();
-      }
-      this._onDestroyFns.forEach((fn) => fn());
-      this._onDestroyFns = [];
-    }
-  }
-  setPosition(p) {
-    if (!this.domPlayer) {
-      this.init();
-    }
-    if (this.domPlayer) {
-      this.domPlayer.currentTime = p * this.time;
-    }
-  }
-  getPosition() {
-    if (!this.domPlayer) {
-      return this._initialized ? 1 : 0;
-    }
-    return +(this.domPlayer.currentTime ?? 0) / this.time;
-  }
-  get totalTime() {
-    return this._delay + this._duration;
-  }
-  beforeDestroy() {
-    const styles = /* @__PURE__ */ new Map();
-    if (this.hasStarted()) {
-      const finalKeyframe = this._finalKeyframe;
-      finalKeyframe.forEach((val, prop) => {
-        if (prop !== "offset") {
-          styles.set(prop, this._finished ? val : computeStyle(this.element, prop));
-        }
-      });
-    }
-    this.currentSnapshot = styles;
-  }
-  triggerCallback(phaseName) {
-    const methods = phaseName === "start" ? this._onStartFns : this._onDoneFns;
-    methods.forEach((fn) => fn());
-    methods.length = 0;
-  }
-};
-var WebAnimationsDriver = class {
-  validateStyleProperty(prop) {
-    if (typeof ngDevMode === "undefined" || ngDevMode) {
-      return validateStyleProperty(prop);
-    }
-    return true;
-  }
-  validateAnimatableStyleProperty(prop) {
-    if (typeof ngDevMode === "undefined" || ngDevMode) {
-      const cssProp = camelCaseToDashCase(prop);
-      return validateWebAnimatableStyleProperty(cssProp);
-    }
-    return true;
-  }
-  containsElement(elm1, elm2) {
-    return containsElement(elm1, elm2);
-  }
-  getParentElement(element) {
-    return getParentElement(element);
-  }
-  query(element, selector, multi) {
-    return invokeQuery(element, selector, multi);
-  }
-  computeStyle(element, prop, defaultValue) {
-    return computeStyle(element, prop);
-  }
-  animate(element, keyframes, duration, delay, easing, previousPlayers = []) {
-    const fill = delay == 0 ? "both" : "forwards";
-    const playerOptions = {
-      duration,
-      delay,
-      fill
+  state;
+  tokenizer;
+  inlineQueue;
+  constructor(options2) {
+    this.tokens = [];
+    this.tokens.links = /* @__PURE__ */ Object.create(null);
+    this.options = options2 || _defaults;
+    this.options.tokenizer = this.options.tokenizer || new _Tokenizer();
+    this.tokenizer = this.options.tokenizer;
+    this.tokenizer.options = this.options;
+    this.tokenizer.lexer = this;
+    this.inlineQueue = [];
+    this.state = {
+      inLink: false,
+      inRawBlock: false,
+      top: true
     };
-    if (easing) {
-      playerOptions["easing"] = easing;
-    }
-    const previousStyles = /* @__PURE__ */ new Map();
-    const previousWebAnimationPlayers = previousPlayers.filter((player) => player instanceof WebAnimationsPlayer);
-    if (allowPreviousPlayerStylesMerge(duration, delay)) {
-      previousWebAnimationPlayers.forEach((player) => {
-        player.currentSnapshot.forEach((val, prop) => previousStyles.set(prop, val));
-      });
-    }
-    let _keyframes = normalizeKeyframes(keyframes).map((styles) => new Map(styles));
-    _keyframes = balancePreviousStylesIntoKeyframes(element, _keyframes, previousStyles);
-    const specialStyles = packageNonAnimatableStyles(element, _keyframes);
-    return new WebAnimationsPlayer(element, _keyframes, playerOptions, specialStyles);
-  }
-};
-var ANIMATION_PREFIX = "@";
-var DISABLE_ANIMATIONS_FLAG = "@.disabled";
-var BaseAnimationRenderer = class {
-  namespaceId;
-  delegate;
-  engine;
-  _onDestroy;
-  \u0275type = 0;
-  constructor(namespaceId, delegate, engine, _onDestroy) {
-    this.namespaceId = namespaceId;
-    this.delegate = delegate;
-    this.engine = engine;
-    this._onDestroy = _onDestroy;
-  }
-  get data() {
-    return this.delegate.data;
-  }
-  destroyNode(node) {
-    this.delegate.destroyNode?.(node);
-  }
-  destroy() {
-    this.engine.destroy(this.namespaceId, this.delegate);
-    this.engine.afterFlushAnimationsDone(() => {
-      queueMicrotask(() => {
-        this.delegate.destroy();
-      });
-    });
-    this._onDestroy?.();
-  }
-  createElement(name, namespace) {
-    return this.delegate.createElement(name, namespace);
-  }
-  createComment(value) {
-    return this.delegate.createComment(value);
-  }
-  createText(value) {
-    return this.delegate.createText(value);
-  }
-  appendChild(parent, newChild) {
-    this.delegate.appendChild(parent, newChild);
-    this.engine.onInsert(this.namespaceId, newChild, parent, false);
-  }
-  insertBefore(parent, newChild, refChild, isMove = true) {
-    this.delegate.insertBefore(parent, newChild, refChild);
-    this.engine.onInsert(this.namespaceId, newChild, parent, isMove);
-  }
-  removeChild(parent, oldChild, isHostElement, requireSynchronousElementRemoval) {
-    if (requireSynchronousElementRemoval) {
-      this.delegate.removeChild(parent, oldChild, isHostElement, requireSynchronousElementRemoval);
-      return;
-    }
-    if (this.parentNode(oldChild)) {
-      this.engine.onRemove(this.namespaceId, oldChild, this.delegate);
-    }
-  }
-  selectRootElement(selectorOrNode, preserveContent) {
-    return this.delegate.selectRootElement(selectorOrNode, preserveContent);
-  }
-  parentNode(node) {
-    return this.delegate.parentNode(node);
-  }
-  nextSibling(node) {
-    return this.delegate.nextSibling(node);
-  }
-  setAttribute(el, name, value, namespace) {
-    this.delegate.setAttribute(el, name, value, namespace);
-  }
-  removeAttribute(el, name, namespace) {
-    this.delegate.removeAttribute(el, name, namespace);
-  }
-  addClass(el, name) {
-    this.delegate.addClass(el, name);
-  }
-  removeClass(el, name) {
-    this.delegate.removeClass(el, name);
-  }
-  setStyle(el, style2, value, flags) {
-    this.delegate.setStyle(el, style2, value, flags);
-  }
-  removeStyle(el, style2, flags) {
-    this.delegate.removeStyle(el, style2, flags);
-  }
-  setProperty(el, name, value) {
-    if (name.charAt(0) == ANIMATION_PREFIX && name == DISABLE_ANIMATIONS_FLAG) {
-      this.disableAnimations(el, !!value);
-    } else {
-      this.delegate.setProperty(el, name, value);
-    }
-  }
-  setValue(node, value) {
-    this.delegate.setValue(node, value);
-  }
-  listen(target, eventName, callback, options) {
-    return this.delegate.listen(target, eventName, callback, options);
-  }
-  disableAnimations(element, value) {
-    this.engine.disableAnimations(element, value);
-  }
-};
-var AnimationRenderer = class extends BaseAnimationRenderer {
-  factory;
-  constructor(factory, namespaceId, delegate, engine, onDestroy) {
-    super(namespaceId, delegate, engine, onDestroy);
-    this.factory = factory;
-    this.namespaceId = namespaceId;
-  }
-  setProperty(el, name, value) {
-    if (name.charAt(0) == ANIMATION_PREFIX) {
-      if (name.charAt(1) == "." && name == DISABLE_ANIMATIONS_FLAG) {
-        value = value === void 0 ? true : !!value;
-        this.disableAnimations(el, value);
+    const rules = {
+      block: block.normal,
+      inline: inline.normal
+    };
+    if (this.options.pedantic) {
+      rules.block = block.pedantic;
+      rules.inline = inline.pedantic;
+    } else if (this.options.gfm) {
+      rules.block = block.gfm;
+      if (this.options.breaks) {
+        rules.inline = inline.breaks;
       } else {
-        this.engine.process(this.namespaceId, el, name.slice(1), value);
+        rules.inline = inline.gfm;
       }
-    } else {
-      this.delegate.setProperty(el, name, value);
     }
+    this.tokenizer.rules = rules;
   }
-  listen(target, eventName, callback, options) {
-    if (eventName.charAt(0) == ANIMATION_PREFIX) {
-      const element = resolveElementFromTarget(target);
-      let name = eventName.slice(1);
-      let phase = "";
-      if (name.charAt(0) != ANIMATION_PREFIX) {
-        [name, phase] = parseTriggerCallbackName(name);
-      }
-      return this.engine.listen(this.namespaceId, element, name, phase, (event) => {
-        const countId = event["_data"] || -1;
-        this.factory.scheduleListenerCallback(countId, callback, event);
-      });
-    }
-    return this.delegate.listen(target, eventName, callback, options);
-  }
-};
-function resolveElementFromTarget(target) {
-  switch (target) {
-    case "body":
-      return document.body;
-    case "document":
-      return document;
-    case "window":
-      return window;
-    default:
-      return target;
-  }
-}
-function parseTriggerCallbackName(triggerName) {
-  const dotIndex = triggerName.indexOf(".");
-  const trigger = triggerName.substring(0, dotIndex);
-  const phase = triggerName.slice(dotIndex + 1);
-  return [trigger, phase];
-}
-var AnimationRendererFactory = class {
-  delegate;
-  engine;
-  _zone;
-  _currentId = 0;
-  _microtaskId = 1;
-  _animationCallbacksBuffer = [];
-  _rendererCache = /* @__PURE__ */ new Map();
-  _cdRecurDepth = 0;
-  constructor(delegate, engine, _zone) {
-    this.delegate = delegate;
-    this.engine = engine;
-    this._zone = _zone;
-    engine.onRemovalComplete = (element, delegate2) => {
-      delegate2?.removeChild(null, element);
-    };
-  }
-  createRenderer(hostElement, type) {
-    const EMPTY_NAMESPACE_ID = "";
-    const delegate = this.delegate.createRenderer(hostElement, type);
-    if (!hostElement || !type?.data?.["animation"]) {
-      const cache = this._rendererCache;
-      let renderer = cache.get(delegate);
-      if (!renderer) {
-        const onRendererDestroy = () => cache.delete(delegate);
-        renderer = new BaseAnimationRenderer(EMPTY_NAMESPACE_ID, delegate, this.engine, onRendererDestroy);
-        cache.set(delegate, renderer);
-      }
-      return renderer;
-    }
-    const componentId = type.id;
-    const namespaceId = type.id + "-" + this._currentId;
-    this._currentId++;
-    this.engine.register(namespaceId, hostElement);
-    const registerTrigger = (trigger) => {
-      if (Array.isArray(trigger)) {
-        trigger.forEach(registerTrigger);
-      } else {
-        this.engine.registerTrigger(componentId, namespaceId, hostElement, trigger.name, trigger);
-      }
-    };
-    const animationTriggers = type.data["animation"];
-    animationTriggers.forEach(registerTrigger);
-    return new AnimationRenderer(this, namespaceId, delegate, this.engine);
-  }
-  begin() {
-    this._cdRecurDepth++;
-    if (this.delegate.begin) {
-      this.delegate.begin();
-    }
-  }
-  _scheduleCountTask() {
-    queueMicrotask(() => {
-      this._microtaskId++;
-    });
-  }
-  scheduleListenerCallback(count, fn, data) {
-    if (count >= 0 && count < this._microtaskId) {
-      this._zone.run(() => fn(data));
-      return;
-    }
-    const animationCallbacksBuffer = this._animationCallbacksBuffer;
-    if (animationCallbacksBuffer.length == 0) {
-      queueMicrotask(() => {
-        this._zone.run(() => {
-          animationCallbacksBuffer.forEach((tuple) => {
-            const [fn2, data2] = tuple;
-            fn2(data2);
-          });
-          this._animationCallbacksBuffer = [];
-        });
-      });
-    }
-    animationCallbacksBuffer.push([fn, data]);
-  }
-  end() {
-    this._cdRecurDepth--;
-    if (this._cdRecurDepth == 0) {
-      this._zone.runOutsideAngular(() => {
-        this._scheduleCountTask();
-        this.engine.flush(this._microtaskId);
-      });
-    }
-    if (this.delegate.end) {
-      this.delegate.end();
-    }
-  }
-  whenRenderingDone() {
-    return this.engine.whenRenderingDone();
-  }
-  componentReplaced(componentId) {
-    this.engine.flush();
-    this.delegate.componentReplaced?.(componentId);
-  }
-};
-
-// node_modules/@angular/platform-browser/fesm2022/animations.mjs
-var InjectableAnimationEngine = class _InjectableAnimationEngine extends AnimationEngine {
-  constructor(doc, driver, normalizer) {
-    super(doc, driver, normalizer);
-  }
-  ngOnDestroy() {
-    this.flush();
-  }
-  static \u0275fac = function InjectableAnimationEngine_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _InjectableAnimationEngine)(\u0275\u0275inject(DOCUMENT), \u0275\u0275inject(AnimationDriver), \u0275\u0275inject(AnimationStyleNormalizer));
-  };
-  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
-    token: _InjectableAnimationEngine,
-    factory: _InjectableAnimationEngine.\u0275fac
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(InjectableAnimationEngine, [{
-    type: Injectable
-  }], () => [{
-    type: Document,
-    decorators: [{
-      type: Inject,
-      args: [DOCUMENT]
-    }]
-  }, {
-    type: AnimationDriver
-  }, {
-    type: AnimationStyleNormalizer
-  }], null);
-})();
-function instantiateDefaultStyleNormalizer() {
-  return new WebAnimationsStyleNormalizer();
-}
-function instantiateRendererFactory() {
-  return new AnimationRendererFactory(inject(DomRendererFactory2), inject(AnimationEngine), inject(NgZone));
-}
-var SHARED_ANIMATION_PROVIDERS = [{
-  provide: AnimationStyleNormalizer,
-  useFactory: instantiateDefaultStyleNormalizer
-}, {
-  provide: AnimationEngine,
-  useClass: InjectableAnimationEngine
-}, {
-  provide: RendererFactory2,
-  useFactory: instantiateRendererFactory
-}];
-var BROWSER_NOOP_ANIMATIONS_PROVIDERS = [{
-  provide: AnimationDriver,
-  useClass: NoopAnimationDriver
-}, {
-  provide: ANIMATION_MODULE_TYPE,
-  useValue: "NoopAnimations"
-}, ...SHARED_ANIMATION_PROVIDERS];
-var BROWSER_ANIMATIONS_PROVIDERS = [{
-  provide: AnimationDriver,
-  useFactory: () => false ? new NoopAnimationDriver() : new WebAnimationsDriver()
-}, {
-  provide: ANIMATION_MODULE_TYPE,
-  useFactory: () => false ? "NoopAnimations" : "BrowserAnimations"
-}, ...SHARED_ANIMATION_PROVIDERS];
-var BrowserAnimationsModule = class _BrowserAnimationsModule {
-  static withConfig(config) {
+  /**
+   * Expose Rules
+   */
+  static get rules() {
     return {
-      ngModule: _BrowserAnimationsModule,
-      providers: config.disableAnimations ? BROWSER_NOOP_ANIMATIONS_PROVIDERS : BROWSER_ANIMATIONS_PROVIDERS
+      block,
+      inline
     };
   }
-  static \u0275fac = function BrowserAnimationsModule_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _BrowserAnimationsModule)();
-  };
-  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
-    type: _BrowserAnimationsModule,
-    exports: [BrowserModule]
-  });
-  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
-    providers: BROWSER_ANIMATIONS_PROVIDERS,
-    imports: [BrowserModule]
-  });
+  /**
+   * Static Lex Method
+   */
+  static lex(src, options2) {
+    const lexer2 = new __Lexer(options2);
+    return lexer2.lex(src);
+  }
+  /**
+   * Static Lex Inline Method
+   */
+  static lexInline(src, options2) {
+    const lexer2 = new __Lexer(options2);
+    return lexer2.inlineTokens(src);
+  }
+  /**
+   * Preprocessing
+   */
+  lex(src) {
+    src = src.replace(/\r\n|\r/g, "\n");
+    this.blockTokens(src, this.tokens);
+    for (let i = 0; i < this.inlineQueue.length; i++) {
+      const next = this.inlineQueue[i];
+      this.inlineTokens(next.src, next.tokens);
+    }
+    this.inlineQueue = [];
+    return this.tokens;
+  }
+  blockTokens(src, tokens = [], lastParagraphClipped = false) {
+    if (this.options.pedantic) {
+      src = src.replace(/\t/g, "    ").replace(/^ +$/gm, "");
+    } else {
+      src = src.replace(/^( *)(\t+)/gm, (_, leading, tabs) => {
+        return leading + "    ".repeat(tabs.length);
+      });
+    }
+    let token;
+    let lastToken;
+    let cutSrc;
+    while (src) {
+      if (this.options.extensions && this.options.extensions.block && this.options.extensions.block.some((extTokenizer) => {
+        if (token = extTokenizer.call({ lexer: this }, src, tokens)) {
+          src = src.substring(token.raw.length);
+          tokens.push(token);
+          return true;
+        }
+        return false;
+      })) {
+        continue;
+      }
+      if (token = this.tokenizer.space(src)) {
+        src = src.substring(token.raw.length);
+        if (token.raw.length === 1 && tokens.length > 0) {
+          tokens[tokens.length - 1].raw += "\n";
+        } else {
+          tokens.push(token);
+        }
+        continue;
+      }
+      if (token = this.tokenizer.code(src)) {
+        src = src.substring(token.raw.length);
+        lastToken = tokens[tokens.length - 1];
+        if (lastToken && (lastToken.type === "paragraph" || lastToken.type === "text")) {
+          lastToken.raw += "\n" + token.raw;
+          lastToken.text += "\n" + token.text;
+          this.inlineQueue[this.inlineQueue.length - 1].src = lastToken.text;
+        } else {
+          tokens.push(token);
+        }
+        continue;
+      }
+      if (token = this.tokenizer.fences(src)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (token = this.tokenizer.heading(src)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (token = this.tokenizer.hr(src)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (token = this.tokenizer.blockquote(src)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (token = this.tokenizer.list(src)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (token = this.tokenizer.html(src)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (token = this.tokenizer.def(src)) {
+        src = src.substring(token.raw.length);
+        lastToken = tokens[tokens.length - 1];
+        if (lastToken && (lastToken.type === "paragraph" || lastToken.type === "text")) {
+          lastToken.raw += "\n" + token.raw;
+          lastToken.text += "\n" + token.raw;
+          this.inlineQueue[this.inlineQueue.length - 1].src = lastToken.text;
+        } else if (!this.tokens.links[token.tag]) {
+          this.tokens.links[token.tag] = {
+            href: token.href,
+            title: token.title
+          };
+        }
+        continue;
+      }
+      if (token = this.tokenizer.table(src)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (token = this.tokenizer.lheading(src)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      cutSrc = src;
+      if (this.options.extensions && this.options.extensions.startBlock) {
+        let startIndex = Infinity;
+        const tempSrc = src.slice(1);
+        let tempStart;
+        this.options.extensions.startBlock.forEach((getStartIndex) => {
+          tempStart = getStartIndex.call({ lexer: this }, tempSrc);
+          if (typeof tempStart === "number" && tempStart >= 0) {
+            startIndex = Math.min(startIndex, tempStart);
+          }
+        });
+        if (startIndex < Infinity && startIndex >= 0) {
+          cutSrc = src.substring(0, startIndex + 1);
+        }
+      }
+      if (this.state.top && (token = this.tokenizer.paragraph(cutSrc))) {
+        lastToken = tokens[tokens.length - 1];
+        if (lastParagraphClipped && lastToken?.type === "paragraph") {
+          lastToken.raw += "\n" + token.raw;
+          lastToken.text += "\n" + token.text;
+          this.inlineQueue.pop();
+          this.inlineQueue[this.inlineQueue.length - 1].src = lastToken.text;
+        } else {
+          tokens.push(token);
+        }
+        lastParagraphClipped = cutSrc.length !== src.length;
+        src = src.substring(token.raw.length);
+        continue;
+      }
+      if (token = this.tokenizer.text(src)) {
+        src = src.substring(token.raw.length);
+        lastToken = tokens[tokens.length - 1];
+        if (lastToken && lastToken.type === "text") {
+          lastToken.raw += "\n" + token.raw;
+          lastToken.text += "\n" + token.text;
+          this.inlineQueue.pop();
+          this.inlineQueue[this.inlineQueue.length - 1].src = lastToken.text;
+        } else {
+          tokens.push(token);
+        }
+        continue;
+      }
+      if (src) {
+        const errMsg = "Infinite loop on byte: " + src.charCodeAt(0);
+        if (this.options.silent) {
+          console.error(errMsg);
+          break;
+        } else {
+          throw new Error(errMsg);
+        }
+      }
+    }
+    this.state.top = true;
+    return tokens;
+  }
+  inline(src, tokens = []) {
+    this.inlineQueue.push({ src, tokens });
+    return tokens;
+  }
+  /**
+   * Lexing/Compiling
+   */
+  inlineTokens(src, tokens = []) {
+    let token, lastToken, cutSrc;
+    let maskedSrc = src;
+    let match;
+    let keepPrevChar, prevChar;
+    if (this.tokens.links) {
+      const links = Object.keys(this.tokens.links);
+      if (links.length > 0) {
+        while ((match = this.tokenizer.rules.inline.reflinkSearch.exec(maskedSrc)) != null) {
+          if (links.includes(match[0].slice(match[0].lastIndexOf("[") + 1, -1))) {
+            maskedSrc = maskedSrc.slice(0, match.index) + "[" + "a".repeat(match[0].length - 2) + "]" + maskedSrc.slice(this.tokenizer.rules.inline.reflinkSearch.lastIndex);
+          }
+        }
+      }
+    }
+    while ((match = this.tokenizer.rules.inline.blockSkip.exec(maskedSrc)) != null) {
+      maskedSrc = maskedSrc.slice(0, match.index) + "[" + "a".repeat(match[0].length - 2) + "]" + maskedSrc.slice(this.tokenizer.rules.inline.blockSkip.lastIndex);
+    }
+    while ((match = this.tokenizer.rules.inline.anyPunctuation.exec(maskedSrc)) != null) {
+      maskedSrc = maskedSrc.slice(0, match.index) + "++" + maskedSrc.slice(this.tokenizer.rules.inline.anyPunctuation.lastIndex);
+    }
+    while (src) {
+      if (!keepPrevChar) {
+        prevChar = "";
+      }
+      keepPrevChar = false;
+      if (this.options.extensions && this.options.extensions.inline && this.options.extensions.inline.some((extTokenizer) => {
+        if (token = extTokenizer.call({ lexer: this }, src, tokens)) {
+          src = src.substring(token.raw.length);
+          tokens.push(token);
+          return true;
+        }
+        return false;
+      })) {
+        continue;
+      }
+      if (token = this.tokenizer.escape(src)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (token = this.tokenizer.tag(src)) {
+        src = src.substring(token.raw.length);
+        lastToken = tokens[tokens.length - 1];
+        if (lastToken && token.type === "text" && lastToken.type === "text") {
+          lastToken.raw += token.raw;
+          lastToken.text += token.text;
+        } else {
+          tokens.push(token);
+        }
+        continue;
+      }
+      if (token = this.tokenizer.link(src)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (token = this.tokenizer.reflink(src, this.tokens.links)) {
+        src = src.substring(token.raw.length);
+        lastToken = tokens[tokens.length - 1];
+        if (lastToken && token.type === "text" && lastToken.type === "text") {
+          lastToken.raw += token.raw;
+          lastToken.text += token.text;
+        } else {
+          tokens.push(token);
+        }
+        continue;
+      }
+      if (token = this.tokenizer.emStrong(src, maskedSrc, prevChar)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (token = this.tokenizer.codespan(src)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (token = this.tokenizer.br(src)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (token = this.tokenizer.del(src)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (token = this.tokenizer.autolink(src)) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      if (!this.state.inLink && (token = this.tokenizer.url(src))) {
+        src = src.substring(token.raw.length);
+        tokens.push(token);
+        continue;
+      }
+      cutSrc = src;
+      if (this.options.extensions && this.options.extensions.startInline) {
+        let startIndex = Infinity;
+        const tempSrc = src.slice(1);
+        let tempStart;
+        this.options.extensions.startInline.forEach((getStartIndex) => {
+          tempStart = getStartIndex.call({ lexer: this }, tempSrc);
+          if (typeof tempStart === "number" && tempStart >= 0) {
+            startIndex = Math.min(startIndex, tempStart);
+          }
+        });
+        if (startIndex < Infinity && startIndex >= 0) {
+          cutSrc = src.substring(0, startIndex + 1);
+        }
+      }
+      if (token = this.tokenizer.inlineText(cutSrc)) {
+        src = src.substring(token.raw.length);
+        if (token.raw.slice(-1) !== "_") {
+          prevChar = token.raw.slice(-1);
+        }
+        keepPrevChar = true;
+        lastToken = tokens[tokens.length - 1];
+        if (lastToken && lastToken.type === "text") {
+          lastToken.raw += token.raw;
+          lastToken.text += token.text;
+        } else {
+          tokens.push(token);
+        }
+        continue;
+      }
+      if (src) {
+        const errMsg = "Infinite loop on byte: " + src.charCodeAt(0);
+        if (this.options.silent) {
+          console.error(errMsg);
+          break;
+        } else {
+          throw new Error(errMsg);
+        }
+      }
+    }
+    return tokens;
+  }
+};
+var _Renderer = class {
+  options;
+  parser;
+  // set by the parser
+  constructor(options2) {
+    this.options = options2 || _defaults;
+  }
+  space(token) {
+    return "";
+  }
+  code({ text, lang, escaped }) {
+    const langString = (lang || "").match(/^\S*/)?.[0];
+    const code = text.replace(/\n$/, "") + "\n";
+    if (!langString) {
+      return "<pre><code>" + (escaped ? code : escape$1(code, true)) + "</code></pre>\n";
+    }
+    return '<pre><code class="language-' + escape$1(langString) + '">' + (escaped ? code : escape$1(code, true)) + "</code></pre>\n";
+  }
+  blockquote({ tokens }) {
+    const body = this.parser.parse(tokens);
+    return `<blockquote>
+${body}</blockquote>
+`;
+  }
+  html({ text }) {
+    return text;
+  }
+  heading({ tokens, depth }) {
+    return `<h${depth}>${this.parser.parseInline(tokens)}</h${depth}>
+`;
+  }
+  hr(token) {
+    return "<hr>\n";
+  }
+  list(token) {
+    const ordered = token.ordered;
+    const start = token.start;
+    let body = "";
+    for (let j = 0; j < token.items.length; j++) {
+      const item = token.items[j];
+      body += this.listitem(item);
+    }
+    const type = ordered ? "ol" : "ul";
+    const startAttr = ordered && start !== 1 ? ' start="' + start + '"' : "";
+    return "<" + type + startAttr + ">\n" + body + "</" + type + ">\n";
+  }
+  listitem(item) {
+    let itemBody = "";
+    if (item.task) {
+      const checkbox = this.checkbox({ checked: !!item.checked });
+      if (item.loose) {
+        if (item.tokens.length > 0 && item.tokens[0].type === "paragraph") {
+          item.tokens[0].text = checkbox + " " + item.tokens[0].text;
+          if (item.tokens[0].tokens && item.tokens[0].tokens.length > 0 && item.tokens[0].tokens[0].type === "text") {
+            item.tokens[0].tokens[0].text = checkbox + " " + item.tokens[0].tokens[0].text;
+          }
+        } else {
+          item.tokens.unshift({
+            type: "text",
+            raw: checkbox + " ",
+            text: checkbox + " "
+          });
+        }
+      } else {
+        itemBody += checkbox + " ";
+      }
+    }
+    itemBody += this.parser.parse(item.tokens, !!item.loose);
+    return `<li>${itemBody}</li>
+`;
+  }
+  checkbox({ checked }) {
+    return "<input " + (checked ? 'checked="" ' : "") + 'disabled="" type="checkbox">';
+  }
+  paragraph({ tokens }) {
+    return `<p>${this.parser.parseInline(tokens)}</p>
+`;
+  }
+  table(token) {
+    let header = "";
+    let cell = "";
+    for (let j = 0; j < token.header.length; j++) {
+      cell += this.tablecell(token.header[j]);
+    }
+    header += this.tablerow({ text: cell });
+    let body = "";
+    for (let j = 0; j < token.rows.length; j++) {
+      const row = token.rows[j];
+      cell = "";
+      for (let k = 0; k < row.length; k++) {
+        cell += this.tablecell(row[k]);
+      }
+      body += this.tablerow({ text: cell });
+    }
+    if (body)
+      body = `<tbody>${body}</tbody>`;
+    return "<table>\n<thead>\n" + header + "</thead>\n" + body + "</table>\n";
+  }
+  tablerow({ text }) {
+    return `<tr>
+${text}</tr>
+`;
+  }
+  tablecell(token) {
+    const content = this.parser.parseInline(token.tokens);
+    const type = token.header ? "th" : "td";
+    const tag2 = token.align ? `<${type} align="${token.align}">` : `<${type}>`;
+    return tag2 + content + `</${type}>
+`;
+  }
+  /**
+   * span level renderer
+   */
+  strong({ tokens }) {
+    return `<strong>${this.parser.parseInline(tokens)}</strong>`;
+  }
+  em({ tokens }) {
+    return `<em>${this.parser.parseInline(tokens)}</em>`;
+  }
+  codespan({ text }) {
+    return `<code>${text}</code>`;
+  }
+  br(token) {
+    return "<br>";
+  }
+  del({ tokens }) {
+    return `<del>${this.parser.parseInline(tokens)}</del>`;
+  }
+  link({ href, title, tokens }) {
+    const text = this.parser.parseInline(tokens);
+    const cleanHref = cleanUrl(href);
+    if (cleanHref === null) {
+      return text;
+    }
+    href = cleanHref;
+    let out = '<a href="' + href + '"';
+    if (title) {
+      out += ' title="' + title + '"';
+    }
+    out += ">" + text + "</a>";
+    return out;
+  }
+  image({ href, title, text }) {
+    const cleanHref = cleanUrl(href);
+    if (cleanHref === null) {
+      return text;
+    }
+    href = cleanHref;
+    let out = `<img src="${href}" alt="${text}"`;
+    if (title) {
+      out += ` title="${title}"`;
+    }
+    out += ">";
+    return out;
+  }
+  text(token) {
+    return "tokens" in token && token.tokens ? this.parser.parseInline(token.tokens) : token.text;
+  }
+};
+var _TextRenderer = class {
+  // no need for block level renderers
+  strong({ text }) {
+    return text;
+  }
+  em({ text }) {
+    return text;
+  }
+  codespan({ text }) {
+    return text;
+  }
+  del({ text }) {
+    return text;
+  }
+  html({ text }) {
+    return text;
+  }
+  text({ text }) {
+    return text;
+  }
+  link({ text }) {
+    return "" + text;
+  }
+  image({ text }) {
+    return "" + text;
+  }
+  br() {
+    return "";
+  }
+};
+var _Parser = class __Parser {
+  options;
+  renderer;
+  textRenderer;
+  constructor(options2) {
+    this.options = options2 || _defaults;
+    this.options.renderer = this.options.renderer || new _Renderer();
+    this.renderer = this.options.renderer;
+    this.renderer.options = this.options;
+    this.renderer.parser = this;
+    this.textRenderer = new _TextRenderer();
+  }
+  /**
+   * Static Parse Method
+   */
+  static parse(tokens, options2) {
+    const parser2 = new __Parser(options2);
+    return parser2.parse(tokens);
+  }
+  /**
+   * Static Parse Inline Method
+   */
+  static parseInline(tokens, options2) {
+    const parser2 = new __Parser(options2);
+    return parser2.parseInline(tokens);
+  }
+  /**
+   * Parse Loop
+   */
+  parse(tokens, top = true) {
+    let out = "";
+    for (let i = 0; i < tokens.length; i++) {
+      const anyToken = tokens[i];
+      if (this.options.extensions && this.options.extensions.renderers && this.options.extensions.renderers[anyToken.type]) {
+        const genericToken = anyToken;
+        const ret = this.options.extensions.renderers[genericToken.type].call({ parser: this }, genericToken);
+        if (ret !== false || !["space", "hr", "heading", "code", "table", "blockquote", "list", "html", "paragraph", "text"].includes(genericToken.type)) {
+          out += ret || "";
+          continue;
+        }
+      }
+      const token = anyToken;
+      switch (token.type) {
+        case "space": {
+          out += this.renderer.space(token);
+          continue;
+        }
+        case "hr": {
+          out += this.renderer.hr(token);
+          continue;
+        }
+        case "heading": {
+          out += this.renderer.heading(token);
+          continue;
+        }
+        case "code": {
+          out += this.renderer.code(token);
+          continue;
+        }
+        case "table": {
+          out += this.renderer.table(token);
+          continue;
+        }
+        case "blockquote": {
+          out += this.renderer.blockquote(token);
+          continue;
+        }
+        case "list": {
+          out += this.renderer.list(token);
+          continue;
+        }
+        case "html": {
+          out += this.renderer.html(token);
+          continue;
+        }
+        case "paragraph": {
+          out += this.renderer.paragraph(token);
+          continue;
+        }
+        case "text": {
+          let textToken = token;
+          let body = this.renderer.text(textToken);
+          while (i + 1 < tokens.length && tokens[i + 1].type === "text") {
+            textToken = tokens[++i];
+            body += "\n" + this.renderer.text(textToken);
+          }
+          if (top) {
+            out += this.renderer.paragraph({
+              type: "paragraph",
+              raw: body,
+              text: body,
+              tokens: [{ type: "text", raw: body, text: body }]
+            });
+          } else {
+            out += body;
+          }
+          continue;
+        }
+        default: {
+          const errMsg = 'Token with "' + token.type + '" type was not found.';
+          if (this.options.silent) {
+            console.error(errMsg);
+            return "";
+          } else {
+            throw new Error(errMsg);
+          }
+        }
+      }
+    }
+    return out;
+  }
+  /**
+   * Parse Inline Tokens
+   */
+  parseInline(tokens, renderer) {
+    renderer = renderer || this.renderer;
+    let out = "";
+    for (let i = 0; i < tokens.length; i++) {
+      const anyToken = tokens[i];
+      if (this.options.extensions && this.options.extensions.renderers && this.options.extensions.renderers[anyToken.type]) {
+        const ret = this.options.extensions.renderers[anyToken.type].call({ parser: this }, anyToken);
+        if (ret !== false || !["escape", "html", "link", "image", "strong", "em", "codespan", "br", "del", "text"].includes(anyToken.type)) {
+          out += ret || "";
+          continue;
+        }
+      }
+      const token = anyToken;
+      switch (token.type) {
+        case "escape": {
+          out += renderer.text(token);
+          break;
+        }
+        case "html": {
+          out += renderer.html(token);
+          break;
+        }
+        case "link": {
+          out += renderer.link(token);
+          break;
+        }
+        case "image": {
+          out += renderer.image(token);
+          break;
+        }
+        case "strong": {
+          out += renderer.strong(token);
+          break;
+        }
+        case "em": {
+          out += renderer.em(token);
+          break;
+        }
+        case "codespan": {
+          out += renderer.codespan(token);
+          break;
+        }
+        case "br": {
+          out += renderer.br(token);
+          break;
+        }
+        case "del": {
+          out += renderer.del(token);
+          break;
+        }
+        case "text": {
+          out += renderer.text(token);
+          break;
+        }
+        default: {
+          const errMsg = 'Token with "' + token.type + '" type was not found.';
+          if (this.options.silent) {
+            console.error(errMsg);
+            return "";
+          } else {
+            throw new Error(errMsg);
+          }
+        }
+      }
+    }
+    return out;
+  }
+};
+var _Hooks = class {
+  options;
+  constructor(options2) {
+    this.options = options2 || _defaults;
+  }
+  static passThroughHooks = /* @__PURE__ */ new Set([
+    "preprocess",
+    "postprocess",
+    "processAllTokens"
+  ]);
+  /**
+   * Process markdown before marked
+   */
+  preprocess(markdown) {
+    return markdown;
+  }
+  /**
+   * Process HTML after marked is finished
+   */
+  postprocess(html2) {
+    return html2;
+  }
+  /**
+   * Process all tokens before walk tokens
+   */
+  processAllTokens(tokens) {
+    return tokens;
+  }
+};
+var Marked = class {
+  defaults = _getDefaults();
+  options = this.setOptions;
+  parse = this.#parseMarkdown(_Lexer.lex, _Parser.parse);
+  parseInline = this.#parseMarkdown(_Lexer.lexInline, _Parser.parseInline);
+  Parser = _Parser;
+  Renderer = _Renderer;
+  TextRenderer = _TextRenderer;
+  Lexer = _Lexer;
+  Tokenizer = _Tokenizer;
+  Hooks = _Hooks;
+  constructor(...args) {
+    this.use(...args);
+  }
+  /**
+   * Run callback for every token
+   */
+  walkTokens(tokens, callback) {
+    let values = [];
+    for (const token of tokens) {
+      values = values.concat(callback.call(this, token));
+      switch (token.type) {
+        case "table": {
+          const tableToken = token;
+          for (const cell of tableToken.header) {
+            values = values.concat(this.walkTokens(cell.tokens, callback));
+          }
+          for (const row of tableToken.rows) {
+            for (const cell of row) {
+              values = values.concat(this.walkTokens(cell.tokens, callback));
+            }
+          }
+          break;
+        }
+        case "list": {
+          const listToken = token;
+          values = values.concat(this.walkTokens(listToken.items, callback));
+          break;
+        }
+        default: {
+          const genericToken = token;
+          if (this.defaults.extensions?.childTokens?.[genericToken.type]) {
+            this.defaults.extensions.childTokens[genericToken.type].forEach((childTokens) => {
+              const tokens2 = genericToken[childTokens].flat(Infinity);
+              values = values.concat(this.walkTokens(tokens2, callback));
+            });
+          } else if (genericToken.tokens) {
+            values = values.concat(this.walkTokens(genericToken.tokens, callback));
+          }
+        }
+      }
+    }
+    return values;
+  }
+  use(...args) {
+    const extensions = this.defaults.extensions || { renderers: {}, childTokens: {} };
+    args.forEach((pack) => {
+      const opts = __spreadValues({}, pack);
+      opts.async = this.defaults.async || opts.async || false;
+      if (pack.extensions) {
+        pack.extensions.forEach((ext) => {
+          if (!ext.name) {
+            throw new Error("extension name required");
+          }
+          if ("renderer" in ext) {
+            const prevRenderer = extensions.renderers[ext.name];
+            if (prevRenderer) {
+              extensions.renderers[ext.name] = function(...args2) {
+                let ret = ext.renderer.apply(this, args2);
+                if (ret === false) {
+                  ret = prevRenderer.apply(this, args2);
+                }
+                return ret;
+              };
+            } else {
+              extensions.renderers[ext.name] = ext.renderer;
+            }
+          }
+          if ("tokenizer" in ext) {
+            if (!ext.level || ext.level !== "block" && ext.level !== "inline") {
+              throw new Error("extension level must be 'block' or 'inline'");
+            }
+            const extLevel = extensions[ext.level];
+            if (extLevel) {
+              extLevel.unshift(ext.tokenizer);
+            } else {
+              extensions[ext.level] = [ext.tokenizer];
+            }
+            if (ext.start) {
+              if (ext.level === "block") {
+                if (extensions.startBlock) {
+                  extensions.startBlock.push(ext.start);
+                } else {
+                  extensions.startBlock = [ext.start];
+                }
+              } else if (ext.level === "inline") {
+                if (extensions.startInline) {
+                  extensions.startInline.push(ext.start);
+                } else {
+                  extensions.startInline = [ext.start];
+                }
+              }
+            }
+          }
+          if ("childTokens" in ext && ext.childTokens) {
+            extensions.childTokens[ext.name] = ext.childTokens;
+          }
+        });
+        opts.extensions = extensions;
+      }
+      if (pack.renderer) {
+        const renderer = this.defaults.renderer || new _Renderer(this.defaults);
+        for (const prop in pack.renderer) {
+          if (!(prop in renderer)) {
+            throw new Error(`renderer '${prop}' does not exist`);
+          }
+          if (["options", "parser"].includes(prop)) {
+            continue;
+          }
+          const rendererProp = prop;
+          let rendererFunc = pack.renderer[rendererProp];
+          if (!pack.useNewRenderer) {
+            rendererFunc = this.#convertRendererFunction(rendererFunc, rendererProp, renderer);
+          }
+          const prevRenderer = renderer[rendererProp];
+          renderer[rendererProp] = (...args2) => {
+            let ret = rendererFunc.apply(renderer, args2);
+            if (ret === false) {
+              ret = prevRenderer.apply(renderer, args2);
+            }
+            return ret || "";
+          };
+        }
+        opts.renderer = renderer;
+      }
+      if (pack.tokenizer) {
+        const tokenizer = this.defaults.tokenizer || new _Tokenizer(this.defaults);
+        for (const prop in pack.tokenizer) {
+          if (!(prop in tokenizer)) {
+            throw new Error(`tokenizer '${prop}' does not exist`);
+          }
+          if (["options", "rules", "lexer"].includes(prop)) {
+            continue;
+          }
+          const tokenizerProp = prop;
+          const tokenizerFunc = pack.tokenizer[tokenizerProp];
+          const prevTokenizer = tokenizer[tokenizerProp];
+          tokenizer[tokenizerProp] = (...args2) => {
+            let ret = tokenizerFunc.apply(tokenizer, args2);
+            if (ret === false) {
+              ret = prevTokenizer.apply(tokenizer, args2);
+            }
+            return ret;
+          };
+        }
+        opts.tokenizer = tokenizer;
+      }
+      if (pack.hooks) {
+        const hooks = this.defaults.hooks || new _Hooks();
+        for (const prop in pack.hooks) {
+          if (!(prop in hooks)) {
+            throw new Error(`hook '${prop}' does not exist`);
+          }
+          if (prop === "options") {
+            continue;
+          }
+          const hooksProp = prop;
+          const hooksFunc = pack.hooks[hooksProp];
+          const prevHook = hooks[hooksProp];
+          if (_Hooks.passThroughHooks.has(prop)) {
+            hooks[hooksProp] = (arg) => {
+              if (this.defaults.async) {
+                return Promise.resolve(hooksFunc.call(hooks, arg)).then((ret2) => {
+                  return prevHook.call(hooks, ret2);
+                });
+              }
+              const ret = hooksFunc.call(hooks, arg);
+              return prevHook.call(hooks, ret);
+            };
+          } else {
+            hooks[hooksProp] = (...args2) => {
+              let ret = hooksFunc.apply(hooks, args2);
+              if (ret === false) {
+                ret = prevHook.apply(hooks, args2);
+              }
+              return ret;
+            };
+          }
+        }
+        opts.hooks = hooks;
+      }
+      if (pack.walkTokens) {
+        const walkTokens2 = this.defaults.walkTokens;
+        const packWalktokens = pack.walkTokens;
+        opts.walkTokens = function(token) {
+          let values = [];
+          values.push(packWalktokens.call(this, token));
+          if (walkTokens2) {
+            values = values.concat(walkTokens2.call(this, token));
+          }
+          return values;
+        };
+      }
+      this.defaults = __spreadValues(__spreadValues({}, this.defaults), opts);
+    });
+    return this;
+  }
+  // TODO: Remove this in next major release
+  #convertRendererFunction(func, prop, renderer) {
+    switch (prop) {
+      case "heading":
+        return function(token) {
+          if (!token.type || token.type !== prop) {
+            return func.apply(this, arguments);
+          }
+          return func.call(this, renderer.parser.parseInline(token.tokens), token.depth, unescape(renderer.parser.parseInline(token.tokens, renderer.parser.textRenderer)));
+        };
+      case "code":
+        return function(token) {
+          if (!token.type || token.type !== prop) {
+            return func.apply(this, arguments);
+          }
+          return func.call(this, token.text, token.lang, !!token.escaped);
+        };
+      case "table":
+        return function(token) {
+          if (!token.type || token.type !== prop) {
+            return func.apply(this, arguments);
+          }
+          let header = "";
+          let cell = "";
+          for (let j = 0; j < token.header.length; j++) {
+            cell += this.tablecell({
+              text: token.header[j].text,
+              tokens: token.header[j].tokens,
+              header: true,
+              align: token.align[j]
+            });
+          }
+          header += this.tablerow({ text: cell });
+          let body = "";
+          for (let j = 0; j < token.rows.length; j++) {
+            const row = token.rows[j];
+            cell = "";
+            for (let k = 0; k < row.length; k++) {
+              cell += this.tablecell({
+                text: row[k].text,
+                tokens: row[k].tokens,
+                header: false,
+                align: token.align[k]
+              });
+            }
+            body += this.tablerow({ text: cell });
+          }
+          return func.call(this, header, body);
+        };
+      case "blockquote":
+        return function(token) {
+          if (!token.type || token.type !== prop) {
+            return func.apply(this, arguments);
+          }
+          const body = this.parser.parse(token.tokens);
+          return func.call(this, body);
+        };
+      case "list":
+        return function(token) {
+          if (!token.type || token.type !== prop) {
+            return func.apply(this, arguments);
+          }
+          const ordered = token.ordered;
+          const start = token.start;
+          const loose = token.loose;
+          let body = "";
+          for (let j = 0; j < token.items.length; j++) {
+            const item = token.items[j];
+            const checked = item.checked;
+            const task = item.task;
+            let itemBody = "";
+            if (item.task) {
+              const checkbox = this.checkbox({ checked: !!checked });
+              if (loose) {
+                if (item.tokens.length > 0 && item.tokens[0].type === "paragraph") {
+                  item.tokens[0].text = checkbox + " " + item.tokens[0].text;
+                  if (item.tokens[0].tokens && item.tokens[0].tokens.length > 0 && item.tokens[0].tokens[0].type === "text") {
+                    item.tokens[0].tokens[0].text = checkbox + " " + item.tokens[0].tokens[0].text;
+                  }
+                } else {
+                  item.tokens.unshift({
+                    type: "text",
+                    text: checkbox + " "
+                  });
+                }
+              } else {
+                itemBody += checkbox + " ";
+              }
+            }
+            itemBody += this.parser.parse(item.tokens, loose);
+            body += this.listitem({
+              type: "list_item",
+              raw: itemBody,
+              text: itemBody,
+              task,
+              checked: !!checked,
+              loose,
+              tokens: item.tokens
+            });
+          }
+          return func.call(this, body, ordered, start);
+        };
+      case "html":
+        return function(token) {
+          if (!token.type || token.type !== prop) {
+            return func.apply(this, arguments);
+          }
+          return func.call(this, token.text, token.block);
+        };
+      case "paragraph":
+        return function(token) {
+          if (!token.type || token.type !== prop) {
+            return func.apply(this, arguments);
+          }
+          return func.call(this, this.parser.parseInline(token.tokens));
+        };
+      case "escape":
+        return function(token) {
+          if (!token.type || token.type !== prop) {
+            return func.apply(this, arguments);
+          }
+          return func.call(this, token.text);
+        };
+      case "link":
+        return function(token) {
+          if (!token.type || token.type !== prop) {
+            return func.apply(this, arguments);
+          }
+          return func.call(this, token.href, token.title, this.parser.parseInline(token.tokens));
+        };
+      case "image":
+        return function(token) {
+          if (!token.type || token.type !== prop) {
+            return func.apply(this, arguments);
+          }
+          return func.call(this, token.href, token.title, token.text);
+        };
+      case "strong":
+        return function(token) {
+          if (!token.type || token.type !== prop) {
+            return func.apply(this, arguments);
+          }
+          return func.call(this, this.parser.parseInline(token.tokens));
+        };
+      case "em":
+        return function(token) {
+          if (!token.type || token.type !== prop) {
+            return func.apply(this, arguments);
+          }
+          return func.call(this, this.parser.parseInline(token.tokens));
+        };
+      case "codespan":
+        return function(token) {
+          if (!token.type || token.type !== prop) {
+            return func.apply(this, arguments);
+          }
+          return func.call(this, token.text);
+        };
+      case "del":
+        return function(token) {
+          if (!token.type || token.type !== prop) {
+            return func.apply(this, arguments);
+          }
+          return func.call(this, this.parser.parseInline(token.tokens));
+        };
+      case "text":
+        return function(token) {
+          if (!token.type || token.type !== prop) {
+            return func.apply(this, arguments);
+          }
+          return func.call(this, token.text);
+        };
+    }
+    return func;
+  }
+  setOptions(opt) {
+    this.defaults = __spreadValues(__spreadValues({}, this.defaults), opt);
+    return this;
+  }
+  lexer(src, options2) {
+    return _Lexer.lex(src, options2 ?? this.defaults);
+  }
+  parser(tokens, options2) {
+    return _Parser.parse(tokens, options2 ?? this.defaults);
+  }
+  #parseMarkdown(lexer2, parser2) {
+    return (src, options2) => {
+      const origOpt = __spreadValues({}, options2);
+      const opt = __spreadValues(__spreadValues({}, this.defaults), origOpt);
+      if (this.defaults.async === true && origOpt.async === false) {
+        if (!opt.silent) {
+          console.warn("marked(): The async option was set to true by an extension. The async: false option sent to parse will be ignored.");
+        }
+        opt.async = true;
+      }
+      const throwError = this.#onError(!!opt.silent, !!opt.async);
+      if (typeof src === "undefined" || src === null) {
+        return throwError(new Error("marked(): input parameter is undefined or null"));
+      }
+      if (typeof src !== "string") {
+        return throwError(new Error("marked(): input parameter is of type " + Object.prototype.toString.call(src) + ", string expected"));
+      }
+      if (opt.hooks) {
+        opt.hooks.options = opt;
+      }
+      if (opt.async) {
+        return Promise.resolve(opt.hooks ? opt.hooks.preprocess(src) : src).then((src2) => lexer2(src2, opt)).then((tokens) => opt.hooks ? opt.hooks.processAllTokens(tokens) : tokens).then((tokens) => opt.walkTokens ? Promise.all(this.walkTokens(tokens, opt.walkTokens)).then(() => tokens) : tokens).then((tokens) => parser2(tokens, opt)).then((html2) => opt.hooks ? opt.hooks.postprocess(html2) : html2).catch(throwError);
+      }
+      try {
+        if (opt.hooks) {
+          src = opt.hooks.preprocess(src);
+        }
+        let tokens = lexer2(src, opt);
+        if (opt.hooks) {
+          tokens = opt.hooks.processAllTokens(tokens);
+        }
+        if (opt.walkTokens) {
+          this.walkTokens(tokens, opt.walkTokens);
+        }
+        let html2 = parser2(tokens, opt);
+        if (opt.hooks) {
+          html2 = opt.hooks.postprocess(html2);
+        }
+        return html2;
+      } catch (e) {
+        return throwError(e);
+      }
+    };
+  }
+  #onError(silent, async) {
+    return (e) => {
+      e.message += "\nPlease report this to https://github.com/markedjs/marked.";
+      if (silent) {
+        const msg = "<p>An error occurred:</p><pre>" + escape$1(e.message + "", true) + "</pre>";
+        if (async) {
+          return Promise.resolve(msg);
+        }
+        return msg;
+      }
+      if (async) {
+        return Promise.reject(e);
+      }
+      throw e;
+    };
+  }
+};
+var markedInstance = new Marked();
+function marked(src, opt) {
+  return markedInstance.parse(src, opt);
+}
+marked.options = marked.setOptions = function(options2) {
+  markedInstance.setOptions(options2);
+  marked.defaults = markedInstance.defaults;
+  changeDefaults(marked.defaults);
+  return marked;
+};
+marked.getDefaults = _getDefaults;
+marked.defaults = _defaults;
+marked.use = function(...args) {
+  markedInstance.use(...args);
+  marked.defaults = markedInstance.defaults;
+  changeDefaults(marked.defaults);
+  return marked;
+};
+marked.walkTokens = function(tokens, callback) {
+  return markedInstance.walkTokens(tokens, callback);
+};
+marked.parseInline = markedInstance.parseInline;
+marked.Parser = _Parser;
+marked.parser = _Parser.parse;
+marked.Renderer = _Renderer;
+marked.TextRenderer = _TextRenderer;
+marked.Lexer = _Lexer;
+marked.lexer = _Lexer.lex;
+marked.Tokenizer = _Tokenizer;
+marked.Hooks = _Hooks;
+marked.parse = marked;
+var options = marked.options;
+var setOptions = marked.setOptions;
+var use = marked.use;
+var walkTokens = marked.walkTokens;
+var parseInline = marked.parseInline;
+var parse = marked;
+var parser = _Parser.parse;
+var lexer = _Lexer.lex;
+
+// libs/components/src/lib/date-from.pipe.ts
+var DateFromPipe = class _DateFromPipe {
+  transform(date) {
+    const now = Date.now();
+    let diff = differenceInMinutes(now, date);
+    const direction = diff < 0;
+    diff = Math.abs(diff);
+    if (diff < 1) {
+      return direction ? "Soon" : "Now";
+    } else if (diff === 1) {
+      return direction ? "In 1 min" : "1 min";
+    } else if (diff < 60) {
+      return direction ? `In ${diff} min` : `${diff} min`;
+    } else if (diff < 24 * 60) {
+      const hours = Math.floor(diff / 60);
+      return direction ? `In ${hours} hour${hours === 1 ? "" : "s"}` : format(date, "H:mm");
+    } else if (diff < 7 * 24 * 60) {
+      const days = Math.floor(diff / (24 * 60));
+      return direction ? format(date, "dd MMM yyyy") : format(date, "E H:mm");
+    } else if (diff < 365 * 24 * 60) {
+      const days = Math.floor(diff / (24 * 60));
+      return direction ? format(date, "dd MMM yyyy") : format(date, "LLL d H:mm");
+    }
+    return "Just now";
+  }
+  static {
+    this.\u0275fac = function DateFromPipe_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _DateFromPipe)();
+    };
+  }
+  static {
+    this.\u0275pipe = /* @__PURE__ */ \u0275\u0275definePipe({ name: "dateFrom", type: _DateFromPipe, pure: true });
+  }
 };
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(BrowserAnimationsModule, [{
-    type: NgModule,
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DateFromPipe, [{
+    type: Pipe,
     args: [{
-      exports: [BrowserModule],
-      providers: BROWSER_ANIMATIONS_PROVIDERS
+      name: "dateFrom"
     }]
   }], null, null);
 })();
-var NoopAnimationsModule = class _NoopAnimationsModule {
-  static \u0275fac = function NoopAnimationsModule_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _NoopAnimationsModule)();
-  };
-  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
-    type: _NoopAnimationsModule,
-    exports: [BrowserModule]
-  });
-  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
-    providers: BROWSER_NOOP_ANIMATIONS_PROVIDERS,
-    imports: [BrowserModule]
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NoopAnimationsModule, [{
-    type: NgModule,
-    args: [{
-      exports: [BrowserModule],
-      providers: BROWSER_NOOP_ANIMATIONS_PROVIDERS
-    }]
-  }], null, null);
-})();
 
-// node_modules/@angular/common/locales/ar.js
-var u = void 0;
-function plural(val) {
-  const n = val;
-  if (n === 0)
-    return 0;
-  if (n === 1)
-    return 1;
-  if (n === 2)
-    return 2;
-  if (n % 100 === Math.floor(n % 100) && (n % 100 >= 3 && n % 100 <= 10))
-    return 3;
-  if (n % 100 === Math.floor(n % 100) && (n % 100 >= 11 && n % 100 <= 99))
-    return 4;
-  return 5;
-}
-var ar_default = ["ar", [["\u0635", "\u0645"]], [["\u0635", "\u0645"], u, ["\u0635\u0628\u0627\u062D\u064B\u0627", "\u0645\u0633\u0627\u0621\u064B"]], [["\u062D", "\u0646", "\u062B", "\u0631", "\u062E", "\u062C", "\u0633"], ["\u0627\u0644\u0623\u062D\u062F", "\u0627\u0644\u0627\u062B\u0646\u064A\u0646", "\u0627\u0644\u062B\u0644\u0627\u062B\u0627\u0621", "\u0627\u0644\u0623\u0631\u0628\u0639\u0627\u0621", "\u0627\u0644\u062E\u0645\u064A\u0633", "\u0627\u0644\u062C\u0645\u0639\u0629", "\u0627\u0644\u0633\u0628\u062A"], u, ["\u0623\u062D\u062F", "\u0625\u062B\u0646\u064A\u0646", "\u062B\u0644\u0627\u062B\u0627\u0621", "\u0623\u0631\u0628\u0639\u0627\u0621", "\u062E\u0645\u064A\u0633", "\u062C\u0645\u0639\u0629", "\u0633\u0628\u062A"]], u, [["\u064A", "\u0641", "\u0645", "\u0623", "\u0648", "\u0646", "\u0644", "\u063A", "\u0633", "\u0643", "\u0628", "\u062F"], ["\u064A\u0646\u0627\u064A\u0631", "\u0641\u0628\u0631\u0627\u064A\u0631", "\u0645\u0627\u0631\u0633", "\u0623\u0628\u0631\u064A\u0644", "\u0645\u0627\u064A\u0648", "\u064A\u0648\u0646\u064A\u0648", "\u064A\u0648\u0644\u064A\u0648", "\u0623\u063A\u0633\u0637\u0633", "\u0633\u0628\u062A\u0645\u0628\u0631", "\u0623\u0643\u062A\u0648\u0628\u0631", "\u0646\u0648\u0641\u0645\u0628\u0631", "\u062F\u064A\u0633\u0645\u0628\u0631"]], u, [["\u0642.\u0645", "\u0645"], u, ["\u0642\u0628\u0644 \u0627\u0644\u0645\u064A\u0644\u0627\u062F", "\u0645\u064A\u0644\u0627\u062F\u064A"]], 6, [5, 6], ["d\u200F/M\u200F/y", "dd\u200F/MM\u200F/y", "d MMMM y", "EEEE\u060C d MMMM y"], ["h:mm a", "h:mm:ss a", "h:mm:ss a z", "h:mm:ss a zzzz"], ["{1}\u060C {0}", u, u, u], [".", ",", ";", "\u200E%\u200E", "\u200E+", "\u200E-", "E", "\xD7", "\u2030", "\u221E", "\u0644\u064A\u0633\xA0\u0631\u0642\u0645\u064B\u0627", ":"], ["#,##0.###", "#,##0%", "\u200F#,##0.00\xA0\xA4;\u200F-#,##0.00\xA0\xA4", "#E0"], "EGP", "\u062C.\u0645.\u200F", "\u062C\u0646\u064A\u0647 \u0645\u0635\u0631\u064A", { "AED": ["\u062F.\u0625.\u200F"], "ARS": [u, "AR$"], "AUD": ["AU$"], "BBD": [u, "BB$"], "BHD": ["\u062F.\u0628.\u200F"], "BMD": [u, "BM$"], "BND": [u, "BN$"], "BSD": [u, "BS$"], "BYN": [u, "\u0440."], "BZD": [u, "BZ$"], "CAD": ["CA$"], "CLP": [u, "CL$"], "CNY": ["CN\xA5"], "COP": [u, "CO$"], "CUP": [u, "CU$"], "DOP": [u, "DO$"], "DZD": ["\u062F.\u062C.\u200F"], "EGP": ["\u062C.\u0645.\u200F", "E\xA3"], "FJD": [u, "FJ$"], "GBP": ["UK\xA3"], "GYD": [u, "GY$"], "HKD": ["HK$"], "IQD": ["\u062F.\u0639.\u200F"], "IRR": ["\u0631.\u0625."], "JMD": [u, "JM$"], "JOD": ["\u062F.\u0623.\u200F"], "JPY": ["JP\xA5"], "KWD": ["\u062F.\u0643.\u200F"], "KYD": [u, "KY$"], "LBP": ["\u0644.\u0644.\u200F", "L\xA3"], "LRD": [u, "$LR"], "LYD": ["\u062F.\u0644.\u200F"], "MAD": ["\u062F.\u0645.\u200F"], "MRU": ["\u0623.\u0645."], "MXN": ["MX$"], "NZD": ["NZ$"], "OMR": ["\u0631.\u0639.\u200F"], "PHP": [u, "\u20B1"], "QAR": ["\u0631.\u0642.\u200F"], "SAR": ["\u0631.\u0633.\u200F"], "SBD": [u, "SB$"], "SDD": ["\u062F.\u0633.\u200F"], "SDG": ["\u062C.\u0633."], "SRD": [u, "SR$"], "SYP": ["\u0644.\u0633.\u200F", "\xA3"], "THB": ["\u0E3F"], "TND": ["\u062F.\u062A.\u200F"], "TTD": [u, "TT$"], "TWD": ["NT$"], "USD": ["US$"], "UYU": [u, "UY$"], "YER": ["\u0631.\u064A.\u200F"] }, "rtl", plural];
-
-// node_modules/@angular/common/locales/es.js
-var u2 = void 0;
-function plural2(val) {
-  const n = val, i = Math.floor(Math.abs(val)), v = val.toString().replace(/^[^.]*\.?/, "").length, e = parseInt(val.toString().replace(/^[^e]*(e([-+]?\d+))?/, "$2")) || 0;
-  if (n === 1)
-    return 1;
-  if (e === 0 && (!(i === 0) && (i % 1e6 === 0 && v === 0)) || !(e >= 0 && e <= 5))
-    return 4;
-  return 5;
-}
-var es_default = ["es", [["a.\u202Fm.", "p.\u202Fm."], u2, ["a.\xA0m.", "p.\xA0m."]], u2, [["D", "L", "M", "X", "J", "V", "S"], ["dom", "lun", "mar", "mi\xE9", "jue", "vie", "s\xE1b"], ["domingo", "lunes", "martes", "mi\xE9rcoles", "jueves", "viernes", "s\xE1bado"], ["DO", "LU", "MA", "MI", "JU", "VI", "SA"]], u2, [["E", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"], ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sept", "oct", "nov", "dic"], ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]], u2, [["a. C.", "d. C."], u2, ["antes de Cristo", "despu\xE9s de Cristo"]], 1, [6, 0], ["d/M/yy", "d MMM y", "d 'de' MMMM 'de' y", "EEEE, d 'de' MMMM 'de' y"], ["H:mm", "H:mm:ss", "H:mm:ss z", "H:mm:ss (zzzz)"], ["{1}, {0}", u2, u2, u2], [",", ".", ";", "%", "+", "-", "E", "\xD7", "\u2030", "\u221E", "NaN", ":"], ["#,##0.###", "#,##0\xA0%", "#,##0.00\xA0\xA4", "#E0"], "EUR", "\u20AC", "euro", { "AUD": [u2, "$"], "BRL": [u2, "R$"], "BYN": [u2, "\u0440."], "CAD": [u2, "$"], "CNY": [u2, "\xA5"], "EGP": [u2, "EGP"], "ESP": ["\u20A7"], "GBP": [u2, "\xA3"], "HKD": [u2, "$"], "ILS": [u2, "\u20AA"], "INR": [u2, "\u20B9"], "JPY": [u2, "\xA5"], "KRW": [u2, "\u20A9"], "MXN": [u2, "$"], "NZD": [u2, "$"], "PHP": [u2, "\u20B1"], "RON": [u2, "L"], "THB": ["\u0E3F"], "TWD": [u2, "NT$"], "USD": ["US$", "$"], "XAF": [], "XCD": [u2, "$"], "XOF": [] }, "ltr", plural2];
-
-// node_modules/@angular/common/locales/fr.js
-var u3 = void 0;
-function plural3(val) {
-  const n = val, i = Math.floor(Math.abs(val)), v = val.toString().replace(/^[^.]*\.?/, "").length, e = parseInt(val.toString().replace(/^[^e]*(e([-+]?\d+))?/, "$2")) || 0;
-  if (i === 0 || i === 1)
-    return 1;
-  if (e === 0 && (!(i === 0) && (i % 1e6 === 0 && v === 0)) || !(e >= 0 && e <= 5))
-    return 4;
-  return 5;
-}
-var fr_default = ["fr", [["AM", "PM"]], u3, [["D", "L", "M", "M", "J", "V", "S"], ["dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."], ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"], ["di", "lu", "ma", "me", "je", "ve", "sa"]], u3, [["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"], ["janv.", "f\xE9vr.", "mars", "avr.", "mai", "juin", "juil.", "ao\xFBt", "sept.", "oct.", "nov.", "d\xE9c."], ["janvier", "f\xE9vrier", "mars", "avril", "mai", "juin", "juillet", "ao\xFBt", "septembre", "octobre", "novembre", "d\xE9cembre"]], u3, [["av. J.-C.", "ap. J.-C."], u3, ["avant J\xE9sus-Christ", "apr\xE8s J\xE9sus-Christ"]], 1, [6, 0], ["dd/MM/y", "d MMM y", "d MMMM y", "EEEE d MMMM y"], ["HH:mm", "HH:mm:ss", "HH:mm:ss z", "HH:mm:ss zzzz"], ["{1} {0}", "{1}, {0}", u3, u3], [",", "\u202F", ";", "%", "+", "-", "E", "\xD7", "\u2030", "\u221E", "NaN", ":"], ["#,##0.###", "#,##0\xA0%", "#,##0.00\xA0\xA4", "#E0"], "EUR", "\u20AC", "euro", { "ARS": ["$AR", "$"], "AUD": ["$AU", "$"], "BEF": ["FB"], "BMD": ["$BM", "$"], "BND": ["$BN", "$"], "BYN": [u3, "\u0440."], "BZD": ["$BZ", "$"], "CAD": ["$CA", "$"], "CLP": ["$CL", "$"], "CNY": [u3, "\xA5"], "COP": ["$CO", "$"], "CYP": ["\xA3CY"], "EGP": [u3, "\xA3E"], "FJD": ["$FJ", "$"], "FKP": ["\xA3FK", "\xA3"], "FRF": ["F"], "GBP": ["\xA3GB", "\xA3"], "GIP": ["\xA3GI", "\xA3"], "HKD": [u3, "$"], "IEP": ["\xA3IE"], "ILP": ["\xA3IL"], "ITL": ["\u20A4IT"], "JPY": [u3, "\xA5"], "KMF": [u3, "FC"], "LBP": ["\xA3LB", "\xA3L"], "MTP": ["\xA3MT"], "MXN": ["$MX", "$"], "NAD": ["$NA", "$"], "NIO": [u3, "$C"], "NZD": ["$NZ", "$"], "PHP": [u3, "\u20B1"], "RHD": ["$RH"], "RON": [u3, "L"], "RWF": [u3, "FR"], "SBD": ["$SB", "$"], "SGD": ["$SG", "$"], "SRD": ["$SR", "$"], "TOP": [u3, "$T"], "TTD": ["$TT", "$"], "TWD": [u3, "NT$"], "USD": ["$US", "$"], "UYU": ["$UY", "$"], "WST": ["$WS"], "XCD": [u3, "$"], "XPF": ["FCFP"], "ZMW": [u3, "Kw"] }, "ltr", plural3];
-
-// node_modules/@angular/common/locales/it.js
-var u4 = void 0;
-function plural4(val) {
-  const n = val, i = Math.floor(Math.abs(val)), v = val.toString().replace(/^[^.]*\.?/, "").length, e = parseInt(val.toString().replace(/^[^e]*(e([-+]?\d+))?/, "$2")) || 0;
-  if (i === 1 && v === 0)
-    return 1;
-  if (e === 0 && (!(i === 0) && (i % 1e6 === 0 && v === 0)) || !(e >= 0 && e <= 5))
-    return 4;
-  return 5;
-}
-var it_default = ["it", [["m.", "p."], ["AM", "PM"]], u4, [["D", "L", "M", "M", "G", "V", "S"], ["dom", "lun", "mar", "mer", "gio", "ven", "sab"], ["domenica", "luned\xEC", "marted\xEC", "mercoled\xEC", "gioved\xEC", "venerd\xEC", "sabato"], ["dom", "lun", "mar", "mer", "gio", "ven", "sab"]], u4, [["G", "F", "M", "A", "M", "G", "L", "A", "S", "O", "N", "D"], ["gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ott", "nov", "dic"], ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre"]], u4, [["aC", "dC"], ["a.C.", "d.C."], ["avanti Cristo", "dopo Cristo"]], 1, [6, 0], ["dd/MM/yy", "d MMM y", "d MMMM y", "EEEE d MMMM y"], ["HH:mm", "HH:mm:ss", "HH:mm:ss z", "HH:mm:ss zzzz"], ["{1}, {0}", u4, "{1} {0}", u4], [",", ".", ";", "%", "+", "-", "E", "\xD7", "\u2030", "\u221E", "NaN", ":"], ["#,##0.###", "#,##0%", "#,##0.00\xA0\xA4", "#E0"], "EUR", "\u20AC", "euro", { "BRL": [u4, "R$"], "BYN": [u4, "Br"], "EGP": [u4, "\xA3E"], "HKD": [u4, "$"], "INR": [u4, "\u20B9"], "JPY": [u4, "\xA5"], "KRW": [u4, "\u20A9"], "MXN": [u4, "$"], "NOK": [u4, "NKr"], "THB": ["\u0E3F"], "TWD": [u4, "NT$"], "USD": [u4, "$"], "VND": [u4, "\u20AB"] }, "ltr", plural4];
-
-// node_modules/@angular/common/locales/ja.js
-var u5 = void 0;
-function plural5(val) {
-  const n = val;
-  return 5;
-}
-var ja_default = ["ja", [["\u5348\u524D", "\u5348\u5F8C"]], u5, [["\u65E5", "\u6708", "\u706B", "\u6C34", "\u6728", "\u91D1", "\u571F"], u5, ["\u65E5\u66DC\u65E5", "\u6708\u66DC\u65E5", "\u706B\u66DC\u65E5", "\u6C34\u66DC\u65E5", "\u6728\u66DC\u65E5", "\u91D1\u66DC\u65E5", "\u571F\u66DC\u65E5"], ["\u65E5", "\u6708", "\u706B", "\u6C34", "\u6728", "\u91D1", "\u571F"]], u5, [["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"], ["1\u6708", "2\u6708", "3\u6708", "4\u6708", "5\u6708", "6\u6708", "7\u6708", "8\u6708", "9\u6708", "10\u6708", "11\u6708", "12\u6708"]], u5, [["BC", "AD"], ["\u7D00\u5143\u524D", "\u897F\u66A6"]], 0, [6, 0], ["y/MM/dd", u5, "y\u5E74M\u6708d\u65E5", "y\u5E74M\u6708d\u65E5EEEE"], ["H:mm", "H:mm:ss", "H:mm:ss z", "H\u6642mm\u5206ss\u79D2 zzzz"], ["{1} {0}", u5, u5, u5], [".", ",", ";", "%", "+", "-", "E", "\xD7", "\u2030", "\u221E", "NaN", ":"], ["#,##0.###", "#,##0%", "\xA4#,##0.00", "#E0"], "JPY", "\uFFE5", "\u65E5\u672C\u5186", { "BYN": [u5, "\u0440."], "CNY": ["\u5143", "\uFFE5"], "JPY": ["\uFFE5"], "PHP": [u5, "\u20B1"], "RON": [u5, "\u30EC\u30A4"], "XXX": [] }, "ltr", plural5];
-
-// node_modules/@angular/common/locales/zh.js
-var u6 = void 0;
-function plural6(val) {
-  const n = val;
-  return 5;
-}
-var zh_default = ["zh", [["\u4E0A\u5348", "\u4E0B\u5348"]], u6, [["\u65E5", "\u4E00", "\u4E8C", "\u4E09", "\u56DB", "\u4E94", "\u516D"], ["\u5468\u65E5", "\u5468\u4E00", "\u5468\u4E8C", "\u5468\u4E09", "\u5468\u56DB", "\u5468\u4E94", "\u5468\u516D"], ["\u661F\u671F\u65E5", "\u661F\u671F\u4E00", "\u661F\u671F\u4E8C", "\u661F\u671F\u4E09", "\u661F\u671F\u56DB", "\u661F\u671F\u4E94", "\u661F\u671F\u516D"], ["\u5468\u65E5", "\u5468\u4E00", "\u5468\u4E8C", "\u5468\u4E09", "\u5468\u56DB", "\u5468\u4E94", "\u5468\u516D"]], u6, [["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"], ["1\u6708", "2\u6708", "3\u6708", "4\u6708", "5\u6708", "6\u6708", "7\u6708", "8\u6708", "9\u6708", "10\u6708", "11\u6708", "12\u6708"], ["\u4E00\u6708", "\u4E8C\u6708", "\u4E09\u6708", "\u56DB\u6708", "\u4E94\u6708", "\u516D\u6708", "\u4E03\u6708", "\u516B\u6708", "\u4E5D\u6708", "\u5341\u6708", "\u5341\u4E00\u6708", "\u5341\u4E8C\u6708"]], u6, [["\u516C\u5143\u524D", "\u516C\u5143"]], 1, [6, 0], ["y/M/d", "y\u5E74M\u6708d\u65E5", u6, "y\u5E74M\u6708d\u65E5EEEE"], ["HH:mm", "HH:mm:ss", "z HH:mm:ss", "zzzz HH:mm:ss"], ["{1} {0}", u6, u6, u6], [".", ",", ";", "%", "+", "-", "E", "\xD7", "\u2030", "\u221E", "NaN", ":"], ["#,##0.###", "#,##0%", "\xA4#,##0.00", "#E0"], "CNY", "\xA5", "\u4EBA\u6C11\u5E01", { "AUD": ["AU$", "$"], "BYN": [u6, "\u0440."], "CNY": ["\xA5"], "ILR": ["ILS"], "JPY": ["JP\xA5", "\xA5"], "PHP": [u6, "\u20B1"], "RUR": [u6, "\u0440."], "TWD": ["NT$"], "USD": ["US$", "$"], "XXX": [] }, "ltr", plural6];
-
-// apps/visitor-kiosk/src/environments/environment.ts
-var environment = {
-  production: false
-};
-
-// apps/visitor-kiosk/src/app/bootstrap.component.ts
-var _c0 = ["bootstrap", ""];
-function BootstrapComponent_Conditional_11_Conditional_1_For_14_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-option", 18)(1, "div", 19)(2, "div");
-    \u0275\u0275text(3);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 20)(5, "span", 21);
-    \u0275\u0275text(6, "\xA0[");
-    \u0275\u0275elementEnd();
-    \u0275\u0275text(7);
-    \u0275\u0275elementStart(8, "span", 21);
-    \u0275\u0275text(9, "]");
-    \u0275\u0275elementEnd()()()();
+// libs/components/src/lib/chat/chat.service.ts
+var ChatService = class _ChatService extends AsyncHandler {
+  get connected() {
+    return !!this._socket;
   }
-  if (rf & 2) {
-    const option_r3 = ctx.$implicit;
-    \u0275\u0275property("value", option_r3);
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", option_r3.display_name || option_r3.name, " ");
-    \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(option_r3.id);
-  }
-}
-function BootstrapComponent_Conditional_11_Conditional_1_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "label");
-    \u0275\u0275text(1);
-    \u0275\u0275pipe(2, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "mat-form-field", 13)(4, "mat-select", 14, 0);
-    \u0275\u0275pipe(6, "translate");
-    \u0275\u0275twoWayListener("ngModelChange", function BootstrapComponent_Conditional_11_Conditional_1_Template_mat_select_ngModelChange_4_listener($event) {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext(2);
-      \u0275\u0275twoWayBindingSet(ctx_r1.active_region, $event) || (ctx_r1.active_region = $event);
-      return \u0275\u0275resetView($event);
-    });
-    \u0275\u0275listener("ngModelChange", function BootstrapComponent_Conditional_11_Conditional_1_Template_mat_select_ngModelChange_4_listener($event) {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r1.setRegion($event));
-    });
-    \u0275\u0275elementStart(7, "mat-select-trigger")(8, "div", 15)(9, "div", 16);
-    \u0275\u0275text(10);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(11, "div", 17);
-    \u0275\u0275text(12);
-    \u0275\u0275elementEnd()()();
-    \u0275\u0275repeaterCreate(13, BootstrapComponent_Conditional_11_Conditional_1_For_14_Template, 10, 3, "mat-option", 18, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    let tmp_6_0;
-    let tmp_7_0;
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 5, "APP.VISITOR_KIOSK.SELECT_REGION_MSG"), " ");
-    \u0275\u0275advance(3);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r1.active_region);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(6, 7, "APP.VISITOR_KIOSK.SELECT_REGION_MSG"));
-    \u0275\u0275advance(6);
-    \u0275\u0275textInterpolate1(" ", ((tmp_6_0 = ctx_r1.active_region()) == null ? null : tmp_6_0.display_name) || ((tmp_6_0 = ctx_r1.active_region()) == null ? null : tmp_6_0.name), " ");
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", (tmp_7_0 = ctx_r1.active_region()) == null ? null : tmp_7_0.id, " ");
-    \u0275\u0275advance();
-    \u0275\u0275repeater(ctx_r1.regions());
-  }
-}
-function BootstrapComponent_Conditional_11_Conditional_2_For_14_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-option", 18)(1, "div", 19)(2, "div");
-    \u0275\u0275text(3);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 22)(5, "span", 21);
-    \u0275\u0275text(6, "\xA0[");
-    \u0275\u0275elementEnd();
-    \u0275\u0275text(7);
-    \u0275\u0275elementStart(8, "span", 21);
-    \u0275\u0275text(9, "]");
-    \u0275\u0275elementEnd()()()();
-  }
-  if (rf & 2) {
-    const option_r5 = ctx.$implicit;
-    \u0275\u0275property("value", option_r5);
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", option_r5.display_name || option_r5.name, " ");
-    \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(option_r5.id);
-  }
-}
-function BootstrapComponent_Conditional_11_Conditional_2_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "label");
-    \u0275\u0275text(1);
-    \u0275\u0275pipe(2, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "mat-form-field", 13)(4, "mat-select", 14, 0);
-    \u0275\u0275pipe(6, "translate");
-    \u0275\u0275twoWayListener("ngModelChange", function BootstrapComponent_Conditional_11_Conditional_2_Template_mat_select_ngModelChange_4_listener($event) {
-      \u0275\u0275restoreView(_r4);
-      const ctx_r1 = \u0275\u0275nextContext(2);
-      \u0275\u0275twoWayBindingSet(ctx_r1.active_building, $event) || (ctx_r1.active_building = $event);
-      return \u0275\u0275resetView($event);
-    });
-    \u0275\u0275listener("ngModelChange", function BootstrapComponent_Conditional_11_Conditional_2_Template_mat_select_ngModelChange_4_listener($event) {
-      \u0275\u0275restoreView(_r4);
-      const ctx_r1 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r1.setBuilding($event));
-    });
-    \u0275\u0275elementStart(7, "mat-select-trigger")(8, "div", 15)(9, "div", 16);
-    \u0275\u0275text(10);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(11, "div", 17);
-    \u0275\u0275text(12);
-    \u0275\u0275elementEnd()()();
-    \u0275\u0275repeaterCreate(13, BootstrapComponent_Conditional_11_Conditional_2_For_14_Template, 10, 3, "mat-option", 18, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    let tmp_6_0;
-    let tmp_7_0;
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 5, "APP.VISITOR_KIOSK.SELECT_BUILDING_MSG"), " ");
-    \u0275\u0275advance(3);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r1.active_building);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(6, 7, "APP.VISITOR_KIOSK.SELECT_BUILDING"));
-    \u0275\u0275advance(6);
-    \u0275\u0275textInterpolate1(" ", ((tmp_6_0 = ctx_r1.active_building()) == null ? null : tmp_6_0.display_name) || ((tmp_6_0 = ctx_r1.active_building()) == null ? null : tmp_6_0.name), " ");
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", (tmp_7_0 = ctx_r1.active_building()) == null ? null : tmp_7_0.id, " ");
-    \u0275\u0275advance();
-    \u0275\u0275repeater(ctx_r1.buildings());
-  }
-}
-function BootstrapComponent_Conditional_11_Conditional_3_For_15_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-option", 18)(1, "div", 19)(2, "div");
-    \u0275\u0275text(3);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 20)(5, "span", 21);
-    \u0275\u0275text(6, "\xA0[");
-    \u0275\u0275elementEnd();
-    \u0275\u0275text(7);
-    \u0275\u0275elementStart(8, "span", 21);
-    \u0275\u0275text(9, "]");
-    \u0275\u0275elementEnd()()()();
-  }
-  if (rf & 2) {
-    const option_r7 = ctx.$implicit;
-    \u0275\u0275property("value", option_r7);
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", option_r7.display_name || option_r7.name, " ");
-    \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(option_r7.id);
-  }
-}
-function BootstrapComponent_Conditional_11_Conditional_3_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275element(0, "div");
-    \u0275\u0275elementStart(1, "label");
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "mat-form-field", 13)(5, "mat-select", 23, 0);
-    \u0275\u0275pipe(7, "translate");
-    \u0275\u0275twoWayListener("ngModelChange", function BootstrapComponent_Conditional_11_Conditional_3_Template_mat_select_ngModelChange_5_listener($event) {
-      \u0275\u0275restoreView(_r6);
-      const ctx_r1 = \u0275\u0275nextContext(2);
-      \u0275\u0275twoWayBindingSet(ctx_r1.active_level, $event) || (ctx_r1.active_level = $event);
-      return \u0275\u0275resetView($event);
-    });
-    \u0275\u0275elementStart(8, "mat-select-trigger")(9, "div", 15)(10, "div", 16);
-    \u0275\u0275text(11);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(12, "div", 17);
-    \u0275\u0275text(13);
-    \u0275\u0275elementEnd()()();
-    \u0275\u0275repeaterCreate(14, BootstrapComponent_Conditional_11_Conditional_3_For_15_Template, 10, 3, "mat-option", 18, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    let tmp_6_0;
-    let tmp_7_0;
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 5, "APP.VISITOR_KIOSK.SELECT_LEVEL_MSG"), " ");
-    \u0275\u0275advance(3);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r1.active_level);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(7, 7, "APP.VISITOR_KIOSK.SELECT_LEVEL"));
-    \u0275\u0275advance(6);
-    \u0275\u0275textInterpolate1(" ", ((tmp_6_0 = ctx_r1.active_level()) == null ? null : tmp_6_0.display_name) || ((tmp_6_0 = ctx_r1.active_level()) == null ? null : tmp_6_0.name), " ");
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", (tmp_7_0 = ctx_r1.active_level()) == null ? null : tmp_7_0.id, " ");
-    \u0275\u0275advance();
-    \u0275\u0275repeater(ctx_r1.levels());
-  }
-}
-function BootstrapComponent_Conditional_11_Conditional_4_For_9_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-option", 18)(1, "div", 19)(2, "div");
-    \u0275\u0275text(3);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 20)(5, "span", 21);
-    \u0275\u0275text(6, "\xA0[");
-    \u0275\u0275elementEnd();
-    \u0275\u0275text(7);
-    \u0275\u0275elementStart(8, "span", 21);
-    \u0275\u0275text(9, "]");
-    \u0275\u0275elementEnd()()()();
-  }
-  if (rf & 2) {
-    const option_r9 = ctx.$implicit;
-    \u0275\u0275property("value", option_r9);
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", option_r9.display_name || option_r9.name, " ");
-    \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(option_r9.id);
-  }
-}
-function BootstrapComponent_Conditional_11_Conditional_4_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275element(0, "div");
-    \u0275\u0275elementStart(1, "label");
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "mat-form-field", 13)(5, "mat-select", 24, 0);
-    \u0275\u0275pipe(7, "translate");
-    \u0275\u0275twoWayListener("ngModelChange", function BootstrapComponent_Conditional_11_Conditional_4_Template_mat_select_ngModelChange_5_listener($event) {
-      \u0275\u0275restoreView(_r8);
-      const ctx_r1 = \u0275\u0275nextContext(2);
-      \u0275\u0275twoWayBindingSet(ctx_r1.active_rotation, $event) || (ctx_r1.active_rotation = $event);
-      return \u0275\u0275resetView($event);
-    });
-    \u0275\u0275repeaterCreate(8, BootstrapComponent_Conditional_11_Conditional_4_For_9_Template, 10, 3, "mat-option", 18, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 3, "APP.VISITOR_KIOSK.SELECT_ORIENTATION_MSG"), " Please select an orientation from the dropdown below ");
-    \u0275\u0275advance(3);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r1.active_rotation);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(7, 5, "APP.VISITOR_KIOSK.SELECT_ORIENTATION"));
-    \u0275\u0275advance(3);
-    \u0275\u0275repeater(ctx_r1.rotations());
-  }
-}
-function BootstrapComponent_Conditional_11_Conditional_5_For_9_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-option", 18)(1, "div", 19)(2, "div");
-    \u0275\u0275text(3);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 20)(5, "span", 21);
-    \u0275\u0275text(6, "\xA0[");
-    \u0275\u0275elementEnd();
-    \u0275\u0275text(7);
-    \u0275\u0275elementStart(8, "span", 21);
-    \u0275\u0275text(9, "]");
-    \u0275\u0275elementEnd()()()();
-  }
-  if (rf & 2) {
-    const option_r11 = ctx.$implicit;
-    \u0275\u0275property("value", option_r11);
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", option_r11.display_name || option_r11.name, " ");
-    \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(option_r11.id);
-  }
-}
-function BootstrapComponent_Conditional_11_Conditional_5_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r10 = \u0275\u0275getCurrentView();
-    \u0275\u0275element(0, "div");
-    \u0275\u0275elementStart(1, "label");
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "mat-form-field", 13)(5, "mat-select", 24, 0);
-    \u0275\u0275pipe(7, "translate");
-    \u0275\u0275twoWayListener("ngModelChange", function BootstrapComponent_Conditional_11_Conditional_5_Template_mat_select_ngModelChange_5_listener($event) {
-      \u0275\u0275restoreView(_r10);
-      const ctx_r1 = \u0275\u0275nextContext(2);
-      \u0275\u0275twoWayBindingSet(ctx_r1.active_location, $event) || (ctx_r1.active_location = $event);
-      return \u0275\u0275resetView($event);
-    });
-    \u0275\u0275repeaterCreate(8, BootstrapComponent_Conditional_11_Conditional_5_For_9_Template, 10, 3, "mat-option", 18, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 3, "APP.VISITOR_KIOSK.SELECT_LOCATION_MSG"), " Please select an fixed location from the dropdown below ");
-    \u0275\u0275advance(3);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r1.active_location);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(7, 5, "APP.VISITOR_KIOSK.SELECT_LOCATION"));
-    \u0275\u0275advance(3);
-    \u0275\u0275repeater(ctx_r1.locations());
-  }
-}
-function BootstrapComponent_Conditional_11_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 7);
-    \u0275\u0275conditionalCreate(1, BootstrapComponent_Conditional_11_Conditional_1_Template, 15, 9);
-    \u0275\u0275conditionalCreate(2, BootstrapComponent_Conditional_11_Conditional_2_Template, 15, 9);
-    \u0275\u0275conditionalCreate(3, BootstrapComponent_Conditional_11_Conditional_3_Template, 16, 9);
-    \u0275\u0275conditionalCreate(4, BootstrapComponent_Conditional_11_Conditional_4_Template, 10, 7);
-    \u0275\u0275conditionalCreate(5, BootstrapComponent_Conditional_11_Conditional_5_Template, 10, 7);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.regions().length > 1 ? 1 : -1);
-    \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.buildings().length ? 2 : -1);
-    \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.levels().length && ctx_r1.active_building() ? 3 : -1);
-    \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.rotations().length ? 4 : -1);
-    \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.locations().length ? 5 : -1);
-  }
-}
-function BootstrapComponent_Conditional_12_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 8);
-    \u0275\u0275element(1, "mat-spinner", 25);
-    \u0275\u0275elementStart(2, "p");
-    \u0275\u0275text(3);
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("diameter", 32);
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(ctx_r1.loading());
-  }
-}
-function BootstrapComponent_Conditional_13_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r12 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 9)(1, "button", 26);
-    \u0275\u0275listener("click", function BootstrapComponent_Conditional_13_Template_button_click_1_listener() {
-      \u0275\u0275restoreView(_r12);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.bootstrapKiosk());
-    });
-    \u0275\u0275text(2, " Finish Setup ");
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("disabled", !ctx_r1.active_building() && !ctx_r1.active_level());
-  }
-}
-function BootstrapComponent_Conditional_22_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 12)(1, "div", 27)(2, "h2", 28);
-    \u0275\u0275text(3, " Public mode is enabled ");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "p", 29);
-    \u0275\u0275text(5, " Setup is disabled while this kiosk is in public mode. ");
-    \u0275\u0275elementEnd()()();
-  }
-}
-var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
   constructor() {
-    super(...arguments);
+    super();
     this._org = inject(OrganisationService);
     this._settings = inject(SettingsService);
-    this._route = inject(ActivatedRoute);
-    this._router = inject(Router);
-    this._startup_action = "";
-    this.loading = signal("", ...ngDevMode ? [{ debugName: "loading" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.active_region = signal(null, ...ngDevMode ? [{ debugName: "active_region" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.active_building = signal(null, ...ngDevMode ? [{ debugName: "active_building" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.active_level = signal(null, ...ngDevMode ? [{ debugName: "active_level" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.active_rotation = signal(null, ...ngDevMode ? [{ debugName: "active_rotation" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.active_location = signal(null, ...ngDevMode ? [{ debugName: "active_location" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.rotations = signal([], ...ngDevMode ? [{ debugName: "rotations" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.regions = toSignal(this._org.region_list, {
-      initialValue: []
+    this._binding = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "_binding" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._chat_messages = signal(
+      [],
+      ...ngDevMode ? [{ debugName: "_chat_messages" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._progress_message = signal(
+      null,
+      ...ngDevMode ? [{ debugName: "_progress_message" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._chat_system = computed(
+      () => {
+        const bld = this._org.active_building();
+        const bind_id = this._binding();
+        if (!bld?.id)
+          return "";
+        const binding = this._org.binding("chat_room");
+        const system_id = binding instanceof Object ? binding.id : binding;
+        return bind_id || system_id;
+      },
+      ...ngDevMode ? [{ debugName: "_chat_system" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._chat_id = "";
+    this.chat_hint = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "chat_hint" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.messages = this._chat_messages.asReadonly();
+    this.progress = this._progress_message.asReadonly();
+    effect(() => {
+      const id = this._chat_system();
+      if (id)
+        this._bindHint(id);
     });
-    this.buildings = toSignal(this._org.active_buildings, {
-      initialValue: []
-    });
-    this.levels = toSignal(this._org.active_levels, {
-      initialValue: []
-    });
-    this.is_public_mode = isPublicMode;
-    this.locations = computed(() => {
-      const active_level = this.active_level();
-      if (!active_level) {
-        return [];
-      }
-      return active_level.locations || [];
-    }, ...ngDevMode ? [{ debugName: "locations" }] : (
-      /* istanbul ignore next */
-      []
-    ));
   }
-  get version() {
-    return VERSION;
+  setBinding(system_id) {
+    this._binding.set(system_id);
   }
-  setRegion(region) {
-    this._org.region = region;
-    this.active_region.set(region);
-    this.active_building.set(null);
-    this.active_level.set(null);
-    this.active_location.set(null);
-    this.updateRotations();
-  }
-  setBuilding(building) {
-    this._org.building = building;
-    this.active_building.set(building);
-    this.active_level.set(null);
-    this.active_location.set(null);
-    this.updateRotations();
-  }
-  async ngOnInit() {
-    await firstTruthyValueFrom(this._org.initialised);
-    this.active_region.set(this._org.region);
-    this._startup_action = this.getActionParamFromUrl();
-    this.subscription("route.query", this._route.queryParamMap.subscribe((params) => {
-      if (params.has("action")) {
-        this._startup_action = params.get("action")?.trim().toLowerCase() || "";
-      }
-      if (params.has("osk")) {
-        const osk_enabled = params.get("osk") === "true";
-        localStorage.setItem("OSK.enabled", `${osk_enabled}`);
-      }
-      if (params.has("clear") && params.get("clear") === "true") {
-        localStorage.removeItem("KIOSK.building");
-        localStorage.removeItem("KIOSK.level");
-        localStorage.removeItem("KIOSK.orientation");
-      }
-      if (params.has("level")) {
-        const level = this._org.levelWithID([params.get("level")]);
-        if (level) {
-          this.active_level.set(level);
-          this.bootstrapKiosk();
-        }
-      }
-    }));
-    this.checkBootstrap();
-  }
-  updateRotations() {
-    this.rotations.set([]);
-    const active_building = this.active_building();
-    if (!active_building) {
-      this.active_rotation.set(null);
+  startChat() {
+    if (this._socket)
       return;
-    }
-    const orientations = active_building.orientations;
-    const rotations = [];
-    for (const key in orientations) {
-      if (orientations[key]) {
-        rotations.push({
-          id: key,
-          name: `${key.split("_").join(" ")} (${orientations[key] * 90}\xB0)`,
-          value: orientations[key]
-        });
-      }
-    }
-    this.rotations.set(rotations);
-    this.active_rotation.set(rotations[0] || null);
-  }
-  /**
-   * Store bootstrapped values and navigate to the main page
-   */
-  bootstrapKiosk() {
-    this.loading.set("Bootstrapping application...");
-    const active_level = this.active_level();
-    const active_building = this.active_building();
-    const active_rotation = this.active_rotation();
-    const active_location = this.active_location();
-    if (active_level) {
-      if (localStorage) {
-        localStorage.setItem("KIOSK.building", active_building?.id || active_level.parent_id);
-        localStorage.setItem("KIOSK.level", active_level.id);
-        if (active_rotation) {
-          localStorage.setItem("KIOSK.orientation", `${active_rotation.id}`);
-        }
-        if (active_location) {
-          localStorage.setItem("KIOSK.location", `${active_location.id}`);
-        }
-      }
-      this.navigateToStartupRoute();
-    }
-    this.loading.set("");
-  }
-  /**
-   * Check for any existing bootstrapped values
-   */
-  checkBootstrap() {
-    this.loading.set("Checking for existing parameters...");
-    if (this._startup_action === "preferences") {
-      this.navigateToStartupRoute();
-      this.loading.set("");
+    const id = this._chat_system();
+    if (!id)
       return;
-    }
-    if (localStorage) {
-      const building_id = localStorage.getItem("KIOSK.building");
-      const level_id = localStorage.getItem("KIOSK.level");
-      if (building_id && level_id) {
-        this._router.navigate(this.getStartupRoute());
+    const auth = V() !== "x-api-key" ? `bearer_token=${encodeURIComponent(V())}` : `x-api-key=${Ye()}`;
+    const url = `ws${location.origin.replace("http", "")}/api/engine/v2/chatgpt/chat/${encodeURIComponent(id)}?${auth}${this._chat_id ? "&resume=" + encodeURIComponent(this._chat_id) : ""}`;
+    log("CHAT", "Starting chat connection.");
+    this._socket = new WebSocket(url);
+    this._socket.onmessage = (event) => {
+      let msg = event.data;
+      try {
+        msg = JSON.parse(event.data);
+      } catch (e) {
       }
-    }
-    VirtualKeyboardComponent.enabled = localStorage.getItem("OSK.enabled") === "true";
-    this.loading.set("");
+      this._onMessage(msg);
+    };
+    this._socket.onerror = (e) => {
+      log("CHAT", "Connection error:", [e], "error");
+      this._cleanup();
+    };
+    this._socket.onclose = () => this._cleanup();
+    return () => this.endChat();
   }
-  getStartupRoute() {
-    if (this._startup_action === "preferences") {
-      return ["/checkin", "preferences"];
-    }
-    const path = this._settings.get("app.default_route") || "welcome";
-    const route = path.split("/");
-    route[0] = `/${route[0]}`;
-    return route;
+  endChat() {
+    log("CHAT", "Dropping chat connection.");
+    this._socket?.close();
+    this._cleanup();
   }
-  navigateToStartupRoute() {
-    const route = this.getStartupRoute();
-    if (route[0] === "/checkin" && route[1] === "preferences") {
-      this._router.navigate(route, {
-        queryParams: this.getMergedQueryParamsFromUrl()
-      });
+  close() {
+    this.endChat();
+    this._chat_id = "";
+    this._chat_messages.set([]);
+  }
+  sendMessage(message) {
+    if (!message)
       return;
-    }
-    this._router.navigate(route);
+    this._onMessage({ chat_id: "", message, user_id: currentUser().id });
+    this._socket?.send(message);
   }
-  getActionParamFromUrl() {
-    return this.getMergedQueryParamsFromUrl().action?.trim().toLowerCase() || "";
-  }
-  getMergedQueryParamsFromUrl() {
-    const query_params = {};
-    try {
-      const parsed_url = new URL(window.location.href, window.location.origin);
-      parsed_url.searchParams.forEach((value, key) => {
-        query_params[key] = value;
-      });
-      const hash_route = parsed_url.hash?.replace(/^#/, "") || "";
-      const hash_query = hash_route.includes("?") ? hash_route.split("?")[1] : "";
-      new URLSearchParams(hash_query).forEach((value, key) => {
-        query_params[key] = value;
-      });
-    } catch {
-    }
-    this._route.snapshot.queryParamMap.keys.forEach((key) => {
-      const value = this._route.snapshot.queryParamMap.get(key);
-      if (value !== null) {
-        query_params[key] = value;
+  _timeoutSocket(delay = 55 * 1e3) {
+    this.timeout("socket", () => {
+      const msg_list = this._chat_messages();
+      if (msg_list.length > 0 && msg_list[msg_list.length - 1].user_id !== "assistant") {
+        return this._timeoutSocket(delay);
       }
-    });
-    return query_params;
+      this.endChat();
+    }, delay);
+  }
+  _cleanup() {
+    this._socket = null;
+  }
+  _onMessage(msg) {
+    if (msg.chat_id)
+      this._chat_id = msg.chat_id;
+    if (msg.type === "progress") {
+      this._progress_message.set({
+        id: `msg-${randomString(6)}`,
+        chat_id: msg.chat_id,
+        message: msg.message,
+        content: parse(msg.message, { async: false }),
+        user_id: msg.user_id || "assistant",
+        function: msg.function,
+        timestamp: Date.now()
+      });
+      if (msg.function === "task_complete") {
+        this._settings.post("CHAT:task_complete", msg.task_id);
+      }
+    } else {
+      this._chat_messages.set([
+        ...this._chat_messages(),
+        {
+          id: `msg-${randomString(6)}`,
+          chat_id: msg.chat_id,
+          message: msg.message,
+          content: parse(msg.message, { async: false }),
+          user_id: msg.user_id || "assistant",
+          timestamp: Date.now()
+        }
+      ]);
+      if (msg.type === "response") {
+        this._progress_message.set(null);
+      }
+    }
+    this._timeoutSocket();
+  }
+  _bindHint(id) {
+    const mod = Fl(id, "LLM");
+    const binding = mod.variable("user_hint");
+    this.subscription(`binding:LLM:user_hint`, binding.bind());
+    this.subscription(`listen:LLM:user_hint`, binding.listen().subscribe((value) => this.chat_hint.set(value)));
   }
   static {
-    this.\u0275fac = /* @__PURE__ */ (() => {
-      let \u0275BootstrapComponent_BaseFactory;
-      return function BootstrapComponent_Factory(__ngFactoryType__) {
-        return (\u0275BootstrapComponent_BaseFactory || (\u0275BootstrapComponent_BaseFactory = \u0275\u0275getInheritedFactory(_BootstrapComponent)))(__ngFactoryType__ || _BootstrapComponent);
-      };
-    })();
+    this.\u0275fac = function ChatService_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _ChatService)();
+    };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BootstrapComponent, selectors: [["", "bootstrap", ""]], features: [\u0275\u0275InheritDefinitionFeature], attrs: _c0, decls: 23, vars: 21, consts: [["select", ""], [1, "bg-base-200", "absolute", "inset-0", "z-0"], ["form", "", 1, "border-base-300", "bg-base-100", "relative", "z-10", "mx-auto", "my-8", "w-md", "max-w-[calc(100%-2rem)]", "overflow-hidden", "rounded-lg", "border", "shadow-sm"], [1, "bg-secondary", "text-secondary-content", "flex", "w-full", "items-center", "justify-between", "px-4", "py-3", "text-xl", "font-medium"], [1, "relative", "overflow-hidden", "rounded-sm", "px-2", "py-1"], [1, "bg-base-100", "absolute", "inset-0", "z-0", "opacity-10"], [1, "relative", "z-10", "font-mono", "text-sm", "uppercase"], [1, "flex", "flex-col", "space-y-2", "px-4"], [1, "m-auto", "flex", "flex-col", "items-center", "p-8"], [1, "border-base-300", "mt-4!", "flex", "w-full", "items-center", "justify-end", "border-t", "px-4", "py-2"], [1, "absolute", "right-0", "bottom-0", "z-10", "p-2", "text-right"], [1, "text-xs", "opacity-40"], [1, "bg-base-300/90", "text-base-content", "absolute", "inset-0", "z-20", "flex", "items-center", "justify-center", "p-8", "text-center"], ["appearance", "outline", 1, "no-subscript"], ["building", "", 3, "ngModelChange", "ngModel", "placeholder"], [1, "flex", "items-center", "space-x-4"], [1, "flex-1", "truncate"], [1, "bg-base-200", "mr-4!", "rounded-sm", "px-1.5", "font-mono", "text-[0.625rem]"], [3, "value"], [1, "leading-tight"], [1, "font-mono", "text-[0.625rem]", "opacity-30"], [1, "hidden"], [1, "font-mono", "text-[0.625rem]", "opacity-60"], ["level", "", 3, "ngModelChange", "ngModel", "placeholder"], [3, "ngModelChange", "ngModel", "placeholder"], [3, "diameter"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click", "disabled"], [1, "max-w-xl", "space-y-2"], [1, "text-3xl", "font-semibold"], [1, "text-lg", "opacity-80"]], template: function BootstrapComponent_Template(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275elementStart(0, "div", 1)(1, "div", 2)(2, "header", 3)(3, "div");
-        \u0275\u0275text(4);
-        \u0275\u0275pipe(5, "translate");
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(6, "div", 4);
-        \u0275\u0275element(7, "div", 5);
-        \u0275\u0275elementStart(8, "div", 6);
-        \u0275\u0275text(9);
-        \u0275\u0275pipe(10, "translate");
-        \u0275\u0275elementEnd()()();
-        \u0275\u0275conditionalCreate(11, BootstrapComponent_Conditional_11_Template, 6, 5, "div", 7)(12, BootstrapComponent_Conditional_12_Template, 4, 2, "div", 8);
-        \u0275\u0275conditionalCreate(13, BootstrapComponent_Conditional_13_Template, 3, 1, "div", 9);
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(14, "div", 10)(15, "div", 11);
-        \u0275\u0275text(16);
-        \u0275\u0275pipe(17, "translate");
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(18, "div", 11);
-        \u0275\u0275text(19);
-        \u0275\u0275pipe(20, "date");
-        \u0275\u0275pipe(21, "date");
-        \u0275\u0275elementEnd()();
-        \u0275\u0275conditionalCreate(22, BootstrapComponent_Conditional_22_Template, 6, 0, "div", 12);
-        \u0275\u0275elementEnd();
-      }
-      if (rf & 2) {
-        \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(5, 9, "APP.VISITOR_KIOSK.APP"));
-        \u0275\u0275advance(5);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(10, 11, "COMMON.BOOTSTRAP_SETUP"), " ");
-        \u0275\u0275advance(2);
-        \u0275\u0275conditional(!ctx.loading() ? 11 : 12);
-        \u0275\u0275advance(2);
-        \u0275\u0275conditional(!ctx.loading() ? 13 : -1);
-        \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind1(17, 13, "COMMON.CONTROLS_VERSION"), ": ", ctx.version.hash, " ");
-        \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind2(20, 15, ctx.version.time, "longDate"), " (", \u0275\u0275pipeBind2(21, 18, ctx.version.time, "shortTime"), ") ");
-        \u0275\u0275advance(3);
-        \u0275\u0275conditional(ctx.is_public_mode() ? 22 : -1);
-      }
-    }, dependencies: [
-      CommonModule,
-      MatRippleModule,
-      MatRipple,
-      MatProgressSpinnerModule,
-      MatProgressSpinner,
-      MatFormFieldModule,
-      MatFormField,
-      MatSelectModule,
-      MatSelect,
-      MatSelectTrigger,
-      MatOption,
-      FormsModule,
-      NgControlStatus,
-      NgModel,
-      DatePipe,
-      TranslatePipe
-    ], styles: ["\nmat-form-field[_ngcontent-%COMP%] {\n  width: 100%;\n}\nlabel[_ngcontent-%COMP%] {\n  padding-top: 1rem;\n}\n/*# sourceMappingURL=bootstrap.component.css.map */"] });
+    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _ChatService, factory: _ChatService.\u0275fac, providedIn: "root" });
   }
 };
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(BootstrapComponent, [{
-    type: Component,
-    args: [{ selector: "[bootstrap]", template: `
-        <div class="bg-base-200 absolute inset-0 z-0">
-            <div
-                form
-                class="border-base-300 bg-base-100 relative z-10 mx-auto my-8 w-md max-w-[calc(100%-2rem)] overflow-hidden rounded-lg border shadow-sm"
-            >
-                <header
-                    class="bg-secondary text-secondary-content flex w-full items-center justify-between px-4 py-3 text-xl font-medium"
-                >
-                    <div>{{ 'APP.VISITOR_KIOSK.APP' | translate }}</div>
-                    <div class="relative overflow-hidden rounded-sm px-2 py-1">
-                        <div
-                            class="bg-base-100 absolute inset-0 z-0 opacity-10"
-                        ></div>
-                        <div class="relative z-10 font-mono text-sm uppercase">
-                            {{ 'COMMON.BOOTSTRAP_SETUP' | translate }}
-                        </div>
-                    </div>
-                </header>
-                @if (!loading()) {
-                    <div class="flex flex-col space-y-2 px-4">
-                        @if (regions().length > 1) {
-                            <label>
-                                {{
-                                    'APP.VISITOR_KIOSK.SELECT_REGION_MSG'
-                                        | translate
-                                }}
-                            </label>
-                            <mat-form-field
-                                appearance="outline"
-                                class="no-subscript"
-                            >
-                                <mat-select
-                                    #select
-                                    building
-                                    [(ngModel)]="active_region"
-                                    (ngModelChange)="setRegion($event)"
-                                    [placeholder]="
-                                        'APP.VISITOR_KIOSK.SELECT_REGION_MSG'
-                                            | translate
-                                    "
-                                >
-                                    <mat-select-trigger>
-                                        <div
-                                            class="flex items-center space-x-4"
-                                        >
-                                            <div class="flex-1 truncate">
-                                                {{
-                                                    active_region()
-                                                        ?.display_name ||
-                                                        active_region()?.name
-                                                }}
-                                            </div>
-                                            <div
-                                                class="bg-base-200 mr-4! rounded-sm px-1.5 font-mono text-[0.625rem]"
-                                            >
-                                                {{ active_region()?.id }}
-                                            </div>
-                                        </div>
-                                    </mat-select-trigger>
-                                    @for (option of regions(); track option) {
-                                        <mat-option [value]="option">
-                                            <div class="leading-tight">
-                                                <div>
-                                                    {{
-                                                        option.display_name ||
-                                                            option.name
-                                                    }}
-                                                </div>
-                                                <div
-                                                    class="font-mono text-[0.625rem] opacity-30"
-                                                >
-                                                    <span class="hidden"
-                                                        >&nbsp;[</span
-                                                    >{{ option.id
-                                                    }}<span class="hidden"
-                                                        >]</span
-                                                    >
-                                                </div>
-                                            </div>
-                                        </mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                        }
-                        @if (buildings().length) {
-                            <label>
-                                {{
-                                    'APP.VISITOR_KIOSK.SELECT_BUILDING_MSG'
-                                        | translate
-                                }}
-                            </label>
-                            <mat-form-field
-                                appearance="outline"
-                                class="no-subscript"
-                            >
-                                <mat-select
-                                    #select
-                                    building
-                                    [(ngModel)]="active_building"
-                                    (ngModelChange)="setBuilding($event)"
-                                    [placeholder]="
-                                        'APP.VISITOR_KIOSK.SELECT_BUILDING'
-                                            | translate
-                                    "
-                                >
-                                    <mat-select-trigger>
-                                        <div
-                                            class="flex items-center space-x-4"
-                                        >
-                                            <div class="flex-1 truncate">
-                                                {{
-                                                    active_building()
-                                                        ?.display_name ||
-                                                        active_building()?.name
-                                                }}
-                                            </div>
-                                            <div
-                                                class="bg-base-200 mr-4! rounded-sm px-1.5 font-mono text-[0.625rem]"
-                                            >
-                                                {{ active_building()?.id }}
-                                            </div>
-                                        </div>
-                                    </mat-select-trigger>
-                                    @for (option of buildings(); track option) {
-                                        <mat-option [value]="option">
-                                            <div class="leading-tight">
-                                                <div>
-                                                    {{
-                                                        option.display_name ||
-                                                            option.name
-                                                    }}
-                                                </div>
-                                                <div
-                                                    class="font-mono text-[0.625rem] opacity-60"
-                                                >
-                                                    <span class="hidden"
-                                                        >&nbsp;[</span
-                                                    >{{ option.id
-                                                    }}<span class="hidden"
-                                                        >]</span
-                                                    >
-                                                </div>
-                                            </div>
-                                        </mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                        }
-                        @if (levels().length && active_building()) {
-                            <div></div>
-                            <label>
-                                {{
-                                    'APP.VISITOR_KIOSK.SELECT_LEVEL_MSG'
-                                        | translate
-                                }}
-                            </label>
-                            <mat-form-field
-                                appearance="outline"
-                                class="no-subscript"
-                            >
-                                <mat-select
-                                    #select
-                                    level
-                                    [(ngModel)]="active_level"
-                                    [placeholder]="
-                                        'APP.VISITOR_KIOSK.SELECT_LEVEL'
-                                            | translate
-                                    "
-                                >
-                                    <mat-select-trigger>
-                                        <div
-                                            class="flex items-center space-x-4"
-                                        >
-                                            <div class="flex-1 truncate">
-                                                {{
-                                                    active_level()
-                                                        ?.display_name ||
-                                                        active_level()?.name
-                                                }}
-                                            </div>
-                                            <div
-                                                class="bg-base-200 mr-4! rounded-sm px-1.5 font-mono text-[0.625rem]"
-                                            >
-                                                {{ active_level()?.id }}
-                                            </div>
-                                        </div>
-                                    </mat-select-trigger>
-                                    @for (option of levels(); track option) {
-                                        <mat-option [value]="option">
-                                            <div class="leading-tight">
-                                                <div>
-                                                    {{
-                                                        option.display_name ||
-                                                            option.name
-                                                    }}
-                                                </div>
-                                                <div
-                                                    class="font-mono text-[0.625rem] opacity-30"
-                                                >
-                                                    <span class="hidden"
-                                                        >&nbsp;[</span
-                                                    >{{ option.id
-                                                    }}<span class="hidden"
-                                                        >]</span
-                                                    >
-                                                </div>
-                                            </div>
-                                        </mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                        }
-                        @if (rotations().length) {
-                            <div></div>
-                            <label>
-                                {{
-                                    'APP.VISITOR_KIOSK.SELECT_ORIENTATION_MSG'
-                                        | translate
-                                }}
-                                Please select an orientation from the dropdown
-                                below
-                            </label>
-                            <mat-form-field
-                                appearance="outline"
-                                class="no-subscript"
-                            >
-                                <mat-select
-                                    #select
-                                    [(ngModel)]="active_rotation"
-                                    [placeholder]="
-                                        'APP.VISITOR_KIOSK.SELECT_ORIENTATION'
-                                            | translate
-                                    "
-                                >
-                                    @for (option of rotations(); track option) {
-                                        <mat-option [value]="option">
-                                            <div class="leading-tight">
-                                                <div>
-                                                    {{
-                                                        option.display_name ||
-                                                            option.name
-                                                    }}
-                                                </div>
-                                                <div
-                                                    class="font-mono text-[0.625rem] opacity-30"
-                                                >
-                                                    <span class="hidden"
-                                                        >&nbsp;[</span
-                                                    >{{ option.id
-                                                    }}<span class="hidden"
-                                                        >]</span
-                                                    >
-                                                </div>
-                                            </div>
-                                        </mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                        }
-                        @if (locations().length) {
-                            <div></div>
-                            <label>
-                                {{
-                                    'APP.VISITOR_KIOSK.SELECT_LOCATION_MSG'
-                                        | translate
-                                }}
-                                Please select an fixed location from the
-                                dropdown below
-                            </label>
-                            <mat-form-field
-                                appearance="outline"
-                                class="no-subscript"
-                            >
-                                <mat-select
-                                    #select
-                                    [(ngModel)]="active_location"
-                                    [placeholder]="
-                                        'APP.VISITOR_KIOSK.SELECT_LOCATION'
-                                            | translate
-                                    "
-                                >
-                                    @for (option of locations(); track option) {
-                                        <mat-option [value]="option">
-                                            <div class="leading-tight">
-                                                <div>
-                                                    {{
-                                                        option.display_name ||
-                                                            option.name
-                                                    }}
-                                                </div>
-                                                <div
-                                                    class="font-mono text-[0.625rem] opacity-30"
-                                                >
-                                                    <span class="hidden"
-                                                        >&nbsp;[</span
-                                                    >{{ option.id
-                                                    }}<span class="hidden"
-                                                        >]</span
-                                                    >
-                                                </div>
-                                            </div>
-                                        </mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                        }
-                    </div>
-                } @else {
-                    <div class="m-auto flex flex-col items-center p-8">
-                        <mat-spinner [diameter]="32"></mat-spinner>
-                        <p>{{ loading() }}</p>
-                    </div>
-                }
-                @if (!loading()) {
-                    <div
-                        class="border-base-300 mt-4! flex w-full items-center justify-end border-t px-4 py-2"
-                    >
-                        <button
-                            btn
-                            matRipple
-                            class="w-32"
-                            [disabled]="!active_building() && !active_level()"
-                            (click)="bootstrapKiosk()"
-                        >
-                            Finish Setup
-                        </button>
-                    </div>
-                }
-            </div>
-            <div class="absolute right-0 bottom-0 z-10 p-2 text-right">
-                <div class="text-xs opacity-40">
-                    {{ 'COMMON.CONTROLS_VERSION' | translate }}:
-                    {{ version.hash }}
-                </div>
-                <div class="text-xs opacity-40">
-                    {{ version.time | date: 'longDate' }}
-                    ({{ version.time | date: 'shortTime' }})
-                </div>
-            </div>
-            @if (is_public_mode()) {
-                <div
-                    class="bg-base-300/90 text-base-content absolute inset-0 z-20 flex items-center justify-center p-8 text-center"
-                >
-                    <div class="max-w-xl space-y-2">
-                        <h2 class="text-3xl font-semibold">
-                            Public mode is enabled
-                        </h2>
-                        <p class="text-lg opacity-80">
-                            Setup is disabled while this kiosk is in public
-                            mode.
-                        </p>
-                    </div>
-                </div>
-            }
-        </div>
-    `, imports: [
-      CommonModule,
-      MatRippleModule,
-      TranslatePipe,
-      MatProgressSpinnerModule,
-      MatFormFieldModule,
-      MatSelectModule,
-      FormsModule
-    ], styles: ["/* angular:styles/component:css;b5cb44247b14df9ceaa1cde6e18e7655f7940be592d59e7ac7be62a75ddd59dd;/home/runner/work/user-interfaces/user-interfaces/apps/visitor-kiosk/src/app/bootstrap.component.ts */\nmat-form-field {\n  width: 100%;\n}\nlabel {\n  padding-top: 1rem;\n}\n/*# sourceMappingURL=bootstrap.component.css.map */\n"] }]
-  }], null, null);
-})();
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BootstrapComponent, { className: "BootstrapComponent", filePath: "apps/visitor-kiosk/src/app/bootstrap.component.ts", lineNumber: 406 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ChatService, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], () => [], null);
 })();
 
-// apps/visitor-kiosk/src/app/visitor-registration.component.ts
-var _c02 = () => ["/welcome"];
-function VisitorRegistrationComponent_Conditional_2_Template(rf, ctx) {
+// libs/components/src/lib/chat/chat.component.ts
+var _c0 = ["input"];
+var _c1 = ["container"];
+var _c2 = (a0) => ({ name: a0 });
+function ChatComponent_Conditional_0_Conditional_4_Conditional_19_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "img", 2);
+    \u0275\u0275elementStart(0, "div", 12);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", ctx_r1.hint(), " ");
   }
 }
-function VisitorRegistrationComponent_Conditional_3_Conditional_46_Template(rf, ctx) {
+function ChatComponent_Conditional_0_Conditional_4_For_21_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "label", 27);
+    \u0275\u0275elementStart(0, "div", 21);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "mat-form-field", 23);
-    \u0275\u0275element(4, "input", 28);
-    \u0275\u0275pipe(5, "translate");
-    \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 2, "BOOKINGS.VISITOR_PASS"), " ");
-    \u0275\u0275advance(3);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(5, 4, "BOOKINGS.VISITOR_PASS_PLACEHOLDER"));
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "APP.WORKPLACE.CHAT_ASSISTANT"), " ");
   }
 }
-function VisitorRegistrationComponent_Conditional_3_Conditional_47_Conditional_0_Template(rf, ctx) {
+function ChatComponent_Conditional_0_Conditional_4_For_21_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 29)(1, "mat-checkbox", 32);
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "translate");
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 19);
+    \u0275\u0275listener("click", function ChatComponent_Conditional_0_Conditional_4_For_21_Template_div_click_0_listener() {
+      const message_r5 = \u0275\u0275restoreView(_r4).$implicit;
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.show_time()[message_r5.id] = !ctx_r1.show_time()[message_r5.id]);
+    });
+    \u0275\u0275elementStart(1, "div", 20);
+    \u0275\u0275conditionalCreate(2, ChatComponent_Conditional_0_Conditional_4_For_21_Conditional_2_Template, 3, 3, "div", 21);
+    \u0275\u0275elementStart(3, "div", 22);
+    \u0275\u0275text(4);
+    \u0275\u0275pipe(5, "dateFrom");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275element(6, "div", 23);
+    \u0275\u0275pipe(7, "sanitize");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const message_r5 = ctx.$implicit;
+    const ctx_r1 = \u0275\u0275nextContext(3);
+    \u0275\u0275classProp("pr-4", message_r5.user_id !== ctx_r1.user().id)("pl-4", message_r5.user_id === ctx_r1.user().id)("items-left", message_r5.user_id !== ctx_r1.user().id)("items-end", message_r5.user_id === ctx_r1.user().id)("waiting-margin", ctx_r1.waiting());
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(message_r5.user_id !== ctx_r1.user().id ? 2 : -1);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(5, 13, message_r5.timestamp + ctx_r1.offset()), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275property("innerHTML", \u0275\u0275pipeBind1(7, 15, message_r5.content), \u0275\u0275sanitizeHtml);
+  }
+}
+function ChatComponent_Conditional_0_Conditional_4_Conditional_22_Conditional_9_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "div", 29);
+    \u0275\u0275pipe(1, "sanitize");
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(4);
+    \u0275\u0275property("innerHTML", \u0275\u0275pipeBind1(1, 1, ctx_r1.progress().content), \u0275\u0275sanitizeHtml);
+  }
+}
+function ChatComponent_Conditional_0_Conditional_4_Conditional_22_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r6 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 14)(1, "button", 24);
+    \u0275\u0275listener("click", function ChatComponent_Conditional_0_Conditional_4_Conditional_22_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r6);
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.show_info.set(!ctx_r1.show_info));
+    });
+    \u0275\u0275elementStart(2, "div", 20)(3, "icon", 25);
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "p", 26);
+    \u0275\u0275text(6);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(7, "div", 27);
+    \u0275\u0275element(8, "div", 28);
+    \u0275\u0275conditionalCreate(9, ChatComponent_Conditional_0_Conditional_4_Conditional_22_Conditional_9_Template, 2, 3, "div", 29);
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(ctx_r1.icons[ctx_r1.progress().function] || "info");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", ctx_r1.progress().message || ctx_r1.progress().function, " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275conditional(ctx_r1.show_info() ? 9 : -1);
+  }
+}
+function ChatComponent_Conditional_0_Conditional_4_Conditional_23_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 30);
+    \u0275\u0275element(1, "div", 31)(2, "div", 32)(3, "div", 33);
+    \u0275\u0275elementStart(4, "span", 34);
+    \u0275\u0275text(5);
+    \u0275\u0275pipe(6, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "COMMON.ALL_DAY"), " ");
+    const ctx_r1 = \u0275\u0275nextContext(3);
+    \u0275\u0275styleProp("bottom", ctx_r1.height() + 8 + "px");
+    \u0275\u0275advance(5);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 3, "APP.WORKPLACE.CHAT_WAITING"));
   }
 }
-function VisitorRegistrationComponent_Conditional_3_Conditional_47_Template(rf, ctx) {
+function ChatComponent_Conditional_0_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, VisitorRegistrationComponent_Conditional_3_Conditional_47_Conditional_0_Template, 4, 3, "div", 29);
-    \u0275\u0275elementStart(1, "label", 30);
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "translate");
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 4)(1, "div", 5)(2, "h3", 6);
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(4, "a-duration-field", 31);
+    \u0275\u0275elementStart(5, "button", 7);
+    \u0275\u0275listener("click", function ChatComponent_Conditional_0_Conditional_4_Template_button_click_5_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.toggleChat());
+    });
+    \u0275\u0275elementStart(6, "icon");
+    \u0275\u0275text(7, "close");
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementStart(8, "div", 8, 0)(10, "div", 9)(11, "icon", 10);
+    \u0275\u0275text(12, "forum");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(13, "p", 11);
+    \u0275\u0275text(14);
+    \u0275\u0275pipe(15, "translate");
+    \u0275\u0275element(16, "br");
+    \u0275\u0275text(17);
+    \u0275\u0275pipe(18, "translate");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275conditionalCreate(19, ChatComponent_Conditional_0_Conditional_4_Conditional_19_Template, 2, 1, "div", 12);
+    \u0275\u0275repeaterCreate(20, ChatComponent_Conditional_0_Conditional_4_For_21_Template, 8, 17, "div", 13, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275conditionalCreate(22, ChatComponent_Conditional_0_Conditional_4_Conditional_22_Template, 10, 3, "div", 14);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(23, ChatComponent_Conditional_0_Conditional_4_Conditional_23_Template, 7, 5, "div", 15);
+    \u0275\u0275elementStart(24, "div", 16)(25, "textarea", 17, 1);
+    \u0275\u0275pipe(27, "translate");
+    \u0275\u0275twoWayListener("ngModelChange", function ChatComponent_Conditional_0_Conditional_4_Template_textarea_ngModelChange_25_listener($event) {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      \u0275\u0275twoWayBindingSet(ctx_r1.message, $event) || (ctx_r1.message = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275listener("ngModelChange", function ChatComponent_Conditional_0_Conditional_4_Template_textarea_ngModelChange_25_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.resizeInput());
+    })("keyup.enter", function ChatComponent_Conditional_0_Conditional_4_Template_textarea_keyup_enter_25_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.sendMessage());
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(28, "button", 18);
+    \u0275\u0275listener("click", function ChatComponent_Conditional_0_Conditional_4_Template_button_click_28_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.sendMessage());
+    });
+    \u0275\u0275elementStart(29, "icon");
+    \u0275\u0275text(30, "send");
+    \u0275\u0275elementEnd()()()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275conditional(ctx_r1.allow_all_day() ? 0 : -1);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 11, "APP.WORKPLACE.CHAT_TITLE"), " ");
+    \u0275\u0275advance(11);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(15, 13, "APP.WORKPLACE.CHAT_HELLO", \u0275\u0275pureFunction1(20, _c2, ctx_r1.user().name)), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(18, 16, "APP.WORKPLACE.CHAT_WELCOME"), " ");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 5, "FORM.DURATION"), " ");
+    \u0275\u0275conditional(ctx_r1.hint() ? 19 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275repeater(ctx_r1.messages());
     \u0275\u0275advance(2);
-    \u0275\u0275property("time", ctx_r1.form_value().date)("max", ctx_r1.max_duration())("disabled", ctx_r1.form_value().all_day);
+    \u0275\u0275conditional(ctx_r1.progress() ? 22 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.waiting() ? 23 : -1);
+    \u0275\u0275advance(2);
+    \u0275\u0275styleProp("height", ctx_r1.height() + "px");
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(27, 18, "APP.WORKPLACE.CHAT_MESSAGE_PLACEHOLDER"));
+    \u0275\u0275twoWayProperty("ngModel", ctx_r1.message);
+    \u0275\u0275control();
+    \u0275\u0275advance(3);
+    \u0275\u0275property("disabled", !ctx_r1.message());
   }
 }
-function VisitorRegistrationComponent_Conditional_3_Template(rf, ctx) {
+function ChatComponent_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 3)(1, "div", 6)(2, "h3", 7);
-    \u0275\u0275text(3);
-    \u0275\u0275pipe(4, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "a", 8)(6, "icon");
-    \u0275\u0275text(7, "close");
-    \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(8, "div", 9)(9, "label", 10);
-    \u0275\u0275text(10);
-    \u0275\u0275pipe(11, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(12, "mat-form-field", 11);
-    \u0275\u0275element(13, "input", 12);
-    \u0275\u0275pipe(14, "translate");
-    \u0275\u0275elementStart(15, "mat-error");
-    \u0275\u0275text(16, "A valid email is required");
-    \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(17, "label", 13);
-    \u0275\u0275text(18);
-    \u0275\u0275pipe(19, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(20, "mat-form-field", 14);
-    \u0275\u0275element(21, "input", 15);
-    \u0275\u0275pipe(22, "translate");
-    \u0275\u0275elementStart(23, "mat-error");
-    \u0275\u0275text(24, "A valid email is required");
-    \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(25, "label", 16);
-    \u0275\u0275text(26, "Host");
-    \u0275\u0275elementEnd();
-    \u0275\u0275element(27, "a-user-search-field", 17);
-    \u0275\u0275elementStart(28, "label", 18);
-    \u0275\u0275text(29);
-    \u0275\u0275pipe(30, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(31, "mat-form-field", 11);
-    \u0275\u0275element(32, "input", 19);
-    \u0275\u0275pipe(33, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(34, "label", 20);
-    \u0275\u0275text(35);
-    \u0275\u0275pipe(36, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(37, "mat-form-field", 11);
-    \u0275\u0275element(38, "input", 21);
-    \u0275\u0275pipe(39, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(40, "label", 22);
-    \u0275\u0275text(41);
-    \u0275\u0275pipe(42, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(43, "mat-form-field", 23);
-    \u0275\u0275element(44, "input", 24);
-    \u0275\u0275pipe(45, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(46, VisitorRegistrationComponent_Conditional_3_Conditional_46_Template, 6, 6);
-    \u0275\u0275conditionalCreate(47, VisitorRegistrationComponent_Conditional_3_Conditional_47_Template, 5, 7);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(48, "div", 25)(49, "button", 26);
-    \u0275\u0275listener("click", function VisitorRegistrationComponent_Conditional_3_Template_button_click_49_listener() {
+    \u0275\u0275elementStart(0, "div", 2)(1, "button", 3);
+    \u0275\u0275listener("click", function ChatComponent_Conditional_0_Template_button_click_1_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.register());
+      return \u0275\u0275resetView(ctx_r1.toggleChat());
     });
-    \u0275\u0275text(50);
-    \u0275\u0275pipe(51, "translate");
-    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementStart(2, "icon");
+    \u0275\u0275text(3, "chat");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275conditionalCreate(4, ChatComponent_Conditional_0_Conditional_4_Template, 31, 22, "div", 4);
+    \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275property("formGroup", ctx_r1.form);
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 18, "APP.VISITOR_KIOSK.REGISTRATION"), " ");
-    \u0275\u0275advance(2);
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(42, _c02));
-    \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(11, 20, "APP.VISITOR_KIOSK.NAME"));
-    \u0275\u0275advance(3);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(14, 22, "APP.VISITOR_KIOSK.NAME"));
-    \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(19, 24, "APP.VISITOR_KIOSK.EMAIL"));
-    \u0275\u0275advance(3);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(22, 26, "APP.VISITOR_KIOSK.EMAIL"));
-    \u0275\u0275advance(6);
-    \u0275\u0275classProp("mb-4", !ctx_r1.form.value.user);
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(30, 28, "APP.VISITOR_KIOSK.PHONE"));
-    \u0275\u0275advance(3);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(33, 30, "APP.VISITOR_KIOSK.PHONE"));
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(36, 32, "APP.VISITOR_KIOSK.ORGANISATION"));
-    \u0275\u0275advance(3);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(39, 34, "APP.VISITOR_KIOSK.ORGANISATION"));
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(42, 36, "BOOKINGS.VISITOR_REASON"), " ");
-    \u0275\u0275advance(3);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(45, 38, "BOOKINGS.VISITOR_REASON_PLACEHOLDER"));
-    \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r1.allow_pass_number() ? 46 : -1);
-    \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.allow_registration_time_options() ? 47 : -1);
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(51, 40, "APP.VISITOR_KIOSK.REGISTER"), " ");
+    \u0275\u0275advance(4);
+    \u0275\u0275conditional(ctx_r1.show() ? 4 : -1);
   }
 }
-function VisitorRegistrationComponent_Conditional_4_Template(rf, ctx) {
+var ChatComponent = class _ChatComponent extends AsyncHandler {
+  toggleChat() {
+    this.show.update((s) => !s);
+    if (!this.show())
+      this._chat.close();
+  }
+  ngOnInit() {
+    this.subscription("current_user", current_user.subscribe((user) => this.user.set(user)));
+    this.interval("offset", () => this.offset.set(this.offset ? 0 : 1), 20 * 1e3);
+  }
+  constructor() {
+    super();
+    this._settings = inject(SettingsService);
+    this._chat = inject(ChatService);
+    this.show = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "show" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.show_info = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "show_info" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.message = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "message" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.user = signal(
+      new User(),
+      ...ngDevMode ? [{ debugName: "user" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.show_time = signal(
+      {},
+      ...ngDevMode ? [{ debugName: "show_time" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.offset = signal(
+      0,
+      ...ngDevMode ? [{ debugName: "offset" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.height = signal(
+      56,
+      ...ngDevMode ? [{ debugName: "height" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.can_show = settingSignal("chat.enabled", false);
+    this.icons = {
+      list_function_schemas: "help",
+      call_function: "settings",
+      task_complete: "check_circle"
+    };
+    this.hint = this._chat.chat_hint;
+    this.messages = this._chat.messages;
+    this.progress = this._chat.progress;
+    this.waiting = computed(
+      () => {
+        const msgs = this.messages();
+        return msgs?.length !== 0 && msgs?.[msgs?.length - 1]?.user_id === this.user().id;
+      },
+      ...ngDevMode ? [{ debugName: "waiting" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._input_el = viewChild(
+      "input",
+      ...ngDevMode ? [{ debugName: "_input_el" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._container_el = viewChild(
+      "container",
+      ...ngDevMode ? [{ debugName: "_container_el" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    effect(() => {
+      this._chat.chat_hint();
+      this.scrollToBottom(500);
+    });
+    effect(() => {
+      this._chat.messages();
+      this.scrollToBottom();
+    });
+    effect(() => {
+      const progress = this._chat.progress();
+      if (progress)
+        this.scrollToBottom();
+      else
+        this.show_info.set(false);
+    });
+  }
+  resizeInput() {
+    const el = this._input_el().nativeElement;
+    this.height.set(Math.max(el.scrollHeight, 56));
+  }
+  sendMessage() {
+    if (!this.message)
+      return;
+    if (!this._chat.connected) {
+      this._chat.startChat();
+      return this.timeout("send", () => this.sendMessage(), 100);
+    }
+    this._chat.sendMessage(this.message());
+    this.message.set("");
+    this.height.set(56);
+    setTimeout(() => this._input_el().nativeElement.focus(), 100);
+  }
+  scrollToBottom(delay = 300) {
+    this.timeout("scroll", () => {
+      const _container_el = this._container_el();
+      if (_container_el?.nativeElement) {
+        _container_el.nativeElement.scrollTop = _container_el.nativeElement.scrollHeight;
+      }
+    }, delay);
+  }
+  static {
+    this.\u0275fac = function ChatComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _ChatComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ChatComponent, selectors: [["global-chat"]], viewQuery: function ChatComponent_Query(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275viewQuerySignal(ctx._input_el, _c0, 5)(ctx._container_el, _c1, 5);
+      }
+      if (rf & 2) {
+        \u0275\u0275queryAdvance(2);
+      }
+    }, features: [\u0275\u0275InheritDefinitionFeature], decls: 1, vars: 1, consts: [["container", ""], ["input", ""], [1, "absolute", "right-0", "bottom-0", "p-2"], ["icon", "", "default", "", "matRipple", "", 3, "click"], [1, "border-base-300", "bg-base-200", "absolute", "right-2", "bottom-2", "w-160", "max-w-[calc(100vw-1rem)]", "overflow-hidden", "rounded-xl", "border", "shadow-sm"], [1, "border-base-300", "bg-base-100", "flex", "w-full", "items-center", "justify-between", "border-b", "p-2"], [1, "pl-4"], ["icon", "", "matRipple", "", 3, "click"], [1, "h-128", "max-h-[60vh]", "overflow-auto"], [1, "flex", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "text-8xl"], [1, "text-center", "text-xl"], [1, "border-base-300", "bg-base-100", "m-2", "rounded-sm", "p-4", "text-sm", "shadow-sm"], [1, "m-2", "flex", "flex-col", 3, "pr-4", "pl-4", "items-left", "items-end", "waiting-margin"], [1, "p-4"], [1, "border-neutral", "bg-base-100", "absolute", "right-2", "flex", "items-center", "justify-center", "space-x-2", "rounded-2xl", "border", "p-1", 3, "bottom"], [1, "border-base-300", "bg-base-100", "outline-info", "flex", "max-h-40", "overflow-y-auto", "border-t", "focus-within:outline-solid"], [1, "w-1/2", "flex-1", "resize-none", "overflow-hidden", "p-4", "focus:outline-hidden", 3, "ngModelChange", "keyup.enter", "placeholder", "ngModel"], ["icon", "", "matRipple", "", 1, "mt-2", 3, "click", "disabled"], [1, "m-2", "flex", "flex-col", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "text-base-content", "px-2", "py-1", "text-sm", "opacity-60"], [1, "text-base-content", "px-2", "py-1", "text-xs", "opacity-40"], ["message", "", 1, "markdown", "selectable", "border-base-300", "bg-base-100", "rounded-sm", "p-4", "text-sm", "shadow-sm", 3, "innerHTML"], [1, "border-base-300", "bg-info", "text-info-content", "block", "w-full", "rounded-sm", "p-2", 3, "click"], [1, "text-2xl"], [1, "text-sm"], [1, "relative", "w-full", "overflow-hidden", "rounded-sm"], [1, "bg-base-100", "absolute", "inset-0", "opacity-10"], [1, "text-mono", "p-2", "text-left", "text-xs", "wrap-break-word", 3, "innerHTML"], [1, "border-neutral", "bg-base-100", "absolute", "right-2", "flex", "items-center", "justify-center", "space-x-2", "rounded-2xl", "border", "p-1"], [1, "bg-neutral", "h-2", "w-2", "animate-bounce", "rounded-full"], [1, "anim-delay-1", "bg-neutral", "h-2", "w-2", "animate-bounce", "rounded-full"], [1, "anim-delay-2", "bg-neutral", "h-2", "w-2", "animate-bounce", "rounded-full"], [1, "sr-only"]], template: function ChatComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275conditionalCreate(0, ChatComponent_Conditional_0_Template, 5, 1, "div", 2);
+      }
+      if (rf & 2) {
+        \u0275\u0275conditional(ctx.can_show() ? 0 : -1);
+      }
+    }, dependencies: [
+      MatRippleModule,
+      MatRipple,
+      FormsModule,
+      DefaultValueAccessor,
+      NgControlStatus,
+      NgModel,
+      IconComponent,
+      TranslatePipe,
+      DateFromPipe,
+      SanitizePipe
+    ], styles: ["\n.anim-delay-1[_ngcontent-%COMP%] {\n  animation-delay: 0.25s;\n}\n.anim-delay-2[_ngcontent-%COMP%] {\n  animation-delay: 0.5s;\n}\n.waiting-margin[_ngcontent-%COMP%]:last-child {\n  padding-bottom: 2rem;\n}\n/*# sourceMappingURL=chat.component.css.map */"] });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ChatComponent, [{
+    type: Component,
+    args: [{ selector: "global-chat", template: `
+        @if (can_show()) {
+            <div class="absolute right-0 bottom-0 p-2">
+                <button icon default matRipple (click)="toggleChat()">
+                    <icon>chat</icon>
+                </button>
+                @if (show()) {
+                    <div
+                        class="border-base-300 bg-base-200 absolute right-2 bottom-2 w-160 max-w-[calc(100vw-1rem)] overflow-hidden rounded-xl border shadow-sm"
+                    >
+                        <div
+                            class="border-base-300 bg-base-100 flex w-full items-center justify-between border-b p-2"
+                        >
+                            <h3 class="pl-4">
+                                {{ 'APP.WORKPLACE.CHAT_TITLE' | translate }}
+                            </h3>
+                            <button icon matRipple (click)="toggleChat()">
+                                <icon>close</icon>
+                            </button>
+                        </div>
+                        <div
+                            class="h-128 max-h-[60vh] overflow-auto"
+                            #container
+                        >
+                            <div
+                                class="flex w-full flex-col items-center justify-center space-y-2 p-8"
+                            >
+                                <icon class="text-8xl">forum</icon>
+                                <p class="text-center text-xl">
+                                    {{
+                                        'APP.WORKPLACE.CHAT_HELLO'
+                                            | translate: { name: user().name }
+                                    }}
+                                    <br />
+                                    {{
+                                        'APP.WORKPLACE.CHAT_WELCOME' | translate
+                                    }}
+                                </p>
+                            </div>
+                            @if (hint()) {
+                                <div
+                                    class="border-base-300 bg-base-100 m-2 rounded-sm p-4 text-sm shadow-sm"
+                                >
+                                    {{ hint() }}
+                                </div>
+                            }
+                            @for (message of messages(); track message) {
+                                <div
+                                    class="m-2 flex flex-col"
+                                    [class.pr-4]="message.user_id !== user().id"
+                                    [class.pl-4]="message.user_id === user().id"
+                                    [class.items-left]="
+                                        message.user_id !== user().id
+                                    "
+                                    [class.items-end]="
+                                        message.user_id === user().id
+                                    "
+                                    (click)="
+                                        show_time()[message.id] =
+                                            !show_time()[message.id]
+                                    "
+                                    [class.waiting-margin]="waiting()"
+                                >
+                                    <div class="flex items-center space-x-2">
+                                        @if (message.user_id !== user().id) {
+                                            <div
+                                                class="text-base-content px-2 py-1 text-sm opacity-60"
+                                            >
+                                                {{
+                                                    'APP.WORKPLACE.CHAT_ASSISTANT'
+                                                        | translate
+                                                }}
+                                            </div>
+                                        }
+                                        <div
+                                            class="text-base-content px-2 py-1 text-xs opacity-40"
+                                        >
+                                            {{
+                                                message.timestamp + offset()
+                                                    | dateFrom
+                                            }}
+                                        </div>
+                                    </div>
+                                    <div
+                                        message
+                                        class="markdown selectable border-base-300 bg-base-100 rounded-sm p-4 text-sm shadow-sm"
+                                        [innerHTML]="message.content | sanitize"
+                                    ></div>
+                                </div>
+                            }
+                            @if (progress()) {
+                                <div class="p-4">
+                                    <button
+                                        class="border-base-300 bg-info text-info-content block w-full rounded-sm p-2"
+                                        (click)="show_info.set(!show_info)"
+                                    >
+                                        <div
+                                            class="flex items-center space-x-2"
+                                        >
+                                            <icon class="text-2xl">{{
+                                                icons[progress().function] ||
+                                                    'info'
+                                            }}</icon>
+                                            <p class="text-sm">
+                                                {{
+                                                    progress().message ||
+                                                        progress().function
+                                                }}
+                                            </p>
+                                        </div>
+                                        <div
+                                            class="relative w-full overflow-hidden rounded-sm"
+                                        >
+                                            <div
+                                                class="bg-base-100 absolute inset-0 opacity-10"
+                                            ></div>
+                                            @if (show_info()) {
+                                                <div
+                                                    class="text-mono p-2 text-left text-xs wrap-break-word"
+                                                    [innerHTML]="
+                                                        progress().content
+                                                            | sanitize
+                                                    "
+                                                ></div>
+                                            }
+                                        </div>
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                        @if (waiting()) {
+                            <div
+                                class="border-neutral bg-base-100 absolute right-2 flex items-center justify-center space-x-2 rounded-2xl border p-1"
+                                [style.bottom]="height() + 8 + 'px'"
+                            >
+                                <div
+                                    class="bg-neutral h-2 w-2 animate-bounce rounded-full"
+                                ></div>
+                                <div
+                                    class="anim-delay-1 bg-neutral h-2 w-2 animate-bounce rounded-full"
+                                ></div>
+                                <div
+                                    class="anim-delay-2 bg-neutral h-2 w-2 animate-bounce rounded-full"
+                                ></div>
+                                <span class="sr-only">{{
+                                    'APP.WORKPLACE.CHAT_WAITING' | translate
+                                }}</span>
+                            </div>
+                        }
+                        <div
+                            class="border-base-300 bg-base-100 outline-info flex max-h-40 overflow-y-auto border-t focus-within:outline-solid"
+                        >
+                            <textarea
+                                #input
+                                [placeholder]="
+                                    'APP.WORKPLACE.CHAT_MESSAGE_PLACEHOLDER'
+                                        | translate
+                                "
+                                class="w-1/2 flex-1 resize-none overflow-hidden p-4 focus:outline-hidden"
+                                [style.height]="height() + 'px'"
+                                [(ngModel)]="message"
+                                (ngModelChange)="resizeInput()"
+                                (keyup.enter)="sendMessage()"
+                            ></textarea>
+                            <button
+                                icon
+                                matRipple
+                                [disabled]="!message()"
+                                class="mt-2"
+                                (click)="sendMessage()"
+                            >
+                                <icon>send</icon>
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    `, imports: [
+      TranslatePipe,
+      MatRippleModule,
+      FormsModule,
+      IconComponent,
+      DateFromPipe,
+      SanitizePipe
+    ], styles: ["/* angular:styles/component:css;8d7ebb4af65d658f572d4c64ececfd821bd4e611d847fcf4fb27590ce7974604;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/chat/chat.component.ts */\n.anim-delay-1 {\n  animation-delay: 0.25s;\n}\n.anim-delay-2 {\n  animation-delay: 0.5s;\n}\n.waiting-margin:last-child {\n  padding-bottom: 2rem;\n}\n/*# sourceMappingURL=chat.component.css.map */\n"] }]
+  }], () => [], { _input_el: [{ type: ViewChild, args: ["input", { isSignal: true }] }], _container_el: [{ type: ViewChild, args: ["container", { isSignal: true }] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ChatComponent, { className: "ChatComponent", filePath: "libs/components/src/lib/chat/chat.component.ts", lineNumber: 230 });
+})();
+
+// libs/components/src/lib/global-banner.component.ts
+function GlobalBannerComponent_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 4);
-    \u0275\u0275element(1, "mat-spinner", 33);
-    \u0275\u0275elementStart(2, "p");
-    \u0275\u0275text(3);
-    \u0275\u0275pipe(4, "translate");
+    \u0275\u0275element(0, "div", 1)(1, "div", 2);
+  }
+  if (rf & 2) {
+    const bar_color_r1 = ctx;
+    \u0275\u0275styleProp("background-color", bar_color_r1);
+    \u0275\u0275advance();
+    \u0275\u0275styleProp("background-color", bar_color_r1);
+  }
+}
+function GlobalBannerComponent_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 3)(1, "div", 4);
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "button", 5);
+    \u0275\u0275listener("click", function GlobalBannerComponent_Conditional_1_Template_button_click_3_listener() {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.close());
+    });
+    \u0275\u0275elementStart(4, "icon");
+    \u0275\u0275text(5, "close");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275classProp("bg-info", ctx_r2.banner().type === "info" || !ctx_r2.banner().type)("text-info-content", ctx_r2.banner().type === "info" || !ctx_r2.banner().type)("bg-warning", ctx_r2.banner().type === "warn")("text-warning-content", ctx_r2.banner().type === "warn")("bg-error", ctx_r2.banner().type === "error")("text-error-content", ctx_r2.banner().type === "error");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", ctx_r2.banner()?.content || ctx_r2.banner()?.message, " ");
+  }
+}
+var GlobalBannerComponent = class _GlobalBannerComponent {
+  constructor() {
+    this._org = inject(OrganisationService);
+    this._change = signal(
+      0,
+      ...ngDevMode ? [{ debugName: "_change" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.is_setup = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "is_setup" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.banner = settingSignal("banner");
+    this.environment_bar = settingSignal("environment_bar");
+    this._environment_bar_padding = effect(
+      () => {
+        document.body.classList.toggle("has-environment-bar", !!this.environment_bar());
+      },
+      ...ngDevMode ? [{ debugName: "_environment_bar_padding" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.has_been_closed = computed(
+      () => {
+        if (!this.is_setup())
+          return true;
+        this._change();
+        return !this.banner()?.content && !this.banner()?.message || localStorage.getItem("PLACE.last_banner") === this.banner().id;
+      },
+      ...ngDevMode ? [{ debugName: "has_been_closed" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+  }
+  async ngOnInit() {
+    await this._org.waitUntilInitialised();
+    setTimeout(() => this.is_setup.set(true), 500);
+  }
+  async close() {
+    localStorage.setItem("PLACE.last_banner", this.banner()?.id || "");
+    this._change.set(Date.now());
+  }
+  static {
+    this.\u0275fac = function GlobalBannerComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _GlobalBannerComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GlobalBannerComponent, selectors: [["global-banner"]], decls: 2, vars: 2, consts: [[1, "flex", "w-full", "items-center", "space-x-4", "p-4", "print:hidden", 3, "bg-info", "text-info-content", "bg-warning", "text-warning-content", "bg-error", "text-error-content"], ["aria-hidden", "true", 1, "environment-bar", "top-0", "print:hidden"], ["aria-hidden", "true", 1, "environment-bar", "bottom-0", "print:hidden"], [1, "flex", "w-full", "items-center", "space-x-4", "p-4", "print:hidden"], [1, "flex-1"], ["icon", "", "matRipple", "", 3, "click"]], template: function GlobalBannerComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275conditionalCreate(0, GlobalBannerComponent_Conditional_0_Template, 2, 4);
+        \u0275\u0275conditionalCreate(1, GlobalBannerComponent_Conditional_1_Template, 6, 13, "div", 0);
+      }
+      if (rf & 2) {
+        let tmp_0_0;
+        \u0275\u0275conditional((tmp_0_0 = ctx.environment_bar()) ? 0 : -1, tmp_0_0);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(!ctx.has_been_closed() && ctx.banner() ? 1 : -1);
+      }
+    }, dependencies: [IconComponent], styles: ["\n[_nghost-%COMP%] {\n  display: block;\n  width: 100%;\n}\n.environment-bar[_ngcontent-%COMP%] {\n  height: 0.5rem;\n  left: 0;\n  pointer-events: none;\n  position: fixed;\n  width: 100%;\n  z-index: 10000;\n}\n/*# sourceMappingURL=global-banner.component.css.map */"] });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(GlobalBannerComponent, [{
+    type: Component,
+    args: [{ selector: "global-banner", template: `
+        @if (environment_bar(); as bar_color) {
+            <div
+                aria-hidden="true"
+                class="environment-bar top-0 print:hidden"
+                [style.background-color]="bar_color"
+            ></div>
+            <div
+                aria-hidden="true"
+                class="environment-bar bottom-0 print:hidden"
+                [style.background-color]="bar_color"
+            ></div>
+        }
+        @if (!has_been_closed() && banner()) {
+            <div
+                class="flex w-full items-center space-x-4 p-4 print:hidden"
+                [class.bg-info]="banner().type === 'info' || !banner().type"
+                [class.text-info-content]="
+                    banner().type === 'info' || !banner().type
+                "
+                [class.bg-warning]="banner().type === 'warn'"
+                [class.text-warning-content]="banner().type === 'warn'"
+                [class.bg-error]="banner().type === 'error'"
+                [class.text-error-content]="banner().type === 'error'"
+            >
+                <div class="flex-1">
+                    {{ banner()?.content || banner()?.message }}
+                </div>
+                <button icon matRipple (click)="close()">
+                    <icon>close</icon>
+                </button>
+            </div>
+        }
+    `, imports: [IconComponent], styles: ["/* angular:styles/component:css;48adc7ab23f963363b839300791bbdc46c1dcce0d1cc0ea0f3bb781a20fc7fbc;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/global-banner.component.ts */\n:host {\n  display: block;\n  width: 100%;\n}\n.environment-bar {\n  height: 0.5rem;\n  left: 0;\n  pointer-events: none;\n  position: fixed;\n  width: 100%;\n  z-index: 10000;\n}\n/*# sourceMappingURL=global-banner.component.css.map */\n"] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalBannerComponent, { className: "GlobalBannerComponent", filePath: "libs/components/src/lib/global-banner.component.ts", lineNumber: 74 });
+})();
+
+// node_modules/@angular/material/fesm2022/progress-bar.mjs
+function MatProgressBar_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275domElement(0, "div", 2);
+  }
+}
+var MAT_PROGRESS_BAR_DEFAULT_OPTIONS = new InjectionToken("MAT_PROGRESS_BAR_DEFAULT_OPTIONS");
+var MAT_PROGRESS_BAR_LOCATION = new InjectionToken("mat-progress-bar-location", {
+  providedIn: "root",
+  factory: () => {
+    const _document = inject(DOCUMENT);
+    const _location = _document ? _document.location : null;
+    return {
+      getPathname: () => _location ? _location.pathname + _location.search : ""
+    };
+  }
+});
+var MatProgressBar = class _MatProgressBar {
+  _elementRef = inject(ElementRef);
+  _ngZone = inject(NgZone);
+  _changeDetectorRef = inject(ChangeDetectorRef);
+  _renderer = inject(Renderer2);
+  _cleanupTransitionEnd;
+  constructor() {
+    const animationsState = _getAnimationsState();
+    const defaults = inject(MAT_PROGRESS_BAR_DEFAULT_OPTIONS, {
+      optional: true
+    });
+    this._isNoopAnimation = animationsState === "di-disabled";
+    if (animationsState === "reduced-motion") {
+      this._elementRef.nativeElement.classList.add("mat-progress-bar-reduced-motion");
+    }
+    if (defaults) {
+      if (defaults.color) {
+        this.color = this._defaultColor = defaults.color;
+      }
+      this.mode = defaults.mode || this.mode;
+    }
+  }
+  _isNoopAnimation;
+  get color() {
+    return this._color || this._defaultColor;
+  }
+  set color(value) {
+    this._color = value;
+  }
+  _color;
+  _defaultColor = "primary";
+  get value() {
+    return this._value;
+  }
+  set value(v) {
+    this._value = clamp(v || 0);
+    this._changeDetectorRef.markForCheck();
+  }
+  _value = 0;
+  get bufferValue() {
+    return this._bufferValue || 0;
+  }
+  set bufferValue(v) {
+    this._bufferValue = clamp(v || 0);
+    this._changeDetectorRef.markForCheck();
+  }
+  _bufferValue = 0;
+  animationEnd = new EventEmitter();
+  get mode() {
+    return this._mode;
+  }
+  set mode(value) {
+    this._mode = value;
+    this._changeDetectorRef.markForCheck();
+  }
+  _mode = "determinate";
+  ngAfterViewInit() {
+    this._ngZone.runOutsideAngular(() => {
+      this._cleanupTransitionEnd = this._renderer.listen(this._elementRef.nativeElement, "transitionend", this._transitionendHandler);
+    });
+  }
+  ngOnDestroy() {
+    this._cleanupTransitionEnd?.();
+  }
+  _getPrimaryBarTransform() {
+    return `scaleX(${this._isIndeterminate() ? 1 : this.value / 100})`;
+  }
+  _getBufferBarFlexBasis() {
+    return `${this.mode === "buffer" ? this.bufferValue : 100}%`;
+  }
+  _isIndeterminate() {
+    return this.mode === "indeterminate" || this.mode === "query";
+  }
+  _transitionendHandler = (event) => {
+    if (this.animationEnd.observers.length === 0 || !event.target || !event.target.classList.contains("mdc-linear-progress__primary-bar")) {
+      return;
+    }
+    if (this.mode === "determinate" || this.mode === "buffer") {
+      this._ngZone.run(() => this.animationEnd.next({
+        value: this.value
+      }));
+    }
+  };
+  static \u0275fac = function MatProgressBar_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _MatProgressBar)();
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
+    type: _MatProgressBar,
+    selectors: [["mat-progress-bar"]],
+    hostAttrs: ["role", "progressbar", "aria-valuemin", "0", "aria-valuemax", "100", "tabindex", "-1", 1, "mat-mdc-progress-bar", "mdc-linear-progress"],
+    hostVars: 10,
+    hostBindings: function MatProgressBar_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        \u0275\u0275attribute("aria-valuenow", ctx._isIndeterminate() ? null : ctx.value)("mode", ctx.mode);
+        \u0275\u0275classMap("mat-" + ctx.color);
+        \u0275\u0275classProp("_mat-animation-noopable", ctx._isNoopAnimation)("mdc-linear-progress--animation-ready", !ctx._isNoopAnimation)("mdc-linear-progress--indeterminate", ctx._isIndeterminate());
+      }
+    },
+    inputs: {
+      color: "color",
+      value: [2, "value", "value", numberAttribute],
+      bufferValue: [2, "bufferValue", "bufferValue", numberAttribute],
+      mode: "mode"
+    },
+    outputs: {
+      animationEnd: "animationEnd"
+    },
+    exportAs: ["matProgressBar"],
+    decls: 7,
+    vars: 5,
+    consts: [["aria-hidden", "true", 1, "mdc-linear-progress__buffer"], [1, "mdc-linear-progress__buffer-bar"], [1, "mdc-linear-progress__buffer-dots"], ["aria-hidden", "true", 1, "mdc-linear-progress__bar", "mdc-linear-progress__primary-bar"], [1, "mdc-linear-progress__bar-inner"], ["aria-hidden", "true", 1, "mdc-linear-progress__bar", "mdc-linear-progress__secondary-bar"]],
+    template: function MatProgressBar_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275domElementStart(0, "div", 0);
+        \u0275\u0275domElement(1, "div", 1);
+        \u0275\u0275conditionalCreate(2, MatProgressBar_Conditional_2_Template, 1, 0, "div", 2);
+        \u0275\u0275domElementEnd();
+        \u0275\u0275domElementStart(3, "div", 3);
+        \u0275\u0275domElement(4, "span", 4);
+        \u0275\u0275domElementEnd();
+        \u0275\u0275domElementStart(5, "div", 5);
+        \u0275\u0275domElement(6, "span", 4);
+        \u0275\u0275domElementEnd();
+      }
+      if (rf & 2) {
+        \u0275\u0275advance();
+        \u0275\u0275styleProp("flex-basis", ctx._getBufferBarFlexBasis());
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.mode === "buffer" ? 2 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275styleProp("transform", ctx._getPrimaryBarTransform());
+      }
+    },
+    styles: [".mat-mdc-progress-bar {\n  --mat-progress-bar-animation-multiplier: 1;\n  display: block;\n  text-align: start;\n}\n.mat-mdc-progress-bar[mode=query] {\n  transform: scaleX(-1);\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-dots,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__secondary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__bar-inner.mdc-linear-progress__bar-inner {\n  animation: none;\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-bar {\n  transition: transform 1ms;\n}\n\n.mat-progress-bar-reduced-motion {\n  --mat-progress-bar-animation-multiplier: 2;\n}\n\n.mdc-linear-progress {\n  position: relative;\n  width: 100%;\n  transform: translateZ(0);\n  outline: 1px solid transparent;\n  overflow-x: hidden;\n  transition: opacity 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: max(var(--mat-progress-bar-track-height, 4px), var(--mat-progress-bar-active-indicator-height, 4px));\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress {\n    outline-color: CanvasText;\n  }\n}\n\n.mdc-linear-progress__bar {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  animation: none;\n  transform-origin: top left;\n  transition: transform 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: var(--mat-progress-bar-active-indicator-height, 4px);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__bar {\n  transition: none;\n}\n[dir=rtl] .mdc-linear-progress__bar {\n  right: 0;\n  transform-origin: center right;\n}\n\n.mdc-linear-progress__bar-inner {\n  display: inline-block;\n  position: absolute;\n  width: 100%;\n  animation: none;\n  border-top-style: solid;\n  border-color: var(--mat-progress-bar-active-indicator-color, var(--mat-sys-primary));\n  border-top-width: var(--mat-progress-bar-active-indicator-height, 4px);\n}\n\n.mdc-linear-progress__buffer {\n  display: flex;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  overflow: hidden;\n  height: var(--mat-progress-bar-track-height, 4px);\n  border-radius: var(--mat-progress-bar-track-shape, var(--mat-sys-corner-none));\n}\n\n.mdc-linear-progress__buffer-dots {\n  background-image: radial-gradient(circle, var(--mat-progress-bar-track-color, var(--mat-sys-surface-variant)) calc(var(--mat-progress-bar-track-height, 4px) / 2), transparent 0);\n  background-repeat: repeat-x;\n  background-size: calc(calc(var(--mat-progress-bar-track-height, 4px) / 2) * 5);\n  background-position: left;\n  flex: auto;\n  transform: rotate(180deg);\n  animation: mdc-linear-progress-buffering calc(250ms * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress__buffer-dots {\n    background-color: ButtonBorder;\n  }\n}\n[dir=rtl] .mdc-linear-progress__buffer-dots {\n  animation: mdc-linear-progress-buffering-reverse calc(250ms * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n  transform: rotate(0);\n}\n\n.mdc-linear-progress__buffer-bar {\n  flex: 0 1 100%;\n  transition: flex-basis 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  background-color: var(--mat-progress-bar-track-color, var(--mat-sys-surface-variant));\n}\n\n.mdc-linear-progress__primary-bar {\n  transform: scaleX(0);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  left: -145.166611%;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation: mdc-linear-progress-primary-indeterminate-translate calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-primary-indeterminate-scale calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation-name: mdc-linear-progress-primary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  right: -145.166611%;\n  left: auto;\n}\n\n.mdc-linear-progress__secondary-bar {\n  display: none;\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  left: -54.888891%;\n  display: block;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation: mdc-linear-progress-secondary-indeterminate-translate calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-secondary-indeterminate-scale calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation-name: mdc-linear-progress-secondary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  right: -54.888891%;\n  left: auto;\n}\n\n@keyframes mdc-linear-progress-buffering {\n  from {\n    transform: rotate(180deg) translateX(calc(var(--mat-progress-bar-track-height, 4px) * -2.5));\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(83.67142%);\n  }\n  100% {\n    transform: translateX(200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-scale {\n  0% {\n    transform: scaleX(0.08);\n  }\n  36.65% {\n    animation-timing-function: cubic-bezier(0.334731, 0.12482, 0.785844, 1);\n    transform: scaleX(0.08);\n  }\n  69.15% {\n    animation-timing-function: cubic-bezier(0.06, 0.11, 0.6, 1);\n    transform: scaleX(0.661479);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(84.386165%);\n  }\n  100% {\n    transform: translateX(160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-scale {\n  0% {\n    animation-timing-function: cubic-bezier(0.205028, 0.057051, 0.57661, 0.453971);\n    transform: scaleX(0.08);\n  }\n  19.15% {\n    animation-timing-function: cubic-bezier(0.152313, 0.196432, 0.648374, 1.004315);\n    transform: scaleX(0.457104);\n  }\n  44.15% {\n    animation-timing-function: cubic-bezier(0.257759, -0.003163, 0.211762, 1.38179);\n    transform: scaleX(0.72796);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate-reverse {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(-83.67142%);\n  }\n  100% {\n    transform: translateX(-200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate-reverse {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(-37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(-84.386165%);\n  }\n  100% {\n    transform: translateX(-160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-buffering-reverse {\n  from {\n    transform: translateX(-10px);\n  }\n}\n"],
+    encapsulation: 2
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatProgressBar, [{
+    type: Component,
+    args: [{
+      selector: "mat-progress-bar",
+      exportAs: "matProgressBar",
+      host: {
+        "role": "progressbar",
+        "aria-valuemin": "0",
+        "aria-valuemax": "100",
+        "tabindex": "-1",
+        "[attr.aria-valuenow]": "_isIndeterminate() ? null : value",
+        "[attr.mode]": "mode",
+        "class": "mat-mdc-progress-bar mdc-linear-progress",
+        "[class]": '"mat-" + color',
+        "[class._mat-animation-noopable]": "_isNoopAnimation",
+        "[class.mdc-linear-progress--animation-ready]": "!_isNoopAnimation",
+        "[class.mdc-linear-progress--indeterminate]": "_isIndeterminate()"
+      },
+      encapsulation: ViewEncapsulation.None,
+      template: `<!--
+  All children need to be hidden for screen readers in order to support ChromeVox.
+  More context in the issue: https://github.com/angular/components/issues/22165.
+-->
+<div class="mdc-linear-progress__buffer" aria-hidden="true">
+  <div
+    class="mdc-linear-progress__buffer-bar"
+    [style.flex-basis]="_getBufferBarFlexBasis()"></div>
+  <!-- Remove the dots outside of buffer mode since they can cause CSP issues (see #28938) -->
+  @if (mode === 'buffer') {
+    <div class="mdc-linear-progress__buffer-dots"></div>
+  }
+</div>
+<div
+  class="mdc-linear-progress__bar mdc-linear-progress__primary-bar"
+  aria-hidden="true"
+  [style.transform]="_getPrimaryBarTransform()">
+  <span class="mdc-linear-progress__bar-inner"></span>
+</div>
+<div class="mdc-linear-progress__bar mdc-linear-progress__secondary-bar" aria-hidden="true">
+  <span class="mdc-linear-progress__bar-inner"></span>
+</div>
+`,
+      styles: [".mat-mdc-progress-bar {\n  --mat-progress-bar-animation-multiplier: 1;\n  display: block;\n  text-align: start;\n}\n.mat-mdc-progress-bar[mode=query] {\n  transform: scaleX(-1);\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-dots,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__secondary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__bar-inner.mdc-linear-progress__bar-inner {\n  animation: none;\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-bar {\n  transition: transform 1ms;\n}\n\n.mat-progress-bar-reduced-motion {\n  --mat-progress-bar-animation-multiplier: 2;\n}\n\n.mdc-linear-progress {\n  position: relative;\n  width: 100%;\n  transform: translateZ(0);\n  outline: 1px solid transparent;\n  overflow-x: hidden;\n  transition: opacity 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: max(var(--mat-progress-bar-track-height, 4px), var(--mat-progress-bar-active-indicator-height, 4px));\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress {\n    outline-color: CanvasText;\n  }\n}\n\n.mdc-linear-progress__bar {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  animation: none;\n  transform-origin: top left;\n  transition: transform 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: var(--mat-progress-bar-active-indicator-height, 4px);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__bar {\n  transition: none;\n}\n[dir=rtl] .mdc-linear-progress__bar {\n  right: 0;\n  transform-origin: center right;\n}\n\n.mdc-linear-progress__bar-inner {\n  display: inline-block;\n  position: absolute;\n  width: 100%;\n  animation: none;\n  border-top-style: solid;\n  border-color: var(--mat-progress-bar-active-indicator-color, var(--mat-sys-primary));\n  border-top-width: var(--mat-progress-bar-active-indicator-height, 4px);\n}\n\n.mdc-linear-progress__buffer {\n  display: flex;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  overflow: hidden;\n  height: var(--mat-progress-bar-track-height, 4px);\n  border-radius: var(--mat-progress-bar-track-shape, var(--mat-sys-corner-none));\n}\n\n.mdc-linear-progress__buffer-dots {\n  background-image: radial-gradient(circle, var(--mat-progress-bar-track-color, var(--mat-sys-surface-variant)) calc(var(--mat-progress-bar-track-height, 4px) / 2), transparent 0);\n  background-repeat: repeat-x;\n  background-size: calc(calc(var(--mat-progress-bar-track-height, 4px) / 2) * 5);\n  background-position: left;\n  flex: auto;\n  transform: rotate(180deg);\n  animation: mdc-linear-progress-buffering calc(250ms * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress__buffer-dots {\n    background-color: ButtonBorder;\n  }\n}\n[dir=rtl] .mdc-linear-progress__buffer-dots {\n  animation: mdc-linear-progress-buffering-reverse calc(250ms * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n  transform: rotate(0);\n}\n\n.mdc-linear-progress__buffer-bar {\n  flex: 0 1 100%;\n  transition: flex-basis 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  background-color: var(--mat-progress-bar-track-color, var(--mat-sys-surface-variant));\n}\n\n.mdc-linear-progress__primary-bar {\n  transform: scaleX(0);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  left: -145.166611%;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation: mdc-linear-progress-primary-indeterminate-translate calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-primary-indeterminate-scale calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation-name: mdc-linear-progress-primary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  right: -145.166611%;\n  left: auto;\n}\n\n.mdc-linear-progress__secondary-bar {\n  display: none;\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  left: -54.888891%;\n  display: block;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation: mdc-linear-progress-secondary-indeterminate-translate calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-secondary-indeterminate-scale calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation-name: mdc-linear-progress-secondary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  right: -54.888891%;\n  left: auto;\n}\n\n@keyframes mdc-linear-progress-buffering {\n  from {\n    transform: rotate(180deg) translateX(calc(var(--mat-progress-bar-track-height, 4px) * -2.5));\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(83.67142%);\n  }\n  100% {\n    transform: translateX(200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-scale {\n  0% {\n    transform: scaleX(0.08);\n  }\n  36.65% {\n    animation-timing-function: cubic-bezier(0.334731, 0.12482, 0.785844, 1);\n    transform: scaleX(0.08);\n  }\n  69.15% {\n    animation-timing-function: cubic-bezier(0.06, 0.11, 0.6, 1);\n    transform: scaleX(0.661479);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(84.386165%);\n  }\n  100% {\n    transform: translateX(160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-scale {\n  0% {\n    animation-timing-function: cubic-bezier(0.205028, 0.057051, 0.57661, 0.453971);\n    transform: scaleX(0.08);\n  }\n  19.15% {\n    animation-timing-function: cubic-bezier(0.152313, 0.196432, 0.648374, 1.004315);\n    transform: scaleX(0.457104);\n  }\n  44.15% {\n    animation-timing-function: cubic-bezier(0.257759, -0.003163, 0.211762, 1.38179);\n    transform: scaleX(0.72796);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate-reverse {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(-83.67142%);\n  }\n  100% {\n    transform: translateX(-200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate-reverse {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(-37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(-84.386165%);\n  }\n  100% {\n    transform: translateX(-160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-buffering-reverse {\n  from {\n    transform: translateX(-10px);\n  }\n}\n"]
+    }]
+  }], () => [], {
+    color: [{
+      type: Input
+    }],
+    value: [{
+      type: Input,
+      args: [{
+        transform: numberAttribute
+      }]
+    }],
+    bufferValue: [{
+      type: Input,
+      args: [{
+        transform: numberAttribute
+      }]
+    }],
+    animationEnd: [{
+      type: Output
+    }],
+    mode: [{
+      type: Input
+    }]
+  });
+})();
+function clamp(v, min = 0, max = 100) {
+  return Math.max(min, Math.min(max, v));
+}
+var MatProgressBarModule = class _MatProgressBarModule {
+  static \u0275fac = function MatProgressBarModule_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _MatProgressBarModule)();
+  };
+  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
+    type: _MatProgressBarModule,
+    imports: [MatProgressBar],
+    exports: [MatProgressBar, BidiModule]
+  });
+  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
+    imports: [BidiModule]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatProgressBarModule, [{
+    type: NgModule,
+    args: [{
+      imports: [MatProgressBar],
+      exports: [MatProgressBar, BidiModule]
+    }]
+  }], null, null);
+})();
+
+// libs/components/src/lib/native-domain-overlay.component.ts
+function NativeDomainOverlayComponent_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275text(0, " Enter the address of your PlaceOS server to connect this app. ");
+  }
+}
+function NativeDomainOverlayComponent_Conditional_8_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275text(0, " Enter your work email to find your PlaceOS server and connect this app. ");
+  }
+}
+function NativeDomainOverlayComponent_Conditional_9_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "p", 6);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", ctx_r0.error(), " ");
+  }
+}
+function NativeDomainOverlayComponent_Conditional_10_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "p", 7);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" Settings provided by your administrator will be applied automatically in ", ctx_r0.auto_accept_in(), "s. ");
+  }
+}
+function NativeDomainOverlayComponent_Conditional_11_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 8)(1, "label", 12);
+    \u0275\u0275text(2, "Server Address");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "mat-form-field", 13)(4, "icon", 14);
+    \u0275\u0275text(5, "dns");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "input", 15);
+    \u0275\u0275twoWayListener("ngModelChange", function NativeDomainOverlayComponent_Conditional_11_Template_input_ngModelChange_6_listener($event) {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r0 = \u0275\u0275nextContext();
+      \u0275\u0275twoWayBindingSet(ctx_r0.server_address, $event) || (ctx_r0.server_address = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(7, "div", 8)(8, "label", 16);
+    \u0275\u0275text(9, "API Key (optional)");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(10, "mat-form-field", 13)(11, "icon", 14);
+    \u0275\u0275text(12, "key");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(13, "input", 17);
+    \u0275\u0275twoWayListener("ngModelChange", function NativeDomainOverlayComponent_Conditional_11_Template_input_ngModelChange_13_listener($event) {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r0 = \u0275\u0275nextContext();
+      \u0275\u0275twoWayBindingSet(ctx_r0.api_key, $event) || (ctx_r0.api_key = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(14, "p", 18);
+    \u0275\u0275text(15, " When set, the app authenticates with this key instead of asking you to sign in. ");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 1, "APP.VISITOR_KIOSK.REGISTERING"));
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance(6);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r0.server_address);
+    \u0275\u0275property("disabled", ctx_r0.loading());
+    \u0275\u0275control();
+    \u0275\u0275advance(7);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r0.api_key);
+    \u0275\u0275property("disabled", ctx_r0.loading());
+    \u0275\u0275control();
   }
 }
-var VisitorRegistrationComponent = class _VisitorRegistrationComponent extends AsyncHandler {
-  constructor() {
-    super(...arguments);
-    this._booking_form = inject(BookingFormService);
-    this._checkin = inject(CheckinStateService);
-    this._router = inject(Router);
-    this._org = inject(OrganisationService);
-    this._visitor_allow_all_day = settingSignal("visitors.allow_all_day");
-    this._booking_allow_all_day = settingSignal("bookings.allow_all_day");
-    this._visitor_max_duration = settingSignal("visitors.max_duration");
-    this._booking_max_duration = settingSignal("bookings.max_duration");
-    this._induction_enabled = settingSignal("induction_enabled", false);
-    this._induction_details = settingSignal("induction_details");
-    this.form = this._booking_form.form;
-    this.form_value = toSignal(this.form.valueChanges, {
-      initialValue: this.form.getRawValue()
+function NativeDomainOverlayComponent_Conditional_12_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 8)(1, "label", 19);
+    \u0275\u0275text(2, "Work Email");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "mat-form-field", 13)(4, "icon", 14);
+    \u0275\u0275text(5, "mail");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "input", 20);
+    \u0275\u0275twoWayListener("ngModelChange", function NativeDomainOverlayComponent_Conditional_12_Template_input_ngModelChange_6_listener($event) {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r0 = \u0275\u0275nextContext();
+      \u0275\u0275twoWayBindingSet(ctx_r0.email, $event) || (ctx_r0.email = $event);
+      return \u0275\u0275resetView($event);
     });
-    this.loading = signal(false, ...ngDevMode ? [{ debugName: "loading" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.now = signal(startOfMinute(Date.now()).valueOf(), ...ngDevMode ? [{ debugName: "now" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.background = settingSignal("welcome_background");
-    this.allow_registration_time_options = settingSignal("allow_registration_time_options");
-    this.allow_pass_number = settingSignal("allow_pass_number", false);
-    this.hide_building_image = settingSignal("hide_building_image", false);
-    this.induction_after_details = settingSignal("induction_after_details", false);
-    this.allow_self_registration = settingSignal("allow_self_registration", false);
-    this.is_induction_enabled = computed(() => !!(this._induction_enabled() && this._induction_details()), ...ngDevMode ? [{ debugName: "is_induction_enabled" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.allow_all_day = computed(() => this._visitor_allow_all_day() ?? this._booking_allow_all_day(), ...ngDevMode ? [{ debugName: "allow_all_day" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.max_duration = computed(() => this._visitor_max_duration() || this._booking_max_duration() || 180, ...ngDevMode ? [{ debugName: "max_duration" }] : (
-      /* istanbul ignore next */
-      []
-    ));
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd()();
   }
-  ngOnInit() {
-    this.interval("time", () => this.now.set(startOfMinute(Date.now()).valueOf()), 30 * 1e3);
-    this._booking_form.clearOldState();
-    this._booking_form.newForm("visitor");
-    this._booking_form.setOptions({ type: "visitor" });
-    this.form.get("asset_id").setValidators([Validators.required, Validators.email]);
-    this._booking_form.form.patchValue({
-      booking_type: "visitor",
-      title: "Visit"
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance(6);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r0.email);
+    \u0275\u0275property("disabled", ctx_r0.loading());
+    \u0275\u0275control();
+  }
+}
+function NativeDomainOverlayComponent_Conditional_14_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275text(0, " Find my server using my work email ");
+  }
+}
+function NativeDomainOverlayComponent_Conditional_15_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275text(0, " Enter a server address manually ");
+  }
+}
+var AUTO_ACCEPT_SECONDS = 15;
+var NativeDomainOverlayComponent = class _NativeDomainOverlayComponent {
+  constructor() {
+    this.serverError = input(
+      "",
+      ...ngDevMode ? [{ debugName: "serverError" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.autoAccept = input(
+      false,
+      ...ngDevMode ? [{ debugName: "autoAccept" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.domainSet = output();
+    this.email = signal(
+      getNativeEmail() ?? "",
+      ...ngDevMode ? [{ debugName: "email" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.server_address = signal(
+      getNativeDomain() ?? "",
+      ...ngDevMode ? [{ debugName: "server_address" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.api_key = signal(
+      getNativeApiKey() ?? "",
+      ...ngDevMode ? [{ debugName: "api_key" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.manual_entry = signal(
+      !!getNativeDomain(),
+      ...ngDevMode ? [{ debugName: "manual_entry" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.error = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "error" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.loading = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "loading" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.auto_accept_in = signal(
+      0,
+      ...ngDevMode ? [{ debugName: "auto_accept_in" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._auto_accept_timer = null;
+    effect(() => {
+      const msg = this.serverError();
+      if (msg) {
+        this.error.set(msg);
+        untracked(() => this.stopAutoAccept());
+      }
     });
-    setTimeout(() => {
-      if (this.allow_self_registration())
+    effect(() => {
+      if (this.autoAccept() && untracked(this.server_address)) {
+        untracked(() => this.startAutoAccept());
+      }
+    });
+  }
+  ngOnDestroy() {
+    this.stopAutoAccept();
+  }
+  /** Restart the inactivity countdown — any user activity delays it. */
+  resetAutoAccept() {
+    if (!this._auto_accept_timer)
+      return;
+    this.auto_accept_in.set(AUTO_ACCEPT_SECONDS);
+  }
+  startAutoAccept() {
+    this.auto_accept_in.set(AUTO_ACCEPT_SECONDS);
+    if (this._auto_accept_timer)
+      return;
+    this._auto_accept_timer = setInterval(() => {
+      const remaining = this.auto_accept_in() - 1;
+      this.auto_accept_in.set(remaining);
+      if (remaining > 0)
         return;
-      this._router.navigate(["/welcome"]);
+      this.stopAutoAccept();
+      this.submit();
     }, 1e3);
   }
-  async register() {
-    this.form.markAllAsTouched();
-    if (!this.form.valid) {
-      return notifyError(i18n("FORM.INVALID_FIELDS", {
-        field_list: getInvalidFields(this.form).join(", ")
-      }));
+  stopAutoAccept() {
+    if (this._auto_accept_timer)
+      clearInterval(this._auto_accept_timer);
+    this._auto_accept_timer = null;
+    this.auto_accept_in.set(0);
+  }
+  toggleManualEntry() {
+    if (this.loading())
+      return;
+    this.manual_entry.update((manual) => !manual);
+    this.error.set("");
+  }
+  async submit() {
+    if (this.loading())
+      return;
+    this.stopAutoAccept();
+    if (this.manual_entry())
+      return this.submitManual();
+    const raw = this.email().trim();
+    if (!raw) {
+      this.error.set("A work email is required.");
+      return;
     }
     this.loading.set(true);
+    this.error.set("");
     try {
-      const value = this.form.value;
-      this._booking_form.form.patchValue({
-        booking_type: "visitor",
-        self_registered: true,
-        name: value.asset_name,
-        description: value.description || value.title || "",
-        attendees: [
-          new User({
-            name: value.asset_name,
-            email: value.asset_id,
-            organisation: value.company,
-            phone: value.phone
-          })
-        ],
-        zones: unique([
-          this._org.organisation.id,
-          this._org.region?.id,
-          this._org.building?.id
-        ])
-      });
-      const result = await this._booking_form.postForm(true);
-      this._checkin.setBooking(result, "registered");
-      if (result.induction !== "accepted" && this.is_induction_enabled() && !this.induction_after_details()) {
-        this._router.navigate(["/checkin", "induction"]);
-      } else {
-        this._router.navigate(["/checkin", "details"]);
-      }
-    } catch (e) {
-      notifyError(i18n("APP.VISITOR_KIOSK.REGISTRATION_ERROR", {
-        error: e?.statusText || e
-      }));
+      const domain = await lookupNativeDomainByEmail(raw);
+      setNativeEmail(raw);
+      setNativeDomain(domain);
+      setNativeApiKey("");
+      this.domainSet.emit(domain);
+    } catch {
+      this.error.set("Unable to find a server for this email address.");
     } finally {
       this.loading.set(false);
     }
   }
-  static {
-    this.\u0275fac = /* @__PURE__ */ (() => {
-      let \u0275VisitorRegistrationComponent_BaseFactory;
-      return function VisitorRegistrationComponent_Factory(__ngFactoryType__) {
-        return (\u0275VisitorRegistrationComponent_BaseFactory || (\u0275VisitorRegistrationComponent_BaseFactory = \u0275\u0275getInheritedFactory(_VisitorRegistrationComponent)))(__ngFactoryType__ || _VisitorRegistrationComponent);
-      };
-    })();
+  submitManual() {
+    const domain = normaliseNativeDomain(this.server_address());
+    if (!domain) {
+      this.error.set("A valid server address is required.");
+      return;
+    }
+    this.error.set("");
+    setNativeDomain(domain);
+    setNativeApiKey(this.api_key());
+    this.domainSet.emit(domain);
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _VisitorRegistrationComponent, selectors: [["visitor-registration"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 9, vars: 11, consts: [[1, "absolute", "inset-0", "flex", "items-center", "p-8"], ["auth", "", 1, "absolute", "top-1/2", "left-1/2", "min-h-full", "min-w-full", "-translate-x-1/2", "-translate-y-1/2", 3, "source"], ["src", "assets/img/building.png", 1, "absolute", "right-0", "bottom-0", "w-[60%]"], [1, "bg-base-100", "absolute", "top-1/2", "left-4", "max-h-[80vh]", "w-lg", "max-w-[calc(100%-2rem)]", "-translate-y-1/2", "overflow-auto", "rounded-sm", "shadow-sm", 3, "formGroup"], [1, "bg-base-100", "absolute", "top-1/2", "left-4", "flex", "w-[24rem]", "-translate-y-1/2", "flex-col", "items-center", "justify-center", "space-y-4", "rounded-sm", "p-16", "shadow-sm"], [1, "absolute", "top-4", "right-4", "text-2xl", "text-white"], [1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "flex", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-lg", "font-medium"], ["icon", "", "matRipple", "", 3, "routerLink"], [1, "p-4"], ["for", "name"], ["appearance", "outline", 1, "w-full"], ["keyboard", "", "matInput", "", "name", "name", "formControlName", "asset_name", 3, "placeholder"], ["for", "email"], ["appearance", "outline", 1, "mb-0", "w-full"], ["keyboard", "", "matInput", "", "name", "email", "formControlName", "asset_id", 3, "placeholder"], ["for", "user"], ["formControlName", "user"], ["form", "phone"], ["keyboard", "", "matInput", "", "name", "phone", "type", "tel", "formControlName", "phone", 3, "placeholder"], ["form", "org"], ["keyboard", "", "matInput", "", "name", "org", "formControlName", "company", 3, "placeholder"], ["form", "reason"], ["appearance", "outline", 1, "no-subscript", "mb-4", "w-full"], ["keyboard", "", "matInput", "", "name", "reason", "formControlName", "title", 3, "placeholder"], [1, "bg-base-200", "sticky", "bottom-0", "z-10", "m-2", "flex", "w-[calc(100%-1rem)]", "items-center", "justify-end", "rounded-sm", "border-none", "p-2"], ["btn", "", "matRipple", "", 1, "w-40", 3, "click"], ["form", "pass"], ["keyboard", "", "matInput", "", "name", "pass", "formControlName", "pass_number", 3, "placeholder"], [1, "relative", "mt-4", "flex", "justify-end"], ["form", "duration"], ["name", "duration", "formControlName", "duration", 1, "text-base", 3, "time", "max", "disabled"], ["formControlName", "all_day", 1, "absolute", "-top-2", "right-0"], ["diameter", "32"]], template: function VisitorRegistrationComponent_Template(rf, ctx) {
+    this.\u0275fac = function NativeDomainOverlayComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _NativeDomainOverlayComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NativeDomainOverlayComponent, selectors: [["native-domain-overlay"]], hostBindings: function NativeDomainOverlayComponent_HostBindings(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275elementStart(0, "div", 0);
-        \u0275\u0275element(1, "img", 1);
-        \u0275\u0275conditionalCreate(2, VisitorRegistrationComponent_Conditional_2_Template, 1, 0, "img", 2);
-        \u0275\u0275conditionalCreate(3, VisitorRegistrationComponent_Conditional_3_Template, 52, 43, "div", 3)(4, VisitorRegistrationComponent_Conditional_4_Template, 5, 3, "div", 4);
-        \u0275\u0275elementStart(5, "div", 5);
-        \u0275\u0275text(6);
-        \u0275\u0275pipe(7, "date");
-        \u0275\u0275pipe(8, "date");
+        \u0275\u0275listener("pointerdown", function NativeDomainOverlayComponent_pointerdown_HostBindingHandler() {
+          return ctx.resetAutoAccept();
+        }, \u0275\u0275resolveWindow)("keydown", function NativeDomainOverlayComponent_keydown_HostBindingHandler() {
+          return ctx.resetAutoAccept();
+        }, \u0275\u0275resolveWindow);
+      }
+    }, inputs: { serverError: [1, "serverError"], autoAccept: [1, "autoAccept"] }, outputs: { domainSet: "domainSet" }, decls: 19, vars: 8, consts: [[1, "bg-base-200", "pointer-events-auto", "fixed", "inset-0", "z-9999", "flex", "items-center", "justify-center", "p-4"], [1, "border-base-300", "bg-base-100", "flex", "w-full", "max-w-md", "flex-col", "rounded-sm", "border", "shadow-sm", 3, "ngSubmit"], [1, "bg-base-200", "m-2", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], [1, "flex", "flex-col", "space-y-4", "p-4"], [1, "text-sm", "opacity-60"], [1, "bg-error/10", "text-error", "rounded-sm", "px-3", "py-2", "text-xs"], [1, "bg-info/10", "text-info", "rounded-sm", "px-3", "py-2", "text-xs"], [1, "flex", "w-full", "flex-col"], ["type", "button", 1, "self-start", "text-sm", "underline", "opacity-60", 3, "click", "disabled"], [1, "bg-base-200", "m-2", "flex", "items-center", "justify-center", "space-x-2", "rounded-sm", "border-none", "p-2"], ["btn", "", "matRipple", "", "type", "submit", 1, "flex-1", 3, "disabled"], ["for", "server-address"], ["appearance", "outline", 1, "w-full"], ["matPrefix", ""], ["matInput", "", "name", "server-address", "placeholder", "placeos.company.com", "type", "text", "autocapitalize", "off", "autocomplete", "url", "spellcheck", "false", "required", "", 3, "ngModelChange", "ngModel", "disabled"], ["for", "api-key"], ["matInput", "", "name", "api-key", "placeholder", "Leave empty to sign in", "type", "password", "autocapitalize", "off", "autocomplete", "off", "spellcheck", "false", 3, "ngModelChange", "ngModel", "disabled"], [1, "text-xs", "opacity-60"], ["for", "email"], ["matInput", "", "name", "email", "placeholder", "name@company.com", "type", "email", "autocapitalize", "off", "autocomplete", "email", "spellcheck", "false", "required", "", 3, "ngModelChange", "ngModel", "disabled"]], template: function NativeDomainOverlayComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275elementStart(0, "div", 0)(1, "form", 1);
+        \u0275\u0275listener("ngSubmit", function NativeDomainOverlayComponent_Template_form_ngSubmit_1_listener() {
+          return ctx.submit();
+        });
+        \u0275\u0275elementStart(2, "header", 2)(3, "h2", 3);
+        \u0275\u0275text(4, "Connect to Server");
         \u0275\u0275elementEnd()();
+        \u0275\u0275elementStart(5, "main", 4)(6, "p", 5);
+        \u0275\u0275conditionalCreate(7, NativeDomainOverlayComponent_Conditional_7_Template, 1, 0)(8, NativeDomainOverlayComponent_Conditional_8_Template, 1, 0);
+        \u0275\u0275elementEnd();
+        \u0275\u0275conditionalCreate(9, NativeDomainOverlayComponent_Conditional_9_Template, 2, 1, "p", 6);
+        \u0275\u0275conditionalCreate(10, NativeDomainOverlayComponent_Conditional_10_Template, 2, 1, "p", 7);
+        \u0275\u0275conditionalCreate(11, NativeDomainOverlayComponent_Conditional_11_Template, 16, 4)(12, NativeDomainOverlayComponent_Conditional_12_Template, 7, 2, "div", 8);
+        \u0275\u0275elementStart(13, "button", 9);
+        \u0275\u0275listener("click", function NativeDomainOverlayComponent_Template_button_click_13_listener() {
+          return ctx.toggleManualEntry();
+        });
+        \u0275\u0275conditionalCreate(14, NativeDomainOverlayComponent_Conditional_14_Template, 1, 0)(15, NativeDomainOverlayComponent_Conditional_15_Template, 1, 0);
+        \u0275\u0275elementEnd()();
+        \u0275\u0275elementStart(16, "footer", 10)(17, "button", 11);
+        \u0275\u0275text(18);
+        \u0275\u0275elementEnd()()()();
       }
       if (rf & 2) {
+        \u0275\u0275advance(7);
+        \u0275\u0275conditional(ctx.manual_entry() ? 7 : 8);
+        \u0275\u0275advance(2);
+        \u0275\u0275conditional(ctx.error() ? 9 : -1);
         \u0275\u0275advance();
-        \u0275\u0275property("source", ctx.background());
+        \u0275\u0275conditional(ctx.auto_accept_in() > 0 ? 10 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(!ctx.hide_building_image() ? 2 : -1);
+        \u0275\u0275conditional(ctx.manual_entry() ? 11 : 12);
+        \u0275\u0275advance(2);
+        \u0275\u0275property("disabled", ctx.loading());
         \u0275\u0275advance();
-        \u0275\u0275conditional(!ctx.loading() ? 3 : 4);
+        \u0275\u0275conditional(ctx.manual_entry() ? 14 : 15);
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind2(7, 5, ctx.now(), "mediumDate"), " ", \u0275\u0275pipeBind2(8, 8, ctx.now(), "shortTime"), " ");
+        \u0275\u0275property("disabled", ctx.loading());
+        \u0275\u0275advance();
+        \u0275\u0275textInterpolate1(" ", ctx.loading() ? "Looking up..." : "Connect", " ");
       }
     }, dependencies: [
-      CommonModule,
-      IconComponent,
-      MatRippleModule,
-      MatRipple,
-      MatCheckboxModule,
-      MatCheckbox,
-      MatProgressSpinnerModule,
-      MatProgressSpinner,
-      MatFormFieldModule,
-      MatFormField,
-      MatError,
-      MatInputModule,
-      MatInput,
-      ReactiveFormsModule,
+      FormsModule,
+      \u0275NgNoValidate,
       DefaultValueAccessor,
       NgControlStatus,
       NgControlStatusGroup,
-      FormGroupDirective,
-      FormControlName,
-      UserSearchFieldComponent,
-      DurationFieldComponent,
-      RouterModule,
-      RouterLink,
-      AuthenticatedImageDirective,
-      VirtualKeyboardComponent,
-      DatePipe,
-      TranslatePipe
+      RequiredValidator,
+      NgModel,
+      NgForm,
+      IconComponent,
+      MatFormFieldModule,
+      MatFormField,
+      MatPrefix,
+      MatInputModule,
+      MatInput,
+      MatRippleModule,
+      MatRipple
     ], encapsulation: 2 });
   }
 };
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(VisitorRegistrationComponent, [{
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NativeDomainOverlayComponent, [{
     type: Component,
-    args: [{ selector: "visitor-registration", template: `
-        <div class="absolute inset-0 flex items-center p-8">
-            <img
-                auth
-                [source]="background()"
-                class="absolute top-1/2 left-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2"
-            />
-            @if (!hide_building_image()) {
-                <img
-                    src="assets/img/building.png"
-                    class="absolute right-0 bottom-0 w-[60%]"
-                />
-            }
-            @if (!loading()) {
-                <div
-                    class="bg-base-100 absolute top-1/2 left-4 max-h-[80vh] w-lg max-w-[calc(100%-2rem)] -translate-y-1/2 overflow-auto rounded-sm shadow-sm"
-                    [formGroup]="form"
-                >
-                    <div
-                        class="bg-base-200 sticky top-0 z-10 m-2 flex w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none p-2"
-                    >
-                        <h3 class="px-2 text-lg font-medium">
-                            {{ 'APP.VISITOR_KIOSK.REGISTRATION' | translate }}
-                        </h3>
-                        <a icon matRipple [routerLink]="['/welcome']">
-                            <icon>close</icon>
-                        </a>
-                    </div>
-                    <div class="p-4">
-                        <label for="name">
-                            {{ 'APP.VISITOR_KIOSK.NAME' | translate }}</label
+    args: [{
+      selector: "native-domain-overlay",
+      template: `
+        <div
+            class="bg-base-200 pointer-events-auto fixed inset-0 z-9999 flex items-center justify-center p-4"
+        >
+            <form
+                class="border-base-300 bg-base-100 flex w-full max-w-md flex-col rounded-sm border shadow-sm"
+                (ngSubmit)="submit()"
+            >
+                <header class="bg-base-200 m-2 rounded-sm border-none p-2">
+                    <h2 class="px-2 text-xl font-medium">Connect to Server</h2>
+                </header>
+                <main class="flex flex-col space-y-4 p-4">
+                    <p class="text-sm opacity-60">
+                        @if (manual_entry()) {
+                            Enter the address of your PlaceOS server to connect
+                            this app.
+                        } @else {
+                            Enter your work email to find your PlaceOS server
+                            and connect this app.
+                        }
+                    </p>
+                    @if (error()) {
+                        <p
+                            class="bg-error/10 text-error rounded-sm px-3 py-2 text-xs"
                         >
-                        <mat-form-field appearance="outline" class="w-full">
-                            <input
-                                keyboard
-                                matInput
-                                name="name"
-                                formControlName="asset_name"
-                                [placeholder]="
-                                    'APP.VISITOR_KIOSK.NAME' | translate
-                                "
-                            />
-                            <mat-error>A valid email is required</mat-error>
-                        </mat-form-field>
-                        <label for="email">
-                            {{ 'APP.VISITOR_KIOSK.EMAIL' | translate }}</label
+                            {{ error() }}
+                        </p>
+                    }
+                    @if (auto_accept_in() > 0) {
+                        <p
+                            class="bg-info/10 text-info rounded-sm px-3 py-2 text-xs"
                         >
-                        <mat-form-field
-                            appearance="outline"
-                            class="mb-0 w-full"
-                        >
-                            <input
-                                keyboard
-                                matInput
-                                name="email"
-                                formControlName="asset_id"
-                                [placeholder]="
-                                    'APP.VISITOR_KIOSK.EMAIL' | translate
-                                "
-                            />
-                            <mat-error>A valid email is required</mat-error>
-                        </mat-form-field>
-                        <label for="user">Host</label>
-                        <a-user-search-field
-                            formControlName="user"
-                            [class.mb-4]="!form.value.user"
-                        ></a-user-search-field>
-                        <label form="phone">
-                            {{ 'APP.VISITOR_KIOSK.PHONE' | translate }}</label
-                        >
-                        <mat-form-field appearance="outline" class="w-full">
-                            <input
-                                keyboard
-                                matInput
-                                name="phone"
-                                type="tel"
-                                formControlName="phone"
-                                [placeholder]="
-                                    'APP.VISITOR_KIOSK.PHONE' | translate
-                                "
-                            />
-                        </mat-form-field>
-                        <label form="org">
-                            {{
-                                'APP.VISITOR_KIOSK.ORGANISATION' | translate
-                            }}</label
-                        >
-                        <mat-form-field appearance="outline" class="w-full">
-                            <input
-                                keyboard
-                                matInput
-                                name="org"
-                                formControlName="company"
-                                [placeholder]="
-                                    'APP.VISITOR_KIOSK.ORGANISATION' | translate
-                                "
-                            />
-                        </mat-form-field>
-                        <label form="reason">
-                            {{ 'BOOKINGS.VISITOR_REASON' | translate }}
-                        </label>
-                        <mat-form-field
-                            appearance="outline"
-                            class="no-subscript mb-4 w-full"
-                        >
-                            <input
-                                keyboard
-                                matInput
-                                name="reason"
-                                formControlName="title"
-                                [placeholder]="
-                                    'BOOKINGS.VISITOR_REASON_PLACEHOLDER'
-                                        | translate
-                                "
-                            />
-                        </mat-form-field>
-                        @if (allow_pass_number()) {
-                            <label form="pass">
-                                {{ 'BOOKINGS.VISITOR_PASS' | translate }}
-                            </label>
-                            <mat-form-field
-                                appearance="outline"
-                                class="no-subscript mb-4 w-full"
-                            >
+                            Settings provided by your administrator will be
+                            applied automatically in {{ auto_accept_in() }}s.
+                        </p>
+                    }
+                    @if (manual_entry()) {
+                        <div class="flex w-full flex-col">
+                            <label for="server-address">Server Address</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <icon matPrefix>dns</icon>
                                 <input
-                                    keyboard
                                     matInput
-                                    name="pass"
-                                    formControlName="pass_number"
-                                    [placeholder]="
-                                        'BOOKINGS.VISITOR_PASS_PLACEHOLDER'
-                                            | translate
-                                    "
+                                    name="server-address"
+                                    [(ngModel)]="server_address"
+                                    placeholder="placeos.company.com"
+                                    type="text"
+                                    autocapitalize="off"
+                                    autocomplete="url"
+                                    spellcheck="false"
+                                    required
+                                    [disabled]="loading()"
                                 />
                             </mat-form-field>
-                        }
-                        @if (allow_registration_time_options()) {
-                            @if (allow_all_day()) {
-                                <div class="relative mt-4 flex justify-end">
-                                    <mat-checkbox
-                                        class="absolute -top-2 right-0"
-                                        formControlName="all_day"
-                                    >
-                                        {{ 'COMMON.ALL_DAY' | translate }}
-                                    </mat-checkbox>
-                                </div>
-                            }
-                            <label form="duration">
-                                {{ 'FORM.DURATION' | translate }}
-                            </label>
-                            <a-duration-field
-                                name="duration"
-                                class="text-base"
-                                formControlName="duration"
-                                [time]="form_value().date"
-                                [max]="max_duration()"
-                                [disabled]="form_value().all_day"
-                            ></a-duration-field>
-                        }
-                    </div>
-                    <div
-                        class="bg-base-200 sticky bottom-0 z-10 m-2 flex w-[calc(100%-1rem)] items-center justify-end rounded-sm border-none p-2"
+                        </div>
+                        <div class="flex w-full flex-col">
+                            <label for="api-key">API Key (optional)</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <icon matPrefix>key</icon>
+                                <input
+                                    matInput
+                                    name="api-key"
+                                    [(ngModel)]="api_key"
+                                    placeholder="Leave empty to sign in"
+                                    type="password"
+                                    autocapitalize="off"
+                                    autocomplete="off"
+                                    spellcheck="false"
+                                    [disabled]="loading()"
+                                />
+                            </mat-form-field>
+                            <p class="text-xs opacity-60">
+                                When set, the app authenticates with this key
+                                instead of asking you to sign in.
+                            </p>
+                        </div>
+                    } @else {
+                        <div class="flex w-full flex-col">
+                            <label for="email">Work Email</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <icon matPrefix>mail</icon>
+                                <input
+                                    matInput
+                                    name="email"
+                                    [(ngModel)]="email"
+                                    placeholder="name@company.com"
+                                    type="email"
+                                    autocapitalize="off"
+                                    autocomplete="email"
+                                    spellcheck="false"
+                                    required
+                                    [disabled]="loading()"
+                                />
+                            </mat-form-field>
+                        </div>
+                    }
+                    <button
+                        type="button"
+                        class="self-start text-sm underline opacity-60"
+                        [disabled]="loading()"
+                        (click)="toggleManualEntry()"
                     >
-                        <button btn matRipple class="w-40" (click)="register()">
-                            {{ 'APP.VISITOR_KIOSK.REGISTER' | translate }}
-                        </button>
-                    </div>
-                </div>
-            } @else {
-                <div
-                    class="bg-base-100 absolute top-1/2 left-4 flex w-[24rem] -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded-sm p-16 shadow-sm"
+                        @if (manual_entry()) {
+                            Find my server using my work email
+                        } @else {
+                            Enter a server address manually
+                        }
+                    </button>
+                </main>
+                <footer
+                    class="bg-base-200 m-2 flex items-center justify-center space-x-2 rounded-sm border-none p-2"
                 >
-                    <mat-spinner diameter="32"></mat-spinner>
-                    <p>{{ 'APP.VISITOR_KIOSK.REGISTERING' | translate }}</p>
-                </div>
-            }
-            <div class="absolute top-4 right-4 text-2xl text-white">
-                {{ now() | date: 'mediumDate' }}
-                {{ now() | date: 'shortTime' }}
-            </div>
+                    <button
+                        btn
+                        matRipple
+                        type="submit"
+                        class="flex-1"
+                        [disabled]="loading()"
+                    >
+                        {{ loading() ? 'Looking up...' : 'Connect' }}
+                    </button>
+                </footer>
+            </form>
         </div>
-    `, imports: [
-      CommonModule,
-      TranslatePipe,
-      IconComponent,
-      MatRippleModule,
-      MatCheckboxModule,
-      MatProgressSpinnerModule,
-      MatFormFieldModule,
-      MatInputModule,
-      ReactiveFormsModule,
-      UserSearchFieldComponent,
-      DurationFieldComponent,
-      RouterModule,
-      AuthenticatedImageDirective,
-      VirtualKeyboardComponent
-    ] }]
+    `,
+      imports: [
+        FormsModule,
+        IconComponent,
+        MatFormFieldModule,
+        MatInputModule,
+        MatRippleModule
+      ],
+      host: {
+        "(window:pointerdown)": "resetAutoAccept()",
+        "(window:keydown)": "resetAutoAccept()"
+      }
+    }]
+  }], () => [], { serverError: [{ type: Input, args: [{ isSignal: true, alias: "serverError", required: false }] }], autoAccept: [{ type: Input, args: [{ isSignal: true, alias: "autoAccept", required: false }] }], domainSet: [{ type: Output, args: ["domainSet"] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NativeDomainOverlayComponent, { className: "NativeDomainOverlayComponent", filePath: "libs/components/src/lib/native-domain-overlay.component.ts", lineNumber: 169 });
+})();
+
+// libs/components/src/lib/service-worker-update-card.component.ts
+function ServiceWorkerUpdateCardComponent_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "aside", 0)(1, "div", 1)(2, "h2", 2);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "p", 3);
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(6, "button", 4);
+    \u0275\u0275listener("click", function ServiceWorkerUpdateCardComponent_Conditional_0_Template_button_click_6_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.reloadApp());
+    });
+    \u0275\u0275elementStart(7, "icon");
+    \u0275\u0275text(8, "refresh");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const update_state_r3 = ctx;
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", update_state_r3.message || "Update available", " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", update_state_r3.details || "Refresh the page to get the new version of the application", " ");
+    \u0275\u0275advance();
+    \u0275\u0275property("matTooltip", update_state_r3.action || "Reload App");
+  }
+}
+var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
+  constructor() {
+    this.update = serviceWorkerUpdate();
+  }
+  reloadApp() {
+    location.reload();
+  }
+  static {
+    this.\u0275fac = function ServiceWorkerUpdateCardComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _ServiceWorkerUpdateCardComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ServiceWorkerUpdateCardComponent, selectors: [["placeos-service-worker-update-card"]], decls: 1, vars: 1, consts: [["role", "status", "aria-live", "assertive", 1, "border-base-300", "bg-base-100", "text-base-content", "pointer-events-auto", "fixed", "right-4", "bottom-4", "z-9999", "flex", "w-[20rem]", "max-w-[calc(100vw-2rem)]", "items-center", "gap-3", "rounded-lg", "border", "p-4", "shadow-xl"], [1, "min-w-0", "flex-1"], [1, "m-0", "text-sm", "leading-tight", "font-medium"], [1, "m-0", "mt-1", "text-xs", "opacity-70"], ["icon", "", "default", "", 3, "click", "matTooltip"]], template: function ServiceWorkerUpdateCardComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275conditionalCreate(0, ServiceWorkerUpdateCardComponent_Conditional_0_Template, 9, 3, "aside", 0);
+      }
+      if (rf & 2) {
+        let tmp_0_0;
+        \u0275\u0275conditional((tmp_0_0 = ctx.update()) ? 0 : -1, tmp_0_0);
+      }
+    }, dependencies: [IconComponent, MatTooltipModule, MatTooltip], encapsulation: 2 });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ServiceWorkerUpdateCardComponent, [{
+    type: Component,
+    args: [{
+      selector: "placeos-service-worker-update-card",
+      template: `
+        @if (update(); as update_state) {
+            <aside
+                role="status"
+                aria-live="assertive"
+                class="border-base-300 bg-base-100 text-base-content pointer-events-auto fixed right-4 bottom-4 z-9999 flex w-[20rem] max-w-[calc(100vw-2rem)] items-center gap-3 rounded-lg border p-4 shadow-xl"
+            >
+                <div class="min-w-0 flex-1">
+                    <h2 class="m-0 text-sm leading-tight font-medium">
+                        {{ update_state.message || 'Update available' }}
+                    </h2>
+                    <p class="m-0 mt-1 text-xs opacity-70">
+                        {{
+                            update_state.details ||
+                                'Refresh the page to get the new version of the application'
+                        }}
+                    </p>
+                </div>
+                <button
+                    icon
+                    default
+                    [matTooltip]="update_state.action || 'Reload App'"
+                    (click)="reloadApp()"
+                >
+                    <icon>refresh</icon>
+                </button>
+            </aside>
+        }
+    `,
+      imports: [IconComponent, MatTooltipModule]
+    }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(VisitorRegistrationComponent, { className: "VisitorRegistrationComponent", filePath: "apps/visitor-kiosk/src/app/visitor-registration.component.ts", lineNumber: 239 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ServiceWorkerUpdateCardComponent, { className: "ServiceWorkerUpdateCardComponent", filePath: "libs/components/src/lib/service-worker-update-card.component.ts", lineNumber: 40 });
 })();
 
-// apps/visitor-kiosk/src/app/welcome.component.ts
-var _c03 = () => ["/checkin"];
-var _c1 = () => ["/register"];
-var _c2 = (a0) => ["/explore", a0];
-function WelcomeComponent_Conditional_14_Template(rf, ctx) {
+// libs/components/src/lib/global-loading.component.ts
+function GlobalLoadingComponent_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "a", 6)(1, "div", 7)(2, "div", 8);
-    \u0275\u0275text(3);
-    \u0275\u0275pipe(4, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "icon", 9);
-    \u0275\u0275text(6, "chevron_right");
-    \u0275\u0275elementEnd()()();
-  }
-  if (rf & 2) {
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(4, _c1));
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 2, "APP.VISITOR_KIOSK.REGISTER"), " ");
-  }
-}
-function WelcomeComponent_Conditional_15_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "a", 6)(1, "div", 7)(2, "div", 8);
-    \u0275\u0275text(3);
-    \u0275\u0275pipe(4, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "icon", 9);
-    \u0275\u0275text(6, "place");
-    \u0275\u0275elementEnd()()();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(4, _c2, ctx_r0.level()));
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 2, "APP.VISITOR_KIOSK.EXPLORE"), " ");
-  }
-}
-function WelcomeComponent_Conditional_20_Conditional_8_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 18);
-    \u0275\u0275text(1, "Language");
-    \u0275\u0275elementEnd();
-  }
-}
-function WelcomeComponent_Conditional_20_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "button", 11)(1, "div", 15)(2, "icon", 16);
-    \u0275\u0275text(3, "language");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 17)(5, "div");
-    \u0275\u0275text(6);
-    \u0275\u0275pipe(7, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(8, WelcomeComponent_Conditional_20_Conditional_8_Template, 2, 0, "div", 18);
-    \u0275\u0275pipe(9, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(10, "div", 19);
-    \u0275\u0275pipe(11, "translate");
-    \u0275\u0275text(12);
-    \u0275\u0275pipe(13, "translate");
-    \u0275\u0275elementEnd()()();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    const menu_r2 = \u0275\u0275reference(22);
-    \u0275\u0275property("matMenuTriggerFor", menu_r2);
-    \u0275\u0275advance(6);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(7, 5, "COMMON.LANGUAGE"));
-    \u0275\u0275advance(2);
-    \u0275\u0275conditional(\u0275\u0275pipeBind1(9, 7, "COMMON.LANGUAGE") !== "Language" ? 8 : -1);
-    \u0275\u0275advance(2);
-    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(11, 9, ctx_r0.active_locale()));
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(13, 11, ctx_r0.active_locale()), " ");
-  }
-}
-function WelcomeComponent_For_24_Conditional_7_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 18);
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const lang_r4 = \u0275\u0275nextContext().$implicit;
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", lang_r4.local, " ");
-  }
-}
-function WelcomeComponent_For_24_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 20);
-    \u0275\u0275listener("click", function WelcomeComponent_For_24_Template_button_click_0_listener() {
-      const lang_r4 = \u0275\u0275restoreView(_r3).$implicit;
-      const ctx_r0 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r0.setLocale(lang_r4.id));
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "native-domain-overlay", 3);
+    \u0275\u0275listener("domainSet", function GlobalLoadingComponent_Conditional_0_Template_native_domain_overlay_domainSet_0_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.onDomainSet());
     });
-    \u0275\u0275elementStart(1, "div", 21)(2, "div", 22);
-    \u0275\u0275pipe(3, "translate");
-    \u0275\u0275elementStart(4, "div");
-    \u0275\u0275text(5);
-    \u0275\u0275pipe(6, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(7, WelcomeComponent_For_24_Conditional_7_Template, 2, 1, "div", 18);
-    \u0275\u0275pipe(8, "translate");
-    \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
-    const lang_r4 = ctx.$implicit;
-    \u0275\u0275advance(2);
-    \u0275\u0275classProp("mt-2", \u0275\u0275pipeBind1(3, 4, lang_r4.name) !== lang_r4.local);
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 6, lang_r4.name));
-    \u0275\u0275advance(2);
-    \u0275\u0275conditional(\u0275\u0275pipeBind1(8, 8, lang_r4.name) !== lang_r4.local ? 7 : -1);
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275property("serverError", ctx_r1.domain_error())("autoAccept", ctx_r1.auto_confirm());
   }
 }
-function WelcomeComponent_Conditional_25_Template(rf, ctx) {
+function GlobalLoadingComponent_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "img", 13);
-  }
-}
-function WelcomeComponent_Conditional_26_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 14)(1, "div", 23)(2, "h2", 24);
-    \u0275\u0275text(3, " Public mode is enabled ");
+    \u0275\u0275elementStart(0, "div", 1);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "p", 25);
-    \u0275\u0275text(5, " Welcome actions are disabled while this kiosk is in public mode. ");
-    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "COMMON.SERVER_DOWN"), " ");
   }
 }
-var WelcomeComponent = class _WelcomeComponent extends AsyncHandler {
+function GlobalLoadingComponent_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 2)(1, "div", 4)(2, "p", 5);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(4, "div", 6);
+    \u0275\u0275element(5, "mat-progress-bar", 7);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(ctx_r1.message());
+  }
+}
+var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler {
   constructor() {
     super(...arguments);
-    this.route = inject(ActivatedRoute);
+    this._org = inject(OrganisationService);
+    this._placeos = inject(PlaceOS_Service);
     this._settings = inject(SettingsService);
-    this._locale = inject(LocaleService);
-    this._cdr = inject(ChangeDetectorRef);
-    this.now = signal(Date.now(), ...ngDevMode ? [{ debugName: "now" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.level = signal("", ...ngDevMode ? [{ debugName: "level" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.hide_explore = settingSignal("hide_explore");
-    this.background = settingSignal("welcome_background");
-    this.can_register = settingSignal("allow_self_registration");
-    this.hide_building_image = settingSignal("hide_building_image");
-    this.welcome_message = settingSignal("welcome_message");
-    this.locales = settingSignal("locales", []);
-    this.is_public_mode = isPublicMode;
-    this.locale = signal(this._locale.locale, ...ngDevMode ? [{ debugName: "locale" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.active_locale = computed(() => {
-      const locale_list = this.locales();
-      const locale = this.locale();
-      for (const item of locale_list) {
-        if (item.id === locale)
-          return item.name;
-      }
-      return "LANGUAGE.ENGLISH";
-    }, ...ngDevMode ? [{ debugName: "active_locale" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.setLocale = (code) => {
-      this.locale.set(code);
-      this._locale.setLocale(code);
-      localStorage.setItem("PLACEOS.locale", code);
-      setTimeout(() => location.reload(), 300);
-    };
+    this.loading = signal(
+      true,
+      ...ngDevMode ? [{ debugName: "loading" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.online = signal(
+      true,
+      ...ngDevMode ? [{ debugName: "online" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.message = getLoadingMessage();
+    this.show_domain_overlay = needsNativeDomain();
+    this.domain_error = nativeDomainError();
+    this.auto_confirm = autoConfirmNativeDomain();
   }
-  ngOnInit() {
-    this.interval("time", () => this.now.set(Date.now()), 30 * 1e3);
-    this.subscription("level", this._settings.listen("KIOSK.level").subscribe((lvl) => this.level.set(lvl)));
-    this.level.set(localStorage?.getItem("KIOSK.level"));
-    this.subscription("route.params", this.route.paramMap.subscribe((params) => {
-      if (params.has("level")) {
-        this.level.set(params.get("level"));
-      }
-    }));
-    this.subscription("route.query", this.route.queryParamMap.subscribe((params) => {
-      if (!params.has("osk"))
+  onDomainSet() {
+    this._placeos.onNativeDomainSet();
+  }
+  async ngOnInit() {
+    this.loading.set(true);
+    await this._org.waitUntilInitialised();
+    await firstTruthyValueFrom(this._settings.initialised);
+    this.online.set(Dr());
+    this.interval("has_token", () => {
+      this.online.set(Dr());
+      if (!Rt() || !V())
         return;
-      const osk_enabled = params.get("osk") === "true";
-      localStorage.setItem("OSK.enabled", `${osk_enabled}`);
-      VirtualKeyboardComponent.enabled = osk_enabled;
-    }));
-    this.timeout("check", () => this._cdr.detectChanges(), 1e3);
+      this.loading.set(false);
+      this.online.set(Dr());
+      this.clearInterval("has_token");
+    }, 1e3);
   }
   static {
     this.\u0275fac = /* @__PURE__ */ (() => {
-      let \u0275WelcomeComponent_BaseFactory;
-      return function WelcomeComponent_Factory(__ngFactoryType__) {
-        return (\u0275WelcomeComponent_BaseFactory || (\u0275WelcomeComponent_BaseFactory = \u0275\u0275getInheritedFactory(_WelcomeComponent)))(__ngFactoryType__ || _WelcomeComponent);
+      let \u0275GlobalLoadingComponent_BaseFactory;
+      return function GlobalLoadingComponent_Factory(__ngFactoryType__) {
+        return (\u0275GlobalLoadingComponent_BaseFactory || (\u0275GlobalLoadingComponent_BaseFactory = \u0275\u0275getInheritedFactory(_GlobalLoadingComponent)))(__ngFactoryType__ || _GlobalLoadingComponent);
       };
     })();
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _WelcomeComponent, selectors: [["app-welcome"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 27, vars: 25, consts: [["menu", "matMenu"], [1, "absolute", "inset-0", "flex", "items-center", "overflow-hidden", "p-8"], ["auth", "", 1, "absolute", "top-1/2", "left-1/2", "min-h-full", "min-w-full", "-translate-x-1/2", "-translate-y-1/2", 3, "source"], [1, "z-10", "flex", "w-[60%]", "flex-col", "justify-center", "space-y-8"], [1, "mb-4", "space-y-4", "text-6xl", "text-white", 3, "innerHTML"], [1, "flex", "items-center", "space-x-4", "font-medium"], ["btn", "", "matRipple", "", 1, "bg-base-100", "border-base-100", "text-base-content", "w-40", "border", 3, "routerLink"], [1, "flex", "items-center", "space-x-2"], [1, "ml-2"], [1, "text-2xl"], [1, "absolute", "top-4", "right-4", "text-2xl", "text-white"], [1, "absolute", "top-4", "left-4", 3, "matMenuTriggerFor"], ["mat-menu-item", ""], ["src", "assets/img/building.png", 1, "absolute", "right-0", "bottom-0", "w-[60%]"], [1, "bg-base-300/90", "text-base-content", "absolute", "inset-0", "z-20", "flex", "items-center", "justify-center", "p-8", "text-center"], [1, "flex", "items-center", "justify-between"], [1, "text-2xl", "text-white"], [1, "ml-2", "text-left", "leading-tight", "text-white"], [1, "text-xs", "opacity-30"], [1, "bg-base-200", "ml-4", "max-w-24", "truncate", "rounded-sm", "px-2", "py-1", "text-sm", 3, "matTooltip"], ["mat-menu-item", "", 3, "click"], [1, "flex", "h-14", "min-w-[24rem]", "items-center", "justify-between", "space-x-8"], [1, "leading-tight"], [1, "max-w-xl", "space-y-2"], [1, "text-3xl", "font-semibold"], [1, "text-lg", "opacity-80"]], template: function WelcomeComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GlobalLoadingComponent, selectors: [["global-loading"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 4, vars: 3, consts: [[3, "serverError", "autoAccept"], [1, "bg-error", "fixed", "top-2", "left-1/2", "z-9999", "-translate-x-1/2", "rounded-3xl", "px-4", "py-2", "text-xs", "text-white", "shadow-sm"], ["loader", "", 1, "bg-base-300", "pointer-events-auto", "fixed", "inset-0", "z-9998", "flex", "flex-col", "items-center", "justify-end", "space-y-2", "p-4"], [3, "domainSet", "serverError", "autoAccept"], [1, "border-base-300", "bg-base-100", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "rounded-lg", "border", "p-2", "text-center", "text-xs", "shadow-sm"], [1, "text-center", "font-mono"], [1, "border-base-300", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "overflow-hidden", "rounded-full", "border", "shadow-sm"], ["mode", "indeterminate", 1, "scale-150", "rounded-sm"]], template: function GlobalLoadingComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275elementStart(0, "div", 1);
-        \u0275\u0275element(1, "img", 2);
-        \u0275\u0275elementStart(2, "div", 3);
-        \u0275\u0275element(3, "h3", 4);
-        \u0275\u0275pipe(4, "translate");
-        \u0275\u0275pipe(5, "sanitize");
-        \u0275\u0275elementStart(6, "div", 5)(7, "a", 6)(8, "div", 7)(9, "div", 8);
-        \u0275\u0275text(10);
-        \u0275\u0275pipe(11, "translate");
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(12, "icon", 9);
-        \u0275\u0275text(13, "chevron_right");
-        \u0275\u0275elementEnd()()();
-        \u0275\u0275conditionalCreate(14, WelcomeComponent_Conditional_14_Template, 7, 5, "a", 6);
-        \u0275\u0275conditionalCreate(15, WelcomeComponent_Conditional_15_Template, 7, 6, "a", 6);
-        \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(16, "div", 10);
-        \u0275\u0275text(17);
-        \u0275\u0275pipe(18, "date");
-        \u0275\u0275pipe(19, "date");
-        \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(20, WelcomeComponent_Conditional_20_Template, 14, 13, "button", 11);
-        \u0275\u0275elementStart(21, "mat-menu", null, 0);
-        \u0275\u0275repeaterCreate(23, WelcomeComponent_For_24_Template, 9, 10, "button", 12, \u0275\u0275repeaterTrackByIdentity);
-        \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(25, WelcomeComponent_Conditional_25_Template, 1, 0, "img", 13);
-        \u0275\u0275conditionalCreate(26, WelcomeComponent_Conditional_26_Template, 6, 0, "div", 14);
-        \u0275\u0275elementEnd();
+        \u0275\u0275conditionalCreate(0, GlobalLoadingComponent_Conditional_0_Template, 1, 2, "native-domain-overlay", 0);
+        \u0275\u0275conditionalCreate(1, GlobalLoadingComponent_Conditional_1_Template, 3, 3, "div", 1);
+        \u0275\u0275conditionalCreate(2, GlobalLoadingComponent_Conditional_2_Template, 6, 1, "div", 2);
+        \u0275\u0275element(3, "placeos-service-worker-update-card");
       }
       if (rf & 2) {
+        \u0275\u0275conditional(ctx.show_domain_overlay() ? 0 : -1);
         \u0275\u0275advance();
-        \u0275\u0275property("source", ctx.background());
-        \u0275\u0275advance(2);
-        \u0275\u0275property("innerHTML", \u0275\u0275pipeBind2(5, 13, ctx.welcome_message() || \u0275\u0275pipeBind1(4, 11, "APP.VISITOR_KIOSK.WELCOME_MESSAGE"), "html"), \u0275\u0275sanitizeHtml);
-        \u0275\u0275advance(4);
-        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(24, _c03));
-        \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(11, 16, "APP.VISITOR_KIOSK.CHECK_IN"), " ");
-        \u0275\u0275advance(4);
-        \u0275\u0275conditional(ctx.can_register() ? 14 : -1);
+        \u0275\u0275conditional(!ctx.online() ? 1 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.level() && !ctx.hide_explore() ? 15 : -1);
-        \u0275\u0275advance(2);
-        \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind2(18, 18, ctx.now(), "mediumDate"), " ", \u0275\u0275pipeBind2(19, 21, ctx.now(), "shortTime"), " ");
-        \u0275\u0275advance(3);
-        \u0275\u0275conditional(ctx.locales().length > 1 ? 20 : -1);
-        \u0275\u0275advance(3);
-        \u0275\u0275repeater(ctx.locales());
-        \u0275\u0275advance(2);
-        \u0275\u0275conditional(!ctx.hide_building_image() ? 25 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.is_public_mode() ? 26 : -1);
+        \u0275\u0275conditional(ctx.loading() ? 2 : -1);
       }
     }, dependencies: [
-      CommonModule,
-      IconComponent,
-      MatMenuModule,
-      MatMenu,
-      MatMenuItem,
-      MatMenuTrigger,
-      MatTooltipModule,
-      MatTooltip,
-      RouterModule,
-      RouterLink,
-      AuthenticatedImageDirective,
-      DatePipe,
-      TranslatePipe,
-      SanitizePipe
-    ], styles: ["\na[_ngcontent-%COMP%] {\n  height: 3.5rem;\n}\n/*# sourceMappingURL=welcome.component.css.map */"] });
+      MatProgressBarModule,
+      MatProgressBar,
+      NativeDomainOverlayComponent,
+      ServiceWorkerUpdateCardComponent,
+      TranslatePipe
+    ], styles: ["\n[_nghost-%COMP%] {\n  pointer-events: none;\n}\n[loader][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #f9a825 0%,\n      #fdd835 100%);\n}\n/*# sourceMappingURL=global-loading.component.css.map */"] });
   }
 };
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(WelcomeComponent, [{
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(GlobalLoadingComponent, [{
     type: Component,
-    args: [{ selector: "app-welcome", template: `
-        <div class="absolute inset-0 flex items-center overflow-hidden p-8">
-            <img
-                auth
-                [source]="background()"
-                class="absolute top-1/2 left-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2"
-            />
-            <div class="z-10 flex w-[60%] flex-col justify-center space-y-8">
-                <h3
-                    class="mb-4 space-y-4 text-6xl text-white"
-                    [innerHTML]="
-                        welcome_message() ||
-                            ('APP.VISITOR_KIOSK.WELCOME_MESSAGE' | translate)
-                            | sanitize: 'html'
-                    "
-                ></h3>
-                <div class="flex items-center space-x-4 font-medium">
-                    <a
-                        btn
-                        matRipple
-                        [routerLink]="['/checkin']"
-                        class="bg-base-100 border-base-100 text-base-content w-40 border"
-                    >
-                        <div class="flex items-center space-x-2">
-                            <div class="ml-2">
-                                {{ 'APP.VISITOR_KIOSK.CHECK_IN' | translate }}
-                            </div>
-                            <icon class="text-2xl">chevron_right</icon>
-                        </div>
-                    </a>
-                    @if (can_register()) {
-                        <a
-                            btn
-                            matRipple
-                            [routerLink]="['/register']"
-                            class="bg-base-100 border-base-100 text-base-content w-40 border"
-                        >
-                            <div class="flex items-center space-x-2">
-                                <div class="ml-2">
-                                    {{
-                                        'APP.VISITOR_KIOSK.REGISTER' | translate
-                                    }}
-                                </div>
-                                <icon class="text-2xl">chevron_right</icon>
-                            </div>
-                        </a>
-                    }
-                    @if (level() && !hide_explore()) {
-                        <a
-                            btn
-                            matRipple
-                            [routerLink]="['/explore', level()]"
-                            class="bg-base-100 border-base-100 text-base-content w-40 border"
-                        >
-                            <div class="flex items-center space-x-2">
-                                <div class="ml-2">
-                                    {{
-                                        'APP.VISITOR_KIOSK.EXPLORE' | translate
-                                    }}
-                                </div>
-                                <icon class="text-2xl">place</icon>
-                            </div>
-                        </a>
-                    }
-                </div>
+    args: [{ selector: "global-loading", template: `
+        @if (show_domain_overlay()) {
+            <native-domain-overlay
+                [serverError]="domain_error()"
+                [autoAccept]="auto_confirm()"
+                (domainSet)="onDomainSet()"
+            ></native-domain-overlay>
+        }
+        @if (!online()) {
+            <div
+                class="bg-error fixed top-2 left-1/2 z-9999 -translate-x-1/2 rounded-3xl px-4 py-2 text-xs text-white shadow-sm"
+            >
+                {{ 'COMMON.SERVER_DOWN' | translate }}
             </div>
-            <div class="absolute top-4 right-4 text-2xl text-white">
-                {{ now() | date: 'mediumDate' }} {{ now() | date: 'shortTime' }}
-            </div>
-            @if (locales().length > 1) {
-                <button
-                    class="absolute top-4 left-4"
-                    [matMenuTriggerFor]="menu"
-                >
-                    <div class="flex items-center justify-between">
-                        <icon class="text-2xl text-white">language</icon>
-                        <div class="ml-2 text-left leading-tight text-white">
-                            <div>{{ 'COMMON.LANGUAGE' | translate }}</div>
-                            @if (
-                                ('COMMON.LANGUAGE' | translate) !== 'Language'
-                            ) {
-                                <div class="text-xs opacity-30">Language</div>
-                            }
-                        </div>
-                        <div
-                            class="bg-base-200 ml-4 max-w-24 truncate rounded-sm px-2 py-1 text-sm"
-                            [matTooltip]="active_locale() | translate"
-                        >
-                            {{ active_locale() | translate }}
-                        </div>
-                    </div>
-                </button>
-            }
-            <mat-menu #menu="matMenu">
-                @for (lang of locales(); track lang) {
-                    <button mat-menu-item (click)="setLocale(lang.id)">
-                        <div
-                            class="flex h-14 min-w-[24rem] items-center justify-between space-x-8"
-                        >
-                            <div
-                                class="leading-tight"
-                                [class.mt-2]="
-                                    (lang.name | translate) !== lang.local
-                                "
-                            >
-                                <div>{{ lang.name | translate }}</div>
-                                @if ((lang.name | translate) !== lang.local) {
-                                    <div class="text-xs opacity-30">
-                                        {{ lang.local }}
-                                    </div>
-                                }
-                            </div>
-                            <!-- <div class="text-3xl">{{ lang.flag }}</div> -->
-                        </div>
-                    </button>
-                }
-            </mat-menu>
-            @if (!hide_building_image()) {
-                <img
-                    src="assets/img/building.png"
-                    class="absolute right-0 bottom-0 w-[60%]"
-                />
-            }
-            @if (is_public_mode()) {
+        }
+        @if (loading()) {
+            <div
+                loader
+                class="bg-base-300 pointer-events-auto fixed inset-0 z-9998 flex flex-col items-center justify-end space-y-2 p-4"
+            >
                 <div
-                    class="bg-base-300/90 text-base-content absolute inset-0 z-20 flex items-center justify-center p-8 text-center"
+                    class="border-base-300 bg-base-100 w-[24rem] max-w-[calc(100vw-2rem)] rounded-lg border p-2 text-center text-xs shadow-sm"
                 >
-                    <div class="max-w-xl space-y-2">
-                        <h2 class="text-3xl font-semibold">
-                            Public mode is enabled
-                        </h2>
-                        <p class="text-lg opacity-80">
-                            Welcome actions are disabled while this kiosk is in
-                            public mode.
-                        </p>
-                    </div>
+                    <p class="text-center font-mono">{{ message() }}</p>
                 </div>
-            }
-        </div>
+                <div
+                    class="border-base-300 w-[24rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-full border shadow-sm"
+                >
+                    <mat-progress-bar
+                        mode="indeterminate"
+                        class="scale-150 rounded-sm"
+                    ></mat-progress-bar>
+                </div>
+            </div>
+        }
+        <placeos-service-worker-update-card />
     `, imports: [
-      CommonModule,
-      TranslatePipe,
-      IconComponent,
-      MatMenuModule,
-      MatTooltipModule,
-      RouterModule,
-      AuthenticatedImageDirective,
-      SanitizePipe
-    ], styles: ["/* angular:styles/component:css;cc9227079df7ac5301f9446791a6a855742622827223e39404093077fda285ac;/home/runner/work/user-interfaces/user-interfaces/apps/visitor-kiosk/src/app/welcome.component.ts */\na {\n  height: 3.5rem;\n}\n/*# sourceMappingURL=welcome.component.css.map */\n"] }]
+      MatProgressBarModule,
+      NativeDomainOverlayComponent,
+      ServiceWorkerUpdateCardComponent,
+      TranslatePipe
+    ], styles: ["/* angular:styles/component:css;f96722131b020a13ff012b787cd51bd578e7478e8507e3110ee0014c8bb70e6e;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/global-loading.component.ts */\n:host {\n  pointer-events: none;\n}\n[loader] {\n  background-image:\n    linear-gradient(\n      to right,\n      #f9a825 0%,\n      #fdd835 100%);\n}\n/*# sourceMappingURL=global-loading.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(WelcomeComponent, { className: "WelcomeComponent", filePath: "apps/visitor-kiosk/src/app/welcome.component.ts", lineNumber: 190 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GlobalLoadingComponent, { className: "GlobalLoadingComponent", filePath: "libs/components/src/lib/global-loading.component.ts", lineNumber: 81 });
 })();
 
-// apps/visitor-kiosk/src/app/app-routing.module.ts
-var routes = [
-  { path: "unauthorised", component: UnauthorisedComponent },
-  {
-    path: "bootstrap",
-    component: BootstrapComponent,
-    canActivate: [AuthorisedUserGuard]
-  },
-  {
-    path: "welcome",
-    component: WelcomeComponent,
-    canActivate: [AuthorisedUserGuard]
-  },
-  {
-    path: "register",
-    component: VisitorRegistrationComponent,
-    canActivate: [AuthorisedUserGuard]
-  },
-  {
-    path: "explore",
-    canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.module-L3JB5WJW.js").then((m) => m.AppExploreModule)
-  },
-  {
-    path: "checkin",
-    canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkin.module-RWOXIPFY.js").then((m) => m.VisitorCheckinModule)
-  },
-  { path: "**", redirectTo: "bootstrap" }
-];
-var AppRoutingModule = class _AppRoutingModule {
+// libs/components/src/lib/unauthorised.component.ts
+var UnauthorisedComponent = class _UnauthorisedComponent {
   static {
-    this.\u0275fac = function AppRoutingModule_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _AppRoutingModule)();
+    this.\u0275fac = function UnauthorisedComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _UnauthorisedComponent)();
     };
   }
   static {
-    this.\u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({ type: _AppRoutingModule });
-  }
-  static {
-    this.\u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({ imports: [RouterModule.forRoot(routes, {
-      errorHandler: (error) => reloadOnChunkLoadError(error),
-      useHash: true
-    }), RouterModule] });
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UnauthorisedComponent, selectors: [["app-unauthorised"]], decls: 13, vars: 9, consts: [["unauthorised", "", 1, "absolute", "inset-0"], [1, "border-base-300", "bg-base-100", "text-base-content", "mx-auto", "my-4", "w-104", "max-w-[calc(100%-1rem)]", "rounded-xl", "border", "p-4", "text-center", "shadow-lg"], [1, "text-4xl"], [1, "py-4"]], template: function UnauthorisedComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275domElementStart(0, "div", 0)(1, "div", 1)(2, "h1", 2);
+        \u0275\u0275text(3, "403");
+        \u0275\u0275domElementEnd();
+        \u0275\u0275domElementStart(4, "h3");
+        \u0275\u0275text(5);
+        \u0275\u0275pipe(6, "translate");
+        \u0275\u0275domElementEnd();
+        \u0275\u0275domElementStart(7, "p", 3);
+        \u0275\u0275text(8);
+        \u0275\u0275pipe(9, "translate");
+        \u0275\u0275domElementEnd();
+        \u0275\u0275domElementStart(10, "p");
+        \u0275\u0275text(11);
+        \u0275\u0275pipe(12, "translate");
+        \u0275\u0275domElementEnd()()();
+      }
+      if (rf & 2) {
+        \u0275\u0275advance(5);
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 3, "COMMON.FORBIDDEN"));
+        \u0275\u0275advance(3);
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(9, 5, "COMMON.INVALID_PAGE_PERMISSIONS"), " ");
+        \u0275\u0275advance(3);
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 7, "COMMON.CONTACT_ADMIN"), " ");
+      }
+    }, dependencies: [TranslatePipe], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised][_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */"] });
   }
 };
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AppRoutingModule, [{
-    type: NgModule,
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(UnauthorisedComponent, [{
+    type: Component,
+    args: [{ selector: "app-unauthorised", template: `
+        <div unauthorised class="absolute inset-0">
+            <div
+                class="border-base-300 bg-base-100 text-base-content mx-auto my-4 w-104 max-w-[calc(100%-1rem)] rounded-xl border p-4 text-center shadow-lg"
+            >
+                <h1 class="text-4xl">403</h1>
+                <h3>{{ 'COMMON.FORBIDDEN' | translate }}</h3>
+                <p class="py-4">
+                    {{ 'COMMON.INVALID_PAGE_PERMISSIONS' | translate }}
+                </p>
+                <p>
+                    {{ 'COMMON.CONTACT_ADMIN' | translate }}
+                </p>
+            </div>
+        </div>
+    `, imports: [TranslatePipe], styles: ["/* angular:styles/component:css;9e56e45d1ecd17d612bec636f553ceddd9b98cd2552edbd57d59534065beeefe;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/unauthorised.component.ts */\n:host {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n[unauthorised] {\n  background-image:\n    linear-gradient(\n      to right,\n      #c62828 0%,\n      #ef5350 100%);\n}\n/*# sourceMappingURL=unauthorised.component.css.map */\n"] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UnauthorisedComponent, { className: "UnauthorisedComponent", filePath: "libs/components/src/lib/unauthorised.component.ts", lineNumber: 41 });
+})();
+
+// libs/components/src/lib/authorised-user.guard.ts
+var PLACEOS_APP_ACCESS = class {
+};
+var AuthorisedUserGuard = class _AuthorisedUserGuard {
+  constructor() {
+    this._router = inject(Router);
+    this._settings = inject(SettingsService);
+    this._org = inject(OrganisationService);
+    this._access = inject(PLACEOS_APP_ACCESS, { optional: true });
+  }
+  async canActivate(next, state) {
+    return this.checkUser();
+  }
+  async canLoad(route, segments) {
+    return this.checkUser();
+  }
+  async canActivateChild(next, state) {
+    return this.checkUser();
+  }
+  async checkUser() {
+    const groups = this._access?.group ? [this._access.group] : this._settings.get("app.allow_access_groups") || [];
+    const use_group_subsystem_access = await this.useGroupSubsystemAccess();
+    let can_activate = false;
+    if (use_group_subsystem_access) {
+      await ri(Hr(), Boolean);
+      const user = await firstTruthyValueFrom(current_user);
+      can_activate = await this.checkSubsystemAccess(user);
+    } else if (!groups.length) {
+      can_activate = true;
+    } else {
+      await ri(Hr(), Boolean);
+      await this._org.waitUntilInitialised();
+      const user = await firstTruthyValueFrom(current_user);
+      can_activate = !!(user && groups.find((_) => user.groups.includes(_)));
+    }
+    if (!can_activate) {
+      this._router.navigate(["/unauthorised"]);
+    }
+    return !!can_activate;
+  }
+  async useGroupSubsystemAccess() {
+    const value = Rt()?.config?.["use_group_subsystem_access"];
+    return value === true || value === "true";
+  }
+  async checkSubsystemAccess(user) {
+    if (!user)
+      return false;
+    const app_name = `${this._settings.app_name || ""}`.trim().toLowerCase();
+    if (!app_name)
+      return false;
+    await this.waitForUserGroups();
+    return hasPermission(app_name, GroupPermission.Read);
+  }
+  async waitForUserGroups() {
+    for (let i = 0; i < 50; i++) {
+      if (user_groups_loaded())
+        return;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+  }
+  static {
+    this.\u0275fac = function AuthorisedUserGuard_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _AuthorisedUserGuard)();
+    };
+  }
+  static {
+    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _AuthorisedUserGuard, factory: _AuthorisedUserGuard.\u0275fac, providedIn: "root" });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AuthorisedUserGuard, [{
+    type: Injectable,
     args: [{
-      imports: [
-        RouterModule.forRoot(routes, {
-          errorHandler: (error) => reloadOnChunkLoadError(error),
-          useHash: true
-        })
-      ],
-      exports: [RouterModule]
+      providedIn: "root"
     }]
   }], null, null);
 })();
@@ -7796,7 +5958,7 @@ var update = (dataset) => (id, data) => {
   return new_event;
 };
 function registerMockAssets() {
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "GET",
@@ -7809,7 +5971,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "GET",
@@ -7823,7 +5985,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "POST",
@@ -7835,13 +5997,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_CATEGORIES)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "DELETE",
@@ -7856,7 +6018,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "GET",
@@ -7868,7 +6030,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "GET",
@@ -7882,7 +6044,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "POST",
@@ -7894,13 +6056,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PRODUCTS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "DELETE",
@@ -7915,7 +6077,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "GET",
@@ -7924,7 +6086,7 @@ function registerMockAssets() {
       return events;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "GET",
@@ -7938,7 +6100,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "POST",
@@ -7950,13 +6112,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PURCHASE_ORDERS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "DELETE",
@@ -7971,7 +6133,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "GET",
@@ -7991,7 +6153,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "GET",
@@ -8005,7 +6167,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "POST",
@@ -8017,13 +6179,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_ASSETS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Gr({
+  Wr({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "DELETE",
@@ -9663,7 +7825,7 @@ var MOCK_BOOKINGS = (() => {
   let bookingIndex = 0;
   for (let day = 0; day < 30; day++) {
     const dayBookings = [];
-    const staffWithoutActive = MOCK_STAFF.filter((u7) => u7.id !== ACTIVE_USER.id);
+    const staffWithoutActive = MOCK_STAFF.filter((u) => u.id !== ACTIVE_USER.id);
     const targetUserCount = Math.min(20, staffWithoutActive.length);
     const shuffled = [...staffWithoutActive];
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -9674,7 +7836,7 @@ var MOCK_BOOKINGS = (() => {
     }
     const selectedUsers = shuffled.slice(0, targetUserCount);
     {
-      const activeFromStaff = MOCK_STAFF.find((u7) => u7.id === ACTIVE_USER.id);
+      const activeFromStaff = MOCK_STAFF.find((u) => u.id === ACTIVE_USER.id);
       selectedUsers.push(activeFromStaff || __spreadProps(__spreadValues({}, ACTIVE_USER), {
         extension_data: {
           employee_id: "EMP0000",
@@ -9825,7 +7987,7 @@ var MOCK_CATERING_BOOKINGS = (() => {
 // libs/mocks/src/lib/api/bookings.mock.ts
 var ALL_BOOKINGS = [...MOCK_BOOKINGS, ...MOCK_CATERING_BOOKINGS];
 function registerMockBookings() {
-  Gr({
+  Wr({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "GET",
@@ -9858,7 +8020,7 @@ function registerMockBookings() {
       return events;
     }
   });
-  Gr({
+  Wr({
     path: "/api/debug/bookings/distribution",
     metadata: {},
     method: "GET",
@@ -9893,7 +8055,7 @@ function registerMockBookings() {
       };
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "GET",
@@ -9907,7 +8069,7 @@ function registerMockBookings() {
       return event;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "POST",
@@ -9928,7 +8090,7 @@ function registerMockBookings() {
       return user;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "DELETE",
@@ -9951,7 +8113,7 @@ function registerMockBookings() {
       return guest;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/bookings/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -9968,7 +8130,7 @@ function registerMockBookings() {
       return {};
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "POST",
@@ -9991,13 +8153,13 @@ function registerMockBookings() {
     ALL_BOOKINGS.splice(index, 1, new_event);
     return new_event;
   };
-  Gr({
+  Wr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PATCH",
     callback: (req) => updateBooking(req.route_params.id, req.body)
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/bookings/:id/approve",
     metadata: {},
     method: "POST",
@@ -10013,7 +8175,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/bookings/:id/reject",
     metadata: {},
     method: "POST",
@@ -10029,7 +8191,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/bookings/:id/checkin",
     metadata: {},
     method: "POST",
@@ -10044,7 +8206,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/bookings/:id/update_induction",
     metadata: {},
     method: "POST",
@@ -10060,13 +8222,13 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PUT",
     callback: (req) => updateBooking(req.route_params.id, req.body)
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "DELETE",
@@ -10419,7 +8581,7 @@ var event_spaces = MOCK_SPACES.map((space) => space.id);
 
 // libs/mocks/src/lib/api/calendars.mock.ts
 function registerMockCalendars() {
-  Gr({
+  Wr({
     path: "/api/staff/v1/calendars",
     metadata: {},
     method: "GET",
@@ -10474,7 +8636,7 @@ function registerMockCalendars() {
     });
     return spaces;
   };
-  Gr({
+  Wr({
     path: "/api/staff/v1/calendars/availability",
     metadata: {},
     method: "GET",
@@ -10482,7 +8644,7 @@ function registerMockCalendars() {
       resource: _
     }))
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/calendars/free_busy",
     metadata: {},
     method: "GET",
@@ -10494,7 +8656,7 @@ function registerMockCalendars() {
 
 // libs/mocks/src/lib/api/events.mock.ts
 function registerMockEvents() {
-  Gr({
+  Wr({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "GET",
@@ -10511,7 +8673,7 @@ function registerMockEvents() {
       return events;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "POST",
@@ -10534,12 +8696,12 @@ function registerMockEvents() {
         ];
       }
       MOCK_EVENTS.push(new_event);
-      const system = pr(new_event.system?.id);
+      const system = mr(new_event.system?.id);
       system?.Bookings[0]?.$poll_bookings();
       return new_event;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "GET",
@@ -10551,7 +8713,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "DELETE",
@@ -10569,7 +8731,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "PATCH",
@@ -10581,7 +8743,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/events/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -11325,7 +9487,7 @@ function registerMockSignage() {
       });
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/groups/current",
     metadata: {},
     method: "GET",
@@ -11336,13 +9498,13 @@ function registerMockSignage() {
       return [];
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/groups",
     metadata: {},
     method: "GET",
     callback: (request) => listSignageMockGroups(request.query_params)
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/groups",
     metadata: {},
     method: "POST",
@@ -11357,7 +9519,7 @@ function registerMockSignage() {
       return group;
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "PATCH",
@@ -11371,7 +9533,7 @@ function registerMockSignage() {
       return item.group;
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "DELETE",
@@ -11382,13 +9544,13 @@ function registerMockSignage() {
       return {};
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/group_users",
     metadata: {},
     method: "GET",
     callback: (request) => SIGNAGE_GROUP_USERS.filter((item) => item.group_id === request.query_params?.group_id)
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/group_users",
     metadata: {},
     method: "POST",
@@ -11405,7 +9567,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/group_users/:user_id/:group_id",
     metadata: {},
     method: "PATCH",
@@ -11421,7 +9583,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/group_users/:user_id/:group_id",
     metadata: {},
     method: "DELETE",
@@ -11434,13 +9596,13 @@ function registerMockSignage() {
       return {};
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/group_zones",
     metadata: {},
     method: "GET",
     callback: (request) => SIGNAGE_GROUP_ZONES.filter((item) => item.group_id === request.query_params?.group_id)
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/group_zones",
     metadata: {},
     method: "POST",
@@ -11457,7 +9619,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/group_zones/:group_id/:zone_id",
     metadata: {},
     method: "PATCH",
@@ -11473,7 +9635,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/group_zones/:group_id/:zone_id",
     metadata: {},
     method: "DELETE",
@@ -11486,13 +9648,13 @@ function registerMockSignage() {
       return {};
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "GET",
     callback: (request) => filterByGroup(MOCK_MEDIA, request.query_params?.group_id).map(toEngineMedia)
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "POST",
@@ -11502,7 +9664,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "PATCH",
@@ -11510,25 +9672,25 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "DELETE",
     callback: () => ({})
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/media/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/playlists",
     metadata: {},
     method: "GET",
     callback: (request) => filterByGroup(MOCK_PLAYLISTS, request.query_params?.group_id).map(toEnginePlaylist)
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/playlists/approvers",
     metadata: {},
     method: "GET",
@@ -11537,7 +9699,7 @@ function registerMockSignage() {
       name: item.user?.name || item.user_id
     }))
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/playlists",
     metadata: {},
     method: "POST",
@@ -11547,7 +9709,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "PATCH",
@@ -11555,19 +9717,19 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "DELETE",
     callback: () => ({})
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/playlists/:id/media",
     metadata: {},
     method: "GET",
     callback: (request) => playlistMediaResponse(request.route_params.id, false)
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/playlists/:id/media",
     metadata: {},
     method: "POST",
@@ -11576,7 +9738,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/playlists/:id/media/revisions",
     metadata: {},
     method: "GET",
@@ -11585,25 +9747,25 @@ function registerMockSignage() {
       playlistMediaResponse(request.route_params.id, true)
     ]
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/playlists/:id/media/approve",
     metadata: {},
     method: "POST",
     callback: (request) => playlistMediaResponse(request.route_params.id, true)
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/playlists/:id/media/request_approval",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/signage/playlists/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/signage-displays",
     metadata: {},
     method: "GET",
@@ -11629,7 +9791,7 @@ function registerMockSignage() {
       };
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/signage/displays/:id",
     metadata: {},
     method: "GET",
@@ -11640,7 +9802,7 @@ function registerMockSignage() {
       return display;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/signage/media",
     metadata: {},
     method: "GET",
@@ -11670,7 +9832,7 @@ function registerMockSignage() {
       };
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/signage/playlists",
     metadata: {},
     method: "GET",
@@ -11692,7 +9854,7 @@ function registerMockSignage() {
       };
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/signage/playlists/:id",
     metadata: {},
     method: "GET",
@@ -11708,7 +9870,7 @@ function registerMockSignage() {
       return playlistWithMedia;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/signage/triggers",
     metadata: {},
     method: "GET",
@@ -11731,7 +9893,7 @@ function registerMockSignage() {
       };
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/signage/displays/:id/content",
     metadata: {},
     method: "GET",
@@ -11758,7 +9920,7 @@ function registerMockSignage() {
       };
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/signage-analytics",
     metadata: {},
     method: "GET",
@@ -11803,7 +9965,7 @@ function registerMockSignage() {
       };
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/signage-displays/:id/control",
     metadata: {},
     method: "POST",
@@ -12402,7 +10564,7 @@ var MOCK_ANSWERS = [
   }
 ];
 function registerMockSurveys() {
-  Gr({
+  Wr({
     path: "/api/staff/v1/surveys",
     metadata: {},
     method: "GET",
@@ -12421,7 +10583,7 @@ function registerMockSurveys() {
       return filteredSurveys;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/surveys/questions",
     metadata: {},
     method: "GET",
@@ -12441,12 +10603,12 @@ function registerMockSurveys() {
       }
       if (query_params?.tags) {
         const searchTags = Array.isArray(query_params.tags) ? query_params.tags : [query_params.tags];
-        filteredQuestions = filteredQuestions.filter((q) => searchTags.some((tag) => q.tags.includes(tag)));
+        filteredQuestions = filteredQuestions.filter((q) => searchTags.some((tag2) => q.tags.includes(tag2)));
       }
       return filteredQuestions;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/surveys/questions/:id",
     metadata: {},
     method: "GET",
@@ -12461,7 +10623,7 @@ function registerMockSurveys() {
       return question;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "GET",
@@ -12482,7 +10644,7 @@ function registerMockSurveys() {
       return filteredAnswers;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/surveys/answers/:id",
     metadata: {},
     method: "GET",
@@ -12495,7 +10657,7 @@ function registerMockSurveys() {
       return answer;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/surveys/:id",
     metadata: {},
     method: "GET",
@@ -12510,7 +10672,7 @@ function registerMockSurveys() {
       return survey;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "POST",
@@ -12809,17 +10971,17 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
    * be interacting with an audio DSP to add a microphone feed to an output zone, or
    * connecting a USB HID input device with a specific output.
    **/
-  $route(input, output) {
-    if (this.inputs.includes(input) && this.outputs.includes(output)) {
-      this.$updateState(input, {
+  $route(input2, output2) {
+    if (this.inputs.includes(input2) && this.outputs.includes(output2)) {
+      this.$updateState(input2, {
         routes: unique([
-          ...this.input_list[input].routes || [],
-          output
+          ...this.input_list[input2].routes || [],
+          output2
         ])
       });
-      this.$updateState(output, {
-        source: input,
-        following: input
+      this.$updateState(output2, {
+        source: input2,
+        following: input2
       });
     }
   }
@@ -13496,7 +11658,7 @@ var MockBookingModule = class {
 };
 var createBookingsModule = (space, overrides = {}) => new MockBookingModule(space, overrides);
 function updateBookings(space, mod) {
-  const bookings = MOCK_EVENTS.filter((event) => event.attendees?.find((u7) => u7.email === space.email || u7.id === space.id || event.system?.id === space.id)) || [];
+  const bookings = MOCK_EVENTS.filter((event) => event.attendees?.find((u) => u.email === space.email || u.id === space.id || event.system?.id === space.id)) || [];
   bookings.sort((a, b) => a.event_start - b.event_start);
   mod.bookings = bookings;
   mod.current_booking = bookings.find((_) => timePeriodsIntersect(Date.now(), Date.now(), _.event_start * 1e3, _.event_end * 1e3));
@@ -13667,7 +11829,7 @@ var createVideoConferenceModule = (space = {}, overrides = {}) => new VideoConfe
 
 // libs/mocks/src/lib/systems-bindings.mock.ts
 function createSystem(space) {
-  Cl(space.id, {
+  Nl(space.id, {
     System: [createSystemModule(space)],
     Bookings: [createBookingsModule(space)],
     ContactTracing: [createContactTracingModule(space)],
@@ -13682,7 +11844,7 @@ function createSystem(space) {
     Payment: [createPaymentsModule(space)],
     LockerLocations: [createLockerLocationsModule()]
   });
-  const system = pr(space.id);
+  const system = mr(space.id);
   system.Bookings[0].$poll_bookings();
   setInterval(() => system.Bookings[0].$poll_bookings(), 30 * 1e3);
   system.AreaManagement[0].$update();
@@ -13692,7 +11854,7 @@ function createSystem(space) {
 // libs/mocks/src/lib/api/systems.mock.ts
 function registerMockSystems() {
   MOCK_SPACES.forEach((space, index) => createSystem(space));
-  Gr({
+  Wr({
     path: "/api/engine/v2/systems",
     metadata: {},
     method: "GET",
@@ -13709,7 +11871,7 @@ function registerMockSystems() {
       return systems;
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/systems/:id",
     metadata: {},
     method: "GET",
@@ -13724,7 +11886,7 @@ function registerMockSystems() {
 
 // libs/mocks/src/lib/api/users.mock.ts
 function registerMockUsers() {
-  Gr({
+  Wr({
     path: "/api/engine/v2/users",
     metadata: {},
     method: "GET",
@@ -13736,7 +11898,7 @@ function registerMockUsers() {
       }).slice(0, limit);
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/users/:id",
     metadata: {},
     method: "GET",
@@ -13757,7 +11919,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/people",
     metadata: {},
     method: "GET",
@@ -13771,7 +11933,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/people/:id",
     metadata: {},
     method: "GET",
@@ -13786,7 +11948,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/guests",
     metadata: {},
     method: "GET",
@@ -13798,7 +11960,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/guests/:email",
     metadata: {},
     method: "GET",
@@ -13810,7 +11972,7 @@ function registerMockUsers() {
       throw { status: 404, message: "Guest not found" };
     }
   });
-  Gr({
+  Wr({
     path: "/api/staff/v1/guests/:email/meetings",
     metadata: {},
     method: "GET",
@@ -13914,7 +12076,7 @@ function registerMockZones() {
     ...MOCK_LEVELS,
     ...MOCK_ZONES
   ];
-  Gr({
+  Wr({
     path: "/api/engine/v2/zones",
     metadata: {},
     method: "GET",
@@ -13922,7 +12084,7 @@ function registerMockZones() {
       let zones = all_zones();
       const tag_list = `${request.query_params?.tags || ""}`.split(" ").filter(Boolean);
       if (tag_list.length) {
-        zones = zones.filter((zone) => tag_list.some((tag) => zone.tags.includes(tag)));
+        zones = zones.filter((zone) => tag_list.some((tag2) => zone.tags.includes(tag2)));
       }
       if (request.query_params?.parent_id) {
         zones = zones.filter((zone) => zone.parent_id === request.query_params.parent_id);
@@ -13930,7 +12092,7 @@ function registerMockZones() {
       return zones;
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/zones/:id",
     metadata: {},
     method: "GET",
@@ -13945,19 +12107,19 @@ function registerMockZones() {
       return zone;
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/settings",
     metadata: {},
     method: "GET",
     callback: (request) => []
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/settings/:id",
     metadata: {},
     method: "GET",
     callback: (request) => ({})
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "GET",
@@ -14073,7 +12235,7 @@ function registerMockZones() {
       return {};
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PATCH",
@@ -14084,7 +12246,7 @@ function registerMockZones() {
       return request.body;
     }
   });
-  Gr({
+  Wr({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PUT",
@@ -14137,7 +12299,7 @@ function registerMockZones() {
     }
     return LOCKERS[id];
   }
-  Gr({
+  Wr({
     path: "/api/engine/v2/metadata/:id/children",
     metadata: {},
     method: "GET",
@@ -14183,10 +12345,13 @@ var AppComponent = class _AppComponent {
   constructor() {
     this._placeos = inject(PlaceOS_Service);
     this._has_chat = settingSignal("chat.enabled", false);
-    this.has_chat = computed(() => !!this._has_chat(), ...ngDevMode ? [{ debugName: "has_chat" }] : (
-      /* istanbul ignore next */
-      []
-    ));
+    this.has_chat = computed(
+      () => !!this._has_chat(),
+      ...ngDevMode ? [{ debugName: "has_chat" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
   }
   ngOnInit() {
     VirtualKeyboardComponent.enabled = localStorage.getItem("OSK.enabled") === "true";
@@ -14205,7 +12370,7 @@ var AppComponent = class _AppComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], standalone: false, decls: 5, vars: 1, consts: [["content", "", 1, "relative", "h-1/2", "w-full", "flex-1", "overflow-hidden"]], template: function AppComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], decls: 5, vars: 1, consts: [["content", "", 1, "relative", "h-1/2", "w-full", "flex-1", "overflow-hidden"]], template: function AppComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275element(0, "global-banner");
         \u0275\u0275elementStart(1, "div", 0);
@@ -14218,13 +12383,23 @@ var AppComponent = class _AppComponent {
         \u0275\u0275advance(3);
         \u0275\u0275conditional(ctx.has_chat() ? 3 : -1);
       }
-    }, dependencies: [RouterOutlet, ChatComponent, GlobalLoadingComponent, GlobalBannerComponent], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n  overflow: hidden;\n}\n[content][_ngcontent-%COMP%]    > *[_ngcontent-%COMP%] {\n  overflow: hidden;\n}\n/*# sourceMappingURL=app.component.css.map */"] });
+    }, dependencies: [
+      RouterOutlet,
+      GlobalBannerComponent,
+      ChatComponent,
+      GlobalLoadingComponent
+    ], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n  overflow: hidden;\n}\n[content][_ngcontent-%COMP%]    > *[_ngcontent-%COMP%] {\n  overflow: hidden;\n}\n/*# sourceMappingURL=app.component.css.map */"] });
   }
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AppComponent, [{
     type: Component,
-    args: [{ selector: "app-root", template: `
+    args: [{ selector: "app-root", imports: [
+      RouterOutlet,
+      GlobalBannerComponent,
+      ChatComponent,
+      GlobalLoadingComponent
+    ], template: `
         <global-banner />
         <div content class="relative h-1/2 w-full flex-1 overflow-hidden">
             <router-outlet></router-outlet>
@@ -14234,229 +12409,6329 @@ var AppComponent = class _AppComponent {
         }
         <global-loading />
         <!-- <debug-console *ngIf="debug"></debug-console> -->
-    `, standalone: false, styles: ["/* angular:styles/component:css;f4de4f03d30202ada3cbfd7e96f04e54ce4cff6bc9221f827ecc7e2a22bd067a;/home/runner/work/user-interfaces/user-interfaces/apps/visitor-kiosk/src/app/app.component.ts */\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n  overflow: hidden;\n}\n[content] > * {\n  overflow: hidden;\n}\n/*# sourceMappingURL=app.component.css.map */\n"] }]
+    `, styles: ["/* angular:styles/component:css;f4de4f03d30202ada3cbfd7e96f04e54ce4cff6bc9221f827ecc7e2a22bd067a;/home/runner/work/user-interfaces/user-interfaces/apps/visitor-kiosk/src/app/app.component.ts */\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n  overflow: hidden;\n}\n[content] > * {\n  overflow: hidden;\n}\n/*# sourceMappingURL=app.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/visitor-kiosk/src/app/app.component.ts", lineNumber: 37 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/visitor-kiosk/src/app/app.component.ts", lineNumber: 53 });
 })();
 
-// apps/visitor-kiosk/src/app/components/topbar-header.component.ts
-var _c04 = () => ["/"];
-var TopbarHeaderComponent = class _TopbarHeaderComponent {
-  constructor() {
-    this._settings = inject(SettingsService);
-    this.logo_dark = settingSignal("logo_dark");
-    this.logo_light = settingSignal("logo_light");
-    this.logo = computed(() => this._settings.theme_signal() === "dark" ? this.logo_dark() : this.logo_light(), ...ngDevMode ? [{ debugName: "logo" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.logo_source = computed(() => this.logo()?.src || this.logo(), ...ngDevMode ? [{ debugName: "logo_source" }] : (
-      /* istanbul ignore next */
-      []
-    ));
-    this.time = toSignal(timer(0, 60 * 1e3).pipe(map(() => startOfMinute(Date.now()))), { initialValue: startOfMinute(Date.now()) });
+// node_modules/@angular/animations/fesm2022/_util-chunk.mjs
+/**
+ * @license Angular v22.0.1
+ * (c) 2010-2026 Google LLC. https://angular.dev/
+ * License: MIT
+ */
+var LINE_START = "\n - ";
+function invalidTimingValue(exp) {
+  return new RuntimeError(3e3, ngDevMode && `The provided timing value "${exp}" is invalid.`);
+}
+function negativeStepValue() {
+  return new RuntimeError(3100, ngDevMode && "Duration values below 0 are not allowed for this animation step.");
+}
+function negativeDelayValue() {
+  return new RuntimeError(3101, ngDevMode && "Delay values below 0 are not allowed for this animation step.");
+}
+function invalidStyleParams(varName) {
+  return new RuntimeError(3001, ngDevMode && `Unable to resolve the local animation param ${varName} in the given list of values`);
+}
+function invalidParamValue(varName) {
+  return new RuntimeError(3003, ngDevMode && `Please provide a value for the animation param ${varName}`);
+}
+function invalidNodeType(nodeType) {
+  return new RuntimeError(3004, ngDevMode && `Unable to resolve animation metadata node #${nodeType}`);
+}
+function invalidCssUnitValue(userProvidedProperty, value) {
+  return new RuntimeError(3005, ngDevMode && `Please provide a CSS unit value for ${userProvidedProperty}:${value}`);
+}
+function invalidTrigger() {
+  return new RuntimeError(3006, ngDevMode && "animation triggers cannot be prefixed with an `@` sign (e.g. trigger('@foo', [...]))");
+}
+function invalidDefinition() {
+  return new RuntimeError(3007, ngDevMode && "only state() and transition() definitions can sit inside of a trigger()");
+}
+function invalidState(metadataName, missingSubs) {
+  return new RuntimeError(3008, ngDevMode && `state("${metadataName}", ...) must define default values for all the following style substitutions: ${missingSubs.join(", ")}`);
+}
+function invalidStyleValue(value) {
+  return new RuntimeError(3002, ngDevMode && `The provided style string value ${value} is not allowed.`);
+}
+function invalidParallelAnimation(prop, firstStart, firstEnd, secondStart, secondEnd) {
+  return new RuntimeError(3010, ngDevMode && `The CSS property "${prop}" that exists between the times of "${firstStart}ms" and "${firstEnd}ms" is also being animated in a parallel animation between the times of "${secondStart}ms" and "${secondEnd}ms"`);
+}
+function invalidKeyframes() {
+  return new RuntimeError(3011, ngDevMode && `keyframes() must be placed inside of a call to animate()`);
+}
+function invalidOffset() {
+  return new RuntimeError(3012, ngDevMode && `Please ensure that all keyframe offsets are between 0 and 1`);
+}
+function keyframeOffsetsOutOfOrder() {
+  return new RuntimeError(3200, ngDevMode && `Please ensure that all keyframe offsets are in order`);
+}
+function keyframesMissingOffsets() {
+  return new RuntimeError(3202, ngDevMode && `Not all style() steps within the declared keyframes() contain offsets`);
+}
+function invalidStagger() {
+  return new RuntimeError(3013, ngDevMode && `stagger() can only be used inside of query()`);
+}
+function invalidQuery(selector) {
+  return new RuntimeError(3014, ngDevMode && `\`query("${selector}")\` returned zero elements. (Use \`query("${selector}", { optional: true })\` if you wish to allow this.)`);
+}
+function invalidExpression(expr) {
+  return new RuntimeError(3015, ngDevMode && `The provided transition expression "${expr}" is not supported`);
+}
+function invalidTransitionAlias(alias) {
+  return new RuntimeError(3016, ngDevMode && `The transition alias value "${alias}" is not supported`);
+}
+function triggerBuildFailed(name, errors) {
+  return new RuntimeError(3404, ngDevMode && `The animation trigger "${name}" has failed to build due to the following errors:
+ - ${errors.map((err) => err.message).join("\n - ")}`);
+}
+function animationFailed(errors) {
+  return new RuntimeError(3502, ngDevMode && `Unable to animate due to the following errors:${LINE_START}${errors.map((err) => err.message).join(LINE_START)}`);
+}
+function registerFailed(errors) {
+  return new RuntimeError(3503, ngDevMode && `Unable to build the animation due to the following errors: ${errors.map((err) => err.message).join("\n")}`);
+}
+function missingOrDestroyedAnimation() {
+  return new RuntimeError(3300, ngDevMode && "The requested animation doesn't exist or has already been destroyed");
+}
+function createAnimationFailed(errors) {
+  return new RuntimeError(3504, ngDevMode && `Unable to create the animation due to the following errors:${errors.map((err) => err.message).join("\n")}`);
+}
+function missingPlayer(id) {
+  return new RuntimeError(3301, ngDevMode && `Unable to find the timeline player referenced by ${id}`);
+}
+function missingTrigger(phase, name) {
+  return new RuntimeError(3302, ngDevMode && `Unable to listen on the animation trigger event "${phase}" because the animation trigger "${name}" doesn't exist!`);
+}
+function missingEvent(name) {
+  return new RuntimeError(3303, ngDevMode && `Unable to listen on the animation trigger "${name}" because the provided event is undefined!`);
+}
+function unsupportedTriggerEvent(phase, name) {
+  return new RuntimeError(3400, ngDevMode && `The provided animation trigger event "${phase}" for the animation trigger "${name}" is not supported!`);
+}
+function unregisteredTrigger(name) {
+  return new RuntimeError(3401, ngDevMode && `The provided animation trigger "${name}" has not been registered!`);
+}
+function triggerTransitionsFailed(errors) {
+  return new RuntimeError(3402, ngDevMode && `Unable to process animations due to the following failed trigger transitions
+ ${errors.map((err) => err.message).join("\n")}`);
+}
+function transitionFailed(name, errors) {
+  return new RuntimeError(3505, ngDevMode && `@${name} has failed due to:
+ ${errors.map((err) => err.message).join("\n- ")}`);
+}
+var ANIMATABLE_PROP_SET = /* @__PURE__ */ new Set(["-moz-outline-radius", "-moz-outline-radius-bottomleft", "-moz-outline-radius-bottomright", "-moz-outline-radius-topleft", "-moz-outline-radius-topright", "-ms-grid-columns", "-ms-grid-rows", "-webkit-line-clamp", "-webkit-text-fill-color", "-webkit-text-stroke", "-webkit-text-stroke-color", "accent-color", "all", "backdrop-filter", "background", "background-color", "background-position", "background-size", "block-size", "border", "border-block-end", "border-block-end-color", "border-block-end-width", "border-block-start", "border-block-start-color", "border-block-start-width", "border-bottom", "border-bottom-color", "border-bottom-left-radius", "border-bottom-right-radius", "border-bottom-width", "border-color", "border-end-end-radius", "border-end-start-radius", "border-image-outset", "border-image-slice", "border-image-width", "border-inline-end", "border-inline-end-color", "border-inline-end-width", "border-inline-start", "border-inline-start-color", "border-inline-start-width", "border-left", "border-left-color", "border-left-width", "border-radius", "border-right", "border-right-color", "border-right-width", "border-start-end-radius", "border-start-start-radius", "border-top", "border-top-color", "border-top-left-radius", "border-top-right-radius", "border-top-width", "border-width", "bottom", "box-shadow", "caret-color", "clip", "clip-path", "color", "column-count", "column-gap", "column-rule", "column-rule-color", "column-rule-width", "column-width", "columns", "filter", "flex", "flex-basis", "flex-grow", "flex-shrink", "font", "font-size", "font-size-adjust", "font-stretch", "font-variation-settings", "font-weight", "gap", "grid-column-gap", "grid-gap", "grid-row-gap", "grid-template-columns", "grid-template-rows", "height", "inline-size", "input-security", "inset", "inset-block", "inset-block-end", "inset-block-start", "inset-inline", "inset-inline-end", "inset-inline-start", "left", "letter-spacing", "line-clamp", "line-height", "margin", "margin-block-end", "margin-block-start", "margin-bottom", "margin-inline-end", "margin-inline-start", "margin-left", "margin-right", "margin-top", "mask", "mask-border", "mask-position", "mask-size", "max-block-size", "max-height", "max-inline-size", "max-lines", "max-width", "min-block-size", "min-height", "min-inline-size", "min-width", "object-position", "offset", "offset-anchor", "offset-distance", "offset-path", "offset-position", "offset-rotate", "opacity", "order", "outline", "outline-color", "outline-offset", "outline-width", "padding", "padding-block-end", "padding-block-start", "padding-bottom", "padding-inline-end", "padding-inline-start", "padding-left", "padding-right", "padding-top", "perspective", "perspective-origin", "right", "rotate", "row-gap", "scale", "scroll-margin", "scroll-margin-block", "scroll-margin-block-end", "scroll-margin-block-start", "scroll-margin-bottom", "scroll-margin-inline", "scroll-margin-inline-end", "scroll-margin-inline-start", "scroll-margin-left", "scroll-margin-right", "scroll-margin-top", "scroll-padding", "scroll-padding-block", "scroll-padding-block-end", "scroll-padding-block-start", "scroll-padding-bottom", "scroll-padding-inline", "scroll-padding-inline-end", "scroll-padding-inline-start", "scroll-padding-left", "scroll-padding-right", "scroll-padding-top", "scroll-snap-coordinate", "scroll-snap-destination", "scrollbar-color", "shape-image-threshold", "shape-margin", "shape-outside", "tab-size", "text-decoration", "text-decoration-color", "text-decoration-thickness", "text-emphasis", "text-emphasis-color", "text-indent", "text-shadow", "text-underline-offset", "top", "transform", "transform-origin", "translate", "vertical-align", "visibility", "width", "word-spacing", "z-index", "zoom"]);
+function optimizeGroupPlayer(players) {
+  switch (players.length) {
+    case 0:
+      return new NoopAnimationPlayer();
+    case 1:
+      return players[0];
+    default:
+      return new AnimationGroupPlayer(players);
   }
-  static {
-    this.\u0275fac = function TopbarHeaderComponent_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _TopbarHeaderComponent)();
+}
+function normalizeKeyframes$1(normalizer, keyframes, preStyles = /* @__PURE__ */ new Map(), postStyles = /* @__PURE__ */ new Map()) {
+  const errors = [];
+  const normalizedKeyframes = [];
+  let previousOffset = -1;
+  let previousKeyframe = null;
+  keyframes.forEach((kf) => {
+    const offset = kf.get("offset");
+    const isSameOffset = offset == previousOffset;
+    const normalizedKeyframe = isSameOffset && previousKeyframe || /* @__PURE__ */ new Map();
+    kf.forEach((val, prop) => {
+      let normalizedProp = prop;
+      let normalizedValue = val;
+      if (prop !== "offset") {
+        normalizedProp = normalizer.normalizePropertyName(normalizedProp, errors);
+        switch (normalizedValue) {
+          case \u0275PRE_STYLE:
+            normalizedValue = preStyles.get(prop);
+            break;
+          case AUTO_STYLE:
+            normalizedValue = postStyles.get(prop);
+            break;
+          default:
+            normalizedValue = normalizer.normalizeStyleValue(prop, normalizedProp, normalizedValue, errors);
+            break;
+        }
+      }
+      normalizedKeyframe.set(normalizedProp, normalizedValue);
+    });
+    if (!isSameOffset) {
+      normalizedKeyframes.push(normalizedKeyframe);
+    }
+    previousKeyframe = normalizedKeyframe;
+    previousOffset = offset;
+  });
+  if (errors.length) {
+    throw animationFailed(errors);
+  }
+  return normalizedKeyframes;
+}
+function listenOnPlayer(player, eventName, event, callback) {
+  switch (eventName) {
+    case "start":
+      player.onStart(() => callback(event && copyAnimationEvent(event, "start", player)));
+      break;
+    case "done":
+      player.onDone(() => callback(event && copyAnimationEvent(event, "done", player)));
+      break;
+    case "destroy":
+      player.onDestroy(() => callback(event && copyAnimationEvent(event, "destroy", player)));
+      break;
+  }
+}
+function copyAnimationEvent(e, phaseName, player) {
+  const totalTime = player.totalTime;
+  const disabled = player.disabled ? true : false;
+  const event = makeAnimationEvent(e.element, e.triggerName, e.fromState, e.toState, phaseName || e.phaseName, totalTime == void 0 ? e.totalTime : totalTime, disabled);
+  const data = e["_data"];
+  if (data != null) {
+    event["_data"] = data;
+  }
+  return event;
+}
+function makeAnimationEvent(element, triggerName, fromState, toState, phaseName = "", totalTime = 0, disabled) {
+  return {
+    element,
+    triggerName,
+    fromState,
+    toState,
+    phaseName,
+    totalTime,
+    disabled: !!disabled
+  };
+}
+function getOrSetDefaultValue(map, key, defaultValue) {
+  let value = map.get(key);
+  if (!value) {
+    map.set(key, value = defaultValue);
+  }
+  return value;
+}
+function parseTimelineCommand(command) {
+  const separatorPos = command.indexOf(":");
+  const id = command.substring(1, separatorPos);
+  const action = command.slice(separatorPos + 1);
+  return [id, action];
+}
+var documentElement = /* @__PURE__ */ (() => typeof document === "undefined" ? null : document.documentElement)();
+function getParentElement(element) {
+  const parent = element.parentNode || element.host || null;
+  if (parent === documentElement) {
+    return null;
+  }
+  return parent;
+}
+function containsVendorPrefix(prop) {
+  return prop.substring(1, 6) == "ebkit";
+}
+var _CACHED_BODY = null;
+var _IS_WEBKIT = false;
+function validateStyleProperty(prop) {
+  if (!_CACHED_BODY) {
+    _CACHED_BODY = getBodyNode() || {};
+    _IS_WEBKIT = _CACHED_BODY.style ? "WebkitAppearance" in _CACHED_BODY.style : false;
+  }
+  let result = true;
+  if (_CACHED_BODY.style && !containsVendorPrefix(prop)) {
+    result = prop in _CACHED_BODY.style;
+    if (!result && _IS_WEBKIT) {
+      const camelProp = "Webkit" + prop.charAt(0).toUpperCase() + prop.slice(1);
+      result = camelProp in _CACHED_BODY.style;
+    }
+  }
+  return result;
+}
+function validateWebAnimatableStyleProperty(prop) {
+  return ANIMATABLE_PROP_SET.has(prop);
+}
+function getBodyNode() {
+  if (typeof document != "undefined") {
+    return document.body;
+  }
+  return null;
+}
+function containsElement(elm1, elm2) {
+  while (elm2) {
+    if (elm2 === elm1) {
+      return true;
+    }
+    elm2 = getParentElement(elm2);
+  }
+  return false;
+}
+function invokeQuery(element, selector, multi) {
+  if (multi) {
+    return Array.from(element.querySelectorAll(selector));
+  }
+  const elem = element.querySelector(selector);
+  return elem ? [elem] : [];
+}
+var ONE_SECOND = 1e3;
+var SUBSTITUTION_EXPR_START = "{{";
+var SUBSTITUTION_EXPR_END = "}}";
+var ENTER_CLASSNAME = "ng-enter";
+var LEAVE_CLASSNAME = "ng-leave";
+var NG_TRIGGER_CLASSNAME = "ng-trigger";
+var NG_TRIGGER_SELECTOR = ".ng-trigger";
+var NG_ANIMATING_CLASSNAME = "ng-animating";
+var NG_ANIMATING_SELECTOR = ".ng-animating";
+function resolveTimingValue(value) {
+  if (typeof value == "number") return value;
+  const matches = value.match(/^(-?[\.\d]+)(m?s)/);
+  if (!matches || matches.length < 2) return 0;
+  return _convertTimeValueToMS(parseFloat(matches[1]), matches[2]);
+}
+function _convertTimeValueToMS(value, unit) {
+  switch (unit) {
+    case "s":
+      return value * ONE_SECOND;
+    default:
+      return value;
+  }
+}
+function resolveTiming(timings, errors, allowNegativeValues) {
+  return timings.hasOwnProperty("duration") ? timings : parseTimeExpression(timings, errors, allowNegativeValues);
+}
+var PARSE_TIME_EXPRESSION_REGEX = /^(-?[\.\d]+)(m?s)(?:\s+(-?[\.\d]+)(m?s))?(?:\s+([-a-z]+(?:\(.+?\))?))?$/i;
+function parseTimeExpression(exp, errors, allowNegativeValues) {
+  let duration;
+  let delay = 0;
+  let easing = "";
+  if (typeof exp === "string") {
+    const matches = exp.match(PARSE_TIME_EXPRESSION_REGEX);
+    if (matches === null) {
+      errors.push(invalidTimingValue(exp));
+      return {
+        duration: 0,
+        delay: 0,
+        easing: ""
+      };
+    }
+    duration = _convertTimeValueToMS(parseFloat(matches[1]), matches[2]);
+    const delayMatch = matches[3];
+    if (delayMatch != null) {
+      delay = _convertTimeValueToMS(parseFloat(delayMatch), matches[4]);
+    }
+    const easingVal = matches[5];
+    if (easingVal) {
+      easing = easingVal;
+    }
+  } else {
+    duration = exp;
+  }
+  if (!allowNegativeValues) {
+    let containsErrors = false;
+    let startIndex = errors.length;
+    if (duration < 0) {
+      errors.push(negativeStepValue());
+      containsErrors = true;
+    }
+    if (delay < 0) {
+      errors.push(negativeDelayValue());
+      containsErrors = true;
+    }
+    if (containsErrors) {
+      errors.splice(startIndex, 0, invalidTimingValue(exp));
+    }
+  }
+  return {
+    duration,
+    delay,
+    easing
+  };
+}
+function normalizeKeyframes(keyframes) {
+  if (!keyframes.length) {
+    return [];
+  }
+  if (keyframes[0] instanceof Map) {
+    return keyframes;
+  }
+  return keyframes.map((kf) => new Map(Object.entries(kf)));
+}
+function setStyles(element, styles, formerStyles) {
+  styles.forEach((val, prop) => {
+    const camelProp = dashCaseToCamelCase(prop);
+    if (formerStyles && !formerStyles.has(prop)) {
+      formerStyles.set(prop, element.style[camelProp]);
+    }
+    element.style[camelProp] = val;
+  });
+}
+function eraseStyles(element, styles) {
+  styles.forEach((_, prop) => {
+    const camelProp = dashCaseToCamelCase(prop);
+    element.style[camelProp] = "";
+  });
+}
+function normalizeAnimationEntry(steps) {
+  if (Array.isArray(steps)) {
+    if (steps.length == 1) return steps[0];
+    return sequence(steps);
+  }
+  return steps;
+}
+function validateStyleParams(value, options2, errors) {
+  const params = options2.params || {};
+  const matches = extractStyleParams(value);
+  if (matches.length) {
+    matches.forEach((varName) => {
+      if (!params.hasOwnProperty(varName)) {
+        errors.push(invalidStyleParams(varName));
+      }
+    });
+  }
+}
+var PARAM_REGEX = /* @__PURE__ */ new RegExp(`${SUBSTITUTION_EXPR_START}\\s*(.+?)\\s*${SUBSTITUTION_EXPR_END}`, "g");
+function extractStyleParams(value) {
+  let params = [];
+  if (typeof value === "string") {
+    let match;
+    while (match = PARAM_REGEX.exec(value)) {
+      params.push(match[1]);
+    }
+    PARAM_REGEX.lastIndex = 0;
+  }
+  return params;
+}
+function interpolateParams(value, params, errors) {
+  const original = `${value}`;
+  const str = original.replace(PARAM_REGEX, (_, varName) => {
+    let localVal = params[varName];
+    if (localVal == null) {
+      errors.push(invalidParamValue(varName));
+      localVal = "";
+    }
+    return localVal.toString();
+  });
+  return str == original ? value : str;
+}
+var DASH_CASE_REGEXP = /-+([a-z0-9])/g;
+function dashCaseToCamelCase(input2) {
+  return input2.replace(DASH_CASE_REGEXP, (...m) => m[1].toUpperCase());
+}
+function camelCaseToDashCase(input2) {
+  return input2.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
+}
+function allowPreviousPlayerStylesMerge(duration, delay) {
+  return duration === 0 || delay === 0;
+}
+function balancePreviousStylesIntoKeyframes(element, keyframes, previousStyles) {
+  if (previousStyles.size && keyframes.length) {
+    let startingKeyframe = keyframes[0];
+    let missingStyleProps = [];
+    previousStyles.forEach((val, prop) => {
+      if (!startingKeyframe.has(prop)) {
+        missingStyleProps.push(prop);
+      }
+      startingKeyframe.set(prop, val);
+    });
+    if (missingStyleProps.length) {
+      for (let i = 1; i < keyframes.length; i++) {
+        let kf = keyframes[i];
+        missingStyleProps.forEach((prop) => kf.set(prop, computeStyle(element, prop)));
+      }
+    }
+  }
+  return keyframes;
+}
+function visitDslNode(visitor, node, context) {
+  switch (node.type) {
+    case AnimationMetadataType.Trigger:
+      return visitor.visitTrigger(node, context);
+    case AnimationMetadataType.State:
+      return visitor.visitState(node, context);
+    case AnimationMetadataType.Transition:
+      return visitor.visitTransition(node, context);
+    case AnimationMetadataType.Sequence:
+      return visitor.visitSequence(node, context);
+    case AnimationMetadataType.Group:
+      return visitor.visitGroup(node, context);
+    case AnimationMetadataType.Animate:
+      return visitor.visitAnimate(node, context);
+    case AnimationMetadataType.Keyframes:
+      return visitor.visitKeyframes(node, context);
+    case AnimationMetadataType.Style:
+      return visitor.visitStyle(node, context);
+    case AnimationMetadataType.Reference:
+      return visitor.visitReference(node, context);
+    case AnimationMetadataType.AnimateChild:
+      return visitor.visitAnimateChild(node, context);
+    case AnimationMetadataType.AnimateRef:
+      return visitor.visitAnimateRef(node, context);
+    case AnimationMetadataType.Query:
+      return visitor.visitQuery(node, context);
+    case AnimationMetadataType.Stagger:
+      return visitor.visitStagger(node, context);
+    default:
+      throw invalidNodeType(node.type);
+  }
+}
+function computeStyle(element, prop) {
+  return window.getComputedStyle(element)[prop];
+}
+
+// node_modules/@angular/animations/fesm2022/browser.mjs
+/**
+ * @license Angular v22.0.1
+ * (c) 2010-2026 Google LLC. https://angular.dev/
+ * License: MIT
+ */
+var NoopAnimationDriver = class _NoopAnimationDriver {
+  validateStyleProperty(prop) {
+    return validateStyleProperty(prop);
+  }
+  containsElement(elm1, elm2) {
+    return containsElement(elm1, elm2);
+  }
+  getParentElement(element) {
+    return getParentElement(element);
+  }
+  query(element, selector, multi) {
+    return invokeQuery(element, selector, multi);
+  }
+  computeStyle(element, prop, defaultValue) {
+    return defaultValue || "";
+  }
+  animate(element, keyframes, duration, delay, easing, previousPlayers = [], scrubberAccessRequested) {
+    return new NoopAnimationPlayer(duration, delay);
+  }
+  static \u0275fac = function NoopAnimationDriver_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NoopAnimationDriver)();
+  };
+  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
+    token: _NoopAnimationDriver,
+    factory: _NoopAnimationDriver.\u0275fac
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NoopAnimationDriver, [{
+    type: Injectable
+  }], null, null);
+})();
+var AnimationDriver = class {
+  static NOOP = new NoopAnimationDriver();
+};
+var AnimationStyleNormalizer = class {
+};
+var DIMENSIONAL_PROP_SET = /* @__PURE__ */ new Set(["width", "height", "minWidth", "minHeight", "maxWidth", "maxHeight", "left", "top", "bottom", "right", "fontSize", "outlineWidth", "outlineOffset", "paddingTop", "paddingLeft", "paddingBottom", "paddingRight", "marginTop", "marginLeft", "marginBottom", "marginRight", "borderRadius", "borderWidth", "borderTopWidth", "borderLeftWidth", "borderRightWidth", "borderBottomWidth", "textIndent", "perspective"]);
+var WebAnimationsStyleNormalizer = class extends AnimationStyleNormalizer {
+  normalizePropertyName(propertyName, errors) {
+    return dashCaseToCamelCase(propertyName);
+  }
+  normalizeStyleValue(userProvidedProperty, normalizedProperty, value, errors) {
+    let unit = "";
+    const strVal = value.toString().trim();
+    if (DIMENSIONAL_PROP_SET.has(normalizedProperty) && value !== 0 && value !== "0") {
+      if (typeof value === "number") {
+        unit = "px";
+      } else {
+        const valAndSuffixMatch = value.match(/^[+-]?[\d\.]+([a-z]*)$/);
+        if (valAndSuffixMatch && valAndSuffixMatch[1].length == 0) {
+          errors.push(invalidCssUnitValue(userProvidedProperty, value));
+        }
+      }
+    }
+    return strVal + unit;
+  }
+};
+function createListOfWarnings(warnings) {
+  const LINE_START2 = "\n - ";
+  return `${LINE_START2}${warnings.filter(Boolean).map((warning) => warning).join(LINE_START2)}`;
+}
+function warnTriggerBuild(name, warnings) {
+  console.warn(`The animation trigger "${name}" has built with the following warnings:${createListOfWarnings(warnings)}`);
+}
+function warnRegister(warnings) {
+  console.warn(`Animation built with the following warnings:${createListOfWarnings(warnings)}`);
+}
+function pushUnrecognizedPropertiesWarning(warnings, props) {
+  if (props.length) {
+    warnings.push(`The following provided properties are not recognized: ${props.join(", ")}`);
+  }
+}
+var ANY_STATE = "*";
+function parseTransitionExpr(transitionValue, errors) {
+  const expressions = [];
+  if (typeof transitionValue == "string") {
+    transitionValue.split(/\s*,\s*/).forEach((str) => parseInnerTransitionStr(str, expressions, errors));
+  } else {
+    expressions.push(transitionValue);
+  }
+  return expressions;
+}
+function parseInnerTransitionStr(eventStr, expressions, errors) {
+  if (eventStr[0] == ":") {
+    const result = parseAnimationAlias(eventStr, errors);
+    if (typeof result == "function") {
+      expressions.push(result);
+      return;
+    }
+    eventStr = result;
+  }
+  const match = eventStr.match(/^(\*|[-\w]+)\s*(<?[=-]>)\s*(\*|[-\w]+)$/);
+  if (match == null || match.length < 4) {
+    errors.push(invalidExpression(eventStr));
+    return expressions;
+  }
+  const fromState = match[1];
+  const separator = match[2];
+  const toState = match[3];
+  expressions.push(makeLambdaFromStates(fromState, toState));
+  const isFullAnyStateExpr = fromState == ANY_STATE && toState == ANY_STATE;
+  if (separator[0] == "<" && !isFullAnyStateExpr) {
+    expressions.push(makeLambdaFromStates(toState, fromState));
+  }
+  return;
+}
+function parseAnimationAlias(alias, errors) {
+  switch (alias) {
+    case ":enter":
+      return "void => *";
+    case ":leave":
+      return "* => void";
+    case ":increment":
+      return (fromState, toState) => parseFloat(toState) > parseFloat(fromState);
+    case ":decrement":
+      return (fromState, toState) => parseFloat(toState) < parseFloat(fromState);
+    default:
+      errors.push(invalidTransitionAlias(alias));
+      return "* => *";
+  }
+}
+var TRUE_BOOLEAN_VALUES = /* @__PURE__ */ new Set(["true", "1"]);
+var FALSE_BOOLEAN_VALUES = /* @__PURE__ */ new Set(["false", "0"]);
+function makeLambdaFromStates(lhs, rhs) {
+  const LHS_MATCH_BOOLEAN = TRUE_BOOLEAN_VALUES.has(lhs) || FALSE_BOOLEAN_VALUES.has(lhs);
+  const RHS_MATCH_BOOLEAN = TRUE_BOOLEAN_VALUES.has(rhs) || FALSE_BOOLEAN_VALUES.has(rhs);
+  return (fromState, toState) => {
+    let lhsMatch = lhs == ANY_STATE || lhs == fromState;
+    let rhsMatch = rhs == ANY_STATE || rhs == toState;
+    if (!lhsMatch && LHS_MATCH_BOOLEAN && typeof fromState === "boolean") {
+      lhsMatch = fromState ? TRUE_BOOLEAN_VALUES.has(lhs) : FALSE_BOOLEAN_VALUES.has(lhs);
+    }
+    if (!rhsMatch && RHS_MATCH_BOOLEAN && typeof toState === "boolean") {
+      rhsMatch = toState ? TRUE_BOOLEAN_VALUES.has(rhs) : FALSE_BOOLEAN_VALUES.has(rhs);
+    }
+    return lhsMatch && rhsMatch;
+  };
+}
+var SELF_TOKEN = ":self";
+var SELF_TOKEN_REGEX = /* @__PURE__ */ new RegExp(`s*${SELF_TOKEN}s*,?`, "g");
+function buildAnimationAst(driver, metadata, errors, warnings) {
+  return new AnimationAstBuilderVisitor(driver).build(metadata, errors, warnings);
+}
+var ROOT_SELECTOR = "";
+var AnimationAstBuilderVisitor = class {
+  _driver;
+  constructor(_driver) {
+    this._driver = _driver;
+  }
+  build(metadata, errors, warnings) {
+    const context = new AnimationAstBuilderContext(errors);
+    this._resetContextStyleTimingState(context);
+    const ast = visitDslNode(this, normalizeAnimationEntry(metadata), context);
+    if (typeof ngDevMode === "undefined" || ngDevMode) {
+      if (context.unsupportedCSSPropertiesFound.size) {
+        pushUnrecognizedPropertiesWarning(warnings, [...context.unsupportedCSSPropertiesFound.keys()]);
+      }
+    }
+    return ast;
+  }
+  _resetContextStyleTimingState(context) {
+    context.currentQuerySelector = ROOT_SELECTOR;
+    context.collectedStyles = /* @__PURE__ */ new Map();
+    context.collectedStyles.set(ROOT_SELECTOR, /* @__PURE__ */ new Map());
+    context.currentTime = 0;
+  }
+  visitTrigger(metadata, context) {
+    let queryCount = context.queryCount = 0;
+    let depCount = context.depCount = 0;
+    const states = [];
+    const transitions = [];
+    if (metadata.name.charAt(0) == "@") {
+      context.errors.push(invalidTrigger());
+    }
+    metadata.definitions.forEach((def2) => {
+      this._resetContextStyleTimingState(context);
+      if (def2.type == AnimationMetadataType.State) {
+        const stateDef = def2;
+        const name = stateDef.name;
+        name.toString().split(/\s*,\s*/).forEach((n) => {
+          stateDef.name = n;
+          states.push(this.visitState(stateDef, context));
+        });
+        stateDef.name = name;
+      } else if (def2.type == AnimationMetadataType.Transition) {
+        const transition = this.visitTransition(def2, context);
+        queryCount += transition.queryCount;
+        depCount += transition.depCount;
+        transitions.push(transition);
+      } else {
+        context.errors.push(invalidDefinition());
+      }
+    });
+    return {
+      type: AnimationMetadataType.Trigger,
+      name: metadata.name,
+      states,
+      transitions,
+      queryCount,
+      depCount,
+      options: null
     };
   }
+  visitState(metadata, context) {
+    const styleAst = this.visitStyle(metadata.styles, context);
+    const astParams = metadata.options && metadata.options.params || null;
+    if (styleAst.containsDynamicStyles) {
+      const missingSubs = /* @__PURE__ */ new Set();
+      const params = astParams || {};
+      styleAst.styles.forEach((style2) => {
+        if (style2 instanceof Map) {
+          style2.forEach((value) => {
+            extractStyleParams(value).forEach((sub) => {
+              if (!params.hasOwnProperty(sub)) {
+                missingSubs.add(sub);
+              }
+            });
+          });
+        }
+      });
+      if (missingSubs.size) {
+        context.errors.push(invalidState(metadata.name, [...missingSubs.values()]));
+      }
+    }
+    return {
+      type: AnimationMetadataType.State,
+      name: metadata.name,
+      style: styleAst,
+      options: astParams ? {
+        params: astParams
+      } : null
+    };
+  }
+  visitTransition(metadata, context) {
+    context.queryCount = 0;
+    context.depCount = 0;
+    const animation = visitDslNode(this, normalizeAnimationEntry(metadata.animation), context);
+    const matchers = parseTransitionExpr(metadata.expr, context.errors);
+    return {
+      type: AnimationMetadataType.Transition,
+      matchers,
+      animation,
+      queryCount: context.queryCount,
+      depCount: context.depCount,
+      options: normalizeAnimationOptions(metadata.options)
+    };
+  }
+  visitSequence(metadata, context) {
+    return {
+      type: AnimationMetadataType.Sequence,
+      steps: metadata.steps.map((s) => visitDslNode(this, s, context)),
+      options: normalizeAnimationOptions(metadata.options)
+    };
+  }
+  visitGroup(metadata, context) {
+    const currentTime = context.currentTime;
+    let furthestTime = 0;
+    const steps = metadata.steps.map((step) => {
+      context.currentTime = currentTime;
+      const innerAst = visitDslNode(this, step, context);
+      furthestTime = Math.max(furthestTime, context.currentTime);
+      return innerAst;
+    });
+    context.currentTime = furthestTime;
+    return {
+      type: AnimationMetadataType.Group,
+      steps,
+      options: normalizeAnimationOptions(metadata.options)
+    };
+  }
+  visitAnimate(metadata, context) {
+    const timingAst = constructTimingAst(metadata.timings, context.errors);
+    context.currentAnimateTimings = timingAst;
+    let styleAst;
+    let styleMetadata = metadata.styles ? metadata.styles : style({});
+    if (styleMetadata.type == AnimationMetadataType.Keyframes) {
+      styleAst = this.visitKeyframes(styleMetadata, context);
+    } else {
+      let styleMetadata2 = metadata.styles;
+      let isEmpty = false;
+      if (!styleMetadata2) {
+        isEmpty = true;
+        const newStyleData = {};
+        if (timingAst.easing) {
+          newStyleData["easing"] = timingAst.easing;
+        }
+        styleMetadata2 = style(newStyleData);
+      }
+      context.currentTime += timingAst.duration + timingAst.delay;
+      const _styleAst = this.visitStyle(styleMetadata2, context);
+      _styleAst.isEmptyStep = isEmpty;
+      styleAst = _styleAst;
+    }
+    context.currentAnimateTimings = null;
+    return {
+      type: AnimationMetadataType.Animate,
+      timings: timingAst,
+      style: styleAst,
+      options: null
+    };
+  }
+  visitStyle(metadata, context) {
+    const ast = this._makeStyleAst(metadata, context);
+    this._validateStyleAst(ast, context);
+    return ast;
+  }
+  _makeStyleAst(metadata, context) {
+    const styles = [];
+    const metadataStyles = Array.isArray(metadata.styles) ? metadata.styles : [metadata.styles];
+    for (let styleTuple of metadataStyles) {
+      if (typeof styleTuple === "string") {
+        if (styleTuple === AUTO_STYLE) {
+          styles.push(styleTuple);
+        } else {
+          context.errors.push(invalidStyleValue(styleTuple));
+        }
+      } else {
+        styles.push(new Map(Object.entries(styleTuple)));
+      }
+    }
+    let containsDynamicStyles = false;
+    let collectedEasing = null;
+    styles.forEach((styleData) => {
+      if (styleData instanceof Map) {
+        if (styleData.has("easing")) {
+          collectedEasing = styleData.get("easing");
+          styleData.delete("easing");
+        }
+        if (!containsDynamicStyles) {
+          for (let value of styleData.values()) {
+            if (value.toString().indexOf(SUBSTITUTION_EXPR_START) >= 0) {
+              containsDynamicStyles = true;
+              break;
+            }
+          }
+        }
+      }
+    });
+    return {
+      type: AnimationMetadataType.Style,
+      styles,
+      easing: collectedEasing,
+      offset: metadata.offset,
+      containsDynamicStyles,
+      options: null
+    };
+  }
+  _validateStyleAst(ast, context) {
+    const timings = context.currentAnimateTimings;
+    let endTime = context.currentTime;
+    let startTime = context.currentTime;
+    if (timings && startTime > 0) {
+      startTime -= timings.duration + timings.delay;
+    }
+    ast.styles.forEach((tuple) => {
+      if (typeof tuple === "string") return;
+      tuple.forEach((value, prop) => {
+        if (typeof ngDevMode === "undefined" || ngDevMode) {
+          if (!this._driver.validateStyleProperty(prop)) {
+            tuple.delete(prop);
+            context.unsupportedCSSPropertiesFound.add(prop);
+            return;
+          }
+        }
+        const collectedStyles = context.collectedStyles.get(context.currentQuerySelector);
+        const collectedEntry = collectedStyles.get(prop);
+        let updateCollectedStyle = true;
+        if (collectedEntry) {
+          if (startTime != endTime && startTime >= collectedEntry.startTime && endTime <= collectedEntry.endTime) {
+            context.errors.push(invalidParallelAnimation(prop, collectedEntry.startTime, collectedEntry.endTime, startTime, endTime));
+            updateCollectedStyle = false;
+          }
+          startTime = collectedEntry.startTime;
+        }
+        if (updateCollectedStyle) {
+          collectedStyles.set(prop, {
+            startTime,
+            endTime
+          });
+        }
+        if (context.options) {
+          validateStyleParams(value, context.options, context.errors);
+        }
+      });
+    });
+  }
+  visitKeyframes(metadata, context) {
+    const ast = {
+      type: AnimationMetadataType.Keyframes,
+      styles: [],
+      options: null
+    };
+    if (!context.currentAnimateTimings) {
+      context.errors.push(invalidKeyframes());
+      return ast;
+    }
+    const MAX_KEYFRAME_OFFSET = 1;
+    let totalKeyframesWithOffsets = 0;
+    const offsets = [];
+    let offsetsOutOfOrder = false;
+    let keyframesOutOfRange = false;
+    let previousOffset = 0;
+    const keyframes = metadata.steps.map((styles) => {
+      const style2 = this._makeStyleAst(styles, context);
+      let offsetVal = style2.offset != null ? style2.offset : consumeOffset(style2.styles);
+      let offset = 0;
+      if (offsetVal != null) {
+        totalKeyframesWithOffsets++;
+        offset = style2.offset = offsetVal;
+      }
+      keyframesOutOfRange = keyframesOutOfRange || offset < 0 || offset > 1;
+      offsetsOutOfOrder = offsetsOutOfOrder || offset < previousOffset;
+      previousOffset = offset;
+      offsets.push(offset);
+      return style2;
+    });
+    if (keyframesOutOfRange) {
+      context.errors.push(invalidOffset());
+    }
+    if (offsetsOutOfOrder) {
+      context.errors.push(keyframeOffsetsOutOfOrder());
+    }
+    const length = metadata.steps.length;
+    let generatedOffset = 0;
+    if (totalKeyframesWithOffsets > 0 && totalKeyframesWithOffsets < length) {
+      context.errors.push(keyframesMissingOffsets());
+    } else if (totalKeyframesWithOffsets == 0) {
+      generatedOffset = MAX_KEYFRAME_OFFSET / (length - 1);
+    }
+    const limit = length - 1;
+    const currentTime = context.currentTime;
+    const currentAnimateTimings = context.currentAnimateTimings;
+    const animateDuration = currentAnimateTimings.duration;
+    keyframes.forEach((kf, i) => {
+      const offset = generatedOffset > 0 ? i == limit ? 1 : generatedOffset * i : offsets[i];
+      const durationUpToThisFrame = offset * animateDuration;
+      context.currentTime = currentTime + currentAnimateTimings.delay + durationUpToThisFrame;
+      currentAnimateTimings.duration = durationUpToThisFrame;
+      this._validateStyleAst(kf, context);
+      kf.offset = offset;
+      ast.styles.push(kf);
+    });
+    return ast;
+  }
+  visitReference(metadata, context) {
+    return {
+      type: AnimationMetadataType.Reference,
+      animation: visitDslNode(this, normalizeAnimationEntry(metadata.animation), context),
+      options: normalizeAnimationOptions(metadata.options)
+    };
+  }
+  visitAnimateChild(metadata, context) {
+    context.depCount++;
+    return {
+      type: AnimationMetadataType.AnimateChild,
+      options: normalizeAnimationOptions(metadata.options)
+    };
+  }
+  visitAnimateRef(metadata, context) {
+    return {
+      type: AnimationMetadataType.AnimateRef,
+      animation: this.visitReference(metadata.animation, context),
+      options: normalizeAnimationOptions(metadata.options)
+    };
+  }
+  visitQuery(metadata, context) {
+    const parentSelector = context.currentQuerySelector;
+    const options2 = metadata.options || {};
+    context.queryCount++;
+    context.currentQuery = metadata;
+    const [selector, includeSelf] = normalizeSelector(metadata.selector);
+    context.currentQuerySelector = parentSelector.length ? parentSelector + " " + selector : selector;
+    getOrSetDefaultValue(context.collectedStyles, context.currentQuerySelector, /* @__PURE__ */ new Map());
+    const animation = visitDslNode(this, normalizeAnimationEntry(metadata.animation), context);
+    context.currentQuery = null;
+    context.currentQuerySelector = parentSelector;
+    return {
+      type: AnimationMetadataType.Query,
+      selector,
+      limit: options2.limit || 0,
+      optional: !!options2.optional,
+      includeSelf,
+      animation,
+      originalSelector: metadata.selector,
+      options: normalizeAnimationOptions(metadata.options)
+    };
+  }
+  visitStagger(metadata, context) {
+    if (!context.currentQuery) {
+      context.errors.push(invalidStagger());
+    }
+    const timings = metadata.timings === "full" ? {
+      duration: 0,
+      delay: 0,
+      easing: "full"
+    } : resolveTiming(metadata.timings, context.errors, true);
+    return {
+      type: AnimationMetadataType.Stagger,
+      animation: visitDslNode(this, normalizeAnimationEntry(metadata.animation), context),
+      timings,
+      options: null
+    };
+  }
+};
+function normalizeSelector(selector) {
+  const hasAmpersand = selector.split(/\s*,\s*/).find((token) => token == SELF_TOKEN) ? true : false;
+  if (hasAmpersand) {
+    selector = selector.replace(SELF_TOKEN_REGEX, "");
+  }
+  selector = selector.replace(/@\*/g, NG_TRIGGER_SELECTOR).replace(/@\w+/g, (match) => NG_TRIGGER_SELECTOR + "-" + match.slice(1)).replace(/:animating/g, NG_ANIMATING_SELECTOR);
+  return [selector, hasAmpersand];
+}
+function normalizeParams(obj) {
+  return obj ? __spreadValues({}, obj) : null;
+}
+var AnimationAstBuilderContext = class {
+  errors;
+  queryCount = 0;
+  depCount = 0;
+  currentTransition = null;
+  currentQuery = null;
+  currentQuerySelector = null;
+  currentAnimateTimings = null;
+  currentTime = 0;
+  collectedStyles = /* @__PURE__ */ new Map();
+  options = null;
+  unsupportedCSSPropertiesFound = /* @__PURE__ */ new Set();
+  constructor(errors) {
+    this.errors = errors;
+  }
+};
+function consumeOffset(styles) {
+  if (typeof styles == "string") return null;
+  let offset = null;
+  if (Array.isArray(styles)) {
+    styles.forEach((styleTuple) => {
+      if (styleTuple instanceof Map && styleTuple.has("offset")) {
+        const obj = styleTuple;
+        offset = parseFloat(obj.get("offset"));
+        obj.delete("offset");
+      }
+    });
+  } else if (styles instanceof Map && styles.has("offset")) {
+    const obj = styles;
+    offset = parseFloat(obj.get("offset"));
+    obj.delete("offset");
+  }
+  return offset;
+}
+function constructTimingAst(value, errors) {
+  if (value.hasOwnProperty("duration")) {
+    return value;
+  }
+  if (typeof value == "number") {
+    const duration = resolveTiming(value, errors).duration;
+    return makeTimingAst(duration, 0, "");
+  }
+  const strValue = value;
+  const isDynamic = strValue.split(/\s+/).some((v) => v.charAt(0) == "{" && v.charAt(1) == "{");
+  if (isDynamic) {
+    const ast = makeTimingAst(0, 0, "");
+    ast.dynamic = true;
+    ast.strValue = strValue;
+    return ast;
+  }
+  const timings = resolveTiming(strValue, errors);
+  return makeTimingAst(timings.duration, timings.delay, timings.easing);
+}
+function normalizeAnimationOptions(options2) {
+  if (options2) {
+    options2 = __spreadValues({}, options2);
+    if (options2["params"]) {
+      options2["params"] = normalizeParams(options2["params"]);
+    }
+  } else {
+    options2 = {};
+  }
+  return options2;
+}
+function makeTimingAst(duration, delay, easing) {
+  return {
+    duration,
+    delay,
+    easing
+  };
+}
+function createTimelineInstruction(element, keyframes, preStyleProps, postStyleProps, duration, delay, easing = null, subTimeline = false) {
+  return {
+    type: 1,
+    element,
+    keyframes,
+    preStyleProps,
+    postStyleProps,
+    duration,
+    delay,
+    totalTime: duration + delay,
+    easing,
+    subTimeline
+  };
+}
+var ElementInstructionMap = class {
+  _map = /* @__PURE__ */ new Map();
+  get(element) {
+    return this._map.get(element) || [];
+  }
+  append(element, instructions) {
+    let existingInstructions = this._map.get(element);
+    if (!existingInstructions) {
+      this._map.set(element, existingInstructions = []);
+    }
+    existingInstructions.push(...instructions);
+  }
+  has(element) {
+    return this._map.has(element);
+  }
+  clear() {
+    this._map.clear();
+  }
+};
+var ONE_FRAME_IN_MILLISECONDS = 1;
+var ENTER_TOKEN = ":enter";
+var ENTER_TOKEN_REGEX = /* @__PURE__ */ new RegExp(ENTER_TOKEN, "g");
+var LEAVE_TOKEN = ":leave";
+var LEAVE_TOKEN_REGEX = /* @__PURE__ */ new RegExp(LEAVE_TOKEN, "g");
+function buildAnimationTimelines(driver, rootElement, ast, enterClassName, leaveClassName, startingStyles = /* @__PURE__ */ new Map(), finalStyles = /* @__PURE__ */ new Map(), options2, subInstructions, errors = []) {
+  return new AnimationTimelineBuilderVisitor().buildKeyframes(driver, rootElement, ast, enterClassName, leaveClassName, startingStyles, finalStyles, options2, subInstructions, errors);
+}
+var AnimationTimelineBuilderVisitor = class {
+  buildKeyframes(driver, rootElement, ast, enterClassName, leaveClassName, startingStyles, finalStyles, options2, subInstructions, errors = []) {
+    subInstructions = subInstructions || new ElementInstructionMap();
+    const context = new AnimationTimelineContext(driver, rootElement, subInstructions, enterClassName, leaveClassName, errors, []);
+    context.options = options2;
+    const delay = options2.delay ? resolveTimingValue(options2.delay) : 0;
+    context.currentTimeline.delayNextStep(delay);
+    context.currentTimeline.setStyles([startingStyles], null, context.errors, options2);
+    visitDslNode(this, ast, context);
+    const timelines = context.timelines.filter((timeline) => timeline.containsAnimation());
+    if (timelines.length && finalStyles.size) {
+      let lastRootTimeline;
+      for (let i = timelines.length - 1; i >= 0; i--) {
+        const timeline = timelines[i];
+        if (timeline.element === rootElement) {
+          lastRootTimeline = timeline;
+          break;
+        }
+      }
+      if (lastRootTimeline && !lastRootTimeline.allowOnlyTimelineStyles()) {
+        lastRootTimeline.setStyles([finalStyles], null, context.errors, options2);
+      }
+    }
+    return timelines.length ? timelines.map((timeline) => timeline.buildKeyframes()) : [createTimelineInstruction(rootElement, [], [], [], 0, delay, "", false)];
+  }
+  visitTrigger(ast, context) {
+  }
+  visitState(ast, context) {
+  }
+  visitTransition(ast, context) {
+  }
+  visitAnimateChild(ast, context) {
+    const elementInstructions = context.subInstructions.get(context.element);
+    if (elementInstructions) {
+      const innerContext = context.createSubContext(ast.options);
+      const startTime = context.currentTimeline.currentTime;
+      const endTime = this._visitSubInstructions(elementInstructions, innerContext, innerContext.options);
+      if (startTime != endTime) {
+        context.transformIntoNewTimeline(endTime);
+      }
+    }
+    context.previousNode = ast;
+  }
+  visitAnimateRef(ast, context) {
+    const innerContext = context.createSubContext(ast.options);
+    innerContext.transformIntoNewTimeline();
+    this._applyAnimationRefDelays([ast.options, ast.animation.options], context, innerContext);
+    this.visitReference(ast.animation, innerContext);
+    context.transformIntoNewTimeline(innerContext.currentTimeline.currentTime);
+    context.previousNode = ast;
+  }
+  _applyAnimationRefDelays(animationsRefsOptions, context, innerContext) {
+    for (const animationRefOptions of animationsRefsOptions) {
+      const animationDelay = animationRefOptions?.delay;
+      if (animationDelay) {
+        const animationDelayValue = typeof animationDelay === "number" ? animationDelay : resolveTimingValue(interpolateParams(animationDelay, animationRefOptions?.params ?? {}, context.errors));
+        innerContext.delayNextStep(animationDelayValue);
+      }
+    }
+  }
+  _visitSubInstructions(instructions, context, options2) {
+    const startTime = context.currentTimeline.currentTime;
+    let furthestTime = startTime;
+    const duration = options2.duration != null ? resolveTimingValue(options2.duration) : null;
+    const delay = options2.delay != null ? resolveTimingValue(options2.delay) : null;
+    if (duration !== 0) {
+      instructions.forEach((instruction) => {
+        const instructionTimings = context.appendInstructionToTimeline(instruction, duration, delay);
+        furthestTime = Math.max(furthestTime, instructionTimings.duration + instructionTimings.delay);
+      });
+    }
+    return furthestTime;
+  }
+  visitReference(ast, context) {
+    context.updateOptions(ast.options, true);
+    visitDslNode(this, ast.animation, context);
+    context.previousNode = ast;
+  }
+  visitSequence(ast, context) {
+    const subContextCount = context.subContextCount;
+    let ctx = context;
+    const options2 = ast.options;
+    if (options2 && (options2.params || options2.delay)) {
+      ctx = context.createSubContext(options2);
+      ctx.transformIntoNewTimeline();
+      if (options2.delay != null) {
+        if (ctx.previousNode.type == AnimationMetadataType.Style) {
+          ctx.currentTimeline.snapshotCurrentStyles();
+          ctx.previousNode = DEFAULT_NOOP_PREVIOUS_NODE;
+        }
+        const delay = resolveTimingValue(options2.delay);
+        ctx.delayNextStep(delay);
+      }
+    }
+    if (ast.steps.length) {
+      ast.steps.forEach((s) => visitDslNode(this, s, ctx));
+      ctx.currentTimeline.applyStylesToKeyframe();
+      if (ctx.subContextCount > subContextCount) {
+        ctx.transformIntoNewTimeline();
+      }
+    }
+    context.previousNode = ast;
+  }
+  visitGroup(ast, context) {
+    const innerTimelines = [];
+    let furthestTime = context.currentTimeline.currentTime;
+    const delay = ast.options && ast.options.delay ? resolveTimingValue(ast.options.delay) : 0;
+    ast.steps.forEach((s) => {
+      const innerContext = context.createSubContext(ast.options);
+      if (delay) {
+        innerContext.delayNextStep(delay);
+      }
+      visitDslNode(this, s, innerContext);
+      furthestTime = Math.max(furthestTime, innerContext.currentTimeline.currentTime);
+      innerTimelines.push(innerContext.currentTimeline);
+    });
+    innerTimelines.forEach((timeline) => context.currentTimeline.mergeTimelineCollectedStyles(timeline));
+    context.transformIntoNewTimeline(furthestTime);
+    context.previousNode = ast;
+  }
+  _visitTiming(ast, context) {
+    if (ast.dynamic) {
+      const strValue = ast.strValue;
+      const timingValue = context.params ? interpolateParams(strValue, context.params, context.errors) : strValue;
+      return resolveTiming(timingValue, context.errors);
+    } else {
+      return {
+        duration: ast.duration,
+        delay: ast.delay,
+        easing: ast.easing
+      };
+    }
+  }
+  visitAnimate(ast, context) {
+    const timings = context.currentAnimateTimings = this._visitTiming(ast.timings, context);
+    const timeline = context.currentTimeline;
+    if (timings.delay) {
+      context.incrementTime(timings.delay);
+      timeline.snapshotCurrentStyles();
+    }
+    const style2 = ast.style;
+    if (style2.type == AnimationMetadataType.Keyframes) {
+      this.visitKeyframes(style2, context);
+    } else {
+      context.incrementTime(timings.duration);
+      this.visitStyle(style2, context);
+      timeline.applyStylesToKeyframe();
+    }
+    context.currentAnimateTimings = null;
+    context.previousNode = ast;
+  }
+  visitStyle(ast, context) {
+    const timeline = context.currentTimeline;
+    const timings = context.currentAnimateTimings;
+    if (!timings && timeline.hasCurrentStyleProperties()) {
+      timeline.forwardFrame();
+    }
+    const easing = timings && timings.easing || ast.easing;
+    if (ast.isEmptyStep) {
+      timeline.applyEmptyStep(easing);
+    } else {
+      timeline.setStyles(ast.styles, easing, context.errors, context.options);
+    }
+    context.previousNode = ast;
+  }
+  visitKeyframes(ast, context) {
+    const currentAnimateTimings = context.currentAnimateTimings;
+    const startTime = context.currentTimeline.duration;
+    const duration = currentAnimateTimings.duration;
+    const innerContext = context.createSubContext();
+    const innerTimeline = innerContext.currentTimeline;
+    innerTimeline.easing = currentAnimateTimings.easing;
+    ast.styles.forEach((step) => {
+      const offset = step.offset || 0;
+      innerTimeline.forwardTime(offset * duration);
+      innerTimeline.setStyles(step.styles, step.easing, context.errors, context.options);
+      innerTimeline.applyStylesToKeyframe();
+    });
+    context.currentTimeline.mergeTimelineCollectedStyles(innerTimeline);
+    context.transformIntoNewTimeline(startTime + duration);
+    context.previousNode = ast;
+  }
+  visitQuery(ast, context) {
+    const startTime = context.currentTimeline.currentTime;
+    const options2 = ast.options || {};
+    const delay = options2.delay ? resolveTimingValue(options2.delay) : 0;
+    if (delay && (context.previousNode.type === AnimationMetadataType.Style || startTime == 0 && context.currentTimeline.hasCurrentStyleProperties())) {
+      context.currentTimeline.snapshotCurrentStyles();
+      context.previousNode = DEFAULT_NOOP_PREVIOUS_NODE;
+    }
+    let furthestTime = startTime;
+    const elms = context.invokeQuery(ast.selector, ast.originalSelector, ast.limit, ast.includeSelf, options2.optional ? true : false, context.errors);
+    context.currentQueryTotal = elms.length;
+    let sameElementTimeline = null;
+    elms.forEach((element, i) => {
+      context.currentQueryIndex = i;
+      const innerContext = context.createSubContext(ast.options, element);
+      if (delay) {
+        innerContext.delayNextStep(delay);
+      }
+      if (element === context.element) {
+        sameElementTimeline = innerContext.currentTimeline;
+      }
+      visitDslNode(this, ast.animation, innerContext);
+      innerContext.currentTimeline.applyStylesToKeyframe();
+      const endTime = innerContext.currentTimeline.currentTime;
+      furthestTime = Math.max(furthestTime, endTime);
+    });
+    context.currentQueryIndex = 0;
+    context.currentQueryTotal = 0;
+    context.transformIntoNewTimeline(furthestTime);
+    if (sameElementTimeline) {
+      context.currentTimeline.mergeTimelineCollectedStyles(sameElementTimeline);
+      context.currentTimeline.snapshotCurrentStyles();
+    }
+    context.previousNode = ast;
+  }
+  visitStagger(ast, context) {
+    const parentContext = context.parentContext;
+    const tl = context.currentTimeline;
+    const timings = ast.timings;
+    const duration = Math.abs(timings.duration);
+    const maxTime = duration * (context.currentQueryTotal - 1);
+    let delay = duration * context.currentQueryIndex;
+    let staggerTransformer = timings.duration < 0 ? "reverse" : timings.easing;
+    switch (staggerTransformer) {
+      case "reverse":
+        delay = maxTime - delay;
+        break;
+      case "full":
+        delay = parentContext.currentStaggerTime;
+        break;
+    }
+    const timeline = context.currentTimeline;
+    if (delay) {
+      timeline.delayNextStep(delay);
+    }
+    const startingTime = timeline.currentTime;
+    visitDslNode(this, ast.animation, context);
+    context.previousNode = ast;
+    parentContext.currentStaggerTime = tl.currentTime - startingTime + (tl.startTime - parentContext.currentTimeline.startTime);
+  }
+};
+var DEFAULT_NOOP_PREVIOUS_NODE = {};
+var AnimationTimelineContext = class _AnimationTimelineContext {
+  _driver;
+  element;
+  subInstructions;
+  _enterClassName;
+  _leaveClassName;
+  errors;
+  timelines;
+  parentContext = null;
+  currentTimeline;
+  currentAnimateTimings = null;
+  previousNode = DEFAULT_NOOP_PREVIOUS_NODE;
+  subContextCount = 0;
+  options = {};
+  currentQueryIndex = 0;
+  currentQueryTotal = 0;
+  currentStaggerTime = 0;
+  constructor(_driver, element, subInstructions, _enterClassName, _leaveClassName, errors, timelines, initialTimeline) {
+    this._driver = _driver;
+    this.element = element;
+    this.subInstructions = subInstructions;
+    this._enterClassName = _enterClassName;
+    this._leaveClassName = _leaveClassName;
+    this.errors = errors;
+    this.timelines = timelines;
+    this.currentTimeline = initialTimeline || new TimelineBuilder(this._driver, element, 0);
+    timelines.push(this.currentTimeline);
+  }
+  get params() {
+    return this.options.params;
+  }
+  updateOptions(options2, skipIfExists) {
+    if (!options2) return;
+    const newOptions = options2;
+    let optionsToUpdate = this.options;
+    if (newOptions.duration != null) {
+      optionsToUpdate.duration = resolveTimingValue(newOptions.duration);
+    }
+    if (newOptions.delay != null) {
+      optionsToUpdate.delay = resolveTimingValue(newOptions.delay);
+    }
+    const newParams = newOptions.params;
+    if (newParams) {
+      let paramsToUpdate = optionsToUpdate.params;
+      if (!paramsToUpdate) {
+        paramsToUpdate = this.options.params = {};
+      }
+      Object.keys(newParams).forEach((name) => {
+        if (!skipIfExists || !paramsToUpdate.hasOwnProperty(name)) {
+          paramsToUpdate[name] = interpolateParams(newParams[name], paramsToUpdate, this.errors);
+        }
+      });
+    }
+  }
+  _copyOptions() {
+    const options2 = {};
+    if (this.options) {
+      const oldParams = this.options.params;
+      if (oldParams) {
+        const params = options2["params"] = {};
+        Object.keys(oldParams).forEach((name) => {
+          params[name] = oldParams[name];
+        });
+      }
+    }
+    return options2;
+  }
+  createSubContext(options2 = null, element, newTime) {
+    const target = element || this.element;
+    const context = new _AnimationTimelineContext(this._driver, target, this.subInstructions, this._enterClassName, this._leaveClassName, this.errors, this.timelines, this.currentTimeline.fork(target, newTime || 0));
+    context.previousNode = this.previousNode;
+    context.currentAnimateTimings = this.currentAnimateTimings;
+    context.options = this._copyOptions();
+    context.updateOptions(options2);
+    context.currentQueryIndex = this.currentQueryIndex;
+    context.currentQueryTotal = this.currentQueryTotal;
+    context.parentContext = this;
+    this.subContextCount++;
+    return context;
+  }
+  transformIntoNewTimeline(newTime) {
+    this.previousNode = DEFAULT_NOOP_PREVIOUS_NODE;
+    this.currentTimeline = this.currentTimeline.fork(this.element, newTime);
+    this.timelines.push(this.currentTimeline);
+    return this.currentTimeline;
+  }
+  appendInstructionToTimeline(instruction, duration, delay) {
+    const updatedTimings = {
+      duration: duration != null ? duration : instruction.duration,
+      delay: this.currentTimeline.currentTime + (delay != null ? delay : 0) + instruction.delay,
+      easing: ""
+    };
+    const builder = new SubTimelineBuilder(this._driver, instruction.element, instruction.keyframes, instruction.preStyleProps, instruction.postStyleProps, updatedTimings, instruction.stretchStartingKeyframe);
+    this.timelines.push(builder);
+    return updatedTimings;
+  }
+  incrementTime(time) {
+    this.currentTimeline.forwardTime(this.currentTimeline.duration + time);
+  }
+  delayNextStep(delay) {
+    if (delay > 0) {
+      this.currentTimeline.delayNextStep(delay);
+    }
+  }
+  invokeQuery(selector, originalSelector, limit, includeSelf, optional, errors) {
+    let results = [];
+    if (includeSelf) {
+      results.push(this.element);
+    }
+    if (selector.length > 0) {
+      selector = selector.replace(ENTER_TOKEN_REGEX, "." + this._enterClassName);
+      selector = selector.replace(LEAVE_TOKEN_REGEX, "." + this._leaveClassName);
+      const multi = limit != 1;
+      let elements = this._driver.query(this.element, selector, multi);
+      if (limit !== 0) {
+        elements = limit < 0 ? elements.slice(elements.length + limit, elements.length) : elements.slice(0, limit);
+      }
+      results.push(...elements);
+    }
+    if (!optional && results.length == 0) {
+      errors.push(invalidQuery(originalSelector));
+    }
+    return results;
+  }
+};
+var TimelineBuilder = class _TimelineBuilder {
+  _driver;
+  element;
+  startTime;
+  _elementTimelineStylesLookup;
+  duration = 0;
+  easing = null;
+  _previousKeyframe = /* @__PURE__ */ new Map();
+  _currentKeyframe = /* @__PURE__ */ new Map();
+  _keyframes = /* @__PURE__ */ new Map();
+  _styleSummary = /* @__PURE__ */ new Map();
+  _localTimelineStyles = /* @__PURE__ */ new Map();
+  _globalTimelineStyles;
+  _pendingStyles = /* @__PURE__ */ new Map();
+  _backFill = /* @__PURE__ */ new Map();
+  _currentEmptyStepKeyframe = null;
+  constructor(_driver, element, startTime, _elementTimelineStylesLookup) {
+    this._driver = _driver;
+    this.element = element;
+    this.startTime = startTime;
+    this._elementTimelineStylesLookup = _elementTimelineStylesLookup;
+    if (!this._elementTimelineStylesLookup) {
+      this._elementTimelineStylesLookup = /* @__PURE__ */ new Map();
+    }
+    this._globalTimelineStyles = this._elementTimelineStylesLookup.get(element);
+    if (!this._globalTimelineStyles) {
+      this._globalTimelineStyles = this._localTimelineStyles;
+      this._elementTimelineStylesLookup.set(element, this._localTimelineStyles);
+    }
+    this._loadKeyframe();
+  }
+  containsAnimation() {
+    switch (this._keyframes.size) {
+      case 0:
+        return false;
+      case 1:
+        return this.hasCurrentStyleProperties();
+      default:
+        return true;
+    }
+  }
+  hasCurrentStyleProperties() {
+    return this._currentKeyframe.size > 0;
+  }
+  get currentTime() {
+    return this.startTime + this.duration;
+  }
+  delayNextStep(delay) {
+    const hasPreStyleStep = this._keyframes.size === 1 && this._pendingStyles.size;
+    if (this.duration || hasPreStyleStep) {
+      this.forwardTime(this.currentTime + delay);
+      if (hasPreStyleStep) {
+        this.snapshotCurrentStyles();
+      }
+    } else {
+      this.startTime += delay;
+    }
+  }
+  fork(element, currentTime) {
+    this.applyStylesToKeyframe();
+    return new _TimelineBuilder(this._driver, element, currentTime || this.currentTime, this._elementTimelineStylesLookup);
+  }
+  _loadKeyframe() {
+    if (this._currentKeyframe) {
+      this._previousKeyframe = this._currentKeyframe;
+    }
+    this._currentKeyframe = this._keyframes.get(this.duration);
+    if (!this._currentKeyframe) {
+      this._currentKeyframe = /* @__PURE__ */ new Map();
+      this._keyframes.set(this.duration, this._currentKeyframe);
+    }
+  }
+  forwardFrame() {
+    this.duration += ONE_FRAME_IN_MILLISECONDS;
+    this._loadKeyframe();
+  }
+  forwardTime(time) {
+    this.applyStylesToKeyframe();
+    this.duration = time;
+    this._loadKeyframe();
+  }
+  _updateStyle(prop, value) {
+    this._localTimelineStyles.set(prop, value);
+    this._globalTimelineStyles.set(prop, value);
+    this._styleSummary.set(prop, {
+      time: this.currentTime,
+      value
+    });
+  }
+  allowOnlyTimelineStyles() {
+    return this._currentEmptyStepKeyframe !== this._currentKeyframe;
+  }
+  applyEmptyStep(easing) {
+    if (easing) {
+      this._previousKeyframe.set("easing", easing);
+    }
+    for (let [prop, value] of this._globalTimelineStyles) {
+      this._backFill.set(prop, value || AUTO_STYLE);
+      this._currentKeyframe.set(prop, AUTO_STYLE);
+    }
+    this._currentEmptyStepKeyframe = this._currentKeyframe;
+  }
+  setStyles(input2, easing, errors, options2) {
+    if (easing) {
+      this._previousKeyframe.set("easing", easing);
+    }
+    const params = options2 && options2.params || {};
+    const styles = flattenStyles(input2, this._globalTimelineStyles);
+    for (let [prop, value] of styles) {
+      const val = interpolateParams(value, params, errors);
+      this._pendingStyles.set(prop, val);
+      if (!this._localTimelineStyles.has(prop)) {
+        this._backFill.set(prop, this._globalTimelineStyles.get(prop) ?? AUTO_STYLE);
+      }
+      this._updateStyle(prop, val);
+    }
+  }
+  applyStylesToKeyframe() {
+    if (this._pendingStyles.size == 0) return;
+    this._pendingStyles.forEach((val, prop) => {
+      this._currentKeyframe.set(prop, val);
+    });
+    this._pendingStyles.clear();
+    this._localTimelineStyles.forEach((val, prop) => {
+      if (!this._currentKeyframe.has(prop)) {
+        this._currentKeyframe.set(prop, val);
+      }
+    });
+  }
+  snapshotCurrentStyles() {
+    for (let [prop, val] of this._localTimelineStyles) {
+      this._pendingStyles.set(prop, val);
+      this._updateStyle(prop, val);
+    }
+  }
+  getFinalKeyframe() {
+    return this._keyframes.get(this.duration);
+  }
+  get properties() {
+    const properties = [];
+    for (let prop in this._currentKeyframe) {
+      properties.push(prop);
+    }
+    return properties;
+  }
+  mergeTimelineCollectedStyles(timeline) {
+    timeline._styleSummary.forEach((details1, prop) => {
+      const details0 = this._styleSummary.get(prop);
+      if (!details0 || details1.time > details0.time) {
+        this._updateStyle(prop, details1.value);
+      }
+    });
+  }
+  buildKeyframes() {
+    this.applyStylesToKeyframe();
+    const preStyleProps = /* @__PURE__ */ new Set();
+    const postStyleProps = /* @__PURE__ */ new Set();
+    const isEmpty = this._keyframes.size === 1 && this.duration === 0;
+    let finalKeyframes = [];
+    this._keyframes.forEach((keyframe, time) => {
+      const finalKeyframe = new Map([...this._backFill, ...keyframe]);
+      finalKeyframe.forEach((value, prop) => {
+        if (value === \u0275PRE_STYLE) {
+          preStyleProps.add(prop);
+        } else if (value === AUTO_STYLE) {
+          postStyleProps.add(prop);
+        }
+      });
+      if (!isEmpty) {
+        finalKeyframe.set("offset", time / this.duration);
+      }
+      finalKeyframes.push(finalKeyframe);
+    });
+    const preProps = [...preStyleProps.values()];
+    const postProps = [...postStyleProps.values()];
+    if (isEmpty) {
+      const kf0 = finalKeyframes[0];
+      const kf1 = new Map(kf0);
+      kf0.set("offset", 0);
+      kf1.set("offset", 1);
+      finalKeyframes = [kf0, kf1];
+    }
+    return createTimelineInstruction(this.element, finalKeyframes, preProps, postProps, this.duration, this.startTime, this.easing, false);
+  }
+};
+var SubTimelineBuilder = class extends TimelineBuilder {
+  keyframes;
+  preStyleProps;
+  postStyleProps;
+  _stretchStartingKeyframe;
+  timings;
+  constructor(driver, element, keyframes, preStyleProps, postStyleProps, timings, _stretchStartingKeyframe = false) {
+    super(driver, element, timings.delay);
+    this.keyframes = keyframes;
+    this.preStyleProps = preStyleProps;
+    this.postStyleProps = postStyleProps;
+    this._stretchStartingKeyframe = _stretchStartingKeyframe;
+    this.timings = {
+      duration: timings.duration,
+      delay: timings.delay,
+      easing: timings.easing
+    };
+  }
+  containsAnimation() {
+    return this.keyframes.length > 1;
+  }
+  buildKeyframes() {
+    let keyframes = this.keyframes;
+    let {
+      delay,
+      duration,
+      easing
+    } = this.timings;
+    if (this._stretchStartingKeyframe && delay) {
+      const newKeyframes = [];
+      const totalTime = duration + delay;
+      const startingGap = delay / totalTime;
+      const newFirstKeyframe = new Map(keyframes[0]);
+      newFirstKeyframe.set("offset", 0);
+      newKeyframes.push(newFirstKeyframe);
+      const oldFirstKeyframe = new Map(keyframes[0]);
+      oldFirstKeyframe.set("offset", roundOffset(startingGap));
+      newKeyframes.push(oldFirstKeyframe);
+      const limit = keyframes.length - 1;
+      for (let i = 1; i <= limit; i++) {
+        let kf = new Map(keyframes[i]);
+        const oldOffset = kf.get("offset");
+        const timeAtKeyframe = delay + oldOffset * duration;
+        kf.set("offset", roundOffset(timeAtKeyframe / totalTime));
+        newKeyframes.push(kf);
+      }
+      duration = totalTime;
+      delay = 0;
+      easing = "";
+      keyframes = newKeyframes;
+    }
+    return createTimelineInstruction(this.element, keyframes, this.preStyleProps, this.postStyleProps, duration, delay, easing, true);
+  }
+};
+function roundOffset(offset, decimalPoints = 3) {
+  const mult = Math.pow(10, decimalPoints - 1);
+  return Math.round(offset * mult) / mult;
+}
+function flattenStyles(input2, allStyles) {
+  const styles = /* @__PURE__ */ new Map();
+  let allProperties;
+  input2.forEach((token) => {
+    if (token === "*") {
+      allProperties ??= allStyles.keys();
+      for (let prop of allProperties) {
+        styles.set(prop, AUTO_STYLE);
+      }
+    } else {
+      for (let [prop, val] of token) {
+        styles.set(prop, val);
+      }
+    }
+  });
+  return styles;
+}
+function createTransitionInstruction(element, triggerName, fromState, toState, isRemovalTransition, fromStyles, toStyles, timelines, queriedElements, preStyleProps, postStyleProps, totalTime, errors) {
+  return {
+    type: 0,
+    element,
+    triggerName,
+    isRemovalTransition,
+    fromState,
+    fromStyles,
+    toState,
+    toStyles,
+    timelines,
+    queriedElements,
+    preStyleProps,
+    postStyleProps,
+    totalTime,
+    errors
+  };
+}
+var EMPTY_OBJECT = {};
+var AnimationTransitionFactory = class {
+  _triggerName;
+  ast;
+  _stateStyles;
+  constructor(_triggerName, ast, _stateStyles) {
+    this._triggerName = _triggerName;
+    this.ast = ast;
+    this._stateStyles = _stateStyles;
+  }
+  match(currentState, nextState, element, params) {
+    return oneOrMoreTransitionsMatch(this.ast.matchers, currentState, nextState, element, params);
+  }
+  buildStyles(stateName, params, errors) {
+    let styler = this._stateStyles.get("*");
+    if (stateName !== void 0) {
+      styler = this._stateStyles.get(stateName?.toString()) || styler;
+    }
+    return styler ? styler.buildStyles(params, errors) : /* @__PURE__ */ new Map();
+  }
+  build(driver, element, currentState, nextState, enterClassName, leaveClassName, currentOptions, nextOptions, subInstructions, skipAstBuild) {
+    const errors = [];
+    const transitionAnimationParams = this.ast.options && this.ast.options.params || EMPTY_OBJECT;
+    const currentAnimationParams = currentOptions && currentOptions.params || EMPTY_OBJECT;
+    const currentStateStyles = this.buildStyles(currentState, currentAnimationParams, errors);
+    const nextAnimationParams = nextOptions && nextOptions.params || EMPTY_OBJECT;
+    const nextStateStyles = this.buildStyles(nextState, nextAnimationParams, errors);
+    const queriedElements = /* @__PURE__ */ new Set();
+    const preStyleMap = /* @__PURE__ */ new Map();
+    const postStyleMap = /* @__PURE__ */ new Map();
+    const isRemoval = nextState === "void";
+    const animationOptions = {
+      params: applyParamDefaults(nextAnimationParams, transitionAnimationParams),
+      delay: this.ast.options?.delay
+    };
+    const timelines = skipAstBuild ? [] : buildAnimationTimelines(driver, element, this.ast.animation, enterClassName, leaveClassName, currentStateStyles, nextStateStyles, animationOptions, subInstructions, errors);
+    let totalTime = 0;
+    timelines.forEach((tl) => {
+      totalTime = Math.max(tl.duration + tl.delay, totalTime);
+    });
+    if (errors.length) {
+      return createTransitionInstruction(element, this._triggerName, currentState, nextState, isRemoval, currentStateStyles, nextStateStyles, [], [], preStyleMap, postStyleMap, totalTime, errors);
+    }
+    timelines.forEach((tl) => {
+      const elm = tl.element;
+      const preProps = getOrSetDefaultValue(preStyleMap, elm, /* @__PURE__ */ new Set());
+      tl.preStyleProps.forEach((prop) => preProps.add(prop));
+      const postProps = getOrSetDefaultValue(postStyleMap, elm, /* @__PURE__ */ new Set());
+      tl.postStyleProps.forEach((prop) => postProps.add(prop));
+      if (elm !== element) {
+        queriedElements.add(elm);
+      }
+    });
+    if (typeof ngDevMode === "undefined" || ngDevMode) {
+      checkNonAnimatableInTimelines(timelines, this._triggerName, driver);
+    }
+    return createTransitionInstruction(element, this._triggerName, currentState, nextState, isRemoval, currentStateStyles, nextStateStyles, timelines, [...queriedElements.values()], preStyleMap, postStyleMap, totalTime);
+  }
+};
+function checkNonAnimatableInTimelines(timelines, triggerName, driver) {
+  if (!driver.validateAnimatableStyleProperty) {
+    return;
+  }
+  const allowedNonAnimatableProps = /* @__PURE__ */ new Set(["easing"]);
+  const invalidNonAnimatableProps = /* @__PURE__ */ new Set();
+  timelines.forEach(({
+    keyframes
+  }) => {
+    const nonAnimatablePropsInitialValues = /* @__PURE__ */ new Map();
+    keyframes.forEach((keyframe) => {
+      const entriesToCheck = Array.from(keyframe.entries()).filter(([prop]) => !allowedNonAnimatableProps.has(prop));
+      for (const [prop, value] of entriesToCheck) {
+        if (!driver.validateAnimatableStyleProperty(prop)) {
+          if (nonAnimatablePropsInitialValues.has(prop) && !invalidNonAnimatableProps.has(prop)) {
+            const propInitialValue = nonAnimatablePropsInitialValues.get(prop);
+            if (propInitialValue !== value) {
+              invalidNonAnimatableProps.add(prop);
+            }
+          } else {
+            nonAnimatablePropsInitialValues.set(prop, value);
+          }
+        }
+      }
+    });
+  });
+  if (invalidNonAnimatableProps.size > 0) {
+    console.warn(`Warning: The animation trigger "${triggerName}" is attempting to animate the following not animatable properties: ` + Array.from(invalidNonAnimatableProps).join(", ") + "\n(to check the list of all animatable properties visit https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_animated_properties)");
+  }
+}
+function oneOrMoreTransitionsMatch(matchFns, currentState, nextState, element, params) {
+  return matchFns.some((fn) => fn(currentState, nextState, element, params));
+}
+function applyParamDefaults(userParams, defaults) {
+  const result = __spreadValues({}, defaults);
+  Object.entries(userParams).forEach(([key, value]) => {
+    if (value != null) {
+      result[key] = value;
+    }
+  });
+  return result;
+}
+var AnimationStateStyles = class {
+  styles;
+  defaultParams;
+  normalizer;
+  constructor(styles, defaultParams, normalizer) {
+    this.styles = styles;
+    this.defaultParams = defaultParams;
+    this.normalizer = normalizer;
+  }
+  buildStyles(params, errors) {
+    const finalStyles = /* @__PURE__ */ new Map();
+    const combinedParams = applyParamDefaults(params, this.defaultParams);
+    this.styles.styles.forEach((value) => {
+      if (typeof value !== "string") {
+        value.forEach((val, prop) => {
+          if (val) {
+            val = interpolateParams(val, combinedParams, errors);
+          }
+          const normalizedProp = this.normalizer.normalizePropertyName(prop, errors);
+          val = this.normalizer.normalizeStyleValue(prop, normalizedProp, val, errors);
+          finalStyles.set(prop, val);
+        });
+      }
+    });
+    return finalStyles;
+  }
+};
+function buildTrigger(name, ast, normalizer) {
+  return new AnimationTrigger(name, ast, normalizer);
+}
+var AnimationTrigger = class {
+  name;
+  ast;
+  _normalizer;
+  transitionFactories = [];
+  fallbackTransition;
+  states = /* @__PURE__ */ new Map();
+  constructor(name, ast, _normalizer) {
+    this.name = name;
+    this.ast = ast;
+    this._normalizer = _normalizer;
+    ast.states.forEach((ast2) => {
+      const defaultParams = ast2.options && ast2.options.params || {};
+      this.states.set(ast2.name, new AnimationStateStyles(ast2.style, defaultParams, _normalizer));
+    });
+    balanceProperties(this.states, "true", "1");
+    balanceProperties(this.states, "false", "0");
+    ast.transitions.forEach((ast2) => {
+      this.transitionFactories.push(new AnimationTransitionFactory(name, ast2, this.states));
+    });
+    this.fallbackTransition = createFallbackTransition(name, this.states);
+  }
+  get containsQueries() {
+    return this.ast.queryCount > 0;
+  }
+  matchTransition(currentState, nextState, element, params) {
+    const entry = this.transitionFactories.find((f) => f.match(currentState, nextState, element, params));
+    return entry || null;
+  }
+  matchStyles(currentState, params, errors) {
+    return this.fallbackTransition.buildStyles(currentState, params, errors);
+  }
+};
+function createFallbackTransition(triggerName, states, normalizer) {
+  const matchers = [(fromState, toState) => true];
+  const animation = {
+    type: AnimationMetadataType.Sequence,
+    steps: [],
+    options: null
+  };
+  const transition = {
+    type: AnimationMetadataType.Transition,
+    animation,
+    matchers,
+    options: null,
+    queryCount: 0,
+    depCount: 0
+  };
+  return new AnimationTransitionFactory(triggerName, transition, states);
+}
+function balanceProperties(stateMap, key1, key2) {
+  if (stateMap.has(key1)) {
+    if (!stateMap.has(key2)) {
+      stateMap.set(key2, stateMap.get(key1));
+    }
+  } else if (stateMap.has(key2)) {
+    stateMap.set(key1, stateMap.get(key2));
+  }
+}
+var EMPTY_INSTRUCTION_MAP = /* @__PURE__ */ new ElementInstructionMap();
+var TimelineAnimationEngine = class {
+  bodyNode;
+  _driver;
+  _normalizer;
+  _animations = /* @__PURE__ */ new Map();
+  _playersById = /* @__PURE__ */ new Map();
+  players = [];
+  constructor(bodyNode, _driver, _normalizer) {
+    this.bodyNode = bodyNode;
+    this._driver = _driver;
+    this._normalizer = _normalizer;
+  }
+  register(id, metadata) {
+    const errors = [];
+    const warnings = [];
+    const ast = buildAnimationAst(this._driver, metadata, errors, warnings);
+    if (errors.length) {
+      throw registerFailed(errors);
+    } else {
+      if (typeof ngDevMode === "undefined" || ngDevMode) {
+        if (warnings.length) {
+          warnRegister(warnings);
+        }
+      }
+      this._animations.set(id, ast);
+    }
+  }
+  _buildPlayer(i, preStyles, postStyles) {
+    const element = i.element;
+    const keyframes = normalizeKeyframes$1(this._normalizer, i.keyframes, preStyles, postStyles);
+    return this._driver.animate(element, keyframes, i.duration, i.delay, i.easing, [], true);
+  }
+  create(id, element, options2 = {}) {
+    const errors = [];
+    const ast = this._animations.get(id);
+    let instructions;
+    const autoStylesMap = /* @__PURE__ */ new Map();
+    if (ast) {
+      instructions = buildAnimationTimelines(this._driver, element, ast, ENTER_CLASSNAME, LEAVE_CLASSNAME, /* @__PURE__ */ new Map(), /* @__PURE__ */ new Map(), options2, EMPTY_INSTRUCTION_MAP, errors);
+      instructions.forEach((inst) => {
+        const styles = getOrSetDefaultValue(autoStylesMap, inst.element, /* @__PURE__ */ new Map());
+        inst.postStyleProps.forEach((prop) => styles.set(prop, null));
+      });
+    } else {
+      errors.push(missingOrDestroyedAnimation());
+      instructions = [];
+    }
+    if (errors.length) {
+      throw createAnimationFailed(errors);
+    }
+    autoStylesMap.forEach((styles, element2) => {
+      styles.forEach((_, prop) => {
+        styles.set(prop, this._driver.computeStyle(element2, prop, AUTO_STYLE));
+      });
+    });
+    const players = instructions.map((i) => {
+      const styles = autoStylesMap.get(i.element);
+      return this._buildPlayer(i, /* @__PURE__ */ new Map(), styles);
+    });
+    const player = optimizeGroupPlayer(players);
+    this._playersById.set(id, player);
+    player.onDestroy(() => this.destroy(id));
+    this.players.push(player);
+    return player;
+  }
+  destroy(id) {
+    const player = this._getPlayer(id);
+    player.destroy();
+    this._playersById.delete(id);
+    const index = this.players.indexOf(player);
+    if (index >= 0) {
+      this.players.splice(index, 1);
+    }
+  }
+  _getPlayer(id) {
+    const player = this._playersById.get(id);
+    if (!player) {
+      throw missingPlayer(id);
+    }
+    return player;
+  }
+  listen(id, element, eventName, callback) {
+    const baseEvent = makeAnimationEvent(element, "", "", "");
+    listenOnPlayer(this._getPlayer(id), eventName, baseEvent, callback);
+    return () => {
+    };
+  }
+  command(id, element, command, args) {
+    if (command == "register") {
+      this.register(id, args[0]);
+      return;
+    }
+    if (command == "create") {
+      const options2 = args[0] || {};
+      this.create(id, element, options2);
+      return;
+    }
+    const player = this._getPlayer(id);
+    switch (command) {
+      case "play":
+        player.play();
+        break;
+      case "pause":
+        player.pause();
+        break;
+      case "reset":
+        player.reset();
+        break;
+      case "restart":
+        player.restart();
+        break;
+      case "finish":
+        player.finish();
+        break;
+      case "init":
+        player.init();
+        break;
+      case "setPosition":
+        player.setPosition(parseFloat(args[0]));
+        break;
+      case "destroy":
+        this.destroy(id);
+        break;
+    }
+  }
+};
+var QUEUED_CLASSNAME = "ng-animate-queued";
+var QUEUED_SELECTOR = ".ng-animate-queued";
+var DISABLED_CLASSNAME = "ng-animate-disabled";
+var DISABLED_SELECTOR = ".ng-animate-disabled";
+var STAR_CLASSNAME = "ng-star-inserted";
+var STAR_SELECTOR = ".ng-star-inserted";
+var EMPTY_PLAYER_ARRAY = [];
+var NULL_REMOVAL_STATE = {
+  namespaceId: "",
+  setForRemoval: false,
+  setForMove: false,
+  hasAnimation: false,
+  removedBeforeQueried: false
+};
+var NULL_REMOVED_QUERIED_STATE = {
+  namespaceId: "",
+  setForMove: false,
+  setForRemoval: false,
+  hasAnimation: false,
+  removedBeforeQueried: true
+};
+var REMOVAL_FLAG = "__ng_removed";
+var StateValue = class {
+  namespaceId;
+  value;
+  options;
+  get params() {
+    return this.options.params;
+  }
+  constructor(input2, namespaceId = "") {
+    this.namespaceId = namespaceId;
+    const isObj = input2 && input2.hasOwnProperty("value");
+    const value = isObj ? input2["value"] : input2;
+    this.value = normalizeTriggerValue(value);
+    if (isObj) {
+      const _a = input2, {
+        value: value2
+      } = _a, options2 = __objRest(_a, [
+        "value"
+      ]);
+      this.options = options2;
+    } else {
+      this.options = {};
+    }
+    if (!this.options.params) {
+      this.options.params = {};
+    }
+  }
+  absorbOptions(options2) {
+    const newParams = options2.params;
+    if (newParams) {
+      const oldParams = this.options.params;
+      Object.keys(newParams).forEach((prop) => {
+        if (oldParams[prop] == null) {
+          oldParams[prop] = newParams[prop];
+        }
+      });
+    }
+  }
+};
+var VOID_VALUE = "void";
+var DEFAULT_STATE_VALUE = /* @__PURE__ */ new StateValue(VOID_VALUE);
+var AnimationTransitionNamespace = class {
+  id;
+  hostElement;
+  _engine;
+  players = [];
+  _triggers = /* @__PURE__ */ new Map();
+  _queue = [];
+  _elementListeners = /* @__PURE__ */ new Map();
+  _hostClassName;
+  constructor(id, hostElement, _engine) {
+    this.id = id;
+    this.hostElement = hostElement;
+    this._engine = _engine;
+    this._hostClassName = "ng-tns-" + id;
+    addClass(hostElement, this._hostClassName);
+  }
+  listen(element, name, phase, callback) {
+    if (!this._triggers.has(name)) {
+      throw missingTrigger(phase, name);
+    }
+    if (phase == null || phase.length == 0) {
+      throw missingEvent(name);
+    }
+    if (!isTriggerEventValid(phase)) {
+      throw unsupportedTriggerEvent(phase, name);
+    }
+    const listeners = getOrSetDefaultValue(this._elementListeners, element, []);
+    const data = {
+      name,
+      phase,
+      callback
+    };
+    listeners.push(data);
+    const triggersWithStates = getOrSetDefaultValue(this._engine.statesByElement, element, /* @__PURE__ */ new Map());
+    if (!triggersWithStates.has(name)) {
+      addClass(element, NG_TRIGGER_CLASSNAME);
+      addClass(element, NG_TRIGGER_CLASSNAME + "-" + name);
+      triggersWithStates.set(name, DEFAULT_STATE_VALUE);
+    }
+    return () => {
+      this._engine.afterFlush(() => {
+        const index = listeners.indexOf(data);
+        if (index >= 0) {
+          listeners.splice(index, 1);
+        }
+        if (!this._triggers.has(name)) {
+          triggersWithStates.delete(name);
+        }
+      });
+    };
+  }
+  register(name, ast) {
+    if (this._triggers.has(name)) {
+      return false;
+    } else {
+      this._triggers.set(name, ast);
+      return true;
+    }
+  }
+  _getTrigger(name) {
+    const trigger = this._triggers.get(name);
+    if (!trigger) {
+      throw unregisteredTrigger(name);
+    }
+    return trigger;
+  }
+  trigger(element, triggerName, value, defaultToFallback = true) {
+    const trigger = this._getTrigger(triggerName);
+    const player = new TransitionAnimationPlayer(this.id, triggerName, element);
+    let triggersWithStates = this._engine.statesByElement.get(element);
+    if (!triggersWithStates) {
+      addClass(element, NG_TRIGGER_CLASSNAME);
+      addClass(element, NG_TRIGGER_CLASSNAME + "-" + triggerName);
+      this._engine.statesByElement.set(element, triggersWithStates = /* @__PURE__ */ new Map());
+    }
+    let fromState = triggersWithStates.get(triggerName);
+    const toState = new StateValue(value, this.id);
+    const isObj = value && value.hasOwnProperty("value");
+    if (!isObj && fromState) {
+      toState.absorbOptions(fromState.options);
+    }
+    triggersWithStates.set(triggerName, toState);
+    if (!fromState) {
+      fromState = DEFAULT_STATE_VALUE;
+    }
+    const isRemoval = toState.value === VOID_VALUE;
+    if (!isRemoval && fromState.value === toState.value) {
+      if (!objEquals(fromState.params, toState.params)) {
+        const errors = [];
+        const fromStyles = trigger.matchStyles(fromState.value, fromState.params, errors);
+        const toStyles = trigger.matchStyles(toState.value, toState.params, errors);
+        if (errors.length) {
+          this._engine.reportError(errors);
+        } else {
+          this._engine.afterFlush(() => {
+            eraseStyles(element, fromStyles);
+            setStyles(element, toStyles);
+          });
+        }
+      }
+      return;
+    }
+    const playersOnElement = getOrSetDefaultValue(this._engine.playersByElement, element, []);
+    playersOnElement.forEach((player2) => {
+      if (player2.namespaceId == this.id && player2.triggerName == triggerName && player2.queued) {
+        player2.destroy();
+      }
+    });
+    let transition = trigger.matchTransition(fromState.value, toState.value, element, toState.params);
+    let isFallbackTransition = false;
+    if (!transition) {
+      if (!defaultToFallback) return;
+      transition = trigger.fallbackTransition;
+      isFallbackTransition = true;
+    }
+    this._engine.totalQueuedPlayers++;
+    this._queue.push({
+      element,
+      triggerName,
+      transition,
+      fromState,
+      toState,
+      player,
+      isFallbackTransition
+    });
+    if (!isFallbackTransition) {
+      addClass(element, QUEUED_CLASSNAME);
+      player.onStart(() => {
+        removeClass(element, QUEUED_CLASSNAME);
+      });
+    }
+    player.onDone(() => {
+      let index = this.players.indexOf(player);
+      if (index >= 0) {
+        this.players.splice(index, 1);
+      }
+      const players = this._engine.playersByElement.get(element);
+      if (players) {
+        let index2 = players.indexOf(player);
+        if (index2 >= 0) {
+          players.splice(index2, 1);
+        }
+      }
+    });
+    this.players.push(player);
+    playersOnElement.push(player);
+    return player;
+  }
+  deregister(name) {
+    this._triggers.delete(name);
+    this._engine.statesByElement.forEach((stateMap) => stateMap.delete(name));
+    this._elementListeners.forEach((listeners, element) => {
+      this._elementListeners.set(element, listeners.filter((entry) => {
+        return entry.name != name;
+      }));
+    });
+  }
+  clearElementCache(element) {
+    this._engine.statesByElement.delete(element);
+    this._elementListeners.delete(element);
+    const elementPlayers = this._engine.playersByElement.get(element);
+    if (elementPlayers) {
+      elementPlayers.forEach((player) => player.destroy());
+      this._engine.playersByElement.delete(element);
+    }
+  }
+  _signalRemovalForInnerTriggers(rootElement, context) {
+    const elements = this._engine.driver.query(rootElement, NG_TRIGGER_SELECTOR, true);
+    elements.forEach((elm) => {
+      if (elm[REMOVAL_FLAG]) return;
+      const namespaces = this._engine.fetchNamespacesByElement(elm);
+      if (namespaces.size) {
+        namespaces.forEach((ns) => ns.triggerLeaveAnimation(elm, context, false, true));
+      } else {
+        this.clearElementCache(elm);
+      }
+    });
+    this._engine.afterFlushAnimationsDone(() => elements.forEach((elm) => this.clearElementCache(elm)));
+  }
+  triggerLeaveAnimation(element, context, destroyAfterComplete, defaultToFallback) {
+    const triggerStates = this._engine.statesByElement.get(element);
+    const previousTriggersValues = /* @__PURE__ */ new Map();
+    if (triggerStates) {
+      const players = [];
+      triggerStates.forEach((state, triggerName) => {
+        previousTriggersValues.set(triggerName, state.value);
+        if (this._triggers.has(triggerName)) {
+          const player = this.trigger(element, triggerName, VOID_VALUE, defaultToFallback);
+          if (player) {
+            players.push(player);
+          }
+        }
+      });
+      if (players.length) {
+        this._engine.markElementAsRemoved(this.id, element, true, context, previousTriggersValues);
+        if (destroyAfterComplete) {
+          optimizeGroupPlayer(players).onDone(() => this._engine.processLeaveNode(element));
+        }
+        return true;
+      }
+    }
+    return false;
+  }
+  prepareLeaveAnimationListeners(element) {
+    const listeners = this._elementListeners.get(element);
+    const elementStates = this._engine.statesByElement.get(element);
+    if (listeners && elementStates) {
+      const visitedTriggers = /* @__PURE__ */ new Set();
+      listeners.forEach((listener) => {
+        const triggerName = listener.name;
+        if (visitedTriggers.has(triggerName)) return;
+        visitedTriggers.add(triggerName);
+        const trigger = this._triggers.get(triggerName);
+        const transition = trigger.fallbackTransition;
+        const fromState = elementStates.get(triggerName) || DEFAULT_STATE_VALUE;
+        const toState = new StateValue(VOID_VALUE);
+        const player = new TransitionAnimationPlayer(this.id, triggerName, element);
+        this._engine.totalQueuedPlayers++;
+        this._queue.push({
+          element,
+          triggerName,
+          transition,
+          fromState,
+          toState,
+          player,
+          isFallbackTransition: true
+        });
+      });
+    }
+  }
+  removeNode(element, context) {
+    const engine = this._engine;
+    if (element.childElementCount) {
+      this._signalRemovalForInnerTriggers(element, context);
+    }
+    if (this.triggerLeaveAnimation(element, context, true)) return;
+    let containsPotentialParentTransition = false;
+    if (engine.totalAnimations) {
+      const currentPlayers = engine.players.length ? engine.playersByQueriedElement.get(element) : [];
+      if (currentPlayers && currentPlayers.length) {
+        containsPotentialParentTransition = true;
+      } else {
+        let parent = element;
+        while (parent = parent.parentNode) {
+          const triggers = engine.statesByElement.get(parent);
+          if (triggers) {
+            containsPotentialParentTransition = true;
+            break;
+          }
+        }
+      }
+    }
+    this.prepareLeaveAnimationListeners(element);
+    if (containsPotentialParentTransition) {
+      engine.markElementAsRemoved(this.id, element, false, context);
+    } else {
+      const removalFlag = element[REMOVAL_FLAG];
+      if (!removalFlag || removalFlag === NULL_REMOVAL_STATE) {
+        engine.afterFlush(() => this.clearElementCache(element));
+        engine.destroyInnerAnimations(element);
+        engine._onRemovalComplete(element, context);
+      }
+    }
+  }
+  insertNode(element, parent) {
+    addClass(element, this._hostClassName);
+  }
+  drainQueuedTransitions(microtaskId) {
+    const instructions = [];
+    this._queue.forEach((entry) => {
+      const player = entry.player;
+      if (player.destroyed) return;
+      const element = entry.element;
+      const listeners = this._elementListeners.get(element);
+      if (listeners) {
+        listeners.forEach((listener) => {
+          if (listener.name == entry.triggerName) {
+            const baseEvent = makeAnimationEvent(element, entry.triggerName, entry.fromState.value, entry.toState.value);
+            baseEvent["_data"] = microtaskId;
+            listenOnPlayer(entry.player, listener.phase, baseEvent, listener.callback);
+          }
+        });
+      }
+      if (player.markedForDestroy) {
+        this._engine.afterFlush(() => {
+          player.destroy();
+        });
+      } else {
+        instructions.push(entry);
+      }
+    });
+    this._queue = [];
+    return instructions.sort((a, b) => {
+      const d0 = a.transition.ast.depCount;
+      const d1 = b.transition.ast.depCount;
+      if (d0 == 0 || d1 == 0) {
+        return d0 - d1;
+      }
+      return this._engine.driver.containsElement(a.element, b.element) ? 1 : -1;
+    });
+  }
+  destroy(context) {
+    this.players.forEach((p) => p.destroy());
+    this._signalRemovalForInnerTriggers(this.hostElement, context);
+  }
+};
+var TransitionAnimationEngine = class {
+  bodyNode;
+  driver;
+  _normalizer;
+  players = [];
+  newHostElements = /* @__PURE__ */ new Map();
+  playersByElement = /* @__PURE__ */ new Map();
+  playersByQueriedElement = /* @__PURE__ */ new Map();
+  statesByElement = /* @__PURE__ */ new Map();
+  disabledNodes = /* @__PURE__ */ new Set();
+  totalAnimations = 0;
+  totalQueuedPlayers = 0;
+  _namespaceLookup = {};
+  _namespaceList = [];
+  _flushFns = [];
+  _whenQuietFns = [];
+  namespacesByHostElement = /* @__PURE__ */ new Map();
+  collectedEnterElements = [];
+  collectedLeaveElements = [];
+  onRemovalComplete = (element, context) => {
+  };
+  _onRemovalComplete(element, context) {
+    this.onRemovalComplete(element, context);
+  }
+  constructor(bodyNode, driver, _normalizer) {
+    this.bodyNode = bodyNode;
+    this.driver = driver;
+    this._normalizer = _normalizer;
+  }
+  get queuedPlayers() {
+    const players = [];
+    this._namespaceList.forEach((ns) => {
+      ns.players.forEach((player) => {
+        if (player.queued) {
+          players.push(player);
+        }
+      });
+    });
+    return players;
+  }
+  createNamespace(namespaceId, hostElement) {
+    const ns = new AnimationTransitionNamespace(namespaceId, hostElement, this);
+    if (this.bodyNode && this.driver.containsElement(this.bodyNode, hostElement)) {
+      this._balanceNamespaceList(ns, hostElement);
+    } else {
+      this.newHostElements.set(hostElement, ns);
+      this.collectEnterElement(hostElement);
+    }
+    return this._namespaceLookup[namespaceId] = ns;
+  }
+  _balanceNamespaceList(ns, hostElement) {
+    const namespaceList = this._namespaceList;
+    const namespacesByHostElement = this.namespacesByHostElement;
+    const limit = namespaceList.length - 1;
+    if (limit >= 0) {
+      let found = false;
+      let ancestor = this.driver.getParentElement(hostElement);
+      while (ancestor) {
+        const ancestorNs = namespacesByHostElement.get(ancestor);
+        if (ancestorNs) {
+          const index = namespaceList.indexOf(ancestorNs);
+          namespaceList.splice(index + 1, 0, ns);
+          found = true;
+          break;
+        }
+        ancestor = this.driver.getParentElement(ancestor);
+      }
+      if (!found) {
+        namespaceList.unshift(ns);
+      }
+    } else {
+      namespaceList.push(ns);
+    }
+    namespacesByHostElement.set(hostElement, ns);
+    return ns;
+  }
+  register(namespaceId, hostElement) {
+    let ns = this._namespaceLookup[namespaceId];
+    if (!ns) {
+      ns = this.createNamespace(namespaceId, hostElement);
+    }
+    return ns;
+  }
+  registerTrigger(namespaceId, name, trigger) {
+    let ns = this._namespaceLookup[namespaceId];
+    if (ns && ns.register(name, trigger)) {
+      this.totalAnimations++;
+    }
+  }
+  destroy(namespaceId, context) {
+    if (!namespaceId) return;
+    this.afterFlush(() => {
+    });
+    this.afterFlushAnimationsDone(() => {
+      const ns = this._fetchNamespace(namespaceId);
+      this.namespacesByHostElement.delete(ns.hostElement);
+      const index = this._namespaceList.indexOf(ns);
+      if (index >= 0) {
+        this._namespaceList.splice(index, 1);
+      }
+      ns.destroy(context);
+      delete this._namespaceLookup[namespaceId];
+    });
+  }
+  _fetchNamespace(id) {
+    return this._namespaceLookup[id];
+  }
+  fetchNamespacesByElement(element) {
+    const namespaces = /* @__PURE__ */ new Set();
+    const elementStates = this.statesByElement.get(element);
+    if (elementStates) {
+      for (let stateValue of elementStates.values()) {
+        if (stateValue.namespaceId) {
+          const ns = this._fetchNamespace(stateValue.namespaceId);
+          if (ns) {
+            namespaces.add(ns);
+          }
+        }
+      }
+    }
+    return namespaces;
+  }
+  trigger(namespaceId, element, name, value) {
+    if (isElementNode(element)) {
+      const ns = this._fetchNamespace(namespaceId);
+      if (ns) {
+        ns.trigger(element, name, value);
+        return true;
+      }
+    }
+    return false;
+  }
+  insertNode(namespaceId, element, parent, insertBefore) {
+    if (!isElementNode(element)) return;
+    const details = element[REMOVAL_FLAG];
+    if (details && details.setForRemoval) {
+      details.setForRemoval = false;
+      details.setForMove = true;
+      const index = this.collectedLeaveElements.indexOf(element);
+      if (index >= 0) {
+        this.collectedLeaveElements.splice(index, 1);
+      }
+    }
+    if (namespaceId) {
+      const ns = this._fetchNamespace(namespaceId);
+      if (ns) {
+        ns.insertNode(element, parent);
+      }
+    }
+    if (insertBefore) {
+      this.collectEnterElement(element);
+    }
+  }
+  collectEnterElement(element) {
+    this.collectedEnterElements.push(element);
+  }
+  markElementAsDisabled(element, value) {
+    if (value) {
+      if (!this.disabledNodes.has(element)) {
+        this.disabledNodes.add(element);
+        addClass(element, DISABLED_CLASSNAME);
+      }
+    } else if (this.disabledNodes.has(element)) {
+      this.disabledNodes.delete(element);
+      removeClass(element, DISABLED_CLASSNAME);
+    }
+  }
+  removeNode(namespaceId, element, context) {
+    if (isElementNode(element)) {
+      const ns = namespaceId ? this._fetchNamespace(namespaceId) : null;
+      if (ns) {
+        ns.removeNode(element, context);
+      } else {
+        this.markElementAsRemoved(namespaceId, element, false, context);
+      }
+      const hostNS = this.namespacesByHostElement.get(element);
+      if (hostNS && hostNS.id !== namespaceId) {
+        hostNS.removeNode(element, context);
+      }
+    } else {
+      this._onRemovalComplete(element, context);
+    }
+  }
+  markElementAsRemoved(namespaceId, element, hasAnimation, context, previousTriggersValues) {
+    this.collectedLeaveElements.push(element);
+    element[REMOVAL_FLAG] = {
+      namespaceId,
+      setForRemoval: context,
+      hasAnimation,
+      removedBeforeQueried: false,
+      previousTriggersValues
+    };
+  }
+  listen(namespaceId, element, name, phase, callback) {
+    if (isElementNode(element)) {
+      return this._fetchNamespace(namespaceId).listen(element, name, phase, callback);
+    }
+    return () => {
+    };
+  }
+  _buildInstruction(entry, subTimelines, enterClassName, leaveClassName, skipBuildAst) {
+    return entry.transition.build(this.driver, entry.element, entry.fromState.value, entry.toState.value, enterClassName, leaveClassName, entry.fromState.options, entry.toState.options, subTimelines, skipBuildAst);
+  }
+  destroyInnerAnimations(containerElement) {
+    let elements = this.driver.query(containerElement, NG_TRIGGER_SELECTOR, true);
+    elements.forEach((element) => this.destroyActiveAnimationsForElement(element));
+    if (this.playersByQueriedElement.size == 0) return;
+    elements = this.driver.query(containerElement, NG_ANIMATING_SELECTOR, true);
+    elements.forEach((element) => this.finishActiveQueriedAnimationOnElement(element));
+  }
+  destroyActiveAnimationsForElement(element) {
+    const players = this.playersByElement.get(element);
+    if (players) {
+      players.forEach((player) => {
+        if (player.queued) {
+          player.markedForDestroy = true;
+        } else {
+          player.destroy();
+        }
+      });
+    }
+  }
+  finishActiveQueriedAnimationOnElement(element) {
+    const players = this.playersByQueriedElement.get(element);
+    if (players) {
+      players.forEach((player) => player.finish());
+    }
+  }
+  whenRenderingDone() {
+    return new Promise((resolve) => {
+      if (this.players.length) {
+        return optimizeGroupPlayer(this.players).onDone(() => resolve());
+      } else {
+        resolve();
+      }
+    });
+  }
+  processLeaveNode(element) {
+    const details = element[REMOVAL_FLAG];
+    if (details && details.setForRemoval) {
+      element[REMOVAL_FLAG] = NULL_REMOVAL_STATE;
+      if (details.namespaceId) {
+        this.destroyInnerAnimations(element);
+        const ns = this._fetchNamespace(details.namespaceId);
+        if (ns) {
+          ns.clearElementCache(element);
+        }
+      }
+      this._onRemovalComplete(element, details.setForRemoval);
+    }
+    if (element.classList?.contains(DISABLED_CLASSNAME)) {
+      this.markElementAsDisabled(element, false);
+    }
+    this.driver.query(element, DISABLED_SELECTOR, true).forEach((node) => {
+      this.markElementAsDisabled(node, false);
+    });
+  }
+  flush(microtaskId = -1) {
+    let players = [];
+    if (this.newHostElements.size) {
+      this.newHostElements.forEach((ns, element) => this._balanceNamespaceList(ns, element));
+      this.newHostElements.clear();
+    }
+    if (this.totalAnimations && this.collectedEnterElements.length) {
+      for (let i = 0; i < this.collectedEnterElements.length; i++) {
+        const elm = this.collectedEnterElements[i];
+        addClass(elm, STAR_CLASSNAME);
+      }
+    }
+    if (this._namespaceList.length && (this.totalQueuedPlayers || this.collectedLeaveElements.length)) {
+      const cleanupFns = [];
+      try {
+        players = this._flushAnimations(cleanupFns, microtaskId);
+      } finally {
+        for (let i = 0; i < cleanupFns.length; i++) {
+          cleanupFns[i]();
+        }
+      }
+    } else {
+      for (let i = 0; i < this.collectedLeaveElements.length; i++) {
+        const element = this.collectedLeaveElements[i];
+        this.processLeaveNode(element);
+      }
+    }
+    this.totalQueuedPlayers = 0;
+    this.collectedEnterElements.length = 0;
+    this.collectedLeaveElements.length = 0;
+    this._flushFns.forEach((fn) => fn());
+    this._flushFns = [];
+    if (this._whenQuietFns.length) {
+      const quietFns = this._whenQuietFns;
+      this._whenQuietFns = [];
+      if (players.length) {
+        optimizeGroupPlayer(players).onDone(() => {
+          quietFns.forEach((fn) => fn());
+        });
+      } else {
+        quietFns.forEach((fn) => fn());
+      }
+    }
+  }
+  reportError(errors) {
+    throw triggerTransitionsFailed(errors);
+  }
+  _flushAnimations(cleanupFns, microtaskId) {
+    const subTimelines = new ElementInstructionMap();
+    const skippedPlayers = [];
+    const skippedPlayersMap = /* @__PURE__ */ new Map();
+    const queuedInstructions = [];
+    const queriedElements = /* @__PURE__ */ new Map();
+    const allPreStyleElements = /* @__PURE__ */ new Map();
+    const allPostStyleElements = /* @__PURE__ */ new Map();
+    const disabledElementsSet = /* @__PURE__ */ new Set();
+    this.disabledNodes.forEach((node) => {
+      disabledElementsSet.add(node);
+      const nodesThatAreDisabled = this.driver.query(node, QUEUED_SELECTOR, true);
+      for (let i2 = 0; i2 < nodesThatAreDisabled.length; i2++) {
+        disabledElementsSet.add(nodesThatAreDisabled[i2]);
+      }
+    });
+    const bodyNode = this.bodyNode;
+    const allTriggerElements = Array.from(this.statesByElement.keys());
+    const enterNodeMap = buildRootMap(allTriggerElements, this.collectedEnterElements);
+    const enterNodeMapIds = /* @__PURE__ */ new Map();
+    let i = 0;
+    enterNodeMap.forEach((nodes, root) => {
+      const className = ENTER_CLASSNAME + i++;
+      enterNodeMapIds.set(root, className);
+      nodes.forEach((node) => addClass(node, className));
+    });
+    const allLeaveNodes = [];
+    const mergedLeaveNodes = /* @__PURE__ */ new Set();
+    const leaveNodesWithoutAnimations = /* @__PURE__ */ new Set();
+    for (let i2 = 0; i2 < this.collectedLeaveElements.length; i2++) {
+      const element = this.collectedLeaveElements[i2];
+      const details = element[REMOVAL_FLAG];
+      if (details && details.setForRemoval) {
+        allLeaveNodes.push(element);
+        mergedLeaveNodes.add(element);
+        if (details.hasAnimation) {
+          this.driver.query(element, STAR_SELECTOR, true).forEach((elm) => mergedLeaveNodes.add(elm));
+        } else {
+          leaveNodesWithoutAnimations.add(element);
+        }
+      }
+    }
+    const leaveNodeMapIds = /* @__PURE__ */ new Map();
+    const leaveNodeMap = buildRootMap(allTriggerElements, Array.from(mergedLeaveNodes));
+    leaveNodeMap.forEach((nodes, root) => {
+      const className = LEAVE_CLASSNAME + i++;
+      leaveNodeMapIds.set(root, className);
+      nodes.forEach((node) => addClass(node, className));
+    });
+    cleanupFns.push(() => {
+      enterNodeMap.forEach((nodes, root) => {
+        const className = enterNodeMapIds.get(root);
+        nodes.forEach((node) => removeClass(node, className));
+      });
+      leaveNodeMap.forEach((nodes, root) => {
+        const className = leaveNodeMapIds.get(root);
+        nodes.forEach((node) => removeClass(node, className));
+      });
+      allLeaveNodes.forEach((element) => {
+        this.processLeaveNode(element);
+      });
+    });
+    const allPlayers = [];
+    const erroneousTransitions = [];
+    for (let i2 = this._namespaceList.length - 1; i2 >= 0; i2--) {
+      const ns = this._namespaceList[i2];
+      ns.drainQueuedTransitions(microtaskId).forEach((entry) => {
+        const player = entry.player;
+        const element = entry.element;
+        allPlayers.push(player);
+        if (this.collectedEnterElements.length) {
+          const details = element[REMOVAL_FLAG];
+          if (details && details.setForMove) {
+            if (details.previousTriggersValues && details.previousTriggersValues.has(entry.triggerName)) {
+              const previousValue = details.previousTriggersValues.get(entry.triggerName);
+              const triggersWithStates = this.statesByElement.get(entry.element);
+              if (triggersWithStates && triggersWithStates.has(entry.triggerName)) {
+                const state = triggersWithStates.get(entry.triggerName);
+                state.value = previousValue;
+                triggersWithStates.set(entry.triggerName, state);
+              }
+            }
+            player.destroy();
+            return;
+          }
+        }
+        const nodeIsOrphaned = !bodyNode || !this.driver.containsElement(bodyNode, element);
+        const leaveClassName = leaveNodeMapIds.get(element);
+        const enterClassName = enterNodeMapIds.get(element);
+        const instruction = this._buildInstruction(entry, subTimelines, enterClassName, leaveClassName, nodeIsOrphaned);
+        if (instruction.errors && instruction.errors.length) {
+          erroneousTransitions.push(instruction);
+          return;
+        }
+        if (nodeIsOrphaned) {
+          player.onStart(() => eraseStyles(element, instruction.fromStyles));
+          player.onDestroy(() => setStyles(element, instruction.toStyles));
+          skippedPlayers.push(player);
+          return;
+        }
+        if (entry.isFallbackTransition) {
+          player.onStart(() => eraseStyles(element, instruction.fromStyles));
+          player.onDestroy(() => setStyles(element, instruction.toStyles));
+          skippedPlayers.push(player);
+          return;
+        }
+        const timelines = [];
+        instruction.timelines.forEach((tl) => {
+          tl.stretchStartingKeyframe = true;
+          if (!this.disabledNodes.has(tl.element)) {
+            timelines.push(tl);
+          }
+        });
+        instruction.timelines = timelines;
+        subTimelines.append(element, instruction.timelines);
+        const tuple = {
+          instruction,
+          player,
+          element
+        };
+        queuedInstructions.push(tuple);
+        instruction.queriedElements.forEach((element2) => getOrSetDefaultValue(queriedElements, element2, []).push(player));
+        instruction.preStyleProps.forEach((stringMap, element2) => {
+          if (stringMap.size) {
+            let setVal = allPreStyleElements.get(element2);
+            if (!setVal) {
+              allPreStyleElements.set(element2, setVal = /* @__PURE__ */ new Set());
+            }
+            stringMap.forEach((_, prop) => setVal.add(prop));
+          }
+        });
+        instruction.postStyleProps.forEach((stringMap, element2) => {
+          let setVal = allPostStyleElements.get(element2);
+          if (!setVal) {
+            allPostStyleElements.set(element2, setVal = /* @__PURE__ */ new Set());
+          }
+          stringMap.forEach((_, prop) => setVal.add(prop));
+        });
+      });
+    }
+    if (erroneousTransitions.length) {
+      const errors = [];
+      erroneousTransitions.forEach((instruction) => {
+        errors.push(transitionFailed(instruction.triggerName, instruction.errors));
+      });
+      allPlayers.forEach((player) => player.destroy());
+      this.reportError(errors);
+    }
+    const allPreviousPlayersMap = /* @__PURE__ */ new Map();
+    const animationElementMap = /* @__PURE__ */ new Map();
+    queuedInstructions.forEach((entry) => {
+      const element = entry.element;
+      if (subTimelines.has(element)) {
+        animationElementMap.set(element, element);
+        this._beforeAnimationBuild(entry.player.namespaceId, entry.instruction, allPreviousPlayersMap);
+      }
+    });
+    skippedPlayers.forEach((player) => {
+      const element = player.element;
+      const previousPlayers = this._getPreviousPlayers(element, false, player.namespaceId, player.triggerName, null);
+      previousPlayers.forEach((prevPlayer) => {
+        getOrSetDefaultValue(allPreviousPlayersMap, element, []).push(prevPlayer);
+        prevPlayer.destroy();
+      });
+    });
+    const replaceNodes = allLeaveNodes.filter((node) => {
+      return replacePostStylesAsPre(node, allPreStyleElements, allPostStyleElements);
+    });
+    const postStylesMap = /* @__PURE__ */ new Map();
+    const allLeaveQueriedNodes = cloakAndComputeStyles(postStylesMap, this.driver, leaveNodesWithoutAnimations, allPostStyleElements, AUTO_STYLE);
+    allLeaveQueriedNodes.forEach((node) => {
+      if (replacePostStylesAsPre(node, allPreStyleElements, allPostStyleElements)) {
+        replaceNodes.push(node);
+      }
+    });
+    const preStylesMap = /* @__PURE__ */ new Map();
+    enterNodeMap.forEach((nodes, root) => {
+      cloakAndComputeStyles(preStylesMap, this.driver, new Set(nodes), allPreStyleElements, \u0275PRE_STYLE);
+    });
+    replaceNodes.forEach((node) => {
+      const post = postStylesMap.get(node);
+      const pre = preStylesMap.get(node);
+      postStylesMap.set(node, new Map([...post?.entries() ?? [], ...pre?.entries() ?? []]));
+    });
+    const rootPlayers = [];
+    const subPlayers = [];
+    const NO_PARENT_ANIMATION_ELEMENT_DETECTED = {};
+    queuedInstructions.forEach((entry) => {
+      const {
+        element,
+        player,
+        instruction
+      } = entry;
+      if (subTimelines.has(element)) {
+        if (disabledElementsSet.has(element)) {
+          player.onDestroy(() => setStyles(element, instruction.toStyles));
+          player.disabled = true;
+          player.overrideTotalTime(instruction.totalTime);
+          skippedPlayers.push(player);
+          return;
+        }
+        let parentWithAnimation = NO_PARENT_ANIMATION_ELEMENT_DETECTED;
+        if (animationElementMap.size > 1) {
+          let elm = element;
+          const parentsToAdd = [];
+          while (elm = elm.parentNode) {
+            const detectedParent = animationElementMap.get(elm);
+            if (detectedParent) {
+              parentWithAnimation = detectedParent;
+              break;
+            }
+            parentsToAdd.push(elm);
+          }
+          parentsToAdd.forEach((parent) => animationElementMap.set(parent, parentWithAnimation));
+        }
+        const innerPlayer = this._buildAnimation(player.namespaceId, instruction, allPreviousPlayersMap, skippedPlayersMap, preStylesMap, postStylesMap);
+        player.setRealPlayer(innerPlayer);
+        if (parentWithAnimation === NO_PARENT_ANIMATION_ELEMENT_DETECTED) {
+          rootPlayers.push(player);
+        } else {
+          const parentPlayers = this.playersByElement.get(parentWithAnimation);
+          if (parentPlayers && parentPlayers.length) {
+            player.parentPlayer = optimizeGroupPlayer(parentPlayers);
+          }
+          skippedPlayers.push(player);
+        }
+      } else {
+        eraseStyles(element, instruction.fromStyles);
+        player.onDestroy(() => setStyles(element, instruction.toStyles));
+        subPlayers.push(player);
+        if (disabledElementsSet.has(element)) {
+          skippedPlayers.push(player);
+        }
+      }
+    });
+    subPlayers.forEach((player) => {
+      const playersForElement = skippedPlayersMap.get(player.element);
+      if (playersForElement && playersForElement.length) {
+        const innerPlayer = optimizeGroupPlayer(playersForElement);
+        player.setRealPlayer(innerPlayer);
+      }
+    });
+    skippedPlayers.forEach((player) => {
+      if (player.parentPlayer) {
+        player.syncPlayerEvents(player.parentPlayer);
+      } else {
+        player.destroy();
+      }
+    });
+    for (let i2 = 0; i2 < allLeaveNodes.length; i2++) {
+      const element = allLeaveNodes[i2];
+      const details = element[REMOVAL_FLAG];
+      removeClass(element, LEAVE_CLASSNAME);
+      if (details && details.hasAnimation) continue;
+      let players = [];
+      if (queriedElements.size) {
+        let queriedPlayerResults = queriedElements.get(element);
+        if (queriedPlayerResults && queriedPlayerResults.length) {
+          players.push(...queriedPlayerResults);
+        }
+        let queriedInnerElements = this.driver.query(element, NG_ANIMATING_SELECTOR, true);
+        for (let j = 0; j < queriedInnerElements.length; j++) {
+          let queriedPlayers = queriedElements.get(queriedInnerElements[j]);
+          if (queriedPlayers && queriedPlayers.length) {
+            players.push(...queriedPlayers);
+          }
+        }
+      }
+      const activePlayers = players.filter((p) => !p.destroyed);
+      if (activePlayers.length) {
+        removeNodesAfterAnimationDone(this, element, activePlayers);
+      } else {
+        this.processLeaveNode(element);
+      }
+    }
+    allLeaveNodes.length = 0;
+    rootPlayers.forEach((player) => {
+      this.players.push(player);
+      player.onDone(() => {
+        player.destroy();
+        const index = this.players.indexOf(player);
+        this.players.splice(index, 1);
+      });
+      player.play();
+    });
+    return rootPlayers;
+  }
+  afterFlush(callback) {
+    this._flushFns.push(callback);
+  }
+  afterFlushAnimationsDone(callback) {
+    this._whenQuietFns.push(callback);
+  }
+  _getPreviousPlayers(element, isQueriedElement, namespaceId, triggerName, toStateValue) {
+    let players = [];
+    if (isQueriedElement) {
+      const queriedElementPlayers = this.playersByQueriedElement.get(element);
+      if (queriedElementPlayers) {
+        players = queriedElementPlayers;
+      }
+    } else {
+      const elementPlayers = this.playersByElement.get(element);
+      if (elementPlayers) {
+        const isRemovalAnimation = !toStateValue || toStateValue == VOID_VALUE;
+        elementPlayers.forEach((player) => {
+          if (player.queued) return;
+          if (!isRemovalAnimation && player.triggerName != triggerName) return;
+          players.push(player);
+        });
+      }
+    }
+    if (namespaceId || triggerName) {
+      players = players.filter((player) => {
+        if (namespaceId && namespaceId != player.namespaceId) return false;
+        if (triggerName && triggerName != player.triggerName) return false;
+        return true;
+      });
+    }
+    return players;
+  }
+  _beforeAnimationBuild(namespaceId, instruction, allPreviousPlayersMap) {
+    const triggerName = instruction.triggerName;
+    const rootElement = instruction.element;
+    const targetNameSpaceId = instruction.isRemovalTransition ? void 0 : namespaceId;
+    const targetTriggerName = instruction.isRemovalTransition ? void 0 : triggerName;
+    for (const timelineInstruction of instruction.timelines) {
+      const element = timelineInstruction.element;
+      const isQueriedElement = element !== rootElement;
+      const players = getOrSetDefaultValue(allPreviousPlayersMap, element, []);
+      const previousPlayers = this._getPreviousPlayers(element, isQueriedElement, targetNameSpaceId, targetTriggerName, instruction.toState);
+      previousPlayers.forEach((player) => {
+        const realPlayer = player.getRealPlayer();
+        if (realPlayer.beforeDestroy) {
+          realPlayer.beforeDestroy();
+        }
+        player.destroy();
+        players.push(player);
+      });
+    }
+    eraseStyles(rootElement, instruction.fromStyles);
+  }
+  _buildAnimation(namespaceId, instruction, allPreviousPlayersMap, skippedPlayersMap, preStylesMap, postStylesMap) {
+    const triggerName = instruction.triggerName;
+    const rootElement = instruction.element;
+    const allQueriedPlayers = [];
+    const allConsumedElements = /* @__PURE__ */ new Set();
+    const allSubElements = /* @__PURE__ */ new Set();
+    const allNewPlayers = instruction.timelines.map((timelineInstruction) => {
+      const element = timelineInstruction.element;
+      allConsumedElements.add(element);
+      const details = element[REMOVAL_FLAG];
+      if (details && details.removedBeforeQueried) return new NoopAnimationPlayer(timelineInstruction.duration, timelineInstruction.delay);
+      const isQueriedElement = element !== rootElement;
+      const previousPlayers = flattenGroupPlayers((allPreviousPlayersMap.get(element) || EMPTY_PLAYER_ARRAY).map((p) => p.getRealPlayer())).filter((p) => {
+        const pp = p;
+        return pp.element ? pp.element === element : false;
+      });
+      const preStyles = preStylesMap.get(element);
+      const postStyles = postStylesMap.get(element);
+      const keyframes = normalizeKeyframes$1(this._normalizer, timelineInstruction.keyframes, preStyles, postStyles);
+      const player2 = this._buildPlayer(timelineInstruction, keyframes, previousPlayers);
+      if (timelineInstruction.subTimeline && skippedPlayersMap) {
+        allSubElements.add(element);
+      }
+      if (isQueriedElement) {
+        const wrappedPlayer = new TransitionAnimationPlayer(namespaceId, triggerName, element);
+        wrappedPlayer.setRealPlayer(player2);
+        allQueriedPlayers.push(wrappedPlayer);
+      }
+      return player2;
+    });
+    allQueriedPlayers.forEach((player2) => {
+      getOrSetDefaultValue(this.playersByQueriedElement, player2.element, []).push(player2);
+      player2.onDone(() => deleteOrUnsetInMap(this.playersByQueriedElement, player2.element, player2));
+    });
+    allConsumedElements.forEach((element) => addClass(element, NG_ANIMATING_CLASSNAME));
+    const player = optimizeGroupPlayer(allNewPlayers);
+    player.onDestroy(() => {
+      allConsumedElements.forEach((element) => removeClass(element, NG_ANIMATING_CLASSNAME));
+      setStyles(rootElement, instruction.toStyles);
+    });
+    allSubElements.forEach((element) => {
+      getOrSetDefaultValue(skippedPlayersMap, element, []).push(player);
+    });
+    return player;
+  }
+  _buildPlayer(instruction, keyframes, previousPlayers) {
+    if (keyframes.length > 0) {
+      return this.driver.animate(instruction.element, keyframes, instruction.duration, instruction.delay, instruction.easing, previousPlayers);
+    }
+    return new NoopAnimationPlayer(instruction.duration, instruction.delay);
+  }
+};
+var TransitionAnimationPlayer = class {
+  namespaceId;
+  triggerName;
+  element;
+  _player = new NoopAnimationPlayer();
+  _containsRealPlayer = false;
+  _queuedCallbacks = /* @__PURE__ */ new Map();
+  destroyed = false;
+  parentPlayer = null;
+  markedForDestroy = false;
+  disabled = false;
+  queued = true;
+  totalTime = 0;
+  constructor(namespaceId, triggerName, element) {
+    this.namespaceId = namespaceId;
+    this.triggerName = triggerName;
+    this.element = element;
+  }
+  setRealPlayer(player) {
+    if (this._containsRealPlayer) return;
+    this._player = player;
+    this._queuedCallbacks.forEach((callbacks, phase) => {
+      callbacks.forEach((callback) => listenOnPlayer(player, phase, void 0, callback));
+    });
+    this._queuedCallbacks.clear();
+    this._containsRealPlayer = true;
+    this.overrideTotalTime(player.totalTime);
+    this.queued = false;
+  }
+  getRealPlayer() {
+    return this._player;
+  }
+  overrideTotalTime(totalTime) {
+    this.totalTime = totalTime;
+  }
+  syncPlayerEvents(player) {
+    const p = this._player;
+    if (p.triggerCallback) {
+      player.onStart(() => p.triggerCallback("start"));
+    }
+    player.onDone(() => this.finish());
+    player.onDestroy(() => this.destroy());
+  }
+  _queueEvent(name, callback) {
+    getOrSetDefaultValue(this._queuedCallbacks, name, []).push(callback);
+  }
+  onDone(fn) {
+    if (this.queued) {
+      this._queueEvent("done", fn);
+    }
+    this._player.onDone(fn);
+  }
+  onStart(fn) {
+    if (this.queued) {
+      this._queueEvent("start", fn);
+    }
+    this._player.onStart(fn);
+  }
+  onDestroy(fn) {
+    if (this.queued) {
+      this._queueEvent("destroy", fn);
+    }
+    this._player.onDestroy(fn);
+  }
+  init() {
+    this._player.init();
+  }
+  hasStarted() {
+    return this.queued ? false : this._player.hasStarted();
+  }
+  play() {
+    !this.queued && this._player.play();
+  }
+  pause() {
+    !this.queued && this._player.pause();
+  }
+  restart() {
+    !this.queued && this._player.restart();
+  }
+  finish() {
+    this._player.finish();
+  }
+  destroy() {
+    this.destroyed = true;
+    this._player.destroy();
+  }
+  reset() {
+    !this.queued && this._player.reset();
+  }
+  setPosition(p) {
+    if (!this.queued) {
+      this._player.setPosition(p);
+    }
+  }
+  getPosition() {
+    return this.queued ? 0 : this._player.getPosition();
+  }
+  triggerCallback(phaseName) {
+    const p = this._player;
+    if (p.triggerCallback) {
+      p.triggerCallback(phaseName);
+    }
+  }
+};
+function deleteOrUnsetInMap(map, key, value) {
+  let currentValues = map.get(key);
+  if (currentValues) {
+    if (currentValues.length) {
+      const index = currentValues.indexOf(value);
+      currentValues.splice(index, 1);
+    }
+    if (currentValues.length == 0) {
+      map.delete(key);
+    }
+  }
+  return currentValues;
+}
+function normalizeTriggerValue(value) {
+  return value != null ? value : null;
+}
+function isElementNode(node) {
+  return node && node["nodeType"] === 1;
+}
+function isTriggerEventValid(eventName) {
+  return eventName == "start" || eventName == "done";
+}
+function cloakElement(element, value) {
+  const oldValue = element.style.display;
+  element.style.display = value != null ? value : "none";
+  return oldValue;
+}
+function cloakAndComputeStyles(valuesMap, driver, elements, elementPropsMap, defaultStyle) {
+  const cloakVals = [];
+  elements.forEach((element) => cloakVals.push(cloakElement(element)));
+  const failedElements = [];
+  elementPropsMap.forEach((props, element) => {
+    const styles = /* @__PURE__ */ new Map();
+    props.forEach((prop) => {
+      const value = driver.computeStyle(element, prop, defaultStyle);
+      styles.set(prop, value);
+      if (!value || value.length == 0) {
+        element[REMOVAL_FLAG] = NULL_REMOVED_QUERIED_STATE;
+        failedElements.push(element);
+      }
+    });
+    valuesMap.set(element, styles);
+  });
+  let i = 0;
+  elements.forEach((element) => cloakElement(element, cloakVals[i++]));
+  return failedElements;
+}
+function buildRootMap(roots, nodes) {
+  const rootMap = /* @__PURE__ */ new Map();
+  roots.forEach((root) => rootMap.set(root, []));
+  if (nodes.length == 0) return rootMap;
+  const NULL_NODE = 1;
+  const nodeSet = new Set(nodes);
+  const localRootMap = /* @__PURE__ */ new Map();
+  function getRoot(node) {
+    if (!node) return NULL_NODE;
+    let root = localRootMap.get(node);
+    if (root) return root;
+    const parent = node.parentNode;
+    if (rootMap.has(parent)) {
+      root = parent;
+    } else if (nodeSet.has(parent)) {
+      root = NULL_NODE;
+    } else {
+      root = getRoot(parent);
+    }
+    localRootMap.set(node, root);
+    return root;
+  }
+  nodes.forEach((node) => {
+    const root = getRoot(node);
+    if (root !== NULL_NODE) {
+      rootMap.get(root).push(node);
+    }
+  });
+  return rootMap;
+}
+function addClass(element, className) {
+  element.classList?.add(className);
+}
+function removeClass(element, className) {
+  element.classList?.remove(className);
+}
+function removeNodesAfterAnimationDone(engine, element, players) {
+  optimizeGroupPlayer(players).onDone(() => engine.processLeaveNode(element));
+}
+function flattenGroupPlayers(players) {
+  const finalPlayers = [];
+  _flattenGroupPlayersRecur(players, finalPlayers);
+  return finalPlayers;
+}
+function _flattenGroupPlayersRecur(players, finalPlayers) {
+  for (let i = 0; i < players.length; i++) {
+    const player = players[i];
+    if (player instanceof AnimationGroupPlayer) {
+      _flattenGroupPlayersRecur(player.players, finalPlayers);
+    } else {
+      finalPlayers.push(player);
+    }
+  }
+}
+function objEquals(a, b) {
+  const k1 = Object.keys(a);
+  const k2 = Object.keys(b);
+  if (k1.length != k2.length) return false;
+  for (let i = 0; i < k1.length; i++) {
+    const prop = k1[i];
+    if (!b.hasOwnProperty(prop) || a[prop] !== b[prop]) return false;
+  }
+  return true;
+}
+function replacePostStylesAsPre(element, allPreStyleElements, allPostStyleElements) {
+  const postEntry = allPostStyleElements.get(element);
+  if (!postEntry) return false;
+  let preEntry = allPreStyleElements.get(element);
+  if (preEntry) {
+    postEntry.forEach((data) => preEntry.add(data));
+  } else {
+    allPreStyleElements.set(element, postEntry);
+  }
+  allPostStyleElements.delete(element);
+  return true;
+}
+var AnimationEngine = class {
+  _driver;
+  _normalizer;
+  _transitionEngine;
+  _timelineEngine;
+  _triggerCache = {};
+  onRemovalComplete = (element, context) => {
+  };
+  constructor(doc, _driver, _normalizer) {
+    this._driver = _driver;
+    this._normalizer = _normalizer;
+    this._transitionEngine = new TransitionAnimationEngine(doc.body, _driver, _normalizer);
+    this._timelineEngine = new TimelineAnimationEngine(doc.body, _driver, _normalizer);
+    this._transitionEngine.onRemovalComplete = (element, context) => this.onRemovalComplete(element, context);
+  }
+  registerTrigger(componentId, namespaceId, hostElement, name, metadata) {
+    const cacheKey = componentId + "-" + name;
+    let trigger = this._triggerCache[cacheKey];
+    if (!trigger) {
+      const errors = [];
+      const warnings = [];
+      const ast = buildAnimationAst(this._driver, metadata, errors, warnings);
+      if (errors.length) {
+        throw triggerBuildFailed(name, errors);
+      }
+      if (typeof ngDevMode === "undefined" || ngDevMode) {
+        if (warnings.length) {
+          warnTriggerBuild(name, warnings);
+        }
+      }
+      trigger = buildTrigger(name, ast, this._normalizer);
+      this._triggerCache[cacheKey] = trigger;
+    }
+    this._transitionEngine.registerTrigger(namespaceId, name, trigger);
+  }
+  register(namespaceId, hostElement) {
+    this._transitionEngine.register(namespaceId, hostElement);
+  }
+  destroy(namespaceId, context) {
+    this._transitionEngine.destroy(namespaceId, context);
+  }
+  onInsert(namespaceId, element, parent, insertBefore) {
+    this._transitionEngine.insertNode(namespaceId, element, parent, insertBefore);
+  }
+  onRemove(namespaceId, element, context) {
+    this._transitionEngine.removeNode(namespaceId, element, context);
+  }
+  disableAnimations(element, disable) {
+    this._transitionEngine.markElementAsDisabled(element, disable);
+  }
+  process(namespaceId, element, property, value) {
+    if (property.charAt(0) == "@") {
+      const [id, action] = parseTimelineCommand(property);
+      const args = value;
+      this._timelineEngine.command(id, element, action, args);
+    } else {
+      this._transitionEngine.trigger(namespaceId, element, property, value);
+    }
+  }
+  listen(namespaceId, element, eventName, eventPhase, callback) {
+    if (eventName.charAt(0) == "@") {
+      const [id, action] = parseTimelineCommand(eventName);
+      return this._timelineEngine.listen(id, element, action, callback);
+    }
+    return this._transitionEngine.listen(namespaceId, element, eventName, eventPhase, callback);
+  }
+  flush(microtaskId = -1) {
+    this._transitionEngine.flush(microtaskId);
+  }
+  get players() {
+    return [...this._transitionEngine.players, ...this._timelineEngine.players];
+  }
+  whenRenderingDone() {
+    return this._transitionEngine.whenRenderingDone();
+  }
+  afterFlushAnimationsDone(cb) {
+    this._transitionEngine.afterFlushAnimationsDone(cb);
+  }
+};
+function packageNonAnimatableStyles(element, styles) {
+  let startStyles = null;
+  let endStyles = null;
+  if (Array.isArray(styles) && styles.length) {
+    startStyles = filterNonAnimatableStyles(styles[0]);
+    if (styles.length > 1) {
+      endStyles = filterNonAnimatableStyles(styles[styles.length - 1]);
+    }
+  } else if (styles instanceof Map) {
+    startStyles = filterNonAnimatableStyles(styles);
+  }
+  return startStyles || endStyles ? new SpecialCasedStyles(element, startStyles, endStyles) : null;
+}
+var SpecialCasedStyles = class _SpecialCasedStyles {
+  _element;
+  _startStyles;
+  _endStyles;
+  static initialStylesByElement = /* @__PURE__ */ new WeakMap();
+  _state = 0;
+  _initialStyles;
+  constructor(_element, _startStyles, _endStyles) {
+    this._element = _element;
+    this._startStyles = _startStyles;
+    this._endStyles = _endStyles;
+    let initialStyles = _SpecialCasedStyles.initialStylesByElement.get(_element);
+    if (!initialStyles) {
+      _SpecialCasedStyles.initialStylesByElement.set(_element, initialStyles = /* @__PURE__ */ new Map());
+    }
+    this._initialStyles = initialStyles;
+  }
+  start() {
+    if (this._state < 1) {
+      if (this._startStyles) {
+        setStyles(this._element, this._startStyles, this._initialStyles);
+      }
+      this._state = 1;
+    }
+  }
+  finish() {
+    this.start();
+    if (this._state < 2) {
+      setStyles(this._element, this._initialStyles);
+      if (this._endStyles) {
+        setStyles(this._element, this._endStyles);
+        this._endStyles = null;
+      }
+      this._state = 1;
+    }
+  }
+  destroy() {
+    this.finish();
+    if (this._state < 3) {
+      _SpecialCasedStyles.initialStylesByElement.delete(this._element);
+      if (this._startStyles) {
+        eraseStyles(this._element, this._startStyles);
+        this._endStyles = null;
+      }
+      if (this._endStyles) {
+        eraseStyles(this._element, this._endStyles);
+        this._endStyles = null;
+      }
+      setStyles(this._element, this._initialStyles);
+      this._state = 3;
+    }
+  }
+};
+function filterNonAnimatableStyles(styles) {
+  let result = null;
+  styles.forEach((val, prop) => {
+    if (isNonAnimatableStyle(prop)) {
+      result = result || /* @__PURE__ */ new Map();
+      result.set(prop, val);
+    }
+  });
+  return result;
+}
+function isNonAnimatableStyle(prop) {
+  return prop === "display" || prop === "position";
+}
+var WebAnimationsPlayer = class {
+  element;
+  keyframes;
+  options;
+  _specialStyles;
+  _onDoneFns = [];
+  _onStartFns = [];
+  _onDestroyFns = [];
+  _duration;
+  _delay;
+  _initialized = false;
+  _finished = false;
+  _started = false;
+  _destroyed = false;
+  _finalKeyframe;
+  _originalOnDoneFns = [];
+  _originalOnStartFns = [];
+  domPlayer = null;
+  time = 0;
+  parentPlayer = null;
+  currentSnapshot = /* @__PURE__ */ new Map();
+  constructor(element, keyframes, options2, _specialStyles) {
+    this.element = element;
+    this.keyframes = keyframes;
+    this.options = options2;
+    this._specialStyles = _specialStyles;
+    this._duration = options2["duration"];
+    this._delay = options2["delay"] || 0;
+    this.time = this._duration + this._delay;
+  }
+  _onFinish() {
+    if (!this._finished) {
+      this._finished = true;
+      this._onDoneFns.forEach((fn) => fn());
+      this._onDoneFns = [];
+    }
+  }
+  init() {
+    if (!this._buildPlayer()) {
+      return;
+    }
+    this._preparePlayerBeforeStart();
+  }
+  _buildPlayer() {
+    if (this._initialized) return this.domPlayer;
+    this._initialized = true;
+    const keyframes = this.keyframes;
+    const animation = this._triggerWebAnimation(this.element, keyframes, this.options);
+    if (!animation) {
+      this._onFinish();
+      return null;
+    }
+    this.domPlayer = animation;
+    this._finalKeyframe = keyframes.length ? keyframes[keyframes.length - 1] : /* @__PURE__ */ new Map();
+    const onFinish = () => this._onFinish();
+    animation.addEventListener("finish", onFinish);
+    this.onDestroy(() => {
+      animation.removeEventListener("finish", onFinish);
+    });
+    return animation;
+  }
+  _preparePlayerBeforeStart() {
+    if (this._delay) {
+      this._resetDomPlayerState();
+    } else {
+      this.domPlayer?.pause();
+    }
+  }
+  _convertKeyframesToObject(keyframes) {
+    const kfs = [];
+    keyframes.forEach((frame) => {
+      kfs.push(Object.fromEntries(frame));
+    });
+    return kfs;
+  }
+  _triggerWebAnimation(element, keyframes, options2) {
+    const keyframesObject = this._convertKeyframesToObject(keyframes);
+    try {
+      return element.animate(keyframesObject, options2);
+    } catch {
+      return null;
+    }
+  }
+  onStart(fn) {
+    this._originalOnStartFns.push(fn);
+    this._onStartFns.push(fn);
+  }
+  onDone(fn) {
+    this._originalOnDoneFns.push(fn);
+    this._onDoneFns.push(fn);
+  }
+  onDestroy(fn) {
+    this._onDestroyFns.push(fn);
+  }
+  play() {
+    const player = this._buildPlayer();
+    if (!player) {
+      return;
+    }
+    if (!this.hasStarted()) {
+      this._onStartFns.forEach((fn) => fn());
+      this._onStartFns = [];
+      this._started = true;
+      if (this._specialStyles) {
+        this._specialStyles.start();
+      }
+    }
+    player.play();
+  }
+  pause() {
+    this.init();
+    this.domPlayer?.pause();
+  }
+  finish() {
+    this.init();
+    if (!this.domPlayer) return;
+    if (this._specialStyles) {
+      this._specialStyles.finish();
+    }
+    this._onFinish();
+    this.domPlayer.finish();
+  }
+  reset() {
+    this._resetDomPlayerState();
+    this._destroyed = false;
+    this._finished = false;
+    this._started = false;
+    this._onStartFns = this._originalOnStartFns;
+    this._onDoneFns = this._originalOnDoneFns;
+  }
+  _resetDomPlayerState() {
+    this.domPlayer?.cancel();
+  }
+  restart() {
+    this.reset();
+    this.play();
+  }
+  hasStarted() {
+    return this._started;
+  }
+  destroy() {
+    if (!this._destroyed) {
+      this._destroyed = true;
+      this._resetDomPlayerState();
+      this._onFinish();
+      if (this._specialStyles) {
+        this._specialStyles.destroy();
+      }
+      this._onDestroyFns.forEach((fn) => fn());
+      this._onDestroyFns = [];
+    }
+  }
+  setPosition(p) {
+    if (!this.domPlayer) {
+      this.init();
+    }
+    if (this.domPlayer) {
+      this.domPlayer.currentTime = p * this.time;
+    }
+  }
+  getPosition() {
+    if (!this.domPlayer) {
+      return this._initialized ? 1 : 0;
+    }
+    return +(this.domPlayer.currentTime ?? 0) / this.time;
+  }
+  get totalTime() {
+    return this._delay + this._duration;
+  }
+  beforeDestroy() {
+    const styles = /* @__PURE__ */ new Map();
+    if (this.hasStarted()) {
+      const finalKeyframe = this._finalKeyframe;
+      finalKeyframe.forEach((val, prop) => {
+        if (prop !== "offset") {
+          styles.set(prop, this._finished ? val : computeStyle(this.element, prop));
+        }
+      });
+    }
+    this.currentSnapshot = styles;
+  }
+  triggerCallback(phaseName) {
+    const methods = phaseName === "start" ? this._onStartFns : this._onDoneFns;
+    methods.forEach((fn) => fn());
+    methods.length = 0;
+  }
+};
+var WebAnimationsDriver = class {
+  validateStyleProperty(prop) {
+    if (typeof ngDevMode === "undefined" || ngDevMode) {
+      return validateStyleProperty(prop);
+    }
+    return true;
+  }
+  validateAnimatableStyleProperty(prop) {
+    if (typeof ngDevMode === "undefined" || ngDevMode) {
+      const cssProp = camelCaseToDashCase(prop);
+      return validateWebAnimatableStyleProperty(cssProp);
+    }
+    return true;
+  }
+  containsElement(elm1, elm2) {
+    return containsElement(elm1, elm2);
+  }
+  getParentElement(element) {
+    return getParentElement(element);
+  }
+  query(element, selector, multi) {
+    return invokeQuery(element, selector, multi);
+  }
+  computeStyle(element, prop, defaultValue) {
+    return computeStyle(element, prop);
+  }
+  animate(element, keyframes, duration, delay, easing, previousPlayers = []) {
+    const fill = delay == 0 ? "both" : "forwards";
+    const playerOptions = {
+      duration,
+      delay,
+      fill
+    };
+    if (easing) {
+      playerOptions["easing"] = easing;
+    }
+    const previousStyles = /* @__PURE__ */ new Map();
+    const previousWebAnimationPlayers = previousPlayers.filter((player) => player instanceof WebAnimationsPlayer);
+    if (allowPreviousPlayerStylesMerge(duration, delay)) {
+      previousWebAnimationPlayers.forEach((player) => {
+        player.currentSnapshot.forEach((val, prop) => previousStyles.set(prop, val));
+      });
+    }
+    let _keyframes = normalizeKeyframes(keyframes).map((styles) => new Map(styles));
+    _keyframes = balancePreviousStylesIntoKeyframes(element, _keyframes, previousStyles);
+    const specialStyles = packageNonAnimatableStyles(element, _keyframes);
+    return new WebAnimationsPlayer(element, _keyframes, playerOptions, specialStyles);
+  }
+};
+var ANIMATION_PREFIX = "@";
+var DISABLE_ANIMATIONS_FLAG = "@.disabled";
+var BaseAnimationRenderer = class {
+  namespaceId;
+  delegate;
+  engine;
+  _onDestroy;
+  \u0275type = 0;
+  constructor(namespaceId, delegate, engine, _onDestroy) {
+    this.namespaceId = namespaceId;
+    this.delegate = delegate;
+    this.engine = engine;
+    this._onDestroy = _onDestroy;
+  }
+  get data() {
+    return this.delegate.data;
+  }
+  destroyNode(node) {
+    this.delegate.destroyNode?.(node);
+  }
+  destroy() {
+    this.engine.destroy(this.namespaceId, this.delegate);
+    this.engine.afterFlushAnimationsDone(() => {
+      queueMicrotask(() => {
+        this.delegate.destroy();
+      });
+    });
+    this._onDestroy?.();
+  }
+  createElement(name, namespace) {
+    return this.delegate.createElement(name, namespace);
+  }
+  createComment(value) {
+    return this.delegate.createComment(value);
+  }
+  createText(value) {
+    return this.delegate.createText(value);
+  }
+  appendChild(parent, newChild) {
+    this.delegate.appendChild(parent, newChild);
+    this.engine.onInsert(this.namespaceId, newChild, parent, false);
+  }
+  insertBefore(parent, newChild, refChild, isMove = true) {
+    this.delegate.insertBefore(parent, newChild, refChild);
+    this.engine.onInsert(this.namespaceId, newChild, parent, isMove);
+  }
+  removeChild(parent, oldChild, isHostElement, requireSynchronousElementRemoval) {
+    if (requireSynchronousElementRemoval) {
+      this.delegate.removeChild(parent, oldChild, isHostElement, requireSynchronousElementRemoval);
+      return;
+    }
+    if (this.parentNode(oldChild)) {
+      this.engine.onRemove(this.namespaceId, oldChild, this.delegate);
+    }
+  }
+  selectRootElement(selectorOrNode, preserveContent) {
+    return this.delegate.selectRootElement(selectorOrNode, preserveContent);
+  }
+  parentNode(node) {
+    return this.delegate.parentNode(node);
+  }
+  nextSibling(node) {
+    return this.delegate.nextSibling(node);
+  }
+  setAttribute(el, name, value, namespace) {
+    this.delegate.setAttribute(el, name, value, namespace);
+  }
+  removeAttribute(el, name, namespace) {
+    this.delegate.removeAttribute(el, name, namespace);
+  }
+  addClass(el, name) {
+    this.delegate.addClass(el, name);
+  }
+  removeClass(el, name) {
+    this.delegate.removeClass(el, name);
+  }
+  setStyle(el, style2, value, flags) {
+    this.delegate.setStyle(el, style2, value, flags);
+  }
+  removeStyle(el, style2, flags) {
+    this.delegate.removeStyle(el, style2, flags);
+  }
+  setProperty(el, name, value) {
+    if (name.charAt(0) == ANIMATION_PREFIX && name == DISABLE_ANIMATIONS_FLAG) {
+      this.disableAnimations(el, !!value);
+    } else {
+      this.delegate.setProperty(el, name, value);
+    }
+  }
+  setValue(node, value) {
+    this.delegate.setValue(node, value);
+  }
+  listen(target, eventName, callback, options2) {
+    return this.delegate.listen(target, eventName, callback, options2);
+  }
+  disableAnimations(element, value) {
+    this.engine.disableAnimations(element, value);
+  }
+};
+var AnimationRenderer = class extends BaseAnimationRenderer {
+  factory;
+  constructor(factory, namespaceId, delegate, engine, onDestroy) {
+    super(namespaceId, delegate, engine, onDestroy);
+    this.factory = factory;
+    this.namespaceId = namespaceId;
+  }
+  setProperty(el, name, value) {
+    if (name.charAt(0) == ANIMATION_PREFIX) {
+      if (name.charAt(1) == "." && name == DISABLE_ANIMATIONS_FLAG) {
+        value = value === void 0 ? true : !!value;
+        this.disableAnimations(el, value);
+      } else {
+        this.engine.process(this.namespaceId, el, name.slice(1), value);
+      }
+    } else {
+      this.delegate.setProperty(el, name, value);
+    }
+  }
+  listen(target, eventName, callback, options2) {
+    if (eventName.charAt(0) == ANIMATION_PREFIX) {
+      const element = resolveElementFromTarget(target);
+      let name = eventName.slice(1);
+      let phase = "";
+      if (name.charAt(0) != ANIMATION_PREFIX) {
+        [name, phase] = parseTriggerCallbackName(name);
+      }
+      return this.engine.listen(this.namespaceId, element, name, phase, (event) => {
+        const countId = event["_data"] || -1;
+        this.factory.scheduleListenerCallback(countId, callback, event);
+      });
+    }
+    return this.delegate.listen(target, eventName, callback, options2);
+  }
+};
+function resolveElementFromTarget(target) {
+  switch (target) {
+    case "body":
+      return document.body;
+    case "document":
+      return document;
+    case "window":
+      return window;
+    default:
+      return target;
+  }
+}
+function parseTriggerCallbackName(triggerName) {
+  const dotIndex = triggerName.indexOf(".");
+  const trigger = triggerName.substring(0, dotIndex);
+  const phase = triggerName.slice(dotIndex + 1);
+  return [trigger, phase];
+}
+var AnimationRendererFactory = class {
+  delegate;
+  engine;
+  _zone;
+  _currentId = 0;
+  _microtaskId = 1;
+  _animationCallbacksBuffer = [];
+  _rendererCache = /* @__PURE__ */ new Map();
+  _cdRecurDepth = 0;
+  constructor(delegate, engine, _zone) {
+    this.delegate = delegate;
+    this.engine = engine;
+    this._zone = _zone;
+    engine.onRemovalComplete = (element, delegate2) => {
+      delegate2?.removeChild(null, element);
+    };
+  }
+  createRenderer(hostElement, type) {
+    const EMPTY_NAMESPACE_ID = "";
+    const delegate = this.delegate.createRenderer(hostElement, type);
+    if (!hostElement || !type?.data?.["animation"]) {
+      const cache = this._rendererCache;
+      let renderer = cache.get(delegate);
+      if (!renderer) {
+        const onRendererDestroy = () => cache.delete(delegate);
+        renderer = new BaseAnimationRenderer(EMPTY_NAMESPACE_ID, delegate, this.engine, onRendererDestroy);
+        cache.set(delegate, renderer);
+      }
+      return renderer;
+    }
+    const componentId = type.id;
+    const namespaceId = type.id + "-" + this._currentId;
+    this._currentId++;
+    this.engine.register(namespaceId, hostElement);
+    const registerTrigger = (trigger) => {
+      if (Array.isArray(trigger)) {
+        trigger.forEach(registerTrigger);
+      } else {
+        this.engine.registerTrigger(componentId, namespaceId, hostElement, trigger.name, trigger);
+      }
+    };
+    const animationTriggers = type.data["animation"];
+    animationTriggers.forEach(registerTrigger);
+    return new AnimationRenderer(this, namespaceId, delegate, this.engine);
+  }
+  begin() {
+    this._cdRecurDepth++;
+    if (this.delegate.begin) {
+      this.delegate.begin();
+    }
+  }
+  _scheduleCountTask() {
+    queueMicrotask(() => {
+      this._microtaskId++;
+    });
+  }
+  scheduleListenerCallback(count, fn, data) {
+    if (count >= 0 && count < this._microtaskId) {
+      this._zone.run(() => fn(data));
+      return;
+    }
+    const animationCallbacksBuffer = this._animationCallbacksBuffer;
+    if (animationCallbacksBuffer.length == 0) {
+      queueMicrotask(() => {
+        this._zone.run(() => {
+          animationCallbacksBuffer.forEach((tuple) => {
+            const [fn2, data2] = tuple;
+            fn2(data2);
+          });
+          this._animationCallbacksBuffer = [];
+        });
+      });
+    }
+    animationCallbacksBuffer.push([fn, data]);
+  }
+  end() {
+    this._cdRecurDepth--;
+    if (this._cdRecurDepth == 0) {
+      this._zone.runOutsideAngular(() => {
+        this._scheduleCountTask();
+        this.engine.flush(this._microtaskId);
+      });
+    }
+    if (this.delegate.end) {
+      this.delegate.end();
+    }
+  }
+  whenRenderingDone() {
+    return this.engine.whenRenderingDone();
+  }
+  componentReplaced(componentId) {
+    this.engine.flush();
+    this.delegate.componentReplaced?.(componentId);
+  }
+};
+
+// node_modules/@angular/platform-browser/fesm2022/animations.mjs
+/**
+ * @license Angular v22.0.1
+ * (c) 2010-2026 Google LLC. https://angular.dev/
+ * License: MIT
+ */
+var InjectableAnimationEngine = class _InjectableAnimationEngine extends AnimationEngine {
+  constructor(doc, driver, normalizer) {
+    super(doc, driver, normalizer);
+  }
+  ngOnDestroy() {
+    this.flush();
+  }
+  static \u0275fac = function InjectableAnimationEngine_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _InjectableAnimationEngine)(\u0275\u0275inject(DOCUMENT), \u0275\u0275inject(AnimationDriver), \u0275\u0275inject(AnimationStyleNormalizer));
+  };
+  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
+    token: _InjectableAnimationEngine,
+    factory: _InjectableAnimationEngine.\u0275fac
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(InjectableAnimationEngine, [{
+    type: Injectable
+  }], () => [{
+    type: Document,
+    decorators: [{
+      type: Inject,
+      args: [DOCUMENT]
+    }]
+  }, {
+    type: AnimationDriver
+  }, {
+    type: AnimationStyleNormalizer
+  }], null);
+})();
+function instantiateDefaultStyleNormalizer() {
+  return new WebAnimationsStyleNormalizer();
+}
+function instantiateRendererFactory() {
+  return new AnimationRendererFactory(inject(DomRendererFactory2), inject(AnimationEngine), inject(NgZone));
+}
+var SHARED_ANIMATION_PROVIDERS = [{
+  provide: AnimationStyleNormalizer,
+  useFactory: instantiateDefaultStyleNormalizer
+}, {
+  provide: AnimationEngine,
+  useClass: InjectableAnimationEngine
+}, {
+  provide: RendererFactory2,
+  useFactory: instantiateRendererFactory
+}];
+var BROWSER_NOOP_ANIMATIONS_PROVIDERS = [{
+  provide: AnimationDriver,
+  useClass: NoopAnimationDriver
+}, {
+  provide: ANIMATION_MODULE_TYPE,
+  useValue: "NoopAnimations"
+}, ...SHARED_ANIMATION_PROVIDERS];
+var BROWSER_ANIMATIONS_PROVIDERS = [{
+  provide: AnimationDriver,
+  useFactory: () => false ? new NoopAnimationDriver() : new WebAnimationsDriver()
+}, {
+  provide: ANIMATION_MODULE_TYPE,
+  useFactory: () => false ? "NoopAnimations" : "BrowserAnimations"
+}, ...SHARED_ANIMATION_PROVIDERS];
+var BrowserAnimationsModule = class _BrowserAnimationsModule {
+  static withConfig(config) {
+    return {
+      ngModule: _BrowserAnimationsModule,
+      providers: config.disableAnimations ? BROWSER_NOOP_ANIMATIONS_PROVIDERS : BROWSER_ANIMATIONS_PROVIDERS
+    };
+  }
+  static \u0275fac = function BrowserAnimationsModule_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _BrowserAnimationsModule)();
+  };
+  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
+    type: _BrowserAnimationsModule,
+    exports: [BrowserModule]
+  });
+  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
+    providers: BROWSER_ANIMATIONS_PROVIDERS,
+    imports: [BrowserModule]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(BrowserAnimationsModule, [{
+    type: NgModule,
+    args: [{
+      exports: [BrowserModule],
+      providers: BROWSER_ANIMATIONS_PROVIDERS
+    }]
+  }], null, null);
+})();
+function provideAnimations() {
+  performanceMarkFeature("NgEagerAnimations");
+  return [...BROWSER_ANIMATIONS_PROVIDERS];
+}
+var NoopAnimationsModule = class _NoopAnimationsModule {
+  static \u0275fac = function NoopAnimationsModule_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NoopAnimationsModule)();
+  };
+  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
+    type: _NoopAnimationsModule,
+    exports: [BrowserModule]
+  });
+  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
+    providers: BROWSER_NOOP_ANIMATIONS_PROVIDERS,
+    imports: [BrowserModule]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NoopAnimationsModule, [{
+    type: NgModule,
+    args: [{
+      exports: [BrowserModule],
+      providers: BROWSER_NOOP_ANIMATIONS_PROVIDERS
+    }]
+  }], null, null);
+})();
+
+// apps/visitor-kiosk/src/environments/environment.ts
+var environment = {
+  production: false
+};
+
+// apps/visitor-kiosk/src/app/bootstrap.component.ts
+function BootstrapComponent_Conditional_11_Conditional_1_For_14_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-option", 18)(1, "div", 19)(2, "div");
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 20)(5, "span", 21);
+    \u0275\u0275text(6, "\xA0[");
+    \u0275\u0275elementEnd();
+    \u0275\u0275text(7);
+    \u0275\u0275elementStart(8, "span", 21);
+    \u0275\u0275text(9, "]");
+    \u0275\u0275elementEnd()()()();
+  }
+  if (rf & 2) {
+    const option_r3 = ctx.$implicit;
+    \u0275\u0275property("value", option_r3);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", option_r3.display_name || option_r3.name, " ");
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(option_r3.id);
+  }
+}
+function BootstrapComponent_Conditional_11_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "label");
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "mat-form-field", 13)(4, "mat-select", 14, 0);
+    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275twoWayListener("ngModelChange", function BootstrapComponent_Conditional_11_Conditional_1_Template_mat_select_ngModelChange_4_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      \u0275\u0275twoWayBindingSet(ctx_r1.active_region, $event) || (ctx_r1.active_region = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275listener("ngModelChange", function BootstrapComponent_Conditional_11_Conditional_1_Template_mat_select_ngModelChange_4_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.setRegion($event));
+    });
+    \u0275\u0275elementStart(7, "mat-select-trigger")(8, "div", 15)(9, "div", 16);
+    \u0275\u0275text(10);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(11, "div", 17);
+    \u0275\u0275text(12);
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275repeaterCreate(13, BootstrapComponent_Conditional_11_Conditional_1_For_14_Template, 10, 3, "mat-option", 18, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 5, "APP.VISITOR_KIOSK.SELECT_REGION_MSG"), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r1.active_region);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(6, 7, "APP.VISITOR_KIOSK.SELECT_REGION_MSG"));
+    \u0275\u0275control();
+    \u0275\u0275advance(6);
+    \u0275\u0275textInterpolate1(" ", ctx_r1.active_region()?.display_name || ctx_r1.active_region()?.name, " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", ctx_r1.active_region()?.id, " ");
+    \u0275\u0275advance();
+    \u0275\u0275repeater(ctx_r1.regions());
+  }
+}
+function BootstrapComponent_Conditional_11_Conditional_2_For_14_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-option", 18)(1, "div", 19)(2, "div");
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 22)(5, "span", 21);
+    \u0275\u0275text(6, "\xA0[");
+    \u0275\u0275elementEnd();
+    \u0275\u0275text(7);
+    \u0275\u0275elementStart(8, "span", 21);
+    \u0275\u0275text(9, "]");
+    \u0275\u0275elementEnd()()()();
+  }
+  if (rf & 2) {
+    const option_r5 = ctx.$implicit;
+    \u0275\u0275property("value", option_r5);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", option_r5.display_name || option_r5.name, " ");
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(option_r5.id);
+  }
+}
+function BootstrapComponent_Conditional_11_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "label");
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "mat-form-field", 13)(4, "mat-select", 14, 0);
+    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275twoWayListener("ngModelChange", function BootstrapComponent_Conditional_11_Conditional_2_Template_mat_select_ngModelChange_4_listener($event) {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      \u0275\u0275twoWayBindingSet(ctx_r1.active_building, $event) || (ctx_r1.active_building = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275listener("ngModelChange", function BootstrapComponent_Conditional_11_Conditional_2_Template_mat_select_ngModelChange_4_listener($event) {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.setBuilding($event));
+    });
+    \u0275\u0275elementStart(7, "mat-select-trigger")(8, "div", 15)(9, "div", 16);
+    \u0275\u0275text(10);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(11, "div", 17);
+    \u0275\u0275text(12);
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275repeaterCreate(13, BootstrapComponent_Conditional_11_Conditional_2_For_14_Template, 10, 3, "mat-option", 18, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 5, "APP.VISITOR_KIOSK.SELECT_BUILDING_MSG"), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r1.active_building);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(6, 7, "APP.VISITOR_KIOSK.SELECT_BUILDING"));
+    \u0275\u0275control();
+    \u0275\u0275advance(6);
+    \u0275\u0275textInterpolate1(" ", ctx_r1.active_building()?.display_name || ctx_r1.active_building()?.name, " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", ctx_r1.active_building()?.id, " ");
+    \u0275\u0275advance();
+    \u0275\u0275repeater(ctx_r1.buildings());
+  }
+}
+function BootstrapComponent_Conditional_11_Conditional_3_For_15_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-option", 18)(1, "div", 19)(2, "div");
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 20)(5, "span", 21);
+    \u0275\u0275text(6, "\xA0[");
+    \u0275\u0275elementEnd();
+    \u0275\u0275text(7);
+    \u0275\u0275elementStart(8, "span", 21);
+    \u0275\u0275text(9, "]");
+    \u0275\u0275elementEnd()()()();
+  }
+  if (rf & 2) {
+    const option_r7 = ctx.$implicit;
+    \u0275\u0275property("value", option_r7);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", option_r7.display_name || option_r7.name, " ");
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(option_r7.id);
+  }
+}
+function BootstrapComponent_Conditional_11_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r6 = \u0275\u0275getCurrentView();
+    \u0275\u0275element(0, "div");
+    \u0275\u0275elementStart(1, "label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-form-field", 13)(5, "mat-select", 23, 0);
+    \u0275\u0275pipe(7, "translate");
+    \u0275\u0275twoWayListener("ngModelChange", function BootstrapComponent_Conditional_11_Conditional_3_Template_mat_select_ngModelChange_5_listener($event) {
+      \u0275\u0275restoreView(_r6);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      \u0275\u0275twoWayBindingSet(ctx_r1.active_level, $event) || (ctx_r1.active_level = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementStart(8, "mat-select-trigger")(9, "div", 15)(10, "div", 16);
+    \u0275\u0275text(11);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(12, "div", 17);
+    \u0275\u0275text(13);
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275repeaterCreate(14, BootstrapComponent_Conditional_11_Conditional_3_For_15_Template, 10, 3, "mat-option", 18, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 5, "APP.VISITOR_KIOSK.SELECT_LEVEL_MSG"), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r1.active_level);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(7, 7, "APP.VISITOR_KIOSK.SELECT_LEVEL"));
+    \u0275\u0275control();
+    \u0275\u0275advance(6);
+    \u0275\u0275textInterpolate1(" ", ctx_r1.active_level()?.display_name || ctx_r1.active_level()?.name, " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", ctx_r1.active_level()?.id, " ");
+    \u0275\u0275advance();
+    \u0275\u0275repeater(ctx_r1.levels());
+  }
+}
+function BootstrapComponent_Conditional_11_Conditional_4_For_9_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-option", 18)(1, "div", 19)(2, "div");
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 20)(5, "span", 21);
+    \u0275\u0275text(6, "\xA0[");
+    \u0275\u0275elementEnd();
+    \u0275\u0275text(7);
+    \u0275\u0275elementStart(8, "span", 21);
+    \u0275\u0275text(9, "]");
+    \u0275\u0275elementEnd()()()();
+  }
+  if (rf & 2) {
+    const option_r9 = ctx.$implicit;
+    \u0275\u0275property("value", option_r9);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", option_r9.display_name || option_r9.name, " ");
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(option_r9.id);
+  }
+}
+function BootstrapComponent_Conditional_11_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r8 = \u0275\u0275getCurrentView();
+    \u0275\u0275element(0, "div");
+    \u0275\u0275elementStart(1, "label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-form-field", 13)(5, "mat-select", 24, 0);
+    \u0275\u0275pipe(7, "translate");
+    \u0275\u0275twoWayListener("ngModelChange", function BootstrapComponent_Conditional_11_Conditional_4_Template_mat_select_ngModelChange_5_listener($event) {
+      \u0275\u0275restoreView(_r8);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      \u0275\u0275twoWayBindingSet(ctx_r1.active_rotation, $event) || (ctx_r1.active_rotation = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275repeaterCreate(8, BootstrapComponent_Conditional_11_Conditional_4_For_9_Template, 10, 3, "mat-option", 18, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 3, "APP.VISITOR_KIOSK.SELECT_ORIENTATION_MSG"), " Please select an orientation from the dropdown below ");
+    \u0275\u0275advance(3);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r1.active_rotation);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(7, 5, "APP.VISITOR_KIOSK.SELECT_ORIENTATION"));
+    \u0275\u0275control();
+    \u0275\u0275advance(3);
+    \u0275\u0275repeater(ctx_r1.rotations());
+  }
+}
+function BootstrapComponent_Conditional_11_Conditional_5_For_9_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-option", 18)(1, "div", 19)(2, "div");
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 20)(5, "span", 21);
+    \u0275\u0275text(6, "\xA0[");
+    \u0275\u0275elementEnd();
+    \u0275\u0275text(7);
+    \u0275\u0275elementStart(8, "span", 21);
+    \u0275\u0275text(9, "]");
+    \u0275\u0275elementEnd()()()();
+  }
+  if (rf & 2) {
+    const option_r11 = ctx.$implicit;
+    \u0275\u0275property("value", option_r11);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", option_r11.display_name || option_r11.name, " ");
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(option_r11.id);
+  }
+}
+function BootstrapComponent_Conditional_11_Conditional_5_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r10 = \u0275\u0275getCurrentView();
+    \u0275\u0275element(0, "div");
+    \u0275\u0275elementStart(1, "label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-form-field", 13)(5, "mat-select", 24, 0);
+    \u0275\u0275pipe(7, "translate");
+    \u0275\u0275twoWayListener("ngModelChange", function BootstrapComponent_Conditional_11_Conditional_5_Template_mat_select_ngModelChange_5_listener($event) {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      \u0275\u0275twoWayBindingSet(ctx_r1.active_location, $event) || (ctx_r1.active_location = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275repeaterCreate(8, BootstrapComponent_Conditional_11_Conditional_5_For_9_Template, 10, 3, "mat-option", 18, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 3, "APP.VISITOR_KIOSK.SELECT_LOCATION_MSG"), " Please select an fixed location from the dropdown below ");
+    \u0275\u0275advance(3);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r1.active_location);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(7, 5, "APP.VISITOR_KIOSK.SELECT_LOCATION"));
+    \u0275\u0275control();
+    \u0275\u0275advance(3);
+    \u0275\u0275repeater(ctx_r1.locations());
+  }
+}
+function BootstrapComponent_Conditional_11_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 7);
+    \u0275\u0275conditionalCreate(1, BootstrapComponent_Conditional_11_Conditional_1_Template, 15, 9);
+    \u0275\u0275conditionalCreate(2, BootstrapComponent_Conditional_11_Conditional_2_Template, 15, 9);
+    \u0275\u0275conditionalCreate(3, BootstrapComponent_Conditional_11_Conditional_3_Template, 16, 9);
+    \u0275\u0275conditionalCreate(4, BootstrapComponent_Conditional_11_Conditional_4_Template, 10, 7);
+    \u0275\u0275conditionalCreate(5, BootstrapComponent_Conditional_11_Conditional_5_Template, 10, 7);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.regions().length > 1 ? 1 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.buildings().length ? 2 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.levels().length && ctx_r1.active_building() ? 3 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.rotations().length ? 4 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.locations().length ? 5 : -1);
+  }
+}
+function BootstrapComponent_Conditional_12_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 8);
+    \u0275\u0275element(1, "mat-spinner", 25);
+    \u0275\u0275elementStart(2, "p");
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275property("diameter", 32);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r1.loading());
+  }
+}
+function BootstrapComponent_Conditional_13_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r12 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 9)(1, "button", 26);
+    \u0275\u0275listener("click", function BootstrapComponent_Conditional_13_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r12);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.bootstrapKiosk());
+    });
+    \u0275\u0275text(2, " Finish Setup ");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275property("disabled", !ctx_r1.active_building() && !ctx_r1.active_level());
+  }
+}
+function BootstrapComponent_Conditional_22_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 12)(1, "div", 27)(2, "h2", 28);
+    \u0275\u0275text(3, " Public mode is enabled ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "p", 29);
+    \u0275\u0275text(5, " Setup is disabled while this kiosk is in public mode. ");
+    \u0275\u0275elementEnd()()();
+  }
+}
+var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
+  constructor() {
+    super(...arguments);
+    this._org = inject(OrganisationService);
+    this._settings = inject(SettingsService);
+    this._route = inject(ActivatedRoute);
+    this._router = inject(Router);
+    this._startup_action = "";
+    this.loading = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "loading" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.active_region = signal(
+      null,
+      ...ngDevMode ? [{ debugName: "active_region" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.active_building = signal(
+      null,
+      ...ngDevMode ? [{ debugName: "active_building" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.active_level = signal(
+      null,
+      ...ngDevMode ? [{ debugName: "active_level" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.active_rotation = signal(
+      null,
+      ...ngDevMode ? [{ debugName: "active_rotation" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.active_location = signal(
+      null,
+      ...ngDevMode ? [{ debugName: "active_location" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.rotations = signal(
+      [],
+      ...ngDevMode ? [{ debugName: "rotations" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._last_query_params = "";
+    this.regions = this._org.region_list;
+    this.buildings = this._org.active_buildings;
+    this.levels = this._org.active_levels;
+    this.is_public_mode = isPublicMode;
+    this.locations = computed(
+      () => {
+        const active_level = this.active_level();
+        if (!active_level) {
+          return [];
+        }
+        return active_level.locations || [];
+      },
+      ...ngDevMode ? [{ debugName: "locations" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+  }
+  get version() {
+    return VERSION;
+  }
+  setRegion(region) {
+    this._org.region = region;
+    this.active_region.set(region);
+    this.active_building.set(null);
+    this.active_level.set(null);
+    this.active_location.set(null);
+    this.updateRotations();
+  }
+  setBuilding(building) {
+    this._org.building = building;
+    this.active_building.set(building);
+    this.active_level.set(null);
+    this.active_location.set(null);
+    this.updateRotations();
+  }
+  async ngOnInit() {
+    await this._org.waitUntilInitialised();
+    this.active_region.set(this._org.region);
+    this.handleQueryParams();
+    this.checkBootstrap();
+  }
+  ngDoCheck() {
+    this.handleQueryParams();
+  }
+  updateRotations() {
+    this.rotations.set([]);
+    const active_building = this.active_building();
+    if (!active_building) {
+      this.active_rotation.set(null);
+      return;
+    }
+    const orientations = active_building.orientations;
+    const rotations = [];
+    for (const key in orientations) {
+      if (orientations[key]) {
+        rotations.push({
+          id: key,
+          name: `${key.split("_").join(" ")} (${orientations[key] * 90}\xB0)`,
+          value: orientations[key]
+        });
+      }
+    }
+    this.rotations.set(rotations);
+    this.active_rotation.set(rotations[0] || null);
+  }
+  /**
+   * Store bootstrapped values and navigate to the main page
+   */
+  bootstrapKiosk() {
+    this.loading.set("Bootstrapping application...");
+    const active_level = this.active_level();
+    const active_building = this.active_building();
+    const active_rotation = this.active_rotation();
+    const active_location = this.active_location();
+    if (active_level) {
+      if (localStorage) {
+        localStorage.setItem("KIOSK.building", active_building?.id || active_level.parent_id);
+        localStorage.setItem("KIOSK.level", active_level.id);
+        if (active_rotation) {
+          localStorage.setItem("KIOSK.orientation", `${active_rotation.id}`);
+        }
+        if (active_location) {
+          localStorage.setItem("KIOSK.location", `${active_location.id}`);
+        }
+      }
+      this.navigateToStartupRoute();
+    }
+    this.loading.set("");
+  }
+  /**
+   * Check for any existing bootstrapped values
+   */
+  checkBootstrap() {
+    this.loading.set("Checking for existing parameters...");
+    if (this._startup_action === "preferences") {
+      this.navigateToStartupRoute();
+      this.loading.set("");
+      return;
+    }
+    if (localStorage) {
+      const building_id = localStorage.getItem("KIOSK.building");
+      const level_id = localStorage.getItem("KIOSK.level");
+      if (building_id && level_id) {
+        this._router.navigate(this.getStartupRoute());
+      }
+    }
+    VirtualKeyboardComponent.enabled = localStorage.getItem("OSK.enabled") === "true";
+    this.loading.set("");
+  }
+  getStartupRoute() {
+    if (this._startup_action === "preferences") {
+      return ["/checkin", "preferences"];
+    }
+    const path = this._settings.get("app.default_route") || "welcome";
+    const route = path.split("/");
+    route[0] = `/${route[0]}`;
+    return route;
+  }
+  navigateToStartupRoute() {
+    const route = this.getStartupRoute();
+    if (route[0] === "/checkin" && route[1] === "preferences") {
+      this._router.navigate(route, {
+        queryParams: this.getMergedQueryParamsFromUrl()
+      });
+      return;
+    }
+    this._router.navigate(route);
+  }
+  getActionParamFromUrl() {
+    return this.getMergedQueryParamsFromUrl().action?.trim().toLowerCase() || "";
+  }
+  handleQueryParams() {
+    const query_params = this.getMergedQueryParamsFromUrl();
+    const query_key = JSON.stringify(query_params);
+    if (query_key === this._last_query_params)
+      return;
+    this._last_query_params = query_key;
+    if (query_params.action) {
+      this._startup_action = query_params.action.trim().toLowerCase();
+    } else {
+      this._startup_action = this.getActionParamFromUrl();
+    }
+    if (query_params.osk !== void 0) {
+      const osk_enabled = query_params.osk === "true";
+      localStorage.setItem("OSK.enabled", `${osk_enabled}`);
+    }
+    if (query_params.clear === "true") {
+      localStorage.removeItem("KIOSK.building");
+      localStorage.removeItem("KIOSK.level");
+      localStorage.removeItem("KIOSK.orientation");
+    }
+    if (query_params.level) {
+      const level = this._org.levelWithID([query_params.level]);
+      if (level) {
+        this.active_level.set(level);
+        this.bootstrapKiosk();
+      }
+    }
+  }
+  getMergedQueryParamsFromUrl() {
+    const query_params = {};
+    try {
+      const parsed_url = new URL(window.location.href, window.location.origin);
+      parsed_url.searchParams.forEach((value, key) => {
+        query_params[key] = value;
+      });
+      const hash_route = parsed_url.hash?.replace(/^#/, "") || "";
+      const hash_query = hash_route.includes("?") ? hash_route.split("?")[1] : "";
+      new URLSearchParams(hash_query).forEach((value, key) => {
+        query_params[key] = value;
+      });
+    } catch {
+    }
+    this._route.snapshot.queryParamMap.keys.forEach((key) => {
+      const value = this._route.snapshot.queryParamMap.get(key);
+      if (value !== null) {
+        query_params[key] = value;
+      }
+    });
+    return query_params;
+  }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TopbarHeaderComponent, selectors: [["a-topbar-header"]], decls: 6, vars: 7, consts: [[1, "flex", "items-center", "justify-between", "bg-[hsl(237,37%,10%)]", "shadow-sm"], ["matRipple", "", 1, "flex", "h-full", "flex-col", "justify-center", "px-4", 3, "routerLink"], ["auth", "", "alt", "Logo", 1, "my-2", "h-10", 3, "source"], [1, "ml-auto", "flex", "h-full", "flex-col", "justify-center", "px-4", "text-white"]], template: function TopbarHeaderComponent_Template(rf, ctx) {
+    this.\u0275fac = /* @__PURE__ */ (() => {
+      let \u0275BootstrapComponent_BaseFactory;
+      return function BootstrapComponent_Factory(__ngFactoryType__) {
+        return (\u0275BootstrapComponent_BaseFactory || (\u0275BootstrapComponent_BaseFactory = \u0275\u0275getInheritedFactory(_BootstrapComponent)))(__ngFactoryType__ || _BootstrapComponent);
+      };
+    })();
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BootstrapComponent, selectors: [["", "bootstrap", ""]], features: [\u0275\u0275InheritDefinitionFeature], decls: 23, vars: 21, consts: [["select", ""], [1, "bg-base-200", "absolute", "inset-0", "z-0"], ["form", "", 1, "border-base-300", "bg-base-100", "relative", "z-10", "mx-auto", "my-8", "w-md", "max-w-[calc(100%-2rem)]", "overflow-hidden", "rounded-lg", "border", "shadow-sm"], [1, "bg-secondary", "text-secondary-content", "flex", "w-full", "items-center", "justify-between", "px-4", "py-3", "text-xl", "font-medium"], [1, "relative", "overflow-hidden", "rounded-sm", "px-2", "py-1"], [1, "bg-base-100", "absolute", "inset-0", "z-0", "opacity-10"], [1, "relative", "z-10", "font-mono", "text-sm", "uppercase"], [1, "flex", "flex-col", "space-y-2", "px-4"], [1, "m-auto", "flex", "flex-col", "items-center", "p-8"], [1, "border-base-300", "mt-4!", "flex", "w-full", "items-center", "justify-end", "border-t", "px-4", "py-2"], [1, "absolute", "right-0", "bottom-0", "z-10", "p-2", "text-right"], [1, "text-xs", "opacity-40"], [1, "bg-base-300/90", "text-base-content", "absolute", "inset-0", "z-20", "flex", "items-center", "justify-center", "p-8", "text-center"], ["appearance", "outline", 1, "no-subscript"], ["building", "", 3, "ngModelChange", "ngModel", "placeholder"], [1, "flex", "items-center", "space-x-4"], [1, "flex-1", "truncate"], [1, "bg-base-200", "mr-4!", "rounded-sm", "px-1.5", "font-mono", "text-[0.625rem]"], [3, "value"], [1, "leading-tight"], [1, "font-mono", "text-[0.625rem]", "opacity-30"], [1, "hidden"], [1, "font-mono", "text-[0.625rem]", "opacity-60"], ["level", "", 3, "ngModelChange", "ngModel", "placeholder"], [3, "ngModelChange", "ngModel", "placeholder"], [3, "diameter"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click", "disabled"], [1, "max-w-xl", "space-y-2"], [1, "text-3xl", "font-semibold"], [1, "text-lg", "opacity-80"]], template: function BootstrapComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275elementStart(0, "div", 0)(1, "a", 1);
-        \u0275\u0275element(2, "img", 2);
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(3, "div", 3);
+        \u0275\u0275elementStart(0, "div", 1)(1, "div", 2)(2, "header", 3)(3, "div");
         \u0275\u0275text(4);
-        \u0275\u0275pipe(5, "date");
+        \u0275\u0275pipe(5, "translate");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(6, "div", 4);
+        \u0275\u0275element(7, "div", 5);
+        \u0275\u0275elementStart(8, "div", 6);
+        \u0275\u0275text(9);
+        \u0275\u0275pipe(10, "translate");
+        \u0275\u0275elementEnd()()();
+        \u0275\u0275conditionalCreate(11, BootstrapComponent_Conditional_11_Template, 6, 5, "div", 7)(12, BootstrapComponent_Conditional_12_Template, 4, 2, "div", 8);
+        \u0275\u0275conditionalCreate(13, BootstrapComponent_Conditional_13_Template, 3, 1, "div", 9);
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(14, "div", 10)(15, "div", 11);
+        \u0275\u0275text(16);
+        \u0275\u0275pipe(17, "translate");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(18, "div", 11);
+        \u0275\u0275text(19);
+        \u0275\u0275pipe(20, "date");
+        \u0275\u0275pipe(21, "date");
         \u0275\u0275elementEnd()();
+        \u0275\u0275conditionalCreate(22, BootstrapComponent_Conditional_22_Template, 6, 0, "div", 12);
+        \u0275\u0275elementEnd();
       }
       if (rf & 2) {
-        \u0275\u0275advance();
-        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(6, _c04));
-        \u0275\u0275advance();
-        \u0275\u0275property("source", ctx.logo_source());
+        \u0275\u0275advance(4);
+        \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(5, 9, "APP.VISITOR_KIOSK.APP"));
+        \u0275\u0275advance(5);
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(10, 11, "COMMON.BOOTSTRAP_SETUP"), " ");
         \u0275\u0275advance(2);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(5, 3, ctx.time(), "fullDate"), " ");
+        \u0275\u0275conditional(!ctx.loading() ? 11 : 12);
+        \u0275\u0275advance(2);
+        \u0275\u0275conditional(!ctx.loading() ? 13 : -1);
+        \u0275\u0275advance(3);
+        \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind1(17, 13, "COMMON.CONTROLS_VERSION"), ": ", ctx.version.hash, " ");
+        \u0275\u0275advance(3);
+        \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind2(20, 15, ctx.version.time, "longDate"), " (", \u0275\u0275pipeBind2(21, 18, ctx.version.time, "shortTime"), ") ");
+        \u0275\u0275advance(3);
+        \u0275\u0275conditional(ctx.is_public_mode() ? 22 : -1);
       }
     }, dependencies: [
       CommonModule,
       MatRippleModule,
       MatRipple,
-      RouterModule,
-      RouterLink,
-      AuthenticatedImageDirective,
-      DatePipe
-    ], styles: ["\n[_nghost-%COMP%]    > div[_ngcontent-%COMP%] {\n  height: 3.5rem;\n}\na[_ngcontent-%COMP%] {\n  border-radius: 0;\n}\nimg[_ngcontent-%COMP%] {\n  max-height: 2.5rem;\n  max-width: 50vw;\n}\n/*# sourceMappingURL=topbar-header.component.css.map */"] });
+      MatProgressSpinnerModule,
+      MatProgressSpinner,
+      MatFormFieldModule,
+      MatFormField,
+      MatSelectModule,
+      MatSelect,
+      MatSelectTrigger,
+      MatOption,
+      FormsModule,
+      NgControlStatus,
+      NgModel,
+      DatePipe,
+      TranslatePipe
+    ], styles: ["\nmat-form-field[_ngcontent-%COMP%] {\n  width: 100%;\n}\nlabel[_ngcontent-%COMP%] {\n  padding-top: 1rem;\n}\n/*# sourceMappingURL=bootstrap.component.css.map */"] });
   }
 };
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(TopbarHeaderComponent, [{
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(BootstrapComponent, [{
     type: Component,
-    args: [{ selector: "a-topbar-header", template: `
-        <div
-            class="flex items-center justify-between bg-[hsl(237,37%,10%)] shadow-sm"
-        >
-            <a
-                matRipple
-                [routerLink]="['/']"
-                class="flex h-full flex-col justify-center px-4"
-            >
-                <img
-                    auth
-                    class="my-2 h-10"
-                    alt="Logo"
-                    [source]="logo_source()"
-                />
-            </a>
+    args: [{ selector: "[bootstrap]", template: `
+        <div class="bg-base-200 absolute inset-0 z-0">
             <div
-                class="ml-auto flex h-full flex-col justify-center px-4 text-white"
+                form
+                class="border-base-300 bg-base-100 relative z-10 mx-auto my-8 w-md max-w-[calc(100%-2rem)] overflow-hidden rounded-lg border shadow-sm"
             >
-                {{ time() | date: 'fullDate' }}
+                <header
+                    class="bg-secondary text-secondary-content flex w-full items-center justify-between px-4 py-3 text-xl font-medium"
+                >
+                    <div>{{ 'APP.VISITOR_KIOSK.APP' | translate }}</div>
+                    <div class="relative overflow-hidden rounded-sm px-2 py-1">
+                        <div
+                            class="bg-base-100 absolute inset-0 z-0 opacity-10"
+                        ></div>
+                        <div class="relative z-10 font-mono text-sm uppercase">
+                            {{ 'COMMON.BOOTSTRAP_SETUP' | translate }}
+                        </div>
+                    </div>
+                </header>
+                @if (!loading()) {
+                    <div class="flex flex-col space-y-2 px-4">
+                        @if (regions().length > 1) {
+                            <label>
+                                {{
+                                    'APP.VISITOR_KIOSK.SELECT_REGION_MSG'
+                                        | translate
+                                }}
+                            </label>
+                            <mat-form-field
+                                appearance="outline"
+                                class="no-subscript"
+                            >
+                                <mat-select
+                                    #select
+                                    building
+                                    [(ngModel)]="active_region"
+                                    (ngModelChange)="setRegion($event)"
+                                    [placeholder]="
+                                        'APP.VISITOR_KIOSK.SELECT_REGION_MSG'
+                                            | translate
+                                    "
+                                >
+                                    <mat-select-trigger>
+                                        <div
+                                            class="flex items-center space-x-4"
+                                        >
+                                            <div class="flex-1 truncate">
+                                                {{
+                                                    active_region()
+                                                        ?.display_name ||
+                                                        active_region()?.name
+                                                }}
+                                            </div>
+                                            <div
+                                                class="bg-base-200 mr-4! rounded-sm px-1.5 font-mono text-[0.625rem]"
+                                            >
+                                                {{ active_region()?.id }}
+                                            </div>
+                                        </div>
+                                    </mat-select-trigger>
+                                    @for (option of regions(); track option) {
+                                        <mat-option [value]="option">
+                                            <div class="leading-tight">
+                                                <div>
+                                                    {{
+                                                        option.display_name ||
+                                                            option.name
+                                                    }}
+                                                </div>
+                                                <div
+                                                    class="font-mono text-[0.625rem] opacity-30"
+                                                >
+                                                    <span class="hidden"
+                                                        >&nbsp;[</span
+                                                    >{{ option.id
+                                                    }}<span class="hidden"
+                                                        >]</span
+                                                    >
+                                                </div>
+                                            </div>
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        }
+                        @if (buildings().length) {
+                            <label>
+                                {{
+                                    'APP.VISITOR_KIOSK.SELECT_BUILDING_MSG'
+                                        | translate
+                                }}
+                            </label>
+                            <mat-form-field
+                                appearance="outline"
+                                class="no-subscript"
+                            >
+                                <mat-select
+                                    #select
+                                    building
+                                    [(ngModel)]="active_building"
+                                    (ngModelChange)="setBuilding($event)"
+                                    [placeholder]="
+                                        'APP.VISITOR_KIOSK.SELECT_BUILDING'
+                                            | translate
+                                    "
+                                >
+                                    <mat-select-trigger>
+                                        <div
+                                            class="flex items-center space-x-4"
+                                        >
+                                            <div class="flex-1 truncate">
+                                                {{
+                                                    active_building()
+                                                        ?.display_name ||
+                                                        active_building()?.name
+                                                }}
+                                            </div>
+                                            <div
+                                                class="bg-base-200 mr-4! rounded-sm px-1.5 font-mono text-[0.625rem]"
+                                            >
+                                                {{ active_building()?.id }}
+                                            </div>
+                                        </div>
+                                    </mat-select-trigger>
+                                    @for (option of buildings(); track option) {
+                                        <mat-option [value]="option">
+                                            <div class="leading-tight">
+                                                <div>
+                                                    {{
+                                                        option.display_name ||
+                                                            option.name
+                                                    }}
+                                                </div>
+                                                <div
+                                                    class="font-mono text-[0.625rem] opacity-60"
+                                                >
+                                                    <span class="hidden"
+                                                        >&nbsp;[</span
+                                                    >{{ option.id
+                                                    }}<span class="hidden"
+                                                        >]</span
+                                                    >
+                                                </div>
+                                            </div>
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        }
+                        @if (levels().length && active_building()) {
+                            <div></div>
+                            <label>
+                                {{
+                                    'APP.VISITOR_KIOSK.SELECT_LEVEL_MSG'
+                                        | translate
+                                }}
+                            </label>
+                            <mat-form-field
+                                appearance="outline"
+                                class="no-subscript"
+                            >
+                                <mat-select
+                                    #select
+                                    level
+                                    [(ngModel)]="active_level"
+                                    [placeholder]="
+                                        'APP.VISITOR_KIOSK.SELECT_LEVEL'
+                                            | translate
+                                    "
+                                >
+                                    <mat-select-trigger>
+                                        <div
+                                            class="flex items-center space-x-4"
+                                        >
+                                            <div class="flex-1 truncate">
+                                                {{
+                                                    active_level()
+                                                        ?.display_name ||
+                                                        active_level()?.name
+                                                }}
+                                            </div>
+                                            <div
+                                                class="bg-base-200 mr-4! rounded-sm px-1.5 font-mono text-[0.625rem]"
+                                            >
+                                                {{ active_level()?.id }}
+                                            </div>
+                                        </div>
+                                    </mat-select-trigger>
+                                    @for (option of levels(); track option) {
+                                        <mat-option [value]="option">
+                                            <div class="leading-tight">
+                                                <div>
+                                                    {{
+                                                        option.display_name ||
+                                                            option.name
+                                                    }}
+                                                </div>
+                                                <div
+                                                    class="font-mono text-[0.625rem] opacity-30"
+                                                >
+                                                    <span class="hidden"
+                                                        >&nbsp;[</span
+                                                    >{{ option.id
+                                                    }}<span class="hidden"
+                                                        >]</span
+                                                    >
+                                                </div>
+                                            </div>
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        }
+                        @if (rotations().length) {
+                            <div></div>
+                            <label>
+                                {{
+                                    'APP.VISITOR_KIOSK.SELECT_ORIENTATION_MSG'
+                                        | translate
+                                }}
+                                Please select an orientation from the dropdown
+                                below
+                            </label>
+                            <mat-form-field
+                                appearance="outline"
+                                class="no-subscript"
+                            >
+                                <mat-select
+                                    #select
+                                    [(ngModel)]="active_rotation"
+                                    [placeholder]="
+                                        'APP.VISITOR_KIOSK.SELECT_ORIENTATION'
+                                            | translate
+                                    "
+                                >
+                                    @for (option of rotations(); track option) {
+                                        <mat-option [value]="option">
+                                            <div class="leading-tight">
+                                                <div>
+                                                    {{
+                                                        option.display_name ||
+                                                            option.name
+                                                    }}
+                                                </div>
+                                                <div
+                                                    class="font-mono text-[0.625rem] opacity-30"
+                                                >
+                                                    <span class="hidden"
+                                                        >&nbsp;[</span
+                                                    >{{ option.id
+                                                    }}<span class="hidden"
+                                                        >]</span
+                                                    >
+                                                </div>
+                                            </div>
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        }
+                        @if (locations().length) {
+                            <div></div>
+                            <label>
+                                {{
+                                    'APP.VISITOR_KIOSK.SELECT_LOCATION_MSG'
+                                        | translate
+                                }}
+                                Please select an fixed location from the
+                                dropdown below
+                            </label>
+                            <mat-form-field
+                                appearance="outline"
+                                class="no-subscript"
+                            >
+                                <mat-select
+                                    #select
+                                    [(ngModel)]="active_location"
+                                    [placeholder]="
+                                        'APP.VISITOR_KIOSK.SELECT_LOCATION'
+                                            | translate
+                                    "
+                                >
+                                    @for (option of locations(); track option) {
+                                        <mat-option [value]="option">
+                                            <div class="leading-tight">
+                                                <div>
+                                                    {{
+                                                        option.display_name ||
+                                                            option.name
+                                                    }}
+                                                </div>
+                                                <div
+                                                    class="font-mono text-[0.625rem] opacity-30"
+                                                >
+                                                    <span class="hidden"
+                                                        >&nbsp;[</span
+                                                    >{{ option.id
+                                                    }}<span class="hidden"
+                                                        >]</span
+                                                    >
+                                                </div>
+                                            </div>
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        }
+                    </div>
+                } @else {
+                    <div class="m-auto flex flex-col items-center p-8">
+                        <mat-spinner [diameter]="32"></mat-spinner>
+                        <p>{{ loading() }}</p>
+                    </div>
+                }
+                @if (!loading()) {
+                    <div
+                        class="border-base-300 mt-4! flex w-full items-center justify-end border-t px-4 py-2"
+                    >
+                        <button
+                            btn
+                            matRipple
+                            class="w-32"
+                            [disabled]="!active_building() && !active_level()"
+                            (click)="bootstrapKiosk()"
+                        >
+                            Finish Setup
+                        </button>
+                    </div>
+                }
             </div>
+            <div class="absolute right-0 bottom-0 z-10 p-2 text-right">
+                <div class="text-xs opacity-40">
+                    {{ 'COMMON.CONTROLS_VERSION' | translate }}:
+                    {{ version.hash }}
+                </div>
+                <div class="text-xs opacity-40">
+                    {{ version.time | date: 'longDate' }}
+                    ({{ version.time | date: 'shortTime' }})
+                </div>
+            </div>
+            @if (is_public_mode()) {
+                <div
+                    class="bg-base-300/90 text-base-content absolute inset-0 z-20 flex items-center justify-center p-8 text-center"
+                >
+                    <div class="max-w-xl space-y-2">
+                        <h2 class="text-3xl font-semibold">
+                            Public mode is enabled
+                        </h2>
+                        <p class="text-lg opacity-80">
+                            Setup is disabled while this kiosk is in public
+                            mode.
+                        </p>
+                    </div>
+                </div>
+            }
         </div>
     `, imports: [
       CommonModule,
       MatRippleModule,
-      RouterModule,
-      AuthenticatedImageDirective
-    ], styles: ["/* angular:styles/component:css;ca56a9c6ccb68d9eb4d7b426a55179b4fd968c7dab74ba6456a7b70739864a22;/home/runner/work/user-interfaces/user-interfaces/apps/visitor-kiosk/src/app/components/topbar-header.component.ts */\n:host > div {\n  height: 3.5rem;\n}\na {\n  border-radius: 0;\n}\nimg {\n  max-height: 2.5rem;\n  max-width: 50vw;\n}\n/*# sourceMappingURL=topbar-header.component.css.map */\n"] }]
+      TranslatePipe,
+      MatProgressSpinnerModule,
+      MatFormFieldModule,
+      MatSelectModule,
+      FormsModule
+    ], styles: ["/* angular:styles/component:css;b5cb44247b14df9ceaa1cde6e18e7655f7940be592d59e7ac7be62a75ddd59dd;/home/runner/work/user-interfaces/user-interfaces/apps/visitor-kiosk/src/app/bootstrap.component.ts */\nmat-form-field {\n  width: 100%;\n}\nlabel {\n  padding-top: 1rem;\n}\n/*# sourceMappingURL=bootstrap.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TopbarHeaderComponent, { className: "TopbarHeaderComponent", filePath: "apps/visitor-kiosk/src/app/components/topbar-header.component.ts", lineNumber: 60 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BootstrapComponent, { className: "BootstrapComponent", filePath: "apps/visitor-kiosk/src/app/bootstrap.component.ts", lineNumber: 411 });
 })();
 
-// apps/visitor-kiosk/src/app/app.module.ts
-var STANDALONE_COMPONENTS = [
-  ChatComponent,
-  GlobalLoadingComponent,
-  GlobalBannerComponent,
-  BootstrapComponent,
-  WelcomeComponent,
-  VisitorRegistrationComponent,
-  TopbarHeaderComponent
-];
-var AppModule = class _AppModule {
+// apps/visitor-kiosk/src/app/visitor-registration.component.ts
+var _c02 = () => ["/welcome"];
+function VisitorRegistrationComponent_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "img", 2);
+  }
+}
+function VisitorRegistrationComponent_Conditional_3_Conditional_46_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "label", 24);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "mat-form-field", 21);
+    \u0275\u0275element(4, "input", 12);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 3, "BOOKINGS.VISITOR_PASS"), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275property("formField", ctx_r1.form.pass_number)("placeholder", \u0275\u0275pipeBind1(5, 5, "BOOKINGS.VISITOR_PASS_PLACEHOLDER"));
+    \u0275\u0275control();
+  }
+}
+function VisitorRegistrationComponent_Conditional_3_Conditional_47_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 25)(1, "mat-checkbox", 28);
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance();
+    \u0275\u0275property("formField", ctx_r1.form.all_day);
+    \u0275\u0275control();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 2, "COMMON.ALL_DAY"), " ");
+  }
+}
+function VisitorRegistrationComponent_Conditional_3_Conditional_47_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275conditionalCreate(0, VisitorRegistrationComponent_Conditional_3_Conditional_47_Conditional_0_Template, 4, 4, "div", 25);
+    \u0275\u0275elementStart(1, "label", 26);
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "a-duration-field", 27);
+    \u0275\u0275listener("ngModelChange", function VisitorRegistrationComponent_Conditional_3_Conditional_47_Template_a_duration_field_ngModelChange_4_listener($event) {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.setDuration($event));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275conditional(ctx_r1.allow_all_day() ? 0 : -1);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 6, "FORM.DURATION"), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", ctx_r1.form_value().duration)("time", ctx_r1.form_value().date)("max", ctx_r1.max_duration())("disabled", ctx_r1.form_value().all_day);
+    \u0275\u0275control();
+  }
+}
+function VisitorRegistrationComponent_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 3)(1, "div", 6)(2, "h3", 7);
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "a", 8)(6, "icon");
+    \u0275\u0275text(7, "close");
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementStart(8, "div", 9)(9, "label", 10);
+    \u0275\u0275text(10);
+    \u0275\u0275pipe(11, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(12, "mat-form-field", 11);
+    \u0275\u0275element(13, "input", 12);
+    \u0275\u0275pipe(14, "translate");
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(15, "mat-error");
+    \u0275\u0275text(16, "A valid email is required");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(17, "label", 13);
+    \u0275\u0275text(18);
+    \u0275\u0275pipe(19, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(20, "mat-form-field", 14);
+    \u0275\u0275element(21, "input", 12);
+    \u0275\u0275pipe(22, "translate");
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(23, "mat-error");
+    \u0275\u0275text(24, "A valid email is required");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(25, "label", 15);
+    \u0275\u0275text(26, "Host");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(27, "a-user-search-field", 16);
+    \u0275\u0275listener("ngModelChange", function VisitorRegistrationComponent_Conditional_3_Template_a_user_search_field_ngModelChange_27_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.setHost($event));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(28, "label", 17);
+    \u0275\u0275text(29);
+    \u0275\u0275pipe(30, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(31, "mat-form-field", 11);
+    \u0275\u0275element(32, "input", 18);
+    \u0275\u0275pipe(33, "translate");
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(34, "label", 19);
+    \u0275\u0275text(35);
+    \u0275\u0275pipe(36, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(37, "mat-form-field", 11);
+    \u0275\u0275element(38, "input", 12);
+    \u0275\u0275pipe(39, "translate");
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(40, "label", 20);
+    \u0275\u0275text(41);
+    \u0275\u0275pipe(42, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(43, "mat-form-field", 21);
+    \u0275\u0275element(44, "input", 12);
+    \u0275\u0275pipe(45, "translate");
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(46, VisitorRegistrationComponent_Conditional_3_Conditional_46_Template, 6, 7);
+    \u0275\u0275conditionalCreate(47, VisitorRegistrationComponent_Conditional_3_Conditional_47_Template, 5, 8);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(48, "div", 22)(49, "button", 23);
+    \u0275\u0275listener("click", function VisitorRegistrationComponent_Conditional_3_Template_button_click_49_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.register());
+    });
+    \u0275\u0275text(50);
+    \u0275\u0275pipe(51, "translate");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 23, "APP.VISITOR_KIOSK.REGISTRATION"), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(47, _c02));
+    \u0275\u0275advance(5);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(11, 25, "APP.VISITOR_KIOSK.NAME"));
+    \u0275\u0275advance(3);
+    \u0275\u0275property("formField", ctx_r1.form.asset_name)("placeholder", \u0275\u0275pipeBind1(14, 27, "APP.VISITOR_KIOSK.NAME"));
+    \u0275\u0275control();
+    \u0275\u0275advance(5);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(19, 29, "APP.VISITOR_KIOSK.EMAIL"));
+    \u0275\u0275advance(3);
+    \u0275\u0275property("formField", ctx_r1.form.asset_id)("placeholder", \u0275\u0275pipeBind1(22, 31, "APP.VISITOR_KIOSK.EMAIL"));
+    \u0275\u0275control();
+    \u0275\u0275advance(6);
+    \u0275\u0275classProp("mb-4", !ctx_r1.host());
+    \u0275\u0275property("ngModel", ctx_r1.host());
+    \u0275\u0275control();
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(30, 33, "APP.VISITOR_KIOSK.PHONE"));
+    \u0275\u0275advance(3);
+    \u0275\u0275property("formField", ctx_r1.form.phone)("placeholder", \u0275\u0275pipeBind1(33, 35, "APP.VISITOR_KIOSK.PHONE"));
+    \u0275\u0275control();
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(36, 37, "APP.VISITOR_KIOSK.ORGANISATION"));
+    \u0275\u0275advance(3);
+    \u0275\u0275property("formField", ctx_r1.form.company)("placeholder", \u0275\u0275pipeBind1(39, 39, "APP.VISITOR_KIOSK.ORGANISATION"));
+    \u0275\u0275control();
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(42, 41, "BOOKINGS.VISITOR_REASON"), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275property("formField", ctx_r1.form.title)("placeholder", \u0275\u0275pipeBind1(45, 43, "BOOKINGS.VISITOR_REASON_PLACEHOLDER"));
+    \u0275\u0275control();
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r1.allow_pass_number() ? 46 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.allow_registration_time_options() ? 47 : -1);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(51, 45, "APP.VISITOR_KIOSK.REGISTER"), " ");
+  }
+}
+function VisitorRegistrationComponent_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 4);
+    \u0275\u0275element(1, "mat-spinner", 29);
+    \u0275\u0275elementStart(2, "p");
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 1, "APP.VISITOR_KIOSK.REGISTERING"));
+  }
+}
+var VisitorRegistrationComponent = class _VisitorRegistrationComponent extends AsyncHandler {
   constructor() {
-    registerLocaleData(fr_default);
-    registerLocaleData(ar_default);
-    registerLocaleData(ja_default);
-    registerLocaleData(zh_default);
-    registerLocaleData(es_default);
-    registerLocaleData(it_default);
-  }
-  static {
-    this.\u0275fac = function AppModule_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _AppModule)();
-    };
-  }
-  static {
-    this.\u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({ type: _AppModule, bootstrap: [AppComponent] });
-  }
-  static {
-    this.\u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({ providers: [
-      provideZonelessChangeDetection(),
-      {
-        provide: ErrorHandler,
-        useValue: createErrorHandler({
-          showDialog: false
-        })
+    super(...arguments);
+    this._booking_form = inject(BookingFormService);
+    this._checkin = inject(CheckinStateService);
+    this._router = inject(Router);
+    this._org = inject(OrganisationService);
+    this._visitor_allow_all_day = settingSignal("visitors.allow_all_day");
+    this._booking_allow_all_day = settingSignal("bookings.allow_all_day");
+    this._visitor_max_duration = settingSignal("visitors.max_duration");
+    this._booking_max_duration = settingSignal("bookings.max_duration");
+    this._induction_enabled = settingSignal("induction_enabled", false);
+    this._induction_details = settingSignal("induction_details");
+    this.form = this._booking_form.form;
+    this.form_value = this._booking_form.model;
+    this.loading = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "loading" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.now = signal(
+      startOfMinute(Date.now()).valueOf(),
+      ...ngDevMode ? [{ debugName: "now" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.background = settingSignal("welcome_background");
+    this.allow_registration_time_options = settingSignal("allow_registration_time_options");
+    this.allow_pass_number = settingSignal("allow_pass_number", false);
+    this.hide_building_image = settingSignal("hide_building_image", false);
+    this.induction_after_details = settingSignal("induction_after_details", false);
+    this.allow_self_registration = settingSignal("allow_self_registration", false);
+    this.is_induction_enabled = computed(
+      () => !!(this._induction_enabled() && this._induction_details()),
+      ...ngDevMode ? [{ debugName: "is_induction_enabled" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.allow_all_day = computed(
+      () => this._visitor_allow_all_day() ?? this._booking_allow_all_day(),
+      ...ngDevMode ? [{ debugName: "allow_all_day" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.max_duration = computed(
+      () => this._visitor_max_duration() || this._booking_max_duration() || 180,
+      ...ngDevMode ? [{ debugName: "max_duration" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.host = computed(
+      () => {
+        const user = this.form_value().user;
+        return isEmptyUser(user) ? null : user;
       },
-      {
-        provide: TraceService,
-        deps: [Router]
-      },
-      {
-        provide: LOCALE_ID,
-        deps: [LocaleService],
-        useFactory: (localeService) => localeService.locale
+      ...ngDevMode ? [{ debugName: "host" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+  }
+  setHost(user) {
+    this._booking_form.model.update((m) => __spreadProps(__spreadValues({}, m), {
+      user: user || EMPTY_USER
+    }));
+  }
+  setDuration(duration) {
+    this._booking_form.model.update((m) => __spreadProps(__spreadValues({}, m), { duration }));
+  }
+  ngOnInit() {
+    this.interval("time", () => this.now.set(startOfMinute(Date.now()).valueOf()), 30 * 1e3);
+    this._booking_form.clearOldState();
+    this._booking_form.newForm("visitor");
+    this._booking_form.setOptions({ type: "visitor" });
+    this._booking_form.model.update((m) => __spreadProps(__spreadValues({}, m), {
+      booking_type: "visitor",
+      title: "Visit",
+      // Always ask for the host; null is sanitized back to currentUser().
+      user: EMPTY_USER
+    }));
+    setTimeout(() => {
+      if (this.allow_self_registration())
+        return;
+      this._router.navigate(["/welcome"]);
+    }, 1e3);
+  }
+  async register() {
+    this.form().markAsTouched();
+    if (!this.form().valid()) {
+      return notifyError(i18n("FORM.INVALID_FIELDS", {
+        field_list: getInvalidSignalFields(this.form, this._booking_form.model).join(", ")
+      }));
+    }
+    if (!this.host()) {
+      return notifyError(i18n("FORM.INVALID_FIELDS", {
+        field_list: i18n("APP.VISITOR_KIOSK.HOST")
+      }));
+    }
+    this.loading.set(true);
+    try {
+      const value = this._booking_form.model();
+      this._booking_form.model.update((m) => __spreadProps(__spreadValues({}, m), {
+        booking_type: "visitor",
+        self_registered: true,
+        name: value.asset_name,
+        description: value.description || value.title || "",
+        attendees: [
+          new User({
+            name: value.asset_name,
+            email: value.asset_id,
+            organisation: value.company,
+            phone: value.phone
+          })
+        ],
+        zones: unique([
+          this._org.organisation.id,
+          this._org.region?.id,
+          this._org.building?.id
+        ])
+      }));
+      const result = await this._booking_form.postForm(true);
+      this._checkin.setBooking(result, "registered");
+      if (result.induction !== "accepted" && this.is_induction_enabled() && !this.induction_after_details()) {
+        this._router.navigate(["/checkin", "induction"]);
+      } else {
+        this._router.navigate(["/checkin", "details"]);
       }
-    ], imports: [
-      BrowserModule,
-      BrowserAnimationsModule,
-      AppRoutingModule,
-      ServiceWorkerModule.register("ngsw-worker.js", {
-        enabled: environment.production
-      }),
-      ChatComponent,
-      GlobalLoadingComponent,
-      BootstrapComponent,
-      WelcomeComponent,
-      VisitorRegistrationComponent,
-      TopbarHeaderComponent
-    ] });
+    } catch (e) {
+      notifyError(i18n("APP.VISITOR_KIOSK.REGISTRATION_ERROR", {
+        error: e?.statusText || e
+      }));
+    } finally {
+      this.loading.set(false);
+    }
+  }
+  static {
+    this.\u0275fac = /* @__PURE__ */ (() => {
+      let \u0275VisitorRegistrationComponent_BaseFactory;
+      return function VisitorRegistrationComponent_Factory(__ngFactoryType__) {
+        return (\u0275VisitorRegistrationComponent_BaseFactory || (\u0275VisitorRegistrationComponent_BaseFactory = \u0275\u0275getInheritedFactory(_VisitorRegistrationComponent)))(__ngFactoryType__ || _VisitorRegistrationComponent);
+      };
+    })();
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _VisitorRegistrationComponent, selectors: [["visitor-registration"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 9, vars: 11, consts: [[1, "absolute", "inset-0", "flex", "items-center", "p-8"], ["auth", "", 1, "absolute", "top-1/2", "left-1/2", "min-h-full", "min-w-full", "-translate-x-1/2", "-translate-y-1/2", 3, "source"], ["src", "assets/img/building.png", 1, "absolute", "right-0", "bottom-0", "w-[60%]"], [1, "bg-base-100", "absolute", "top-1/2", "left-4", "max-h-[80vh]", "w-lg", "max-w-[calc(100%-2rem)]", "-translate-y-1/2", "overflow-auto", "rounded-sm", "shadow-sm"], [1, "bg-base-100", "absolute", "top-1/2", "left-4", "flex", "w-[24rem]", "-translate-y-1/2", "flex-col", "items-center", "justify-center", "space-y-4", "rounded-sm", "p-16", "shadow-sm"], [1, "absolute", "top-4", "right-4", "text-2xl", "text-white"], [1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "flex", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-lg", "font-medium"], ["icon", "", "matRipple", "", 3, "routerLink"], [1, "p-4"], ["for", "name"], ["appearance", "outline", 1, "w-full"], ["keyboard", "", "matInput", "", 3, "formField", "placeholder"], ["for", "email"], ["appearance", "outline", 1, "mb-0", "w-full"], ["for", "user"], [3, "ngModelChange", "ngModel"], ["form", "phone"], ["keyboard", "", "matInput", "", "type", "tel", 3, "formField", "placeholder"], ["form", "org"], ["form", "reason"], ["appearance", "outline", 1, "no-subscript", "mb-4", "w-full"], [1, "bg-base-200", "sticky", "bottom-0", "z-10", "m-2", "flex", "w-[calc(100%-1rem)]", "items-center", "justify-end", "rounded-sm", "border-none", "p-2"], ["btn", "", "matRipple", "", 1, "w-40", 3, "click"], ["form", "pass"], [1, "relative", "mt-4", "flex", "justify-end"], ["form", "duration"], [1, "text-base", 3, "ngModelChange", "ngModel", "time", "max", "disabled"], [1, "absolute", "-top-2", "right-0", 3, "formField"], ["diameter", "32"]], template: function VisitorRegistrationComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275elementStart(0, "div", 0);
+        \u0275\u0275element(1, "img", 1);
+        \u0275\u0275conditionalCreate(2, VisitorRegistrationComponent_Conditional_2_Template, 1, 0, "img", 2);
+        \u0275\u0275conditionalCreate(3, VisitorRegistrationComponent_Conditional_3_Template, 52, 48, "div", 3)(4, VisitorRegistrationComponent_Conditional_4_Template, 5, 3, "div", 4);
+        \u0275\u0275elementStart(5, "div", 5);
+        \u0275\u0275text(6);
+        \u0275\u0275pipe(7, "date");
+        \u0275\u0275pipe(8, "date");
+        \u0275\u0275elementEnd()();
+      }
+      if (rf & 2) {
+        \u0275\u0275advance();
+        \u0275\u0275property("source", ctx.background());
+        \u0275\u0275advance();
+        \u0275\u0275conditional(!ctx.hide_building_image() ? 2 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(!ctx.loading() ? 3 : 4);
+        \u0275\u0275advance(3);
+        \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind2(7, 5, ctx.now(), "mediumDate"), " ", \u0275\u0275pipeBind2(8, 8, ctx.now(), "shortTime"), " ");
+      }
+    }, dependencies: [
+      CommonModule,
+      FormsModule,
+      NgControlStatus,
+      NgModel,
+      IconComponent,
+      MatRippleModule,
+      MatRipple,
+      MatCheckboxModule,
+      MatCheckbox,
+      MatProgressSpinnerModule,
+      MatProgressSpinner,
+      MatFormFieldModule,
+      MatFormField,
+      MatError,
+      MatInputModule,
+      MatInput,
+      FormField,
+      UserSearchFieldComponent,
+      DurationFieldComponent,
+      RouterModule,
+      RouterLink,
+      AuthenticatedImageDirective,
+      VirtualKeyboardComponent,
+      DatePipe,
+      TranslatePipe
+    ], encapsulation: 2 });
   }
 };
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AppModule, [{
-    type: NgModule,
-    args: [{
-      declarations: [AppComponent],
-      bootstrap: [AppComponent],
-      imports: [
-        BrowserModule,
-        BrowserAnimationsModule,
-        AppRoutingModule,
-        ServiceWorkerModule.register("ngsw-worker.js", {
-          enabled: environment.production
-        }),
-        ...STANDALONE_COMPONENTS
-      ],
-      providers: [
-        provideZonelessChangeDetection(),
-        {
-          provide: ErrorHandler,
-          useValue: createErrorHandler({
-            showDialog: false
-          })
-        },
-        {
-          provide: TraceService,
-          deps: [Router]
-        },
-        {
-          provide: LOCALE_ID,
-          deps: [LocaleService],
-          useFactory: (localeService) => localeService.locale
-        }
-      ]
-    }]
-  }], () => [], null);
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(VisitorRegistrationComponent, [{
+    type: Component,
+    args: [{ selector: "visitor-registration", template: `
+        <div class="absolute inset-0 flex items-center p-8">
+            <img
+                auth
+                [source]="background()"
+                class="absolute top-1/2 left-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2"
+            />
+            @if (!hide_building_image()) {
+                <img
+                    src="assets/img/building.png"
+                    class="absolute right-0 bottom-0 w-[60%]"
+                />
+            }
+            @if (!loading()) {
+                <div
+                    class="bg-base-100 absolute top-1/2 left-4 max-h-[80vh] w-lg max-w-[calc(100%-2rem)] -translate-y-1/2 overflow-auto rounded-sm shadow-sm"
+                >
+                    <div
+                        class="bg-base-200 sticky top-0 z-10 m-2 flex w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none p-2"
+                    >
+                        <h3 class="px-2 text-lg font-medium">
+                            {{ 'APP.VISITOR_KIOSK.REGISTRATION' | translate }}
+                        </h3>
+                        <a icon matRipple [routerLink]="['/welcome']">
+                            <icon>close</icon>
+                        </a>
+                    </div>
+                    <div class="p-4">
+                        <label for="name">
+                            {{ 'APP.VISITOR_KIOSK.NAME' | translate }}</label
+                        >
+                        <mat-form-field appearance="outline" class="w-full">
+                            <input
+                                keyboard
+                                matInput
+                                [formField]="form.asset_name"
+                                [placeholder]="
+                                    'APP.VISITOR_KIOSK.NAME' | translate
+                                "
+                            />
+                            <mat-error>A valid email is required</mat-error>
+                        </mat-form-field>
+                        <label for="email">
+                            {{ 'APP.VISITOR_KIOSK.EMAIL' | translate }}</label
+                        >
+                        <mat-form-field
+                            appearance="outline"
+                            class="mb-0 w-full"
+                        >
+                            <input
+                                keyboard
+                                matInput
+                                [formField]="form.asset_id"
+                                [placeholder]="
+                                    'APP.VISITOR_KIOSK.EMAIL' | translate
+                                "
+                            />
+                            <mat-error>A valid email is required</mat-error>
+                        </mat-form-field>
+                        <label for="user">Host</label>
+                        <a-user-search-field
+                            [ngModel]="host()"
+                            (ngModelChange)="setHost($event)"
+                            [class.mb-4]="!host()"
+                        ></a-user-search-field>
+                        <label form="phone">
+                            {{ 'APP.VISITOR_KIOSK.PHONE' | translate }}</label
+                        >
+                        <mat-form-field appearance="outline" class="w-full">
+                            <input
+                                keyboard
+                                matInput
+                                type="tel"
+                                [formField]="form.phone"
+                                [placeholder]="
+                                    'APP.VISITOR_KIOSK.PHONE' | translate
+                                "
+                            />
+                        </mat-form-field>
+                        <label form="org">
+                            {{
+                                'APP.VISITOR_KIOSK.ORGANISATION' | translate
+                            }}</label
+                        >
+                        <mat-form-field appearance="outline" class="w-full">
+                            <input
+                                keyboard
+                                matInput
+                                [formField]="form.company"
+                                [placeholder]="
+                                    'APP.VISITOR_KIOSK.ORGANISATION' | translate
+                                "
+                            />
+                        </mat-form-field>
+                        <label form="reason">
+                            {{ 'BOOKINGS.VISITOR_REASON' | translate }}
+                        </label>
+                        <mat-form-field
+                            appearance="outline"
+                            class="no-subscript mb-4 w-full"
+                        >
+                            <input
+                                keyboard
+                                matInput
+                                [formField]="form.title"
+                                [placeholder]="
+                                    'BOOKINGS.VISITOR_REASON_PLACEHOLDER'
+                                        | translate
+                                "
+                            />
+                        </mat-form-field>
+                        @if (allow_pass_number()) {
+                            <label form="pass">
+                                {{ 'BOOKINGS.VISITOR_PASS' | translate }}
+                            </label>
+                            <mat-form-field
+                                appearance="outline"
+                                class="no-subscript mb-4 w-full"
+                            >
+                                <input
+                                    keyboard
+                                    matInput
+                                    [formField]="form.pass_number"
+                                    [placeholder]="
+                                        'BOOKINGS.VISITOR_PASS_PLACEHOLDER'
+                                            | translate
+                                    "
+                                />
+                            </mat-form-field>
+                        }
+                        @if (allow_registration_time_options()) {
+                            @if (allow_all_day()) {
+                                <div class="relative mt-4 flex justify-end">
+                                    <mat-checkbox
+                                        class="absolute -top-2 right-0"
+                                        [formField]="form.all_day"
+                                    >
+                                        {{ 'COMMON.ALL_DAY' | translate }}
+                                    </mat-checkbox>
+                                </div>
+                            }
+                            <label form="duration">
+                                {{ 'FORM.DURATION' | translate }}
+                            </label>
+                            <a-duration-field
+                                class="text-base"
+                                [ngModel]="form_value().duration"
+                                (ngModelChange)="setDuration($event)"
+                                [time]="form_value().date"
+                                [max]="max_duration()"
+                                [disabled]="form_value().all_day"
+                            ></a-duration-field>
+                        }
+                    </div>
+                    <div
+                        class="bg-base-200 sticky bottom-0 z-10 m-2 flex w-[calc(100%-1rem)] items-center justify-end rounded-sm border-none p-2"
+                    >
+                        <button btn matRipple class="w-40" (click)="register()">
+                            {{ 'APP.VISITOR_KIOSK.REGISTER' | translate }}
+                        </button>
+                    </div>
+                </div>
+            } @else {
+                <div
+                    class="bg-base-100 absolute top-1/2 left-4 flex w-[24rem] -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded-sm p-16 shadow-sm"
+                >
+                    <mat-spinner diameter="32"></mat-spinner>
+                    <p>{{ 'APP.VISITOR_KIOSK.REGISTERING' | translate }}</p>
+                </div>
+            }
+            <div class="absolute top-4 right-4 text-2xl text-white">
+                {{ now() | date: 'mediumDate' }}
+                {{ now() | date: 'shortTime' }}
+            </div>
+        </div>
+    `, imports: [
+      CommonModule,
+      FormsModule,
+      TranslatePipe,
+      IconComponent,
+      MatRippleModule,
+      MatCheckboxModule,
+      MatProgressSpinnerModule,
+      MatFormFieldModule,
+      MatInputModule,
+      FormField,
+      UserSearchFieldComponent,
+      DurationFieldComponent,
+      RouterModule,
+      AuthenticatedImageDirective,
+      VirtualKeyboardComponent
+    ] }]
+  }], null, null);
 })();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(VisitorRegistrationComponent, { className: "VisitorRegistrationComponent", filePath: "apps/visitor-kiosk/src/app/visitor-registration.component.ts", lineNumber: 242 });
+})();
+
+// apps/visitor-kiosk/src/app/welcome.component.ts
+var _c03 = () => ["/checkin"];
+var _c12 = () => ["/register"];
+var _c22 = (a0) => ["/explore", a0];
+function WelcomeComponent_Conditional_14_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "a", 6)(1, "div", 7)(2, "div", 8);
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "icon", 9);
+    \u0275\u0275text(6, "chevron_right");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(4, _c12));
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 2, "APP.VISITOR_KIOSK.REGISTER"), " ");
+  }
+}
+function WelcomeComponent_Conditional_15_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "a", 6)(1, "div", 7)(2, "div", 8);
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "icon", 9);
+    \u0275\u0275text(6, "place");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(4, _c22, ctx_r0.level()));
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 2, "APP.VISITOR_KIOSK.EXPLORE"), " ");
+  }
+}
+function WelcomeComponent_Conditional_20_Conditional_8_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 18);
+    \u0275\u0275text(1, "Language");
+    \u0275\u0275elementEnd();
+  }
+}
+function WelcomeComponent_Conditional_20_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "button", 11)(1, "div", 15)(2, "icon", 16);
+    \u0275\u0275text(3, "language");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 17)(5, "div");
+    \u0275\u0275text(6);
+    \u0275\u0275pipe(7, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(8, WelcomeComponent_Conditional_20_Conditional_8_Template, 2, 0, "div", 18);
+    \u0275\u0275pipe(9, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(10, "div", 19);
+    \u0275\u0275pipe(11, "translate");
+    \u0275\u0275text(12);
+    \u0275\u0275pipe(13, "translate");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    const menu_r2 = \u0275\u0275reference(22);
+    \u0275\u0275property("matMenuTriggerFor", menu_r2);
+    \u0275\u0275advance(6);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(7, 5, "COMMON.LANGUAGE"));
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(\u0275\u0275pipeBind1(9, 7, "COMMON.LANGUAGE") !== "Language" ? 8 : -1);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(11, 9, ctx_r0.active_locale()));
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(13, 11, ctx_r0.active_locale()), " ");
+  }
+}
+function WelcomeComponent_For_24_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 18);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const lang_r4 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", lang_r4.local, " ");
+  }
+}
+function WelcomeComponent_For_24_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 20);
+    \u0275\u0275listener("click", function WelcomeComponent_For_24_Template_button_click_0_listener() {
+      const lang_r4 = \u0275\u0275restoreView(_r3).$implicit;
+      const ctx_r0 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r0.setLocale(lang_r4.id));
+    });
+    \u0275\u0275elementStart(1, "div", 21)(2, "div", 22);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementStart(4, "div");
+    \u0275\u0275text(5);
+    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(7, WelcomeComponent_For_24_Conditional_7_Template, 2, 1, "div", 18);
+    \u0275\u0275pipe(8, "translate");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const lang_r4 = ctx.$implicit;
+    \u0275\u0275advance(2);
+    \u0275\u0275classProp("mt-2", \u0275\u0275pipeBind1(3, 4, lang_r4.name) !== lang_r4.local);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 6, lang_r4.name));
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(\u0275\u0275pipeBind1(8, 8, lang_r4.name) !== lang_r4.local ? 7 : -1);
+  }
+}
+function WelcomeComponent_Conditional_25_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "img", 13);
+  }
+}
+function WelcomeComponent_Conditional_26_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 14)(1, "div", 23)(2, "h2", 24);
+    \u0275\u0275text(3, " Public mode is enabled ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "p", 25);
+    \u0275\u0275text(5, " Welcome actions are disabled while this kiosk is in public mode. ");
+    \u0275\u0275elementEnd()()();
+  }
+}
+var WelcomeComponent = class _WelcomeComponent extends AsyncHandler {
+  constructor() {
+    super(...arguments);
+    this.route = inject(ActivatedRoute);
+    this._settings = inject(SettingsService);
+    this._locale = inject(LocaleService);
+    this._cdr = inject(ChangeDetectorRef);
+    this.now = signal(
+      Date.now(),
+      ...ngDevMode ? [{ debugName: "now" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.level = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "level" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._level_sync = effect(
+      () => this.level.set(this._settings.listen("KIOSK.level")()),
+      ...ngDevMode ? [{ debugName: "_level_sync" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.hide_explore = settingSignal("hide_explore");
+    this.background = settingSignal("welcome_background");
+    this.can_register = settingSignal("allow_self_registration");
+    this.hide_building_image = settingSignal("hide_building_image");
+    this.welcome_message = settingSignal("welcome_message");
+    this.locales = settingSignal("locales", []);
+    this.is_public_mode = isPublicMode;
+    this.locale = signal(
+      this._locale.locale,
+      ...ngDevMode ? [{ debugName: "locale" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.active_locale = computed(
+      () => {
+        const locale_list = this.locales();
+        const locale = this.locale();
+        for (const item of locale_list) {
+          if (item.id === locale)
+            return item.name;
+        }
+        return "LANGUAGE.ENGLISH";
+      },
+      ...ngDevMode ? [{ debugName: "active_locale" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.setLocale = (code) => {
+      this.locale.set(code);
+      this._locale.setLocale(code);
+      localStorage.setItem("PLACEOS.locale", code);
+      setTimeout(() => location.reload(), 300);
+    };
+  }
+  ngOnInit() {
+    this.interval("time", () => this.now.set(Date.now()), 30 * 1e3);
+    this.level.set(localStorage?.getItem("KIOSK.level"));
+    const params = this.route.snapshot.paramMap;
+    if (params.has("level")) {
+      this.level.set(params.get("level"));
+    }
+    const query_params = this.route.snapshot.queryParamMap;
+    if (query_params.has("osk")) {
+      const osk_enabled = query_params.get("osk") === "true";
+      localStorage.setItem("OSK.enabled", `${osk_enabled}`);
+      VirtualKeyboardComponent.enabled = osk_enabled;
+    }
+    this.timeout("check", () => this._cdr.detectChanges(), 1e3);
+  }
+  static {
+    this.\u0275fac = /* @__PURE__ */ (() => {
+      let \u0275WelcomeComponent_BaseFactory;
+      return function WelcomeComponent_Factory(__ngFactoryType__) {
+        return (\u0275WelcomeComponent_BaseFactory || (\u0275WelcomeComponent_BaseFactory = \u0275\u0275getInheritedFactory(_WelcomeComponent)))(__ngFactoryType__ || _WelcomeComponent);
+      };
+    })();
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _WelcomeComponent, selectors: [["app-welcome"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 27, vars: 25, consts: [["menu", "matMenu"], [1, "absolute", "inset-0", "flex", "items-center", "overflow-hidden", "p-8"], ["auth", "", 1, "absolute", "top-1/2", "left-1/2", "min-h-full", "min-w-full", "-translate-x-1/2", "-translate-y-1/2", 3, "source"], [1, "z-10", "flex", "w-[60%]", "flex-col", "justify-center", "space-y-8"], [1, "mb-4", "space-y-4", "text-6xl", "text-white", 3, "innerHTML"], [1, "flex", "items-center", "space-x-4", "font-medium"], ["btn", "", "matRipple", "", 1, "bg-base-100", "border-base-100", "text-base-content", "w-40", "border", 3, "routerLink"], [1, "flex", "items-center", "space-x-2"], [1, "ml-2"], [1, "text-2xl"], [1, "absolute", "top-4", "right-4", "text-2xl", "text-white"], [1, "absolute", "top-4", "left-4", 3, "matMenuTriggerFor"], ["mat-menu-item", ""], ["src", "assets/img/building.png", 1, "absolute", "right-0", "bottom-0", "w-[60%]"], [1, "bg-base-300/90", "text-base-content", "absolute", "inset-0", "z-20", "flex", "items-center", "justify-center", "p-8", "text-center"], [1, "flex", "items-center", "justify-between"], [1, "text-2xl", "text-white"], [1, "ml-2", "text-left", "leading-tight", "text-white"], [1, "text-xs", "opacity-30"], [1, "bg-base-200", "ml-4", "max-w-24", "truncate", "rounded-sm", "px-2", "py-1", "text-sm", 3, "matTooltip"], ["mat-menu-item", "", 3, "click"], [1, "flex", "h-14", "min-w-[24rem]", "items-center", "justify-between", "space-x-8"], [1, "leading-tight"], [1, "max-w-xl", "space-y-2"], [1, "text-3xl", "font-semibold"], [1, "text-lg", "opacity-80"]], template: function WelcomeComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275elementStart(0, "div", 1);
+        \u0275\u0275element(1, "img", 2);
+        \u0275\u0275elementStart(2, "div", 3);
+        \u0275\u0275element(3, "h3", 4);
+        \u0275\u0275pipe(4, "translate");
+        \u0275\u0275pipe(5, "sanitize");
+        \u0275\u0275elementStart(6, "div", 5)(7, "a", 6)(8, "div", 7)(9, "div", 8);
+        \u0275\u0275text(10);
+        \u0275\u0275pipe(11, "translate");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(12, "icon", 9);
+        \u0275\u0275text(13, "chevron_right");
+        \u0275\u0275elementEnd()()();
+        \u0275\u0275conditionalCreate(14, WelcomeComponent_Conditional_14_Template, 7, 5, "a", 6);
+        \u0275\u0275conditionalCreate(15, WelcomeComponent_Conditional_15_Template, 7, 6, "a", 6);
+        \u0275\u0275elementEnd()();
+        \u0275\u0275elementStart(16, "div", 10);
+        \u0275\u0275text(17);
+        \u0275\u0275pipe(18, "date");
+        \u0275\u0275pipe(19, "date");
+        \u0275\u0275elementEnd();
+        \u0275\u0275conditionalCreate(20, WelcomeComponent_Conditional_20_Template, 14, 13, "button", 11);
+        \u0275\u0275elementStart(21, "mat-menu", null, 0);
+        \u0275\u0275repeaterCreate(23, WelcomeComponent_For_24_Template, 9, 10, "button", 12, \u0275\u0275repeaterTrackByIdentity);
+        \u0275\u0275elementEnd();
+        \u0275\u0275conditionalCreate(25, WelcomeComponent_Conditional_25_Template, 1, 0, "img", 13);
+        \u0275\u0275conditionalCreate(26, WelcomeComponent_Conditional_26_Template, 6, 0, "div", 14);
+        \u0275\u0275elementEnd();
+      }
+      if (rf & 2) {
+        \u0275\u0275advance();
+        \u0275\u0275property("source", ctx.background());
+        \u0275\u0275advance(2);
+        \u0275\u0275property("innerHTML", \u0275\u0275pipeBind2(5, 13, ctx.welcome_message() || \u0275\u0275pipeBind1(4, 11, "APP.VISITOR_KIOSK.WELCOME_MESSAGE"), "html"), \u0275\u0275sanitizeHtml);
+        \u0275\u0275advance(4);
+        \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(24, _c03));
+        \u0275\u0275advance(3);
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(11, 16, "APP.VISITOR_KIOSK.CHECK_IN"), " ");
+        \u0275\u0275advance(4);
+        \u0275\u0275conditional(ctx.can_register() ? 14 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.level() && !ctx.hide_explore() ? 15 : -1);
+        \u0275\u0275advance(2);
+        \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind2(18, 18, ctx.now(), "mediumDate"), " ", \u0275\u0275pipeBind2(19, 21, ctx.now(), "shortTime"), " ");
+        \u0275\u0275advance(3);
+        \u0275\u0275conditional(ctx.locales().length > 1 ? 20 : -1);
+        \u0275\u0275advance(3);
+        \u0275\u0275repeater(ctx.locales());
+        \u0275\u0275advance(2);
+        \u0275\u0275conditional(!ctx.hide_building_image() ? 25 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.is_public_mode() ? 26 : -1);
+      }
+    }, dependencies: [
+      CommonModule,
+      IconComponent,
+      MatMenuModule,
+      MatMenu,
+      MatMenuItem,
+      MatMenuTrigger,
+      MatTooltipModule,
+      MatTooltip,
+      RouterModule,
+      RouterLink,
+      AuthenticatedImageDirective,
+      DatePipe,
+      TranslatePipe,
+      SanitizePipe
+    ], styles: ["\na[_ngcontent-%COMP%] {\n  height: 3.5rem;\n}\n/*# sourceMappingURL=welcome.component.css.map */"] });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(WelcomeComponent, [{
+    type: Component,
+    args: [{ selector: "app-welcome", template: `
+        <div class="absolute inset-0 flex items-center overflow-hidden p-8">
+            <img
+                auth
+                [source]="background()"
+                class="absolute top-1/2 left-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2"
+            />
+            <div class="z-10 flex w-[60%] flex-col justify-center space-y-8">
+                <h3
+                    class="mb-4 space-y-4 text-6xl text-white"
+                    [innerHTML]="
+                        welcome_message() ||
+                            ('APP.VISITOR_KIOSK.WELCOME_MESSAGE' | translate)
+                            | sanitize: 'html'
+                    "
+                ></h3>
+                <div class="flex items-center space-x-4 font-medium">
+                    <a
+                        btn
+                        matRipple
+                        [routerLink]="['/checkin']"
+                        class="bg-base-100 border-base-100 text-base-content w-40 border"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <div class="ml-2">
+                                {{ 'APP.VISITOR_KIOSK.CHECK_IN' | translate }}
+                            </div>
+                            <icon class="text-2xl">chevron_right</icon>
+                        </div>
+                    </a>
+                    @if (can_register()) {
+                        <a
+                            btn
+                            matRipple
+                            [routerLink]="['/register']"
+                            class="bg-base-100 border-base-100 text-base-content w-40 border"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <div class="ml-2">
+                                    {{
+                                        'APP.VISITOR_KIOSK.REGISTER' | translate
+                                    }}
+                                </div>
+                                <icon class="text-2xl">chevron_right</icon>
+                            </div>
+                        </a>
+                    }
+                    @if (level() && !hide_explore()) {
+                        <a
+                            btn
+                            matRipple
+                            [routerLink]="['/explore', level()]"
+                            class="bg-base-100 border-base-100 text-base-content w-40 border"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <div class="ml-2">
+                                    {{
+                                        'APP.VISITOR_KIOSK.EXPLORE' | translate
+                                    }}
+                                </div>
+                                <icon class="text-2xl">place</icon>
+                            </div>
+                        </a>
+                    }
+                </div>
+            </div>
+            <div class="absolute top-4 right-4 text-2xl text-white">
+                {{ now() | date: 'mediumDate' }} {{ now() | date: 'shortTime' }}
+            </div>
+            @if (locales().length > 1) {
+                <button
+                    class="absolute top-4 left-4"
+                    [matMenuTriggerFor]="menu"
+                >
+                    <div class="flex items-center justify-between">
+                        <icon class="text-2xl text-white">language</icon>
+                        <div class="ml-2 text-left leading-tight text-white">
+                            <div>{{ 'COMMON.LANGUAGE' | translate }}</div>
+                            @if (
+                                ('COMMON.LANGUAGE' | translate) !== 'Language'
+                            ) {
+                                <div class="text-xs opacity-30">Language</div>
+                            }
+                        </div>
+                        <div
+                            class="bg-base-200 ml-4 max-w-24 truncate rounded-sm px-2 py-1 text-sm"
+                            [matTooltip]="active_locale() | translate"
+                        >
+                            {{ active_locale() | translate }}
+                        </div>
+                    </div>
+                </button>
+            }
+            <mat-menu #menu="matMenu">
+                @for (lang of locales(); track lang) {
+                    <button mat-menu-item (click)="setLocale(lang.id)">
+                        <div
+                            class="flex h-14 min-w-[24rem] items-center justify-between space-x-8"
+                        >
+                            <div
+                                class="leading-tight"
+                                [class.mt-2]="
+                                    (lang.name | translate) !== lang.local
+                                "
+                            >
+                                <div>{{ lang.name | translate }}</div>
+                                @if ((lang.name | translate) !== lang.local) {
+                                    <div class="text-xs opacity-30">
+                                        {{ lang.local }}
+                                    </div>
+                                }
+                            </div>
+                            <!-- <div class="text-3xl">{{ lang.flag }}</div> -->
+                        </div>
+                    </button>
+                }
+            </mat-menu>
+            @if (!hide_building_image()) {
+                <img
+                    src="assets/img/building.png"
+                    class="absolute right-0 bottom-0 w-[60%]"
+                />
+            }
+            @if (is_public_mode()) {
+                <div
+                    class="bg-base-300/90 text-base-content absolute inset-0 z-20 flex items-center justify-center p-8 text-center"
+                >
+                    <div class="max-w-xl space-y-2">
+                        <h2 class="text-3xl font-semibold">
+                            Public mode is enabled
+                        </h2>
+                        <p class="text-lg opacity-80">
+                            Welcome actions are disabled while this kiosk is in
+                            public mode.
+                        </p>
+                    </div>
+                </div>
+            }
+        </div>
+    `, imports: [
+      CommonModule,
+      TranslatePipe,
+      IconComponent,
+      MatMenuModule,
+      MatTooltipModule,
+      RouterModule,
+      AuthenticatedImageDirective,
+      SanitizePipe
+    ], styles: ["/* angular:styles/component:css;cc9227079df7ac5301f9446791a6a855742622827223e39404093077fda285ac;/home/runner/work/user-interfaces/user-interfaces/apps/visitor-kiosk/src/app/welcome.component.ts */\na {\n  height: 3.5rem;\n}\n/*# sourceMappingURL=welcome.component.css.map */\n"] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(WelcomeComponent, { className: "WelcomeComponent", filePath: "apps/visitor-kiosk/src/app/welcome.component.ts", lineNumber: 191 });
+})();
+
+// apps/visitor-kiosk/src/app/app.routes.ts
+var routes = [
+  { path: "unauthorised", component: UnauthorisedComponent },
+  {
+    path: "bootstrap",
+    component: BootstrapComponent,
+    canActivate: [AuthorisedUserGuard]
+  },
+  {
+    path: "welcome",
+    component: WelcomeComponent,
+    canActivate: [AuthorisedUserGuard]
+  },
+  {
+    path: "register",
+    component: VisitorRegistrationComponent,
+    canActivate: [AuthorisedUserGuard]
+  },
+  {
+    path: "explore",
+    canActivate: [AuthorisedUserGuard],
+    loadChildren: () => import("./explore.routes-HNVSPTQH.js").then((m) => m.ROUTES)
+  },
+  {
+    path: "checkin",
+    canActivate: [AuthorisedUserGuard],
+    loadChildren: () => import("./checkin.routes-J75SHUI4.js").then((m) => m.ROUTES)
+  },
+  { path: "**", redirectTo: "bootstrap" }
+];
+
+// apps/visitor-kiosk/src/app/app.config.ts
+var appConfig = {
+  providers: [
+    provideZonelessChangeDetection(),
+    provideAppInitializer(() => registerActiveLocale(inject(LocaleService).locale)),
+    provideAnimations(),
+    provideRouter(routes, withHashLocation(), withNavigationErrorHandler((error) => reloadOnChunkLoadError(error.error))),
+    provideServiceWorker("ngsw-worker.js", {
+      enabled: environment.production
+    }),
+    {
+      provide: ErrorHandler,
+      useValue: createErrorHandler({
+        showDialog: false
+      })
+    },
+    {
+      provide: TraceService,
+      deps: [Router]
+    },
+    {
+      provide: LOCALE_ID,
+      deps: [LocaleService],
+      useFactory: (localeService) => localeService.locale
+    }
+  ]
+};
 
 // apps/visitor-kiosk/src/main.ts
 setPublicMode(new URLSearchParams(location.search).has("public"));
 if (environment.production) {
   enableProdMode();
 }
-platformBrowser().bootstrapModule(AppModule).catch((err) => console.error(err));
-/*! Bundled license information:
-
-@angular/animations/fesm2022/_util-chunk.mjs:
-@angular/animations/fesm2022/browser.mjs:
-@angular/platform-browser/fesm2022/animations.mjs:
-  (**
-   * @license Angular v21.2.6
-   * (c) 2010-2026 Google LLC. https://angular.dev/
-   * License: MIT
-   *)
-
-@angular/common/locales/ar.js:
-@angular/common/locales/es.js:
-@angular/common/locales/fr.js:
-@angular/common/locales/it.js:
-@angular/common/locales/ja.js:
-@angular/common/locales/zh.js:
-  (**
-   * @license
-   * Copyright Google LLC All Rights Reserved.
-   *
-   * Use of this source code is governed by an MIT-style license that can be
-   * found in the LICENSE file at https://angular.dev/license
-   *)
-*/
+bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
 //# sourceMappingURL=main.js.map
