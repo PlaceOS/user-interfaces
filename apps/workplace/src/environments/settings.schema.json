@@ -132,6 +132,14 @@
                 "force_current_user_for_booking_rules": {
                     "type": "boolean",
                     "description": "Whether booking rule checks should always use the signed-in user as the host, even when booking on behalf of someone else."
+                },
+                "allow_booking_with_reserved_resource": {
+                    "type": "boolean",
+                    "description": "Whether users with a resource (desk/parking/locker) reserved (assigned) to them are allowed to book another resource of that type. By default these users are blocked. Override per type under app.<type>s.* (e.g. app.desks.*)."
+                },
+                "prevent_self_booking_if_assigned_resource": {
+                    "type": "boolean",
+                    "description": "When booking with a reserved resource is allowed, still prevent users from booking a resource of that type for themselves while one is assigned to them. Bookings on behalf of other users remain allowed. Checked only at submission. Override per type under app.<type>s.*."
                 }
             }
         },
@@ -173,14 +181,6 @@
                 "can_set_host": {
                     "type": "boolean",
                     "description": "Whether user is allowed to make desk bookings for others"
-                },
-                "allow_booking_with_reserved_desk": {
-                    "type": "boolean",
-                    "description": "Whether users with a desk reserved (assigned) to them are allowed to book another desk. By default these users are blocked from the desk booking flow."
-                },
-                "prevent_self_booking_if_assigned_desk": {
-                    "type": "boolean",
-                    "description": "Legacy setting. Forces users with an assigned desk to be prevented from booking a desk for themselves, overriding allow_booking_with_reserved_desk. Bookings for other users are still allowed."
                 }
             }
         },

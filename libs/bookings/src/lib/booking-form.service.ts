@@ -372,7 +372,7 @@ export class BookingFormService extends AsyncHandler {
             // The override count can be satisfied by placeholder `{}` building
             // settings before `loadBuildingData` populates them, so also wait
             // for the active building's metadata to actually land. Otherwise
-            // building/region-level settings (e.g. allow_booking_with_reserved_desk)
+            // building/region-level settings (e.g. allow_booking_with_reserved_resource)
             // read as their defaults during the load window.
             this._org.active_building_loaded() &&
             overrides.length >= required_overrides
@@ -631,6 +631,43 @@ export class BookingFormService extends AsyncHandler {
         return flatten(desk_lists).some(
             (desk) => desk.assigned_to?.toLowerCase() === email,
         );
+    }
+
+    /**
+     * Whether the current user has a resource of `type` reserved (assigned) to
+     * them. Only desk/parking/locker support assignment; any other type resolves
+     * to `false` so it is never blocked by the reserved-resource restriction.
+     */
+    private async _computeHasAssignedResource(
+        type: BookingType,
+    ): Promise<boolean> {
+        if (type === 'desk') return this._computeHasAssignedDesk();
+        const email = currentUser()?.email?.toLowerCase();
+        if (!email) return false;
+        const resources = await this._loadRawResourcesForType(type).catch(
+            () => [] as BookingAsset[],
+        );
+        return resources.some(
+            (resource) =>
+                (resource as any).assigned_to?.toLowerCase() === email,
+        );
+    }
+
+    /**
+     * Load the resource list for `type` without the loading-message side effects
+     * of `_loadResourcesForType`, so it can be used for background checks (e.g.
+     * detecting an assigned resource during submission).
+     */
+    private _loadRawResourcesForType(
+        type: BookingType,
+    ): Promise<BookingAsset[]> {
+        switch (type) {
+            case 'parking':
+                return this.loadParkingResources();
+            case 'locker':
+                return this._loadLockerResources();
+        }
+        return Promise.resolve([]);
     }
 
     private async _computeAvailableResources(
@@ -1178,7 +1215,7 @@ export class BookingFormService extends AsyncHandler {
         const selected_booking_type =
             value.booking_type || this._options().type;
         if (ignore_check) {
-            await this._checkAssignedDeskRestriction(
+            await this._checkAssignedResourceRestriction(
                 host,
                 selected_booking_type,
             );
@@ -1369,7 +1406,16 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public setting(key: string) {
-        const { type } = this._options();
+        return this.settingForType(this._options().type, key);
+    }
+
+    /**
+     * Resolve a setting for a specific booking type. Prefer this over `setting()`
+     * when the relevant type is known (e.g. at submission), since this service is
+     * a shared singleton and `setting()` resolves against whichever flow's
+     * `_options().type` happens to be active.
+     */
+    public settingForType(type: string, key: string) {
         return (
             this._settings.get(`app.${type}.${key}`) ??
             this._settings.get(`app.${type}s.${key}`) ??
@@ -2134,29 +2180,47 @@ export class BookingFormService extends AsyncHandler {
     }
 
     /**
-     * Whether users with a desk reserved (assigned) to them are allowed to
-     * book another desk for themselves. Blocked by default; enable with the
-     * `allow_booking_with_reserved_desk` setting. The legacy
-     * `prevent_self_booking_if_assigned_desk` setting forces blocking.
+     * Whether a user with a resource of `type` reserved (assigned) to them is
+     * allowed to book additional resources of that type at all. When `false`
+     * (default) they are fully blocked from booking another, including on
+     * behalf of others.
      */
-    public canBookWithReservedDesk() {
+    public allowsBookingWithReservedResource(type: BookingType) {
         return (
-            this.setting('allow_booking_with_reserved_desk') === true &&
-            this.setting('prevent_self_booking_if_assigned_desk') !== true
+            this.settingForType(
+                type,
+                'allow_booking_with_reserved_resource',
+            ) === true
         );
     }
 
-    private async _checkAssignedDeskRestriction(
+    /**
+     * Enforce the reserved-resource restriction for any assignable resource type
+     * (desk/parking/locker). Only ever concerns the current user's own bookings:
+     * booking on behalf of others is always permitted.
+     *
+     * `prevent_self_booking_if_assigned_resource` is deliberately evaluated here,
+     * at submission, and nowhere else. UI gating uses
+     * `allowsBookingWithReservedResource()` (the master allow) so a self-booking
+     * restriction never blanket-blocks the form for booking on behalf of others.
+     */
+    private async _checkAssignedResourceRestriction(
         user_email: string,
         type: BookingType,
     ) {
-        if (type !== 'desk') return true;
-        if (this.canBookWithReservedDesk()) return true;
-        if (user_email?.toLowerCase() !== currentUser()?.email?.toLowerCase()) {
-            return true;
-        }
-        if (await this._computeHasAssignedDesk()) {
-            throw 'You have an assigned desk and cannot book another desk.';
+        const is_self =
+            !user_email ||
+            user_email.toLowerCase() === currentUser()?.email?.toLowerCase();
+        if (!is_self) return true;
+        const self_booking_allowed =
+            this.allowsBookingWithReservedResource(type) &&
+            this.settingForType(
+                type,
+                'prevent_self_booking_if_assigned_resource',
+            ) !== true;
+        if (self_booking_allowed) return true;
+        if (await this._computeHasAssignedResource(type)) {
+            throw `You have an assigned ${type} and cannot book another ${type}.`;
         }
         return true;
     }
@@ -2168,7 +2232,7 @@ export class BookingFormService extends AsyncHandler {
     ) {
         if (!user_email) throw i18n('BOOKINGS.NO_USER');
         if (type === 'group-event') return true;
-        await this._checkAssignedDeskRestriction(user_email, type);
+        await this._checkAssignedResourceRestriction(user_email, type);
         const period = all_day
             ? this._allDayTimeRange(date)
             : { date, date_end: date + duration * 60 * 1000 };

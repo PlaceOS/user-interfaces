@@ -217,6 +217,10 @@ const app = {
         allowed_daily_visitor_count: 100,
         multiple_visitors: true,
         force_current_user_for_booking_rules: false,
+        // Applies to any assignable resource type (desk/parking/locker).
+        // Override per type under `app.<type>s.*` (e.g. `app.desks.*`).
+        allow_booking_with_reserved_resource: false,
+        prevent_self_booking_if_assigned_resource: false,
     },
     desks: {
         can_book_lockers: true,
@@ -226,8 +230,6 @@ const app = {
         allow_time_changes: true,
         allow_all_day: true,
         auto_allocation: false,
-        allow_booking_with_reserved_desk: false,
-        prevent_self_booking_if_assigned_desk: false,
         show_calendar_links: true,
         allow_recurrence: true,
         hide_map: false,
