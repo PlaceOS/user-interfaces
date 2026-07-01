@@ -208,6 +208,12 @@ const app = {
     general,
     help,
     events,
+    // Catering backend: 'native' uses PlaceOS assets, 'external' uses the
+    // external catering driver bound to the building via the `catering` module
+    // binding
+    catering: {
+        backend: 'native',
+    },
     space_display,
     directory,
     explore,
