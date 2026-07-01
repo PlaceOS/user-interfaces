@@ -55840,8 +55840,27 @@ function reloadUserData() {
 function currentUser() {
   return _current_user.getValue() || EMPTY_USER;
 }
-function userSignal() {
-  return user_signal;
+function currentUserIsLoaded() {
+  if (!isEmptyUser(currentUser()))
+    return true;
+  try {
+    return !!jest;
+  } catch {
+    return false;
+  }
+}
+function currentUserLoaded() {
+  const user = currentUser();
+  if (currentUserIsLoaded())
+    return Promise.resolve(user);
+  return new Promise((resolve) => {
+    const sub = _current_user.subscribe((user2) => {
+      if (isEmptyUser(user2))
+        return;
+      sub.unsubscribe();
+      resolve(user2);
+    });
+  });
 }
 function hasPermission(subsystem, permissions) {
   var _a10;
@@ -55864,15 +55883,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "517dbea",
-  "hash": "517dbea",
+  "raw": "f0e9ff2",
+  "hash": "f0e9ff2",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "517dbea",
+  "suffix": "f0e9ff2",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1782809142933
+  "time": 1782896703377
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -102550,7 +102569,7 @@ var _UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHan
     this.selected_user = computed(
       () => {
         const term = this.search_term();
-        return term && typeof term !== "string" ? term : null;
+        return term && typeof term !== "string" && term.email !== EMPTY_USER.email ? term : null;
       },
       ...ngDevMode ? [{ debugName: "selected_user" }] : (
         /* istanbul ignore next */
@@ -102665,20 +102684,22 @@ var _UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHan
       params: () => ({ term: this._debounced_term.value() }),
       loader: async ({ params: { term } }) => {
         var _a10, _b4;
-        if (term && typeof term !== "string")
-          return [term];
+        if (term && typeof term !== "string") {
+          const user = term;
+          return user.email === EMPTY_USER.email ? [] : [user];
+        }
         if (term === ((_a10 = this.user()) == null ? void 0 : _a10.name))
           return [this.user()];
         if (this.disable_search())
           return [];
         const s = `${term || ""}`.toLowerCase();
         if ((_b4 = this.options()) == null ? void 0 : _b4.length) {
-          return this.options().filter((_2) => _2.name.toLowerCase().includes(s) || _2.email.toLowerCase().includes(s));
+          return this.options().filter((_2) => _2.email !== EMPTY_USER.email && (_2.name.toLowerCase().includes(s) || _2.email.toLowerCase().includes(s)));
         }
         if (s.length <= 2)
           return [];
         const list2 = await this.query_fn()(s).catch(() => []);
-        return list2.filter((_2) => !!_2);
+        return list2.filter((_2) => !!_2 && _2.email !== EMPTY_USER.email);
       }
     }));
     this.search_results = computed(
@@ -102737,7 +102758,7 @@ var _UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHan
     this.resetTerm();
   }
   displayFn(user) {
-    return user && user.name ? user.name : "";
+    return user && user.email !== EMPTY_USER.email && user.name ? user.name : "";
   }
   stopEvent(event) {
     event.stopPropagation();
@@ -105230,7 +105251,7 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
     this.init();
   }
   async init() {
-    await firstValueWhere(userSignal(), (user) => !isEmptyUser(user));
+    await currentUserLoaded();
     setDefaultCreator(currentUser());
     onFieldChange(this._model, (v) => v.date, (date) => this.setOptions({ date }), this._injector);
     onFieldChange(this._model, (v) => v.duration, (duration) => this.setOptions({ duration }), this._injector);
@@ -105350,6 +105371,10 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
     this._options.set(__spreadValues(__spreadValues({}, this._options()), options2));
   }
   newForm(event = new CalendarEvent()) {
+    if (!currentUserIsLoaded()) {
+      currentUserLoaded().then(() => this.newForm(event));
+      return;
+    }
     this._startNetwork();
     this._calendar.loadCalendars();
     this._loading.set("");
@@ -105366,6 +105391,10 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
     this._event.set(event);
   }
   resetForm() {
+    if (!currentUserIsLoaded()) {
+      currentUserLoaded().then(() => this.resetForm());
+      return;
+    }
     this._model.set(eventFormValue(this._event() || new CalendarEvent()));
     this._form().reset();
   }
@@ -105375,13 +105404,17 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
     });
   }
   loadForm() {
+    if (!currentUserIsLoaded()) {
+      currentUserLoaded().then(() => this.loadForm());
+      return;
+    }
     this._startNetwork();
     this._calendar.loadCalendars();
     const event_data = JSON.parse(sessionStorage.getItem("PLACEOS.event") || "{}");
     const event = new CalendarEvent(event_data);
     this._event.set(event);
     const form_data = JSON.parse(sessionStorage.getItem("PLACEOS.event_form") || "{}");
-    this._model.update((m2) => __spreadValues(__spreadValues(__spreadValues({}, m2), event), form_data));
+    this._model.update((m2) => __spreadValues(__spreadValues(__spreadValues({}, m2), eventFormValue(event)), form_data));
   }
   clearForm() {
     sessionStorage.removeItem("PLACEOS.event");
@@ -105518,7 +105551,7 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
       if (this._model().host !== host)
         ext.host_override = this._model().host;
       const value = this._model();
-      const created_event = await this._performBooking(new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), {
+      let created_event = await this._performBooking(new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), {
         date: all_day_period.date,
         duration: all_day_period.duration,
         date_end: all_day_period.date_end,
@@ -105534,6 +105567,16 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
         assets: processed_assets,
         extension_data: ext
       })), query2).catch(on_error);
+      const date_end = all_day_period.date_end || all_day_period.date + all_day_period.duration * 60 * 1e3;
+      created_event = new CalendarEvent(__spreadProps(__spreadValues({}, created_event), {
+        event_start: Math.floor(all_day_period.date / 1e3),
+        event_end: Math.floor(date_end / 1e3),
+        date: all_day_period.date,
+        duration: all_day_period.duration,
+        date_end,
+        resources: space_list,
+        system: space_list[0] || null
+      }));
       const domain = (((_j = currentUser()) == null ? void 0 : _j.email) || "@").split("@")[1];
       const visitors = this._model().attendees.filter((user) => user.is_external && user.email !== event.host && !user.email.includes(domain) && user.visit_expected);
       if (visitors.length) {
@@ -105565,7 +105608,7 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
       }
       this.clearForm();
       sessionStorage.setItem("PLACEOS.last_modified_event", JSON.stringify(created_event.toJSON()));
-      this.loadLastSuccess();
+      this.last_success.set(created_event);
       return created_event;
     } catch (e) {
       this.removeLoadingTag(Tags.PostBooking);
