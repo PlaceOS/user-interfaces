@@ -11,6 +11,7 @@ import { startOfMinute } from 'date-fns';
 
 import {
     AsyncHandler,
+    EMPTY_USER,
     getInvalidSignalFields,
     i18n,
     isEmptyUser,
@@ -304,7 +305,10 @@ export class VisitorRegistrationComponent
     });
 
     public setHost(user: User | null) {
-        this._booking_form.model.update((m) => ({ ...m, user }));
+        this._booking_form.model.update((m) => ({
+            ...m,
+            user: user || EMPTY_USER,
+        }));
     }
 
     public setDuration(duration: number) {
@@ -324,9 +328,8 @@ export class VisitorRegistrationComponent
             ...m,
             booking_type: 'visitor',
             title: 'Visit',
-            // Always ask for the host - never inherit the logged-in user that
-            // the shared form factory seeds via currentUser().
-            user: null,
+            // Always ask for the host; null is sanitized back to currentUser().
+            user: EMPTY_USER,
         }));
         setTimeout(() => {
             if (this.allow_self_registration()) return;

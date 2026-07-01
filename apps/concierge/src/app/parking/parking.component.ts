@@ -38,7 +38,7 @@ import { ParkingTopbarComponent } from './parking-topbar.component';
                                         | translate
                                 }}
                             </a>
-                            @if (!hide_users_and_vehicles) {
+                            @if (!hide_users) {
                                 <a
                                     mat-tab-link
                                     [routerLink]="[
@@ -54,6 +54,8 @@ import { ParkingTopbarComponent } from './parking-topbar.component';
                                             | translate
                                     }}
                                 </a>
+                            }
+                            @if (!hide_vehicles) {
                                 <a
                                     mat-tab-link
                                     [routerLink]="[
@@ -163,6 +165,20 @@ export class ParkingComponent extends AsyncHandler implements OnInit {
         return !!this._settings.get('app.parking.hide_users_and_vehicles');
     }
 
+    public get hide_users() {
+        return (
+            this.hide_users_and_vehicles ||
+            !!this._settings.get('app.parking.hide_users')
+        );
+    }
+
+    public get hide_vehicles() {
+        return (
+            this.hide_users_and_vehicles ||
+            !!this._settings.get('app.parking.hide_vehicles')
+        );
+    }
+
     public get is_admin() {
         const groups = currentUser().groups || [];
         const admin_group = this._settings.get('app.admin_group') || 'admin';
@@ -203,8 +219,8 @@ export class ParkingComponent extends AsyncHandler implements OnInit {
         this.section.set(section as any);
         if (
             section === 'manage' &&
-            this.hide_users_and_vehicles &&
-            ['fleet', 'users'].includes(current_view)
+            ((current_view === 'users' && this.hide_users) ||
+                (current_view === 'fleet' && this.hide_vehicles))
         ) {
             this.view.set('spaces');
             void this._router.navigate(

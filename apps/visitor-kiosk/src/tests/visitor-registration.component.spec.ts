@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { BookingFormService } from '@placeos/bookings';
 import {
+    EMPTY_USER,
+    isEmptyUser,
     OrganisationService,
     Region,
     SettingsService,
@@ -83,6 +85,14 @@ describe('VisitorRegistrationComponent', () => {
         spectator.component.setHost(host);
 
         expect(spectator.component.host()).toEqual(host);
+    });
+
+    it('should keep cleared host blank in the backing model', () => {
+        spectator.component.setHost(null);
+
+        expect(spectator.component.form_value().user).toEqual(EMPTY_USER);
+        expect(isEmptyUser(spectator.component.form_value().user)).toBe(true);
+        expect(spectator.component.host()).toBeNull();
     });
 
     it('should keep the host field bindable when the user value is cleared', fakeAsync(() => {
