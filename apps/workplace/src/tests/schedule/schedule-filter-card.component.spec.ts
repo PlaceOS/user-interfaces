@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -5,7 +6,6 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 import { ScheduleFilterCardComponent } from '../../app/schedule/schedule-filter-card.component';
 import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
 
@@ -15,8 +15,12 @@ describe('ScheduleFilterCardComponent', () => {
         component: ScheduleFilterCardComponent,
         providers: [
             MockProvider(ScheduleStateService, {
-                filters: new BehaviorSubject({}),
+                filters: signal({
+                    shown_types: [],
+                    show_bookings_for_others: false,
+                }),
                 toggleType: jest.fn(),
+                toggleBookingsForOthers: jest.fn(),
                 setDate: jest.fn(),
             } as any),
             MockProvider(MatBottomSheetRef, { dismiss: jest.fn() }),
