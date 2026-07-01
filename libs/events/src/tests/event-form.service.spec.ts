@@ -279,6 +279,69 @@ describe('EventFormService', () => {
         expect(last_success.event_end).toBe(Math.floor(submitted_end / 1000));
     });
 
+    it('should post the selected time after reloading a new meeting form', async () => {
+        jest.useFakeTimers();
+        jest.setSystemTime(new Date(2028, 5, 15, 13, 25, 0, 0));
+        try {
+            const submitted_start = new Date(
+                2028,
+                5,
+                16,
+                16,
+                0,
+                0,
+                0,
+            ).valueOf();
+            const submitted_end = new Date(
+                2028,
+                5,
+                16,
+                17,
+                0,
+                0,
+                0,
+            ).valueOf();
+            const perform_booking_spy = jest
+                .spyOn(service as any, '_performBooking')
+                .mockResolvedValue(
+                    new CalendarEvent({
+                        id: 'event-1',
+                        title: 'Selected slot',
+                        attendees: [],
+                        resources: [],
+                    }),
+                );
+            sessionStorage.setItem(
+                'PLACEOS.event_form',
+                JSON.stringify({
+                    host: 'host@test.com',
+                    organiser: { email: 'host@test.com' },
+                    creator: 'host@test.com',
+                    title: 'Selected slot',
+                    date: submitted_start,
+                    duration: 60,
+                    date_end: submitted_end,
+                    attendees: [],
+                    resources: [],
+                }),
+            );
+
+            service.loadForm();
+            await service.postForm(true);
+            const posted_event = perform_booking_spy.mock.calls[0][0];
+            const posted_json = posted_event.toJSON();
+
+            expect(posted_json.event_start).toBe(
+                Math.floor(submitted_start / 1000),
+            );
+            expect(posted_json.event_end).toBe(
+                Math.floor(submitted_end / 1000),
+            );
+        } finally {
+            jest.useRealTimers();
+        }
+    });
+
     it('should use the original calendar when changing host on an existing room booking', async () => {
         const current_user = currentUser();
         const new_host = 'new.host@example.com';
